@@ -14,6 +14,19 @@ web-build/
 .env.*
 !.env.example
 *.env
+*-credentials.env
+credentials*.json
+*.pem
+*.key
+*.p8
+*.p12
+
+# Local scratch files
+tmp/
+*.tmp
+*.tsbuildinfo
+coverage/
+.cache/
 
 # Logs
 *.log
@@ -26,4 +39,3 @@ yarn-error.log*
 Thumbs.db
 .vscode/*
 !.vscode/extensions.json
-

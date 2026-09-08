@@ -99,7 +99,10 @@ Create a MongoDB Atlas cluster, create a database user, allow your development I
 The backend uses Mongoose models for:
 
 - `Emotion`: active emotion categories and presentation metadata
-- `Ayah`: Qur'anic text, translation, references, and emotion keys
+- `Verse`: canonical Arabic Qur'an verse text, reference metadata, source/version, and checksum
+- `VerseTranslation`: translation text and translator/source/license metadata for a verse
+- `EmotionVerseMapping`: editorial emotion-to-verse metadata with review status and rationale
+- `Ayah`: legacy MVP collection kept temporarily for compatibility and migration safety
 
 ## Database Seeding
 
@@ -110,7 +113,21 @@ cd backend
 npm run seed
 ```
 
-The seed is deliberately small. Qur'an Arabic text, translation text, and emotion tags are stored as separate fields. Emotion tagging is editorial metadata and never modifies Qur'anic text.
+The legacy seed is deliberately small. After seeding, migrate the Phase 2 foundation collections:
+
+```bash
+cd backend
+npm run migrate:foundation
+```
+
+The foundation migration is idempotent for local/development use. It preserves the small MVP dataset as canonical `Verse` records, Pickthall `VerseTranslation` records, and separate `EmotionVerseMapping` records. Current emotion mappings are marked `development` until real editorial or scholarly review occurs.
+
+To update emotion mapping metadata locally without editing Qur'an text:
+
+```bash
+cd backend
+npm run mapping:upsert -- --verse=2:153 --emotion=sad --status=development --rationale="..."
+```
 
 ## Starting the Backend
 
@@ -185,8 +202,11 @@ npm run typecheck
 - Never invent Qur'anic Arabic text.
 - Never paraphrase Arabic text and present it as Qur'an.
 - Never alter Qur'anic wording.
-- Keep Arabic text, translation, source metadata, emotion tags, and future commentary separate.
+- Keep Arabic text, translations, emotion mappings, source metadata, and future commentary separate.
+- Canonical `Verse` records must not contain emotion tags.
+- Emotion mappings are reviewable editorial metadata and must not be treated as scholarly approved unless actually reviewed.
 - Translation source and Qur'an text source must be identifiable.
+- Checksums are SHA-256 over the exact stored UTF-8 text values.
 - Replace or expand seed data only from trusted verified sources.
 
 The current seed includes source metadata for Quran.com/Tanzil-style Arabic references and public-domain Pickthall translation metadata for development. Before App Store or Google Play release, perform a formal scholarly and licensing review of the full production dataset.

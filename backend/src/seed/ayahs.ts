@@ -2,6 +2,8 @@ import type { SeedAyah } from './types';
 
 const quranTextSource =
   'Development seed checked against Quran.com/Tanzil Uthmani-script references; formal production verification required';
+const quranComContentApiSource =
+  'Quran.com Content API v4 text_uthmani, verified 2026-09-08; formal production verification required';
 const translationSource = 'Marmaduke Pickthall, The Meaning of the Glorious Koran (1930), public domain';
 
 export const seedAyahs: SeedAyah[] = [
@@ -31,6 +33,32 @@ export const seedAyahs: SeedAyah[] = [
       'Allah tasketh not a soul beyond its scope. For it (is only) that which it hath earned, and against it (only) that which it hath deserved. Our Lord! Condemn us not if we forget, or miss the mark! Our Lord! Lay not on us such a burden as Thou didst lay on those before us! Our Lord! Impose not on us that which we have not the strength to bear! Pardon us, absolve us and have mercy on us, Thou, our Protector, and give us victory over the disbelieving folk.',
     emotions: ['anxious', 'stressed', 'tired', 'hopeless'],
     quranTextSource,
+    translationSource,
+  },
+  {
+    referenceKey: '3:134',
+    surahNumber: 3,
+    surahNameArabic: 'آل عمران',
+    surahNameEnglish: "Ali 'Imran",
+    ayahNumber: 134,
+    arabicText:
+      'ٱلَّذِينَ يُنفِقُونَ فِى ٱلسَّرَّآءِ وَٱلضَّرَّآءِ وَٱلْكَـٰظِمِينَ ٱلْغَيْظَ وَٱلْعَافِينَ عَنِ ٱلنَّاسِ ۗ وَٱللَّهُ يُحِبُّ ٱلْمُحْسِنِينَ',
+    englishTranslation:
+      'Those who spend (of that which Allah hath given them) in ease and in adversity, those who control their wrath and are forgiving toward mankind; Allah loveth the good;',
+    emotions: ['angry'],
+    quranTextSource: quranComContentApiSource,
+    translationSource,
+  },
+  {
+    referenceKey: '7:199',
+    surahNumber: 7,
+    surahNameArabic: 'الأعراف',
+    surahNameEnglish: "Al-A'raf",
+    ayahNumber: 199,
+    arabicText: 'خُذِ ٱلْعَفْوَ وَأْمُرْ بِٱلْعُرْفِ وَأَعْرِضْ عَنِ ٱلْجَـٰهِلِينَ',
+    englishTranslation: 'Keep to forgiveness (O Muhammad), and enjoin kindness, and turn away from the ignorant.',
+    emotions: ['angry'],
+    quranTextSource: quranComContentApiSource,
     translationSource,
   },
   {
@@ -85,6 +113,33 @@ export const seedAyahs: SeedAyah[] = [
       'Say: My slaves who have been prodigal to their own hurt! Despair not of the mercy of Allah, Who forgiveth all sins. Lo! He is the Forgiving, the Merciful.',
     emotions: ['hopeless', 'sad', 'lost'],
     quranTextSource,
+    translationSource,
+  },
+  {
+    referenceKey: '41:34',
+    surahNumber: 41,
+    surahNameArabic: 'فصلت',
+    surahNameEnglish: 'Fussilat',
+    ayahNumber: 34,
+    arabicText:
+      'وَلَا تَسْتَوِى ٱلْحَسَنَةُ وَلَا ٱلسَّيِّئَةُ ۚ ٱدْفَعْ بِٱلَّتِى هِىَ أَحْسَنُ فَإِذَا ٱلَّذِى بَيْنَكَ وَبَيْنَهُۥ عَدَٰوَةٌ كَأَنَّهُۥ وَلِىٌّ حَمِيمٌ',
+    englishTranslation:
+      'The good deed and the evil deed are not alike. Repel the evil deed with one which is better, then lo! he, between whom and thee there was enmity (will become) as though he was a bosom friend.',
+    emotions: ['angry'],
+    quranTextSource: quranComContentApiSource,
+    translationSource,
+  },
+  {
+    referenceKey: '42:37',
+    surahNumber: 42,
+    surahNameArabic: 'الشورى',
+    surahNameEnglish: 'Ash-Shuraa',
+    ayahNumber: 37,
+    arabicText:
+      'وَٱلَّذِينَ يَجْتَنِبُونَ كَبَـٰٓئِرَ ٱلْإِثْمِ وَٱلْفَوَٰحِشَ وَإِذَا مَا غَضِبُوا۟ هُمْ يَغْفِرُونَ',
+    englishTranslation: 'And those who shun the worst of sins and indecencies and, when they are wroth, forgive,',
+    emotions: ['angry'],
+    quranTextSource: quranComContentApiSource,
     translationSource,
   },
   {

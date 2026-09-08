@@ -9,7 +9,9 @@
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "seed": "tsx src/seed/seed.ts"
+    "seed": "tsx src/seed/seed.ts",
+    "migrate:foundation": "tsx src/seed/migrateFoundation.ts",
+    "mapping:upsert": "tsx src/scripts/upsertEmotionMapping.ts"
   },
   "dependencies": {
     "cors": "^2.8.6",

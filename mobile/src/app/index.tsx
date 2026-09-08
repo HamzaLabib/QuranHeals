@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { EmotionCard } from '@/components/EmotionCard';
 import { StateView } from '@/components/StateView';
 import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
-import { getEmotions } from '@/services/api';
+import { getApiErrorMessage, getEmotions } from '@/services/api';
 import type { Emotion } from '@/types/domain';
 
 export default function HomeScreen() {
@@ -22,8 +22,8 @@ export default function HomeScreen() {
     try {
       const response = await getEmotions();
       setEmotions(response);
-    } catch {
-      setErrorMessage("We couldn't load the emotions right now.");
+    } catch (error) {
+      setErrorMessage(getApiErrorMessage(error, "We couldn't load the emotions right now."));
     } finally {
       setIsLoading(false);
     }

@@ -9,7 +9,7 @@ import { FavoriteButton } from '@/components/FavoriteButton';
 import { StateView } from '@/components/StateView';
 import { colors, radii, spacing, typography } from '@/constants/theme';
 import { useFavorites } from '@/hooks/useFavorites';
-import { getRandomAyah } from '@/services/api';
+import { getApiErrorMessage, getRandomAyah } from '@/services/api';
 import { getRecentAyahIds, rememberAyahForEmotion } from '@/storage/recentAyahs';
 import type { Ayah } from '@/types/domain';
 
@@ -53,8 +53,8 @@ export default function AyahScreen() {
       const nextAyah = await getRandomAyah(emotionKey, excludedIds);
       setAyah(nextAyah);
       await rememberAyahForEmotion(emotionKey, nextAyah.id);
-    } catch {
-      setErrorMessage("We couldn't load an ayah right now.");
+    } catch (error) {
+      setErrorMessage(getApiErrorMessage(error, "We couldn't load an ayah right now."));
     } finally {
       setIsLoading(false);
     }
