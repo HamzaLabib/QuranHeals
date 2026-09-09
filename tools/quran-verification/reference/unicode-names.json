@@ -1,0 +1,7891 @@
+{
+  "url": "https://www.unicode.org/Public/16.0.0/ucd/UnicodeData.txt",
+  "version": "16.0.0",
+  "sourceSha256": "ff58e5823bd095166564a006e47d111130813dcf8bf234ef79fa51a870edb48f",
+  "names": {
+    "2000": {
+      "name": "EN QUAD",
+      "category": "Zs"
+    },
+    "2001": {
+      "name": "EM QUAD",
+      "category": "Zs"
+    },
+    "2002": {
+      "name": "EN SPACE",
+      "category": "Zs"
+    },
+    "2003": {
+      "name": "EM SPACE",
+      "category": "Zs"
+    },
+    "2004": {
+      "name": "THREE-PER-EM SPACE",
+      "category": "Zs"
+    },
+    "2005": {
+      "name": "FOUR-PER-EM SPACE",
+      "category": "Zs"
+    },
+    "2006": {
+      "name": "SIX-PER-EM SPACE",
+      "category": "Zs"
+    },
+    "2007": {
+      "name": "FIGURE SPACE",
+      "category": "Zs"
+    },
+    "2008": {
+      "name": "PUNCTUATION SPACE",
+      "category": "Zs"
+    },
+    "2009": {
+      "name": "THIN SPACE",
+      "category": "Zs"
+    },
+    "2010": {
+      "name": "HYPHEN",
+      "category": "Pd"
+    },
+    "2011": {
+      "name": "NON-BREAKING HYPHEN",
+      "category": "Pd"
+    },
+    "2012": {
+      "name": "FIGURE DASH",
+      "category": "Pd"
+    },
+    "2013": {
+      "name": "EN DASH",
+      "category": "Pd"
+    },
+    "2014": {
+      "name": "EM DASH",
+      "category": "Pd"
+    },
+    "2015": {
+      "name": "HORIZONTAL BAR",
+      "category": "Pd"
+    },
+    "2016": {
+      "name": "DOUBLE VERTICAL LINE",
+      "category": "Po"
+    },
+    "2017": {
+      "name": "DOUBLE LOW LINE",
+      "category": "Po"
+    },
+    "2018": {
+      "name": "LEFT SINGLE QUOTATION MARK",
+      "category": "Pi"
+    },
+    "2019": {
+      "name": "RIGHT SINGLE QUOTATION MARK",
+      "category": "Pf"
+    },
+    "2020": {
+      "name": "DAGGER",
+      "category": "Po"
+    },
+    "2021": {
+      "name": "DOUBLE DAGGER",
+      "category": "Po"
+    },
+    "2022": {
+      "name": "BULLET",
+      "category": "Po"
+    },
+    "2023": {
+      "name": "TRIANGULAR BULLET",
+      "category": "Po"
+    },
+    "2024": {
+      "name": "ONE DOT LEADER",
+      "category": "Po"
+    },
+    "2025": {
+      "name": "TWO DOT LEADER",
+      "category": "Po"
+    },
+    "2026": {
+      "name": "HORIZONTAL ELLIPSIS",
+      "category": "Po"
+    },
+    "2027": {
+      "name": "HYPHENATION POINT",
+      "category": "Po"
+    },
+    "2028": {
+      "name": "LINE SEPARATOR",
+      "category": "Zl"
+    },
+    "2029": {
+      "name": "PARAGRAPH SEPARATOR",
+      "category": "Zp"
+    },
+    "2030": {
+      "name": "PER MILLE SIGN",
+      "category": "Po"
+    },
+    "2031": {
+      "name": "PER TEN THOUSAND SIGN",
+      "category": "Po"
+    },
+    "2032": {
+      "name": "PRIME",
+      "category": "Po"
+    },
+    "2033": {
+      "name": "DOUBLE PRIME",
+      "category": "Po"
+    },
+    "2034": {
+      "name": "TRIPLE PRIME",
+      "category": "Po"
+    },
+    "2035": {
+      "name": "REVERSED PRIME",
+      "category": "Po"
+    },
+    "2036": {
+      "name": "REVERSED DOUBLE PRIME",
+      "category": "Po"
+    },
+    "2037": {
+      "name": "REVERSED TRIPLE PRIME",
+      "category": "Po"
+    },
+    "2038": {
+      "name": "CARET",
+      "category": "Po"
+    },
+    "2039": {
+      "name": "SINGLE LEFT-POINTING ANGLE QUOTATION MARK",
+      "category": "Pi"
+    },
+    "2040": {
+      "name": "CHARACTER TIE",
+      "category": "Pc"
+    },
+    "2041": {
+      "name": "CARET INSERTION POINT",
+      "category": "Po"
+    },
+    "2042": {
+      "name": "ASTERISM",
+      "category": "Po"
+    },
+    "2043": {
+      "name": "HYPHEN BULLET",
+      "category": "Po"
+    },
+    "2044": {
+      "name": "FRACTION SLASH",
+      "category": "Sm"
+    },
+    "2045": {
+      "name": "LEFT SQUARE BRACKET WITH QUILL",
+      "category": "Ps"
+    },
+    "2046": {
+      "name": "RIGHT SQUARE BRACKET WITH QUILL",
+      "category": "Pe"
+    },
+    "2047": {
+      "name": "DOUBLE QUESTION MARK",
+      "category": "Po"
+    },
+    "2048": {
+      "name": "QUESTION EXCLAMATION MARK",
+      "category": "Po"
+    },
+    "2049": {
+      "name": "EXCLAMATION QUESTION MARK",
+      "category": "Po"
+    },
+    "2050": {
+      "name": "CLOSE UP",
+      "category": "Po"
+    },
+    "2051": {
+      "name": "TWO ASTERISKS ALIGNED VERTICALLY",
+      "category": "Po"
+    },
+    "2052": {
+      "name": "COMMERCIAL MINUS SIGN",
+      "category": "Sm"
+    },
+    "2053": {
+      "name": "SWUNG DASH",
+      "category": "Po"
+    },
+    "2054": {
+      "name": "INVERTED UNDERTIE",
+      "category": "Pc"
+    },
+    "2055": {
+      "name": "FLOWER PUNCTUATION MARK",
+      "category": "Po"
+    },
+    "2056": {
+      "name": "THREE DOT PUNCTUATION",
+      "category": "Po"
+    },
+    "2057": {
+      "name": "QUADRUPLE PRIME",
+      "category": "Po"
+    },
+    "2058": {
+      "name": "FOUR DOT PUNCTUATION",
+      "category": "Po"
+    },
+    "2059": {
+      "name": "FIVE DOT PUNCTUATION",
+      "category": "Po"
+    },
+    "2060": {
+      "name": "WORD JOINER",
+      "category": "Cf"
+    },
+    "2061": {
+      "name": "FUNCTION APPLICATION",
+      "category": "Cf"
+    },
+    "2062": {
+      "name": "INVISIBLE TIMES",
+      "category": "Cf"
+    },
+    "2063": {
+      "name": "INVISIBLE SEPARATOR",
+      "category": "Cf"
+    },
+    "2064": {
+      "name": "INVISIBLE PLUS",
+      "category": "Cf"
+    },
+    "2066": {
+      "name": "LEFT-TO-RIGHT ISOLATE",
+      "category": "Cf"
+    },
+    "2067": {
+      "name": "RIGHT-TO-LEFT ISOLATE",
+      "category": "Cf"
+    },
+    "2068": {
+      "name": "FIRST STRONG ISOLATE",
+      "category": "Cf"
+    },
+    "2069": {
+      "name": "POP DIRECTIONAL ISOLATE",
+      "category": "Cf"
+    },
+    "0000": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0001": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0002": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0003": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0004": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0005": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0006": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0007": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0008": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0009": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "000A": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "000B": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "000C": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "000D": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "000E": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "000F": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0010": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0011": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0012": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0013": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0014": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0015": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0016": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0017": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0018": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0019": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "001A": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "001B": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "001C": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "001D": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "001E": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "001F": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0020": {
+      "name": "SPACE",
+      "category": "Zs"
+    },
+    "0021": {
+      "name": "EXCLAMATION MARK",
+      "category": "Po"
+    },
+    "0022": {
+      "name": "QUOTATION MARK",
+      "category": "Po"
+    },
+    "0023": {
+      "name": "NUMBER SIGN",
+      "category": "Po"
+    },
+    "0024": {
+      "name": "DOLLAR SIGN",
+      "category": "Sc"
+    },
+    "0025": {
+      "name": "PERCENT SIGN",
+      "category": "Po"
+    },
+    "0026": {
+      "name": "AMPERSAND",
+      "category": "Po"
+    },
+    "0027": {
+      "name": "APOSTROPHE",
+      "category": "Po"
+    },
+    "0028": {
+      "name": "LEFT PARENTHESIS",
+      "category": "Ps"
+    },
+    "0029": {
+      "name": "RIGHT PARENTHESIS",
+      "category": "Pe"
+    },
+    "002A": {
+      "name": "ASTERISK",
+      "category": "Po"
+    },
+    "002B": {
+      "name": "PLUS SIGN",
+      "category": "Sm"
+    },
+    "002C": {
+      "name": "COMMA",
+      "category": "Po"
+    },
+    "002D": {
+      "name": "HYPHEN-MINUS",
+      "category": "Pd"
+    },
+    "002E": {
+      "name": "FULL STOP",
+      "category": "Po"
+    },
+    "002F": {
+      "name": "SOLIDUS",
+      "category": "Po"
+    },
+    "0030": {
+      "name": "DIGIT ZERO",
+      "category": "Nd"
+    },
+    "0031": {
+      "name": "DIGIT ONE",
+      "category": "Nd"
+    },
+    "0032": {
+      "name": "DIGIT TWO",
+      "category": "Nd"
+    },
+    "0033": {
+      "name": "DIGIT THREE",
+      "category": "Nd"
+    },
+    "0034": {
+      "name": "DIGIT FOUR",
+      "category": "Nd"
+    },
+    "0035": {
+      "name": "DIGIT FIVE",
+      "category": "Nd"
+    },
+    "0036": {
+      "name": "DIGIT SIX",
+      "category": "Nd"
+    },
+    "0037": {
+      "name": "DIGIT SEVEN",
+      "category": "Nd"
+    },
+    "0038": {
+      "name": "DIGIT EIGHT",
+      "category": "Nd"
+    },
+    "0039": {
+      "name": "DIGIT NINE",
+      "category": "Nd"
+    },
+    "003A": {
+      "name": "COLON",
+      "category": "Po"
+    },
+    "003B": {
+      "name": "SEMICOLON",
+      "category": "Po"
+    },
+    "003C": {
+      "name": "LESS-THAN SIGN",
+      "category": "Sm"
+    },
+    "003D": {
+      "name": "EQUALS SIGN",
+      "category": "Sm"
+    },
+    "003E": {
+      "name": "GREATER-THAN SIGN",
+      "category": "Sm"
+    },
+    "003F": {
+      "name": "QUESTION MARK",
+      "category": "Po"
+    },
+    "0040": {
+      "name": "COMMERCIAL AT",
+      "category": "Po"
+    },
+    "0041": {
+      "name": "LATIN CAPITAL LETTER A",
+      "category": "Lu"
+    },
+    "0042": {
+      "name": "LATIN CAPITAL LETTER B",
+      "category": "Lu"
+    },
+    "0043": {
+      "name": "LATIN CAPITAL LETTER C",
+      "category": "Lu"
+    },
+    "0044": {
+      "name": "LATIN CAPITAL LETTER D",
+      "category": "Lu"
+    },
+    "0045": {
+      "name": "LATIN CAPITAL LETTER E",
+      "category": "Lu"
+    },
+    "0046": {
+      "name": "LATIN CAPITAL LETTER F",
+      "category": "Lu"
+    },
+    "0047": {
+      "name": "LATIN CAPITAL LETTER G",
+      "category": "Lu"
+    },
+    "0048": {
+      "name": "LATIN CAPITAL LETTER H",
+      "category": "Lu"
+    },
+    "0049": {
+      "name": "LATIN CAPITAL LETTER I",
+      "category": "Lu"
+    },
+    "004A": {
+      "name": "LATIN CAPITAL LETTER J",
+      "category": "Lu"
+    },
+    "004B": {
+      "name": "LATIN CAPITAL LETTER K",
+      "category": "Lu"
+    },
+    "004C": {
+      "name": "LATIN CAPITAL LETTER L",
+      "category": "Lu"
+    },
+    "004D": {
+      "name": "LATIN CAPITAL LETTER M",
+      "category": "Lu"
+    },
+    "004E": {
+      "name": "LATIN CAPITAL LETTER N",
+      "category": "Lu"
+    },
+    "004F": {
+      "name": "LATIN CAPITAL LETTER O",
+      "category": "Lu"
+    },
+    "0050": {
+      "name": "LATIN CAPITAL LETTER P",
+      "category": "Lu"
+    },
+    "0051": {
+      "name": "LATIN CAPITAL LETTER Q",
+      "category": "Lu"
+    },
+    "0052": {
+      "name": "LATIN CAPITAL LETTER R",
+      "category": "Lu"
+    },
+    "0053": {
+      "name": "LATIN CAPITAL LETTER S",
+      "category": "Lu"
+    },
+    "0054": {
+      "name": "LATIN CAPITAL LETTER T",
+      "category": "Lu"
+    },
+    "0055": {
+      "name": "LATIN CAPITAL LETTER U",
+      "category": "Lu"
+    },
+    "0056": {
+      "name": "LATIN CAPITAL LETTER V",
+      "category": "Lu"
+    },
+    "0057": {
+      "name": "LATIN CAPITAL LETTER W",
+      "category": "Lu"
+    },
+    "0058": {
+      "name": "LATIN CAPITAL LETTER X",
+      "category": "Lu"
+    },
+    "0059": {
+      "name": "LATIN CAPITAL LETTER Y",
+      "category": "Lu"
+    },
+    "005A": {
+      "name": "LATIN CAPITAL LETTER Z",
+      "category": "Lu"
+    },
+    "005B": {
+      "name": "LEFT SQUARE BRACKET",
+      "category": "Ps"
+    },
+    "005C": {
+      "name": "REVERSE SOLIDUS",
+      "category": "Po"
+    },
+    "005D": {
+      "name": "RIGHT SQUARE BRACKET",
+      "category": "Pe"
+    },
+    "005E": {
+      "name": "CIRCUMFLEX ACCENT",
+      "category": "Sk"
+    },
+    "005F": {
+      "name": "LOW LINE",
+      "category": "Pc"
+    },
+    "0060": {
+      "name": "GRAVE ACCENT",
+      "category": "Sk"
+    },
+    "0061": {
+      "name": "LATIN SMALL LETTER A",
+      "category": "Ll"
+    },
+    "0062": {
+      "name": "LATIN SMALL LETTER B",
+      "category": "Ll"
+    },
+    "0063": {
+      "name": "LATIN SMALL LETTER C",
+      "category": "Ll"
+    },
+    "0064": {
+      "name": "LATIN SMALL LETTER D",
+      "category": "Ll"
+    },
+    "0065": {
+      "name": "LATIN SMALL LETTER E",
+      "category": "Ll"
+    },
+    "0066": {
+      "name": "LATIN SMALL LETTER F",
+      "category": "Ll"
+    },
+    "0067": {
+      "name": "LATIN SMALL LETTER G",
+      "category": "Ll"
+    },
+    "0068": {
+      "name": "LATIN SMALL LETTER H",
+      "category": "Ll"
+    },
+    "0069": {
+      "name": "LATIN SMALL LETTER I",
+      "category": "Ll"
+    },
+    "006A": {
+      "name": "LATIN SMALL LETTER J",
+      "category": "Ll"
+    },
+    "006B": {
+      "name": "LATIN SMALL LETTER K",
+      "category": "Ll"
+    },
+    "006C": {
+      "name": "LATIN SMALL LETTER L",
+      "category": "Ll"
+    },
+    "006D": {
+      "name": "LATIN SMALL LETTER M",
+      "category": "Ll"
+    },
+    "006E": {
+      "name": "LATIN SMALL LETTER N",
+      "category": "Ll"
+    },
+    "006F": {
+      "name": "LATIN SMALL LETTER O",
+      "category": "Ll"
+    },
+    "0070": {
+      "name": "LATIN SMALL LETTER P",
+      "category": "Ll"
+    },
+    "0071": {
+      "name": "LATIN SMALL LETTER Q",
+      "category": "Ll"
+    },
+    "0072": {
+      "name": "LATIN SMALL LETTER R",
+      "category": "Ll"
+    },
+    "0073": {
+      "name": "LATIN SMALL LETTER S",
+      "category": "Ll"
+    },
+    "0074": {
+      "name": "LATIN SMALL LETTER T",
+      "category": "Ll"
+    },
+    "0075": {
+      "name": "LATIN SMALL LETTER U",
+      "category": "Ll"
+    },
+    "0076": {
+      "name": "LATIN SMALL LETTER V",
+      "category": "Ll"
+    },
+    "0077": {
+      "name": "LATIN SMALL LETTER W",
+      "category": "Ll"
+    },
+    "0078": {
+      "name": "LATIN SMALL LETTER X",
+      "category": "Ll"
+    },
+    "0079": {
+      "name": "LATIN SMALL LETTER Y",
+      "category": "Ll"
+    },
+    "007A": {
+      "name": "LATIN SMALL LETTER Z",
+      "category": "Ll"
+    },
+    "007B": {
+      "name": "LEFT CURLY BRACKET",
+      "category": "Ps"
+    },
+    "007C": {
+      "name": "VERTICAL LINE",
+      "category": "Sm"
+    },
+    "007D": {
+      "name": "RIGHT CURLY BRACKET",
+      "category": "Pe"
+    },
+    "007E": {
+      "name": "TILDE",
+      "category": "Sm"
+    },
+    "007F": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0080": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0081": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0082": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0083": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0084": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0085": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0086": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0087": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0088": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0089": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "008A": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "008B": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "008C": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "008D": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "008E": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "008F": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0090": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0091": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0092": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0093": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0094": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0095": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0096": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0097": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0098": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "0099": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "009A": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "009B": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "009C": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "009D": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "009E": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "009F": {
+      "name": "<control>",
+      "category": "Cc"
+    },
+    "00A0": {
+      "name": "NO-BREAK SPACE",
+      "category": "Zs"
+    },
+    "00A1": {
+      "name": "INVERTED EXCLAMATION MARK",
+      "category": "Po"
+    },
+    "00A2": {
+      "name": "CENT SIGN",
+      "category": "Sc"
+    },
+    "00A3": {
+      "name": "POUND SIGN",
+      "category": "Sc"
+    },
+    "00A4": {
+      "name": "CURRENCY SIGN",
+      "category": "Sc"
+    },
+    "00A5": {
+      "name": "YEN SIGN",
+      "category": "Sc"
+    },
+    "00A6": {
+      "name": "BROKEN BAR",
+      "category": "So"
+    },
+    "00A7": {
+      "name": "SECTION SIGN",
+      "category": "Po"
+    },
+    "00A8": {
+      "name": "DIAERESIS",
+      "category": "Sk"
+    },
+    "00A9": {
+      "name": "COPYRIGHT SIGN",
+      "category": "So"
+    },
+    "00AA": {
+      "name": "FEMININE ORDINAL INDICATOR",
+      "category": "Lo"
+    },
+    "00AB": {
+      "name": "LEFT-POINTING DOUBLE ANGLE QUOTATION MARK",
+      "category": "Pi"
+    },
+    "00AC": {
+      "name": "NOT SIGN",
+      "category": "Sm"
+    },
+    "00AD": {
+      "name": "SOFT HYPHEN",
+      "category": "Cf"
+    },
+    "00AE": {
+      "name": "REGISTERED SIGN",
+      "category": "So"
+    },
+    "00AF": {
+      "name": "MACRON",
+      "category": "Sk"
+    },
+    "00B0": {
+      "name": "DEGREE SIGN",
+      "category": "So"
+    },
+    "00B1": {
+      "name": "PLUS-MINUS SIGN",
+      "category": "Sm"
+    },
+    "00B2": {
+      "name": "SUPERSCRIPT TWO",
+      "category": "No"
+    },
+    "00B3": {
+      "name": "SUPERSCRIPT THREE",
+      "category": "No"
+    },
+    "00B4": {
+      "name": "ACUTE ACCENT",
+      "category": "Sk"
+    },
+    "00B5": {
+      "name": "MICRO SIGN",
+      "category": "Ll"
+    },
+    "00B6": {
+      "name": "PILCROW SIGN",
+      "category": "Po"
+    },
+    "00B7": {
+      "name": "MIDDLE DOT",
+      "category": "Po"
+    },
+    "00B8": {
+      "name": "CEDILLA",
+      "category": "Sk"
+    },
+    "00B9": {
+      "name": "SUPERSCRIPT ONE",
+      "category": "No"
+    },
+    "00BA": {
+      "name": "MASCULINE ORDINAL INDICATOR",
+      "category": "Lo"
+    },
+    "00BB": {
+      "name": "RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK",
+      "category": "Pf"
+    },
+    "00BC": {
+      "name": "VULGAR FRACTION ONE QUARTER",
+      "category": "No"
+    },
+    "00BD": {
+      "name": "VULGAR FRACTION ONE HALF",
+      "category": "No"
+    },
+    "00BE": {
+      "name": "VULGAR FRACTION THREE QUARTERS",
+      "category": "No"
+    },
+    "00BF": {
+      "name": "INVERTED QUESTION MARK",
+      "category": "Po"
+    },
+    "00C0": {
+      "name": "LATIN CAPITAL LETTER A WITH GRAVE",
+      "category": "Lu"
+    },
+    "00C1": {
+      "name": "LATIN CAPITAL LETTER A WITH ACUTE",
+      "category": "Lu"
+    },
+    "00C2": {
+      "name": "LATIN CAPITAL LETTER A WITH CIRCUMFLEX",
+      "category": "Lu"
+    },
+    "00C3": {
+      "name": "LATIN CAPITAL LETTER A WITH TILDE",
+      "category": "Lu"
+    },
+    "00C4": {
+      "name": "LATIN CAPITAL LETTER A WITH DIAERESIS",
+      "category": "Lu"
+    },
+    "00C5": {
+      "name": "LATIN CAPITAL LETTER A WITH RING ABOVE",
+      "category": "Lu"
+    },
+    "00C6": {
+      "name": "LATIN CAPITAL LETTER AE",
+      "category": "Lu"
+    },
+    "00C7": {
+      "name": "LATIN CAPITAL LETTER C WITH CEDILLA",
+      "category": "Lu"
+    },
+    "00C8": {
+      "name": "LATIN CAPITAL LETTER E WITH GRAVE",
+      "category": "Lu"
+    },
+    "00C9": {
+      "name": "LATIN CAPITAL LETTER E WITH ACUTE",
+      "category": "Lu"
+    },
+    "00CA": {
+      "name": "LATIN CAPITAL LETTER E WITH CIRCUMFLEX",
+      "category": "Lu"
+    },
+    "00CB": {
+      "name": "LATIN CAPITAL LETTER E WITH DIAERESIS",
+      "category": "Lu"
+    },
+    "00CC": {
+      "name": "LATIN CAPITAL LETTER I WITH GRAVE",
+      "category": "Lu"
+    },
+    "00CD": {
+      "name": "LATIN CAPITAL LETTER I WITH ACUTE",
+      "category": "Lu"
+    },
+    "00CE": {
+      "name": "LATIN CAPITAL LETTER I WITH CIRCUMFLEX",
+      "category": "Lu"
+    },
+    "00CF": {
+      "name": "LATIN CAPITAL LETTER I WITH DIAERESIS",
+      "category": "Lu"
+    },
+    "00D0": {
+      "name": "LATIN CAPITAL LETTER ETH",
+      "category": "Lu"
+    },
+    "00D1": {
+      "name": "LATIN CAPITAL LETTER N WITH TILDE",
+      "category": "Lu"
+    },
+    "00D2": {
+      "name": "LATIN CAPITAL LETTER O WITH GRAVE",
+      "category": "Lu"
+    },
+    "00D3": {
+      "name": "LATIN CAPITAL LETTER O WITH ACUTE",
+      "category": "Lu"
+    },
+    "00D4": {
+      "name": "LATIN CAPITAL LETTER O WITH CIRCUMFLEX",
+      "category": "Lu"
+    },
+    "00D5": {
+      "name": "LATIN CAPITAL LETTER O WITH TILDE",
+      "category": "Lu"
+    },
+    "00D6": {
+      "name": "LATIN CAPITAL LETTER O WITH DIAERESIS",
+      "category": "Lu"
+    },
+    "00D7": {
+      "name": "MULTIPLICATION SIGN",
+      "category": "Sm"
+    },
+    "00D8": {
+      "name": "LATIN CAPITAL LETTER O WITH STROKE",
+      "category": "Lu"
+    },
+    "00D9": {
+      "name": "LATIN CAPITAL LETTER U WITH GRAVE",
+      "category": "Lu"
+    },
+    "00DA": {
+      "name": "LATIN CAPITAL LETTER U WITH ACUTE",
+      "category": "Lu"
+    },
+    "00DB": {
+      "name": "LATIN CAPITAL LETTER U WITH CIRCUMFLEX",
+      "category": "Lu"
+    },
+    "00DC": {
+      "name": "LATIN CAPITAL LETTER U WITH DIAERESIS",
+      "category": "Lu"
+    },
+    "00DD": {
+      "name": "LATIN CAPITAL LETTER Y WITH ACUTE",
+      "category": "Lu"
+    },
+    "00DE": {
+      "name": "LATIN CAPITAL LETTER THORN",
+      "category": "Lu"
+    },
+    "00DF": {
+      "name": "LATIN SMALL LETTER SHARP S",
+      "category": "Ll"
+    },
+    "00E0": {
+      "name": "LATIN SMALL LETTER A WITH GRAVE",
+      "category": "Ll"
+    },
+    "00E1": {
+      "name": "LATIN SMALL LETTER A WITH ACUTE",
+      "category": "Ll"
+    },
+    "00E2": {
+      "name": "LATIN SMALL LETTER A WITH CIRCUMFLEX",
+      "category": "Ll"
+    },
+    "00E3": {
+      "name": "LATIN SMALL LETTER A WITH TILDE",
+      "category": "Ll"
+    },
+    "00E4": {
+      "name": "LATIN SMALL LETTER A WITH DIAERESIS",
+      "category": "Ll"
+    },
+    "00E5": {
+      "name": "LATIN SMALL LETTER A WITH RING ABOVE",
+      "category": "Ll"
+    },
+    "00E6": {
+      "name": "LATIN SMALL LETTER AE",
+      "category": "Ll"
+    },
+    "00E7": {
+      "name": "LATIN SMALL LETTER C WITH CEDILLA",
+      "category": "Ll"
+    },
+    "00E8": {
+      "name": "LATIN SMALL LETTER E WITH GRAVE",
+      "category": "Ll"
+    },
+    "00E9": {
+      "name": "LATIN SMALL LETTER E WITH ACUTE",
+      "category": "Ll"
+    },
+    "00EA": {
+      "name": "LATIN SMALL LETTER E WITH CIRCUMFLEX",
+      "category": "Ll"
+    },
+    "00EB": {
+      "name": "LATIN SMALL LETTER E WITH DIAERESIS",
+      "category": "Ll"
+    },
+    "00EC": {
+      "name": "LATIN SMALL LETTER I WITH GRAVE",
+      "category": "Ll"
+    },
+    "00ED": {
+      "name": "LATIN SMALL LETTER I WITH ACUTE",
+      "category": "Ll"
+    },
+    "00EE": {
+      "name": "LATIN SMALL LETTER I WITH CIRCUMFLEX",
+      "category": "Ll"
+    },
+    "00EF": {
+      "name": "LATIN SMALL LETTER I WITH DIAERESIS",
+      "category": "Ll"
+    },
+    "00F0": {
+      "name": "LATIN SMALL LETTER ETH",
+      "category": "Ll"
+    },
+    "00F1": {
+      "name": "LATIN SMALL LETTER N WITH TILDE",
+      "category": "Ll"
+    },
+    "00F2": {
+      "name": "LATIN SMALL LETTER O WITH GRAVE",
+      "category": "Ll"
+    },
+    "00F3": {
+      "name": "LATIN SMALL LETTER O WITH ACUTE",
+      "category": "Ll"
+    },
+    "00F4": {
+      "name": "LATIN SMALL LETTER O WITH CIRCUMFLEX",
+      "category": "Ll"
+    },
+    "00F5": {
+      "name": "LATIN SMALL LETTER O WITH TILDE",
+      "category": "Ll"
+    },
+    "00F6": {
+      "name": "LATIN SMALL LETTER O WITH DIAERESIS",
+      "category": "Ll"
+    },
+    "00F7": {
+      "name": "DIVISION SIGN",
+      "category": "Sm"
+    },
+    "00F8": {
+      "name": "LATIN SMALL LETTER O WITH STROKE",
+      "category": "Ll"
+    },
+    "00F9": {
+      "name": "LATIN SMALL LETTER U WITH GRAVE",
+      "category": "Ll"
+    },
+    "00FA": {
+      "name": "LATIN SMALL LETTER U WITH ACUTE",
+      "category": "Ll"
+    },
+    "00FB": {
+      "name": "LATIN SMALL LETTER U WITH CIRCUMFLEX",
+      "category": "Ll"
+    },
+    "00FC": {
+      "name": "LATIN SMALL LETTER U WITH DIAERESIS",
+      "category": "Ll"
+    },
+    "00FD": {
+      "name": "LATIN SMALL LETTER Y WITH ACUTE",
+      "category": "Ll"
+    },
+    "00FE": {
+      "name": "LATIN SMALL LETTER THORN",
+      "category": "Ll"
+    },
+    "00FF": {
+      "name": "LATIN SMALL LETTER Y WITH DIAERESIS",
+      "category": "Ll"
+    },
+    "0600": {
+      "name": "ARABIC NUMBER SIGN",
+      "category": "Cf"
+    },
+    "0601": {
+      "name": "ARABIC SIGN SANAH",
+      "category": "Cf"
+    },
+    "0602": {
+      "name": "ARABIC FOOTNOTE MARKER",
+      "category": "Cf"
+    },
+    "0603": {
+      "name": "ARABIC SIGN SAFHA",
+      "category": "Cf"
+    },
+    "0604": {
+      "name": "ARABIC SIGN SAMVAT",
+      "category": "Cf"
+    },
+    "0605": {
+      "name": "ARABIC NUMBER MARK ABOVE",
+      "category": "Cf"
+    },
+    "0606": {
+      "name": "ARABIC-INDIC CUBE ROOT",
+      "category": "Sm"
+    },
+    "0607": {
+      "name": "ARABIC-INDIC FOURTH ROOT",
+      "category": "Sm"
+    },
+    "0608": {
+      "name": "ARABIC RAY",
+      "category": "Sm"
+    },
+    "0609": {
+      "name": "ARABIC-INDIC PER MILLE SIGN",
+      "category": "Po"
+    },
+    "060A": {
+      "name": "ARABIC-INDIC PER TEN THOUSAND SIGN",
+      "category": "Po"
+    },
+    "060B": {
+      "name": "AFGHANI SIGN",
+      "category": "Sc"
+    },
+    "060C": {
+      "name": "ARABIC COMMA",
+      "category": "Po"
+    },
+    "060D": {
+      "name": "ARABIC DATE SEPARATOR",
+      "category": "Po"
+    },
+    "060E": {
+      "name": "ARABIC POETIC VERSE SIGN",
+      "category": "So"
+    },
+    "060F": {
+      "name": "ARABIC SIGN MISRA",
+      "category": "So"
+    },
+    "0610": {
+      "name": "ARABIC SIGN SALLALLAHOU ALAYHE WASSALLAM",
+      "category": "Mn"
+    },
+    "0611": {
+      "name": "ARABIC SIGN ALAYHE ASSALLAM",
+      "category": "Mn"
+    },
+    "0612": {
+      "name": "ARABIC SIGN RAHMATULLAH ALAYHE",
+      "category": "Mn"
+    },
+    "0613": {
+      "name": "ARABIC SIGN RADI ALLAHOU ANHU",
+      "category": "Mn"
+    },
+    "0614": {
+      "name": "ARABIC SIGN TAKHALLUS",
+      "category": "Mn"
+    },
+    "0615": {
+      "name": "ARABIC SMALL HIGH TAH",
+      "category": "Mn"
+    },
+    "0616": {
+      "name": "ARABIC SMALL HIGH LIGATURE ALEF WITH LAM WITH YEH",
+      "category": "Mn"
+    },
+    "0617": {
+      "name": "ARABIC SMALL HIGH ZAIN",
+      "category": "Mn"
+    },
+    "0618": {
+      "name": "ARABIC SMALL FATHA",
+      "category": "Mn"
+    },
+    "0619": {
+      "name": "ARABIC SMALL DAMMA",
+      "category": "Mn"
+    },
+    "061A": {
+      "name": "ARABIC SMALL KASRA",
+      "category": "Mn"
+    },
+    "061B": {
+      "name": "ARABIC SEMICOLON",
+      "category": "Po"
+    },
+    "061C": {
+      "name": "ARABIC LETTER MARK",
+      "category": "Cf"
+    },
+    "061D": {
+      "name": "ARABIC END OF TEXT MARK",
+      "category": "Po"
+    },
+    "061E": {
+      "name": "ARABIC TRIPLE DOT PUNCTUATION MARK",
+      "category": "Po"
+    },
+    "061F": {
+      "name": "ARABIC QUESTION MARK",
+      "category": "Po"
+    },
+    "0620": {
+      "name": "ARABIC LETTER KASHMIRI YEH",
+      "category": "Lo"
+    },
+    "0621": {
+      "name": "ARABIC LETTER HAMZA",
+      "category": "Lo"
+    },
+    "0622": {
+      "name": "ARABIC LETTER ALEF WITH MADDA ABOVE",
+      "category": "Lo"
+    },
+    "0623": {
+      "name": "ARABIC LETTER ALEF WITH HAMZA ABOVE",
+      "category": "Lo"
+    },
+    "0624": {
+      "name": "ARABIC LETTER WAW WITH HAMZA ABOVE",
+      "category": "Lo"
+    },
+    "0625": {
+      "name": "ARABIC LETTER ALEF WITH HAMZA BELOW",
+      "category": "Lo"
+    },
+    "0626": {
+      "name": "ARABIC LETTER YEH WITH HAMZA ABOVE",
+      "category": "Lo"
+    },
+    "0627": {
+      "name": "ARABIC LETTER ALEF",
+      "category": "Lo"
+    },
+    "0628": {
+      "name": "ARABIC LETTER BEH",
+      "category": "Lo"
+    },
+    "0629": {
+      "name": "ARABIC LETTER TEH MARBUTA",
+      "category": "Lo"
+    },
+    "062A": {
+      "name": "ARABIC LETTER TEH",
+      "category": "Lo"
+    },
+    "062B": {
+      "name": "ARABIC LETTER THEH",
+      "category": "Lo"
+    },
+    "062C": {
+      "name": "ARABIC LETTER JEEM",
+      "category": "Lo"
+    },
+    "062D": {
+      "name": "ARABIC LETTER HAH",
+      "category": "Lo"
+    },
+    "062E": {
+      "name": "ARABIC LETTER KHAH",
+      "category": "Lo"
+    },
+    "062F": {
+      "name": "ARABIC LETTER DAL",
+      "category": "Lo"
+    },
+    "0630": {
+      "name": "ARABIC LETTER THAL",
+      "category": "Lo"
+    },
+    "0631": {
+      "name": "ARABIC LETTER REH",
+      "category": "Lo"
+    },
+    "0632": {
+      "name": "ARABIC LETTER ZAIN",
+      "category": "Lo"
+    },
+    "0633": {
+      "name": "ARABIC LETTER SEEN",
+      "category": "Lo"
+    },
+    "0634": {
+      "name": "ARABIC LETTER SHEEN",
+      "category": "Lo"
+    },
+    "0635": {
+      "name": "ARABIC LETTER SAD",
+      "category": "Lo"
+    },
+    "0636": {
+      "name": "ARABIC LETTER DAD",
+      "category": "Lo"
+    },
+    "0637": {
+      "name": "ARABIC LETTER TAH",
+      "category": "Lo"
+    },
+    "0638": {
+      "name": "ARABIC LETTER ZAH",
+      "category": "Lo"
+    },
+    "0639": {
+      "name": "ARABIC LETTER AIN",
+      "category": "Lo"
+    },
+    "063A": {
+      "name": "ARABIC LETTER GHAIN",
+      "category": "Lo"
+    },
+    "063B": {
+      "name": "ARABIC LETTER KEHEH WITH TWO DOTS ABOVE",
+      "category": "Lo"
+    },
+    "063C": {
+      "name": "ARABIC LETTER KEHEH WITH THREE DOTS BELOW",
+      "category": "Lo"
+    },
+    "063D": {
+      "name": "ARABIC LETTER FARSI YEH WITH INVERTED V",
+      "category": "Lo"
+    },
+    "063E": {
+      "name": "ARABIC LETTER FARSI YEH WITH TWO DOTS ABOVE",
+      "category": "Lo"
+    },
+    "063F": {
+      "name": "ARABIC LETTER FARSI YEH WITH THREE DOTS ABOVE",
+      "category": "Lo"
+    },
+    "0640": {
+      "name": "ARABIC TATWEEL",
+      "category": "Lm"
+    },
+    "0641": {
+      "name": "ARABIC LETTER FEH",
+      "category": "Lo"
+    },
+    "0642": {
+      "name": "ARABIC LETTER QAF",
+      "category": "Lo"
+    },
+    "0643": {
+      "name": "ARABIC LETTER KAF",
+      "category": "Lo"
+    },
+    "0644": {
+      "name": "ARABIC LETTER LAM",
+      "category": "Lo"
+    },
+    "0645": {
+      "name": "ARABIC LETTER MEEM",
+      "category": "Lo"
+    },
+    "0646": {
+      "name": "ARABIC LETTER NOON",
+      "category": "Lo"
+    },
+    "0647": {
+      "name": "ARABIC LETTER HEH",
+      "category": "Lo"
+    },
+    "0648": {
+      "name": "ARABIC LETTER WAW",
+      "category": "Lo"
+    },
+    "0649": {
+      "name": "ARABIC LETTER ALEF MAKSURA",
+      "category": "Lo"
+    },
+    "064A": {
+      "name": "ARABIC LETTER YEH",
+      "category": "Lo"
+    },
+    "064B": {
+      "name": "ARABIC FATHATAN",
+      "category": "Mn"
+    },
+    "064C": {
+      "name": "ARABIC DAMMATAN",
+      "category": "Mn"
+    },
+    "064D": {
+      "name": "ARABIC KASRATAN",
+      "category": "Mn"
+    },
+    "064E": {
+      "name": "ARABIC FATHA",
+      "category": "Mn"
+    },
+    "064F": {
+      "name": "ARABIC DAMMA",
+      "category": "Mn"
+    },
+    "0650": {
+      "name": "ARABIC KASRA",
+      "category": "Mn"
+    },
+    "0651": {
+      "name": "ARABIC SHADDA",
+      "category": "Mn"
+    },
+    "0652": {
+      "name": "ARABIC SUKUN",
+      "category": "Mn"
+    },
+    "0653": {
+      "name": "ARABIC MADDAH ABOVE",
+      "category": "Mn"
+    },
+    "0654": {
+      "name": "ARABIC HAMZA ABOVE",
+      "category": "Mn"
+    },
+    "0655": {
+      "name": "ARABIC HAMZA BELOW",
+      "category": "Mn"
+    },
+    "0656": {
+      "name": "ARABIC SUBSCRIPT ALEF",
+      "category": "Mn"
+    },
+    "0657": {
+      "name": "ARABIC INVERTED DAMMA",
+      "category": "Mn"
+    },
+    "0658": {
+      "name": "ARABIC MARK NOON GHUNNA",
+      "category": "Mn"
+    },
+    "0659": {
+      "name": "ARABIC ZWARAKAY",
+      "category": "Mn"
+    },
+    "065A": {
+      "name": "ARABIC VOWEL SIGN SMALL V ABOVE",
+      "category": "Mn"
+    },
+    "065B": {
+      "name": "ARABIC VOWEL SIGN INVERTED SMALL V ABOVE",
+      "category": "Mn"
+    },
+    "065C": {
+      "name": "ARABIC VOWEL SIGN DOT BELOW",
+      "category": "Mn"
+    },
+    "065D": {
+      "name": "ARABIC REVERSED DAMMA",
+      "category": "Mn"
+    },
+    "065E": {
+      "name": "ARABIC FATHA WITH TWO DOTS",
+      "category": "Mn"
+    },
+    "065F": {
+      "name": "ARABIC WAVY HAMZA BELOW",
+      "category": "Mn"
+    },
+    "0660": {
+      "name": "ARABIC-INDIC DIGIT ZERO",
+      "category": "Nd"
+    },
+    "0661": {
+      "name": "ARABIC-INDIC DIGIT ONE",
+      "category": "Nd"
+    },
+    "0662": {
+      "name": "ARABIC-INDIC DIGIT TWO",
+      "category": "Nd"
+    },
+    "0663": {
+      "name": "ARABIC-INDIC DIGIT THREE",
+      "category": "Nd"
+    },
+    "0664": {
+      "name": "ARABIC-INDIC DIGIT FOUR",
+      "category": "Nd"
+    },
+    "0665": {
+      "name": "ARABIC-INDIC DIGIT FIVE",
+      "category": "Nd"
+    },
+    "0666": {
+      "name": "ARABIC-INDIC DIGIT SIX",
+      "category": "Nd"
+    },
+    "0667": {
+      "name": "ARABIC-INDIC DIGIT SEVEN",
+      "category": "Nd"
+    },
+    "0668": {
+      "name": "ARABIC-INDIC DIGIT EIGHT",
+      "category": "Nd"
+    },
+    "0669": {
+      "name": "ARABIC-INDIC DIGIT NINE",
+      "category": "Nd"
+    },
+    "066A": {
+      "name": "ARABIC PERCENT SIGN",
+      "category": "Po"
+    },
+    "066B": {
+      "name": "ARABIC DECIMAL SEPARATOR",
+      "category": "Po"
+    },
+    "066C": {
+      "name": "ARABIC THOUSANDS SEPARATOR",
+      "category": "Po"
+    },
+    "066D": {
+      "name": "ARABIC FIVE POINTED STAR",
+      "category": "Po"
+    },
+    "066E": {
+      "name": "ARABIC LETTER DOTLESS BEH",
+      "category": "Lo"
+    },
+    "066F": {
+      "name": "ARABIC LETTER DOTLESS QAF",
+      "category": "Lo"
+    },
+    "0670": {
+      "name": "ARABIC LETTER SUPERSCRIPT ALEF",
+      "category": "Mn"
+    },
+    "0671": {
+      "name": "ARABIC LETTER ALEF WASLA",
+      "category": "Lo"
+    },
+    "0672": {
+      "name": "ARABIC LETTER ALEF WITH WAVY HAMZA ABOVE",
+      "category": "Lo"
+    },
+    "0673": {
+      "name": "ARABIC LETTER ALEF WITH WAVY HAMZA BELOW",
+      "category": "Lo"
+    },
+    "0674": {
+      "name": "ARABIC LETTER HIGH HAMZA",
+      "category": "Lo"
+    },
+    "0675": {
+      "name": "ARABIC LETTER HIGH HAMZA ALEF",
+      "category": "Lo"
+    },
+    "0676": {
+      "name": "ARABIC LETTER HIGH HAMZA WAW",
+      "category": "Lo"
+    },
+    "0677": {
+      "name": "ARABIC LETTER U WITH HAMZA ABOVE",
+      "category": "Lo"
+    },
+    "0678": {
+      "name": "ARABIC LETTER HIGH HAMZA YEH",
+      "category": "Lo"
+    },
+    "0679": {
+      "name": "ARABIC LETTER TTEH",
+      "category": "Lo"
+    },
+    "067A": {
+      "name": "ARABIC LETTER TTEHEH",
+      "category": "Lo"
+    },
+    "067B": {
+      "name": "ARABIC LETTER BEEH",
+      "category": "Lo"
+    },
+    "067C": {
+      "name": "ARABIC LETTER TEH WITH RING",
+      "category": "Lo"
+    },
+    "067D": {
+      "name": "ARABIC LETTER TEH WITH THREE DOTS ABOVE DOWNWARDS",
+      "category": "Lo"
+    },
+    "067E": {
+      "name": "ARABIC LETTER PEH",
+      "category": "Lo"
+    },
+    "067F": {
+      "name": "ARABIC LETTER TEHEH",
+      "category": "Lo"
+    },
+    "0680": {
+      "name": "ARABIC LETTER BEHEH",
+      "category": "Lo"
+    },
+    "0681": {
+      "name": "ARABIC LETTER HAH WITH HAMZA ABOVE",
+      "category": "Lo"
+    },
+    "0682": {
+      "name": "ARABIC LETTER HAH WITH TWO DOTS VERTICAL ABOVE",
+      "category": "Lo"
+    },
+    "0683": {
+      "name": "ARABIC LETTER NYEH",
+      "category": "Lo"
+    },
+    "0684": {
+      "name": "ARABIC LETTER DYEH",
+      "category": "Lo"
+    },
+    "0685": {
+      "name": "ARABIC LETTER HAH WITH THREE DOTS ABOVE",
+      "category": "Lo"
+    },
+    "0686": {
+      "name": "ARABIC LETTER TCHEH",
+      "category": "Lo"
+    },
+    "0687": {
+      "name": "ARABIC LETTER TCHEHEH",
+      "category": "Lo"
+    },
+    "0688": {
+      "name": "ARABIC LETTER DDAL",
+      "category": "Lo"
+    },
+    "0689": {
+      "name": "ARABIC LETTER DAL WITH RING",
+      "category": "Lo"
+    },
+    "068A": {
+      "name": "ARABIC LETTER DAL WITH DOT BELOW",
+      "category": "Lo"
+    },
+    "068B": {
+      "name": "ARABIC LETTER DAL WITH DOT BELOW AND SMALL TAH",
+      "category": "Lo"
+    },
+    "068C": {
+      "name": "ARABIC LETTER DAHAL",
+      "category": "Lo"
+    },
+    "068D": {
+      "name": "ARABIC LETTER DDAHAL",
+      "category": "Lo"
+    },
+    "068E": {
+      "name": "ARABIC LETTER DUL",
+      "category": "Lo"
+    },
+    "068F": {
+      "name": "ARABIC LETTER DAL WITH THREE DOTS ABOVE DOWNWARDS",
+      "category": "Lo"
+    },
+    "0690": {
+      "name": "ARABIC LETTER DAL WITH FOUR DOTS ABOVE",
+      "category": "Lo"
+    },
+    "0691": {
+      "name": "ARABIC LETTER RREH",
+      "category": "Lo"
+    },
+    "0692": {
+      "name": "ARABIC LETTER REH WITH SMALL V",
+      "category": "Lo"
+    },
+    "0693": {
+      "name": "ARABIC LETTER REH WITH RING",
+      "category": "Lo"
+    },
+    "0694": {
+      "name": "ARABIC LETTER REH WITH DOT BELOW",
+      "category": "Lo"
+    },
+    "0695": {
+      "name": "ARABIC LETTER REH WITH SMALL V BELOW",
+      "category": "Lo"
+    },
+    "0696": {
+      "name": "ARABIC LETTER REH WITH DOT BELOW AND DOT ABOVE",
+      "category": "Lo"
+    },
+    "0697": {
+      "name": "ARABIC LETTER REH WITH TWO DOTS ABOVE",
+      "category": "Lo"
+    },
+    "0698": {
+      "name": "ARABIC LETTER JEH",
+      "category": "Lo"
+    },
+    "0699": {
+      "name": "ARABIC LETTER REH WITH FOUR DOTS ABOVE",
+      "category": "Lo"
+    },
+    "069A": {
+      "name": "ARABIC LETTER SEEN WITH DOT BELOW AND DOT ABOVE",
+      "category": "Lo"
+    },
+    "069B": {
+      "name": "ARABIC LETTER SEEN WITH THREE DOTS BELOW",
+      "category": "Lo"
+    },
+    "069C": {
+      "name": "ARABIC LETTER SEEN WITH THREE DOTS BELOW AND THREE DOTS ABOVE",
+      "category": "Lo"
+    },
+    "069D": {
+      "name": "ARABIC LETTER SAD WITH TWO DOTS BELOW",
+      "category": "Lo"
+    },
+    "069E": {
+      "name": "ARABIC LETTER SAD WITH THREE DOTS ABOVE",
+      "category": "Lo"
+    },
+    "069F": {
+      "name": "ARABIC LETTER TAH WITH THREE DOTS ABOVE",
+      "category": "Lo"
+    },
+    "06A0": {
+      "name": "ARABIC LETTER AIN WITH THREE DOTS ABOVE",
+      "category": "Lo"
+    },
+    "06A1": {
+      "name": "ARABIC LETTER DOTLESS FEH",
+      "category": "Lo"
+    },
+    "06A2": {
+      "name": "ARABIC LETTER FEH WITH DOT MOVED BELOW",
+      "category": "Lo"
+    },
+    "06A3": {
+      "name": "ARABIC LETTER FEH WITH DOT BELOW",
+      "category": "Lo"
+    },
+    "06A4": {
+      "name": "ARABIC LETTER VEH",
+      "category": "Lo"
+    },
+    "06A5": {
+      "name": "ARABIC LETTER FEH WITH THREE DOTS BELOW",
+      "category": "Lo"
+    },
+    "06A6": {
+      "name": "ARABIC LETTER PEHEH",
+      "category": "Lo"
+    },
+    "06A7": {
+      "name": "ARABIC LETTER QAF WITH DOT ABOVE",
+      "category": "Lo"
+    },
+    "06A8": {
+      "name": "ARABIC LETTER QAF WITH THREE DOTS ABOVE",
+      "category": "Lo"
+    },
+    "06A9": {
+      "name": "ARABIC LETTER KEHEH",
+      "category": "Lo"
+    },
+    "06AA": {
+      "name": "ARABIC LETTER SWASH KAF",
+      "category": "Lo"
+    },
+    "06AB": {
+      "name": "ARABIC LETTER KAF WITH RING",
+      "category": "Lo"
+    },
+    "06AC": {
+      "name": "ARABIC LETTER KAF WITH DOT ABOVE",
+      "category": "Lo"
+    },
+    "06AD": {
+      "name": "ARABIC LETTER NG",
+      "category": "Lo"
+    },
+    "06AE": {
+      "name": "ARABIC LETTER KAF WITH THREE DOTS BELOW",
+      "category": "Lo"
+    },
+    "06AF": {
+      "name": "ARABIC LETTER GAF",
+      "category": "Lo"
+    },
+    "06B0": {
+      "name": "ARABIC LETTER GAF WITH RING",
+      "category": "Lo"
+    },
+    "06B1": {
+      "name": "ARABIC LETTER NGOEH",
+      "category": "Lo"
+    },
+    "06B2": {
+      "name": "ARABIC LETTER GAF WITH TWO DOTS BELOW",
+      "category": "Lo"
+    },
+    "06B3": {
+      "name": "ARABIC LETTER GUEH",
+      "category": "Lo"
+    },
+    "06B4": {
+      "name": "ARABIC LETTER GAF WITH THREE DOTS ABOVE",
+      "category": "Lo"
+    },
+    "06B5": {
+      "name": "ARABIC LETTER LAM WITH SMALL V",
+      "category": "Lo"
+    },
+    "06B6": {
+      "name": "ARABIC LETTER LAM WITH DOT ABOVE",
+      "category": "Lo"
+    },
+    "06B7": {
+      "name": "ARABIC LETTER LAM WITH THREE DOTS ABOVE",
+      "category": "Lo"
+    },
+    "06B8": {
+      "name": "ARABIC LETTER LAM WITH THREE DOTS BELOW",
+      "category": "Lo"
+    },
+    "06B9": {
+      "name": "ARABIC LETTER NOON WITH DOT BELOW",
+      "category": "Lo"
+    },
+    "06BA": {
+      "name": "ARABIC LETTER NOON GHUNNA",
+      "category": "Lo"
+    },
+    "06BB": {
+      "name": "ARABIC LETTER RNOON",
+      "category": "Lo"
+    },
+    "06BC": {
+      "name": "ARABIC LETTER NOON WITH RING",
+      "category": "Lo"
+    },
+    "06BD": {
+      "name": "ARABIC LETTER NOON WITH THREE DOTS ABOVE",
+      "category": "Lo"
+    },
+    "06BE": {
+      "name": "ARABIC LETTER HEH DOACHASHMEE",
+      "category": "Lo"
+    },
+    "06BF": {
+      "name": "ARABIC LETTER TCHEH WITH DOT ABOVE",
+      "category": "Lo"
+    },
+    "06C0": {
+      "name": "ARABIC LETTER HEH WITH YEH ABOVE",
+      "category": "Lo"
+    },
+    "06C1": {
+      "name": "ARABIC LETTER HEH GOAL",
+      "category": "Lo"
+    },
+    "06C2": {
+      "name": "ARABIC LETTER HEH GOAL WITH HAMZA ABOVE",
+      "category": "Lo"
+    },
+    "06C3": {
+      "name": "ARABIC LETTER TEH MARBUTA GOAL",
+      "category": "Lo"
+    },
+    "06C4": {
+      "name": "ARABIC LETTER WAW WITH RING",
+      "category": "Lo"
+    },
+    "06C5": {
+      "name": "ARABIC LETTER KIRGHIZ OE",
+      "category": "Lo"
+    },
+    "06C6": {
+      "name": "ARABIC LETTER OE",
+      "category": "Lo"
+    },
+    "06C7": {
+      "name": "ARABIC LETTER U",
+      "category": "Lo"
+    },
+    "06C8": {
+      "name": "ARABIC LETTER YU",
+      "category": "Lo"
+    },
+    "06C9": {
+      "name": "ARABIC LETTER KIRGHIZ YU",
+      "category": "Lo"
+    },
+    "06CA": {
+      "name": "ARABIC LETTER WAW WITH TWO DOTS ABOVE",
+      "category": "Lo"
+    },
+    "06CB": {
+      "name": "ARABIC LETTER VE",
+      "category": "Lo"
+    },
+    "06CC": {
+      "name": "ARABIC LETTER FARSI YEH",
+      "category": "Lo"
+    },
+    "06CD": {
+      "name": "ARABIC LETTER YEH WITH TAIL",
+      "category": "Lo"
+    },
+    "06CE": {
+      "name": "ARABIC LETTER YEH WITH SMALL V",
+      "category": "Lo"
+    },
+    "06CF": {
+      "name": "ARABIC LETTER WAW WITH DOT ABOVE",
+      "category": "Lo"
+    },
+    "06D0": {
+      "name": "ARABIC LETTER E",
+      "category": "Lo"
+    },
+    "06D1": {
+      "name": "ARABIC LETTER YEH WITH THREE DOTS BELOW",
+      "category": "Lo"
+    },
+    "06D2": {
+      "name": "ARABIC LETTER YEH BARREE",
+      "category": "Lo"
+    },
+    "06D3": {
+      "name": "ARABIC LETTER YEH BARREE WITH HAMZA ABOVE",
+      "category": "Lo"
+    },
+    "06D4": {
+      "name": "ARABIC FULL STOP",
+      "category": "Po"
+    },
+    "06D5": {
+      "name": "ARABIC LETTER AE",
+      "category": "Lo"
+    },
+    "06D6": {
+      "name": "ARABIC SMALL HIGH LIGATURE SAD WITH LAM WITH ALEF MAKSURA",
+      "category": "Mn"
+    },
+    "06D7": {
+      "name": "ARABIC SMALL HIGH LIGATURE QAF WITH LAM WITH ALEF MAKSURA",
+      "category": "Mn"
+    },
+    "06D8": {
+      "name": "ARABIC SMALL HIGH MEEM INITIAL FORM",
+      "category": "Mn"
+    },
+    "06D9": {
+      "name": "ARABIC SMALL HIGH LAM ALEF",
+      "category": "Mn"
+    },
+    "06DA": {
+      "name": "ARABIC SMALL HIGH JEEM",
+      "category": "Mn"
+    },
+    "06DB": {
+      "name": "ARABIC SMALL HIGH THREE DOTS",
+      "category": "Mn"
+    },
+    "06DC": {
+      "name": "ARABIC SMALL HIGH SEEN",
+      "category": "Mn"
+    },
+    "06DD": {
+      "name": "ARABIC END OF AYAH",
+      "category": "Cf"
+    },
+    "06DE": {
+      "name": "ARABIC START OF RUB EL HIZB",
+      "category": "So"
+    },
+    "06DF": {
+      "name": "ARABIC SMALL HIGH ROUNDED ZERO",
+      "category": "Mn"
+    },
+    "06E0": {
+      "name": "ARABIC SMALL HIGH UPRIGHT RECTANGULAR ZERO",
+      "category": "Mn"
+    },
+    "06E1": {
+      "name": "ARABIC SMALL HIGH DOTLESS HEAD OF KHAH",
+      "category": "Mn"
+    },
+    "06E2": {
+      "name": "ARABIC SMALL HIGH MEEM ISOLATED FORM",
+      "category": "Mn"
+    },
+    "06E3": {
+      "name": "ARABIC SMALL LOW SEEN",
+      "category": "Mn"
+    },
+    "06E4": {
+      "name": "ARABIC SMALL HIGH MADDA",
+      "category": "Mn"
+    },
+    "06E5": {
+      "name": "ARABIC SMALL WAW",
+      "category": "Lm"
+    },
+    "06E6": {
+      "name": "ARABIC SMALL YEH",
+      "category": "Lm"
+    },
+    "06E7": {
+      "name": "ARABIC SMALL HIGH YEH",
+      "category": "Mn"
+    },
+    "06E8": {
+      "name": "ARABIC SMALL HIGH NOON",
+      "category": "Mn"
+    },
+    "06E9": {
+      "name": "ARABIC PLACE OF SAJDAH",
+      "category": "So"
+    },
+    "06EA": {
+      "name": "ARABIC EMPTY CENTRE LOW STOP",
+      "category": "Mn"
+    },
+    "06EB": {
+      "name": "ARABIC EMPTY CENTRE HIGH STOP",
+      "category": "Mn"
+    },
+    "06EC": {
+      "name": "ARABIC ROUNDED HIGH STOP WITH FILLED CENTRE",
+      "category": "Mn"
+    },
+    "06ED": {
+      "name": "ARABIC SMALL LOW MEEM",
+      "category": "Mn"
+    },
+    "06EE": {
+      "name": "ARABIC LETTER DAL WITH INVERTED V",
+      "category": "Lo"
+    },
+    "06EF": {
+      "name": "ARABIC LETTER REH WITH INVERTED V",
+      "category": "Lo"
+    },
+    "06F0": {
+      "name": "EXTENDED ARABIC-INDIC DIGIT ZERO",
+      "category": "Nd"
+    },
+    "06F1": {
+      "name": "EXTENDED ARABIC-INDIC DIGIT ONE",
+      "category": "Nd"
+    },
+    "06F2": {
+      "name": "EXTENDED ARABIC-INDIC DIGIT TWO",
+      "category": "Nd"
+    },
+    "06F3": {
+      "name": "EXTENDED ARABIC-INDIC DIGIT THREE",
+      "category": "Nd"
+    },
+    "06F4": {
+      "name": "EXTENDED ARABIC-INDIC DIGIT FOUR",
+      "category": "Nd"
+    },
+    "06F5": {
+      "name": "EXTENDED ARABIC-INDIC DIGIT FIVE",
+      "category": "Nd"
+    },
+    "06F6": {
+      "name": "EXTENDED ARABIC-INDIC DIGIT SIX",
+      "category": "Nd"
+    },
+    "06F7": {
+      "name": "EXTENDED ARABIC-INDIC DIGIT SEVEN",
+      "category": "Nd"
+    },
+    "06F8": {
+      "name": "EXTENDED ARABIC-INDIC DIGIT EIGHT",
+      "category": "Nd"
+    },
+    "06F9": {
+      "name": "EXTENDED ARABIC-INDIC DIGIT NINE",
+      "category": "Nd"
+    },
+    "06FA": {
+      "name": "ARABIC LETTER SHEEN WITH DOT BELOW",
+      "category": "Lo"
+    },
+    "06FB": {
+      "name": "ARABIC LETTER DAD WITH DOT BELOW",
+      "category": "Lo"
+    },
+    "06FC": {
+      "name": "ARABIC LETTER GHAIN WITH DOT BELOW",
+      "category": "Lo"
+    },
+    "06FD": {
+      "name": "ARABIC SIGN SINDHI AMPERSAND",
+      "category": "So"
+    },
+    "06FE": {
+      "name": "ARABIC SIGN SINDHI POSTPOSITION MEN",
+      "category": "So"
+    },
+    "06FF": {
+      "name": "ARABIC LETTER HEH WITH INVERTED V",
+      "category": "Lo"
+    },
+    "0700": {
+      "name": "SYRIAC END OF PARAGRAPH",
+      "category": "Po"
+    },
+    "0701": {
+      "name": "SYRIAC SUPRALINEAR FULL STOP",
+      "category": "Po"
+    },
+    "0702": {
+      "name": "SYRIAC SUBLINEAR FULL STOP",
+      "category": "Po"
+    },
+    "0703": {
+      "name": "SYRIAC SUPRALINEAR COLON",
+      "category": "Po"
+    },
+    "0704": {
+      "name": "SYRIAC SUBLINEAR COLON",
+      "category": "Po"
+    },
+    "0705": {
+      "name": "SYRIAC HORIZONTAL COLON",
+      "category": "Po"
+    },
+    "0706": {
+      "name": "SYRIAC COLON SKEWED LEFT",
+      "category": "Po"
+    },
+    "0707": {
+      "name": "SYRIAC COLON SKEWED RIGHT",
+      "category": "Po"
+    },
+    "0708": {
+      "name": "SYRIAC SUPRALINEAR COLON SKEWED LEFT",
+      "category": "Po"
+    },
+    "0709": {
+      "name": "SYRIAC SUBLINEAR COLON SKEWED RIGHT",
+      "category": "Po"
+    },
+    "070A": {
+      "name": "SYRIAC CONTRACTION",
+      "category": "Po"
+    },
+    "070B": {
+      "name": "SYRIAC HARKLEAN OBELUS",
+      "category": "Po"
+    },
+    "070C": {
+      "name": "SYRIAC HARKLEAN METOBELUS",
+      "category": "Po"
+    },
+    "070D": {
+      "name": "SYRIAC HARKLEAN ASTERISCUS",
+      "category": "Po"
+    },
+    "070F": {
+      "name": "SYRIAC ABBREVIATION MARK",
+      "category": "Cf"
+    },
+    "0710": {
+      "name": "SYRIAC LETTER ALAPH",
+      "category": "Lo"
+    },
+    "0711": {
+      "name": "SYRIAC LETTER SUPERSCRIPT ALAPH",
+      "category": "Mn"
+    },
+    "0712": {
+      "name": "SYRIAC LETTER BETH",
+      "category": "Lo"
+    },
+    "0713": {
+      "name": "SYRIAC LETTER GAMAL",
+      "category": "Lo"
+    },
+    "0714": {
+      "name": "SYRIAC LETTER GAMAL GARSHUNI",
+      "category": "Lo"
+    },
+    "0715": {
+      "name": "SYRIAC LETTER DALATH",
+      "category": "Lo"
+    },
+    "0716": {
+      "name": "SYRIAC LETTER DOTLESS DALATH RISH",
+      "category": "Lo"
+    },
+    "0717": {
+      "name": "SYRIAC LETTER HE",
+      "category": "Lo"
+    },
+    "0718": {
+      "name": "SYRIAC LETTER WAW",
+      "category": "Lo"
+    },
+    "0719": {
+      "name": "SYRIAC LETTER ZAIN",
+      "category": "Lo"
+    },
+    "071A": {
+      "name": "SYRIAC LETTER HETH",
+      "category": "Lo"
+    },
+    "071B": {
+      "name": "SYRIAC LETTER TETH",
+      "category": "Lo"
+    },
+    "071C": {
+      "name": "SYRIAC LETTER TETH GARSHUNI",
+      "category": "Lo"
+    },
+    "071D": {
+      "name": "SYRIAC LETTER YUDH",
+      "category": "Lo"
+    },
+    "071E": {
+      "name": "SYRIAC LETTER YUDH HE",
+      "category": "Lo"
+    },
+    "071F": {
+      "name": "SYRIAC LETTER KAPH",
+      "category": "Lo"
+    },
+    "0720": {
+      "name": "SYRIAC LETTER LAMADH",
+      "category": "Lo"
+    },
+    "0721": {
+      "name": "SYRIAC LETTER MIM",
+      "category": "Lo"
+    },
+    "0722": {
+      "name": "SYRIAC LETTER NUN",
+      "category": "Lo"
+    },
+    "0723": {
+      "name": "SYRIAC LETTER SEMKATH",
+      "category": "Lo"
+    },
+    "0724": {
+      "name": "SYRIAC LETTER FINAL SEMKATH",
+      "category": "Lo"
+    },
+    "0725": {
+      "name": "SYRIAC LETTER E",
+      "category": "Lo"
+    },
+    "0726": {
+      "name": "SYRIAC LETTER PE",
+      "category": "Lo"
+    },
+    "0727": {
+      "name": "SYRIAC LETTER REVERSED PE",
+      "category": "Lo"
+    },
+    "0728": {
+      "name": "SYRIAC LETTER SADHE",
+      "category": "Lo"
+    },
+    "0729": {
+      "name": "SYRIAC LETTER QAPH",
+      "category": "Lo"
+    },
+    "072A": {
+      "name": "SYRIAC LETTER RISH",
+      "category": "Lo"
+    },
+    "072B": {
+      "name": "SYRIAC LETTER SHIN",
+      "category": "Lo"
+    },
+    "072C": {
+      "name": "SYRIAC LETTER TAW",
+      "category": "Lo"
+    },
+    "072D": {
+      "name": "SYRIAC LETTER PERSIAN BHETH",
+      "category": "Lo"
+    },
+    "072E": {
+      "name": "SYRIAC LETTER PERSIAN GHAMAL",
+      "category": "Lo"
+    },
+    "072F": {
+      "name": "SYRIAC LETTER PERSIAN DHALATH",
+      "category": "Lo"
+    },
+    "0730": {
+      "name": "SYRIAC PTHAHA ABOVE",
+      "category": "Mn"
+    },
+    "0731": {
+      "name": "SYRIAC PTHAHA BELOW",
+      "category": "Mn"
+    },
+    "0732": {
+      "name": "SYRIAC PTHAHA DOTTED",
+      "category": "Mn"
+    },
+    "0733": {
+      "name": "SYRIAC ZQAPHA ABOVE",
+      "category": "Mn"
+    },
+    "0734": {
+      "name": "SYRIAC ZQAPHA BELOW",
+      "category": "Mn"
+    },
+    "0735": {
+      "name": "SYRIAC ZQAPHA DOTTED",
+      "category": "Mn"
+    },
+    "0736": {
+      "name": "SYRIAC RBASA ABOVE",
+      "category": "Mn"
+    },
+    "0737": {
+      "name": "SYRIAC RBASA BELOW",
+      "category": "Mn"
+    },
+    "0738": {
+      "name": "SYRIAC DOTTED ZLAMA HORIZONTAL",
+      "category": "Mn"
+    },
+    "0739": {
+      "name": "SYRIAC DOTTED ZLAMA ANGULAR",
+      "category": "Mn"
+    },
+    "073A": {
+      "name": "SYRIAC HBASA ABOVE",
+      "category": "Mn"
+    },
+    "073B": {
+      "name": "SYRIAC HBASA BELOW",
+      "category": "Mn"
+    },
+    "073C": {
+      "name": "SYRIAC HBASA-ESASA DOTTED",
+      "category": "Mn"
+    },
+    "073D": {
+      "name": "SYRIAC ESASA ABOVE",
+      "category": "Mn"
+    },
+    "073E": {
+      "name": "SYRIAC ESASA BELOW",
+      "category": "Mn"
+    },
+    "073F": {
+      "name": "SYRIAC RWAHA",
+      "category": "Mn"
+    },
+    "0740": {
+      "name": "SYRIAC FEMININE DOT",
+      "category": "Mn"
+    },
+    "0741": {
+      "name": "SYRIAC QUSHSHAYA",
+      "category": "Mn"
+    },
+    "0742": {
+      "name": "SYRIAC RUKKAKHA",
+      "category": "Mn"
+    },
+    "0743": {
+      "name": "SYRIAC TWO VERTICAL DOTS ABOVE",
+      "category": "Mn"
+    },
+    "0744": {
+      "name": "SYRIAC TWO VERTICAL DOTS BELOW",
+      "category": "Mn"
+    },
+    "0745": {
+      "name": "SYRIAC THREE DOTS ABOVE",
+      "category": "Mn"
+    },
+    "0746": {
+      "name": "SYRIAC THREE DOTS BELOW",
+      "category": "Mn"
+    },
+    "0747": {
+      "name": "SYRIAC OBLIQUE LINE ABOVE",
+      "category": "Mn"
+    },
+    "0748": {
+      "name": "SYRIAC OBLIQUE LINE BELOW",
+      "category": "Mn"
+    },
+    "0749": {
+      "name": "SYRIAC MUSIC",
+      "category": "Mn"
+    },
+    "074A": {
+      "name": "SYRIAC BARREKH",
+      "category": "Mn"
+    },
+    "074D": {
+      "name": "SYRIAC LETTER SOGDIAN ZHAIN",
+      "category": "Lo"
+    },
+    "074E": {
+      "name": "SYRIAC LETTER SOGDIAN KHAPH",
+      "category": "Lo"
+    },
+    "074F": {
+      "name": "SYRIAC LETTER SOGDIAN FE",
+      "category": "Lo"
+    },
+    "0750": {
+      "name": "ARABIC LETTER BEH WITH THREE DOTS HORIZONTALLY BELOW",
+      "category": "Lo"
+    },
+    "0751": {
+      "name": "ARABIC LETTER BEH WITH DOT BELOW AND THREE DOTS ABOVE",
+      "category": "Lo"
+    },
+    "0752": {
+      "name": "ARABIC LETTER BEH WITH THREE DOTS POINTING UPWARDS BELOW",
+      "category": "Lo"
+    },
+    "0753": {
+      "name": "ARABIC LETTER BEH WITH THREE DOTS POINTING UPWARDS BELOW AND TWO DOTS ABOVE",
+      "category": "Lo"
+    },
+    "0754": {
+      "name": "ARABIC LETTER BEH WITH TWO DOTS BELOW AND DOT ABOVE",
+      "category": "Lo"
+    },
+    "0755": {
+      "name": "ARABIC LETTER BEH WITH INVERTED SMALL V BELOW",
+      "category": "Lo"
+    },
+    "0756": {
+      "name": "ARABIC LETTER BEH WITH SMALL V",
+      "category": "Lo"
+    },
+    "0757": {
+      "name": "ARABIC LETTER HAH WITH TWO DOTS ABOVE",
+      "category": "Lo"
+    },
+    "0758": {
+      "name": "ARABIC LETTER HAH WITH THREE DOTS POINTING UPWARDS BELOW",
+      "category": "Lo"
+    },
+    "0759": {
+      "name": "ARABIC LETTER DAL WITH TWO DOTS VERTICALLY BELOW AND SMALL TAH",
+      "category": "Lo"
+    },
+    "075A": {
+      "name": "ARABIC LETTER DAL WITH INVERTED SMALL V BELOW",
+      "category": "Lo"
+    },
+    "075B": {
+      "name": "ARABIC LETTER REH WITH STROKE",
+      "category": "Lo"
+    },
+    "075C": {
+      "name": "ARABIC LETTER SEEN WITH FOUR DOTS ABOVE",
+      "category": "Lo"
+    },
+    "075D": {
+      "name": "ARABIC LETTER AIN WITH TWO DOTS ABOVE",
+      "category": "Lo"
+    },
+    "075E": {
+      "name": "ARABIC LETTER AIN WITH THREE DOTS POINTING DOWNWARDS ABOVE",
+      "category": "Lo"
+    },
+    "075F": {
+      "name": "ARABIC LETTER AIN WITH TWO DOTS VERTICALLY ABOVE",
+      "category": "Lo"
+    },
+    "0760": {
+      "name": "ARABIC LETTER FEH WITH TWO DOTS BELOW",
+      "category": "Lo"
+    },
+    "0761": {
+      "name": "ARABIC LETTER FEH WITH THREE DOTS POINTING UPWARDS BELOW",
+      "category": "Lo"
+    },
+    "0762": {
+      "name": "ARABIC LETTER KEHEH WITH DOT ABOVE",
+      "category": "Lo"
+    },
+    "0763": {
+      "name": "ARABIC LETTER KEHEH WITH THREE DOTS ABOVE",
+      "category": "Lo"
+    },
+    "0764": {
+      "name": "ARABIC LETTER KEHEH WITH THREE DOTS POINTING UPWARDS BELOW",
+      "category": "Lo"
+    },
+    "0765": {
+      "name": "ARABIC LETTER MEEM WITH DOT ABOVE",
+      "category": "Lo"
+    },
+    "0766": {
+      "name": "ARABIC LETTER MEEM WITH DOT BELOW",
+      "category": "Lo"
+    },
+    "0767": {
+      "name": "ARABIC LETTER NOON WITH TWO DOTS BELOW",
+      "category": "Lo"
+    },
+    "0768": {
+      "name": "ARABIC LETTER NOON WITH SMALL TAH",
+      "category": "Lo"
+    },
+    "0769": {
+      "name": "ARABIC LETTER NOON WITH SMALL V",
+      "category": "Lo"
+    },
+    "076A": {
+      "name": "ARABIC LETTER LAM WITH BAR",
+      "category": "Lo"
+    },
+    "076B": {
+      "name": "ARABIC LETTER REH WITH TWO DOTS VERTICALLY ABOVE",
+      "category": "Lo"
+    },
+    "076C": {
+      "name": "ARABIC LETTER REH WITH HAMZA ABOVE",
+      "category": "Lo"
+    },
+    "076D": {
+      "name": "ARABIC LETTER SEEN WITH TWO DOTS VERTICALLY ABOVE",
+      "category": "Lo"
+    },
+    "076E": {
+      "name": "ARABIC LETTER HAH WITH SMALL ARABIC LETTER TAH BELOW",
+      "category": "Lo"
+    },
+    "076F": {
+      "name": "ARABIC LETTER HAH WITH SMALL ARABIC LETTER TAH AND TWO DOTS",
+      "category": "Lo"
+    },
+    "0770": {
+      "name": "ARABIC LETTER SEEN WITH SMALL ARABIC LETTER TAH AND TWO DOTS",
+      "category": "Lo"
+    },
+    "0771": {
+      "name": "ARABIC LETTER REH WITH SMALL ARABIC LETTER TAH AND TWO DOTS",
+      "category": "Lo"
+    },
+    "0772": {
+      "name": "ARABIC LETTER HAH WITH SMALL ARABIC LETTER TAH ABOVE",
+      "category": "Lo"
+    },
+    "0773": {
+      "name": "ARABIC LETTER ALEF WITH EXTENDED ARABIC-INDIC DIGIT TWO ABOVE",
+      "category": "Lo"
+    },
+    "0774": {
+      "name": "ARABIC LETTER ALEF WITH EXTENDED ARABIC-INDIC DIGIT THREE ABOVE",
+      "category": "Lo"
+    },
+    "0775": {
+      "name": "ARABIC LETTER FARSI YEH WITH EXTENDED ARABIC-INDIC DIGIT TWO ABOVE",
+      "category": "Lo"
+    },
+    "0776": {
+      "name": "ARABIC LETTER FARSI YEH WITH EXTENDED ARABIC-INDIC DIGIT THREE ABOVE",
+      "category": "Lo"
+    },
+    "0777": {
+      "name": "ARABIC LETTER FARSI YEH WITH EXTENDED ARABIC-INDIC DIGIT FOUR BELOW",
+      "category": "Lo"
+    },
+    "0778": {
+      "name": "ARABIC LETTER WAW WITH EXTENDED ARABIC-INDIC DIGIT TWO ABOVE",
+      "category": "Lo"
+    },
+    "0779": {
+      "name": "ARABIC LETTER WAW WITH EXTENDED ARABIC-INDIC DIGIT THREE ABOVE",
+      "category": "Lo"
+    },
+    "077A": {
+      "name": "ARABIC LETTER YEH BARREE WITH EXTENDED ARABIC-INDIC DIGIT TWO ABOVE",
+      "category": "Lo"
+    },
+    "077B": {
+      "name": "ARABIC LETTER YEH BARREE WITH EXTENDED ARABIC-INDIC DIGIT THREE ABOVE",
+      "category": "Lo"
+    },
+    "077C": {
+      "name": "ARABIC LETTER HAH WITH EXTENDED ARABIC-INDIC DIGIT FOUR BELOW",
+      "category": "Lo"
+    },
+    "077D": {
+      "name": "ARABIC LETTER SEEN WITH EXTENDED ARABIC-INDIC DIGIT FOUR ABOVE",
+      "category": "Lo"
+    },
+    "077E": {
+      "name": "ARABIC LETTER SEEN WITH INVERTED V",
+      "category": "Lo"
+    },
+    "077F": {
+      "name": "ARABIC LETTER KAF WITH TWO DOTS ABOVE",
+      "category": "Lo"
+    },
+    "0780": {
+      "name": "THAANA LETTER HAA",
+      "category": "Lo"
+    },
+    "0781": {
+      "name": "THAANA LETTER SHAVIYANI",
+      "category": "Lo"
+    },
+    "0782": {
+      "name": "THAANA LETTER NOONU",
+      "category": "Lo"
+    },
+    "0783": {
+      "name": "THAANA LETTER RAA",
+      "category": "Lo"
+    },
+    "0784": {
+      "name": "THAANA LETTER BAA",
+      "category": "Lo"
+    },
+    "0785": {
+      "name": "THAANA LETTER LHAVIYANI",
+      "category": "Lo"
+    },
+    "0786": {
+      "name": "THAANA LETTER KAAFU",
+      "category": "Lo"
+    },
+    "0787": {
+      "name": "THAANA LETTER ALIFU",
+      "category": "Lo"
+    },
+    "0788": {
+      "name": "THAANA LETTER VAAVU",
+      "category": "Lo"
+    },
+    "0789": {
+      "name": "THAANA LETTER MEEMU",
+      "category": "Lo"
+    },
+    "078A": {
+      "name": "THAANA LETTER FAAFU",
+      "category": "Lo"
+    },
+    "078B": {
+      "name": "THAANA LETTER DHAALU",
+      "category": "Lo"
+    },
+    "078C": {
+      "name": "THAANA LETTER THAA",
+      "category": "Lo"
+    },
+    "078D": {
+      "name": "THAANA LETTER LAAMU",
+      "category": "Lo"
+    },
+    "078E": {
+      "name": "THAANA LETTER GAAFU",
+      "category": "Lo"
+    },
+    "078F": {
+      "name": "THAANA LETTER GNAVIYANI",
+      "category": "Lo"
+    },
+    "0790": {
+      "name": "THAANA LETTER SEENU",
+      "category": "Lo"
+    },
+    "0791": {
+      "name": "THAANA LETTER DAVIYANI",
+      "category": "Lo"
+    },
+    "0792": {
+      "name": "THAANA LETTER ZAVIYANI",
+      "category": "Lo"
+    },
+    "0793": {
+      "name": "THAANA LETTER TAVIYANI",
+      "category": "Lo"
+    },
+    "0794": {
+      "name": "THAANA LETTER YAA",
+      "category": "Lo"
+    },
+    "0795": {
+      "name": "THAANA LETTER PAVIYANI",
+      "category": "Lo"
+    },
+    "0796": {
+      "name": "THAANA LETTER JAVIYANI",
+      "category": "Lo"
+    },
+    "0797": {
+      "name": "THAANA LETTER CHAVIYANI",
+      "category": "Lo"
+    },
+    "0798": {
+      "name": "THAANA LETTER TTAA",
+      "category": "Lo"
+    },
+    "0799": {
+      "name": "THAANA LETTER HHAA",
+      "category": "Lo"
+    },
+    "079A": {
+      "name": "THAANA LETTER KHAA",
+      "category": "Lo"
+    },
+    "079B": {
+      "name": "THAANA LETTER THAALU",
+      "category": "Lo"
+    },
+    "079C": {
+      "name": "THAANA LETTER ZAA",
+      "category": "Lo"
+    },
+    "079D": {
+      "name": "THAANA LETTER SHEENU",
+      "category": "Lo"
+    },
+    "079E": {
+      "name": "THAANA LETTER SAADHU",
+      "category": "Lo"
+    },
+    "079F": {
+      "name": "THAANA LETTER DAADHU",
+      "category": "Lo"
+    },
+    "07A0": {
+      "name": "THAANA LETTER TO",
+      "category": "Lo"
+    },
+    "07A1": {
+      "name": "THAANA LETTER ZO",
+      "category": "Lo"
+    },
+    "07A2": {
+      "name": "THAANA LETTER AINU",
+      "category": "Lo"
+    },
+    "07A3": {
+      "name": "THAANA LETTER GHAINU",
+      "category": "Lo"
+    },
+    "07A4": {
+      "name": "THAANA LETTER QAAFU",
+      "category": "Lo"
+    },
+    "07A5": {
+      "name": "THAANA LETTER WAAVU",
+      "category": "Lo"
+    },
+    "07A6": {
+      "name": "THAANA ABAFILI",
+      "category": "Mn"
+    },
+    "07A7": {
+      "name": "THAANA AABAAFILI",
+      "category": "Mn"
+    },
+    "07A8": {
+      "name": "THAANA IBIFILI",
+      "category": "Mn"
+    },
+    "07A9": {
+      "name": "THAANA EEBEEFILI",
+      "category": "Mn"
+    },
+    "07AA": {
+      "name": "THAANA UBUFILI",
+      "category": "Mn"
+    },
+    "07AB": {
+      "name": "THAANA OOBOOFILI",
+      "category": "Mn"
+    },
+    "07AC": {
+      "name": "THAANA EBEFILI",
+      "category": "Mn"
+    },
+    "07AD": {
+      "name": "THAANA EYBEYFILI",
+      "category": "Mn"
+    },
+    "07AE": {
+      "name": "THAANA OBOFILI",
+      "category": "Mn"
+    },
+    "07AF": {
+      "name": "THAANA OABOAFILI",
+      "category": "Mn"
+    },
+    "07B0": {
+      "name": "THAANA SUKUN",
+      "category": "Mn"
+    },
+    "07B1": {
+      "name": "THAANA LETTER NAA",
+      "category": "Lo"
+    },
+    "07C0": {
+      "name": "NKO DIGIT ZERO",
+      "category": "Nd"
+    },
+    "07C1": {
+      "name": "NKO DIGIT ONE",
+      "category": "Nd"
+    },
+    "07C2": {
+      "name": "NKO DIGIT TWO",
+      "category": "Nd"
+    },
+    "07C3": {
+      "name": "NKO DIGIT THREE",
+      "category": "Nd"
+    },
+    "07C4": {
+      "name": "NKO DIGIT FOUR",
+      "category": "Nd"
+    },
+    "07C5": {
+      "name": "NKO DIGIT FIVE",
+      "category": "Nd"
+    },
+    "07C6": {
+      "name": "NKO DIGIT SIX",
+      "category": "Nd"
+    },
+    "07C7": {
+      "name": "NKO DIGIT SEVEN",
+      "category": "Nd"
+    },
+    "07C8": {
+      "name": "NKO DIGIT EIGHT",
+      "category": "Nd"
+    },
+    "07C9": {
+      "name": "NKO DIGIT NINE",
+      "category": "Nd"
+    },
+    "07CA": {
+      "name": "NKO LETTER A",
+      "category": "Lo"
+    },
+    "07CB": {
+      "name": "NKO LETTER EE",
+      "category": "Lo"
+    },
+    "07CC": {
+      "name": "NKO LETTER I",
+      "category": "Lo"
+    },
+    "07CD": {
+      "name": "NKO LETTER E",
+      "category": "Lo"
+    },
+    "07CE": {
+      "name": "NKO LETTER U",
+      "category": "Lo"
+    },
+    "07CF": {
+      "name": "NKO LETTER OO",
+      "category": "Lo"
+    },
+    "07D0": {
+      "name": "NKO LETTER O",
+      "category": "Lo"
+    },
+    "07D1": {
+      "name": "NKO LETTER DAGBASINNA",
+      "category": "Lo"
+    },
+    "07D2": {
+      "name": "NKO LETTER N",
+      "category": "Lo"
+    },
+    "07D3": {
+      "name": "NKO LETTER BA",
+      "category": "Lo"
+    },
+    "07D4": {
+      "name": "NKO LETTER PA",
+      "category": "Lo"
+    },
+    "07D5": {
+      "name": "NKO LETTER TA",
+      "category": "Lo"
+    },
+    "07D6": {
+      "name": "NKO LETTER JA",
+      "category": "Lo"
+    },
+    "07D7": {
+      "name": "NKO LETTER CHA",
+      "category": "Lo"
+    },
+    "07D8": {
+      "name": "NKO LETTER DA",
+      "category": "Lo"
+    },
+    "07D9": {
+      "name": "NKO LETTER RA",
+      "category": "Lo"
+    },
+    "07DA": {
+      "name": "NKO LETTER RRA",
+      "category": "Lo"
+    },
+    "07DB": {
+      "name": "NKO LETTER SA",
+      "category": "Lo"
+    },
+    "07DC": {
+      "name": "NKO LETTER GBA",
+      "category": "Lo"
+    },
+    "07DD": {
+      "name": "NKO LETTER FA",
+      "category": "Lo"
+    },
+    "07DE": {
+      "name": "NKO LETTER KA",
+      "category": "Lo"
+    },
+    "07DF": {
+      "name": "NKO LETTER LA",
+      "category": "Lo"
+    },
+    "07E0": {
+      "name": "NKO LETTER NA WOLOSO",
+      "category": "Lo"
+    },
+    "07E1": {
+      "name": "NKO LETTER MA",
+      "category": "Lo"
+    },
+    "07E2": {
+      "name": "NKO LETTER NYA",
+      "category": "Lo"
+    },
+    "07E3": {
+      "name": "NKO LETTER NA",
+      "category": "Lo"
+    },
+    "07E4": {
+      "name": "NKO LETTER HA",
+      "category": "Lo"
+    },
+    "07E5": {
+      "name": "NKO LETTER WA",
+      "category": "Lo"
+    },
+    "07E6": {
+      "name": "NKO LETTER YA",
+      "category": "Lo"
+    },
+    "07E7": {
+      "name": "NKO LETTER NYA WOLOSO",
+      "category": "Lo"
+    },
+    "07E8": {
+      "name": "NKO LETTER JONA JA",
+      "category": "Lo"
+    },
+    "07E9": {
+      "name": "NKO LETTER JONA CHA",
+      "category": "Lo"
+    },
+    "07EA": {
+      "name": "NKO LETTER JONA RA",
+      "category": "Lo"
+    },
+    "07EB": {
+      "name": "NKO COMBINING SHORT HIGH TONE",
+      "category": "Mn"
+    },
+    "07EC": {
+      "name": "NKO COMBINING SHORT LOW TONE",
+      "category": "Mn"
+    },
+    "07ED": {
+      "name": "NKO COMBINING SHORT RISING TONE",
+      "category": "Mn"
+    },
+    "07EE": {
+      "name": "NKO COMBINING LONG DESCENDING TONE",
+      "category": "Mn"
+    },
+    "07EF": {
+      "name": "NKO COMBINING LONG HIGH TONE",
+      "category": "Mn"
+    },
+    "07F0": {
+      "name": "NKO COMBINING LONG LOW TONE",
+      "category": "Mn"
+    },
+    "07F1": {
+      "name": "NKO COMBINING LONG RISING TONE",
+      "category": "Mn"
+    },
+    "07F2": {
+      "name": "NKO COMBINING NASALIZATION MARK",
+      "category": "Mn"
+    },
+    "07F3": {
+      "name": "NKO COMBINING DOUBLE DOT ABOVE",
+      "category": "Mn"
+    },
+    "07F4": {
+      "name": "NKO HIGH TONE APOSTROPHE",
+      "category": "Lm"
+    },
+    "07F5": {
+      "name": "NKO LOW TONE APOSTROPHE",
+      "category": "Lm"
+    },
+    "07F6": {
+      "name": "NKO SYMBOL OO DENNEN",
+      "category": "So"
+    },
+    "07F7": {
+      "name": "NKO SYMBOL GBAKURUNEN",
+      "category": "Po"
+    },
+    "07F8": {
+      "name": "NKO COMMA",
+      "category": "Po"
+    },
+    "07F9": {
+      "name": "NKO EXCLAMATION MARK",
+      "category": "Po"
+    },
+    "07FA": {
+      "name": "NKO LAJANYALAN",
+      "category": "Lm"
+    },
+    "07FD": {
+      "name": "NKO DANTAYALAN",
+      "category": "Mn"
+    },
+    "07FE": {
+      "name": "NKO DOROME SIGN",
+      "category": "Sc"
+    },
+    "07FF": {
+      "name": "NKO TAMAN SIGN",
+      "category": "Sc"
+    },
+    "0800": {
+      "name": "SAMARITAN LETTER ALAF",
+      "category": "Lo"
+    },
+    "0801": {
+      "name": "SAMARITAN LETTER BIT",
+      "category": "Lo"
+    },
+    "0802": {
+      "name": "SAMARITAN LETTER GAMAN",
+      "category": "Lo"
+    },
+    "0803": {
+      "name": "SAMARITAN LETTER DALAT",
+      "category": "Lo"
+    },
+    "0804": {
+      "name": "SAMARITAN LETTER IY",
+      "category": "Lo"
+    },
+    "0805": {
+      "name": "SAMARITAN LETTER BAA",
+      "category": "Lo"
+    },
+    "0806": {
+      "name": "SAMARITAN LETTER ZEN",
+      "category": "Lo"
+    },
+    "0807": {
+      "name": "SAMARITAN LETTER IT",
+      "category": "Lo"
+    },
+    "0808": {
+      "name": "SAMARITAN LETTER TIT",
+      "category": "Lo"
+    },
+    "0809": {
+      "name": "SAMARITAN LETTER YUT",
+      "category": "Lo"
+    },
+    "080A": {
+      "name": "SAMARITAN LETTER KAAF",
+      "category": "Lo"
+    },
+    "080B": {
+      "name": "SAMARITAN LETTER LABAT",
+      "category": "Lo"
+    },
+    "080C": {
+      "name": "SAMARITAN LETTER MIM",
+      "category": "Lo"
+    },
+    "080D": {
+      "name": "SAMARITAN LETTER NUN",
+      "category": "Lo"
+    },
+    "080E": {
+      "name": "SAMARITAN LETTER SINGAAT",
+      "category": "Lo"
+    },
+    "080F": {
+      "name": "SAMARITAN LETTER IN",
+      "category": "Lo"
+    },
+    "0810": {
+      "name": "SAMARITAN LETTER FI",
+      "category": "Lo"
+    },
+    "0811": {
+      "name": "SAMARITAN LETTER TSAADIY",
+      "category": "Lo"
+    },
+    "0812": {
+      "name": "SAMARITAN LETTER QUF",
+      "category": "Lo"
+    },
+    "0813": {
+      "name": "SAMARITAN LETTER RISH",
+      "category": "Lo"
+    },
+    "0814": {
+      "name": "SAMARITAN LETTER SHAN",
+      "category": "Lo"
+    },
+    "0815": {
+      "name": "SAMARITAN LETTER TAAF",
+      "category": "Lo"
+    },
+    "0816": {
+      "name": "SAMARITAN MARK IN",
+      "category": "Mn"
+    },
+    "0817": {
+      "name": "SAMARITAN MARK IN-ALAF",
+      "category": "Mn"
+    },
+    "0818": {
+      "name": "SAMARITAN MARK OCCLUSION",
+      "category": "Mn"
+    },
+    "0819": {
+      "name": "SAMARITAN MARK DAGESH",
+      "category": "Mn"
+    },
+    "081A": {
+      "name": "SAMARITAN MODIFIER LETTER EPENTHETIC YUT",
+      "category": "Lm"
+    },
+    "081B": {
+      "name": "SAMARITAN MARK EPENTHETIC YUT",
+      "category": "Mn"
+    },
+    "081C": {
+      "name": "SAMARITAN VOWEL SIGN LONG E",
+      "category": "Mn"
+    },
+    "081D": {
+      "name": "SAMARITAN VOWEL SIGN E",
+      "category": "Mn"
+    },
+    "081E": {
+      "name": "SAMARITAN VOWEL SIGN OVERLONG AA",
+      "category": "Mn"
+    },
+    "081F": {
+      "name": "SAMARITAN VOWEL SIGN LONG AA",
+      "category": "Mn"
+    },
+    "0820": {
+      "name": "SAMARITAN VOWEL SIGN AA",
+      "category": "Mn"
+    },
+    "0821": {
+      "name": "SAMARITAN VOWEL SIGN OVERLONG A",
+      "category": "Mn"
+    },
+    "0822": {
+      "name": "SAMARITAN VOWEL SIGN LONG A",
+      "category": "Mn"
+    },
+    "0823": {
+      "name": "SAMARITAN VOWEL SIGN A",
+      "category": "Mn"
+    },
+    "0824": {
+      "name": "SAMARITAN MODIFIER LETTER SHORT A",
+      "category": "Lm"
+    },
+    "0825": {
+      "name": "SAMARITAN VOWEL SIGN SHORT A",
+      "category": "Mn"
+    },
+    "0826": {
+      "name": "SAMARITAN VOWEL SIGN LONG U",
+      "category": "Mn"
+    },
+    "0827": {
+      "name": "SAMARITAN VOWEL SIGN U",
+      "category": "Mn"
+    },
+    "0828": {
+      "name": "SAMARITAN MODIFIER LETTER I",
+      "category": "Lm"
+    },
+    "0829": {
+      "name": "SAMARITAN VOWEL SIGN LONG I",
+      "category": "Mn"
+    },
+    "082A": {
+      "name": "SAMARITAN VOWEL SIGN I",
+      "category": "Mn"
+    },
+    "082B": {
+      "name": "SAMARITAN VOWEL SIGN O",
+      "category": "Mn"
+    },
+    "082C": {
+      "name": "SAMARITAN VOWEL SIGN SUKUN",
+      "category": "Mn"
+    },
+    "082D": {
+      "name": "SAMARITAN MARK NEQUDAA",
+      "category": "Mn"
+    },
+    "0830": {
+      "name": "SAMARITAN PUNCTUATION NEQUDAA",
+      "category": "Po"
+    },
+    "0831": {
+      "name": "SAMARITAN PUNCTUATION AFSAAQ",
+      "category": "Po"
+    },
+    "0832": {
+      "name": "SAMARITAN PUNCTUATION ANGED",
+      "category": "Po"
+    },
+    "0833": {
+      "name": "SAMARITAN PUNCTUATION BAU",
+      "category": "Po"
+    },
+    "0834": {
+      "name": "SAMARITAN PUNCTUATION ATMAAU",
+      "category": "Po"
+    },
+    "0835": {
+      "name": "SAMARITAN PUNCTUATION SHIYYAALAA",
+      "category": "Po"
+    },
+    "0836": {
+      "name": "SAMARITAN ABBREVIATION MARK",
+      "category": "Po"
+    },
+    "0837": {
+      "name": "SAMARITAN PUNCTUATION MELODIC QITSA",
+      "category": "Po"
+    },
+    "0838": {
+      "name": "SAMARITAN PUNCTUATION ZIQAA",
+      "category": "Po"
+    },
+    "0839": {
+      "name": "SAMARITAN PUNCTUATION QITSA",
+      "category": "Po"
+    },
+    "083A": {
+      "name": "SAMARITAN PUNCTUATION ZAEF",
+      "category": "Po"
+    },
+    "083B": {
+      "name": "SAMARITAN PUNCTUATION TURU",
+      "category": "Po"
+    },
+    "083C": {
+      "name": "SAMARITAN PUNCTUATION ARKAANU",
+      "category": "Po"
+    },
+    "083D": {
+      "name": "SAMARITAN PUNCTUATION SOF MASHFAAT",
+      "category": "Po"
+    },
+    "083E": {
+      "name": "SAMARITAN PUNCTUATION ANNAAU",
+      "category": "Po"
+    },
+    "0840": {
+      "name": "MANDAIC LETTER HALQA",
+      "category": "Lo"
+    },
+    "0841": {
+      "name": "MANDAIC LETTER AB",
+      "category": "Lo"
+    },
+    "0842": {
+      "name": "MANDAIC LETTER AG",
+      "category": "Lo"
+    },
+    "0843": {
+      "name": "MANDAIC LETTER AD",
+      "category": "Lo"
+    },
+    "0844": {
+      "name": "MANDAIC LETTER AH",
+      "category": "Lo"
+    },
+    "0845": {
+      "name": "MANDAIC LETTER USHENNA",
+      "category": "Lo"
+    },
+    "0846": {
+      "name": "MANDAIC LETTER AZ",
+      "category": "Lo"
+    },
+    "0847": {
+      "name": "MANDAIC LETTER IT",
+      "category": "Lo"
+    },
+    "0848": {
+      "name": "MANDAIC LETTER ATT",
+      "category": "Lo"
+    },
+    "0849": {
+      "name": "MANDAIC LETTER AKSA",
+      "category": "Lo"
+    },
+    "084A": {
+      "name": "MANDAIC LETTER AK",
+      "category": "Lo"
+    },
+    "084B": {
+      "name": "MANDAIC LETTER AL",
+      "category": "Lo"
+    },
+    "084C": {
+      "name": "MANDAIC LETTER AM",
+      "category": "Lo"
+    },
+    "084D": {
+      "name": "MANDAIC LETTER AN",
+      "category": "Lo"
+    },
+    "084E": {
+      "name": "MANDAIC LETTER AS",
+      "category": "Lo"
+    },
+    "084F": {
+      "name": "MANDAIC LETTER IN",
+      "category": "Lo"
+    },
+    "0850": {
+      "name": "MANDAIC LETTER AP",
+      "category": "Lo"
+    },
+    "0851": {
+      "name": "MANDAIC LETTER ASZ",
+      "category": "Lo"
+    },
+    "0852": {
+      "name": "MANDAIC LETTER AQ",
+      "category": "Lo"
+    },
+    "0853": {
+      "name": "MANDAIC LETTER AR",
+      "category": "Lo"
+    },
+    "0854": {
+      "name": "MANDAIC LETTER ASH",
+      "category": "Lo"
+    },
+    "0855": {
+      "name": "MANDAIC LETTER AT",
+      "category": "Lo"
+    },
+    "0856": {
+      "name": "MANDAIC LETTER DUSHENNA",
+      "category": "Lo"
+    },
+    "0857": {
+      "name": "MANDAIC LETTER KAD",
+      "category": "Lo"
+    },
+    "0858": {
+      "name": "MANDAIC LETTER AIN",
+      "category": "Lo"
+    },
+    "0859": {
+      "name": "MANDAIC AFFRICATION MARK",
+      "category": "Mn"
+    },
+    "085A": {
+      "name": "MANDAIC VOCALIZATION MARK",
+      "category": "Mn"
+    },
+    "085B": {
+      "name": "MANDAIC GEMINATION MARK",
+      "category": "Mn"
+    },
+    "085E": {
+      "name": "MANDAIC PUNCTUATION",
+      "category": "Po"
+    },
+    "0860": {
+      "name": "SYRIAC LETTER MALAYALAM NGA",
+      "category": "Lo"
+    },
+    "0861": {
+      "name": "SYRIAC LETTER MALAYALAM JA",
+      "category": "Lo"
+    },
+    "0862": {
+      "name": "SYRIAC LETTER MALAYALAM NYA",
+      "category": "Lo"
+    },
+    "0863": {
+      "name": "SYRIAC LETTER MALAYALAM TTA",
+      "category": "Lo"
+    },
+    "0864": {
+      "name": "SYRIAC LETTER MALAYALAM NNA",
+      "category": "Lo"
+    },
+    "0865": {
+      "name": "SYRIAC LETTER MALAYALAM NNNA",
+      "category": "Lo"
+    },
+    "0866": {
+      "name": "SYRIAC LETTER MALAYALAM BHA",
+      "category": "Lo"
+    },
+    "0867": {
+      "name": "SYRIAC LETTER MALAYALAM RA",
+      "category": "Lo"
+    },
+    "0868": {
+      "name": "SYRIAC LETTER MALAYALAM LLA",
+      "category": "Lo"
+    },
+    "0869": {
+      "name": "SYRIAC LETTER MALAYALAM LLLA",
+      "category": "Lo"
+    },
+    "086A": {
+      "name": "SYRIAC LETTER MALAYALAM SSA",
+      "category": "Lo"
+    },
+    "0870": {
+      "name": "ARABIC LETTER ALEF WITH ATTACHED FATHA",
+      "category": "Lo"
+    },
+    "0871": {
+      "name": "ARABIC LETTER ALEF WITH ATTACHED TOP RIGHT FATHA",
+      "category": "Lo"
+    },
+    "0872": {
+      "name": "ARABIC LETTER ALEF WITH RIGHT MIDDLE STROKE",
+      "category": "Lo"
+    },
+    "0873": {
+      "name": "ARABIC LETTER ALEF WITH LEFT MIDDLE STROKE",
+      "category": "Lo"
+    },
+    "0874": {
+      "name": "ARABIC LETTER ALEF WITH ATTACHED KASRA",
+      "category": "Lo"
+    },
+    "0875": {
+      "name": "ARABIC LETTER ALEF WITH ATTACHED BOTTOM RIGHT KASRA",
+      "category": "Lo"
+    },
+    "0876": {
+      "name": "ARABIC LETTER ALEF WITH ATTACHED ROUND DOT ABOVE",
+      "category": "Lo"
+    },
+    "0877": {
+      "name": "ARABIC LETTER ALEF WITH ATTACHED RIGHT ROUND DOT",
+      "category": "Lo"
+    },
+    "0878": {
+      "name": "ARABIC LETTER ALEF WITH ATTACHED LEFT ROUND DOT",
+      "category": "Lo"
+    },
+    "0879": {
+      "name": "ARABIC LETTER ALEF WITH ATTACHED ROUND DOT BELOW",
+      "category": "Lo"
+    },
+    "087A": {
+      "name": "ARABIC LETTER ALEF WITH DOT ABOVE",
+      "category": "Lo"
+    },
+    "087B": {
+      "name": "ARABIC LETTER ALEF WITH ATTACHED TOP RIGHT FATHA AND DOT ABOVE",
+      "category": "Lo"
+    },
+    "087C": {
+      "name": "ARABIC LETTER ALEF WITH RIGHT MIDDLE STROKE AND DOT ABOVE",
+      "category": "Lo"
+    },
+    "087D": {
+      "name": "ARABIC LETTER ALEF WITH ATTACHED BOTTOM RIGHT KASRA AND DOT ABOVE",
+      "category": "Lo"
+    },
+    "087E": {
+      "name": "ARABIC LETTER ALEF WITH ATTACHED TOP RIGHT FATHA AND LEFT RING",
+      "category": "Lo"
+    },
+    "087F": {
+      "name": "ARABIC LETTER ALEF WITH RIGHT MIDDLE STROKE AND LEFT RING",
+      "category": "Lo"
+    },
+    "0880": {
+      "name": "ARABIC LETTER ALEF WITH ATTACHED BOTTOM RIGHT KASRA AND LEFT RING",
+      "category": "Lo"
+    },
+    "0881": {
+      "name": "ARABIC LETTER ALEF WITH ATTACHED RIGHT HAMZA",
+      "category": "Lo"
+    },
+    "0882": {
+      "name": "ARABIC LETTER ALEF WITH ATTACHED LEFT HAMZA",
+      "category": "Lo"
+    },
+    "0883": {
+      "name": "ARABIC TATWEEL WITH OVERSTRUCK HAMZA",
+      "category": "Lo"
+    },
+    "0884": {
+      "name": "ARABIC TATWEEL WITH OVERSTRUCK WAW",
+      "category": "Lo"
+    },
+    "0885": {
+      "name": "ARABIC TATWEEL WITH TWO DOTS BELOW",
+      "category": "Lo"
+    },
+    "0886": {
+      "name": "ARABIC LETTER THIN YEH",
+      "category": "Lo"
+    },
+    "0887": {
+      "name": "ARABIC BASELINE ROUND DOT",
+      "category": "Lo"
+    },
+    "0888": {
+      "name": "ARABIC RAISED ROUND DOT",
+      "category": "Sk"
+    },
+    "0889": {
+      "name": "ARABIC LETTER NOON WITH INVERTED SMALL V",
+      "category": "Lo"
+    },
+    "088A": {
+      "name": "ARABIC LETTER HAH WITH INVERTED SMALL V BELOW",
+      "category": "Lo"
+    },
+    "088B": {
+      "name": "ARABIC LETTER TAH WITH DOT BELOW",
+      "category": "Lo"
+    },
+    "088C": {
+      "name": "ARABIC LETTER TAH WITH THREE DOTS BELOW",
+      "category": "Lo"
+    },
+    "088D": {
+      "name": "ARABIC LETTER KEHEH WITH TWO DOTS VERTICALLY BELOW",
+      "category": "Lo"
+    },
+    "088E": {
+      "name": "ARABIC VERTICAL TAIL",
+      "category": "Lo"
+    },
+    "0890": {
+      "name": "ARABIC POUND MARK ABOVE",
+      "category": "Cf"
+    },
+    "0891": {
+      "name": "ARABIC PIASTRE MARK ABOVE",
+      "category": "Cf"
+    },
+    "0897": {
+      "name": "ARABIC PEPET",
+      "category": "Mn"
+    },
+    "0898": {
+      "name": "ARABIC SMALL HIGH WORD AL-JUZ",
+      "category": "Mn"
+    },
+    "0899": {
+      "name": "ARABIC SMALL LOW WORD ISHMAAM",
+      "category": "Mn"
+    },
+    "089A": {
+      "name": "ARABIC SMALL LOW WORD IMAALA",
+      "category": "Mn"
+    },
+    "089B": {
+      "name": "ARABIC SMALL LOW WORD TASHEEL",
+      "category": "Mn"
+    },
+    "089C": {
+      "name": "ARABIC MADDA WAAJIB",
+      "category": "Mn"
+    },
+    "089D": {
+      "name": "ARABIC SUPERSCRIPT ALEF MOKHASSAS",
+      "category": "Mn"
+    },
+    "089E": {
+      "name": "ARABIC DOUBLED MADDA",
+      "category": "Mn"
+    },
+    "089F": {
+      "name": "ARABIC HALF MADDA OVER MADDA",
+      "category": "Mn"
+    },
+    "08A0": {
+      "name": "ARABIC LETTER BEH WITH SMALL V BELOW",
+      "category": "Lo"
+    },
+    "08A1": {
+      "name": "ARABIC LETTER BEH WITH HAMZA ABOVE",
+      "category": "Lo"
+    },
+    "08A2": {
+      "name": "ARABIC LETTER JEEM WITH TWO DOTS ABOVE",
+      "category": "Lo"
+    },
+    "08A3": {
+      "name": "ARABIC LETTER TAH WITH TWO DOTS ABOVE",
+      "category": "Lo"
+    },
+    "08A4": {
+      "name": "ARABIC LETTER FEH WITH DOT BELOW AND THREE DOTS ABOVE",
+      "category": "Lo"
+    },
+    "08A5": {
+      "name": "ARABIC LETTER QAF WITH DOT BELOW",
+      "category": "Lo"
+    },
+    "08A6": {
+      "name": "ARABIC LETTER LAM WITH DOUBLE BAR",
+      "category": "Lo"
+    },
+    "08A7": {
+      "name": "ARABIC LETTER MEEM WITH THREE DOTS ABOVE",
+      "category": "Lo"
+    },
+    "08A8": {
+      "name": "ARABIC LETTER YEH WITH TWO DOTS BELOW AND HAMZA ABOVE",
+      "category": "Lo"
+    },
+    "08A9": {
+      "name": "ARABIC LETTER YEH WITH TWO DOTS BELOW AND DOT ABOVE",
+      "category": "Lo"
+    },
+    "08AA": {
+      "name": "ARABIC LETTER REH WITH LOOP",
+      "category": "Lo"
+    },
+    "08AB": {
+      "name": "ARABIC LETTER WAW WITH DOT WITHIN",
+      "category": "Lo"
+    },
+    "08AC": {
+      "name": "ARABIC LETTER ROHINGYA YEH",
+      "category": "Lo"
+    },
+    "08AD": {
+      "name": "ARABIC LETTER LOW ALEF",
+      "category": "Lo"
+    },
+    "08AE": {
+      "name": "ARABIC LETTER DAL WITH THREE DOTS BELOW",
+      "category": "Lo"
+    },
+    "08AF": {
+      "name": "ARABIC LETTER SAD WITH THREE DOTS BELOW",
+      "category": "Lo"
+    },
+    "08B0": {
+      "name": "ARABIC LETTER GAF WITH INVERTED STROKE",
+      "category": "Lo"
+    },
+    "08B1": {
+      "name": "ARABIC LETTER STRAIGHT WAW",
+      "category": "Lo"
+    },
+    "08B2": {
+      "name": "ARABIC LETTER ZAIN WITH INVERTED V ABOVE",
+      "category": "Lo"
+    },
+    "08B3": {
+      "name": "ARABIC LETTER AIN WITH THREE DOTS BELOW",
+      "category": "Lo"
+    },
+    "08B4": {
+      "name": "ARABIC LETTER KAF WITH DOT BELOW",
+      "category": "Lo"
+    },
+    "08B5": {
+      "name": "ARABIC LETTER QAF WITH DOT BELOW AND NO DOTS ABOVE",
+      "category": "Lo"
+    },
+    "08B6": {
+      "name": "ARABIC LETTER BEH WITH SMALL MEEM ABOVE",
+      "category": "Lo"
+    },
+    "08B7": {
+      "name": "ARABIC LETTER PEH WITH SMALL MEEM ABOVE",
+      "category": "Lo"
+    },
+    "08B8": {
+      "name": "ARABIC LETTER TEH WITH SMALL TEH ABOVE",
+      "category": "Lo"
+    },
+    "08B9": {
+      "name": "ARABIC LETTER REH WITH SMALL NOON ABOVE",
+      "category": "Lo"
+    },
+    "08BA": {
+      "name": "ARABIC LETTER YEH WITH TWO DOTS BELOW AND SMALL NOON ABOVE",
+      "category": "Lo"
+    },
+    "08BB": {
+      "name": "ARABIC LETTER AFRICAN FEH",
+      "category": "Lo"
+    },
+    "08BC": {
+      "name": "ARABIC LETTER AFRICAN QAF",
+      "category": "Lo"
+    },
+    "08BD": {
+      "name": "ARABIC LETTER AFRICAN NOON",
+      "category": "Lo"
+    },
+    "08BE": {
+      "name": "ARABIC LETTER PEH WITH SMALL V",
+      "category": "Lo"
+    },
+    "08BF": {
+      "name": "ARABIC LETTER TEH WITH SMALL V",
+      "category": "Lo"
+    },
+    "08C0": {
+      "name": "ARABIC LETTER TTEH WITH SMALL V",
+      "category": "Lo"
+    },
+    "08C1": {
+      "name": "ARABIC LETTER TCHEH WITH SMALL V",
+      "category": "Lo"
+    },
+    "08C2": {
+      "name": "ARABIC LETTER KEHEH WITH SMALL V",
+      "category": "Lo"
+    },
+    "08C3": {
+      "name": "ARABIC LETTER GHAIN WITH THREE DOTS ABOVE",
+      "category": "Lo"
+    },
+    "08C4": {
+      "name": "ARABIC LETTER AFRICAN QAF WITH THREE DOTS ABOVE",
+      "category": "Lo"
+    },
+    "08C5": {
+      "name": "ARABIC LETTER JEEM WITH THREE DOTS ABOVE",
+      "category": "Lo"
+    },
+    "08C6": {
+      "name": "ARABIC LETTER JEEM WITH THREE DOTS BELOW",
+      "category": "Lo"
+    },
+    "08C7": {
+      "name": "ARABIC LETTER LAM WITH SMALL ARABIC LETTER TAH ABOVE",
+      "category": "Lo"
+    },
+    "08C8": {
+      "name": "ARABIC LETTER GRAF",
+      "category": "Lo"
+    },
+    "08C9": {
+      "name": "ARABIC SMALL FARSI YEH",
+      "category": "Lm"
+    },
+    "08CA": {
+      "name": "ARABIC SMALL HIGH FARSI YEH",
+      "category": "Mn"
+    },
+    "08CB": {
+      "name": "ARABIC SMALL HIGH YEH BARREE WITH TWO DOTS BELOW",
+      "category": "Mn"
+    },
+    "08CC": {
+      "name": "ARABIC SMALL HIGH WORD SAH",
+      "category": "Mn"
+    },
+    "08CD": {
+      "name": "ARABIC SMALL HIGH ZAH",
+      "category": "Mn"
+    },
+    "08CE": {
+      "name": "ARABIC LARGE ROUND DOT ABOVE",
+      "category": "Mn"
+    },
+    "08CF": {
+      "name": "ARABIC LARGE ROUND DOT BELOW",
+      "category": "Mn"
+    },
+    "08D0": {
+      "name": "ARABIC SUKUN BELOW",
+      "category": "Mn"
+    },
+    "08D1": {
+      "name": "ARABIC LARGE CIRCLE BELOW",
+      "category": "Mn"
+    },
+    "08D2": {
+      "name": "ARABIC LARGE ROUND DOT INSIDE CIRCLE BELOW",
+      "category": "Mn"
+    },
+    "08D3": {
+      "name": "ARABIC SMALL LOW WAW",
+      "category": "Mn"
+    },
+    "08D4": {
+      "name": "ARABIC SMALL HIGH WORD AR-RUB",
+      "category": "Mn"
+    },
+    "08D5": {
+      "name": "ARABIC SMALL HIGH SAD",
+      "category": "Mn"
+    },
+    "08D6": {
+      "name": "ARABIC SMALL HIGH AIN",
+      "category": "Mn"
+    },
+    "08D7": {
+      "name": "ARABIC SMALL HIGH QAF",
+      "category": "Mn"
+    },
+    "08D8": {
+      "name": "ARABIC SMALL HIGH NOON WITH KASRA",
+      "category": "Mn"
+    },
+    "08D9": {
+      "name": "ARABIC SMALL LOW NOON WITH KASRA",
+      "category": "Mn"
+    },
+    "08DA": {
+      "name": "ARABIC SMALL HIGH WORD ATH-THALATHA",
+      "category": "Mn"
+    },
+    "08DB": {
+      "name": "ARABIC SMALL HIGH WORD AS-SAJDA",
+      "category": "Mn"
+    },
+    "08DC": {
+      "name": "ARABIC SMALL HIGH WORD AN-NISF",
+      "category": "Mn"
+    },
+    "08DD": {
+      "name": "ARABIC SMALL HIGH WORD SAKTA",
+      "category": "Mn"
+    },
+    "08DE": {
+      "name": "ARABIC SMALL HIGH WORD QIF",
+      "category": "Mn"
+    },
+    "08DF": {
+      "name": "ARABIC SMALL HIGH WORD WAQFA",
+      "category": "Mn"
+    },
+    "08E0": {
+      "name": "ARABIC SMALL HIGH FOOTNOTE MARKER",
+      "category": "Mn"
+    },
+    "08E1": {
+      "name": "ARABIC SMALL HIGH SIGN SAFHA",
+      "category": "Mn"
+    },
+    "08E2": {
+      "name": "ARABIC DISPUTED END OF AYAH",
+      "category": "Cf"
+    },
+    "08E3": {
+      "name": "ARABIC TURNED DAMMA BELOW",
+      "category": "Mn"
+    },
+    "08E4": {
+      "name": "ARABIC CURLY FATHA",
+      "category": "Mn"
+    },
+    "08E5": {
+      "name": "ARABIC CURLY DAMMA",
+      "category": "Mn"
+    },
+    "08E6": {
+      "name": "ARABIC CURLY KASRA",
+      "category": "Mn"
+    },
+    "08E7": {
+      "name": "ARABIC CURLY FATHATAN",
+      "category": "Mn"
+    },
+    "08E8": {
+      "name": "ARABIC CURLY DAMMATAN",
+      "category": "Mn"
+    },
+    "08E9": {
+      "name": "ARABIC CURLY KASRATAN",
+      "category": "Mn"
+    },
+    "08EA": {
+      "name": "ARABIC TONE ONE DOT ABOVE",
+      "category": "Mn"
+    },
+    "08EB": {
+      "name": "ARABIC TONE TWO DOTS ABOVE",
+      "category": "Mn"
+    },
+    "08EC": {
+      "name": "ARABIC TONE LOOP ABOVE",
+      "category": "Mn"
+    },
+    "08ED": {
+      "name": "ARABIC TONE ONE DOT BELOW",
+      "category": "Mn"
+    },
+    "08EE": {
+      "name": "ARABIC TONE TWO DOTS BELOW",
+      "category": "Mn"
+    },
+    "08EF": {
+      "name": "ARABIC TONE LOOP BELOW",
+      "category": "Mn"
+    },
+    "08F0": {
+      "name": "ARABIC OPEN FATHATAN",
+      "category": "Mn"
+    },
+    "08F1": {
+      "name": "ARABIC OPEN DAMMATAN",
+      "category": "Mn"
+    },
+    "08F2": {
+      "name": "ARABIC OPEN KASRATAN",
+      "category": "Mn"
+    },
+    "08F3": {
+      "name": "ARABIC SMALL HIGH WAW",
+      "category": "Mn"
+    },
+    "08F4": {
+      "name": "ARABIC FATHA WITH RING",
+      "category": "Mn"
+    },
+    "08F5": {
+      "name": "ARABIC FATHA WITH DOT ABOVE",
+      "category": "Mn"
+    },
+    "08F6": {
+      "name": "ARABIC KASRA WITH DOT BELOW",
+      "category": "Mn"
+    },
+    "08F7": {
+      "name": "ARABIC LEFT ARROWHEAD ABOVE",
+      "category": "Mn"
+    },
+    "08F8": {
+      "name": "ARABIC RIGHT ARROWHEAD ABOVE",
+      "category": "Mn"
+    },
+    "08F9": {
+      "name": "ARABIC LEFT ARROWHEAD BELOW",
+      "category": "Mn"
+    },
+    "08FA": {
+      "name": "ARABIC RIGHT ARROWHEAD BELOW",
+      "category": "Mn"
+    },
+    "08FB": {
+      "name": "ARABIC DOUBLE RIGHT ARROWHEAD ABOVE",
+      "category": "Mn"
+    },
+    "08FC": {
+      "name": "ARABIC DOUBLE RIGHT ARROWHEAD ABOVE WITH DOT",
+      "category": "Mn"
+    },
+    "08FD": {
+      "name": "ARABIC RIGHT ARROWHEAD ABOVE WITH DOT",
+      "category": "Mn"
+    },
+    "08FE": {
+      "name": "ARABIC DAMMA WITH DOT",
+      "category": "Mn"
+    },
+    "08FF": {
+      "name": "ARABIC MARK SIDEWAYS NOON GHUNNA",
+      "category": "Mn"
+    },
+    "200A": {
+      "name": "HAIR SPACE",
+      "category": "Zs"
+    },
+    "200B": {
+      "name": "ZERO WIDTH SPACE",
+      "category": "Cf"
+    },
+    "200C": {
+      "name": "ZERO WIDTH NON-JOINER",
+      "category": "Cf"
+    },
+    "200D": {
+      "name": "ZERO WIDTH JOINER",
+      "category": "Cf"
+    },
+    "200E": {
+      "name": "LEFT-TO-RIGHT MARK",
+      "category": "Cf"
+    },
+    "200F": {
+      "name": "RIGHT-TO-LEFT MARK",
+      "category": "Cf"
+    },
+    "201A": {
+      "name": "SINGLE LOW-9 QUOTATION MARK",
+      "category": "Ps"
+    },
+    "201B": {
+      "name": "SINGLE HIGH-REVERSED-9 QUOTATION MARK",
+      "category": "Pi"
+    },
+    "201C": {
+      "name": "LEFT DOUBLE QUOTATION MARK",
+      "category": "Pi"
+    },
+    "201D": {
+      "name": "RIGHT DOUBLE QUOTATION MARK",
+      "category": "Pf"
+    },
+    "201E": {
+      "name": "DOUBLE LOW-9 QUOTATION MARK",
+      "category": "Ps"
+    },
+    "201F": {
+      "name": "DOUBLE HIGH-REVERSED-9 QUOTATION MARK",
+      "category": "Pi"
+    },
+    "202A": {
+      "name": "LEFT-TO-RIGHT EMBEDDING",
+      "category": "Cf"
+    },
+    "202B": {
+      "name": "RIGHT-TO-LEFT EMBEDDING",
+      "category": "Cf"
+    },
+    "202C": {
+      "name": "POP DIRECTIONAL FORMATTING",
+      "category": "Cf"
+    },
+    "202D": {
+      "name": "LEFT-TO-RIGHT OVERRIDE",
+      "category": "Cf"
+    },
+    "202E": {
+      "name": "RIGHT-TO-LEFT OVERRIDE",
+      "category": "Cf"
+    },
+    "202F": {
+      "name": "NARROW NO-BREAK SPACE",
+      "category": "Zs"
+    },
+    "203A": {
+      "name": "SINGLE RIGHT-POINTING ANGLE QUOTATION MARK",
+      "category": "Pf"
+    },
+    "203B": {
+      "name": "REFERENCE MARK",
+      "category": "Po"
+    },
+    "203C": {
+      "name": "DOUBLE EXCLAMATION MARK",
+      "category": "Po"
+    },
+    "203D": {
+      "name": "INTERROBANG",
+      "category": "Po"
+    },
+    "203E": {
+      "name": "OVERLINE",
+      "category": "Po"
+    },
+    "203F": {
+      "name": "UNDERTIE",
+      "category": "Pc"
+    },
+    "204A": {
+      "name": "TIRONIAN SIGN ET",
+      "category": "Po"
+    },
+    "204B": {
+      "name": "REVERSED PILCROW SIGN",
+      "category": "Po"
+    },
+    "204C": {
+      "name": "BLACK LEFTWARDS BULLET",
+      "category": "Po"
+    },
+    "204D": {
+      "name": "BLACK RIGHTWARDS BULLET",
+      "category": "Po"
+    },
+    "204E": {
+      "name": "LOW ASTERISK",
+      "category": "Po"
+    },
+    "204F": {
+      "name": "REVERSED SEMICOLON",
+      "category": "Po"
+    },
+    "205A": {
+      "name": "TWO DOT PUNCTUATION",
+      "category": "Po"
+    },
+    "205B": {
+      "name": "FOUR DOT MARK",
+      "category": "Po"
+    },
+    "205C": {
+      "name": "DOTTED CROSS",
+      "category": "Po"
+    },
+    "205D": {
+      "name": "TRICOLON",
+      "category": "Po"
+    },
+    "205E": {
+      "name": "VERTICAL FOUR DOTS",
+      "category": "Po"
+    },
+    "205F": {
+      "name": "MEDIUM MATHEMATICAL SPACE",
+      "category": "Zs"
+    },
+    "206A": {
+      "name": "INHIBIT SYMMETRIC SWAPPING",
+      "category": "Cf"
+    },
+    "206B": {
+      "name": "ACTIVATE SYMMETRIC SWAPPING",
+      "category": "Cf"
+    },
+    "206C": {
+      "name": "INHIBIT ARABIC FORM SHAPING",
+      "category": "Cf"
+    },
+    "206D": {
+      "name": "ACTIVATE ARABIC FORM SHAPING",
+      "category": "Cf"
+    },
+    "206E": {
+      "name": "NATIONAL DIGIT SHAPES",
+      "category": "Cf"
+    },
+    "206F": {
+      "name": "NOMINAL DIGIT SHAPES",
+      "category": "Cf"
+    },
+    "FB50": {
+      "name": "ARABIC LETTER ALEF WASLA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB51": {
+      "name": "ARABIC LETTER ALEF WASLA FINAL FORM",
+      "category": "Lo"
+    },
+    "FB52": {
+      "name": "ARABIC LETTER BEEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB53": {
+      "name": "ARABIC LETTER BEEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FB54": {
+      "name": "ARABIC LETTER BEEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FB55": {
+      "name": "ARABIC LETTER BEEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FB56": {
+      "name": "ARABIC LETTER PEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB57": {
+      "name": "ARABIC LETTER PEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FB58": {
+      "name": "ARABIC LETTER PEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FB59": {
+      "name": "ARABIC LETTER PEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FB5A": {
+      "name": "ARABIC LETTER BEHEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB5B": {
+      "name": "ARABIC LETTER BEHEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FB5C": {
+      "name": "ARABIC LETTER BEHEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FB5D": {
+      "name": "ARABIC LETTER BEHEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FB5E": {
+      "name": "ARABIC LETTER TTEHEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB5F": {
+      "name": "ARABIC LETTER TTEHEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FB60": {
+      "name": "ARABIC LETTER TTEHEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FB61": {
+      "name": "ARABIC LETTER TTEHEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FB62": {
+      "name": "ARABIC LETTER TEHEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB63": {
+      "name": "ARABIC LETTER TEHEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FB64": {
+      "name": "ARABIC LETTER TEHEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FB65": {
+      "name": "ARABIC LETTER TEHEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FB66": {
+      "name": "ARABIC LETTER TTEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB67": {
+      "name": "ARABIC LETTER TTEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FB68": {
+      "name": "ARABIC LETTER TTEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FB69": {
+      "name": "ARABIC LETTER TTEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FB6A": {
+      "name": "ARABIC LETTER VEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB6B": {
+      "name": "ARABIC LETTER VEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FB6C": {
+      "name": "ARABIC LETTER VEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FB6D": {
+      "name": "ARABIC LETTER VEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FB6E": {
+      "name": "ARABIC LETTER PEHEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB6F": {
+      "name": "ARABIC LETTER PEHEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FB70": {
+      "name": "ARABIC LETTER PEHEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FB71": {
+      "name": "ARABIC LETTER PEHEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FB72": {
+      "name": "ARABIC LETTER DYEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB73": {
+      "name": "ARABIC LETTER DYEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FB74": {
+      "name": "ARABIC LETTER DYEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FB75": {
+      "name": "ARABIC LETTER DYEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FB76": {
+      "name": "ARABIC LETTER NYEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB77": {
+      "name": "ARABIC LETTER NYEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FB78": {
+      "name": "ARABIC LETTER NYEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FB79": {
+      "name": "ARABIC LETTER NYEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FB7A": {
+      "name": "ARABIC LETTER TCHEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB7B": {
+      "name": "ARABIC LETTER TCHEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FB7C": {
+      "name": "ARABIC LETTER TCHEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FB7D": {
+      "name": "ARABIC LETTER TCHEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FB7E": {
+      "name": "ARABIC LETTER TCHEHEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB7F": {
+      "name": "ARABIC LETTER TCHEHEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FB80": {
+      "name": "ARABIC LETTER TCHEHEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FB81": {
+      "name": "ARABIC LETTER TCHEHEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FB82": {
+      "name": "ARABIC LETTER DDAHAL ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB83": {
+      "name": "ARABIC LETTER DDAHAL FINAL FORM",
+      "category": "Lo"
+    },
+    "FB84": {
+      "name": "ARABIC LETTER DAHAL ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB85": {
+      "name": "ARABIC LETTER DAHAL FINAL FORM",
+      "category": "Lo"
+    },
+    "FB86": {
+      "name": "ARABIC LETTER DUL ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB87": {
+      "name": "ARABIC LETTER DUL FINAL FORM",
+      "category": "Lo"
+    },
+    "FB88": {
+      "name": "ARABIC LETTER DDAL ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB89": {
+      "name": "ARABIC LETTER DDAL FINAL FORM",
+      "category": "Lo"
+    },
+    "FB8A": {
+      "name": "ARABIC LETTER JEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB8B": {
+      "name": "ARABIC LETTER JEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FB8C": {
+      "name": "ARABIC LETTER RREH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB8D": {
+      "name": "ARABIC LETTER RREH FINAL FORM",
+      "category": "Lo"
+    },
+    "FB8E": {
+      "name": "ARABIC LETTER KEHEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB8F": {
+      "name": "ARABIC LETTER KEHEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FB90": {
+      "name": "ARABIC LETTER KEHEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FB91": {
+      "name": "ARABIC LETTER KEHEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FB92": {
+      "name": "ARABIC LETTER GAF ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB93": {
+      "name": "ARABIC LETTER GAF FINAL FORM",
+      "category": "Lo"
+    },
+    "FB94": {
+      "name": "ARABIC LETTER GAF INITIAL FORM",
+      "category": "Lo"
+    },
+    "FB95": {
+      "name": "ARABIC LETTER GAF MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FB96": {
+      "name": "ARABIC LETTER GUEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB97": {
+      "name": "ARABIC LETTER GUEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FB98": {
+      "name": "ARABIC LETTER GUEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FB99": {
+      "name": "ARABIC LETTER GUEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FB9A": {
+      "name": "ARABIC LETTER NGOEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB9B": {
+      "name": "ARABIC LETTER NGOEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FB9C": {
+      "name": "ARABIC LETTER NGOEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FB9D": {
+      "name": "ARABIC LETTER NGOEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FB9E": {
+      "name": "ARABIC LETTER NOON GHUNNA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FB9F": {
+      "name": "ARABIC LETTER NOON GHUNNA FINAL FORM",
+      "category": "Lo"
+    },
+    "FBA0": {
+      "name": "ARABIC LETTER RNOON ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBA1": {
+      "name": "ARABIC LETTER RNOON FINAL FORM",
+      "category": "Lo"
+    },
+    "FBA2": {
+      "name": "ARABIC LETTER RNOON INITIAL FORM",
+      "category": "Lo"
+    },
+    "FBA3": {
+      "name": "ARABIC LETTER RNOON MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FBA4": {
+      "name": "ARABIC LETTER HEH WITH YEH ABOVE ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBA5": {
+      "name": "ARABIC LETTER HEH WITH YEH ABOVE FINAL FORM",
+      "category": "Lo"
+    },
+    "FBA6": {
+      "name": "ARABIC LETTER HEH GOAL ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBA7": {
+      "name": "ARABIC LETTER HEH GOAL FINAL FORM",
+      "category": "Lo"
+    },
+    "FBA8": {
+      "name": "ARABIC LETTER HEH GOAL INITIAL FORM",
+      "category": "Lo"
+    },
+    "FBA9": {
+      "name": "ARABIC LETTER HEH GOAL MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FBAA": {
+      "name": "ARABIC LETTER HEH DOACHASHMEE ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBAB": {
+      "name": "ARABIC LETTER HEH DOACHASHMEE FINAL FORM",
+      "category": "Lo"
+    },
+    "FBAC": {
+      "name": "ARABIC LETTER HEH DOACHASHMEE INITIAL FORM",
+      "category": "Lo"
+    },
+    "FBAD": {
+      "name": "ARABIC LETTER HEH DOACHASHMEE MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FBAE": {
+      "name": "ARABIC LETTER YEH BARREE ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBAF": {
+      "name": "ARABIC LETTER YEH BARREE FINAL FORM",
+      "category": "Lo"
+    },
+    "FBB0": {
+      "name": "ARABIC LETTER YEH BARREE WITH HAMZA ABOVE ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBB1": {
+      "name": "ARABIC LETTER YEH BARREE WITH HAMZA ABOVE FINAL FORM",
+      "category": "Lo"
+    },
+    "FBB2": {
+      "name": "ARABIC SYMBOL DOT ABOVE",
+      "category": "Sk"
+    },
+    "FBB3": {
+      "name": "ARABIC SYMBOL DOT BELOW",
+      "category": "Sk"
+    },
+    "FBB4": {
+      "name": "ARABIC SYMBOL TWO DOTS ABOVE",
+      "category": "Sk"
+    },
+    "FBB5": {
+      "name": "ARABIC SYMBOL TWO DOTS BELOW",
+      "category": "Sk"
+    },
+    "FBB6": {
+      "name": "ARABIC SYMBOL THREE DOTS ABOVE",
+      "category": "Sk"
+    },
+    "FBB7": {
+      "name": "ARABIC SYMBOL THREE DOTS BELOW",
+      "category": "Sk"
+    },
+    "FBB8": {
+      "name": "ARABIC SYMBOL THREE DOTS POINTING DOWNWARDS ABOVE",
+      "category": "Sk"
+    },
+    "FBB9": {
+      "name": "ARABIC SYMBOL THREE DOTS POINTING DOWNWARDS BELOW",
+      "category": "Sk"
+    },
+    "FBBA": {
+      "name": "ARABIC SYMBOL FOUR DOTS ABOVE",
+      "category": "Sk"
+    },
+    "FBBB": {
+      "name": "ARABIC SYMBOL FOUR DOTS BELOW",
+      "category": "Sk"
+    },
+    "FBBC": {
+      "name": "ARABIC SYMBOL DOUBLE VERTICAL BAR BELOW",
+      "category": "Sk"
+    },
+    "FBBD": {
+      "name": "ARABIC SYMBOL TWO DOTS VERTICALLY ABOVE",
+      "category": "Sk"
+    },
+    "FBBE": {
+      "name": "ARABIC SYMBOL TWO DOTS VERTICALLY BELOW",
+      "category": "Sk"
+    },
+    "FBBF": {
+      "name": "ARABIC SYMBOL RING",
+      "category": "Sk"
+    },
+    "FBC0": {
+      "name": "ARABIC SYMBOL SMALL TAH ABOVE",
+      "category": "Sk"
+    },
+    "FBC1": {
+      "name": "ARABIC SYMBOL SMALL TAH BELOW",
+      "category": "Sk"
+    },
+    "FBC2": {
+      "name": "ARABIC SYMBOL WASLA ABOVE",
+      "category": "Sk"
+    },
+    "FBD3": {
+      "name": "ARABIC LETTER NG ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBD4": {
+      "name": "ARABIC LETTER NG FINAL FORM",
+      "category": "Lo"
+    },
+    "FBD5": {
+      "name": "ARABIC LETTER NG INITIAL FORM",
+      "category": "Lo"
+    },
+    "FBD6": {
+      "name": "ARABIC LETTER NG MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FBD7": {
+      "name": "ARABIC LETTER U ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBD8": {
+      "name": "ARABIC LETTER U FINAL FORM",
+      "category": "Lo"
+    },
+    "FBD9": {
+      "name": "ARABIC LETTER OE ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBDA": {
+      "name": "ARABIC LETTER OE FINAL FORM",
+      "category": "Lo"
+    },
+    "FBDB": {
+      "name": "ARABIC LETTER YU ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBDC": {
+      "name": "ARABIC LETTER YU FINAL FORM",
+      "category": "Lo"
+    },
+    "FBDD": {
+      "name": "ARABIC LETTER U WITH HAMZA ABOVE ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBDE": {
+      "name": "ARABIC LETTER VE ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBDF": {
+      "name": "ARABIC LETTER VE FINAL FORM",
+      "category": "Lo"
+    },
+    "FBE0": {
+      "name": "ARABIC LETTER KIRGHIZ OE ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBE1": {
+      "name": "ARABIC LETTER KIRGHIZ OE FINAL FORM",
+      "category": "Lo"
+    },
+    "FBE2": {
+      "name": "ARABIC LETTER KIRGHIZ YU ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBE3": {
+      "name": "ARABIC LETTER KIRGHIZ YU FINAL FORM",
+      "category": "Lo"
+    },
+    "FBE4": {
+      "name": "ARABIC LETTER E ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBE5": {
+      "name": "ARABIC LETTER E FINAL FORM",
+      "category": "Lo"
+    },
+    "FBE6": {
+      "name": "ARABIC LETTER E INITIAL FORM",
+      "category": "Lo"
+    },
+    "FBE7": {
+      "name": "ARABIC LETTER E MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FBE8": {
+      "name": "ARABIC LETTER UIGHUR KAZAKH KIRGHIZ ALEF MAKSURA INITIAL FORM",
+      "category": "Lo"
+    },
+    "FBE9": {
+      "name": "ARABIC LETTER UIGHUR KAZAKH KIRGHIZ ALEF MAKSURA MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FBEA": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH ALEF ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBEB": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH ALEF FINAL FORM",
+      "category": "Lo"
+    },
+    "FBEC": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH AE ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBED": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH AE FINAL FORM",
+      "category": "Lo"
+    },
+    "FBEE": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH WAW ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBEF": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH WAW FINAL FORM",
+      "category": "Lo"
+    },
+    "FBF0": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH U ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBF1": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH U FINAL FORM",
+      "category": "Lo"
+    },
+    "FBF2": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH OE ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBF3": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH OE FINAL FORM",
+      "category": "Lo"
+    },
+    "FBF4": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH YU ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBF5": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH YU FINAL FORM",
+      "category": "Lo"
+    },
+    "FBF6": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH E ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBF7": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH E FINAL FORM",
+      "category": "Lo"
+    },
+    "FBF8": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH E INITIAL FORM",
+      "category": "Lo"
+    },
+    "FBF9": {
+      "name": "ARABIC LIGATURE UIGHUR KIRGHIZ YEH WITH HAMZA ABOVE WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBFA": {
+      "name": "ARABIC LIGATURE UIGHUR KIRGHIZ YEH WITH HAMZA ABOVE WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FBFB": {
+      "name": "ARABIC LIGATURE UIGHUR KIRGHIZ YEH WITH HAMZA ABOVE WITH ALEF MAKSURA INITIAL FORM",
+      "category": "Lo"
+    },
+    "FBFC": {
+      "name": "ARABIC LETTER FARSI YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FBFD": {
+      "name": "ARABIC LETTER FARSI YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FBFE": {
+      "name": "ARABIC LETTER FARSI YEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FBFF": {
+      "name": "ARABIC LETTER FARSI YEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FC00": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH JEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC01": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH HAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC02": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC03": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC04": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC05": {
+      "name": "ARABIC LIGATURE BEH WITH JEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC06": {
+      "name": "ARABIC LIGATURE BEH WITH HAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC07": {
+      "name": "ARABIC LIGATURE BEH WITH KHAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC08": {
+      "name": "ARABIC LIGATURE BEH WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC09": {
+      "name": "ARABIC LIGATURE BEH WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC0A": {
+      "name": "ARABIC LIGATURE BEH WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC0B": {
+      "name": "ARABIC LIGATURE TEH WITH JEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC0C": {
+      "name": "ARABIC LIGATURE TEH WITH HAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC0D": {
+      "name": "ARABIC LIGATURE TEH WITH KHAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC0E": {
+      "name": "ARABIC LIGATURE TEH WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC0F": {
+      "name": "ARABIC LIGATURE TEH WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC10": {
+      "name": "ARABIC LIGATURE TEH WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC11": {
+      "name": "ARABIC LIGATURE THEH WITH JEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC12": {
+      "name": "ARABIC LIGATURE THEH WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC13": {
+      "name": "ARABIC LIGATURE THEH WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC14": {
+      "name": "ARABIC LIGATURE THEH WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC15": {
+      "name": "ARABIC LIGATURE JEEM WITH HAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC16": {
+      "name": "ARABIC LIGATURE JEEM WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC17": {
+      "name": "ARABIC LIGATURE HAH WITH JEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC18": {
+      "name": "ARABIC LIGATURE HAH WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC19": {
+      "name": "ARABIC LIGATURE KHAH WITH JEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC1A": {
+      "name": "ARABIC LIGATURE KHAH WITH HAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC1B": {
+      "name": "ARABIC LIGATURE KHAH WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC1C": {
+      "name": "ARABIC LIGATURE SEEN WITH JEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC1D": {
+      "name": "ARABIC LIGATURE SEEN WITH HAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC1E": {
+      "name": "ARABIC LIGATURE SEEN WITH KHAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC1F": {
+      "name": "ARABIC LIGATURE SEEN WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC20": {
+      "name": "ARABIC LIGATURE SAD WITH HAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC21": {
+      "name": "ARABIC LIGATURE SAD WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC22": {
+      "name": "ARABIC LIGATURE DAD WITH JEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC23": {
+      "name": "ARABIC LIGATURE DAD WITH HAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC24": {
+      "name": "ARABIC LIGATURE DAD WITH KHAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC25": {
+      "name": "ARABIC LIGATURE DAD WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC26": {
+      "name": "ARABIC LIGATURE TAH WITH HAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC27": {
+      "name": "ARABIC LIGATURE TAH WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC28": {
+      "name": "ARABIC LIGATURE ZAH WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC29": {
+      "name": "ARABIC LIGATURE AIN WITH JEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC2A": {
+      "name": "ARABIC LIGATURE AIN WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC2B": {
+      "name": "ARABIC LIGATURE GHAIN WITH JEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC2C": {
+      "name": "ARABIC LIGATURE GHAIN WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC2D": {
+      "name": "ARABIC LIGATURE FEH WITH JEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC2E": {
+      "name": "ARABIC LIGATURE FEH WITH HAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC2F": {
+      "name": "ARABIC LIGATURE FEH WITH KHAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC30": {
+      "name": "ARABIC LIGATURE FEH WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC31": {
+      "name": "ARABIC LIGATURE FEH WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC32": {
+      "name": "ARABIC LIGATURE FEH WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC33": {
+      "name": "ARABIC LIGATURE QAF WITH HAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC34": {
+      "name": "ARABIC LIGATURE QAF WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC35": {
+      "name": "ARABIC LIGATURE QAF WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC36": {
+      "name": "ARABIC LIGATURE QAF WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC37": {
+      "name": "ARABIC LIGATURE KAF WITH ALEF ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC38": {
+      "name": "ARABIC LIGATURE KAF WITH JEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC39": {
+      "name": "ARABIC LIGATURE KAF WITH HAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC3A": {
+      "name": "ARABIC LIGATURE KAF WITH KHAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC3B": {
+      "name": "ARABIC LIGATURE KAF WITH LAM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC3C": {
+      "name": "ARABIC LIGATURE KAF WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC3D": {
+      "name": "ARABIC LIGATURE KAF WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC3E": {
+      "name": "ARABIC LIGATURE KAF WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC3F": {
+      "name": "ARABIC LIGATURE LAM WITH JEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC40": {
+      "name": "ARABIC LIGATURE LAM WITH HAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC41": {
+      "name": "ARABIC LIGATURE LAM WITH KHAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC42": {
+      "name": "ARABIC LIGATURE LAM WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC43": {
+      "name": "ARABIC LIGATURE LAM WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC44": {
+      "name": "ARABIC LIGATURE LAM WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC45": {
+      "name": "ARABIC LIGATURE MEEM WITH JEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC46": {
+      "name": "ARABIC LIGATURE MEEM WITH HAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC47": {
+      "name": "ARABIC LIGATURE MEEM WITH KHAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC48": {
+      "name": "ARABIC LIGATURE MEEM WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC49": {
+      "name": "ARABIC LIGATURE MEEM WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC4A": {
+      "name": "ARABIC LIGATURE MEEM WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC4B": {
+      "name": "ARABIC LIGATURE NOON WITH JEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC4C": {
+      "name": "ARABIC LIGATURE NOON WITH HAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC4D": {
+      "name": "ARABIC LIGATURE NOON WITH KHAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC4E": {
+      "name": "ARABIC LIGATURE NOON WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC4F": {
+      "name": "ARABIC LIGATURE NOON WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC50": {
+      "name": "ARABIC LIGATURE NOON WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC51": {
+      "name": "ARABIC LIGATURE HEH WITH JEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC52": {
+      "name": "ARABIC LIGATURE HEH WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC53": {
+      "name": "ARABIC LIGATURE HEH WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC54": {
+      "name": "ARABIC LIGATURE HEH WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC55": {
+      "name": "ARABIC LIGATURE YEH WITH JEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC56": {
+      "name": "ARABIC LIGATURE YEH WITH HAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC57": {
+      "name": "ARABIC LIGATURE YEH WITH KHAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC58": {
+      "name": "ARABIC LIGATURE YEH WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC59": {
+      "name": "ARABIC LIGATURE YEH WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC5A": {
+      "name": "ARABIC LIGATURE YEH WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC5B": {
+      "name": "ARABIC LIGATURE THAL WITH SUPERSCRIPT ALEF ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC5C": {
+      "name": "ARABIC LIGATURE REH WITH SUPERSCRIPT ALEF ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC5D": {
+      "name": "ARABIC LIGATURE ALEF MAKSURA WITH SUPERSCRIPT ALEF ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC5E": {
+      "name": "ARABIC LIGATURE SHADDA WITH DAMMATAN ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC5F": {
+      "name": "ARABIC LIGATURE SHADDA WITH KASRATAN ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC60": {
+      "name": "ARABIC LIGATURE SHADDA WITH FATHA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC61": {
+      "name": "ARABIC LIGATURE SHADDA WITH DAMMA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC62": {
+      "name": "ARABIC LIGATURE SHADDA WITH KASRA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC63": {
+      "name": "ARABIC LIGATURE SHADDA WITH SUPERSCRIPT ALEF ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FC64": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH REH FINAL FORM",
+      "category": "Lo"
+    },
+    "FC65": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH ZAIN FINAL FORM",
+      "category": "Lo"
+    },
+    "FC66": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FC67": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH NOON FINAL FORM",
+      "category": "Lo"
+    },
+    "FC68": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FC69": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FC6A": {
+      "name": "ARABIC LIGATURE BEH WITH REH FINAL FORM",
+      "category": "Lo"
+    },
+    "FC6B": {
+      "name": "ARABIC LIGATURE BEH WITH ZAIN FINAL FORM",
+      "category": "Lo"
+    },
+    "FC6C": {
+      "name": "ARABIC LIGATURE BEH WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FC6D": {
+      "name": "ARABIC LIGATURE BEH WITH NOON FINAL FORM",
+      "category": "Lo"
+    },
+    "FC6E": {
+      "name": "ARABIC LIGATURE BEH WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FC6F": {
+      "name": "ARABIC LIGATURE BEH WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FC70": {
+      "name": "ARABIC LIGATURE TEH WITH REH FINAL FORM",
+      "category": "Lo"
+    },
+    "FC71": {
+      "name": "ARABIC LIGATURE TEH WITH ZAIN FINAL FORM",
+      "category": "Lo"
+    },
+    "FC72": {
+      "name": "ARABIC LIGATURE TEH WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FC73": {
+      "name": "ARABIC LIGATURE TEH WITH NOON FINAL FORM",
+      "category": "Lo"
+    },
+    "FC74": {
+      "name": "ARABIC LIGATURE TEH WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FC75": {
+      "name": "ARABIC LIGATURE TEH WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FC76": {
+      "name": "ARABIC LIGATURE THEH WITH REH FINAL FORM",
+      "category": "Lo"
+    },
+    "FC77": {
+      "name": "ARABIC LIGATURE THEH WITH ZAIN FINAL FORM",
+      "category": "Lo"
+    },
+    "FC78": {
+      "name": "ARABIC LIGATURE THEH WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FC79": {
+      "name": "ARABIC LIGATURE THEH WITH NOON FINAL FORM",
+      "category": "Lo"
+    },
+    "FC7A": {
+      "name": "ARABIC LIGATURE THEH WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FC7B": {
+      "name": "ARABIC LIGATURE THEH WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FC7C": {
+      "name": "ARABIC LIGATURE FEH WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FC7D": {
+      "name": "ARABIC LIGATURE FEH WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FC7E": {
+      "name": "ARABIC LIGATURE QAF WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FC7F": {
+      "name": "ARABIC LIGATURE QAF WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FC80": {
+      "name": "ARABIC LIGATURE KAF WITH ALEF FINAL FORM",
+      "category": "Lo"
+    },
+    "FC81": {
+      "name": "ARABIC LIGATURE KAF WITH LAM FINAL FORM",
+      "category": "Lo"
+    },
+    "FC82": {
+      "name": "ARABIC LIGATURE KAF WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FC83": {
+      "name": "ARABIC LIGATURE KAF WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FC84": {
+      "name": "ARABIC LIGATURE KAF WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FC85": {
+      "name": "ARABIC LIGATURE LAM WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FC86": {
+      "name": "ARABIC LIGATURE LAM WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FC87": {
+      "name": "ARABIC LIGATURE LAM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FC88": {
+      "name": "ARABIC LIGATURE MEEM WITH ALEF FINAL FORM",
+      "category": "Lo"
+    },
+    "FC89": {
+      "name": "ARABIC LIGATURE MEEM WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FC8A": {
+      "name": "ARABIC LIGATURE NOON WITH REH FINAL FORM",
+      "category": "Lo"
+    },
+    "FC8B": {
+      "name": "ARABIC LIGATURE NOON WITH ZAIN FINAL FORM",
+      "category": "Lo"
+    },
+    "FC8C": {
+      "name": "ARABIC LIGATURE NOON WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FC8D": {
+      "name": "ARABIC LIGATURE NOON WITH NOON FINAL FORM",
+      "category": "Lo"
+    },
+    "FC8E": {
+      "name": "ARABIC LIGATURE NOON WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FC8F": {
+      "name": "ARABIC LIGATURE NOON WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FC90": {
+      "name": "ARABIC LIGATURE ALEF MAKSURA WITH SUPERSCRIPT ALEF FINAL FORM",
+      "category": "Lo"
+    },
+    "FC91": {
+      "name": "ARABIC LIGATURE YEH WITH REH FINAL FORM",
+      "category": "Lo"
+    },
+    "FC92": {
+      "name": "ARABIC LIGATURE YEH WITH ZAIN FINAL FORM",
+      "category": "Lo"
+    },
+    "FC93": {
+      "name": "ARABIC LIGATURE YEH WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FC94": {
+      "name": "ARABIC LIGATURE YEH WITH NOON FINAL FORM",
+      "category": "Lo"
+    },
+    "FC95": {
+      "name": "ARABIC LIGATURE YEH WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FC96": {
+      "name": "ARABIC LIGATURE YEH WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FC97": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FC98": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FC99": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH KHAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FC9A": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FC9B": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH HEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FC9C": {
+      "name": "ARABIC LIGATURE BEH WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FC9D": {
+      "name": "ARABIC LIGATURE BEH WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FC9E": {
+      "name": "ARABIC LIGATURE BEH WITH KHAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FC9F": {
+      "name": "ARABIC LIGATURE BEH WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCA0": {
+      "name": "ARABIC LIGATURE BEH WITH HEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCA1": {
+      "name": "ARABIC LIGATURE TEH WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCA2": {
+      "name": "ARABIC LIGATURE TEH WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCA3": {
+      "name": "ARABIC LIGATURE TEH WITH KHAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCA4": {
+      "name": "ARABIC LIGATURE TEH WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCA5": {
+      "name": "ARABIC LIGATURE TEH WITH HEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCA6": {
+      "name": "ARABIC LIGATURE THEH WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCA7": {
+      "name": "ARABIC LIGATURE JEEM WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCA8": {
+      "name": "ARABIC LIGATURE JEEM WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCA9": {
+      "name": "ARABIC LIGATURE HAH WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCAA": {
+      "name": "ARABIC LIGATURE HAH WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCAB": {
+      "name": "ARABIC LIGATURE KHAH WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCAC": {
+      "name": "ARABIC LIGATURE KHAH WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCAD": {
+      "name": "ARABIC LIGATURE SEEN WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCAE": {
+      "name": "ARABIC LIGATURE SEEN WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCAF": {
+      "name": "ARABIC LIGATURE SEEN WITH KHAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCB0": {
+      "name": "ARABIC LIGATURE SEEN WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCB1": {
+      "name": "ARABIC LIGATURE SAD WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCB2": {
+      "name": "ARABIC LIGATURE SAD WITH KHAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCB3": {
+      "name": "ARABIC LIGATURE SAD WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCB4": {
+      "name": "ARABIC LIGATURE DAD WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCB5": {
+      "name": "ARABIC LIGATURE DAD WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCB6": {
+      "name": "ARABIC LIGATURE DAD WITH KHAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCB7": {
+      "name": "ARABIC LIGATURE DAD WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCB8": {
+      "name": "ARABIC LIGATURE TAH WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCB9": {
+      "name": "ARABIC LIGATURE ZAH WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCBA": {
+      "name": "ARABIC LIGATURE AIN WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCBB": {
+      "name": "ARABIC LIGATURE AIN WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCBC": {
+      "name": "ARABIC LIGATURE GHAIN WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCBD": {
+      "name": "ARABIC LIGATURE GHAIN WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCBE": {
+      "name": "ARABIC LIGATURE FEH WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCBF": {
+      "name": "ARABIC LIGATURE FEH WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCC0": {
+      "name": "ARABIC LIGATURE FEH WITH KHAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCC1": {
+      "name": "ARABIC LIGATURE FEH WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCC2": {
+      "name": "ARABIC LIGATURE QAF WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCC3": {
+      "name": "ARABIC LIGATURE QAF WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCC4": {
+      "name": "ARABIC LIGATURE KAF WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCC5": {
+      "name": "ARABIC LIGATURE KAF WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCC6": {
+      "name": "ARABIC LIGATURE KAF WITH KHAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCC7": {
+      "name": "ARABIC LIGATURE KAF WITH LAM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCC8": {
+      "name": "ARABIC LIGATURE KAF WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCC9": {
+      "name": "ARABIC LIGATURE LAM WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCCA": {
+      "name": "ARABIC LIGATURE LAM WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCCB": {
+      "name": "ARABIC LIGATURE LAM WITH KHAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCCC": {
+      "name": "ARABIC LIGATURE LAM WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCCD": {
+      "name": "ARABIC LIGATURE LAM WITH HEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCCE": {
+      "name": "ARABIC LIGATURE MEEM WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCCF": {
+      "name": "ARABIC LIGATURE MEEM WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCD0": {
+      "name": "ARABIC LIGATURE MEEM WITH KHAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCD1": {
+      "name": "ARABIC LIGATURE MEEM WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCD2": {
+      "name": "ARABIC LIGATURE NOON WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCD3": {
+      "name": "ARABIC LIGATURE NOON WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCD4": {
+      "name": "ARABIC LIGATURE NOON WITH KHAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCD5": {
+      "name": "ARABIC LIGATURE NOON WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCD6": {
+      "name": "ARABIC LIGATURE NOON WITH HEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCD7": {
+      "name": "ARABIC LIGATURE HEH WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCD8": {
+      "name": "ARABIC LIGATURE HEH WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCD9": {
+      "name": "ARABIC LIGATURE HEH WITH SUPERSCRIPT ALEF INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCDA": {
+      "name": "ARABIC LIGATURE YEH WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCDB": {
+      "name": "ARABIC LIGATURE YEH WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCDC": {
+      "name": "ARABIC LIGATURE YEH WITH KHAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCDD": {
+      "name": "ARABIC LIGATURE YEH WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCDE": {
+      "name": "ARABIC LIGATURE YEH WITH HEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FCDF": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH MEEM MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCE0": {
+      "name": "ARABIC LIGATURE YEH WITH HAMZA ABOVE WITH HEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCE1": {
+      "name": "ARABIC LIGATURE BEH WITH MEEM MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCE2": {
+      "name": "ARABIC LIGATURE BEH WITH HEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCE3": {
+      "name": "ARABIC LIGATURE TEH WITH MEEM MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCE4": {
+      "name": "ARABIC LIGATURE TEH WITH HEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCE5": {
+      "name": "ARABIC LIGATURE THEH WITH MEEM MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCE6": {
+      "name": "ARABIC LIGATURE THEH WITH HEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCE7": {
+      "name": "ARABIC LIGATURE SEEN WITH MEEM MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCE8": {
+      "name": "ARABIC LIGATURE SEEN WITH HEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCE9": {
+      "name": "ARABIC LIGATURE SHEEN WITH MEEM MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCEA": {
+      "name": "ARABIC LIGATURE SHEEN WITH HEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCEB": {
+      "name": "ARABIC LIGATURE KAF WITH LAM MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCEC": {
+      "name": "ARABIC LIGATURE KAF WITH MEEM MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCED": {
+      "name": "ARABIC LIGATURE LAM WITH MEEM MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCEE": {
+      "name": "ARABIC LIGATURE NOON WITH MEEM MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCEF": {
+      "name": "ARABIC LIGATURE NOON WITH HEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCF0": {
+      "name": "ARABIC LIGATURE YEH WITH MEEM MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCF1": {
+      "name": "ARABIC LIGATURE YEH WITH HEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCF2": {
+      "name": "ARABIC LIGATURE SHADDA WITH FATHA MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCF3": {
+      "name": "ARABIC LIGATURE SHADDA WITH DAMMA MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCF4": {
+      "name": "ARABIC LIGATURE SHADDA WITH KASRA MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FCF5": {
+      "name": "ARABIC LIGATURE TAH WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FCF6": {
+      "name": "ARABIC LIGATURE TAH WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FCF7": {
+      "name": "ARABIC LIGATURE AIN WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FCF8": {
+      "name": "ARABIC LIGATURE AIN WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FCF9": {
+      "name": "ARABIC LIGATURE GHAIN WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FCFA": {
+      "name": "ARABIC LIGATURE GHAIN WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FCFB": {
+      "name": "ARABIC LIGATURE SEEN WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FCFC": {
+      "name": "ARABIC LIGATURE SEEN WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FCFD": {
+      "name": "ARABIC LIGATURE SHEEN WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FCFE": {
+      "name": "ARABIC LIGATURE SHEEN WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FCFF": {
+      "name": "ARABIC LIGATURE HAH WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FD00": {
+      "name": "ARABIC LIGATURE HAH WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FD01": {
+      "name": "ARABIC LIGATURE JEEM WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FD02": {
+      "name": "ARABIC LIGATURE JEEM WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FD03": {
+      "name": "ARABIC LIGATURE KHAH WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FD04": {
+      "name": "ARABIC LIGATURE KHAH WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FD05": {
+      "name": "ARABIC LIGATURE SAD WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FD06": {
+      "name": "ARABIC LIGATURE SAD WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FD07": {
+      "name": "ARABIC LIGATURE DAD WITH ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FD08": {
+      "name": "ARABIC LIGATURE DAD WITH YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FD09": {
+      "name": "ARABIC LIGATURE SHEEN WITH JEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FD0A": {
+      "name": "ARABIC LIGATURE SHEEN WITH HAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FD0B": {
+      "name": "ARABIC LIGATURE SHEEN WITH KHAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FD0C": {
+      "name": "ARABIC LIGATURE SHEEN WITH MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FD0D": {
+      "name": "ARABIC LIGATURE SHEEN WITH REH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FD0E": {
+      "name": "ARABIC LIGATURE SEEN WITH REH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FD0F": {
+      "name": "ARABIC LIGATURE SAD WITH REH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FD10": {
+      "name": "ARABIC LIGATURE DAD WITH REH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FD11": {
+      "name": "ARABIC LIGATURE TAH WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FD12": {
+      "name": "ARABIC LIGATURE TAH WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD13": {
+      "name": "ARABIC LIGATURE AIN WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FD14": {
+      "name": "ARABIC LIGATURE AIN WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD15": {
+      "name": "ARABIC LIGATURE GHAIN WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FD16": {
+      "name": "ARABIC LIGATURE GHAIN WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD17": {
+      "name": "ARABIC LIGATURE SEEN WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FD18": {
+      "name": "ARABIC LIGATURE SEEN WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD19": {
+      "name": "ARABIC LIGATURE SHEEN WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FD1A": {
+      "name": "ARABIC LIGATURE SHEEN WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD1B": {
+      "name": "ARABIC LIGATURE HAH WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FD1C": {
+      "name": "ARABIC LIGATURE HAH WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD1D": {
+      "name": "ARABIC LIGATURE JEEM WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FD1E": {
+      "name": "ARABIC LIGATURE JEEM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD1F": {
+      "name": "ARABIC LIGATURE KHAH WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FD20": {
+      "name": "ARABIC LIGATURE KHAH WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD21": {
+      "name": "ARABIC LIGATURE SAD WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FD22": {
+      "name": "ARABIC LIGATURE SAD WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD23": {
+      "name": "ARABIC LIGATURE DAD WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FD24": {
+      "name": "ARABIC LIGATURE DAD WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD25": {
+      "name": "ARABIC LIGATURE SHEEN WITH JEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FD26": {
+      "name": "ARABIC LIGATURE SHEEN WITH HAH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD27": {
+      "name": "ARABIC LIGATURE SHEEN WITH KHAH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD28": {
+      "name": "ARABIC LIGATURE SHEEN WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FD29": {
+      "name": "ARABIC LIGATURE SHEEN WITH REH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD2A": {
+      "name": "ARABIC LIGATURE SEEN WITH REH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD2B": {
+      "name": "ARABIC LIGATURE SAD WITH REH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD2C": {
+      "name": "ARABIC LIGATURE DAD WITH REH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD2D": {
+      "name": "ARABIC LIGATURE SHEEN WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD2E": {
+      "name": "ARABIC LIGATURE SHEEN WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD2F": {
+      "name": "ARABIC LIGATURE SHEEN WITH KHAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD30": {
+      "name": "ARABIC LIGATURE SHEEN WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD31": {
+      "name": "ARABIC LIGATURE SEEN WITH HEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD32": {
+      "name": "ARABIC LIGATURE SHEEN WITH HEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD33": {
+      "name": "ARABIC LIGATURE TAH WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD34": {
+      "name": "ARABIC LIGATURE SEEN WITH JEEM MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FD35": {
+      "name": "ARABIC LIGATURE SEEN WITH HAH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FD36": {
+      "name": "ARABIC LIGATURE SEEN WITH KHAH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FD37": {
+      "name": "ARABIC LIGATURE SHEEN WITH JEEM MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FD38": {
+      "name": "ARABIC LIGATURE SHEEN WITH HAH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FD39": {
+      "name": "ARABIC LIGATURE SHEEN WITH KHAH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FD3A": {
+      "name": "ARABIC LIGATURE TAH WITH MEEM MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FD3B": {
+      "name": "ARABIC LIGATURE ZAH WITH MEEM MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FD3C": {
+      "name": "ARABIC LIGATURE ALEF WITH FATHATAN FINAL FORM",
+      "category": "Lo"
+    },
+    "FD3D": {
+      "name": "ARABIC LIGATURE ALEF WITH FATHATAN ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FD3E": {
+      "name": "ORNATE LEFT PARENTHESIS",
+      "category": "Pe"
+    },
+    "FD3F": {
+      "name": "ORNATE RIGHT PARENTHESIS",
+      "category": "Ps"
+    },
+    "FD40": {
+      "name": "ARABIC LIGATURE RAHIMAHU ALLAAH",
+      "category": "So"
+    },
+    "FD41": {
+      "name": "ARABIC LIGATURE RADI ALLAAHU ANH",
+      "category": "So"
+    },
+    "FD42": {
+      "name": "ARABIC LIGATURE RADI ALLAAHU ANHAA",
+      "category": "So"
+    },
+    "FD43": {
+      "name": "ARABIC LIGATURE RADI ALLAAHU ANHUM",
+      "category": "So"
+    },
+    "FD44": {
+      "name": "ARABIC LIGATURE RADI ALLAAHU ANHUMAA",
+      "category": "So"
+    },
+    "FD45": {
+      "name": "ARABIC LIGATURE RADI ALLAAHU ANHUNNA",
+      "category": "So"
+    },
+    "FD46": {
+      "name": "ARABIC LIGATURE SALLALLAAHU ALAYHI WA-AALIH",
+      "category": "So"
+    },
+    "FD47": {
+      "name": "ARABIC LIGATURE ALAYHI AS-SALAAM",
+      "category": "So"
+    },
+    "FD48": {
+      "name": "ARABIC LIGATURE ALAYHIM AS-SALAAM",
+      "category": "So"
+    },
+    "FD49": {
+      "name": "ARABIC LIGATURE ALAYHIMAA AS-SALAAM",
+      "category": "So"
+    },
+    "FD4A": {
+      "name": "ARABIC LIGATURE ALAYHI AS-SALAATU WAS-SALAAM",
+      "category": "So"
+    },
+    "FD4B": {
+      "name": "ARABIC LIGATURE QUDDISA SIRRAH",
+      "category": "So"
+    },
+    "FD4C": {
+      "name": "ARABIC LIGATURE SALLALLAHU ALAYHI WAAALIHEE WA-SALLAM",
+      "category": "So"
+    },
+    "FD4D": {
+      "name": "ARABIC LIGATURE ALAYHAA AS-SALAAM",
+      "category": "So"
+    },
+    "FD4E": {
+      "name": "ARABIC LIGATURE TABAARAKA WA-TAAALAA",
+      "category": "So"
+    },
+    "FD4F": {
+      "name": "ARABIC LIGATURE RAHIMAHUM ALLAAH",
+      "category": "So"
+    },
+    "FD50": {
+      "name": "ARABIC LIGATURE TEH WITH JEEM WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD51": {
+      "name": "ARABIC LIGATURE TEH WITH HAH WITH JEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FD52": {
+      "name": "ARABIC LIGATURE TEH WITH HAH WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD53": {
+      "name": "ARABIC LIGATURE TEH WITH HAH WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD54": {
+      "name": "ARABIC LIGATURE TEH WITH KHAH WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD55": {
+      "name": "ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD56": {
+      "name": "ARABIC LIGATURE TEH WITH MEEM WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD57": {
+      "name": "ARABIC LIGATURE TEH WITH MEEM WITH KHAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD58": {
+      "name": "ARABIC LIGATURE JEEM WITH MEEM WITH HAH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD59": {
+      "name": "ARABIC LIGATURE JEEM WITH MEEM WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD5A": {
+      "name": "ARABIC LIGATURE HAH WITH MEEM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD5B": {
+      "name": "ARABIC LIGATURE HAH WITH MEEM WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FD5C": {
+      "name": "ARABIC LIGATURE SEEN WITH HAH WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD5D": {
+      "name": "ARABIC LIGATURE SEEN WITH JEEM WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD5E": {
+      "name": "ARABIC LIGATURE SEEN WITH JEEM WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FD5F": {
+      "name": "ARABIC LIGATURE SEEN WITH MEEM WITH HAH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD60": {
+      "name": "ARABIC LIGATURE SEEN WITH MEEM WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD61": {
+      "name": "ARABIC LIGATURE SEEN WITH MEEM WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD62": {
+      "name": "ARABIC LIGATURE SEEN WITH MEEM WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FD63": {
+      "name": "ARABIC LIGATURE SEEN WITH MEEM WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD64": {
+      "name": "ARABIC LIGATURE SAD WITH HAH WITH HAH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD65": {
+      "name": "ARABIC LIGATURE SAD WITH HAH WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD66": {
+      "name": "ARABIC LIGATURE SAD WITH MEEM WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FD67": {
+      "name": "ARABIC LIGATURE SHEEN WITH HAH WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FD68": {
+      "name": "ARABIC LIGATURE SHEEN WITH HAH WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD69": {
+      "name": "ARABIC LIGATURE SHEEN WITH JEEM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD6A": {
+      "name": "ARABIC LIGATURE SHEEN WITH MEEM WITH KHAH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD6B": {
+      "name": "ARABIC LIGATURE SHEEN WITH MEEM WITH KHAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD6C": {
+      "name": "ARABIC LIGATURE SHEEN WITH MEEM WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FD6D": {
+      "name": "ARABIC LIGATURE SHEEN WITH MEEM WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD6E": {
+      "name": "ARABIC LIGATURE DAD WITH HAH WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FD6F": {
+      "name": "ARABIC LIGATURE DAD WITH KHAH WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FD70": {
+      "name": "ARABIC LIGATURE DAD WITH KHAH WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD71": {
+      "name": "ARABIC LIGATURE TAH WITH MEEM WITH HAH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD72": {
+      "name": "ARABIC LIGATURE TAH WITH MEEM WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD73": {
+      "name": "ARABIC LIGATURE TAH WITH MEEM WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD74": {
+      "name": "ARABIC LIGATURE TAH WITH MEEM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD75": {
+      "name": "ARABIC LIGATURE AIN WITH JEEM WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FD76": {
+      "name": "ARABIC LIGATURE AIN WITH MEEM WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FD77": {
+      "name": "ARABIC LIGATURE AIN WITH MEEM WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD78": {
+      "name": "ARABIC LIGATURE AIN WITH MEEM WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FD79": {
+      "name": "ARABIC LIGATURE GHAIN WITH MEEM WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FD7A": {
+      "name": "ARABIC LIGATURE GHAIN WITH MEEM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD7B": {
+      "name": "ARABIC LIGATURE GHAIN WITH MEEM WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FD7C": {
+      "name": "ARABIC LIGATURE FEH WITH KHAH WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FD7D": {
+      "name": "ARABIC LIGATURE FEH WITH KHAH WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD7E": {
+      "name": "ARABIC LIGATURE QAF WITH MEEM WITH HAH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD7F": {
+      "name": "ARABIC LIGATURE QAF WITH MEEM WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FD80": {
+      "name": "ARABIC LIGATURE LAM WITH HAH WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FD81": {
+      "name": "ARABIC LIGATURE LAM WITH HAH WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD82": {
+      "name": "ARABIC LIGATURE LAM WITH HAH WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FD83": {
+      "name": "ARABIC LIGATURE LAM WITH JEEM WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD84": {
+      "name": "ARABIC LIGATURE LAM WITH JEEM WITH JEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FD85": {
+      "name": "ARABIC LIGATURE LAM WITH KHAH WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FD86": {
+      "name": "ARABIC LIGATURE LAM WITH KHAH WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD87": {
+      "name": "ARABIC LIGATURE LAM WITH MEEM WITH HAH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD88": {
+      "name": "ARABIC LIGATURE LAM WITH MEEM WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD89": {
+      "name": "ARABIC LIGATURE MEEM WITH HAH WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD8A": {
+      "name": "ARABIC LIGATURE MEEM WITH HAH WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD8B": {
+      "name": "ARABIC LIGATURE MEEM WITH HAH WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD8C": {
+      "name": "ARABIC LIGATURE MEEM WITH JEEM WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD8D": {
+      "name": "ARABIC LIGATURE MEEM WITH JEEM WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD8E": {
+      "name": "ARABIC LIGATURE MEEM WITH KHAH WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD8F": {
+      "name": "ARABIC LIGATURE MEEM WITH KHAH WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD92": {
+      "name": "ARABIC LIGATURE MEEM WITH JEEM WITH KHAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD93": {
+      "name": "ARABIC LIGATURE HEH WITH MEEM WITH JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD94": {
+      "name": "ARABIC LIGATURE HEH WITH MEEM WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD95": {
+      "name": "ARABIC LIGATURE NOON WITH HAH WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD96": {
+      "name": "ARABIC LIGATURE NOON WITH HAH WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FD97": {
+      "name": "ARABIC LIGATURE NOON WITH JEEM WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FD98": {
+      "name": "ARABIC LIGATURE NOON WITH JEEM WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD99": {
+      "name": "ARABIC LIGATURE NOON WITH JEEM WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FD9A": {
+      "name": "ARABIC LIGATURE NOON WITH MEEM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD9B": {
+      "name": "ARABIC LIGATURE NOON WITH MEEM WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FD9C": {
+      "name": "ARABIC LIGATURE YEH WITH MEEM WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FD9D": {
+      "name": "ARABIC LIGATURE YEH WITH MEEM WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FD9E": {
+      "name": "ARABIC LIGATURE BEH WITH KHAH WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FD9F": {
+      "name": "ARABIC LIGATURE TEH WITH JEEM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDA0": {
+      "name": "ARABIC LIGATURE TEH WITH JEEM WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FDA1": {
+      "name": "ARABIC LIGATURE TEH WITH KHAH WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDA2": {
+      "name": "ARABIC LIGATURE TEH WITH KHAH WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FDA3": {
+      "name": "ARABIC LIGATURE TEH WITH MEEM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDA4": {
+      "name": "ARABIC LIGATURE TEH WITH MEEM WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FDA5": {
+      "name": "ARABIC LIGATURE JEEM WITH MEEM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDA6": {
+      "name": "ARABIC LIGATURE JEEM WITH HAH WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FDA7": {
+      "name": "ARABIC LIGATURE JEEM WITH MEEM WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FDA8": {
+      "name": "ARABIC LIGATURE SEEN WITH KHAH WITH ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FDA9": {
+      "name": "ARABIC LIGATURE SAD WITH HAH WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDAA": {
+      "name": "ARABIC LIGATURE SHEEN WITH HAH WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDAB": {
+      "name": "ARABIC LIGATURE DAD WITH HAH WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDAC": {
+      "name": "ARABIC LIGATURE LAM WITH JEEM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDAD": {
+      "name": "ARABIC LIGATURE LAM WITH MEEM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDAE": {
+      "name": "ARABIC LIGATURE YEH WITH HAH WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDAF": {
+      "name": "ARABIC LIGATURE YEH WITH JEEM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDB0": {
+      "name": "ARABIC LIGATURE YEH WITH MEEM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDB1": {
+      "name": "ARABIC LIGATURE MEEM WITH MEEM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDB2": {
+      "name": "ARABIC LIGATURE QAF WITH MEEM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDB3": {
+      "name": "ARABIC LIGATURE NOON WITH HAH WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDB4": {
+      "name": "ARABIC LIGATURE QAF WITH MEEM WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FDB5": {
+      "name": "ARABIC LIGATURE LAM WITH HAH WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FDB6": {
+      "name": "ARABIC LIGATURE AIN WITH MEEM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDB7": {
+      "name": "ARABIC LIGATURE KAF WITH MEEM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDB8": {
+      "name": "ARABIC LIGATURE NOON WITH JEEM WITH HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FDB9": {
+      "name": "ARABIC LIGATURE MEEM WITH KHAH WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDBA": {
+      "name": "ARABIC LIGATURE LAM WITH JEEM WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FDBB": {
+      "name": "ARABIC LIGATURE KAF WITH MEEM WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FDBC": {
+      "name": "ARABIC LIGATURE LAM WITH JEEM WITH MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FDBD": {
+      "name": "ARABIC LIGATURE NOON WITH JEEM WITH HAH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDBE": {
+      "name": "ARABIC LIGATURE JEEM WITH HAH WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDBF": {
+      "name": "ARABIC LIGATURE HAH WITH JEEM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDC0": {
+      "name": "ARABIC LIGATURE MEEM WITH JEEM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDC1": {
+      "name": "ARABIC LIGATURE FEH WITH MEEM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDC2": {
+      "name": "ARABIC LIGATURE BEH WITH HAH WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDC3": {
+      "name": "ARABIC LIGATURE KAF WITH MEEM WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FDC4": {
+      "name": "ARABIC LIGATURE AIN WITH JEEM WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FDC5": {
+      "name": "ARABIC LIGATURE SAD WITH MEEM WITH MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FDC6": {
+      "name": "ARABIC LIGATURE SEEN WITH KHAH WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDC7": {
+      "name": "ARABIC LIGATURE NOON WITH JEEM WITH YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FDCF": {
+      "name": "ARABIC LIGATURE SALAAMUHU ALAYNAA",
+      "category": "So"
+    },
+    "FDF0": {
+      "name": "ARABIC LIGATURE SALLA USED AS KORANIC STOP SIGN ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FDF1": {
+      "name": "ARABIC LIGATURE QALA USED AS KORANIC STOP SIGN ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FDF2": {
+      "name": "ARABIC LIGATURE ALLAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FDF3": {
+      "name": "ARABIC LIGATURE AKBAR ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FDF4": {
+      "name": "ARABIC LIGATURE MOHAMMAD ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FDF5": {
+      "name": "ARABIC LIGATURE SALAM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FDF6": {
+      "name": "ARABIC LIGATURE RASOUL ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FDF7": {
+      "name": "ARABIC LIGATURE ALAYHE ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FDF8": {
+      "name": "ARABIC LIGATURE WASALLAM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FDF9": {
+      "name": "ARABIC LIGATURE SALLA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FDFA": {
+      "name": "ARABIC LIGATURE SALLALLAHOU ALAYHE WASALLAM",
+      "category": "Lo"
+    },
+    "FDFB": {
+      "name": "ARABIC LIGATURE JALLAJALALOUHOU",
+      "category": "Lo"
+    },
+    "FDFC": {
+      "name": "RIAL SIGN",
+      "category": "Sc"
+    },
+    "FDFD": {
+      "name": "ARABIC LIGATURE BISMILLAH AR-RAHMAN AR-RAHEEM",
+      "category": "So"
+    },
+    "FDFE": {
+      "name": "ARABIC LIGATURE SUBHAANAHU WA TAAALAA",
+      "category": "So"
+    },
+    "FDFF": {
+      "name": "ARABIC LIGATURE AZZA WA JALL",
+      "category": "So"
+    },
+    "FE00": {
+      "name": "VARIATION SELECTOR-1",
+      "category": "Mn"
+    },
+    "FE01": {
+      "name": "VARIATION SELECTOR-2",
+      "category": "Mn"
+    },
+    "FE02": {
+      "name": "VARIATION SELECTOR-3",
+      "category": "Mn"
+    },
+    "FE03": {
+      "name": "VARIATION SELECTOR-4",
+      "category": "Mn"
+    },
+    "FE04": {
+      "name": "VARIATION SELECTOR-5",
+      "category": "Mn"
+    },
+    "FE05": {
+      "name": "VARIATION SELECTOR-6",
+      "category": "Mn"
+    },
+    "FE06": {
+      "name": "VARIATION SELECTOR-7",
+      "category": "Mn"
+    },
+    "FE07": {
+      "name": "VARIATION SELECTOR-8",
+      "category": "Mn"
+    },
+    "FE08": {
+      "name": "VARIATION SELECTOR-9",
+      "category": "Mn"
+    },
+    "FE09": {
+      "name": "VARIATION SELECTOR-10",
+      "category": "Mn"
+    },
+    "FE0A": {
+      "name": "VARIATION SELECTOR-11",
+      "category": "Mn"
+    },
+    "FE0B": {
+      "name": "VARIATION SELECTOR-12",
+      "category": "Mn"
+    },
+    "FE0C": {
+      "name": "VARIATION SELECTOR-13",
+      "category": "Mn"
+    },
+    "FE0D": {
+      "name": "VARIATION SELECTOR-14",
+      "category": "Mn"
+    },
+    "FE0E": {
+      "name": "VARIATION SELECTOR-15",
+      "category": "Mn"
+    },
+    "FE0F": {
+      "name": "VARIATION SELECTOR-16",
+      "category": "Mn"
+    },
+    "FE10": {
+      "name": "PRESENTATION FORM FOR VERTICAL COMMA",
+      "category": "Po"
+    },
+    "FE11": {
+      "name": "PRESENTATION FORM FOR VERTICAL IDEOGRAPHIC COMMA",
+      "category": "Po"
+    },
+    "FE12": {
+      "name": "PRESENTATION FORM FOR VERTICAL IDEOGRAPHIC FULL STOP",
+      "category": "Po"
+    },
+    "FE13": {
+      "name": "PRESENTATION FORM FOR VERTICAL COLON",
+      "category": "Po"
+    },
+    "FE14": {
+      "name": "PRESENTATION FORM FOR VERTICAL SEMICOLON",
+      "category": "Po"
+    },
+    "FE15": {
+      "name": "PRESENTATION FORM FOR VERTICAL EXCLAMATION MARK",
+      "category": "Po"
+    },
+    "FE16": {
+      "name": "PRESENTATION FORM FOR VERTICAL QUESTION MARK",
+      "category": "Po"
+    },
+    "FE17": {
+      "name": "PRESENTATION FORM FOR VERTICAL LEFT WHITE LENTICULAR BRACKET",
+      "category": "Ps"
+    },
+    "FE18": {
+      "name": "PRESENTATION FORM FOR VERTICAL RIGHT WHITE LENTICULAR BRAKCET",
+      "category": "Pe"
+    },
+    "FE19": {
+      "name": "PRESENTATION FORM FOR VERTICAL HORIZONTAL ELLIPSIS",
+      "category": "Po"
+    },
+    "FE20": {
+      "name": "COMBINING LIGATURE LEFT HALF",
+      "category": "Mn"
+    },
+    "FE21": {
+      "name": "COMBINING LIGATURE RIGHT HALF",
+      "category": "Mn"
+    },
+    "FE22": {
+      "name": "COMBINING DOUBLE TILDE LEFT HALF",
+      "category": "Mn"
+    },
+    "FE23": {
+      "name": "COMBINING DOUBLE TILDE RIGHT HALF",
+      "category": "Mn"
+    },
+    "FE24": {
+      "name": "COMBINING MACRON LEFT HALF",
+      "category": "Mn"
+    },
+    "FE25": {
+      "name": "COMBINING MACRON RIGHT HALF",
+      "category": "Mn"
+    },
+    "FE26": {
+      "name": "COMBINING CONJOINING MACRON",
+      "category": "Mn"
+    },
+    "FE27": {
+      "name": "COMBINING LIGATURE LEFT HALF BELOW",
+      "category": "Mn"
+    },
+    "FE28": {
+      "name": "COMBINING LIGATURE RIGHT HALF BELOW",
+      "category": "Mn"
+    },
+    "FE29": {
+      "name": "COMBINING TILDE LEFT HALF BELOW",
+      "category": "Mn"
+    },
+    "FE2A": {
+      "name": "COMBINING TILDE RIGHT HALF BELOW",
+      "category": "Mn"
+    },
+    "FE2B": {
+      "name": "COMBINING MACRON LEFT HALF BELOW",
+      "category": "Mn"
+    },
+    "FE2C": {
+      "name": "COMBINING MACRON RIGHT HALF BELOW",
+      "category": "Mn"
+    },
+    "FE2D": {
+      "name": "COMBINING CONJOINING MACRON BELOW",
+      "category": "Mn"
+    },
+    "FE2E": {
+      "name": "COMBINING CYRILLIC TITLO LEFT HALF",
+      "category": "Mn"
+    },
+    "FE2F": {
+      "name": "COMBINING CYRILLIC TITLO RIGHT HALF",
+      "category": "Mn"
+    },
+    "FE30": {
+      "name": "PRESENTATION FORM FOR VERTICAL TWO DOT LEADER",
+      "category": "Po"
+    },
+    "FE31": {
+      "name": "PRESENTATION FORM FOR VERTICAL EM DASH",
+      "category": "Pd"
+    },
+    "FE32": {
+      "name": "PRESENTATION FORM FOR VERTICAL EN DASH",
+      "category": "Pd"
+    },
+    "FE33": {
+      "name": "PRESENTATION FORM FOR VERTICAL LOW LINE",
+      "category": "Pc"
+    },
+    "FE34": {
+      "name": "PRESENTATION FORM FOR VERTICAL WAVY LOW LINE",
+      "category": "Pc"
+    },
+    "FE35": {
+      "name": "PRESENTATION FORM FOR VERTICAL LEFT PARENTHESIS",
+      "category": "Ps"
+    },
+    "FE36": {
+      "name": "PRESENTATION FORM FOR VERTICAL RIGHT PARENTHESIS",
+      "category": "Pe"
+    },
+    "FE37": {
+      "name": "PRESENTATION FORM FOR VERTICAL LEFT CURLY BRACKET",
+      "category": "Ps"
+    },
+    "FE38": {
+      "name": "PRESENTATION FORM FOR VERTICAL RIGHT CURLY BRACKET",
+      "category": "Pe"
+    },
+    "FE39": {
+      "name": "PRESENTATION FORM FOR VERTICAL LEFT TORTOISE SHELL BRACKET",
+      "category": "Ps"
+    },
+    "FE3A": {
+      "name": "PRESENTATION FORM FOR VERTICAL RIGHT TORTOISE SHELL BRACKET",
+      "category": "Pe"
+    },
+    "FE3B": {
+      "name": "PRESENTATION FORM FOR VERTICAL LEFT BLACK LENTICULAR BRACKET",
+      "category": "Ps"
+    },
+    "FE3C": {
+      "name": "PRESENTATION FORM FOR VERTICAL RIGHT BLACK LENTICULAR BRACKET",
+      "category": "Pe"
+    },
+    "FE3D": {
+      "name": "PRESENTATION FORM FOR VERTICAL LEFT DOUBLE ANGLE BRACKET",
+      "category": "Ps"
+    },
+    "FE3E": {
+      "name": "PRESENTATION FORM FOR VERTICAL RIGHT DOUBLE ANGLE BRACKET",
+      "category": "Pe"
+    },
+    "FE3F": {
+      "name": "PRESENTATION FORM FOR VERTICAL LEFT ANGLE BRACKET",
+      "category": "Ps"
+    },
+    "FE40": {
+      "name": "PRESENTATION FORM FOR VERTICAL RIGHT ANGLE BRACKET",
+      "category": "Pe"
+    },
+    "FE41": {
+      "name": "PRESENTATION FORM FOR VERTICAL LEFT CORNER BRACKET",
+      "category": "Ps"
+    },
+    "FE42": {
+      "name": "PRESENTATION FORM FOR VERTICAL RIGHT CORNER BRACKET",
+      "category": "Pe"
+    },
+    "FE43": {
+      "name": "PRESENTATION FORM FOR VERTICAL LEFT WHITE CORNER BRACKET",
+      "category": "Ps"
+    },
+    "FE44": {
+      "name": "PRESENTATION FORM FOR VERTICAL RIGHT WHITE CORNER BRACKET",
+      "category": "Pe"
+    },
+    "FE45": {
+      "name": "SESAME DOT",
+      "category": "Po"
+    },
+    "FE46": {
+      "name": "WHITE SESAME DOT",
+      "category": "Po"
+    },
+    "FE47": {
+      "name": "PRESENTATION FORM FOR VERTICAL LEFT SQUARE BRACKET",
+      "category": "Ps"
+    },
+    "FE48": {
+      "name": "PRESENTATION FORM FOR VERTICAL RIGHT SQUARE BRACKET",
+      "category": "Pe"
+    },
+    "FE49": {
+      "name": "DASHED OVERLINE",
+      "category": "Po"
+    },
+    "FE4A": {
+      "name": "CENTRELINE OVERLINE",
+      "category": "Po"
+    },
+    "FE4B": {
+      "name": "WAVY OVERLINE",
+      "category": "Po"
+    },
+    "FE4C": {
+      "name": "DOUBLE WAVY OVERLINE",
+      "category": "Po"
+    },
+    "FE4D": {
+      "name": "DASHED LOW LINE",
+      "category": "Pc"
+    },
+    "FE4E": {
+      "name": "CENTRELINE LOW LINE",
+      "category": "Pc"
+    },
+    "FE4F": {
+      "name": "WAVY LOW LINE",
+      "category": "Pc"
+    },
+    "FE50": {
+      "name": "SMALL COMMA",
+      "category": "Po"
+    },
+    "FE51": {
+      "name": "SMALL IDEOGRAPHIC COMMA",
+      "category": "Po"
+    },
+    "FE52": {
+      "name": "SMALL FULL STOP",
+      "category": "Po"
+    },
+    "FE54": {
+      "name": "SMALL SEMICOLON",
+      "category": "Po"
+    },
+    "FE55": {
+      "name": "SMALL COLON",
+      "category": "Po"
+    },
+    "FE56": {
+      "name": "SMALL QUESTION MARK",
+      "category": "Po"
+    },
+    "FE57": {
+      "name": "SMALL EXCLAMATION MARK",
+      "category": "Po"
+    },
+    "FE58": {
+      "name": "SMALL EM DASH",
+      "category": "Pd"
+    },
+    "FE59": {
+      "name": "SMALL LEFT PARENTHESIS",
+      "category": "Ps"
+    },
+    "FE5A": {
+      "name": "SMALL RIGHT PARENTHESIS",
+      "category": "Pe"
+    },
+    "FE5B": {
+      "name": "SMALL LEFT CURLY BRACKET",
+      "category": "Ps"
+    },
+    "FE5C": {
+      "name": "SMALL RIGHT CURLY BRACKET",
+      "category": "Pe"
+    },
+    "FE5D": {
+      "name": "SMALL LEFT TORTOISE SHELL BRACKET",
+      "category": "Ps"
+    },
+    "FE5E": {
+      "name": "SMALL RIGHT TORTOISE SHELL BRACKET",
+      "category": "Pe"
+    },
+    "FE5F": {
+      "name": "SMALL NUMBER SIGN",
+      "category": "Po"
+    },
+    "FE60": {
+      "name": "SMALL AMPERSAND",
+      "category": "Po"
+    },
+    "FE61": {
+      "name": "SMALL ASTERISK",
+      "category": "Po"
+    },
+    "FE62": {
+      "name": "SMALL PLUS SIGN",
+      "category": "Sm"
+    },
+    "FE63": {
+      "name": "SMALL HYPHEN-MINUS",
+      "category": "Pd"
+    },
+    "FE64": {
+      "name": "SMALL LESS-THAN SIGN",
+      "category": "Sm"
+    },
+    "FE65": {
+      "name": "SMALL GREATER-THAN SIGN",
+      "category": "Sm"
+    },
+    "FE66": {
+      "name": "SMALL EQUALS SIGN",
+      "category": "Sm"
+    },
+    "FE68": {
+      "name": "SMALL REVERSE SOLIDUS",
+      "category": "Po"
+    },
+    "FE69": {
+      "name": "SMALL DOLLAR SIGN",
+      "category": "Sc"
+    },
+    "FE6A": {
+      "name": "SMALL PERCENT SIGN",
+      "category": "Po"
+    },
+    "FE6B": {
+      "name": "SMALL COMMERCIAL AT",
+      "category": "Po"
+    },
+    "FE70": {
+      "name": "ARABIC FATHATAN ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FE71": {
+      "name": "ARABIC TATWEEL WITH FATHATAN ABOVE",
+      "category": "Lo"
+    },
+    "FE72": {
+      "name": "ARABIC DAMMATAN ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FE73": {
+      "name": "ARABIC TAIL FRAGMENT",
+      "category": "Lo"
+    },
+    "FE74": {
+      "name": "ARABIC KASRATAN ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FE76": {
+      "name": "ARABIC FATHA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FE77": {
+      "name": "ARABIC FATHA MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FE78": {
+      "name": "ARABIC DAMMA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FE79": {
+      "name": "ARABIC DAMMA MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FE7A": {
+      "name": "ARABIC KASRA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FE7B": {
+      "name": "ARABIC KASRA MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FE7C": {
+      "name": "ARABIC SHADDA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FE7D": {
+      "name": "ARABIC SHADDA MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FE7E": {
+      "name": "ARABIC SUKUN ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FE7F": {
+      "name": "ARABIC SUKUN MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FE80": {
+      "name": "ARABIC LETTER HAMZA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FE81": {
+      "name": "ARABIC LETTER ALEF WITH MADDA ABOVE ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FE82": {
+      "name": "ARABIC LETTER ALEF WITH MADDA ABOVE FINAL FORM",
+      "category": "Lo"
+    },
+    "FE83": {
+      "name": "ARABIC LETTER ALEF WITH HAMZA ABOVE ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FE84": {
+      "name": "ARABIC LETTER ALEF WITH HAMZA ABOVE FINAL FORM",
+      "category": "Lo"
+    },
+    "FE85": {
+      "name": "ARABIC LETTER WAW WITH HAMZA ABOVE ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FE86": {
+      "name": "ARABIC LETTER WAW WITH HAMZA ABOVE FINAL FORM",
+      "category": "Lo"
+    },
+    "FE87": {
+      "name": "ARABIC LETTER ALEF WITH HAMZA BELOW ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FE88": {
+      "name": "ARABIC LETTER ALEF WITH HAMZA BELOW FINAL FORM",
+      "category": "Lo"
+    },
+    "FE89": {
+      "name": "ARABIC LETTER YEH WITH HAMZA ABOVE ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FE8A": {
+      "name": "ARABIC LETTER YEH WITH HAMZA ABOVE FINAL FORM",
+      "category": "Lo"
+    },
+    "FE8B": {
+      "name": "ARABIC LETTER YEH WITH HAMZA ABOVE INITIAL FORM",
+      "category": "Lo"
+    },
+    "FE8C": {
+      "name": "ARABIC LETTER YEH WITH HAMZA ABOVE MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FE8D": {
+      "name": "ARABIC LETTER ALEF ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FE8E": {
+      "name": "ARABIC LETTER ALEF FINAL FORM",
+      "category": "Lo"
+    },
+    "FE8F": {
+      "name": "ARABIC LETTER BEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FE90": {
+      "name": "ARABIC LETTER BEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FE91": {
+      "name": "ARABIC LETTER BEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FE92": {
+      "name": "ARABIC LETTER BEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FE93": {
+      "name": "ARABIC LETTER TEH MARBUTA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FE94": {
+      "name": "ARABIC LETTER TEH MARBUTA FINAL FORM",
+      "category": "Lo"
+    },
+    "FE95": {
+      "name": "ARABIC LETTER TEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FE96": {
+      "name": "ARABIC LETTER TEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FE97": {
+      "name": "ARABIC LETTER TEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FE98": {
+      "name": "ARABIC LETTER TEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FE99": {
+      "name": "ARABIC LETTER THEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FE9A": {
+      "name": "ARABIC LETTER THEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FE9B": {
+      "name": "ARABIC LETTER THEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FE9C": {
+      "name": "ARABIC LETTER THEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FE9D": {
+      "name": "ARABIC LETTER JEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FE9E": {
+      "name": "ARABIC LETTER JEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FE9F": {
+      "name": "ARABIC LETTER JEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FEA0": {
+      "name": "ARABIC LETTER JEEM MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FEA1": {
+      "name": "ARABIC LETTER HAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEA2": {
+      "name": "ARABIC LETTER HAH FINAL FORM",
+      "category": "Lo"
+    },
+    "FEA3": {
+      "name": "ARABIC LETTER HAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FEA4": {
+      "name": "ARABIC LETTER HAH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FEA5": {
+      "name": "ARABIC LETTER KHAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEA6": {
+      "name": "ARABIC LETTER KHAH FINAL FORM",
+      "category": "Lo"
+    },
+    "FEA7": {
+      "name": "ARABIC LETTER KHAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FEA8": {
+      "name": "ARABIC LETTER KHAH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FEA9": {
+      "name": "ARABIC LETTER DAL ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEAA": {
+      "name": "ARABIC LETTER DAL FINAL FORM",
+      "category": "Lo"
+    },
+    "FEAB": {
+      "name": "ARABIC LETTER THAL ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEAC": {
+      "name": "ARABIC LETTER THAL FINAL FORM",
+      "category": "Lo"
+    },
+    "FEAD": {
+      "name": "ARABIC LETTER REH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEAE": {
+      "name": "ARABIC LETTER REH FINAL FORM",
+      "category": "Lo"
+    },
+    "FEAF": {
+      "name": "ARABIC LETTER ZAIN ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEB0": {
+      "name": "ARABIC LETTER ZAIN FINAL FORM",
+      "category": "Lo"
+    },
+    "FEB1": {
+      "name": "ARABIC LETTER SEEN ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEB2": {
+      "name": "ARABIC LETTER SEEN FINAL FORM",
+      "category": "Lo"
+    },
+    "FEB3": {
+      "name": "ARABIC LETTER SEEN INITIAL FORM",
+      "category": "Lo"
+    },
+    "FEB4": {
+      "name": "ARABIC LETTER SEEN MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FEB5": {
+      "name": "ARABIC LETTER SHEEN ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEB6": {
+      "name": "ARABIC LETTER SHEEN FINAL FORM",
+      "category": "Lo"
+    },
+    "FEB7": {
+      "name": "ARABIC LETTER SHEEN INITIAL FORM",
+      "category": "Lo"
+    },
+    "FEB8": {
+      "name": "ARABIC LETTER SHEEN MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FEB9": {
+      "name": "ARABIC LETTER SAD ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEBA": {
+      "name": "ARABIC LETTER SAD FINAL FORM",
+      "category": "Lo"
+    },
+    "FEBB": {
+      "name": "ARABIC LETTER SAD INITIAL FORM",
+      "category": "Lo"
+    },
+    "FEBC": {
+      "name": "ARABIC LETTER SAD MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FEBD": {
+      "name": "ARABIC LETTER DAD ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEBE": {
+      "name": "ARABIC LETTER DAD FINAL FORM",
+      "category": "Lo"
+    },
+    "FEBF": {
+      "name": "ARABIC LETTER DAD INITIAL FORM",
+      "category": "Lo"
+    },
+    "FEC0": {
+      "name": "ARABIC LETTER DAD MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FEC1": {
+      "name": "ARABIC LETTER TAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEC2": {
+      "name": "ARABIC LETTER TAH FINAL FORM",
+      "category": "Lo"
+    },
+    "FEC3": {
+      "name": "ARABIC LETTER TAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FEC4": {
+      "name": "ARABIC LETTER TAH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FEC5": {
+      "name": "ARABIC LETTER ZAH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEC6": {
+      "name": "ARABIC LETTER ZAH FINAL FORM",
+      "category": "Lo"
+    },
+    "FEC7": {
+      "name": "ARABIC LETTER ZAH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FEC8": {
+      "name": "ARABIC LETTER ZAH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FEC9": {
+      "name": "ARABIC LETTER AIN ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FECA": {
+      "name": "ARABIC LETTER AIN FINAL FORM",
+      "category": "Lo"
+    },
+    "FECB": {
+      "name": "ARABIC LETTER AIN INITIAL FORM",
+      "category": "Lo"
+    },
+    "FECC": {
+      "name": "ARABIC LETTER AIN MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FECD": {
+      "name": "ARABIC LETTER GHAIN ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FECE": {
+      "name": "ARABIC LETTER GHAIN FINAL FORM",
+      "category": "Lo"
+    },
+    "FECF": {
+      "name": "ARABIC LETTER GHAIN INITIAL FORM",
+      "category": "Lo"
+    },
+    "FED0": {
+      "name": "ARABIC LETTER GHAIN MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FED1": {
+      "name": "ARABIC LETTER FEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FED2": {
+      "name": "ARABIC LETTER FEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FED3": {
+      "name": "ARABIC LETTER FEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FED4": {
+      "name": "ARABIC LETTER FEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FED5": {
+      "name": "ARABIC LETTER QAF ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FED6": {
+      "name": "ARABIC LETTER QAF FINAL FORM",
+      "category": "Lo"
+    },
+    "FED7": {
+      "name": "ARABIC LETTER QAF INITIAL FORM",
+      "category": "Lo"
+    },
+    "FED8": {
+      "name": "ARABIC LETTER QAF MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FED9": {
+      "name": "ARABIC LETTER KAF ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEDA": {
+      "name": "ARABIC LETTER KAF FINAL FORM",
+      "category": "Lo"
+    },
+    "FEDB": {
+      "name": "ARABIC LETTER KAF INITIAL FORM",
+      "category": "Lo"
+    },
+    "FEDC": {
+      "name": "ARABIC LETTER KAF MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FEDD": {
+      "name": "ARABIC LETTER LAM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEDE": {
+      "name": "ARABIC LETTER LAM FINAL FORM",
+      "category": "Lo"
+    },
+    "FEDF": {
+      "name": "ARABIC LETTER LAM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FEE0": {
+      "name": "ARABIC LETTER LAM MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FEE1": {
+      "name": "ARABIC LETTER MEEM ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEE2": {
+      "name": "ARABIC LETTER MEEM FINAL FORM",
+      "category": "Lo"
+    },
+    "FEE3": {
+      "name": "ARABIC LETTER MEEM INITIAL FORM",
+      "category": "Lo"
+    },
+    "FEE4": {
+      "name": "ARABIC LETTER MEEM MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FEE5": {
+      "name": "ARABIC LETTER NOON ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEE6": {
+      "name": "ARABIC LETTER NOON FINAL FORM",
+      "category": "Lo"
+    },
+    "FEE7": {
+      "name": "ARABIC LETTER NOON INITIAL FORM",
+      "category": "Lo"
+    },
+    "FEE8": {
+      "name": "ARABIC LETTER NOON MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FEE9": {
+      "name": "ARABIC LETTER HEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEEA": {
+      "name": "ARABIC LETTER HEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FEEB": {
+      "name": "ARABIC LETTER HEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FEEC": {
+      "name": "ARABIC LETTER HEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FEED": {
+      "name": "ARABIC LETTER WAW ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEEE": {
+      "name": "ARABIC LETTER WAW FINAL FORM",
+      "category": "Lo"
+    },
+    "FEEF": {
+      "name": "ARABIC LETTER ALEF MAKSURA ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEF0": {
+      "name": "ARABIC LETTER ALEF MAKSURA FINAL FORM",
+      "category": "Lo"
+    },
+    "FEF1": {
+      "name": "ARABIC LETTER YEH ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEF2": {
+      "name": "ARABIC LETTER YEH FINAL FORM",
+      "category": "Lo"
+    },
+    "FEF3": {
+      "name": "ARABIC LETTER YEH INITIAL FORM",
+      "category": "Lo"
+    },
+    "FEF4": {
+      "name": "ARABIC LETTER YEH MEDIAL FORM",
+      "category": "Lo"
+    },
+    "FEF5": {
+      "name": "ARABIC LIGATURE LAM WITH ALEF WITH MADDA ABOVE ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEF6": {
+      "name": "ARABIC LIGATURE LAM WITH ALEF WITH MADDA ABOVE FINAL FORM",
+      "category": "Lo"
+    },
+    "FEF7": {
+      "name": "ARABIC LIGATURE LAM WITH ALEF WITH HAMZA ABOVE ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEF8": {
+      "name": "ARABIC LIGATURE LAM WITH ALEF WITH HAMZA ABOVE FINAL FORM",
+      "category": "Lo"
+    },
+    "FEF9": {
+      "name": "ARABIC LIGATURE LAM WITH ALEF WITH HAMZA BELOW ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEFA": {
+      "name": "ARABIC LIGATURE LAM WITH ALEF WITH HAMZA BELOW FINAL FORM",
+      "category": "Lo"
+    },
+    "FEFB": {
+      "name": "ARABIC LIGATURE LAM WITH ALEF ISOLATED FORM",
+      "category": "Lo"
+    },
+    "FEFC": {
+      "name": "ARABIC LIGATURE LAM WITH ALEF FINAL FORM",
+      "category": "Lo"
+    },
+    "FEFF": {
+      "name": "ZERO WIDTH NO-BREAK SPACE",
+      "category": "Cf"
+    }
+  }
+}

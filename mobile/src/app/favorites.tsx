@@ -18,7 +18,7 @@ type FavoriteActionsProps = {
 function FavoriteActions({ favorite, onRemove }: FavoriteActionsProps) {
   const shareFavorite = useCallback(async () => {
     await Share.share({
-      message: `${favorite.arabicText}\n\n${favorite.englishTranslation}\n\n${favorite.surahNameEnglish} ${favorite.surahNumber}:${favorite.ayahNumber}\n\nQuran Heals`,
+      message: `${favorite.arabicText}\n\n${favorite.englishTranslation}\n\n${favorite.surahNameEnglish} ${favorite.surahNumber}:${favorite.ayahNumber}\n\n${favorite.quranTextSource}\n\nQuran Heals`,
     });
   }, [favorite]);
 
@@ -45,7 +45,7 @@ function FavoriteActions({ favorite, onRemove }: FavoriteActionsProps) {
 }
 
 export default function FavoritesScreen() {
-  const { favorites, removeFavorite, isReady } = useFavorites();
+  const { favorites, removeFavorite, isReady, error, unresolvedCount, refreshFavorites } = useFavorites();
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
@@ -72,7 +72,16 @@ export default function FavoritesScreen() {
           />
         )}
 
-        {isReady && favorites.length === 0 && (
+        {isReady && (error || unresolvedCount > 0) && (
+          <StateView
+            title="Some saved ayahs could not be opened"
+            message={error ?? `${unresolvedCount} saved ${unresolvedCount === 1 ? 'ayah could' : 'ayahs could'} not be resolved. Your stored entries have been kept.`}
+            actionLabel="Try Again"
+            onAction={refreshFavorites}
+          />
+        )}
+
+        {isReady && !error && unresolvedCount === 0 && favorites.length === 0 && (
           <StateView
             title="No saved ayahs yet"
             message="Save an ayah from the reflection screen and it will appear here."
@@ -171,4 +180,3 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.99 }],
   },
 });
-

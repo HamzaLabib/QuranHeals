@@ -1,0 +1,57 @@
+{
+  "database": "test",
+  "nodeEnv": "development",
+  "corpus": {
+    "valid": false,
+    "expectedVerses": 6236,
+    "surahs": 12,
+    "canonicalVerses": 16,
+    "duplicateReferences": 0,
+    "duplicatePairs": 0,
+    "invalidReferences": 0,
+    "missingArabic": 0,
+    "structuralGaps": 6220,
+    "missingChecksums": 0,
+    "arabicChecksumFailures": 0,
+    "arabicSourceConflicts": 6,
+    "arabicMetadataFailures": 16,
+    "englishTranslations": 16,
+    "totalTranslations": 16,
+    "missingTranslations": 6220,
+    "orphanTranslations": 0,
+    "invalidTranslationReferences": 0,
+    "duplicateTranslations": 0,
+    "duplicateEnglishReferences": 0,
+    "emptyTranslations": 0,
+    "translationChecksumFailures": 0,
+    "translationSourceConflicts": 5,
+    "translationMetadataFailures": 16,
+    "arabicCorpusChecksum": "4afed583cdd44ae790af0b97453f626cd23908ff0dc5a97244e3981d777746da",
+    "translationCorpusChecksum": "9eb5c5f12357d97bd41071d3702ed69bbe31d40d9d4a6118d8334bb74ad69257"
+  },
+  "mappings": {
+    "valid": true,
+    "total": 43,
+    "activeEmotions": 12,
+    "invalidMappings": 0,
+    "duplicateMappings": 0,
+    "perEmotion": {
+      "anxious": 4,
+      "lonely": 2,
+      "angry": 4,
+      "lost": 4,
+      "sad": 6,
+      "hopeless": 5,
+      "tired": 4,
+      "confused": 1,
+      "grateful": 2,
+      "peaceful": 3,
+      "afraid": 3,
+      "stressed": 5
+    },
+    "statuses": {
+      "development": 43
+    }
+  },
+  "baselineFailures": []
+}

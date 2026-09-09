@@ -1,0 +1,87 @@
+{
+  "environment": "isolated browser-driver session, local read-only development API",
+  "emotions": [
+    {
+      "emotion": "sad",
+      "verseKey": "9:40",
+      "exactArabic": true
+    },
+    {
+      "emotion": "anxious",
+      "verseKey": "13:28",
+      "exactArabic": true
+    },
+    {
+      "emotion": "lonely",
+      "verseKey": "9:40",
+      "exactArabic": true
+    },
+    {
+      "emotion": "angry",
+      "verseKey": "3:134",
+      "exactArabic": true
+    },
+    {
+      "emotion": "lost",
+      "verseKey": "39:53",
+      "exactArabic": true
+    },
+    {
+      "emotion": "afraid",
+      "verseKey": "26:62",
+      "exactArabic": true
+    },
+    {
+      "emotion": "stressed",
+      "verseKey": "2:286",
+      "exactArabic": true
+    },
+    {
+      "emotion": "hopeless",
+      "verseKey": "2:286",
+      "exactArabic": true
+    },
+    {
+      "emotion": "tired",
+      "verseKey": "2:286",
+      "exactArabic": true
+    },
+    {
+      "emotion": "confused",
+      "verseKey": "26:62",
+      "exactArabic": true
+    },
+    {
+      "emotion": "grateful",
+      "verseKey": "93:5",
+      "exactArabic": true
+    },
+    {
+      "emotion": "peaceful",
+      "verseKey": "94:6",
+      "exactArabic": true
+    }
+  ],
+  "checks": {
+    "legacyFavorite": "Numeric-only reference resolves; original snapshot/date/id and unresolved record retained; cached Arabic absent",
+    "share": "Shared Arabic exactly equals SQLite",
+    "offlineFavorite": "Existing initialized local reader works without API fetch",
+    "saveAndHistory": "New favorites have verseKey; unresolved old entry retained; old-ID exclusions and stable companion keys coexist",
+    "browserErrors": {
+      "errors": [],
+      "lifecycle": {
+        "effectiveLaunch": {
+          "browserLaunched": true,
+          "engine": "chrome",
+          "launchHash": 11677035664275012000
+        },
+        "launched": false,
+        "relaunchedBrowser": false,
+        "restartedBackground": false,
+        "restoreStatus": "not_configured",
+        "reused": true,
+        "saveStatus": "not_attempted"
+      }
+    }
+  }
+}

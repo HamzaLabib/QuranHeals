@@ -27,6 +27,7 @@ tmp/
 *.tsbuildinfo
 coverage/
 .cache/
+tools/quran-import/staging/
 
 # Logs
 *.log
@@ -39,3 +40,8 @@ yarn-error.log*
 Thumbs.db
 .vscode/*
 !.vscode/extensions.json
+
+# Third-party source/reference files kept locally
+tools/quran-import/raw/UthmanicHafs_v2-0.zip
+backend/data/quran/en.pickthall.txt
+backend/data/quran/quran-data.xml

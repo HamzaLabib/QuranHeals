@@ -1,0 +1,20 @@
+{
+  "sqliteSha256": "c380a5952e5bf946a5f35335f5f3551be7559224e81a7ebd312df195c1b30d5b",
+  "platforms": {
+    "ios": {
+      "bundle": "_expo/static/js/ios/entry-ebc7f9e0d16e392c1a1d12c7aa642d4a.hbc",
+      "databaseExact": true,
+      "noticeExact": true
+    },
+    "android": {
+      "bundle": "_expo/static/js/android/entry-e5bb84c107c90406648ad74b7747e6eb.hbc",
+      "databaseExact": true,
+      "noticeExact": true
+    },
+    "web": {
+      "databaseExact": true,
+      "noticeExact": true
+    }
+  },
+  "limitation": "Exported bundles and asset bytes verified; native device execution was not available."
+}

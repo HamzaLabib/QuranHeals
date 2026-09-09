@@ -1,0 +1,171 @@
+{
+  "health": "pass",
+  "emotions": "12 active",
+  "anxious": {
+    "mappedVerse": "pass",
+    "foundationId": "pass",
+    "dto": "pass",
+    "byId": "pass",
+    "exclude": "non-repeat passed"
+  },
+  "lonely": {
+    "mappedVerse": "pass",
+    "foundationId": "pass",
+    "dto": "pass",
+    "byId": "pass",
+    "exclude": "non-repeat passed"
+  },
+  "angry": {
+    "mappedVerse": "pass",
+    "foundationId": "pass",
+    "dto": "pass",
+    "byId": "pass",
+    "exclude": "non-repeat passed"
+  },
+  "lost": {
+    "mappedVerse": "pass",
+    "foundationId": "pass",
+    "dto": "pass",
+    "byId": "pass",
+    "exclude": "non-repeat passed"
+  },
+  "sad": {
+    "mappedVerse": "pass",
+    "foundationId": "pass",
+    "dto": "pass",
+    "byId": "pass",
+    "exclude": "non-repeat passed"
+  },
+  "hopeless": {
+    "mappedVerse": "pass",
+    "foundationId": "pass",
+    "dto": "pass",
+    "byId": "pass",
+    "exclude": "non-repeat passed"
+  },
+  "tired": {
+    "mappedVerse": "pass",
+    "foundationId": "pass",
+    "dto": "pass",
+    "byId": "pass",
+    "exclude": "non-repeat passed"
+  },
+  "confused": {
+    "mappedVerse": "pass",
+    "foundationId": "pass",
+    "dto": "pass",
+    "byId": "pass",
+    "exclude": "single-verse fallback passed"
+  },
+  "grateful": {
+    "mappedVerse": "pass",
+    "foundationId": "pass",
+    "dto": "pass",
+    "byId": "pass",
+    "exclude": "non-repeat passed"
+  },
+  "peaceful": {
+    "mappedVerse": "pass",
+    "foundationId": "pass",
+    "dto": "pass",
+    "byId": "pass",
+    "exclude": "non-repeat passed"
+  },
+  "afraid": {
+    "mappedVerse": "pass",
+    "foundationId": "pass",
+    "dto": "pass",
+    "byId": "pass",
+    "exclude": "non-repeat passed"
+  },
+  "stressed": {
+    "mappedVerse": "pass",
+    "foundationId": "pass",
+    "dto": "pass",
+    "byId": "pass",
+    "exclude": "non-repeat passed"
+  },
+  "databaseUnchanged": true,
+  "indexes": {
+    "verses": [
+      {
+        "v": 2,
+        "key": {
+          "_id": 1
+        },
+        "name": "_id_"
+      },
+      {
+        "v": 2,
+        "key": {
+          "referenceKey": 1
+        },
+        "name": "referenceKey_1",
+        "unique": true
+      },
+      {
+        "v": 2,
+        "key": {
+          "surahNumber": 1,
+          "ayahNumber": 1
+        },
+        "name": "surahNumber_1_ayahNumber_1",
+        "unique": true
+      }
+    ],
+    "versetranslations": [
+      {
+        "v": 2,
+        "key": {
+          "_id": 1
+        },
+        "name": "_id_"
+      },
+      {
+        "v": 2,
+        "key": {
+          "verseReferenceKey": 1,
+          "language": 1,
+          "translator": 1,
+          "sourceVersion": 1
+        },
+        "name": "verseReferenceKey_1_language_1_translator_1_sourceVersion_1",
+        "unique": true
+      },
+      {
+        "v": 2,
+        "key": {
+          "language": 1,
+          "translator": 1
+        },
+        "name": "language_1_translator_1"
+      }
+    ],
+    "emotionversemappings": [
+      {
+        "v": 2,
+        "key": {
+          "_id": 1
+        },
+        "name": "_id_"
+      },
+      {
+        "v": 2,
+        "key": {
+          "verseReferenceKey": 1,
+          "emotionKey": 1
+        },
+        "name": "verseReferenceKey_1_emotionKey_1",
+        "unique": true
+      },
+      {
+        "v": 2,
+        "key": {
+          "emotionKey": 1,
+          "status": 1
+        },
+        "name": "emotionKey_1_status_1"
+      }
+    ]
+  }
+}

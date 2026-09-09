@@ -1,0 +1,4 @@
+# Preserve the exact downloaded bytes used by the source SHA-256 pins.
+quran-uthmani.txt -text
+en.pickthall.txt -text
+quran-data.xml -text

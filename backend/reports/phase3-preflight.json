@@ -1,0 +1,434 @@
+{
+  "source": {
+    "valid": true,
+    "expectedVerses": 6236,
+    "surahs": 114,
+    "canonicalVerses": 6236,
+    "duplicateReferences": 0,
+    "duplicatePairs": 0,
+    "invalidReferences": 0,
+    "missingArabic": 0,
+    "structuralGaps": 0,
+    "missingChecksums": 0,
+    "arabicChecksumFailures": 0,
+    "arabicSourceConflicts": 0,
+    "arabicMetadataFailures": 0,
+    "englishTranslations": 6236,
+    "totalTranslations": 6236,
+    "missingTranslations": 0,
+    "orphanTranslations": 0,
+    "invalidTranslationReferences": 0,
+    "duplicateTranslations": 0,
+    "duplicateEnglishReferences": 0,
+    "emptyTranslations": 0,
+    "translationChecksumFailures": 0,
+    "translationSourceConflicts": 0,
+    "translationMetadataFailures": 0,
+    "arabicCorpusChecksum": "bdcfb57ebff8c2e31cace329c1c0a8392a2b06f2b0c582465ae215ef53f97652",
+    "translationCorpusChecksum": "4e60f6ce1d2447c395b88feacc3784a2db829dff89777050b30f29f1ec837d01"
+  },
+  "database": {
+    "database": "test",
+    "nodeEnv": "development",
+    "corpus": {
+      "valid": false,
+      "expectedVerses": 6236,
+      "surahs": 12,
+      "canonicalVerses": 16,
+      "duplicateReferences": 0,
+      "duplicatePairs": 0,
+      "invalidReferences": 0,
+      "missingArabic": 0,
+      "structuralGaps": 6220,
+      "missingChecksums": 0,
+      "arabicChecksumFailures": 0,
+      "arabicSourceConflicts": 6,
+      "arabicMetadataFailures": 16,
+      "englishTranslations": 16,
+      "totalTranslations": 16,
+      "missingTranslations": 6220,
+      "orphanTranslations": 0,
+      "invalidTranslationReferences": 0,
+      "duplicateTranslations": 0,
+      "duplicateEnglishReferences": 0,
+      "emptyTranslations": 0,
+      "translationChecksumFailures": 0,
+      "translationSourceConflicts": 5,
+      "translationMetadataFailures": 16,
+      "arabicCorpusChecksum": "4afed583cdd44ae790af0b97453f626cd23908ff0dc5a97244e3981d777746da",
+      "translationCorpusChecksum": "9eb5c5f12357d97bd41071d3702ed69bbe31d40d9d4a6118d8334bb74ad69257"
+    },
+    "mappings": {
+      "valid": true,
+      "total": 43,
+      "activeEmotions": 12,
+      "invalidMappings": 0,
+      "duplicateMappings": 0,
+      "perEmotion": {
+        "anxious": 4,
+        "lonely": 2,
+        "angry": 4,
+        "lost": 4,
+        "sad": 6,
+        "hopeless": 5,
+        "tired": 4,
+        "confused": 1,
+        "grateful": 2,
+        "peaceful": 3,
+        "afraid": 3,
+        "stressed": 5
+      },
+      "statuses": {
+        "development": 43
+      }
+    },
+    "baselineFailures": []
+  },
+  "comparison": {
+    "safe": false,
+    "verses": [
+      {
+        "referenceKey": "9:40",
+        "textMatches": true,
+        "checksumValid": true,
+        "existingChecksum": "ba9f1916c5855565db40346c0ea4ef1a883e9542c2e91168bcc3fd166dc69357",
+        "incomingChecksum": "ba9f1916c5855565db40346c0ea4ef1a883e9542c2e91168bcc3fd166dc69357",
+        "existingScript": "uthmani",
+        "incomingScript": "uthmani",
+        "existingSource": "Development seed checked against Quran.com/Tanzil Uthmani-script references; formal production verification required",
+        "incomingSource": "Tanzil Project https://tanzil.net — Uthmani export",
+        "existingVersion": "mvp-seed-2026-09-08",
+        "incomingVersion": "1.1"
+      },
+      {
+        "referenceKey": "7:199",
+        "textMatches": true,
+        "checksumValid": true,
+        "existingChecksum": "ba1239ecf9a06881c9887b833dde7d566e36c495532454bb6312317c485d6bd5",
+        "incomingChecksum": "ba1239ecf9a06881c9887b833dde7d566e36c495532454bb6312317c485d6bd5",
+        "existingScript": "uthmani",
+        "incomingScript": "uthmani",
+        "existingSource": "Quran.com Content API v4 text_uthmani, verified 2026-09-08; formal production verification required",
+        "incomingSource": "Tanzil Project https://tanzil.net — Uthmani export",
+        "existingVersion": "mvp-seed-2026-09-08",
+        "incomingVersion": "1.1"
+      },
+      {
+        "referenceKey": "2:153",
+        "textMatches": true,
+        "checksumValid": true,
+        "existingChecksum": "54844431b8cf7f356d4170f1b178372df997ae1aa35a18c33aae322d2ff27dbc",
+        "incomingChecksum": "54844431b8cf7f356d4170f1b178372df997ae1aa35a18c33aae322d2ff27dbc",
+        "existingScript": "uthmani",
+        "incomingScript": "uthmani",
+        "existingSource": "Development seed checked against Quran.com/Tanzil Uthmani-script references; formal production verification required",
+        "incomingSource": "Tanzil Project https://tanzil.net — Uthmani export",
+        "existingVersion": "mvp-seed-2026-09-08",
+        "incomingVersion": "1.1"
+      },
+      {
+        "referenceKey": "3:134",
+        "textMatches": true,
+        "checksumValid": true,
+        "existingChecksum": "74a753a83e890fc74b197960479873000d1115cb7f7350b62ffab86a27dcc977",
+        "incomingChecksum": "74a753a83e890fc74b197960479873000d1115cb7f7350b62ffab86a27dcc977",
+        "existingScript": "uthmani",
+        "incomingScript": "uthmani",
+        "existingSource": "Quran.com Content API v4 text_uthmani, verified 2026-09-08; formal production verification required",
+        "incomingSource": "Tanzil Project https://tanzil.net — Uthmani export",
+        "existingVersion": "mvp-seed-2026-09-08",
+        "incomingVersion": "1.1"
+      },
+      {
+        "referenceKey": "2:286",
+        "textMatches": false,
+        "checksumValid": true,
+        "existingChecksum": "add334b31b0faafd22f5061e6eedc625b0164a7cac6071ecc8548090c55a519e",
+        "incomingChecksum": "7c05269f8e0e98a6b2a2f3ee43745b895ed4ae225a1ed6d2e567c0c3c6d88ec1",
+        "existingScript": "uthmani",
+        "incomingScript": "uthmani",
+        "existingSource": "Development seed checked against Quran.com/Tanzil Uthmani-script references; formal production verification required",
+        "incomingSource": "Tanzil Project https://tanzil.net — Uthmani export",
+        "existingVersion": "mvp-seed-2026-09-08",
+        "incomingVersion": "1.1"
+      },
+      {
+        "referenceKey": "13:28",
+        "textMatches": true,
+        "checksumValid": true,
+        "existingChecksum": "20aacc0eaaf3ca321a74f0e8fb28f18d32c351281e0f89af711a6807fa825906",
+        "incomingChecksum": "20aacc0eaaf3ca321a74f0e8fb28f18d32c351281e0f89af711a6807fa825906",
+        "existingScript": "uthmani",
+        "incomingScript": "uthmani",
+        "existingSource": "Development seed checked against Quran.com/Tanzil Uthmani-script references; formal production verification required",
+        "incomingSource": "Tanzil Project https://tanzil.net — Uthmani export",
+        "existingVersion": "mvp-seed-2026-09-08",
+        "incomingVersion": "1.1"
+      },
+      {
+        "referenceKey": "26:62",
+        "textMatches": true,
+        "checksumValid": true,
+        "existingChecksum": "1cee792a28512ae5e549d984a895a8e885f52d229c8c91637ba4de89b5a9f095",
+        "incomingChecksum": "1cee792a28512ae5e549d984a895a8e885f52d229c8c91637ba4de89b5a9f095",
+        "existingScript": "uthmani",
+        "incomingScript": "uthmani",
+        "existingSource": "Development seed checked against Quran.com/Tanzil Uthmani-script references; formal production verification required",
+        "incomingSource": "Tanzil Project https://tanzil.net — Uthmani export",
+        "existingVersion": "mvp-seed-2026-09-08",
+        "incomingVersion": "1.1"
+      },
+      {
+        "referenceKey": "39:53",
+        "textMatches": false,
+        "checksumValid": true,
+        "existingChecksum": "76880b3515c25d38048f6a1a656a985e2e78c0a77e3d4a28b8aa75a5d4cadac5",
+        "incomingChecksum": "bcd510ea7aaf66c1356e0eddd1ac3371c55fa3bee332c8df2e54e6fd4490ac6f",
+        "existingScript": "uthmani",
+        "incomingScript": "uthmani",
+        "existingSource": "Development seed checked against Quran.com/Tanzil Uthmani-script references; formal production verification required",
+        "incomingSource": "Tanzil Project https://tanzil.net — Uthmani export",
+        "existingVersion": "mvp-seed-2026-09-08",
+        "incomingVersion": "1.1"
+      },
+      {
+        "referenceKey": "41:34",
+        "textMatches": true,
+        "checksumValid": true,
+        "existingChecksum": "8fc7c65a33b2d2c223ed483635454afecaf16772a530022afca61f7ca2c03ca3",
+        "incomingChecksum": "8fc7c65a33b2d2c223ed483635454afecaf16772a530022afca61f7ca2c03ca3",
+        "existingScript": "uthmani",
+        "incomingScript": "uthmani",
+        "existingSource": "Quran.com Content API v4 text_uthmani, verified 2026-09-08; formal production verification required",
+        "incomingSource": "Tanzil Project https://tanzil.net — Uthmani export",
+        "existingVersion": "mvp-seed-2026-09-08",
+        "incomingVersion": "1.1"
+      },
+      {
+        "referenceKey": "42:37",
+        "textMatches": true,
+        "checksumValid": true,
+        "existingChecksum": "bec24fde1de0e29c657ccee6bea95be8a3983d62c8e79025cb6644d5398bd231",
+        "incomingChecksum": "bec24fde1de0e29c657ccee6bea95be8a3983d62c8e79025cb6644d5398bd231",
+        "existingScript": "uthmani",
+        "incomingScript": "uthmani",
+        "existingSource": "Quran.com Content API v4 text_uthmani, verified 2026-09-08; formal production verification required",
+        "incomingSource": "Tanzil Project https://tanzil.net — Uthmani export",
+        "existingVersion": "mvp-seed-2026-09-08",
+        "incomingVersion": "1.1"
+      },
+      {
+        "referenceKey": "65:3",
+        "textMatches": false,
+        "checksumValid": true,
+        "existingChecksum": "f6be7d42f9b6efc537e344dbd1031d80ef9c523e6f77a1ec75d52cd339948be4",
+        "incomingChecksum": "890bbe80adfc5787b59441ec562eb0f9e9de1377e6d21fa9ee355b4ee3e23810",
+        "existingScript": "uthmani",
+        "incomingScript": "uthmani",
+        "existingSource": "Development seed checked against Quran.com/Tanzil Uthmani-script references; formal production verification required",
+        "incomingSource": "Tanzil Project https://tanzil.net — Uthmani export",
+        "existingVersion": "mvp-seed-2026-09-08",
+        "incomingVersion": "1.1"
+      },
+      {
+        "referenceKey": "93:3",
+        "textMatches": true,
+        "checksumValid": true,
+        "existingChecksum": "a16a3dbf01b0132a20fb0e9152b369d2949126532760b0dc39d471685c37ed78",
+        "incomingChecksum": "a16a3dbf01b0132a20fb0e9152b369d2949126532760b0dc39d471685c37ed78",
+        "existingScript": "uthmani",
+        "incomingScript": "uthmani",
+        "existingSource": "Development seed checked against Quran.com/Tanzil Uthmani-script references; formal production verification required",
+        "incomingSource": "Tanzil Project https://tanzil.net — Uthmani export",
+        "existingVersion": "mvp-seed-2026-09-08",
+        "incomingVersion": "1.1"
+      },
+      {
+        "referenceKey": "93:4",
+        "textMatches": false,
+        "checksumValid": true,
+        "existingChecksum": "2337f66620fbf967f4f61738113563165b0b9679ac9a264816cc3e322ba414e1",
+        "incomingChecksum": "10efcbad7b393f9b8833c1a5fb98a57845119a6761ec37076af554c1d915e685",
+        "existingScript": "uthmani",
+        "incomingScript": "uthmani",
+        "existingSource": "Development seed checked against Quran.com/Tanzil Uthmani-script references; formal production verification required",
+        "incomingSource": "Tanzil Project https://tanzil.net — Uthmani export",
+        "existingVersion": "mvp-seed-2026-09-08",
+        "incomingVersion": "1.1"
+      },
+      {
+        "referenceKey": "93:5",
+        "textMatches": false,
+        "checksumValid": true,
+        "existingChecksum": "8d41850cf4ccc02509fdb202b3bcbe6529e5a3b41c08e2f845edc1ebff99d5d2",
+        "incomingChecksum": "af002defde3350ad342d953c3f3a0802bf1c63a6c6d7619c85b5e5e31f24c773",
+        "existingScript": "uthmani",
+        "incomingScript": "uthmani",
+        "existingSource": "Development seed checked against Quran.com/Tanzil Uthmani-script references; formal production verification required",
+        "incomingSource": "Tanzil Project https://tanzil.net — Uthmani export",
+        "existingVersion": "mvp-seed-2026-09-08",
+        "incomingVersion": "1.1"
+      },
+      {
+        "referenceKey": "94:5",
+        "textMatches": true,
+        "checksumValid": true,
+        "existingChecksum": "46d6e18e05512d5f0fcb4c35e4af2aaece5db115e0a1a3681510ceeb6f09724e",
+        "incomingChecksum": "46d6e18e05512d5f0fcb4c35e4af2aaece5db115e0a1a3681510ceeb6f09724e",
+        "existingScript": "uthmani",
+        "incomingScript": "uthmani",
+        "existingSource": "Development seed checked against Quran.com/Tanzil Uthmani-script references; formal production verification required",
+        "incomingSource": "Tanzil Project https://tanzil.net — Uthmani export",
+        "existingVersion": "mvp-seed-2026-09-08",
+        "incomingVersion": "1.1"
+      },
+      {
+        "referenceKey": "94:6",
+        "textMatches": false,
+        "checksumValid": true,
+        "existingChecksum": "08ce47c9cb6e72bfbb6d3031ab7722b76ea4cf7636fa9b8503cb8d9155e8c53a",
+        "incomingChecksum": "abb0d076396621c83d5a91f74e71dd0383df4816b428d44abfb0da0a9e998aab",
+        "existingScript": "uthmani",
+        "incomingScript": "uthmani",
+        "existingSource": "Development seed checked against Quran.com/Tanzil Uthmani-script references; formal production verification required",
+        "incomingSource": "Tanzil Project https://tanzil.net — Uthmani export",
+        "existingVersion": "mvp-seed-2026-09-08",
+        "incomingVersion": "1.1"
+      }
+    ],
+    "translations": [
+      {
+        "referenceKey": "2:153",
+        "textMatches": false,
+        "checksumValid": true,
+        "existingChecksum": "c0f7625fde7643432dca0c39e875260c3e3f50a17f019a34637f281507a622a7",
+        "incomingChecksum": "3772e86110010fabb1d50283fa2000378ee6c59d5c71eff1999abab797eca24f",
+        "translator": "Marmaduke Pickthall"
+      },
+      {
+        "referenceKey": "7:199",
+        "textMatches": true,
+        "checksumValid": true,
+        "existingChecksum": "96be67209b49d3172f55115d2555099cb49ebeedd9aa85998f5ee9bf19021b24",
+        "incomingChecksum": "96be67209b49d3172f55115d2555099cb49ebeedd9aa85998f5ee9bf19021b24",
+        "translator": "Marmaduke Pickthall"
+      },
+      {
+        "referenceKey": "2:286",
+        "textMatches": false,
+        "checksumValid": true,
+        "existingChecksum": "15339f66bf010957bd0af932db6fc628c43346ff7ad4192937bb1d2e5c6968e3",
+        "incomingChecksum": "824c6f0101c83b460cbe63440adb489e043b05f06dcffd5c0f79f1d8de371bec",
+        "translator": "Marmaduke Pickthall"
+      },
+      {
+        "referenceKey": "9:40",
+        "textMatches": false,
+        "checksumValid": true,
+        "existingChecksum": "c5859d6fa33d3c78a2bbad03613b4d82fc530dd6673c850d70e45c5fbc518c2a",
+        "incomingChecksum": "7466729474260ffde8e441b7a121b36f3a01e124b6670d54a5312d071e3789e4",
+        "translator": "Marmaduke Pickthall"
+      },
+      {
+        "referenceKey": "3:134",
+        "textMatches": true,
+        "checksumValid": true,
+        "existingChecksum": "68c9e03f26e7b7569c2a43be207815a7aebc5feadc70586c1ddb8fda7986f251",
+        "incomingChecksum": "68c9e03f26e7b7569c2a43be207815a7aebc5feadc70586c1ddb8fda7986f251",
+        "translator": "Marmaduke Pickthall"
+      },
+      {
+        "referenceKey": "39:53",
+        "textMatches": false,
+        "checksumValid": true,
+        "existingChecksum": "daa4d22edb98323dc73aa39899375f09c0b00fc62b2bae1c870f0402a964d5d5",
+        "incomingChecksum": "19cfb2f35c8dd0bcbaeb2572254a050f70f4543cd69a18f797eeca7bd4be76c2",
+        "translator": "Marmaduke Pickthall"
+      },
+      {
+        "referenceKey": "93:4",
+        "textMatches": false,
+        "checksumValid": true,
+        "existingChecksum": "dbdf687a876a26fec1f460d0d3ff10888e33c3b18b2bd358643424a3f6960272",
+        "incomingChecksum": "8e3202bae8e7f0fea90cbfa9a7d7c8fd68c00d9237fb0282efbd3b9f6a38758f",
+        "translator": "Marmaduke Pickthall"
+      },
+      {
+        "referenceKey": "65:3",
+        "textMatches": true,
+        "checksumValid": true,
+        "existingChecksum": "9e253af848d6b9135518228c56ae4bb3bc5c754847669942511cc212e04e5fbb",
+        "incomingChecksum": "9e253af848d6b9135518228c56ae4bb3bc5c754847669942511cc212e04e5fbb",
+        "translator": "Marmaduke Pickthall"
+      },
+      {
+        "referenceKey": "42:37",
+        "textMatches": true,
+        "checksumValid": true,
+        "existingChecksum": "6a4c07726f70453507357120788b7abb708c18b97b8518f11f7952c17b29bed3",
+        "incomingChecksum": "6a4c07726f70453507357120788b7abb708c18b97b8518f11f7952c17b29bed3",
+        "translator": "Marmaduke Pickthall"
+      },
+      {
+        "referenceKey": "41:34",
+        "textMatches": true,
+        "checksumValid": true,
+        "existingChecksum": "4a3d7b80fb4bdcb1d29a443e6814e4ed9b01f872c72f101649159d1dbbb57e02",
+        "incomingChecksum": "4a3d7b80fb4bdcb1d29a443e6814e4ed9b01f872c72f101649159d1dbbb57e02",
+        "translator": "Marmaduke Pickthall"
+      },
+      {
+        "referenceKey": "93:3",
+        "textMatches": true,
+        "checksumValid": true,
+        "existingChecksum": "3d78335c4e4829ac09a6a5ad945d6fdd7f94260dbe9335d7dc3d632df18ea7ee",
+        "incomingChecksum": "3d78335c4e4829ac09a6a5ad945d6fdd7f94260dbe9335d7dc3d632df18ea7ee",
+        "translator": "Marmaduke Pickthall"
+      },
+      {
+        "referenceKey": "93:5",
+        "textMatches": true,
+        "checksumValid": true,
+        "existingChecksum": "c94fafa97df07e30d7855baa2c603b7fe0f63d4b1130c620815b9b4fcc519c6d",
+        "incomingChecksum": "c94fafa97df07e30d7855baa2c603b7fe0f63d4b1130c620815b9b4fcc519c6d",
+        "translator": "Marmaduke Pickthall"
+      },
+      {
+        "referenceKey": "94:5",
+        "textMatches": true,
+        "checksumValid": true,
+        "existingChecksum": "55d81f94a46ed1d9ae2eff8665111380d89718b9e65223c739a4071ea86cdc94",
+        "incomingChecksum": "55d81f94a46ed1d9ae2eff8665111380d89718b9e65223c739a4071ea86cdc94",
+        "translator": "Marmaduke Pickthall"
+      },
+      {
+        "referenceKey": "94:6",
+        "textMatches": true,
+        "checksumValid": true,
+        "existingChecksum": "1919a0744f5a0d7ffc915034862aeb429e881fd07453325c4c8c2a393c933de4",
+        "incomingChecksum": "1919a0744f5a0d7ffc915034862aeb429e881fd07453325c4c8c2a393c933de4",
+        "translator": "Marmaduke Pickthall"
+      },
+      {
+        "referenceKey": "13:28",
+        "textMatches": true,
+        "checksumValid": true,
+        "existingChecksum": "1ffa43b0521ec6619d2d3ed276d5fe834f2b3c82f2d992b2659bdf07b3e9c7cc",
+        "incomingChecksum": "1ffa43b0521ec6619d2d3ed276d5fe834f2b3c82f2d992b2659bdf07b3e9c7cc",
+        "translator": "Marmaduke Pickthall"
+      },
+      {
+        "referenceKey": "26:62",
+        "textMatches": true,
+        "checksumValid": true,
+        "existingChecksum": "1b8c0a3354ed497e7b0f1ca8a3347494cc2e831e787d879a07c5183b448f76b2",
+        "incomingChecksum": "1b8c0a3354ed497e7b0f1ca8a3347494cc2e831e787d879a07c5183b448f76b2",
+        "translator": "Marmaduke Pickthall"
+      }
+    ]
+  },
+  "safetyFailures": [
+    "Existing source text/checksum conflicts; no text overwrite is permitted."
+  ],
+  "safeToImport": false
+}

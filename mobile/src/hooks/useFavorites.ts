@@ -1,17 +1,29 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-import { addFavorite, getFavorites, removeFavorite as removeStoredFavorite } from '@/storage/favorites';
+import { addFavorite, favoriteMatchesAyah, getFavoriteState, removeFavorite as removeStoredFavorite, type FavoriteReadResult } from '@/storage/favorites';
 import type { Ayah, FavoriteAyah } from '@/types/domain';
 
 export function useFavorites() {
   const [favorites, setFavorites] = useState<FavoriteAyah[]>([]);
   const [isReady, setIsReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [unresolvedCount, setUnresolvedCount] = useState(0);
+
+  const applyResult = useCallback((result: FavoriteReadResult) => {
+    setFavorites(result.favorites);
+    setUnresolvedCount(result.unresolvedCount);
+    setError(null);
+  }, []);
 
   const refreshFavorites = useCallback(async () => {
-    const storedFavorites = await getFavorites();
-    setFavorites(storedFavorites);
-    setIsReady(true);
-  }, []);
+    try {
+      applyResult(await getFavoriteState());
+    } catch {
+      setError('Saved ayahs could not be read. Your stored data has been kept. Please try again.');
+    } finally {
+      setIsReady(true);
+    }
+  }, [applyResult]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -21,29 +33,33 @@ export function useFavorites() {
     return () => clearTimeout(timeoutId);
   }, [refreshFavorites]);
 
-  const favoriteIds = useMemo(() => new Set(favorites.map((favorite) => favorite.id)), [favorites]);
-
-  const isFavorite = useCallback((id: string) => favoriteIds.has(id), [favoriteIds]);
+  const isFavorite = useCallback((ayah: Ayah | string) => favorites.some(favorite => favoriteMatchesAyah(favorite, ayah)), [favorites]);
 
   const removeFavorite = useCallback(async (id: string) => {
-    const nextFavorites = await removeStoredFavorite(id);
-    setFavorites(nextFavorites);
-  }, []);
+    try {
+      applyResult(await removeStoredFavorite(id));
+    } catch {
+      setError('The saved ayah could not be removed. Please try again.');
+    }
+  }, [applyResult]);
 
   const toggleFavorite = useCallback(
     async (ayah: Ayah) => {
-      const nextFavorites = favoriteIds.has(ayah.id)
-        ? await removeStoredFavorite(ayah.id)
-        : await addFavorite(ayah);
-
-      setFavorites(nextFavorites);
+      try {
+        const saved = favorites.find(favorite => favoriteMatchesAyah(favorite, ayah));
+        applyResult(saved ? await removeStoredFavorite(saved.id) : await addFavorite(ayah));
+      } catch {
+        setError('Saved ayahs could not be updated. Please try again.');
+      }
     },
-    [favoriteIds],
+    [favorites, applyResult],
   );
 
   return {
     favorites,
     isReady,
+    error,
+    unresolvedCount,
     isFavorite,
     removeFavorite,
     toggleFavorite,

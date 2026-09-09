@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "path": "tools/quran-verification/input/quran-uthmani.txt",
+    "sha256": "6933e133dd56db778c801bf738848454e43648105a151e8d84d86a7cae39ec5f",
+    "bytes": 1396087,
+    "name": "Tanzil Quran Text",
+    "edition": "Uthmani",
+    "version": "1.1",
+    "url": "https://tanzil.net",
+    "noticePath": "mobile/assets/quran/TANZIL-NOTICE.txt"
+  },
+  "surahCount": 114,
+  "ayahCount": 6236,
+  "generator": {
+    "path": "tools/quran-import/generate-sqlite.mjs",
+    "version": "1.0.0",
+    "nodeVersion": "24.15.0",
+    "sqliteVersion": "3.51.3"
+  },
+  "database": {
+    "path": "mobile/assets/quran/quran.sqlite",
+    "sha256": "c380a5952e5bf946a5f35335f5f3551be7559224e81a7ebd312df195c1b30d5b",
+    "bytes": 1720320,
+    "schemaPath": "tools/quran-import/schema.sql",
+    "schemaSha256": "2f6afa86a00f5c7471d6a0bddf88f8463067b5c4a76736aaf81e37814f41b9ac",
+    "applicationId": 1363694158,
+    "pageSize": 4096,
+    "encoding": "UTF-8"
+  },
+  "verification": {
+    "ayahCount": 6236,
+    "surahCount": 114,
+    "duplicateKeys": [],
+    "missingKeys": [],
+    "invalidKeys": [],
+    "emptyTextKeys": [],
+    "exactMatches": 6236,
+    "mismatches": 0,
+    "integrityCheck": "ok"
+  },
+  "timestampPolicy": "Omitted: database and manifest are reproducible with the recorded generator, schema, source and runtime.",
+  "sourcePolicy": "Tanzil is canonical. King Fahd is an independent verification/reference source only. No text transformations."
+}

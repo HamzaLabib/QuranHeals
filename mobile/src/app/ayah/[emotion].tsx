@@ -10,7 +10,7 @@ import { StateView } from '@/components/StateView';
 import { colors, radii, spacing, typography } from '@/constants/theme';
 import { useFavorites } from '@/hooks/useFavorites';
 import { getApiErrorMessage, getRandomAyah } from '@/services/api';
-import { getRecentAyahIds, rememberAyahForEmotion } from '@/storage/recentAyahs';
+import { getRecentAyahState, rememberAyahForEmotion } from '@/storage/recentAyahs';
 import type { Ayah } from '@/types/domain';
 
 export default function AyahScreen() {
@@ -25,7 +25,8 @@ export default function AyahScreen() {
   const [ayah, setAyah] = useState<Ayah | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { isFavorite, toggleFavorite } = useFavorites();
+  const [historyMessage, setHistoryMessage] = useState<string | null>(null);
+  const { isFavorite, toggleFavorite, error: favoritesError } = useFavorites();
 
   const readableEmotion = useMemo(() => {
     if (!emotionKey) {
@@ -47,12 +48,24 @@ export default function AyahScreen() {
 
     setIsLoading(true);
     setErrorMessage(null);
+    setHistoryMessage(null);
 
     try {
-      const excludedIds = await getRecentAyahIds(emotionKey);
+      let excludedIds: string[] = [];
+      try {
+        const recent = await getRecentAyahState(emotionKey);
+        excludedIds = recent.ids;
+        if (recent.unresolvedCount > 0) setHistoryMessage('Some older history entries could not be used to prevent repeats. Your stored history has been kept.');
+      } catch {
+        setHistoryMessage('Recent history could not be read. Your stored history has been kept.');
+      }
       const nextAyah = await getRandomAyah(emotionKey, excludedIds);
       setAyah(nextAyah);
-      await rememberAyahForEmotion(emotionKey, nextAyah.id);
+      try {
+        await rememberAyahForEmotion(emotionKey, nextAyah);
+      } catch {
+        setHistoryMessage('This ayah could not be added to recent history. Your previous history has been kept.');
+      }
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error, "We couldn't load an ayah right now."));
     } finally {
@@ -74,7 +87,7 @@ export default function AyahScreen() {
     }
 
     await Share.share({
-      message: `${ayah.arabicText}\n\n${ayah.englishTranslation}\n\n${ayah.surahNameEnglish} ${ayah.surahNumber}:${ayah.ayahNumber}\n\nQuran Heals`,
+      message: `${ayah.arabicText}\n\n${ayah.englishTranslation}\n\n${ayah.surahNameEnglish} ${ayah.surahNumber}:${ayah.ayahNumber}\n\n${ayah.quranTextSource}\n\nQuran Heals`,
     });
   }, [ayah]);
 
@@ -116,8 +129,11 @@ export default function AyahScreen() {
           <>
             <AyahCard ayah={ayah} />
 
+            {favoritesError && <StateView title="Saved ayahs" message={favoritesError} />}
+            {historyMessage && <StateView title="Recent ayahs" message={historyMessage} />}
+
             <View style={styles.actions}>
-              <FavoriteButton isSaved={isFavorite(ayah.id)} onToggle={() => toggleFavorite(ayah)} />
+              <FavoriteButton isSaved={isFavorite(ayah)} onToggle={() => toggleFavorite(ayah)} />
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Share ayah"

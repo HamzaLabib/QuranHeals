@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Linking, StyleSheet, Text, View } from 'react-native';
 
 import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
 import type { Ayah } from '@/types/domain';
@@ -20,6 +20,9 @@ export function AyahCard({ ayah, compact = false }: AyahCardProps) {
           {ayah.surahNameEnglish} • {ayah.surahNumber}:{ayah.ayahNumber}
         </Text>
         <Text style={styles.source}>{ayah.translationSource}</Text>
+        <Text accessibilityRole="link" onPress={() => void Linking.openURL('https://tanzil.net')} style={styles.source}>
+          Quran text: Tanzil · Uthmani 1.1
+        </Text>
       </View>
     </View>
   );
@@ -81,4 +84,3 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
 });
-

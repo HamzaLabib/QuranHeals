@@ -11,6 +11,7 @@ export type EmotionDto = {
 
 export type AyahDto = {
   id: string;
+  verseKey: string;
   referenceKey: string;
   surahNumber: number;
   surahNameArabic: string;
@@ -32,4 +33,3 @@ export type ApiResponse<T> =
       success: false;
       message: string;
     };
-

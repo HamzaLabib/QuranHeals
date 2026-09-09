@@ -1,0 +1,524 @@
+{
+  "schemaVersion": 1,
+  "importerVersion": "phase3-1",
+  "provider": "Tanzil Project",
+  "documentation": [
+    "https://tanzil.net/download/",
+    "https://tanzil.net/docs/quran_metadata",
+    "https://tanzil.net/trans/"
+  ],
+  "arabic": {
+    "dataset": "Tanzil Uthmani",
+    "version": "1.1",
+    "releaseDate": "2021-02",
+    "scriptType": "uthmani",
+    "options": {
+      "marks": true,
+      "sajdah": true,
+      "rub": true,
+      "tatweel": true,
+      "sequentialTanweens": false
+    },
+    "license": "Creative Commons Attribution 3.0; verbatim text only; retain copyright notice and attribution/link to https://tanzil.net",
+    "corpusChecksum": "bdcfb57ebff8c2e31cace329c1c0a8392a2b06f2b0c582465ae215ef53f97652"
+  },
+  "numbering": {
+    "description": "Tanzil numbered surah|ayah export; 1:1 is the basmala; no extra ayah-zero or separately numbered opening basmalas for other surahs. Embedded basmala in 27:30 remains part of that verse.",
+    "surahs": 114,
+    "expectedVerseCount": 6236,
+    "perSurah": [
+      {
+        "surahNumber": 1,
+        "ayahCount": 7
+      },
+      {
+        "surahNumber": 2,
+        "ayahCount": 286
+      },
+      {
+        "surahNumber": 3,
+        "ayahCount": 200
+      },
+      {
+        "surahNumber": 4,
+        "ayahCount": 176
+      },
+      {
+        "surahNumber": 5,
+        "ayahCount": 120
+      },
+      {
+        "surahNumber": 6,
+        "ayahCount": 165
+      },
+      {
+        "surahNumber": 7,
+        "ayahCount": 206
+      },
+      {
+        "surahNumber": 8,
+        "ayahCount": 75
+      },
+      {
+        "surahNumber": 9,
+        "ayahCount": 129
+      },
+      {
+        "surahNumber": 10,
+        "ayahCount": 109
+      },
+      {
+        "surahNumber": 11,
+        "ayahCount": 123
+      },
+      {
+        "surahNumber": 12,
+        "ayahCount": 111
+      },
+      {
+        "surahNumber": 13,
+        "ayahCount": 43
+      },
+      {
+        "surahNumber": 14,
+        "ayahCount": 52
+      },
+      {
+        "surahNumber": 15,
+        "ayahCount": 99
+      },
+      {
+        "surahNumber": 16,
+        "ayahCount": 128
+      },
+      {
+        "surahNumber": 17,
+        "ayahCount": 111
+      },
+      {
+        "surahNumber": 18,
+        "ayahCount": 110
+      },
+      {
+        "surahNumber": 19,
+        "ayahCount": 98
+      },
+      {
+        "surahNumber": 20,
+        "ayahCount": 135
+      },
+      {
+        "surahNumber": 21,
+        "ayahCount": 112
+      },
+      {
+        "surahNumber": 22,
+        "ayahCount": 78
+      },
+      {
+        "surahNumber": 23,
+        "ayahCount": 118
+      },
+      {
+        "surahNumber": 24,
+        "ayahCount": 64
+      },
+      {
+        "surahNumber": 25,
+        "ayahCount": 77
+      },
+      {
+        "surahNumber": 26,
+        "ayahCount": 227
+      },
+      {
+        "surahNumber": 27,
+        "ayahCount": 93
+      },
+      {
+        "surahNumber": 28,
+        "ayahCount": 88
+      },
+      {
+        "surahNumber": 29,
+        "ayahCount": 69
+      },
+      {
+        "surahNumber": 30,
+        "ayahCount": 60
+      },
+      {
+        "surahNumber": 31,
+        "ayahCount": 34
+      },
+      {
+        "surahNumber": 32,
+        "ayahCount": 30
+      },
+      {
+        "surahNumber": 33,
+        "ayahCount": 73
+      },
+      {
+        "surahNumber": 34,
+        "ayahCount": 54
+      },
+      {
+        "surahNumber": 35,
+        "ayahCount": 45
+      },
+      {
+        "surahNumber": 36,
+        "ayahCount": 83
+      },
+      {
+        "surahNumber": 37,
+        "ayahCount": 182
+      },
+      {
+        "surahNumber": 38,
+        "ayahCount": 88
+      },
+      {
+        "surahNumber": 39,
+        "ayahCount": 75
+      },
+      {
+        "surahNumber": 40,
+        "ayahCount": 85
+      },
+      {
+        "surahNumber": 41,
+        "ayahCount": 54
+      },
+      {
+        "surahNumber": 42,
+        "ayahCount": 53
+      },
+      {
+        "surahNumber": 43,
+        "ayahCount": 89
+      },
+      {
+        "surahNumber": 44,
+        "ayahCount": 59
+      },
+      {
+        "surahNumber": 45,
+        "ayahCount": 37
+      },
+      {
+        "surahNumber": 46,
+        "ayahCount": 35
+      },
+      {
+        "surahNumber": 47,
+        "ayahCount": 38
+      },
+      {
+        "surahNumber": 48,
+        "ayahCount": 29
+      },
+      {
+        "surahNumber": 49,
+        "ayahCount": 18
+      },
+      {
+        "surahNumber": 50,
+        "ayahCount": 45
+      },
+      {
+        "surahNumber": 51,
+        "ayahCount": 60
+      },
+      {
+        "surahNumber": 52,
+        "ayahCount": 49
+      },
+      {
+        "surahNumber": 53,
+        "ayahCount": 62
+      },
+      {
+        "surahNumber": 54,
+        "ayahCount": 55
+      },
+      {
+        "surahNumber": 55,
+        "ayahCount": 78
+      },
+      {
+        "surahNumber": 56,
+        "ayahCount": 96
+      },
+      {
+        "surahNumber": 57,
+        "ayahCount": 29
+      },
+      {
+        "surahNumber": 58,
+        "ayahCount": 22
+      },
+      {
+        "surahNumber": 59,
+        "ayahCount": 24
+      },
+      {
+        "surahNumber": 60,
+        "ayahCount": 13
+      },
+      {
+        "surahNumber": 61,
+        "ayahCount": 14
+      },
+      {
+        "surahNumber": 62,
+        "ayahCount": 11
+      },
+      {
+        "surahNumber": 63,
+        "ayahCount": 11
+      },
+      {
+        "surahNumber": 64,
+        "ayahCount": 18
+      },
+      {
+        "surahNumber": 65,
+        "ayahCount": 12
+      },
+      {
+        "surahNumber": 66,
+        "ayahCount": 12
+      },
+      {
+        "surahNumber": 67,
+        "ayahCount": 30
+      },
+      {
+        "surahNumber": 68,
+        "ayahCount": 52
+      },
+      {
+        "surahNumber": 69,
+        "ayahCount": 52
+      },
+      {
+        "surahNumber": 70,
+        "ayahCount": 44
+      },
+      {
+        "surahNumber": 71,
+        "ayahCount": 28
+      },
+      {
+        "surahNumber": 72,
+        "ayahCount": 28
+      },
+      {
+        "surahNumber": 73,
+        "ayahCount": 20
+      },
+      {
+        "surahNumber": 74,
+        "ayahCount": 56
+      },
+      {
+        "surahNumber": 75,
+        "ayahCount": 40
+      },
+      {
+        "surahNumber": 76,
+        "ayahCount": 31
+      },
+      {
+        "surahNumber": 77,
+        "ayahCount": 50
+      },
+      {
+        "surahNumber": 78,
+        "ayahCount": 40
+      },
+      {
+        "surahNumber": 79,
+        "ayahCount": 46
+      },
+      {
+        "surahNumber": 80,
+        "ayahCount": 42
+      },
+      {
+        "surahNumber": 81,
+        "ayahCount": 29
+      },
+      {
+        "surahNumber": 82,
+        "ayahCount": 19
+      },
+      {
+        "surahNumber": 83,
+        "ayahCount": 36
+      },
+      {
+        "surahNumber": 84,
+        "ayahCount": 25
+      },
+      {
+        "surahNumber": 85,
+        "ayahCount": 22
+      },
+      {
+        "surahNumber": 86,
+        "ayahCount": 17
+      },
+      {
+        "surahNumber": 87,
+        "ayahCount": 19
+      },
+      {
+        "surahNumber": 88,
+        "ayahCount": 26
+      },
+      {
+        "surahNumber": 89,
+        "ayahCount": 30
+      },
+      {
+        "surahNumber": 90,
+        "ayahCount": 20
+      },
+      {
+        "surahNumber": 91,
+        "ayahCount": 15
+      },
+      {
+        "surahNumber": 92,
+        "ayahCount": 21
+      },
+      {
+        "surahNumber": 93,
+        "ayahCount": 11
+      },
+      {
+        "surahNumber": 94,
+        "ayahCount": 8
+      },
+      {
+        "surahNumber": 95,
+        "ayahCount": 8
+      },
+      {
+        "surahNumber": 96,
+        "ayahCount": 19
+      },
+      {
+        "surahNumber": 97,
+        "ayahCount": 5
+      },
+      {
+        "surahNumber": 98,
+        "ayahCount": 8
+      },
+      {
+        "surahNumber": 99,
+        "ayahCount": 8
+      },
+      {
+        "surahNumber": 100,
+        "ayahCount": 11
+      },
+      {
+        "surahNumber": 101,
+        "ayahCount": 11
+      },
+      {
+        "surahNumber": 102,
+        "ayahCount": 8
+      },
+      {
+        "surahNumber": 103,
+        "ayahCount": 3
+      },
+      {
+        "surahNumber": 104,
+        "ayahCount": 9
+      },
+      {
+        "surahNumber": 105,
+        "ayahCount": 5
+      },
+      {
+        "surahNumber": 106,
+        "ayahCount": 4
+      },
+      {
+        "surahNumber": 107,
+        "ayahCount": 7
+      },
+      {
+        "surahNumber": 108,
+        "ayahCount": 3
+      },
+      {
+        "surahNumber": 109,
+        "ayahCount": 6
+      },
+      {
+        "surahNumber": 110,
+        "ayahCount": 3
+      },
+      {
+        "surahNumber": 111,
+        "ayahCount": 5
+      },
+      {
+        "surahNumber": 112,
+        "ayahCount": 4
+      },
+      {
+        "surahNumber": 113,
+        "ayahCount": 5
+      },
+      {
+        "surahNumber": 114,
+        "ayahCount": 6
+      }
+    ]
+  },
+  "translation": {
+    "resourceId": "en.pickthall",
+    "translator": "Marmaduke Pickthall",
+    "providerTranslatorName": "Mohammed Marmaduke William Pickthall",
+    "language": "en",
+    "sourceVersion": "en.pickthall-2010-09-04",
+    "providerLastUpdate": "2010-09-04",
+    "licenseStatus": "Tanzil export terms: non-commercial only. Unrestricted/commercial export license not verified. Existing MVP Public domain metadata is not treated as proof for this downloaded edition.",
+    "corpusChecksum": "4e60f6ce1d2447c395b88feacc3784a2db829dff89777050b30f29f1ec837d01"
+  },
+  "files": [
+    {
+      "file": "quran-uthmani.txt",
+      "url": "https://tanzil.net/pub/download/index.php?quranType=uthmani&outType=txt-2&marks=true&sajdah=true&rub=true&tatweel=true&agree=true",
+      "retrievedAt": "2026-09-09T14:19:35.554Z",
+      "bytes": 1396684,
+      "sha256": "7f30c647331a61100ebf24a80507dc0fcdd9f2df97f1312b5b2dfcb982a7f326"
+    },
+    {
+      "file": "en.pickthall.txt",
+      "url": "https://tanzil.net/trans/en.pickthall",
+      "retrievedAt": "2026-09-09T14:19:37.081Z",
+      "bytes": 864918,
+      "sha256": "4aabbfa9d96796f5a6b0217d2c39dce1a3084f772bf6f2650e37082a774e3cc7"
+    },
+    {
+      "file": "quran-data.xml",
+      "url": "https://tanzil.net/res/text/metadata/quran-data.xml",
+      "retrievedAt": "2026-09-09T14:19:37.604Z",
+      "bytes": 77234,
+      "sha256": "8867c1d88191472adec9db694b3cd9f135b1a2ef580574d32cf888dcb22c5c7a"
+    }
+  ],
+  "checksumAlgorithm": "SHA-256 of UTF-8. Corpus: sort numerically by surah then ayah; concatenate JSON.stringify([referenceKey, exactText]) + LF for every row, including final LF. Arabic and translations hashed separately. File hashes cover downloaded bytes.",
+  "importDate": null,
+  "importStatus": "Blocked before mutation: six existing Arabic text conflicts and five existing Pickthall text differences. No source text overwrite performed."
+}

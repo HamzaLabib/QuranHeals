@@ -29,6 +29,7 @@ const emptyEmotion: EmotionDto = {
 
 const sadAyah: AyahDto = {
   id: '66f100000000000000000001',
+  verseKey: '94:6',
   referenceKey: '94:6',
   surahNumber: 94,
   surahNameArabic: 'الشرح',
@@ -108,6 +109,8 @@ describe('Quran Heals API', () => {
     expect(response.body.success).toBe(true);
     expect(response.body.data).toMatchObject({
       id: sadAyah.id,
+      verseKey: '94:6',
+      referenceKey: '94:6',
       surahNumber: 94,
       ayahNumber: 6,
       emotions: ['sad'],
@@ -166,4 +169,3 @@ describe('Quran Heals API', () => {
     });
   });
 });
-

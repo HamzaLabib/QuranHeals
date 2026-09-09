@@ -1,0 +1,114 @@
+{
+  "auditVersion": 1,
+  "checkedAt": "2026-09-09T17:35:46.916Z",
+  "mode": "read-only metadata projections; no model operations, writes or index creation",
+  "limitations": [
+    "This audit reads backend references only; it does not inspect device AsyncStorage favorites/history.",
+    "MongoDB Arabic and translations are neither read nor changed by this audit."
+  ],
+  "sqlite": {
+    "path": "mobile/assets/quran/quran.sqlite",
+    "sha256": "c380a5952e5bf946a5f35335f5f3551be7559224e81a7ebd312df195c1b30d5b",
+    "rows": 6236
+  },
+  "seeded": {
+    "verses": {
+      "total": 16,
+      "resolvedExactlyOnce": 16,
+      "unresolved": [],
+      "inconsistent": []
+    },
+    "legacyAyahs": {
+      "total": 16,
+      "resolvedExactlyOnce": 16,
+      "unresolved": [],
+      "inconsistent": []
+    },
+    "activeEmotions": 12,
+    "mappings": {
+      "total": 43,
+      "distinctVerseReferences": 16,
+      "resolvedExactlyOnce": 43,
+      "byEmotion": {
+        "sad": 6,
+        "anxious": 4,
+        "stressed": 5,
+        "tired": 4,
+        "hopeless": 5,
+        "angry": 4,
+        "afraid": 3,
+        "lonely": 2,
+        "peaceful": 3,
+        "grateful": 2,
+        "lost": 4,
+        "confused": 1
+      },
+      "byStatus": {
+        "development": 43
+      },
+      "unresolved": [],
+      "unknownOrInactiveEmotions": []
+    }
+  },
+  "live": {
+    "status": "complete",
+    "collections": {
+      "verses": 16,
+      "ayahs": 16,
+      "emotionversemappings": 43,
+      "emotions": 12
+    },
+    "activeEmotions": 12,
+    "activeEmotionKeys": [
+      "afraid",
+      "angry",
+      "anxious",
+      "confused",
+      "grateful",
+      "hopeless",
+      "lonely",
+      "lost",
+      "peaceful",
+      "sad",
+      "stressed",
+      "tired"
+    ],
+    "verses": {
+      "total": 16,
+      "resolvedExactlyOnce": 16,
+      "unresolved": [],
+      "inconsistent": []
+    },
+    "legacyAyahs": {
+      "total": 16,
+      "resolvedExactlyOnce": 16,
+      "unresolved": [],
+      "inconsistent": []
+    },
+    "mappings": {
+      "total": 43,
+      "distinctVerseReferences": 16,
+      "resolvedExactlyOnce": 43,
+      "byEmotion": {
+        "anxious": 4,
+        "stressed": 5,
+        "sad": 6,
+        "angry": 4,
+        "hopeless": 5,
+        "tired": 4,
+        "confused": 1,
+        "lost": 4,
+        "grateful": 2,
+        "peaceful": 3,
+        "afraid": 3,
+        "lonely": 2
+      },
+      "byStatus": {
+        "development": 43
+      },
+      "unresolved": [],
+      "unknownOrInactiveEmotions": []
+    }
+  },
+  "sqliteUnchanged": true
+}

@@ -42,6 +42,7 @@ function toEmotionDto(emotion: MongoEntity<EmotionEntity>): EmotionDto {
 function toAyahDto(ayah: MongoEntity<AyahEntity>): AyahDto {
   return {
     id: ayah._id.toString(),
+    verseKey: `${ayah.surahNumber}:${ayah.ayahNumber}`,
     referenceKey: ayah.referenceKey,
     surahNumber: ayah.surahNumber,
     surahNameArabic: ayah.surahNameArabic,
@@ -62,6 +63,7 @@ function toFoundationAyahDto(
 ): AyahDto {
   return {
     id: verse._id.toString(),
+    verseKey: `${verse.surahNumber}:${verse.ayahNumber}`,
     referenceKey: verse.referenceKey,
     surahNumber: verse.surahNumber,
     surahNameArabic: verse.surahNameArabic,

@@ -11,7 +11,10 @@
     "test": "vitest run",
     "seed": "tsx src/seed/seed.ts",
     "migrate:foundation": "tsx src/seed/migrateFoundation.ts",
-    "mapping:upsert": "tsx src/scripts/upsertEmotionMapping.ts"
+    "mapping:upsert": "tsx src/scripts/upsertEmotionMapping.ts",
+    "validate:quran:source": "tsx src/scripts/fullQuran.ts source",
+    "validate:quran": "tsx src/scripts/fullQuran.ts validate",
+    "import:quran": "tsx src/scripts/fullQuran.ts import"
   },
   "dependencies": {
     "cors": "^2.8.6",

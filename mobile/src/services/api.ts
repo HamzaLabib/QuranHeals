@@ -1,6 +1,8 @@
 import { Platform } from 'react-native';
 
 import type { ApiResponse, Ayah, Emotion } from '@/types/domain';
+import { resolveAyahArabic } from './quran';
+import { QuranDataError } from './quranReference';
 
 const fallbackApiUrl = Platform.OS === 'android' ? 'http://10.0.2.2:4000' : 'http://localhost:4000';
 const apiBaseUrl = (process.env.EXPO_PUBLIC_API_URL ?? fallbackApiUrl).replace(/\/$/, '');
@@ -156,23 +158,23 @@ async function requestApi<T>(path: string, timeoutMs = 8000): Promise<T> {
 }
 
 export function getApiErrorMessage(error: unknown, fallback: string) {
-  return error instanceof ApiError ? error.message : fallback;
+  return error instanceof ApiError || error instanceof QuranDataError ? error.message : fallback;
 }
 
 export function getEmotions() {
   return requestApi<Emotion[]>('/api/emotions');
 }
 
-export function getRandomAyah(emotion: string, excludedAyahIds: string[] = []) {
+export async function getRandomAyah(emotion: string, excludedAyahIds: string[] = []) {
   const params = new URLSearchParams({ emotion });
 
   if (excludedAyahIds.length > 0) {
     params.set('exclude', excludedAyahIds.join(','));
   }
 
-  return requestApi<Ayah>(`/api/ayahs/random?${params.toString()}`);
+  return resolveAyahArabic(await requestApi<Ayah>(`/api/ayahs/random?${params.toString()}`));
 }
 
-export function getAyah(id: string) {
-  return requestApi<Ayah>(`/api/ayahs/${encodeURIComponent(id)}`);
+export async function getAyah(id: string) {
+  return resolveAyahArabic(await requestApi<Ayah>(`/api/ayahs/${encodeURIComponent(id)}`));
 }

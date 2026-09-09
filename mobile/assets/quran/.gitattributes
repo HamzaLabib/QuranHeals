@@ -1,0 +1,4 @@
+*.sqlite -text -diff
+*.json text eol=lf
+# Preserve the exact source notice, including its intentional trailing spaces.
+TANZIL-NOTICE.txt -text -whitespace

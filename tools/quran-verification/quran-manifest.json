@@ -1,0 +1,22 @@
+{
+  "primarySource": "King Fahd Glorious Quran Printing Complex",
+  "primarySourceUrl": "https://qurancomplex.gov.sa/en/techquran/dev/",
+  "narration": "Hafs",
+  "script": "Uthmani Unicode",
+  "primarySourceVersion": null,
+  "primarySourceHash": null,
+  "canonicalTextHash": null,
+  "sqliteHash": null,
+  "surahCount": null,
+  "ayahCount": null,
+  "verificationSource": "Tanzil Quran Text",
+  "verificationSourceVersion": "Uthmani 1.1",
+  "verificationSourceHash": "6933e133dd56db778c801bf738848454e43648105a151e8d84d86a7cae39ec5f",
+  "verificationInput": "tools/quran-verification/input/quran-uthmani.txt",
+  "verificationDate": "2026-09-09T15:08:36.826Z",
+  "verificationSurahCount": 114,
+  "verificationAyahCount": 6236,
+  "status": "FAIL — MANUAL REVIEW REQUIRED",
+  "comparisonPerformed": false,
+  "hashAlgorithm": "SHA-256; raw files hash exact bytes; ordered text hashes UTF-8 JSON.stringify([verse_key, text_uthmani]) + LF per verse sorted numerically by surah/ayah, with final LF."
+}

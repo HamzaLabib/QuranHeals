@@ -11,6 +11,8 @@ export type Emotion = {
 
 export type Ayah = {
   id: string;
+  // Optional on legacy API/storage records; local resolution always supplies it.
+  verseKey?: string;
   referenceKey: string;
   surahNumber: number;
   surahNameArabic: string;
@@ -36,4 +38,3 @@ export type ApiResponse<T> =
       success: false;
       message: string;
     };
-

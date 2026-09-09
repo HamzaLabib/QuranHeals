@@ -1,0 +1,28 @@
+{
+  "result": "FAIL — MANUAL REVIEW REQUIRED",
+  "reason": "Official King Fahd source unavailable: official hosts timed out. No source substituted; complete comparison not run.",
+  "kingFahdVerseCount": null,
+  "tanzilVerseCount": 6236,
+  "tanzilValidation": {
+    "valid": true,
+    "surahCount": 114,
+    "ayahCount": 6236,
+    "duplicates": [],
+    "invalidKeys": [],
+    "emptyArabic": [],
+    "missing": []
+  },
+  "matchedVerseKeys": null,
+  "exactMatches": null,
+  "nonExactMatches": null,
+  "missingKingFahdVerses": null,
+  "kingFahdDuplicates": null,
+  "categorizedDifferences": null,
+  "potentiallySubstantiveDifferences": null,
+  "comparisonPerformed": false,
+  "tanzilSha256BeforeMove": "6933e133dd56db778c801bf738848454e43648105a151e8d84d86a7cae39ec5f",
+  "tanzilSha256AfterMove": "6933e133dd56db778c801bf738848454e43648105a151e8d84d86a7cae39ec5f",
+  "tanzilBytes": 1396087,
+  "sqliteGenerated": false,
+  "fontBundled": false
+}
