@@ -4,7 +4,13 @@ import mongoose from 'mongoose';
 import request from 'supertest';
 import { createApp } from '../app';
 import { env } from '../config/env';
+import { getVerifiedArabicByVerseKey } from '../quran/quranSource';
 import { readSnapshot } from './fullQuran';
+
+// Runtime Arabic is served from the verified local Quran source (see
+// quran/quranSource.ts), not from Mongo. Mongo's verses/ayahs collections
+// still carry arabicText/checksum, but only as legacy data — this regression
+// validates API Arabic against the verified source, not against Mongo.
 
 async function main() {
   if (!env.MONGODB_URI || env.NODE_ENV === 'production') throw new Error('Development database required.');
@@ -26,7 +32,7 @@ async function main() {
     const allowed = before.emotionversemappings.filter(m => m.emotionKey === emotion.key && ['development', 'reviewed', 'approved'].includes(m.status)).map(m => m.verseReferenceKey);
     assert.ok(allowed.includes(ayah.referenceKey));
     const verse = before.verses.find(v => v.referenceKey === ayah.referenceKey);
-    assert.equal(ayah.arabicText, verse?.arabicText);
+    assert.equal(ayah.arabicText, getVerifiedArabicByVerseKey(ayah.verseKey));
     assert.equal(ayah.id, String((verse as unknown as { _id: unknown })._id));
     const byId = await request(app).get(`/api/ayahs/${ayah.id}`).expect(200);
     assert.deepEqual(byId.body.data, ayah);

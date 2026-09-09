@@ -33,9 +33,12 @@ const ayahSchema = new Schema<AyahEntity>(
       required: true,
       min: 1,
     },
+    // Retained for legacy/compatibility data only; the API no longer reads
+    // this field (see backend/src/quran/quranSource.ts). Not required,
+    // preparing for its eventual removal once MongoDB becomes reference-only.
     arabicText: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
     },
     englishTranslation: {

@@ -1,0 +1,3 @@
+*.sqlite -text -diff
+TANZIL-NOTICE.txt -text -whitespace
+surah-counts.json text eol=lf

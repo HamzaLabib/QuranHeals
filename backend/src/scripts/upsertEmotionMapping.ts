@@ -3,7 +3,7 @@ import { env } from '../config/env';
 import { emotionMappingStatuses } from '../models/EmotionVerseMapping';
 import { EmotionVerseMappingModel } from '../models/EmotionVerseMapping';
 import { EmotionModel } from '../models/Emotion';
-import { VerseModel } from '../models/Verse';
+import { isValidVerseKey } from '../quran/referenceKeys';
 import type { EmotionMappingStatus } from '../types/domain';
 import { FOUNDATION_MAPPING_VERSION } from '../seed/foundation';
 
@@ -135,14 +135,11 @@ async function upsertEmotionMapping() {
 
   await connectToDatabase(env.MONGODB_URI);
 
-  const [verseExists, emotionExists] = await Promise.all([
-    VerseModel.exists({ referenceKey: verseReferenceKey }),
-    EmotionModel.exists({ key: emotionKey, active: true }),
-  ]);
-
-  if (!verseExists) {
-    throw new Error(`Canonical verse ${verseReferenceKey} does not exist.`);
+  if (!isValidVerseKey(verseReferenceKey)) {
+    throw new Error(`"${verseReferenceKey}" is not a valid Quran reference.`);
   }
+
+  const emotionExists = await EmotionModel.exists({ key: emotionKey, active: true });
 
   if (!emotionExists) {
     throw new Error(`Active emotion "${emotionKey}" does not exist.`);

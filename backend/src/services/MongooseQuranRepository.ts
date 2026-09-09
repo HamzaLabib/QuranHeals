@@ -5,6 +5,7 @@ import { EmotionVerseMappingModel } from '../models/EmotionVerseMapping';
 import { EmotionModel } from '../models/Emotion';
 import { VerseModel } from '../models/Verse';
 import { VerseTranslationModel } from '../models/VerseTranslation';
+import { getVerifiedArabicForRecord } from '../quran/quranSource';
 import {
   FOUNDATION_TRANSLATION_LANGUAGE,
   FOUNDATION_TRANSLATOR,
@@ -48,7 +49,7 @@ function toAyahDto(ayah: MongoEntity<AyahEntity>): AyahDto {
     surahNameArabic: ayah.surahNameArabic,
     surahNameEnglish: ayah.surahNameEnglish,
     ayahNumber: ayah.ayahNumber,
-    arabicText: ayah.arabicText,
+    arabicText: getVerifiedArabicForRecord(ayah),
     englishTranslation: ayah.englishTranslation,
     emotions: ayah.emotions,
     quranTextSource: ayah.quranTextSource,
@@ -69,7 +70,7 @@ function toFoundationAyahDto(
     surahNameArabic: verse.surahNameArabic,
     surahNameEnglish: verse.surahNameEnglish,
     ayahNumber: verse.ayahNumber,
-    arabicText: verse.arabicText,
+    arabicText: getVerifiedArabicForRecord(verse),
     englishTranslation: translation.text,
     emotions: mappings.map((mapping) => mapping.emotionKey),
     quranTextSource: verse.quranTextSource,

@@ -158,8 +158,17 @@ they expect a local Expo preview on 8083 with public API URL 127.0.0.1:4000.
 
 ## Remaining cleanup
 
-Removing the duplicated MongoDB Arabic requires an explicit, reversible cleanup
-migration. Editorial reference validation should be decoupled from
-`VerseModel.exists`. Persistent favorites could optionally be versioned down to
-references after a compatibility review. Translations, source metadata and
-legacy ID support should stay until their remaining consumers are audited.
+Editorial reference validation (`EmotionVerseMapping.verseReferenceKey`, and
+the `mapping:upsert` CLI) no longer depends on `VerseModel.exists`; both now
+validate against the local 6,236-key reference set in
+`backend/src/quran/referenceKeys.ts`. A dry-run migration for removing the
+duplicated MongoDB Arabic itself is prepared in
+`backend/src/scripts/prepareArabicCleanup.ts` (see
+`backend/reports/phase4-cleanup-dry-run.json` for its most recent run), but it
+has not been executed destructively — that still requires a real device smoke
+test and separate explicit approval, and `MongooseQuranRepository`'s
+Arabic-serving path (`composeFoundationAyah`, `toAyahDto`) must be rewired to
+read from `quran.sqlite` before it safely can be. Persistent favorites could
+optionally be versioned down to references after a compatibility review.
+Translations, source metadata and legacy ID support should stay until their
+remaining consumers are audited.

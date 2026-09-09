@@ -1,8 +1,8 @@
 import { Schema, model, models } from 'mongoose';
 
+import { isValidVerseKey } from '../quran/referenceKeys';
 import type { EmotionMappingStatus, EmotionVerseMappingEntity } from '../types/domain';
 import { EmotionModel } from './Emotion';
-import { VerseModel } from './Verse';
 
 export const emotionMappingStatuses: EmotionMappingStatus[] = [
   'development',
@@ -23,9 +23,8 @@ const emotionVerseMappingSchema = new Schema<EmotionVerseMappingEntity>(
       trim: true,
       match: referenceKeyPattern,
       validate: {
-        validator: async (value: string) =>
-          Boolean(await VerseModel.exists({ referenceKey: value })),
-        message: 'Emotion mapping verseReferenceKey must reference an existing verse.',
+        validator: (value: string) => isValidVerseKey(value),
+        message: 'Emotion mapping verseReferenceKey must be a valid Quran reference.',
       },
     },
     emotionKey: {

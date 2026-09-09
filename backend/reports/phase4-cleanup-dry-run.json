@@ -1,0 +1,64 @@
+{
+  "generatedAt": "2026-09-09T21:00:50.939Z",
+  "database": "test",
+  "mode": "dry-run",
+  "blocked": false,
+  "collections": [
+    {
+      "collection": "verses",
+      "total": 16,
+      "withArabic": 16,
+      "validVerseKey": 16,
+      "unresolved": [],
+      "conflicting": [],
+      "fieldsToRemove": [
+        "arabicText",
+        "checksum"
+      ],
+      "recordsRemaining": 16
+    },
+    {
+      "collection": "ayahs",
+      "total": 16,
+      "withArabic": 16,
+      "validVerseKey": 16,
+      "unresolved": [],
+      "conflicting": [],
+      "fieldsToRemove": [
+        "arabicText"
+      ],
+      "recordsRemaining": 16
+    },
+    {
+      "collection": "versetranslations",
+      "total": 16,
+      "withArabic": 0,
+      "validVerseKey": 16,
+      "unresolved": [],
+      "conflicting": [],
+      "fieldsToRemove": [],
+      "recordsRemaining": 16
+    },
+    {
+      "collection": "emotionversemappings",
+      "total": 43,
+      "withArabic": 0,
+      "validVerseKey": 43,
+      "unresolved": [],
+      "conflicting": [],
+      "fieldsToRemove": [],
+      "recordsRemaining": 43
+    },
+    {
+      "collection": "emotions",
+      "total": 12,
+      "withArabic": 0,
+      "validVerseKey": 12,
+      "unresolved": [],
+      "conflicting": [],
+      "fieldsToRemove": [],
+      "recordsRemaining": 12
+    }
+  ],
+  "rollbackStrategy": "This migration only unsets fields (no deletes, no ObjectId changes, no invented data). Revert by restoring the removed fields from the pre-mutation JSON backup via bulkWrite, or, for the current foundation-seed verses, by re-running the existing migrateFoundation script."
+}

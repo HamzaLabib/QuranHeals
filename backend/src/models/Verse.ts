@@ -35,9 +35,12 @@ const verseSchema = new Schema<VerseEntity>(
       required: true,
       min: 1,
     },
+    // Retained for legacy/compatibility data only; the API no longer reads
+    // this field (see backend/src/quran/quranSource.ts). Not required,
+    // preparing for its eventual removal once MongoDB becomes reference-only.
     arabicText: {
       type: String,
-      required: true,
+      required: false,
     },
     scriptType: {
       type: String,
@@ -55,9 +58,11 @@ const verseSchema = new Schema<VerseEntity>(
       required: true,
       trim: true,
     },
+    // Checksums arabicText; meaningless once that field is removed. Not
+    // required, for the same reason as arabicText above.
     checksum: {
       type: String,
-      required: true,
+      required: false,
       lowercase: true,
       trim: true,
       match: checksumPattern,

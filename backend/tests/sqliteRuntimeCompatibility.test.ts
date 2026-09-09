@@ -16,7 +16,7 @@ import { seedEmotions } from '../src/seed/emotions';
 import { buildFoundationSeedData } from '../src/seed/foundation';
 import { MongooseQuranRepository } from '../src/services/MongooseQuranRepository';
 
-const sqlitePath = resolve(__dirname, '../../mobile/assets/quran/quran.sqlite');
+const sqlitePath = resolve(__dirname, '../assets/quran/quran.sqlite');
 const foundation = buildFoundationSeedData(seedAyahs);
 
 // The repository only awaits lean(); no database connection is opened in these API tests.
@@ -33,6 +33,13 @@ function findLocalVerse(verseKey: string) {
   } finally {
     database.close();
   }
+}
+
+// The API must return the verified local Arabic, not whatever Mongo happens
+// to contain — assert against this, never against a Mongo fixture's own
+// arabicText field.
+function verifiedArabicFor(verseKey: string): string {
+  return (findLocalVerse(verseKey)[0] as { arabic_text: string }).arabic_text;
 }
 
 describe('Seed mappings resolve through the immutable Quran asset', () => {
@@ -122,7 +129,7 @@ describe('Additive verseKey compatibility on existing API routes', () => {
           surahNameArabic: verse.surahNameArabic,
           surahNameEnglish: verse.surahNameEnglish,
           ayahNumber: verse.ayahNumber,
-          arabicText: verse.arabicText,
+          arabicText: verifiedArabicFor('2:153'),
           englishTranslation: translation.text,
           emotions: mappings.map((mapping) => mapping.emotionKey),
           quranTextSource: verse.quranTextSource,
@@ -149,7 +156,12 @@ describe('Additive verseKey compatibility on existing API routes', () => {
 
       expect(response.body).toEqual({
         success: true,
-        data: { ...legacySeed, id: legacy._id.toString(), verseKey: '2:153' },
+        data: {
+          ...legacySeed,
+          id: legacy._id.toString(),
+          verseKey: '2:153',
+          arabicText: verifiedArabicFor('2:153'),
+        },
       });
       const rows = findLocalVerse(response.body.data.verseKey);
       expect(rows).toHaveLength(1);
