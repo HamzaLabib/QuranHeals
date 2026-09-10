@@ -12,6 +12,7 @@
     "seed": "tsx src/seed/seed.ts",
     "migrate:foundation": "tsx src/seed/migrateFoundation.ts",
     "mapping:upsert": "tsx src/scripts/upsertEmotionMapping.ts",
+    "mapping:candidates": "tsx src/scripts/importCandidateMappings.ts",
     "validate:quran:source": "tsx src/scripts/fullQuran.ts source",
     "validate:quran": "tsx src/scripts/fullQuran.ts validate",
     "import:quran": "tsx src/scripts/fullQuran.ts import"

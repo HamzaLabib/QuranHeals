@@ -1,0 +1,37 @@
+[
+  {
+    "verseKey": "2:153",
+    "emotionKey": "patience",
+    "rationale": "Direct address to seek help through sabr and salah; core patience theme.",
+    "contextNotes": "Existing foundation verse; proposed for the new 'patience' key.",
+    "source": "synthetic-fixture:phase-5a"
+  },
+  {
+    "verseKey": "94:6",
+    "emotionKey": "overwhelmed",
+    "rationale": "Reassurance that ease accompanies hardship, for someone who feels they cannot cope.",
+    "contextNotes": "Overlaps the shipped 'stressed' pool by design.",
+    "source": "synthetic-fixture:phase-5a"
+  },
+  {
+    "verseKey": "13:28",
+    "emotionKey": "reassurance",
+    "rationale": "Hearts find rest in the remembrance of Allah; speaks to a request for tuma'ninah.",
+    "contextNotes": "",
+    "source": "synthetic-fixture:phase-5a"
+  },
+  {
+    "verseKey": "39:53",
+    "emotionKey": "repentant",
+    "rationale": "Do not despair of Allah's mercy; He forgives all sins — for someone intending tawbah.",
+    "contextNotes": "Also mapped to shipped 'hopeless' in the foundation seed.",
+    "source": "synthetic-fixture:phase-5a"
+  },
+  {
+    "verseKey": "93:3",
+    "emotionKey": "closer_to_allah",
+    "rationale": "Your Lord has not forsaken you — for someone who feels spiritually distant.",
+    "contextNotes": "",
+    "source": "synthetic-fixture:phase-5a"
+  }
+]
