@@ -22,10 +22,15 @@ async function main() {
   assert.equal(health.body.data.status, 'ok');
   checks.health = 'pass';
   const emotions = await request(app).get('/api/emotions').expect(200);
+  // The API exposes only active emotions. Inactive Phase 5B taxonomy rows may
+  // exist in the collection but must never be served here.
   assert.equal(emotions.body.data.length, 12);
-  checks.emotions = '12 active';
+  assert.ok(emotions.body.data.every((e: { active?: boolean }) => e.active !== false));
+  checks.emotions = `12 active (${before.emotions.length} seeded definitions)`;
+  const activeEmotions = before.emotions.filter((e) => e.active);
+  assert.equal(activeEmotions.length, 12);
   const dtoKeys = ['id', 'verseKey', 'referenceKey', 'surahNumber', 'surahNameArabic', 'surahNameEnglish', 'ayahNumber', 'arabicText', 'englishTranslation', 'emotions', 'quranTextSource', 'translationSource'].sort();
-  for (const emotion of before.emotions) {
+  for (const emotion of activeEmotions) {
     const response = await request(app).get('/api/ayahs/random').query({ emotion: emotion.key }).expect(200);
     const ayah = response.body.data;
     assert.deepEqual(Object.keys(ayah).sort(), dtoKeys);

@@ -50,7 +50,7 @@ export type EmotionTaxonomyEntry = {
   english: string;
   arabic: string;
   family: EmotionFamily;
-  /** Whether this key is already live in `../seed/emotions.ts`. */
+  /** Whether this key is already ACTIVE (user-visible) in `../seed/emotions.ts`. */
   shipped: boolean;
   englishAliases: string[];
   arabicAliases: string[];
@@ -64,15 +64,15 @@ export type EmotionTaxonomyEntry = {
 };
 
 /**
- * Pattern for taxonomy keys. Broader than the live `emotionKeyPattern`
- * (`/^[a-z][a-z-]{1,40}$/` in the models/validators) because five candidate
- * keys use underscores. Widening the live pattern to `/^[a-z][a-z_-]{1,40}$/`
- * is a prerequisite for activating any underscore key — tracked in the docs.
+ * Pattern for taxonomy keys. Matches the live `emotionKeyPattern`
+ * (`/^[a-z][a-z_-]{1,40}$/` in the models/validators), which was widened in the
+ * Phase 5B backend-preparation step so underscore keys such as `want_to_cry`
+ * can be seeded (still inactive until they have approved mappings).
  */
-export const TAXONOMY_KEY_PATTERN = /^[a-z][a-z_]{1,40}$/;
+export const TAXONOMY_KEY_PATTERN = /^[a-z][a-z_-]{1,40}$/;
 
-/** The live pattern, duplicated here so tooling can check activatability. */
-export const LIVE_EMOTION_KEY_PATTERN = /^[a-z][a-z-]{1,40}$/;
+/** The live emotion-key pattern, duplicated here so tooling can check activatability. */
+export const LIVE_EMOTION_KEY_PATTERN = /^[a-z][a-z_-]{1,40}$/;
 
 export const emotionFamilies: EmotionFamily[] = [
   'distress',
@@ -504,7 +504,7 @@ export const emotionTaxonomyCandidates: EmotionTaxonomyEntry[] = [
     key: 'content',
     kind: 'emotion',
     english: 'Content',
-    arabic: 'راضي',
+    arabic: 'راضي / قانع',
     family: 'peace_gratitude',
     shipped: false,
     englishAliases: ['satisfied', 'at ease with what i have', 'accepting', 'qana‘ah'],

@@ -10,7 +10,7 @@ const emotionSchema = new Schema<EmotionEntity>(
       unique: true,
       lowercase: true,
       trim: true,
-      match: /^[a-z][a-z-]{1,40}$/,
+      match: /^[a-z][a-z_-]{1,40}$/,
     },
     name: {
       type: String,

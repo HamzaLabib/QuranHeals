@@ -12,7 +12,7 @@ export const emotionMappingStatuses: EmotionMappingStatus[] = [
   'rejected',
 ];
 
-const emotionKeyPattern = /^[a-z][a-z-]{1,40}$/;
+const emotionKeyPattern = /^[a-z][a-z_-]{1,40}$/;
 const referenceKeyPattern = /^[1-9]\d{0,2}:[1-9]\d{0,2}$/;
 
 const emotionVerseMappingSchema = new Schema<EmotionVerseMappingEntity>(

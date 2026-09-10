@@ -5,7 +5,7 @@ const emotionKeySchema = z
   .string()
   .trim()
   .toLowerCase()
-  .regex(/^[a-z][a-z-]{1,40}$/);
+  .regex(/^[a-z][a-z_-]{1,40}$/);
 
 const excludedAyahsSchema = z
   .preprocess((value) => {

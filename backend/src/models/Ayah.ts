@@ -2,7 +2,7 @@ import { Schema, model, models } from 'mongoose';
 
 import type { AyahEntity } from '../types/domain';
 
-const emotionKeyPattern = /^[a-z][a-z-]{1,40}$/;
+const emotionKeyPattern = /^[a-z][a-z_-]{1,40}$/;
 
 const ayahSchema = new Schema<AyahEntity>(
   {

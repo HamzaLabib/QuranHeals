@@ -51,8 +51,13 @@ const DEFAULT_REPORT_PATH = 'reports/phase5a-candidate-mappings.json';
 const VERSE_KEY_PATTERN = /^[1-9]\d{0,2}:[1-9]\d{0,2}$/;
 const FORBIDDEN_ROW_KEYS = ['arabicText', 'arabic', 'text', 'quranText', 'verseText', 'englishTranslation'];
 
-const shippedEmotionKeys = new Set(seedEmotions.map((emotion) => emotion.key));
-const knownEmotionKeys = new Set<string>([...shippedEmotionKeys, ...taxonomyKeys]);
+// "Activatable today" means the emotion is already ACTIVE in the live app.
+// Inactive Phase 5B seed rows are known keys but not yet valid mapping targets.
+const activeEmotionKeys = new Set(
+  seedEmotions.filter((emotion) => emotion.active).map((emotion) => emotion.key),
+);
+const seededEmotionKeys = new Set(seedEmotions.map((emotion) => emotion.key));
+const knownEmotionKeys = new Set<string>([...seededEmotionKeys, ...taxonomyKeys]);
 
 type RawRow = Record<string, unknown>;
 
@@ -191,7 +196,7 @@ export function evaluateRows(rows: RawRow[]): EvaluatedRow[] {
     const activatableToday =
       issues.length === 0 &&
       emotionKey !== null &&
-      shippedEmotionKeys.has(emotionKey) &&
+      activeEmotionKeys.has(emotionKey) &&
       LIVE_EMOTION_KEY_PATTERN.test(emotionKey);
 
     return {

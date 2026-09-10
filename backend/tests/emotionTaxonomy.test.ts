@@ -45,14 +45,26 @@ describe('Phase 5A emotion taxonomy', () => {
     expect(emotionTaxonomyCandidates.some((entry) => entry.key === 'quran_message')).toBe(false);
   });
 
-  it('preserves every shipped emotion, unchanged, as a "main" candidate', () => {
-    for (const seeded of seedEmotions) {
+  it('preserves every active (shipped) emotion, unchanged, as a "main" candidate', () => {
+    for (const seeded of seedEmotions.filter((emotion) => emotion.active)) {
       const entry = phase5aTaxonomy.find((candidate) => candidate.key === seeded.key);
       expect(entry, `taxonomy is missing shipped emotion "${seeded.key}"`).toBeDefined();
       expect(entry?.shipped).toBe(true);
       expect(entry?.recommendation).toBe('main');
       // Shipped keys already satisfy the live pattern and must not be renamed.
       expect(seeded.key).toMatch(LIVE_EMOTION_KEY_PATTERN);
+    }
+  });
+
+  it('has a taxonomy entry for every seeded emotion key (active or inactive)', () => {
+    for (const seeded of seedEmotions) {
+      const entry = phase5aTaxonomy.find((candidate) => candidate.key === seeded.key);
+      expect(entry, `taxonomy is missing seeded emotion "${seeded.key}"`).toBeDefined();
+      expect(seeded.key, seeded.key).toMatch(LIVE_EMOTION_KEY_PATTERN);
+      // Inactive Phase 5B rows correspond to a MAIN taxonomy recommendation.
+      if (!seeded.active) {
+        expect(entry?.recommendation, seeded.key).toBe('main');
+      }
     }
   });
 
@@ -84,7 +96,6 @@ describe('Phase 5A emotion taxonomy', () => {
         .filter((entry) => entry.recommendation === 'main')
         .map((entry) => entry.key),
     );
-    const shippedKeys = new Set(seedEmotions.map((emotion) => emotion.key));
 
     for (const entry of phase5aTaxonomy) {
       if (entry.recommendation === 'main' || entry.recommendation === 'discovery_mode') {
@@ -138,5 +149,43 @@ describe('Phase 5A alias resolution', () => {
     for (const entry of phase5aTaxonomy) {
       expect(index.get(entry.key)?.key).toBe(entry.key);
     }
+  });
+});
+
+describe('Phase 5B approved merges and retained MAIN keys', () => {
+  it('resolves the approved merges to their target key', () => {
+    expect(resolveAlias('frustrated')).toMatchObject({ key: 'frustrated', mainKey: 'angry' });
+    expect(resolveAlias('regretful')).toMatchObject({ key: 'regretful', mainKey: 'guilty' });
+    // and via a representative alias phrase
+    expect(resolveAlias('fed up')?.mainKey).toBe('angry');
+    expect(resolveAlias('remorseful')?.mainKey).toBe('guilty');
+  });
+
+  it('keeps `overwhelmed` and `content` as independent MAIN keys', () => {
+    expect(resolveAlias('overwhelmed')).toMatchObject({ key: 'overwhelmed', mainKey: 'overwhelmed' });
+    expect(resolveAlias('content')).toMatchObject({ key: 'content', mainKey: 'content' });
+
+    for (const key of ['overwhelmed', 'content'] as const) {
+      const entry = phase5aTaxonomy.find((candidate) => candidate.key === key);
+      expect(entry?.recommendation, key).toBe('main');
+      expect(entry?.resolvesTo, key).toBeUndefined();
+    }
+  });
+
+  it('never restores the rejected overwhelmed→stressed / content→peaceful recommendations', () => {
+    expect(resolveAlias('overwhelmed')?.mainKey).not.toBe('stressed');
+    expect(resolveAlias('content')?.mainKey).not.toBe('peaceful');
+    expect(resolveAlias('مخنوق')?.mainKey).not.toBe('stressed');
+    expect(resolveAlias('راضي')?.mainKey).not.toBe('peaceful');
+  });
+
+  it('does not add `frustrated` or `regretful` as taxonomy MAIN keys', () => {
+    const mainKeys = new Set(
+      phase5aTaxonomy
+        .filter((entry) => entry.recommendation === 'main')
+        .map((entry) => entry.key),
+    );
+    expect(mainKeys.has('frustrated')).toBe(false);
+    expect(mainKeys.has('regretful')).toBe(false);
   });
 });

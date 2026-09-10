@@ -17,8 +17,9 @@ Full analysis, alias strategy, mapping lifecycle, and rollout plan:
 - `emotionKey` is the identity: stable, language-independent, never derived from
   display text. Never rename a shipped key.
 - Aliases point to a main key. They never create a separate Quran mapping pool.
-- Five candidate keys use `_`; the live `emotionKey` pattern
-  (`/^[a-z][a-z-]{1,40}$/`) must be widened before any of them is activated —
-  see the doc.
-- Adding a real emotion means: add to `../seed/emotions.ts` with `active: false`,
-  then flip `active` only once it has at least one `approved` mapping.
+- The live `emotionKey` pattern is `/^[a-z][a-z_-]{1,40}$/` (widened in the
+  Phase 5B backend-prep step so underscore keys like `want_to_cry` are valid).
+- The approved MAIN emotions are already in `../seed/emotions.ts` with
+  `active: false` (`order` 13–29). Flip `active` only once a key has at least
+  one `approved` mapping. `frustrated`/`regretful` are aliases, not seed rows;
+  `quran_message` is a discovery mode, not a seed row.

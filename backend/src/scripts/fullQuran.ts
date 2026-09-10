@@ -24,7 +24,14 @@ function baselineFailures(snapshot: Snapshot, expectedCount: number) {
   if (![expected.translations.length, expectedCount].includes(snapshot.versetranslations.length)) failures.push('Unexpected starting translation count.');
   const mappingKeys = (rows: Snapshot['emotionversemappings']) => rows.map(m => `${m.verseReferenceKey}|${m.emotionKey}|${m.status}`).sort();
   if (JSON.stringify(mappingKeys(snapshot.emotionversemappings)) !== JSON.stringify(mappingKeys(expected.mappings))) failures.push('Mapping references, emotions, or statuses differ from Phase 2.');
-  if (snapshot.emotions.length !== seedEmotions.length || seedEmotions.some(e => !snapshot.emotions.some(actual => actual.key === e.key && actual.active))) failures.push('Expected all 12 active emotions.');
+  // Seeded definitions may include inactive Phase 5B taxonomy rows; only the
+  // active seed emotions must be present AND active, and exactly 12 in total.
+  const activeSeedEmotions = seedEmotions.filter(e => e.active);
+  if (
+    snapshot.emotions.length !== seedEmotions.length ||
+    activeSeedEmotions.some(e => !snapshot.emotions.some(actual => actual.key === e.key && actual.active)) ||
+    snapshot.emotions.filter(e => e.active).length !== activeSeedEmotions.length
+  ) failures.push('Expected the seeded emotion set with exactly 12 active.');
   if (!validateMappings(snapshot).valid) failures.push('Mapping integrity failed.');
   if (!validateCanonicalVerseBatch(snapshot.verses).valid) failures.push('Existing canonical records are structurally invalid.');
   const translationIdentities = snapshot.versetranslations.map(t => `${t.verseReferenceKey}|${t.language}|${t.translator}`);

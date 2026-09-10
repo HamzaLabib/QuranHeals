@@ -3,7 +3,24 @@ import { describe, expect, it } from 'vitest';
 import { seedAyahs } from '../src/seed/ayahs';
 import { seedEmotions } from '../src/seed/emotions';
 
-const emotionKeyPattern = /^[a-z][a-z-]{1,40}$/;
+const emotionKeyPattern = /^[a-z][a-z_-]{1,40}$/;
+
+// The 12 emotions that are live in the app today. Adding inactive Phase 5B
+// taxonomy rows must never change this set.
+const activeEmotionKeys = [
+  'sad',
+  'anxious',
+  'lonely',
+  'angry',
+  'lost',
+  'afraid',
+  'stressed',
+  'hopeless',
+  'tired',
+  'confused',
+  'grateful',
+  'peaceful',
+];
 
 function findDuplicates(values: string[]) {
   const counts = new Map<string, number>();
@@ -107,5 +124,60 @@ describe('Quran seed dataset integrity', () => {
       );
 
     expect(failures, failures.join('\n')).toEqual([]);
+  });
+});
+
+describe('Phase 5B taxonomy is seeded but inactive', () => {
+  const active = seedEmotions.filter((emotion) => emotion.active);
+  const inactive = seedEmotions.filter((emotion) => !emotion.active);
+
+  it('keeps exactly the 12 original emotions active', () => {
+    expect(active.map((emotion) => emotion.key).sort()).toEqual([...activeEmotionKeys].sort());
+  });
+
+  it('carries the new MAIN emotions as explicit `active: false` rows', () => {
+    const expectedInactive = [
+      'want_to_cry',
+      'heartbroken',
+      'overwhelmed',
+      'rejected',
+      'betrayed',
+      'wronged',
+      'forgiveness_struggle',
+      'guilty',
+      'repentant',
+      'weak',
+      'reassurance',
+      'patience',
+      'strength',
+      'hopeful',
+      'content',
+      'seeking_guidance',
+      'closer_to_allah',
+    ];
+
+    expect(inactive.map((emotion) => emotion.key).sort()).toEqual([...expectedInactive].sort());
+    expect(seedEmotions).toHaveLength(active.length + expectedInactive.length);
+
+    for (const emotion of inactive) {
+      expect(emotion.active, emotion.key).toBe(false);
+      expect(emotion.key, emotion.key).toMatch(emotionKeyPattern);
+      expect(emotion.order).toBeGreaterThan(12);
+      expect(typeof emotion.name).toBe('string');
+      expect(emotion.name.length).toBeGreaterThan(0);
+      expect(emotion.arabicName.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('does not seed the merged aliases or the discovery mode as emotions', () => {
+    const keys = new Set(seedEmotions.map((emotion) => emotion.key));
+    expect(keys.has('frustrated')).toBe(false);
+    expect(keys.has('regretful')).toBe(false);
+    expect(keys.has('quran_message')).toBe(false);
+  });
+
+  it('has unique keys and orders across the whole seed', () => {
+    expect(findDuplicates(seedEmotions.map((emotion) => emotion.key))).toEqual([]);
+    expect(findDuplicates(seedEmotions.map((emotion) => String(emotion.order)))).toEqual([]);
   });
 });
