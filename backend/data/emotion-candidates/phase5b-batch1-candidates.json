@@ -1,0 +1,464 @@
+[
+  {
+    "verseKey": "2:286",
+    "emotionKey": "overwhelmed",
+    "rationale": "Opens with the promise that Allah never charges a soul beyond its capacity and closes with the plea 'do not burden us with more than we can bear' - speaks directly to someone who feels unable to cope.",
+    "contextNotes": "Final verse of al-Baqarah; a supplication believers are taught. Seed-mapped to anxious/stressed/tired/hopeless - strong cross-emotion overlap with `stressed`.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "94:5",
+    "emotionKey": "overwhelmed",
+    "rationale": "'Indeed, with hardship comes ease' - a direct assurance to someone crushed by present pressure that relief is bound to the very difficulty they are in.",
+    "contextNotes": "Makkan consolation addressed to the Prophet; applied to any hardship. Overlaps `stressed`, `hopeless`, `sad` (seed-mapped).",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "94:6",
+    "emotionKey": "overwhelmed",
+    "rationale": "Immediate repetition of 'with hardship comes ease', emphasising the promise for someone at the limit of endurance.",
+    "contextNotes": "Same passage as 94:5; the repetition is the rhetorical point. Overlaps `stressed`/`hopeless`.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "65:7",
+    "emotionKey": "overwhelmed",
+    "rationale": "Restates the not-beyond-capacity principle - 'Allah does not burden a soul beyond what He has given it' - and promises 'ease after hardship'.",
+    "contextNotes": "Immediate context is post-divorce maintenance; the closing clauses are a general principle. Flag: extract the assurance, not the legal ruling.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "6:64",
+    "emotionKey": "overwhelmed",
+    "rationale": "'Say: Allah saves you from it and from every distress (karb)' - an explicit statement that Allah is the one who lifts every kind of overwhelming distress.",
+    "contextNotes": "Context rebukes those who call on Allah only in danger then associate partners; the rescue-from-every-distress clause is sound alone but read with the surrounding call to sincerity.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "21:87",
+    "emotionKey": "overwhelmed",
+    "rationale": "Yunus's cry from within the darkness - 'there is no god but You, glory be to You, I have been among the wrongdoers' - the archetypal supplication of someone trapped and suffocating.",
+    "contextNotes": "Descriptive of a prophet's distress; 21:88 is the answer. Also fits `guilty`/`repentant` (admission of wrong) and `afraid`.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "21:88",
+    "emotionKey": "overwhelmed",
+    "rationale": "'So We answered him and saved him from the distress (ghamm); thus do We save the believers' - generalises Yunus's rescue into a promise for anyone overwhelmed.",
+    "contextNotes": "Directly universalises the preceding verse; strong standalone candidate that pairs with 21:87.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "3:173",
+    "emotionKey": "overwhelmed",
+    "rationale": "Told a great force had massed against them, the believers answered 'Allah is sufficient for us, and He is the best trustee' - a model response when everything feels stacked against you.",
+    "contextNotes": "Battle/threat context after Uhud. The phrase hasbunallah is used broadly. Overlaps `reassurance` and `afraid`.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "9:129",
+    "emotionKey": "overwhelmed",
+    "rationale": "'Say: Allah is sufficient for me; there is no deity except Him; upon Him I rely' - a scripted response for when opposition or pressure feels total.",
+    "contextNotes": "Closing verse of at-Tawbah, addressed to the Prophet when people turn away. Overlaps `reassurance`.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "65:3",
+    "emotionKey": "overwhelmed",
+    "rationale": "'Whoever relies upon Allah, He is sufficient for him; Allah will accomplish His purpose; Allah has set a measure for everything' - for someone who feels events are beyond their control.",
+    "contextNotes": "Follows verses on provision under constraint. Strong overlap with `reassurance`; also `anxious`.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "2:214",
+    "emotionKey": "overwhelmed",
+    "rationale": "Describes earlier believers so shaken by adversity that even the messenger asked 'When is Allah's help?' - then answers 'the help of Allah is near'. Names the feeling of being at breaking point.",
+    "contextNotes": "Rhetorical/historical framing about entering Paradise through trial; caution: it normalises severe hardship rather than promising its immediate removal.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "12:86",
+    "emotionKey": "overwhelmed",
+    "rationale": "Ya'qub: 'I complain of my anguish and grief only to Allah' - models taking an overwhelming inner burden directly to Allah rather than carrying it alone.",
+    "contextNotes": "Grief over losing Yusuf; also a strong `heartbroken` candidate. The verse is about where to take the burden, not about its removal.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "93:3",
+    "emotionKey": "heartbroken",
+    "rationale": "'Your Lord has not forsaken you, nor does He hate you' - revealed to console the Prophet during a painful pause in revelation; speaks to someone who feels abandoned in their pain.",
+    "contextNotes": "Seed-mapped to lonely/sad/hopeless. Overlaps `rejected` and `lonely`.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "94:1",
+    "emotionKey": "heartbroken",
+    "rationale": "'Did We not expand your breast for you?' - a reminder that Allah Himself relieves a constricted, grieving heart.",
+    "contextNotes": "Opening of a consolation surah to the Prophet; the sharh (expansion) of the breast is classically read as relief of distress and grief.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "12:84",
+    "emotionKey": "heartbroken",
+    "rationale": "Ya'qub turning away in grief, 'O my sorrow over Yusuf', his eyes whitening from suppressed grief - a vivid mirror of profound heartbreak and loss.",
+    "contextNotes": "Purely descriptive of intense grief, not a prescription. Resolution comes later (12:87, 12:93-96). Use to validate the feeling, not as guidance.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "12:86",
+    "emotionKey": "heartbroken",
+    "rationale": "'I complain of my anguish and grief only to Allah, and I know from Allah what you do not know' - grief carried to Allah with trust that He sees what the griever cannot.",
+    "contextNotes": "Also a strong `overwhelmed` candidate. Grief over long separation and loss.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "12:87",
+    "emotionKey": "heartbroken",
+    "rationale": "'Do not despair of the mercy of Allah' - addressed to a grieving father, holding open the hope of restoration.",
+    "contextNotes": "Overlaps `hopeless` heavily. Context: Ya'qub sending his sons to search - grief paired with active hope.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "2:155",
+    "emotionKey": "heartbroken",
+    "rationale": "Names loss of life, wealth and safety as trials, then gives 'good tidings to the patient' - directly addresses someone suffering bereavement or loss.",
+    "contextNotes": "Strong overlap with `patience` (also a candidate in this batch). Prescriptive: frames loss as a test with reward.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "2:156",
+    "emotionKey": "heartbroken",
+    "rationale": "'Those who, when disaster strikes, say: indeed we belong to Allah and to Him we return' - the words the Quran gives the grieving to say.",
+    "contextNotes": "The istirja formula, universally used at bereavement. Overlaps `patience`.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "2:157",
+    "emotionKey": "heartbroken",
+    "rationale": "'Upon them are blessings and mercy from their Lord, and it is they who are rightly guided' - the honour and consolation promised to those who bear loss with patience.",
+    "contextNotes": "Completes 2:155-156. Overlaps `patience`.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "3:139",
+    "emotionKey": "heartbroken",
+    "rationale": "'Do not lose heart and do not grieve; you will be superior if you are believers' - a direct address to the demoralised and grieving not to be crushed by a loss.",
+    "contextNotes": "Revealed after the wound of Uhud; collective in origin, applied individually. Overlaps `hopeless`, `strength`, `weak`.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "9:40",
+    "emotionKey": "heartbroken",
+    "rationale": "'Do not grieve; indeed Allah is with us' - the Prophet's words to his companion in the cave, followed by Allah sending down tranquillity; consolation for fear and grief together.",
+    "contextNotes": "Seed-mapped to sad/afraid/lonely. Overlaps `reassurance` (sakinah) and `afraid`.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "28:7",
+    "emotionKey": "heartbroken",
+    "rationale": "To Musa's mother, facing the loss of her child: 'Do not fear and do not grieve; We will return him to you' - grief of separation met with a promise of restoration.",
+    "contextNotes": "Specific narrative (inspiration to Umm Musa); comfort is tied to a specific divine promise, so generalise with care. Overlaps `afraid`.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "28:13",
+    "emotionKey": "heartbroken",
+    "rationale": "'So We returned him to his mother, that her eye might be comforted and she not grieve, and that she might know Allah's promise is true' - restoration after grief as a sign of Allah's faithfulness.",
+    "contextNotes": "Same narrative as 28:7; descriptive of the outcome. Good for hope after loss.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "16:127",
+    "emotionKey": "heartbroken",
+    "rationale": "'Be patient - and your patience is only through Allah - and do not grieve over them, nor be distressed by what they plot' - pairs endurance with a direct instruction not to be consumed by grief.",
+    "contextNotes": "Addressed to the Prophet regarding opponents; overlaps `patience` and `overwhelmed`.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "13:28",
+    "emotionKey": "reassurance",
+    "rationale": "'...whose hearts find rest in the remembrance of Allah; truly, in the remembrance of Allah hearts find rest' - the Quran's clearest statement that dhikr settles an unsettled heart.",
+    "contextNotes": "Seed-mapped to anxious/stressed/peaceful/grateful. The root t-m-'-n (tuma'nina) is exactly the 'attmin' the user is asking for.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "2:260",
+    "emotionKey": "reassurance",
+    "rationale": "Ibrahim asks to be shown how Allah revives the dead, 'so that my heart may be at rest' - Allah honours a believer's need for reassurance even alongside faith.",
+    "contextNotes": "Narrative; the point for this key is Allah's acceptance of the request 'li-yatma'inna qalbi', not the resurrection sign itself.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "3:126",
+    "emotionKey": "reassurance",
+    "rationale": "'Allah made it only as good news for you, and so that your hearts might be reassured by it - victory is only from Allah' - reassurance stated as a purpose of Allah's help.",
+    "contextNotes": "Badr context; near-identical wording to 8:10. Overlaps `afraid`.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "8:10",
+    "emotionKey": "reassurance",
+    "rationale": "'...that your hearts might be reassured by it - and victory is only from Allah' - comfort in a frightening situation framed as Allah calming the heart.",
+    "contextNotes": "Badr context. Overlaps `afraid`.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "48:4",
+    "emotionKey": "reassurance",
+    "rationale": "'It is He who sent down tranquillity (sakinah) into the hearts of the believers, that they might increase in faith' - Allah placing calm directly into believing hearts.",
+    "contextNotes": "Hudaybiyyah context; the sakinah motif is broadly applied. Overlaps `peaceful` as an outcome.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "9:40",
+    "emotionKey": "reassurance",
+    "rationale": "'Allah sent down His tranquillity upon him' after 'do not grieve, Allah is with us' - reassurance as divine sakinah in a moment of danger.",
+    "contextNotes": "Also a `heartbroken`/`afraid` candidate. Cave narrative.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "2:186",
+    "emotionKey": "reassurance",
+    "rationale": "'When My servants ask you about Me - I am near. I answer the call of the caller when he calls on Me' - direct reassurance of Allah's nearness and responsiveness.",
+    "contextNotes": "Strong standalone. Overlaps `seeking_guidance` (turning to Allah in need).",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "50:16",
+    "emotionKey": "reassurance",
+    "rationale": "'We are nearer to him than his jugular vein' - an image of Allah's closeness for someone who feels alone with their fear.",
+    "contextNotes": "The verse's main thrust is Allah's knowledge of the self and the recording of deeds; the nearness clause is genuine but read it with that context.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "57:4",
+    "emotionKey": "reassurance",
+    "rationale": "'He is with you wherever you are' - reassurance that Allah's presence is not conditional on place or circumstance.",
+    "contextNotes": "The surrounding verse emphasises Allah's knowledge/oversight; the ma'iyya ('with you') is understood as knowledge and care, not physical location.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "20:46",
+    "emotionKey": "reassurance",
+    "rationale": "'Fear not; I am with you both - I hear and I see' - Allah's direct answer to Musa and Harun's fear of confronting Pharaoh.",
+    "contextNotes": "Specific narrative; overlaps `afraid`. Generalisable as Allah reassuring those He sends into something daunting.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "65:3",
+    "emotionKey": "reassurance",
+    "rationale": "'Whoever relies on Allah, He is sufficient for him... Allah has set a measure for everything' - reassurance that outcomes are held by Allah, for someone who needs to feel things are under control.",
+    "contextNotes": "Overlaps `overwhelmed`/`anxious`. Follows verses about provision from unexpected sources.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "9:51",
+    "emotionKey": "reassurance",
+    "rationale": "'Say: nothing will befall us except what Allah has decreed for us; He is our protector - and upon Allah let the believers rely' - a scripted reassurance about safety and decree.",
+    "contextNotes": "Polemical context (responding to hypocrites), but the statement of trust in Allah's protection stands on its own.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "3:173",
+    "emotionKey": "reassurance",
+    "rationale": "'Allah is sufficient for us, and He is the best trustee' - the believers' calm response when told a threat had massed against them.",
+    "contextNotes": "Also an `overwhelmed` candidate. Battle/threat context; the phrase is used broadly for reassurance through tawakkul.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "2:255",
+    "emotionKey": "reassurance",
+    "rationale": "Ayat al-Kursi: Allah, ever-living and self-sustaining, whose throne encompasses the heavens and earth and whom their preservation never wearies - reassurance grounded in Allah's total, tireless control.",
+    "contextNotes": "Primarily a declaration of Allah's majesty and knowledge; reassurance is by implication. Widely recited for protection and comfort.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "2:153",
+    "emotionKey": "patience",
+    "rationale": "'Seek help through patience and prayer; indeed Allah is with the patient' - a direct instruction on how to draw strength for endurance, for someone explicitly asking for sabr.",
+    "contextNotes": "Seed-mapped to sad/anxious/stressed/tired. Central patience verse.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "2:45",
+    "emotionKey": "patience",
+    "rationale": "'Seek help through patience and prayer; it is indeed hard, except for the humble' - acknowledges that patience is difficult while prescribing it as the means of support.",
+    "contextNotes": "Addressed to the Children of Israel in context, but a general spiritual instruction.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "2:155",
+    "emotionKey": "patience",
+    "rationale": "Frames fear, loss of wealth and lives as a test, then 'give good tidings to the patient' - for someone bracing to endure ongoing hardship.",
+    "contextNotes": "Overlaps `heartbroken`. Prescriptive framing of trial and reward.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "2:156",
+    "emotionKey": "patience",
+    "rationale": "'...who, when disaster strikes, say: we belong to Allah and to Him we return' - the words that carry a person through a blow with patience.",
+    "contextNotes": "Overlaps `heartbroken`. The istirja formula.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "3:200",
+    "emotionKey": "patience",
+    "rationale": "'Be patient, outdo others in patience, remain steadfast, and be mindful of Allah, so that you may succeed' - a fourfold command to sustained endurance.",
+    "contextNotes": "Closing verse of Aal Imran; read as both personal steadfastness and communal resolve.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "16:127",
+    "emotionKey": "patience",
+    "rationale": "'Be patient - and your patience is only through Allah' - locates the capacity for patience in Allah's help, which is what someone asking for sabr needs.",
+    "contextNotes": "Overlaps `heartbroken`/`overwhelmed`. Addressed to the Prophet about opponents.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "8:46",
+    "emotionKey": "patience",
+    "rationale": "'Be patient; indeed Allah is with the patient' - a plain command with the promise of Allah's companionship for those who endure.",
+    "contextNotes": "Battlefield context (guard against disputes and loss of resolve); the patience clause is general.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "39:10",
+    "emotionKey": "patience",
+    "rationale": "'The patient will be given their reward without measure' - motivation for someone struggling to keep enduring.",
+    "contextNotes": "Widely cited. Context is an address to believing servants to be conscious of Allah.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "13:24",
+    "emotionKey": "patience",
+    "rationale": "The angels greet the people of Paradise with 'Peace be upon you for what you patiently endured' - endurance now is met with peace and honour later.",
+    "contextNotes": "Eschatological reward framing; encourages perseverance by naming its outcome.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "11:11",
+    "emotionKey": "patience",
+    "rationale": "'Except those who are patient and do righteous deeds - for them is forgiveness and a great reward' - patience paired with action, with a concrete promise.",
+    "contextNotes": "Contrast with the despairing, ungrateful person described just before; the exception clause is the encouragement.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "31:17",
+    "emotionKey": "patience",
+    "rationale": "Luqman to his son: '...and be patient over what befalls you; that is of the matters requiring firm resolve' - practical advice to endure whatever comes.",
+    "contextNotes": "Part of Luqman's counsel; pairs patience with prayer and enjoining good. Broadly applicable.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "70:5",
+    "emotionKey": "patience",
+    "rationale": "'So be patient with a beautiful patience' (sabran jamila) - a call to a composed, complaint-free endurance.",
+    "contextNotes": "Addressed to the Prophet amid denial and mockery; the ideal of sabr jamil is general.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "3:186",
+    "emotionKey": "patience",
+    "rationale": "'You will be tested in your wealth and yourselves, and you will hear much hurt... but if you are patient and mindful of Allah, that is of the matters requiring resolve' - patience specifically through being hurt by others' words.",
+    "contextNotes": "Overlaps `wronged`. Names verbal harm as the trial to be endured.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "46:35",
+    "emotionKey": "patience",
+    "rationale": "'So be patient, as the messengers of firm resolve were patient' - points to the prophets' endurance as the model for someone who needs to hold on.",
+    "contextNotes": "Closing exhortation of al-Ahqaf; the ulu al-'azm comparison is a high bar offered as encouragement.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "1:6",
+    "emotionKey": "seeking_guidance",
+    "rationale": "'Guide us to the straight path' - the core supplication for guidance, repeated in every unit of prayer.",
+    "contextNotes": "Part of al-Fatihah; the definitive request for hidaya. Distinct from `lost`/`confused` because it is an active petition.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "1:7",
+    "emotionKey": "seeking_guidance",
+    "rationale": "'The path of those You have blessed, not those who incurred anger, nor those who went astray' - defines the guidance being sought as the way of the rightly-guided.",
+    "contextNotes": "Completes the Fatihah supplication; useful when the user wants direction toward what is right, not just away from confusion.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "3:8",
+    "emotionKey": "seeking_guidance",
+    "rationale": "'Our Lord, do not let our hearts deviate after You have guided us, and grant us mercy from Yourself' - a plea to be kept on guidance once given.",
+    "contextNotes": "Supplication of 'those firmly grounded in knowledge'. Fits someone afraid of losing their way.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "18:10",
+    "emotionKey": "seeking_guidance",
+    "rationale": "The young believers of the cave pray '...grant us mercy from Yourself and prepare for us right guidance in our affair' - asking Allah for a way forward in a genuinely uncertain situation.",
+    "contextNotes": "Narrative supplication; a strong model for asking guidance when a decision or path is unclear.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "18:24",
+    "emotionKey": "seeking_guidance",
+    "rationale": "'...and say: perhaps my Lord will guide me to what is nearer than this to right conduct' - models hoping and asking for closer guidance.",
+    "contextNotes": "Instruction given in the flow of the cave narrative about saying 'in sha Allah'; the guidance-hope clause is general.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "29:69",
+    "emotionKey": "seeking_guidance",
+    "rationale": "'Those who strive for Us - We will surely guide them to Our ways' - a promise that sincere effort toward Allah is met with guidance.",
+    "contextNotes": "Closing verse of al-Ankabut; classic proof that seeking is answered with guidance.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "64:11",
+    "emotionKey": "seeking_guidance",
+    "rationale": "'...and whoever believes in Allah, He guides his heart' - guidance of the heart tied to trust in Allah when calamity strikes.",
+    "contextNotes": "Context: no misfortune occurs except by Allah's leave; the heart-guidance clause is the relevant part. Overlaps `reassurance`.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "47:17",
+    "emotionKey": "seeking_guidance",
+    "rationale": "'As for those who are guided, He increases them in guidance and grants them their righteousness' - reassurance that following guidance brings more of it.",
+    "contextNotes": "Contrast with those who turned away in the preceding verses; encouragement for someone already trying to follow guidance.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "10:9",
+    "emotionKey": "seeking_guidance",
+    "rationale": "'Those who believe and do righteous deeds - their Lord guides them by their faith' - guidance described as a fruit of faith and action.",
+    "contextNotes": "Followed by a description of the believers in Paradise; the guidance clause applies to this life.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "17:9",
+    "emotionKey": "seeking_guidance",
+    "rationale": "'Indeed this Quran guides to that which is most upright' - points the guidance-seeker to the concrete source of guidance.",
+    "contextNotes": "General statement about the Quran's function; useful for someone asking where to find direction.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "7:43",
+    "emotionKey": "seeking_guidance",
+    "rationale": "The people of Paradise say 'Praise to Allah who guided us to this; we would never have been guided had Allah not guided us' - acknowledges that guidance is Allah's gift, to be asked for.",
+    "contextNotes": "Spoken in Paradise; primarily gratitude for guidance. Use to frame guidance as something only Allah grants.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "22:54",
+    "emotionKey": "seeking_guidance",
+    "rationale": "'...and indeed Allah is the guide of those who believe to a straight path' - affirms Allah Himself as the one who guides the believer's way.",
+    "contextNotes": "Context contrasts believers with those in doubt; the closing clause is a direct statement of Allah's guiding role.",
+    "source": "phase5b-batch1-candidate-review"
+  },
+  {
+    "verseKey": "24:35",
+    "emotionKey": "seeking_guidance",
+    "rationale": "'Allah is the light of the heavens and the earth... Allah guides to His light whom He wills' - guidance imaged as a light Allah grants.",
+    "contextNotes": "The Ayah of Light; a sustained parable. The guidance clause is the relevant part; read it within the wider metaphor.",
+    "source": "phase5b-batch1-candidate-review"
+  }
+]

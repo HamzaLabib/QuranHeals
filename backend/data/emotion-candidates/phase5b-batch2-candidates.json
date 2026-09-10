@@ -1,0 +1,520 @@
+[
+  {
+    "verseKey": "21:87",
+    "emotionKey": "afraid",
+    "rationale": "The full ayah is Yunus's cry from within the darkness of the fish - a person in mortal danger turning to Allah with 'there is no god but You'. Fits acute fear for one's safety.",
+    "contextNotes": "Carried from Batch 1 overlap review of `overwhelmed`. Descriptive of a prophet's distress; 21:88 is the deliverance. Also proposed for guilty/repentant.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "3:173",
+    "emotionKey": "afraid",
+    "rationale": "The full ayah names being warned 'the people have gathered against you, so fear them' and the believers' answer, 'Allah is sufficient for us, the best trustee' - a direct model for facing a frightening threat.",
+    "contextNotes": "Carried from Batch 1 overlap review of `overwhelmed`/`reassurance`. Battle-threat context after Uhud.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "2:155",
+    "emotionKey": "afraid",
+    "rationale": "The full ayah explicitly lists 'something of fear' among the trials, with good tidings to the patient - it names fear itself as a tested state.",
+    "contextNotes": "Carried from Batch 1 overlap review of `heartbroken`/`patience`. Overlaps patience and heartbroken.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "28:7",
+    "emotionKey": "afraid",
+    "rationale": "The full ayah is Allah's word to Musa's mother: 'do not fear and do not grieve; We will return him to you' - fear for a loved one's safety, met with a promise.",
+    "contextNotes": "Carried from Batch 1 overlap review of `heartbroken`. Specific narrative promise (Umm Musa); generalise with care.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "3:126",
+    "emotionKey": "afraid",
+    "rationale": "The full ayah frames Allah's help as given 'so that your hearts might be reassured' in a frightening battle - reassurance directed at fear of a superior enemy.",
+    "contextNotes": "Carried from Batch 1 overlap review of `reassurance`. Badr context.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "8:10",
+    "emotionKey": "afraid",
+    "rationale": "Parallel to 3:126: the full ayah is Allah calming frightened hearts before battle, 'and victory is only from Allah'.",
+    "contextNotes": "Carried from Batch 1 overlap review of `reassurance`. Badr context.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "20:46",
+    "emotionKey": "afraid",
+    "rationale": "The full ayah is Allah's direct answer to Musa and Harun's fear of Pharaoh: 'Fear not; I am with you both - I hear and I see'.",
+    "contextNotes": "Carried from Batch 1 overlap review of `reassurance`. Narrative (Musa/Harun).",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "9:51",
+    "emotionKey": "afraid",
+    "rationale": "The full ayah - 'Nothing will befall us except what Allah has decreed for us; He is our protector' - addresses fear of harm through trust in Allah's protection and decree.",
+    "contextNotes": "Carried from Batch 1 overlap review of `reassurance`. Response to hypocrites in context; the statement of trust stands alone.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "2:255",
+    "emotionKey": "afraid",
+    "rationale": "Ayat al-Kursi: the full ayah is a declaration of Allah's living, tireless, all-encompassing guardianship of the heavens and earth - long recited for protection against fear.",
+    "contextNotes": "Carried from Batch 1 overlap review of `reassurance`. Primarily a declaration of majesty; protection by implication.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "18:10",
+    "emotionKey": "afraid",
+    "rationale": "The full ayah is the prayer of youths who fled persecution and took refuge in the cave: 'grant us mercy from Yourself and right guidance in our affair' - a du'a made in a genuinely dangerous situation.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`. The words are about mercy/guidance; the fear is in the situation. Also strong for lost/confused.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "64:11",
+    "emotionKey": "afraid",
+    "rationale": "The full ayah - 'No calamity strikes except by the permission of Allah; and whoever believes in Allah, He guides his heart' - steadies fear of misfortune by placing it within Allah's leave.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`. About calamity generally.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "3:175",
+    "emotionKey": "afraid",
+    "rationale": "The full ayah - 'That is only Satan frightening [you] of his allies. So do not fear them, but fear Me, if you are believers' - directly instructs where fear should and should not be placed.",
+    "contextNotes": "Post-Uhud context; the instruction on fear is general. Newly discovered (not from overlap review).",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "41:30",
+    "emotionKey": "afraid",
+    "rationale": "The full ayah - to those who say 'Our Lord is Allah' then hold firm, the angels descend, 'Do not fear and do not grieve; receive good tidings of Paradise' - a direct 'do not fear' promised to the steadfast believer.",
+    "contextNotes": "Newly discovered (not from overlap review).",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "10:62",
+    "emotionKey": "afraid",
+    "rationale": "The full ayah - 'Unquestionably, for the allies of Allah there will be no fear concerning them, nor will they grieve' - a plain assurance of security for the believer.",
+    "contextNotes": "Defined further by 10:63-64 (those who believe and were mindful of Allah). Newly discovered.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "2:112",
+    "emotionKey": "afraid",
+    "rationale": "The full ayah - 'whoever submits himself to Allah while doing good will have his reward with his Lord; no fear will there be concerning them, nor will they grieve' - security tied to sincere submission.",
+    "contextNotes": "Newly discovered (not from overlap review).",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "20:68",
+    "emotionKey": "afraid",
+    "rationale": "The full ayah - 'We said: Fear not; indeed it is you who are superior' - Allah steadying Musa's fear before the magicians' display.",
+    "contextNotes": "Narrative (Musa at the gathering); the reassurance against fear is the point. Newly discovered.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "9:129",
+    "emotionKey": "afraid",
+    "rationale": "The full ayah - 'Say: Allah is sufficient for me; there is no deity except Him; upon Him I rely - and He is the Lord of the Great Throne' - a scripted response when a threat feels total.",
+    "contextNotes": "Closing verse of at-Tawbah. Also proposed for reassurance/lonely in Batch 1 overlap review; added here as a direct fear-of-threat fit.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "2:260",
+    "emotionKey": "anxious",
+    "rationale": "The full ayah is Ibrahim asking to be shown how Allah revives the dead 'so that my heart may be at rest' - Allah accepting a believer's need to quiet an unsettled heart.",
+    "contextNotes": "Carried from Batch 1 overlap review of `reassurance`. The point is acceptance of the request for tuma'nina, not the sign itself.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "50:16",
+    "emotionKey": "anxious",
+    "rationale": "The full ayah - 'We are nearer to him than his jugular vein' - Allah's closeness answers the anxious sense of being alone with one's worry.",
+    "contextNotes": "Carried from Batch 1 overlap review of `reassurance`. The verse's main subject is Allah's knowledge of the self.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "57:4",
+    "emotionKey": "anxious",
+    "rationale": "The full ayah ends 'He is with you wherever you are, and Allah sees what you do' - a steadying reminder of Allah's constant presence for an anxious mind.",
+    "contextNotes": "Carried from Batch 1 overlap review of `reassurance`. The ma'iyya is understood as knowledge and care.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "9:51",
+    "emotionKey": "anxious",
+    "rationale": "The full ayah - 'Nothing will befall us except what Allah has decreed for us' - directly addresses anticipatory worry about what might happen.",
+    "contextNotes": "Carried from Batch 1 overlap review of `reassurance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "2:255",
+    "emotionKey": "anxious",
+    "rationale": "Ayat al-Kursi: the full ayah's picture of Allah's total, tireless sovereignty steadies anxious rumination about what one cannot control.",
+    "contextNotes": "Carried from Batch 1 overlap review of `reassurance`. Declaration of majesty.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "3:8",
+    "emotionKey": "anxious",
+    "rationale": "The full ayah - 'Our Lord, do not let our hearts deviate after You have guided us, and grant us mercy from Yourself' - the words of someone anxious about their own steadfastness.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`. Supplication of those firm in knowledge.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "64:11",
+    "emotionKey": "anxious",
+    "rationale": "The full ayah places every misfortune within Allah's permission and promises heart-guidance to the believer - a direct answer to anxiety about misfortune.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "3:139",
+    "emotionKey": "anxious",
+    "rationale": "The full ayah - 'Do not weaken and do not grieve; you will be superior, if you are believers' - addresses the anxious, demoralised state directly.",
+    "contextNotes": "Revealed after Uhud; collective in origin, applied individually. Also relevant to heartbroken/hopeless. Newly discovered for anxious.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "40:44",
+    "emotionKey": "anxious",
+    "rationale": "The full ayah is the believer from Pharaoh's house: 'I entrust my affair to Allah; indeed Allah is Seeing of His servants' - a model for handing anxious worry over to Allah.",
+    "contextNotes": "Narrative; spoken under threat, but the tafwid ('entrusting the affair') is the lesson. Newly discovered.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "11:6",
+    "emotionKey": "anxious",
+    "rationale": "The full ayah - 'There is no creature on earth but that its provision is upon Allah' - steadies anxiety about sustenance and the future.",
+    "contextNotes": "Newly discovered (not from overlap review).",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "29:60",
+    "emotionKey": "anxious",
+    "rationale": "The full ayah - 'How many a creature carries not its own provision - Allah provides for it and for you; He is the Hearing, the Knowing' - a direct answer to anxious worry about provision.",
+    "contextNotes": "Newly discovered (not from overlap review).",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "2:38",
+    "emotionKey": "anxious",
+    "rationale": "The full ayah - 'whoever follows My guidance - no fear will be upon them, nor will they grieve' - anticipatory worry lifted for those who follow Allah's guidance.",
+    "contextNotes": "Spoken to Adam and his descendants at the descent to earth; the promise generalises. Newly discovered.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "1:6",
+    "emotionKey": "lost",
+    "rationale": "The full ayah is the prayer 'Guide us to the straight path' - the exact plea of someone who feels they have no direction.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`. Recited in every prayer.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "3:8",
+    "emotionKey": "lost",
+    "rationale": "The full ayah asks Allah not to let the heart deviate after guidance and to grant mercy - for someone afraid of drifting off course.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "18:10",
+    "emotionKey": "lost",
+    "rationale": "The full ayah is a du'a for mercy and 'right guidance in our affair' when the way forward is unclear.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`. Also strong for confused; fear is in the situation.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "18:24",
+    "emotionKey": "lost",
+    "rationale": "The full ayah - '...and say: perhaps my Lord will guide me to what is nearer than this to right conduct' - hoping to be brought back onto a clearer path.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "29:69",
+    "emotionKey": "lost",
+    "rationale": "The full ayah - 'Those who strive for Us - We will surely guide them to Our ways; and indeed Allah is with the doers of good' - a promise of direction to the one who seeks it.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`. Closing verse of al-Ankabut.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "64:11",
+    "emotionKey": "lost",
+    "rationale": "The full ayah promises that Allah guides the heart of whoever believes in Him - direction for the adrift heart.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "47:17",
+    "emotionKey": "lost",
+    "rationale": "The full ayah - 'As for those who are guided, He increases them in guidance and grants them their righteousness' - for someone trying to find and hold a direction.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "17:9",
+    "emotionKey": "lost",
+    "rationale": "The full ayah - 'Indeed this Qur'an guides to that which is most upright, and gives good tidings to the believers who do righteous deeds' - names the concrete source of direction.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "22:54",
+    "emotionKey": "lost",
+    "rationale": "The full ayah ends 'and indeed Allah is the guide of those who believe to a straight path' - a direct statement that Allah leads the believer's way.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "24:35",
+    "emotionKey": "lost",
+    "rationale": "The full ayah (Ayah of Light) states 'Allah guides to His light whom He wills' - light for someone in the dark about where to go.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`. A sustained parable; the guidance clause is the relevant part.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "93:7",
+    "emotionKey": "lost",
+    "rationale": "The full ayah - 'And He found you lost and guided [you]' - 'dall' is exactly the state of feeling adrift, answered with Allah's guidance.",
+    "contextNotes": "Consolation to the Prophet; 'dall' here is 'unaware of the way', not sin. Newly discovered.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "42:52",
+    "emotionKey": "lost",
+    "rationale": "The full ayah - 'you did not know what the Book or faith was, but We made it a light by which We guide whom We will of Our servants' - Allah bringing someone from not-knowing onto a lit path.",
+    "contextNotes": "Addressed to the Prophet; the guidance-from-unknowing theme generalises. Newly discovered.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "16:9",
+    "emotionKey": "lost",
+    "rationale": "The full ayah - 'And upon Allah is the direction of the way, and among them are those [paths] that are crooked' - the true way is with Allah.",
+    "contextNotes": "Followed by verses on Allah's provision and signs; the opening clause is the relevant one. Newly discovered.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "1:6",
+    "emotionKey": "confused",
+    "rationale": "The full ayah, 'Guide us to the straight path', is the plea of someone uncertain which way is right.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "3:8",
+    "emotionKey": "confused",
+    "rationale": "The full ayah asks that the heart not waver after guidance - the words of a mind pulled between directions.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "18:10",
+    "emotionKey": "confused",
+    "rationale": "The full ayah is a du'a for 'right guidance in our affair' when a decision is unclear.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "18:24",
+    "emotionKey": "confused",
+    "rationale": "The full ayah, 'perhaps my Lord will guide me to what is nearer than this to right conduct', fits uncertainty about the right course of action.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "29:69",
+    "emotionKey": "confused",
+    "rationale": "The full ayah promises that sincere striving is met with guidance to 'Our ways' - for someone unsure how to proceed.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "64:11",
+    "emotionKey": "confused",
+    "rationale": "The full ayah promises heart-guidance to the believer - clarity for a wavering heart.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "47:17",
+    "emotionKey": "confused",
+    "rationale": "The full ayah: the guided are 'increased in guidance' and granted discernment (taqwa) - for someone trying to see clearly.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "17:9",
+    "emotionKey": "confused",
+    "rationale": "The full ayah names the Qur'an as guidance 'to that which is most upright' - the reference for resolving uncertainty.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "22:54",
+    "emotionKey": "confused",
+    "rationale": "The full ayah describes hearts that 'humbly submit' once they recognise the truth, guided by Allah to a straight path - the resolution of doubt.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`. Context contrasts believers with those in doubt.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "24:35",
+    "emotionKey": "confused",
+    "rationale": "The full ayah's image of Allah's light 'upon light' and His guiding to it fits the move from murk to clarity.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`. Sustained parable.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "8:29",
+    "emotionKey": "confused",
+    "rationale": "The full ayah - 'if you fear Allah, He will grant you a criterion (furqan) [to distinguish right from wrong], and remove your misdeeds and forgive you' - a direct promise of discernment for the uncertain.",
+    "contextNotes": "Newly discovered (not from overlap review).",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "2:269",
+    "emotionKey": "confused",
+    "rationale": "The full ayah - 'He gives wisdom to whom He wills, and whoever is given wisdom has been given much good' - wisdom is the faculty that resolves confusion.",
+    "contextNotes": "Newly discovered (not from overlap review).",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "39:18",
+    "emotionKey": "confused",
+    "rationale": "The full ayah praises 'those who listen to speech and follow the best of it - those Allah has guided, and those are people of understanding' - discernment among competing options.",
+    "contextNotes": "Newly discovered (not from overlap review).",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "57:28",
+    "emotionKey": "confused",
+    "rationale": "The full ayah - 'be mindful of Allah and believe in His Messenger; He will give you a double share of His mercy and make for you a light by which you will walk' - a light to walk by when the way is unclear.",
+    "contextNotes": "Addressed to People of the Book / believers; the 'light to walk by' is the relevant image. Newly discovered.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "2:213",
+    "emotionKey": "confused",
+    "rationale": "The full ayah - 'Allah guided those who believed to the truth concerning that over which they had differed, by His permission' - Allah bringing clarity where people are divided and unsure.",
+    "contextNotes": "Context is differences over scripture among earlier communities; the pattern (guided through what people differ on) generalises. Newly discovered.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "1:6",
+    "emotionKey": "closer_to_allah",
+    "rationale": "The full ayah, 'Guide us to the straight path', is a request to be led toward Allah - the path of nearness.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "3:8",
+    "emotionKey": "closer_to_allah",
+    "rationale": "The full ayah asks Allah for mercy 'from Yourself' and calls Him 'the Bestower' - a plea for nearness and grace.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "18:10",
+    "emotionKey": "closer_to_allah",
+    "rationale": "The full ayah is a du'a for Allah's mercy and guidance - the language of someone reaching toward Him.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "18:24",
+    "emotionKey": "closer_to_allah",
+    "rationale": "The full ayah opens 'and remember your Lord when you forget' and hopes to be 'guided nearer' to right conduct - remembrance and the desire for nearness together.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`. Strong fit for this key.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "29:69",
+    "emotionKey": "closer_to_allah",
+    "rationale": "The full ayah - 'Those who strive for Us - We will guide them to Our ways; and Allah is with the doers of good' - striving toward Allah, met with His nearness.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "64:11",
+    "emotionKey": "closer_to_allah",
+    "rationale": "The full ayah promises heart-guidance to whoever believes in Allah - the believing heart being drawn closer.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "47:17",
+    "emotionKey": "closer_to_allah",
+    "rationale": "The full ayah: the guided are increased in guidance and granted their taqwa - growth in devotion.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "10:9",
+    "emotionKey": "closer_to_allah",
+    "rationale": "The full ayah - 'those who believe and do righteous deeds - their Lord guides them by their faith' into gardens of bliss - faith drawing a person toward closeness and reward.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`. Includes the Paradise description.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "17:9",
+    "emotionKey": "closer_to_allah",
+    "rationale": "The full ayah names the Qur'an as the guide 'to that which is most upright' and glad tidings to the righteous - the means of drawing near.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "7:43",
+    "emotionKey": "closer_to_allah",
+    "rationale": "The full ayah is the believers' gratitude, 'Praise to Allah who guided us to this; we would not have been guided had Allah not guided us' - arrival at nearness by Allah's grace.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`. Spoken in Paradise.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "22:54",
+    "emotionKey": "closer_to_allah",
+    "rationale": "The full ayah describes hearts that 'humbly submit' to the truth (tukhbita) once recognised - humble submission of the heart to Allah.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "24:35",
+    "emotionKey": "closer_to_allah",
+    "rationale": "The full ayah's light is 'in houses Allah has permitted to be raised and His name mentioned therein, glorifying Him morning and evening' - remembrance and worship imagery.",
+    "contextNotes": "Carried from Batch 1 overlap review of `seeking_guidance`. Sustained parable.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "2:186",
+    "emotionKey": "closer_to_allah",
+    "rationale": "The full ayah - 'When My servants ask you about Me - I am near; I answer the call of the caller when he calls on Me; so let them respond to Me and believe in Me' - Allah's nearness and a call to turn to Him.",
+    "contextNotes": "In Batch 1 overlap review this verse was noted for `seeking_guidance`; here it is a direct fit for the desire for nearness.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "2:152",
+    "emotionKey": "closer_to_allah",
+    "rationale": "The full ayah - 'So remember Me; I will remember you; and be grateful to Me and do not deny Me' - the reciprocal remembrance at the heart of drawing closer.",
+    "contextNotes": "Newly discovered (not from overlap review).",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "96:19",
+    "emotionKey": "closer_to_allah",
+    "rationale": "The full ayah - 'No! Do not obey him. But prostrate and draw near [to Allah]' - an explicit instruction to draw near through prostration.",
+    "contextNotes": "The rebuke in the first clause is to one who forbids prayer; the command 'prostrate and draw near' is the devotional core. Newly discovered.",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "3:31",
+    "emotionKey": "closer_to_allah",
+    "rationale": "The full ayah - 'Say: if you love Allah, then follow me, and Allah will love you and forgive your sins' - love of Allah, being loved by Him, and forgiveness.",
+    "contextNotes": "Newly discovered (not from overlap review).",
+    "source": "phase5b-batch2-candidate-review"
+  },
+  {
+    "verseKey": "13:28",
+    "emotionKey": "closer_to_allah",
+    "rationale": "The full ayah - '...those whose hearts find rest in the remembrance of Allah; unquestionably, by the remembrance of Allah do hearts find rest' - remembrance as the way to nearness and a settled heart.",
+    "contextNotes": "This verse also serves anxious/stressed/peaceful/grateful (existing mappings); here the relevant aspect is dhikr as nearness. Newly discovered for closer_to_allah.",
+    "source": "phase5b-batch2-candidate-review"
+  }
+]
