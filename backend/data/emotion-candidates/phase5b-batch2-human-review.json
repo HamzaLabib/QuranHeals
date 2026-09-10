@@ -1,0 +1,391 @@
+{
+  "artifact": "phase5b-batch2-human-review",
+  "candidateSource": "phase5b-batch2-candidates.json",
+  "originalCandidateCount": 74,
+  "decisionCounts": {
+    "keep": 74,
+    "reject": 0,
+    "hold": 0
+  },
+  "note": "Human review of Batch 2. Every one of the 74 original candidates was accepted (\"keep with all overlaps\"). \"keep\" is a review disposition only - not a production mapping status. Nothing is approved, promoted, or activated. Verses referenced by verseKey only; no Quran text stored.",
+  "reviews": [
+    {
+      "verseKey": "21:87",
+      "emotionKey": "afraid",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:173",
+      "emotionKey": "afraid",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:155",
+      "emotionKey": "afraid",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "28:7",
+      "emotionKey": "afraid",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:126",
+      "emotionKey": "afraid",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "8:10",
+      "emotionKey": "afraid",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:46",
+      "emotionKey": "afraid",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:51",
+      "emotionKey": "afraid",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:255",
+      "emotionKey": "afraid",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "18:10",
+      "emotionKey": "afraid",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "64:11",
+      "emotionKey": "afraid",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:175",
+      "emotionKey": "afraid",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "41:30",
+      "emotionKey": "afraid",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "10:62",
+      "emotionKey": "afraid",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:112",
+      "emotionKey": "afraid",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:68",
+      "emotionKey": "afraid",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:129",
+      "emotionKey": "afraid",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:260",
+      "emotionKey": "anxious",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "50:16",
+      "emotionKey": "anxious",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "57:4",
+      "emotionKey": "anxious",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:51",
+      "emotionKey": "anxious",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:255",
+      "emotionKey": "anxious",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:8",
+      "emotionKey": "anxious",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "64:11",
+      "emotionKey": "anxious",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:139",
+      "emotionKey": "anxious",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "40:44",
+      "emotionKey": "anxious",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "11:6",
+      "emotionKey": "anxious",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "29:60",
+      "emotionKey": "anxious",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:38",
+      "emotionKey": "anxious",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "1:6",
+      "emotionKey": "lost",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:8",
+      "emotionKey": "lost",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "18:10",
+      "emotionKey": "lost",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "18:24",
+      "emotionKey": "lost",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "29:69",
+      "emotionKey": "lost",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "64:11",
+      "emotionKey": "lost",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "47:17",
+      "emotionKey": "lost",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "17:9",
+      "emotionKey": "lost",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "22:54",
+      "emotionKey": "lost",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "24:35",
+      "emotionKey": "lost",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "93:7",
+      "emotionKey": "lost",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "42:52",
+      "emotionKey": "lost",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:9",
+      "emotionKey": "lost",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "1:6",
+      "emotionKey": "confused",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:8",
+      "emotionKey": "confused",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "18:10",
+      "emotionKey": "confused",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "18:24",
+      "emotionKey": "confused",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "29:69",
+      "emotionKey": "confused",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "64:11",
+      "emotionKey": "confused",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "47:17",
+      "emotionKey": "confused",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "17:9",
+      "emotionKey": "confused",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "22:54",
+      "emotionKey": "confused",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "24:35",
+      "emotionKey": "confused",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "8:29",
+      "emotionKey": "confused",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:269",
+      "emotionKey": "confused",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "39:18",
+      "emotionKey": "confused",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "57:28",
+      "emotionKey": "confused",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:213",
+      "emotionKey": "confused",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "1:6",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:8",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "18:10",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "18:24",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "29:69",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "64:11",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "47:17",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "10:9",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "17:9",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:43",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "22:54",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "24:35",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:186",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:152",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "96:19",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:31",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "13:28",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep"
+    }
+  ],
+  "supplementalReviews": [
+    {
+      "verseKey": "1:5",
+      "emotionKey": "lost",
+      "decision": "keep",
+      "note": "Proposed manually during the `lost` review. NOT one of the 74 original Batch 2 candidates and NOT counted in originalCandidateCount. Full ayah (\"It is You we worship, and You we ask for help\") fits someone adrift turning to Allah for direction. Also flagged for future review under closer_to_allah, reassurance, seeking_guidance, overwhelmed, weak - preserved as overlap proposals only, not approved."
+    }
+  ]
+}
