@@ -1,0 +1,3540 @@
+{
+  "artifact": "phase5b-batch3-human-review",
+  "candidateSource": "phase5b-batch3-candidates.json",
+  "originalCandidateCount": 76,
+  "decisionCounts": {
+    "keep": 74,
+    "reject": 2,
+    "hold": 0
+  },
+  "note": "Human review outcomes for Batch 3 (`angry`, `betrayed`, `wronged`, `guilty`, `repentant`). \"keep\" / \"reject\" / \"hold\" are review dispositions only, not production mapping statuses. Nothing here is approved, reviewed (in the production sense), or activated. Verses are referenced by verseKey only; no Quran text is stored. `6:64` was rejected for `overwhelmed` in Batch 1 but is reviewed independently here for `guilty`/`repentant` per this batch's own review - earlier rejections under a different emotion do not propagate.",
+  "reviews": [
+    {
+      "verseKey": "8:46",
+      "emotionKey": "angry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "31:17",
+      "emotionKey": "angry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "70:5",
+      "emotionKey": "angry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:186",
+      "emotionKey": "angry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "46:35",
+      "emotionKey": "angry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:43",
+      "emotionKey": "angry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:159",
+      "emotionKey": "angry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "42:40",
+      "emotionKey": "angry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "42:43",
+      "emotionKey": "angry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:126",
+      "emotionKey": "angry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "41:35",
+      "emotionKey": "angry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:200",
+      "emotionKey": "angry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "25:63",
+      "emotionKey": "angry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "28:55",
+      "emotionKey": "angry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "23:96",
+      "emotionKey": "angry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "64:14",
+      "emotionKey": "angry",
+      "decision": "reject",
+      "note": "Rejected for `angry`: the pardon/overlook clause is a strong lesson, but on reflection the ayah's main subject (spouses/children as a test of faith, 'beware of them') does not itself model or instruct anger-regulation closely enough for a direct anger mapping. Cross-emotion overlap proposals from this review (forgiveness_struggle, betrayed, wronged, patience) are preserved separately."
+    },
+    {
+      "verseKey": "16:127",
+      "emotionKey": "betrayed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:51",
+      "emotionKey": "betrayed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:173",
+      "emotionKey": "betrayed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "70:5",
+      "emotionKey": "betrayed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:186",
+      "emotionKey": "betrayed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "46:35",
+      "emotionKey": "betrayed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:129",
+      "emotionKey": "betrayed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "40:44",
+      "emotionKey": "betrayed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:160",
+      "emotionKey": "betrayed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "8:62",
+      "emotionKey": "betrayed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:18",
+      "emotionKey": "betrayed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:120",
+      "emotionKey": "betrayed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "4:45",
+      "emotionKey": "betrayed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "58:10",
+      "emotionKey": "betrayed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "14:42",
+      "emotionKey": "betrayed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "65:3",
+      "emotionKey": "betrayed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:127",
+      "emotionKey": "wronged",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:173",
+      "emotionKey": "wronged",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "31:17",
+      "emotionKey": "wronged",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "70:5",
+      "emotionKey": "wronged",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:186",
+      "emotionKey": "wronged",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "46:35",
+      "emotionKey": "wronged",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:129",
+      "emotionKey": "wronged",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "40:44",
+      "emotionKey": "wronged",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "42:41",
+      "emotionKey": "wronged",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "42:42",
+      "emotionKey": "wronged",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "22:60",
+      "emotionKey": "wronged",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "4:148",
+      "emotionKey": "wronged",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "14:42",
+      "emotionKey": "wronged",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "27:62",
+      "emotionKey": "wronged",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "21:47",
+      "emotionKey": "wronged",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "21:87",
+      "emotionKey": "guilty",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "11:11",
+      "emotionKey": "guilty",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "8:29",
+      "emotionKey": "guilty",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "57:28",
+      "emotionKey": "guilty",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:31",
+      "emotionKey": "guilty",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "6:64",
+      "emotionKey": "guilty",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "39:53",
+      "emotionKey": "guilty",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "39:54",
+      "emotionKey": "guilty",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "4:110",
+      "emotionKey": "guilty",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:135",
+      "emotionKey": "guilty",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:82",
+      "emotionKey": "guilty",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "42:25",
+      "emotionKey": "guilty",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:23",
+      "emotionKey": "guilty",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:53",
+      "emotionKey": "guilty",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "21:87",
+      "emotionKey": "repentant",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "11:11",
+      "emotionKey": "repentant",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:8",
+      "emotionKey": "repentant",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "8:29",
+      "emotionKey": "repentant",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "57:28",
+      "emotionKey": "repentant",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:31",
+      "emotionKey": "repentant",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "6:64",
+      "emotionKey": "repentant",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "66:8",
+      "emotionKey": "repentant",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:104",
+      "emotionKey": "repentant",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:222",
+      "emotionKey": "repentant",
+      "decision": "reject",
+      "note": "Rejected for `repentant`: the 'Allah loves the tawwabin' clause is a well-known standalone, but it closes a verse whose main subject is ritual purity (menstruation), not repentance as its own topic - it doesn't meet the full-ayah-fit bar for a direct repentant mapping. The verse remains proposed as an overlap candidate for `seeking_guidance`."
+    },
+    {
+      "verseKey": "25:70",
+      "emotionKey": "repentant",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "24:31",
+      "emotionKey": "repentant",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "50:33",
+      "emotionKey": "repentant",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "17:25",
+      "emotionKey": "repentant",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "19:60",
+      "emotionKey": "repentant",
+      "decision": "keep"
+    }
+  ],
+  "supplementalReviews": [
+    {
+      "verseKey": "40:16",
+      "emotionKey": "anxious",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "lonely",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "angry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "lost",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "stressed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "hopeless",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "confused",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "want_to_cry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "heartbroken",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "overwhelmed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "betrayed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "wronged",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "patience",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "content",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "anxious",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "lonely",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "angry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "lost",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "stressed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "hopeless",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "confused",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "want_to_cry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "heartbroken",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "overwhelmed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "betrayed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "wronged",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "patience",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "content",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:18",
+      "emotionKey": "anxious",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:18",
+      "emotionKey": "lonely",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:18",
+      "emotionKey": "angry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:18",
+      "emotionKey": "lost",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:18",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:18",
+      "emotionKey": "stressed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:18",
+      "emotionKey": "hopeless",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:18",
+      "emotionKey": "confused",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:18",
+      "emotionKey": "want_to_cry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:18",
+      "emotionKey": "heartbroken",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:18",
+      "emotionKey": "overwhelmed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:18",
+      "emotionKey": "betrayed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:18",
+      "emotionKey": "wronged",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:18",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:18",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:18",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:18",
+      "emotionKey": "patience",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:18",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:18",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:18",
+      "emotionKey": "content",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:18",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "anxious",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "lonely",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "angry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "lost",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "stressed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "hopeless",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "confused",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "want_to_cry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "heartbroken",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "overwhelmed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "betrayed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "wronged",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "patience",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "content",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "anxious",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "lonely",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "angry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "lost",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "stressed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "hopeless",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "confused",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "want_to_cry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "heartbroken",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "overwhelmed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "betrayed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "wronged",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "patience",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "content",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP (Ghafir 40:16-40:20 block, reviewed for all 21 listed emotions during/after Batch 3). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:118",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:118",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:118",
+      "emotionKey": "overwhelmed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:118",
+      "emotionKey": "stressed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:118",
+      "emotionKey": "anxious",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:118",
+      "emotionKey": "hopeless",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:118",
+      "emotionKey": "lost",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:118",
+      "emotionKey": "lonely",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:118",
+      "emotionKey": "heartbroken",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:118",
+      "emotionKey": "want_to_cry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:118",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:118",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:118",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:118",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:118",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "2:206",
+      "emotionKey": "angry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "2:206",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "2:206",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:102",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:102",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:102",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:102",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:102",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:102",
+      "emotionKey": "hopeless",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:102",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:102",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:103",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:103",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:103",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:103",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:103",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:103",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:103",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "9:103",
+      "emotionKey": "content",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "7:169",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "7:169",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "7:169",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "7:169",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "7:169",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:55",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:55",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:55",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:55",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:55",
+      "emotionKey": "anxious",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:55",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:55",
+      "emotionKey": "lost",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:55",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:56",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:56",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:56",
+      "emotionKey": "heartbroken",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:56",
+      "emotionKey": "want_to_cry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:56",
+      "emotionKey": "hopeless",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:56",
+      "emotionKey": "lost",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:56",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:56",
+      "emotionKey": "overwhelmed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:56",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:56",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:56",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:57",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:57",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:57",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:57",
+      "emotionKey": "lost",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:57",
+      "emotionKey": "confused",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:57",
+      "emotionKey": "hopeless",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:57",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:57",
+      "emotionKey": "heartbroken",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:57",
+      "emotionKey": "want_to_cry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:57",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:57",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:58",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:58",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:58",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:58",
+      "emotionKey": "hopeless",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:58",
+      "emotionKey": "heartbroken",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:58",
+      "emotionKey": "want_to_cry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:58",
+      "emotionKey": "lost",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:58",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:58",
+      "emotionKey": "overwhelmed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:58",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:58",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:59",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:59",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:59",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:59",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:59",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:60",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:60",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:60",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:60",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:60",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:61",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:61",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:61",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:61",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:61",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:61",
+      "emotionKey": "hopeless",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:61",
+      "emotionKey": "heartbroken",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:61",
+      "emotionKey": "want_to_cry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:61",
+      "emotionKey": "anxious",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:61",
+      "emotionKey": "overwhelmed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:61",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:61",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:61",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:62",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:62",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:62",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:62",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:62",
+      "emotionKey": "anxious",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:62",
+      "emotionKey": "overwhelmed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:62",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:62",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:62",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:62",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:62",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:62",
+      "emotionKey": "betrayed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:62",
+      "emotionKey": "wronged",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:62",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:62",
+      "emotionKey": "angry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:62",
+      "emotionKey": "heartbroken",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:62",
+      "emotionKey": "content",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:63",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:63",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:63",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:63",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:63",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:63",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:63",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:63",
+      "emotionKey": "betrayed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:63",
+      "emotionKey": "wronged",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:63",
+      "emotionKey": "angry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:63",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:63",
+      "emotionKey": "overwhelmed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:63",
+      "emotionKey": "heartbroken",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:63",
+      "emotionKey": "content",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "5:98",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "5:98",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "5:98",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "5:98",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "5:98",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "5:98",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "5:98",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "5:98",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:65",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:65",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:65",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:65",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:65",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:66",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:66",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:66",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:66",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:66",
+      "emotionKey": "content",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:66",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:66",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:66",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:66",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:68",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:68",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:68",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:68",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:68",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:68",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:68",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:69",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:69",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:69",
+      "emotionKey": "wronged",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:69",
+      "emotionKey": "betrayed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:69",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:69",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:69",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:69",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:69",
+      "emotionKey": "angry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:69",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:69",
+      "emotionKey": "heartbroken",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:69",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:69",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:69",
+      "emotionKey": "content",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:70",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:70",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:70",
+      "emotionKey": "wronged",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:70",
+      "emotionKey": "betrayed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:70",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:70",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:70",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:70",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:70",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:70",
+      "emotionKey": "content",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:70",
+      "emotionKey": "angry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:70",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:70",
+      "emotionKey": "heartbroken",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:71",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:71",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:71",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:71",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:71",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:71",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:71",
+      "emotionKey": "heartbroken",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:71",
+      "emotionKey": "want_to_cry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:72",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:72",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:72",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:72",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:72",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:73",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:73",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:73",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:73",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:73",
+      "emotionKey": "content",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:73",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:73",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:73",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:73",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:73",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:73",
+      "emotionKey": "hopeless",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:73",
+      "emotionKey": "heartbroken",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:73",
+      "emotionKey": "want_to_cry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:73",
+      "emotionKey": "patience",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:74",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:74",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:74",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:74",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:74",
+      "emotionKey": "content",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:74",
+      "emotionKey": "patience",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:74",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:74",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:74",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:74",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:74",
+      "emotionKey": "hopeless",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:74",
+      "emotionKey": "heartbroken",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:74",
+      "emotionKey": "want_to_cry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:74",
+      "emotionKey": "confused",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:18",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:18",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:18",
+      "emotionKey": "wronged",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:18",
+      "emotionKey": "betrayed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:18",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:18",
+      "emotionKey": "content",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:18",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:18",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:18",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:18",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:18",
+      "emotionKey": "patience",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:18",
+      "emotionKey": "confused",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:19",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:19",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:19",
+      "emotionKey": "wronged",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:19",
+      "emotionKey": "betrayed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:19",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:19",
+      "emotionKey": "content",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:19",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:19",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:19",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:19",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:19",
+      "emotionKey": "patience",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:19",
+      "emotionKey": "confused",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:20",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:20",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:20",
+      "emotionKey": "wronged",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:20",
+      "emotionKey": "betrayed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:20",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:20",
+      "emotionKey": "content",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:20",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:20",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:20",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:20",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:20",
+      "emotionKey": "patience",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:20",
+      "emotionKey": "confused",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:21",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:21",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:21",
+      "emotionKey": "wronged",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:21",
+      "emotionKey": "betrayed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:21",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:21",
+      "emotionKey": "content",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:21",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:21",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:21",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:21",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:21",
+      "emotionKey": "patience",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:21",
+      "emotionKey": "confused",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:22",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:22",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:22",
+      "emotionKey": "wronged",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:22",
+      "emotionKey": "betrayed",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:22",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:22",
+      "emotionKey": "content",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:22",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:22",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:22",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:22",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:22",
+      "emotionKey": "patience",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:22",
+      "emotionKey": "confused",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:25",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:25",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:25",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "69:25",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "15:49",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "15:49",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "15:49",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "15:49",
+      "emotionKey": "content",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "15:49",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "15:49",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "15:49",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "15:49",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "15:49",
+      "emotionKey": "patience",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "15:49",
+      "emotionKey": "confused",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "15:50",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "15:50",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "15:50",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "15:50",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during/after Batch 3 review. NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "sad",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "anxious",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "lonely",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "angry",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "lost",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "afraid",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "stressed",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "hopeless",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "tired",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "confused",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "grateful",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "peaceful",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "want_to_cry",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "heartbroken",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "overwhelmed",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "rejected",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "betrayed",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "wronged",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "guilty",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "repentant",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "weak",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "reassurance",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "patience",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "hopeful",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "content",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "closer_to_allah",
+      "decision": "keep",
+      "note": "Explicitly approved by the user as KEEP for ALL 29 current canonical emotion keys (resolved from the repository taxonomy/seed at review time). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:64",
+      "emotionKey": "guilty",
+      "decision": "reject",
+      "note": "Explicitly rejected during supplemental review (considered for guilty, repentant, seeking_guidance, closer_to_allah, afraid, strength). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts. Not added as a KEEP mapping for any emotion.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:64",
+      "emotionKey": "repentant",
+      "decision": "reject",
+      "note": "Explicitly rejected during supplemental review (considered for guilty, repentant, seeking_guidance, closer_to_allah, afraid, strength). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts. Not added as a KEEP mapping for any emotion.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:64",
+      "emotionKey": "seeking_guidance",
+      "decision": "reject",
+      "note": "Explicitly rejected during supplemental review (considered for guilty, repentant, seeking_guidance, closer_to_allah, afraid, strength). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts. Not added as a KEEP mapping for any emotion.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:64",
+      "emotionKey": "closer_to_allah",
+      "decision": "reject",
+      "note": "Explicitly rejected during supplemental review (considered for guilty, repentant, seeking_guidance, closer_to_allah, afraid, strength). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts. Not added as a KEEP mapping for any emotion.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:64",
+      "emotionKey": "afraid",
+      "decision": "reject",
+      "note": "Explicitly rejected during supplemental review (considered for guilty, repentant, seeking_guidance, closer_to_allah, afraid, strength). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts. Not added as a KEEP mapping for any emotion.",
+      "source": "phase5b-batch3-supplemental-review"
+    },
+    {
+      "verseKey": "39:64",
+      "emotionKey": "strength",
+      "decision": "reject",
+      "note": "Explicitly rejected during supplemental review (considered for guilty, repentant, seeking_guidance, closer_to_allah, afraid, strength). NOT one of the 76 original Batch 3 candidates and NOT counted in originalCandidateCount/decisionCounts. Not added as a KEEP mapping for any emotion.",
+      "source": "phase5b-batch3-supplemental-review"
+    }
+  ]
+}

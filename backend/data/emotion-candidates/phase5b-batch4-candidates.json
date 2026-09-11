@@ -1,0 +1,912 @@
+[
+  {
+    "verseKey": "2:38",
+    "emotionKey": "sad",
+    "rationale": "The full ayah promises 'no fear will be upon them, nor will they grieve' to whoever follows Allah's guidance - a direct promise addressed to grief itself.",
+    "contextNotes": "Carried from prior overlap review of `anxious`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "2:112",
+    "emotionKey": "sad",
+    "rationale": "The full ayah promises 'no fear... nor will they grieve' to the sincere, submitting believer - grief answered by right conduct and reward.",
+    "contextNotes": "Carried from prior overlap review of `afraid`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "2:152",
+    "emotionKey": "sad",
+    "rationale": "'So remember Me; I will remember you; and be grateful to Me' - the reciprocal dhikr the Quran offers as a companion to a heavy heart.",
+    "contextNotes": "Carried from prior overlap review of `closer_to_allah`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "2:255",
+    "emotionKey": "sad",
+    "rationale": "Ayat al-Kursi's declaration of Allah's total, tireless sovereignty is recited widely at moments of grief and loss for the steadiness it offers.",
+    "contextNotes": "Carried from prior overlap reviews of `afraid` and `anxious`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "3:120",
+    "emotionKey": "sad",
+    "rationale": "Names people who are pained by your good and pleased by your harm, then answers with patience and God-consciousness - steadying grief caused by others' ill will.",
+    "contextNotes": "Carried from prior overlap review of `betrayed`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "3:139",
+    "emotionKey": "sad",
+    "rationale": "'Do not lose heart and do not grieve; you will be superior if you are believers' - speaks directly to a grieving, demoralised state.",
+    "contextNotes": "Carried from prior overlap review of `anxious`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "3:173",
+    "emotionKey": "sad",
+    "rationale": "'Allah is sufficient for us, and He is the best trustee' - the believers' composed answer to devastating news.",
+    "contextNotes": "Carried from prior overlap reviews of `betrayed` and `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "3:186",
+    "emotionKey": "sad",
+    "rationale": "Names 'much hurt' heard from others as a tested trial met with patience and God-consciousness - sorrow caused by others' words.",
+    "contextNotes": "Carried from prior overlap reviews of `angry`, `betrayed`, and `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "9:51",
+    "emotionKey": "sad",
+    "rationale": "'Nothing will befall us except what Allah has decreed for us' - reframes loss and grief within Allah's decree rather than chance.",
+    "contextNotes": "Carried from prior overlap reviews of `afraid` and `anxious`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "9:129",
+    "emotionKey": "sad",
+    "rationale": "'Allah is sufficient for me; there is no deity except Him' - the scripted reliance that answers grief at being opposed or let down.",
+    "contextNotes": "Carried from prior overlap review of `afraid`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "10:62",
+    "emotionKey": "sad",
+    "rationale": "Promises Allah's allies 'no fear concerning them, nor will they grieve' - a direct address to the grieving believer.",
+    "contextNotes": "Carried from prior overlap review of `afraid`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "12:18",
+    "emotionKey": "sad",
+    "rationale": "Ya'qub's answer to devastating news about his son - 'patience is beautiful, and Allah is the One whose help is sought' - models the response to grief.",
+    "contextNotes": "Carried from prior overlap review of `betrayed`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "14:42",
+    "emotionKey": "sad",
+    "rationale": "Assures that Allah is never unaware of wrongdoing done to someone - grief held within a wider justice rather than going unseen.",
+    "contextNotes": "Carried from prior overlap reviews of `betrayed` and `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "58:10",
+    "emotionKey": "sad",
+    "rationale": "Names secret plotting as 'only from Satan, to grieve the believers' but powerless without Allah's permission - naming the source of the ache.",
+    "contextNotes": "Carried from prior overlap review of `betrayed`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "65:3",
+    "emotionKey": "sad",
+    "rationale": "'Whoever relies upon Allah, He is sufficient for him' - answers grief over what feels beyond one's own control.",
+    "contextNotes": "Carried from prior overlap review of `betrayed`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "70:5",
+    "emotionKey": "sad",
+    "rationale": "'So be patient with a beautiful patience' - composed endurance offered to a grieving heart.",
+    "contextNotes": "Carried from prior overlap reviews of `angry`, `betrayed`, and `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "12:86",
+    "emotionKey": "sad",
+    "rationale": "Ya'qub: 'I complain of my anguish and grief only to Allah, and I know from Allah what you do not know' - models taking grief directly to Allah rather than carrying it alone.",
+    "contextNotes": "Newly discovered for Batch 4. Narrative (Ya'qub over the loss of Yusuf); also proposed for `want_to_cry`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "12:84",
+    "emotionKey": "sad",
+    "rationale": "Ya'qub turning away in grief - 'O my sorrow over Yusuf' - eyes turned white from suppressed grief; a vivid Quranic mirror of profound sadness.",
+    "contextNotes": "Newly discovered for Batch 4. Purely descriptive of grief, not a prescription; also proposed for `want_to_cry`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "2:152",
+    "emotionKey": "lonely",
+    "rationale": "The reciprocal 'remember Me and I will remember you' answers the isolation of feeling forgotten.",
+    "contextNotes": "Carried from prior overlap review of `closer_to_allah`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "2:186",
+    "emotionKey": "lonely",
+    "rationale": "'I am near; I answer the call of the caller when he calls on Me' - a direct address to feeling unaccompanied.",
+    "contextNotes": "Carried from prior overlap review of `closer_to_allah`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "2:255",
+    "emotionKey": "lonely",
+    "rationale": "Ayat al-Kursi's picture of Allah's unceasing, all-encompassing presence answers a sense of being alone.",
+    "contextNotes": "Carried from prior overlap review of `reassurance`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "3:186",
+    "emotionKey": "lonely",
+    "rationale": "Names 'much hurt... from those given the Scripture before you and the polytheists' as a trial of social isolation to be met with patience.",
+    "contextNotes": "Carried from prior overlap reviews of `angry`, `betrayed`, and `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "4:45",
+    "emotionKey": "lonely",
+    "rationale": "'Sufficient is Allah as an ally, and sufficient is Allah as a helper' - companionship in Allah when human allies are absent.",
+    "contextNotes": "Carried from prior overlap review of `betrayed`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "9:129",
+    "emotionKey": "lonely",
+    "rationale": "'Allah is sufficient for me... Lord of the Great Throne' - the scripted response when others turn away and one feels left alone.",
+    "contextNotes": "Carried from prior overlap review of `overwhelmed`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "12:18",
+    "emotionKey": "lonely",
+    "rationale": "Ya'qub, isolated in a grief his own household caused, answers with patience and reliance on Allah rather than despair at being alone in it.",
+    "contextNotes": "Carried from prior overlap review of `betrayed`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "20:46",
+    "emotionKey": "lonely",
+    "rationale": "Allah's direct 'I am with you both - I hear and I see' to Musa and Harun facing Pharaoh alone - companionship promised in a daunting, isolating task.",
+    "contextNotes": "Carried from prior overlap review of `afraid`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "40:44",
+    "emotionKey": "lonely",
+    "rationale": "The believer from Pharaoh's household, isolated among his own people for his faith, entrusts his affair to Allah rather than to human support.",
+    "contextNotes": "Carried from prior overlap review of `anxious`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "50:16",
+    "emotionKey": "lonely",
+    "rationale": "'We are nearer to him than his jugular vein' - closeness for someone who feels alone with what they carry.",
+    "contextNotes": "Carried from prior overlap review of `reassurance`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "57:4",
+    "emotionKey": "lonely",
+    "rationale": "'He is with you wherever you are' - presence promised regardless of who else is, or isn't, there.",
+    "contextNotes": "Carried from prior overlap review of `reassurance`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "21:89",
+    "emotionKey": "lonely",
+    "rationale": "Zechariah's prayer - 'My Lord, do not leave me alone (fardan), while You are the best of inheritors' - the Quran's own words for the ache of being without companions or heirs.",
+    "contextNotes": "Newly discovered for Batch 4.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "3:103",
+    "emotionKey": "lonely",
+    "rationale": "'Hold firmly to the rope of Allah all together and do not become divided... He brought your hearts together and you became, by His favour, brothers' - the promise of belonging replacing isolation.",
+    "contextNotes": "Newly discovered for Batch 4. Addressed to the community as a whole; the belonging it describes is the relevant comfort for feeling alone.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "12:86",
+    "emotionKey": "lonely",
+    "rationale": "Ya'qub taking his grief to Allah alone - 'I complain of my anguish and grief only to Allah' - a father isolated in his sorrow even among his own household.",
+    "contextNotes": "Newly discovered for Batch 4. Also proposed for `sad`/`want_to_cry`; here the relevant angle is the isolation itself, not only the grief.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "94:1",
+    "emotionKey": "stressed",
+    "rationale": "'Did We not expand for you your breast?' - names the felt image of a chest tightened by pressure, and Allah's own act of relieving it.",
+    "contextNotes": "Newly discovered for Batch 4. Also carried as a Batch 1 `heartbroken` candidate (kept); the constriction/expansion image reads equally well as pressure relief.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "94:2",
+    "emotionKey": "stressed",
+    "rationale": "'And We removed from you your burden' - Allah's own description of lifting a weight that had been pressing down.",
+    "contextNotes": "Newly discovered for Batch 4. Short, self-contained ayah; pairs naturally with 94:1 and 94:3.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "94:3",
+    "emotionKey": "stressed",
+    "rationale": "'Which had weighed upon your back' - completes 94:2's image of a burden physically pressing down, now lifted.",
+    "contextNotes": "Newly discovered for Batch 4. Grammatically continues 94:2 (a relative clause); flag for the reviewer as with 1:7 in Batch 1 - strong content, but consider pairing with 94:2 rather than surfacing fully alone.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "20:25",
+    "emotionKey": "stressed",
+    "rationale": "Musa's prayer under the weight of his mission - 'My Lord, expand for me my breast' - asking for room to carry what feels like too much.",
+    "contextNotes": "Newly discovered for Batch 4. Opens a short sequence (20:25-28) of Musa's own words asking for the task ahead to be made bearable.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "20:26",
+    "emotionKey": "stressed",
+    "rationale": "Continues Musa's prayer - 'and ease for me my task' - a direct request for pressure to be eased rather than removed.",
+    "contextNotes": "Newly discovered for Batch 4. Grammatically continues 20:25; consider pairing the two when surfaced.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "92:7",
+    "emotionKey": "stressed",
+    "rationale": "'So We will ease him toward ease' - a direct promise of an eased path for the one who gives and is mindful of Allah.",
+    "contextNotes": "Newly discovered for Batch 4. The pronoun 'him' refers back to 92:5-6 (one who gives in charity and fears Allah); read with that context rather than fully standalone.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "7:42",
+    "emotionKey": "stressed",
+    "rationale": "'We charge no soul except with what it can bear... those are the companions of Paradise, abiding therein eternally' - the capacity principle paired with the reward it points toward.",
+    "contextNotes": "Newly discovered for Batch 4. Self-contained ayah, not dependent on surrounding legal context.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "23:62",
+    "emotionKey": "stressed",
+    "rationale": "'We charge no soul except with what it can bear, and with Us is a record that speaks the truth; they will not be wronged' - capacity and fairness held together.",
+    "contextNotes": "Newly discovered for Batch 4. Self-contained ayah.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "65:4",
+    "emotionKey": "stressed",
+    "rationale": "'And whoever fears Allah - He will make for him of his matter ease' - a direct promise of eased pressure for the mindful believer.",
+    "contextNotes": "Newly discovered for Batch 4. The clause closes a verse mainly about waiting-period rulings for specific categories of women; extract the general promise, not the ruling - the same caution noted for 65:7's rejection in Batch 1.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "3:31",
+    "emotionKey": "hopeless",
+    "rationale": "'If you love Allah, follow me; Allah will love you and forgive your sins' - forgiveness answering despair over one's own failings.",
+    "contextNotes": "Carried from prior overlap reviews of `guilty` and `repentant`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "3:135",
+    "emotionKey": "hopeless",
+    "rationale": "Models turning immediately to Allah after a fall rather than sinking into despair - 'remember Allah and seek forgiveness... and do not knowingly persist'.",
+    "contextNotes": "Carried from prior overlap review of `guilty`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "3:139",
+    "emotionKey": "hopeless",
+    "rationale": "'Do not lose heart and do not grieve; you will be superior' - a direct command against despair after a setback.",
+    "contextNotes": "Carried from prior overlap review of `heartbroken`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "4:110",
+    "emotionKey": "hopeless",
+    "rationale": "'Whoever does a wrong or wrongs himself, then seeks Allah's forgiveness, will find Allah Forgiving and Merciful' - a door held open against despair.",
+    "contextNotes": "Carried from prior overlap review of `guilty`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "6:64",
+    "emotionKey": "hopeless",
+    "rationale": "'Allah delivers you from it and from every distress' names Allah as the one who rescues from every distress. Rejected for `overwhelmed` in Batch 1 because the closing clause rebukes fair-weather faith; reviewed independently here for `hopeless` - the rescue clause still needs the closing reproach kept in view before any use.",
+    "contextNotes": "Carried from prior overlap review of `overwhelmed`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "7:23",
+    "emotionKey": "hopeless",
+    "rationale": "Adam and his wife's du'a - 'if You do not forgive us and have mercy on us, we will surely be among the losers' - names despair honestly while still asking.",
+    "contextNotes": "Carried from prior overlap review of `guilty`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "7:43",
+    "emotionKey": "hopeless",
+    "rationale": "The people of Paradise's testimony - 'we would never have been guided had Allah not guided us' - hope realised, offered as a horizon to hold onto.",
+    "contextNotes": "Carried from prior overlap review of `angry`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "9:104",
+    "emotionKey": "hopeless",
+    "rationale": "'Allah accepts repentance from His servants' - direct reassurance against the despair that one's return will not be accepted.",
+    "contextNotes": "Carried from prior overlap review of `repentant`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "9:129",
+    "emotionKey": "hopeless",
+    "rationale": "'Allah is sufficient for me; there is no deity except Him' - anchoring hope in Allah alone when everything else feels hopeless.",
+    "contextNotes": "Carried from prior overlap reviews of `betrayed` and `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "11:6",
+    "emotionKey": "hopeless",
+    "rationale": "'There is no creature on earth but that its provision is upon Allah' - a floor under despair about the future.",
+    "contextNotes": "Carried from prior overlap review of `anxious`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "11:11",
+    "emotionKey": "hopeless",
+    "rationale": "'Except those who are patient and do righteous deeds - for them is forgiveness and a great reward' - the exit from the despairing, ungrateful state described just before.",
+    "contextNotes": "Carried from prior overlap reviews of `guilty` and `repentant`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "12:87",
+    "emotionKey": "hopeless",
+    "rationale": "Ya'qub's own instruction to his sons - 'do not despair of the mercy of Allah' - the Quran's direct words against hopelessness.",
+    "contextNotes": "Carried from prior overlap review of `heartbroken`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "14:42",
+    "emotionKey": "hopeless",
+    "rationale": "Assures Allah is not unaware of wrongdoing - accountability that answers despair at injustice going unanswered.",
+    "contextNotes": "Carried from prior overlap reviews of `betrayed` and `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "19:60",
+    "emotionKey": "hopeless",
+    "rationale": "'Except one who repents, believes, and does righteousness... will not be wronged at all' - hope held open right after describing a negligent generation.",
+    "contextNotes": "Carried from prior overlap review of `repentant`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "20:82",
+    "emotionKey": "hopeless",
+    "rationale": "'I am the Perpetual Forgiver of whoever repents, believes, does righteousness, and then stays guided' - a full route back out of despair.",
+    "contextNotes": "Carried from prior overlap review of `guilty`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "21:47",
+    "emotionKey": "hopeless",
+    "rationale": "Perfect scales on the Day of Judgment, 'so no soul will be wronged in the least' - hope that nothing is ever lost or forgotten.",
+    "contextNotes": "Carried from prior overlap review of `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "21:87",
+    "emotionKey": "hopeless",
+    "rationale": "Yunus's cry from the darkness, answered in 21:88 - despair met with deliverance.",
+    "contextNotes": "Carried from prior overlap reviews of `guilty` and `repentant`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "25:70",
+    "emotionKey": "hopeless",
+    "rationale": "'Allah will replace their evil deeds with good ones' - hope held out even after grave sin.",
+    "contextNotes": "Carried from prior overlap review of `repentant`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "27:62",
+    "emotionKey": "hopeless",
+    "rationale": "'Is He not [best] who responds to the distressed one when he calls upon Him, and removes the evil?' - a rhetorical question affirming rescue for the desperate.",
+    "contextNotes": "Carried from prior overlap review of `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "29:60",
+    "emotionKey": "hopeless",
+    "rationale": "'Allah provides for it and for you' - practical hope against despair about provision and the future.",
+    "contextNotes": "Carried from prior overlap review of `anxious`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "39:54",
+    "emotionKey": "hopeless",
+    "rationale": "'Return to your Lord and submit to Him before the punishment comes' - urgency paired with an open door, not despair.",
+    "contextNotes": "Carried from prior overlap review of `guilty`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "42:25",
+    "emotionKey": "hopeless",
+    "rationale": "'It is He who accepts repentance from His servants, and pardons misdeeds' - hope in Allah's active acceptance, not passive mercy alone.",
+    "contextNotes": "Carried from prior overlap review of `guilty`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "57:28",
+    "emotionKey": "hopeless",
+    "rationale": "'A double portion of His mercy, a light to walk by, and forgiveness' - abundant hope rather than scarcity.",
+    "contextNotes": "Carried from prior overlap reviews of `guilty` and `repentant`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "65:3",
+    "emotionKey": "hopeless",
+    "rationale": "'Allah will accomplish His purpose; Allah has set a measure for everything' - reassurance that nothing is beyond His plan, against despair that things are out of control.",
+    "contextNotes": "Carried from prior overlap reviews of `overwhelmed` and `reassurance`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "66:8",
+    "emotionKey": "hopeless",
+    "rationale": "'Turn to Allah in sincere repentance; perhaps your Lord will remove your misdeeds and admit you to gardens' - hope attached to a concrete call to act.",
+    "contextNotes": "Carried from prior overlap review of `repentant`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "70:5",
+    "emotionKey": "hopeless",
+    "rationale": "'So be patient with a beautiful patience' - composed endurance rather than despair.",
+    "contextNotes": "Carried from prior overlap review of `patience`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "2:45",
+    "emotionKey": "tired",
+    "rationale": "'Seek help through patience and prayer; it is indeed hard, except for the humble' - names the real difficulty of enduring while prescribing the means.",
+    "contextNotes": "Carried from prior overlap review of `patience`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "2:155",
+    "emotionKey": "tired",
+    "rationale": "Names loss of life, wealth, and provision among the trials, promising good tidings to the patient - endurance through depletion.",
+    "contextNotes": "Carried from prior overlap reviews of `heartbroken` and `patience`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "2:156",
+    "emotionKey": "tired",
+    "rationale": "The istirja - 'we belong to Allah and to Him we return' - words to carry someone through exhaustion from repeated loss.",
+    "contextNotes": "Carried from prior overlap reviews of `heartbroken` and `patience`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "11:6",
+    "emotionKey": "tired",
+    "rationale": "'Its provision is upon Allah' - relief from the exhausting worry of having to secure everything oneself.",
+    "contextNotes": "Carried from prior overlap review of `anxious`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "29:60",
+    "emotionKey": "tired",
+    "rationale": "'Allah provides for it and for you' - direct address to the fatigue of trying to carry everything alone.",
+    "contextNotes": "Carried from prior overlap review of `anxious`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "31:17",
+    "emotionKey": "tired",
+    "rationale": "Luqman's counsel - 'be patient over what befalls you' - for sustained endurance rather than giving out.",
+    "contextNotes": "Carried from prior overlap review of `patience`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "39:10",
+    "emotionKey": "tired",
+    "rationale": "'The patient will be given their reward without measure' - motivation to keep going when strength is thin.",
+    "contextNotes": "Carried from prior overlap review of `patience`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "46:35",
+    "emotionKey": "tired",
+    "rationale": "'Be patient, as the messengers of firm resolve were patient' - the prophets' endurance held up as the model for someone running low.",
+    "contextNotes": "Carried from prior overlap review of `patience`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "70:5",
+    "emotionKey": "tired",
+    "rationale": "'So be patient with a beautiful patience' - composed endurance without complaint, for someone worn down.",
+    "contextNotes": "Carried from prior overlap review of `patience`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "3:146",
+    "emotionKey": "tired",
+    "rationale": "'They never lost heart for what befell them in the way of Allah, nor did they weaken, nor did they yield' - names not weakening under hardship as the model of the Prophet's companions.",
+    "contextNotes": "Newly discovered for Batch 4. About steadfastness under hardship rather than literal physical fatigue; still directly addresses not giving out.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "20:2",
+    "emotionKey": "tired",
+    "rationale": "'We have not sent down to you the Qur’an that you be distressed (tashqa)' - a reminder that faith is not meant to exhaust a person past what they can bear.",
+    "contextNotes": "Newly discovered for Batch 4.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "35:35",
+    "emotionKey": "tired",
+    "rationale": "Describes Paradise as a place 'wherein no fatigue (nasab) will touch us, and no weariness (lughub) will touch us' - names exhaustion by its own words and promises its end.",
+    "contextNotes": "Newly discovered for Batch 4. Describes the reward of Paradise, spoken by its people; an end-state promise rather than immediate relief.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "25:47",
+    "emotionKey": "tired",
+    "rationale": "'He made the night...and sleep for rest (subatan), and the day for rising' - names sleep as Allah-given rest for the exhausted.",
+    "contextNotes": "Newly discovered for Batch 4.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "28:73",
+    "emotionKey": "tired",
+    "rationale": "'Out of His mercy He made for you the night and day, that you may rest therein and seek His bounty' - rest framed as mercy, not indulgence.",
+    "contextNotes": "Newly discovered for Batch 4.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "3:120",
+    "emotionKey": "want_to_cry",
+    "rationale": "Names people who are pained by your good and pleased by your harm - a wound worth bringing to tears, met with patience.",
+    "contextNotes": "Carried from prior overlap review of `betrayed`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "3:173",
+    "emotionKey": "want_to_cry",
+    "rationale": "'Allah is sufficient for us, the best trustee' - words spoken through fear that could easily break into tears.",
+    "contextNotes": "Carried from prior overlap reviews of `betrayed` and `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "3:186",
+    "emotionKey": "want_to_cry",
+    "rationale": "Names 'much hurt' from others' words as a real, tearful trial, met with patience and God-consciousness.",
+    "contextNotes": "Carried from prior overlap reviews of `angry`, `betrayed`, and `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "7:23",
+    "emotionKey": "want_to_cry",
+    "rationale": "Adam and his wife's du'a - 'if You do not forgive us... we will surely be among the losers' - the Quran's own model of tearful repentance.",
+    "contextNotes": "Carried from prior overlap review of `guilty`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "7:43",
+    "emotionKey": "want_to_cry",
+    "rationale": "The people of Paradise, rancour and grief removed from their breasts - the relief that tears can lead toward.",
+    "contextNotes": "Carried from prior overlap review of `angry`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "9:51",
+    "emotionKey": "want_to_cry",
+    "rationale": "'Nothing will befall us except what Allah has decreed for us' - words to hold onto when emotion is close to overflowing.",
+    "contextNotes": "Carried from prior overlap review of `betrayed`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "9:129",
+    "emotionKey": "want_to_cry",
+    "rationale": "'Allah is sufficient for me' - spoken when opposition feels total enough to bring someone to tears.",
+    "contextNotes": "Carried from prior overlap reviews of `betrayed` and `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "12:18",
+    "emotionKey": "want_to_cry",
+    "rationale": "Ya'qub's response to devastating news about his son - patience named 'beautiful' even as the grief beneath it is raw and real.",
+    "contextNotes": "Carried from prior overlap review of `betrayed`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "14:42",
+    "emotionKey": "want_to_cry",
+    "rationale": "Assures Allah is not unaware of wrongdoing - permission to grieve an injustice while trusting it is seen.",
+    "contextNotes": "Carried from prior overlap reviews of `betrayed` and `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "16:126",
+    "emotionKey": "want_to_cry",
+    "rationale": "Limits retaliation and prefers patience - restraint for a heart that could easily break down instead.",
+    "contextNotes": "Carried from prior overlap review of `angry`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "17:25",
+    "emotionKey": "want_to_cry",
+    "rationale": "'He is ever Forgiving to those who often return' - a mercy that can bring a repentant heart to tears.",
+    "contextNotes": "Carried from prior overlap review of `repentant`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "21:87",
+    "emotionKey": "want_to_cry",
+    "rationale": "Yunus's cry from the darkness - 'there is no god but You; glory be to You; I was among the wrongdoers' - a raw, tearful supplication.",
+    "contextNotes": "Carried from prior overlap reviews of `guilty` and `repentant`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "27:62",
+    "emotionKey": "want_to_cry",
+    "rationale": "'Who responds to the distressed one when he calls upon Him?' - Allah's response to the cry of someone at their limit.",
+    "contextNotes": "Carried from prior overlap review of `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "39:53",
+    "emotionKey": "want_to_cry",
+    "rationale": "'Do not despair of the mercy of Allah; He forgives all sins' - words that can dissolve built-up guilt into tears of relief.",
+    "contextNotes": "Carried from prior overlap review of `guilty`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "42:25",
+    "emotionKey": "want_to_cry",
+    "rationale": "Allah as the one who accepts repentance and pardons misdeeds - mercy meeting a breaking heart.",
+    "contextNotes": "Carried from prior overlap review of `guilty`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "42:40",
+    "emotionKey": "want_to_cry",
+    "rationale": "Pardon and reconciliation offered as the higher road after harm - a release for pent-up hurt.",
+    "contextNotes": "Carried from prior overlap review of `angry`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "42:43",
+    "emotionKey": "want_to_cry",
+    "rationale": "Patience and forgiveness named as 'matters of firm resolve' - strength through what could otherwise break a person down.",
+    "contextNotes": "Carried from prior overlap review of `angry`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "46:35",
+    "emotionKey": "want_to_cry",
+    "rationale": "The messengers' patience held up as the model, addressed to someone who has been denied and hurt.",
+    "contextNotes": "Carried from prior overlap reviews of `angry`, `betrayed`, and `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "58:10",
+    "emotionKey": "want_to_cry",
+    "rationale": "Names secret plotting as meant 'to grieve the believers' - naming the very ache that can bring someone to tears.",
+    "contextNotes": "Carried from prior overlap review of `betrayed`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "65:3",
+    "emotionKey": "want_to_cry",
+    "rationale": "'Allah will accomplish His purpose' - reassurance for someone overwhelmed enough to be in tears over what feels out of control.",
+    "contextNotes": "Carried from prior overlap review of `betrayed`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "66:8",
+    "emotionKey": "want_to_cry",
+    "rationale": "The call to 'sincere repentance (tawba nasuh)' - an invitation into the kind of tearful turning-back the phrase itself describes.",
+    "contextNotes": "Carried from prior overlap review of `repentant`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "70:5",
+    "emotionKey": "want_to_cry",
+    "rationale": "'So be patient with a beautiful patience' - composed even while the emotion beneath it is real.",
+    "contextNotes": "Carried from prior overlap reviews of `angry`, `betrayed`, and `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "12:86",
+    "emotionKey": "want_to_cry",
+    "rationale": "Ya'qub: 'I complain of my anguish and grief only to Allah' - takes grief directly to Allah, the essence of turning to Him in tears.",
+    "contextNotes": "Newly discovered for Batch 4. Also proposed for `sad`/`lonely`; here the relevant angle is the act of pouring out grief itself.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "12:84",
+    "emotionKey": "want_to_cry",
+    "rationale": "Ya'qub's eyes 'turned white from grief, though he was suppressing it' - a vivid Quranic scene of grief pressing toward tears.",
+    "contextNotes": "Newly discovered for Batch 4. Purely descriptive; also proposed for `sad`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "3:120",
+    "emotionKey": "rejected",
+    "rationale": "Names people who are pleased when harm reaches you - a form of being wished ill by those around you, met with patience.",
+    "contextNotes": "Carried from prior overlap review of `betrayed`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "3:160",
+    "emotionKey": "rejected",
+    "rationale": "'If Allah forsakes you (yakhdhulkum), who can help you after Him?' - directly names being forsaken, answered with reliance on Allah alone.",
+    "contextNotes": "Carried from prior overlap review of `betrayed`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "3:173",
+    "emotionKey": "rejected",
+    "rationale": "'Allah is sufficient for us' - said when a hostile force had massed against the believers, a real experience of being opposed.",
+    "contextNotes": "Carried from prior overlap reviews of `betrayed` and `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "3:186",
+    "emotionKey": "rejected",
+    "rationale": "Names 'much hurt' heard from those given the Scripture and from polytheists - social hostility named as a real, tested trial.",
+    "contextNotes": "Carried from prior overlap review of `patience`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "4:45",
+    "emotionKey": "rejected",
+    "rationale": "'Sufficient is Allah as an ally, and sufficient is Allah as a helper' - said in a context of open hostility from others.",
+    "contextNotes": "Carried from prior overlap review of `betrayed`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "4:148",
+    "emotionKey": "rejected",
+    "rationale": "Permits the wronged to speak of the wrong done to them - naming that being mistreated or dismissed is real and may be voiced.",
+    "contextNotes": "Carried from prior overlap review of `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "7:200",
+    "emotionKey": "rejected",
+    "rationale": "The prescribed response to being provoked by others - relevant to the sting of being dismissed or pushed toward reacting.",
+    "contextNotes": "Carried from prior overlap review of `angry`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "8:62",
+    "emotionKey": "rejected",
+    "rationale": "'If they intend to deceive you, sufficient for you is Allah' - reassurance when another's turning away may be a ruse or a rejection.",
+    "contextNotes": "Carried from prior overlap review of `betrayed`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "9:51",
+    "emotionKey": "rejected",
+    "rationale": "'Nothing will befall us except what Allah has decreed for us' - a scripted response to hostility or exclusion by others.",
+    "contextNotes": "Carried from prior overlap review of `betrayed`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "9:129",
+    "emotionKey": "rejected",
+    "rationale": "'If they turn away, say: Allah is sufficient for me' - directly names people turning away and gives the response.",
+    "contextNotes": "Carried from prior overlap reviews of `betrayed` and `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "14:42",
+    "emotionKey": "rejected",
+    "rationale": "Assures Allah is not unaware of what wrongdoers do - accountability for those who exclude or dismiss unjustly.",
+    "contextNotes": "Carried from prior overlap reviews of `betrayed` and `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "16:126",
+    "emotionKey": "rejected",
+    "rationale": "Limits retaliation to what is proportionate and prefers patience - guidance for responding to mistreatment.",
+    "contextNotes": "Carried from prior overlap review of `angry`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "16:127",
+    "emotionKey": "rejected",
+    "rationale": "'Do not grieve over them, nor be distressed by what they plot' - direct address to being schemed against or shut out.",
+    "contextNotes": "Carried from prior overlap reviews of `betrayed` and `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "23:96",
+    "emotionKey": "rejected",
+    "rationale": "'Repel evil with that which is best' - the Quran's instruction for meeting rejection or hostility.",
+    "contextNotes": "Carried from prior overlap review of `angry`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "25:63",
+    "emotionKey": "rejected",
+    "rationale": "The servants of the Most Merciful answer harsh address with words of peace - a model of composure under dismissal.",
+    "contextNotes": "Carried from prior overlap review of `angry`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "28:55",
+    "emotionKey": "rejected",
+    "rationale": "Turning away from vain talk without hostility - 'peace be upon you; we do not seek the ignorant' - a model of disengaging from those who reject you.",
+    "contextNotes": "Carried from prior overlap review of `angry`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "40:44",
+    "emotionKey": "rejected",
+    "rationale": "The believer from Pharaoh's household, opposed by his own people, entrusts his affair to Allah - explicit rejection by one's own community.",
+    "contextNotes": "Carried from prior overlap reviews of `betrayed` and `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "42:40",
+    "emotionKey": "rejected",
+    "rationale": "Pardon and reconciliation offered as the higher response to being wronged or turned away from.",
+    "contextNotes": "Carried from prior overlap review of `angry`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "42:41",
+    "emotionKey": "rejected",
+    "rationale": "'Whoever seeks redress after being wronged - there is no way [of blame] against them' - validates the standing of the one who was wronged or excluded.",
+    "contextNotes": "Carried from prior overlap review of `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "42:42",
+    "emotionKey": "rejected",
+    "rationale": "Places blame squarely on 'those who wrong the people' - not on the one who was wronged or excluded.",
+    "contextNotes": "Carried from prior overlap review of `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "42:43",
+    "emotionKey": "rejected",
+    "rationale": "Patience and forgiveness named as 'matters of firm resolve' after being wronged.",
+    "contextNotes": "Carried from prior overlap review of `angry`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "46:35",
+    "emotionKey": "rejected",
+    "rationale": "The messengers' patience held up as the model, addressed to someone who has been denied and turned away.",
+    "contextNotes": "Carried from prior overlap reviews of `angry`, `betrayed`, and `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "58:10",
+    "emotionKey": "rejected",
+    "rationale": "Names secret plotting as meant 'to grieve the believers' but powerless without Allah's permission.",
+    "contextNotes": "Carried from prior overlap review of `betrayed`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "65:3",
+    "emotionKey": "rejected",
+    "rationale": "'Whoever relies upon Allah, He is sufficient for him' - reassurance when human support has fallen away.",
+    "contextNotes": "Carried from prior overlap review of `betrayed`.",
+    "source": "phase5b-batch4-candidate-review"
+  },
+  {
+    "verseKey": "70:5",
+    "emotionKey": "rejected",
+    "rationale": "'So be patient with a beautiful patience' - composure for someone who has been denied and mocked.",
+    "contextNotes": "Carried from prior overlap reviews of `angry`, `betrayed`, and `wronged`.",
+    "source": "phase5b-batch4-candidate-review"
+  }
+]
