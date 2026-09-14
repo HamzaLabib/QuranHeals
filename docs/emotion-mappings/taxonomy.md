@@ -539,3 +539,56 @@ Regression scripts (`quranRegression.ts`, `scripts/fullQuran.ts`) now assert
 
 **No** mappings added, **no** mapping statuses changed, **no** Quran text /
 SQLite / hashes / `verseKey` set touched, **no** MongoDB / Phase 4C operation.
+
+---
+
+## 19. Phase 6A — activation preparation (completed, dry-run only)
+
+**Status: preparation only. Nothing was activated. No MongoDB write occurred.**
+
+Phase 6A's job was to prove that the Phase 5C consolidated preview
+(`backend/data/emotion-candidates/consolidated/approved-mappings-preview.json`,
+1,845 rows) can be safely transformed into the exact input Phase 6B will need,
+without touching the database.
+
+**New code:** `backend/src/scripts/activationDryRun.ts` (`npm run
+mapping:activation-dry-run`). Exports pure, tested functions:
+`loadApprovedMappingsPreview`, `loadReviewDecisions`,
+`buildActivationCandidates`, `validateActivationSet`, and a read-only
+`readLiveDatabaseCounts` that connects with `autoIndex`/`autoCreate` disabled
+(same pattern as `scripts/previewReadonly.ts`) and issues only
+`countDocuments` reads. The module contains no Mongoose write call
+(`create`/`insertMany`/`updateOne`/`bulkWrite`/etc. — enforced by a static
+source-scan test) and its CLI rejects `--apply` outright, pointing at
+[`phase-6-activation-transaction-design.md`](./phase-6-activation-transaction-design.md)
+for the not-yet-built Phase 6B write path.
+
+**New tests:** `backend/tests/emotion-mappings/phase-6a-activation-dry-run.test.ts`
+(21 tests) — counts, REJECT/HOLD protection, the `12:100 -> guilty` sentinel,
+Quran-key validity, taxonomy validity, determinism, and the zero-mutation
+static proof. All pass alongside the pre-existing Phase 5C reconstruction
+suite (`consolidated-mappings.test.ts`), which independently re-derives the
+same preview from the raw batch files.
+
+**Dry-run result** (`backend/reports/emotion-mappings/phase-6a-activation-dry-run.json`):
+
+```
+Approved mappings:       1,845
+Unique ayahs:               205
+Approved emotions:           29
+Duplicate mappings:            0
+REJECT intersection:           0
+HOLD intersection:             0
+12:100 -> guilty:         ABSENT
+Invalid verseKeys:              0
+Live mappings before/after:  43 / 43 (unchanged)
+Live emotions before/after:  12 / 12 (unchanged)
+```
+
+**Design-only artifact:**
+[`phase-6-activation-transaction-design.md`](./phase-6-activation-transaction-design.md)
+describes the future Phase 6B atomic-activation transaction (preconditions,
+backup, transactional write, post-write verification, rollback behavior). No
+part of it is implemented; it is a plan for later explicit authorization.
+
+**Next step:** Phase 6B, not started here.

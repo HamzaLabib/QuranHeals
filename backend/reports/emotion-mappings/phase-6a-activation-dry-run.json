@@ -1,0 +1,87 @@
+{
+  "generatedAt": "2026-09-14T02:04:52.956Z",
+  "mode": "dry-run (no database writes)",
+  "sourceArtifacts": {
+    "preview": "data/emotion-candidates/consolidated/approved-mappings-preview.json",
+    "reviewFiles": [
+      "data/emotion-candidates/batches/batch-1/final-review.json",
+      "data/emotion-candidates/batches/batch-2/final-review.json",
+      "data/emotion-candidates/batches/batch-3/final-review.json",
+      "data/emotion-candidates/batches/batch-4/final-review.json",
+      "data/emotion-candidates/batches/batch-5/final-review.json"
+    ]
+  },
+  "inputCounts": {
+    "approved": 1845,
+    "reject": 191,
+    "hold": 8
+  },
+  "validation": {
+    "counts": {
+      "mappings": 1845,
+      "uniqueAyahs": 205,
+      "emotions": 29,
+      "duplicates": 0
+    },
+    "duplicatePairs": [],
+    "rejectIntersection": [],
+    "holdIntersection": [],
+    "sentinel": {
+      "verseKey": "12:100",
+      "emotionKey": "guilty",
+      "absent": true
+    },
+    "quran": {
+      "invalidVerseKeys": [],
+      "missingQuranReferences": []
+    },
+    "taxonomy": {
+      "emotions": [
+        "afraid",
+        "angry",
+        "anxious",
+        "betrayed",
+        "closer_to_allah",
+        "confused",
+        "content",
+        "forgiveness_struggle",
+        "grateful",
+        "guilty",
+        "heartbroken",
+        "hopeful",
+        "hopeless",
+        "lonely",
+        "lost",
+        "overwhelmed",
+        "patience",
+        "peaceful",
+        "reassurance",
+        "rejected",
+        "repentant",
+        "sad",
+        "seeking_guidance",
+        "strength",
+        "stressed",
+        "tired",
+        "want_to_cry",
+        "weak",
+        "wronged"
+      ],
+      "count": 29,
+      "missing": [],
+      "unexpected": []
+    },
+    "reviewConflicts": [],
+    "passed": true
+  },
+  "liveDatabase": {
+    "before": {
+      "mappingCount": 43,
+      "emotionCount": 12
+    },
+    "after": {
+      "mappingCount": 43,
+      "emotionCount": 12
+    }
+  }
+}
