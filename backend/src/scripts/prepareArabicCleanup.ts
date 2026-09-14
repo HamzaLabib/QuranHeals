@@ -1,14 +1,12 @@
-// Phase 4 preparation: reports what a future MongoDB Arabic-cleanup migration
-// would do. Dry-run by default; a real mutation requires both --destructive
-// and --confirm-irreversible. Never removes Quran Arabic on its own — this
-// script has not been run destructively as of writing.
-//
-// Known follow-up required before the destructive path can ever be used for
-// real: Verse.arabicText/checksum and Ayah.arabicText are `required: true`
-// in their Mongoose schemas (see src/models/Verse.ts, src/models/Ayah.ts).
-// The eventual cleanup must relax that requirement in the same change that
-// removes the data, or any later `.save()`/`runValidators` write against a
-// cleaned document will fail.
+// Reports what a MongoDB Arabic-cleanup migration would do (dry-run by
+// default) and, given both --destructive and --confirm-irreversible, removes
+// Verse.arabicText, Verse.checksum, and Ayah.arabicText from the configured
+// development database — already executed once for the current dev
+// database's foundation-seed data (see backend/backups/data-cleanup/ for the
+// pre-mutation backup and backend/reports/data-cleanup/cleanup-dry-run.json
+// for the report). Re-running this script against the same data is a safe
+// no-op: the fields are already gone and `runValidators` no longer requires
+// them (see src/models/Verse.ts, src/models/Ayah.ts).
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -175,7 +173,9 @@ async function main() {
     rollbackStrategy:
       'This migration only unsets fields (no deletes, no ObjectId changes, no invented data). ' +
       'Revert by restoring the removed fields from the pre-mutation JSON backup via bulkWrite, ' +
-      'or, for the current foundation-seed verses, by re-running the existing migrateFoundation script.',
+      'matching each record by its original _id. seed.ts and migrateFoundation.ts no longer ' +
+      'write arabicText/checksum at all (see stripAyahArabicText/stripVerseArabicFields), so ' +
+      're-running either is not a rollback path.',
   };
 
   mkdirSync('reports/data-cleanup', { recursive: true });
@@ -209,7 +209,7 @@ async function main() {
  * instead of having to write it under time pressure later.
  */
 async function runDestructiveCleanup(reports: CollectionCleanupReport[]) {
-  const db = mongoose.connection.db!;
+  let db = mongoose.connection.db!;
   const [verses, ayahs] = await Promise.all([
     db.collection('verses').find({}).toArray(),
     db.collection('ayahs').find({}).toArray(),
@@ -237,6 +237,23 @@ async function runDestructiveCleanup(reports: CollectionCleanupReport[]) {
 
   const versesReport = reports.find((report) => report.collection === 'verses')!;
   const ayahsReport = reports.find((report) => report.collection === 'ayahs')!;
+
+  // Reconnect immediately before starting the transaction. Empirically
+  // confirmed against this deployment: a transaction whose body reads/writes
+  // two different collections fails deterministically with "Only servers in
+  // a sharded cluster can start a new transaction at the active transaction
+  // number" once the same connection has already run non-transactional reads
+  // against multiple collections (as main() and the lines above do for the
+  // dry-run report and backup). A freshly reconnected client removes that
+  // pre-existing state without changing any read, write, commit, or rollback
+  // behavior of the transaction itself.
+  await mongoose.disconnect();
+  await mongoose.connect(env.MONGODB_URI!, {
+    autoIndex: false,
+    autoCreate: false,
+    serverSelectionTimeoutMS: 10000,
+  });
+  db = mongoose.connection.db!;
 
   const session = await mongoose.startSession();
 

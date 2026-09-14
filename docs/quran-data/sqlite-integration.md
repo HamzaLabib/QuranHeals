@@ -1,8 +1,9 @@
 # Immutable Quran foundation and runtime migration
 
 This is the historical pre-integration audit/checklist. The subsequent runtime
-migration is implemented; see [the current report](runtime-architecture.md).
-MongoDB cleanup remains a separate phase.
+migration is implemented, and the MongoDB Arabic-field cleanup this section
+anticipated as a separate phase has since been completed; see
+[the current report](runtime-architecture.md) for both.
 
 ## Current boundary
 

@@ -1,13 +1,15 @@
 # Quran Arabic runtime architecture
 
-Status: the mobile Arabic-rendering migration described below is complete;
-legacy MongoDB cleanup of the now-redundant Arabic fields is still pending
-(see "Remaining cleanup" at the end of this document — Phase 4C has **not**
-been executed). This document mixes three things: the **current** runtime
-architecture (how Arabic is actually served today), a **historical** record
-of the migration that produced it (the flow it replaced, and the validation
-results at completion time), and the specific MongoDB cleanup work that
-remains outstanding.
+Status: the mobile Arabic-rendering migration described below is complete,
+and the backend MongoDB cleanup of the now-redundant Arabic fields (Phase 4C)
+has also been executed — see "MongoDB cleanup (Phase 4C)" at the end of this
+document for the removed fields, backup location, and rollback procedure.
+MongoDB is now reference-only for Quran Arabic on both backend and mobile:
+neither `Verse`/`Ayah` documents nor any active writer stores or reintroduces
+Arabic text. This document mixes two things: the **current** runtime
+architecture (how Arabic is actually served today) and a **historical**
+record of the migration that produced it (the flow it replaced, and the
+validation results at completion time).
 
 ## Previous and current flow
 
@@ -163,21 +165,42 @@ existing development environment, binds localhost, and disables index creation.
 Browser checks take an installed browser-driver executable as their argument;
 they expect a local Expo preview on 8083 with public API URL 127.0.0.1:4000.
 
-## Remaining cleanup
+## MongoDB cleanup (Phase 4C)
 
 Editorial reference validation (`EmotionVerseMapping.verseReferenceKey`, and
-the `mapping:upsert` CLI) no longer depends on `VerseModel.exists`; both now
+the `mapping:upsert` CLI) no longer depends on `VerseModel.exists`; both
 validate against the local 6,236-key reference set in
-`backend/src/quran/referenceKeys.ts`. A dry-run migration for removing the
-duplicated MongoDB Arabic itself is prepared in
-`backend/src/scripts/prepareArabicCleanup.ts` (see
-`backend/reports/data-cleanup/cleanup-dry-run.json` for its most recent run), but it
-has not been executed destructively — that still requires a real device smoke
-test and separate explicit approval. A future destructive run's pre-mutation
-backup would land under the git-ignored `backend/backups/data-cleanup/`, not
-`backend/reports/` (see `backend/reports/README.md`). `MongooseQuranRepository`'s
-Arabic-serving path (`composeFoundationAyah`, `toAyahDto`) must be rewired to
-read from `quran.sqlite` before it safely can be. Persistent favorites could
-optionally be versioned down to references after a compatibility review.
-Translations, source metadata and legacy ID support should stay until their
-remaining consumers are audited.
+`backend/src/quran/referenceKeys.ts`. `MongooseQuranRepository`'s
+Arabic-serving path (`composeFoundationAyah`, `toAyahDto`) reads Arabic from
+`quran.sqlite` via `getVerifiedArabicForRecord`/`getVerifiedArabicByVerseKey`
+(`backend/src/quran/quranSource.ts`), never from a Mongo document's own field.
+
+With that read path confirmed, `backend/src/scripts/prepareArabicCleanup.ts`
+was run destructively against the configured development database (Atlas
+database name `test`) and removed `Verse.arabicText`, `Verse.checksum`, and
+`Ayah.arabicText` from every document — 16 `verses` and 16 legacy `ayahs`.
+Nothing else changed: record counts, `_id`s, `referenceKey`s,
+`VerseTranslation` (16), `EmotionVerseMapping` (43), and `Emotion` (12) are
+byte-identical to before (the 1,845-mapping/29-emotion Phase 5C preview
+remains unactivated). See `backend/reports/data-cleanup/cleanup-dry-run.json`
+for the machine-readable before/after report.
+
+A verified pre-mutation backup was written to the git-ignored
+`backend/backups/data-cleanup/mongodb-arabic-before-cleanup-<timestamp>.json`
+(SHA-256 `33ca9e11eeb12c2e77c7959bcf7f99fbed4514188b85d5185f9929582525979c`,
+32,945 bytes) before the mutation ran, verified by read-back, shape, and
+ObjectId round-trip (`backend/src/utils/objectId.ts`) before the `$unset`
+transaction was allowed to proceed. To roll back: restore `arabicText`
+(and, for `verses`, `checksum`) from that backup via `bulkWrite`, matching
+each record by its original `_id` — never by `referenceKey` or position, and
+never inventing text. `backend/src/seed/seed.ts` and
+`backend/src/seed/migrateFoundation.ts` (the two active writers that
+previously wrote these fields via `$set` of a whole seed/foundation object)
+now route through `stripAyahArabicText`/`stripVerseArabicFields` and can no
+longer reintroduce them; re-running either is a safe no-op for Arabic, not a
+rollback path. Regression coverage lives in
+`backend/tests/quran-data/no-arabic-reintroduction.test.ts`.
+
+Persistent favorites could optionally be versioned down to references after a
+compatibility review. Translations, source metadata and legacy ID support
+should stay until their remaining consumers are audited.

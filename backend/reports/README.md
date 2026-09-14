@@ -34,8 +34,12 @@ backend/backups/
 
 `backend/backups/` is entirely git-ignored (`backend/backups/.gitignore`
 contains only `*` / `!.gitignore`) — its contents must never be committed.
-As of this writing **no real backup exists yet**; only `.gitignore` is
-present.
+`prepareArabicCleanup.ts --destructive --confirm-irreversible` has been run
+against the configured development database; its verified pre-mutation
+backup lives under `backend/backups/data-cleanup/` locally (not committed —
+see [the runtime architecture doc](../../docs/quran-data/runtime-architecture.md)
+for the backup's SHA-256 and the rollback procedure). `fullQuran.ts --write`
+has not been run; no `backend/backups/quran-data/` backup exists yet.
 
 ### Side-effect-free destination constants
 
@@ -94,7 +98,10 @@ identity explicitly reconstructible rather than merely present:
   same BSON `ObjectId` class the repository's existing direct `mongoose`
   dependency already exposes.
 
-`reports/data-cleanup/cleanup-dry-run.json` is unaffected by any of this
-and stays exactly where it was: it is the dry-run **report**, not the
-destructive-mode backup, and Phase 4C's cleanup has not been
-executed — destructively or otherwise — by this correction.
+`reports/data-cleanup/cleanup-dry-run.json` is unaffected by any of this and
+stays exactly where it was: it is the dry-run/last-run **report**, not the
+destructive-mode backup. This particular correction (hardening the backup
+mechanism) did not itself run the destructive cleanup — that happened in a
+later Phase 4C pass; see
+[the runtime architecture doc](../../docs/quran-data/runtime-architecture.md)
+for the completed cleanup's details.

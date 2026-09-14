@@ -113,10 +113,16 @@ describe('Moved documentation exists at its new path', () => {
     });
   });
 
-  it('the runtime-architecture document does not falsely claim Phase 4C MongoDB cleanup is complete', () => {
+  it('the runtime-architecture document reflects that Phase 4C MongoDB cleanup has actually run, not stale "pending" language', () => {
+    // Phase 4C (removing Verse.arabicText, Verse.checksum, Ayah.arabicText
+    // from the configured development MongoDB database) has been executed;
+    // see backend/reports/data-cleanup/cleanup-dry-run.json and
+    // backend/backups/data-cleanup/ for the evidence. This doc must say so,
+    // and must not regress to claiming it is still pending.
     const content = readFileSync(resolve(REPO_ROOT, 'docs/quran-data/runtime-architecture.md'), 'utf-8');
-    expect(content).toMatch(/cleanup[\s\S]{0,80}pending/i);
-    expect(content).toMatch(/Phase 4C has \*\*not\*\*\s+been executed/);
-    expect(content).toMatch(/has not been executed destructively/);
+    expect(content).toMatch(/Phase 4C[\s\S]{0,80}(has also been executed|has been executed)/i);
+    expect(content).not.toMatch(/Phase 4C has \*\*not\*\*\s+been executed/);
+    expect(content).not.toMatch(/cleanup[\s\S]{0,40}(is\s+)?still pending/i);
+    expect(content).not.toMatch(/has not been executed destructively/);
   });
 });

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-09T21:00:50.939Z",
+  "generatedAt": "2026-09-14T01:47:47.617Z",
   "database": "test",
   "mode": "dry-run",
   "blocked": false,
@@ -7,7 +7,7 @@
     {
       "collection": "verses",
       "total": 16,
-      "withArabic": 16,
+      "withArabic": 0,
       "validVerseKey": 16,
       "unresolved": [],
       "conflicting": [],
@@ -20,7 +20,7 @@
     {
       "collection": "ayahs",
       "total": 16,
-      "withArabic": 16,
+      "withArabic": 0,
       "validVerseKey": 16,
       "unresolved": [],
       "conflicting": [],
@@ -60,5 +60,5 @@
       "recordsRemaining": 12
     }
   ],
-  "rollbackStrategy": "This migration only unsets fields (no deletes, no ObjectId changes, no invented data). Revert by restoring the removed fields from the pre-mutation JSON backup via bulkWrite, or, for the current foundation-seed verses, by re-running the existing migrateFoundation script."
+  "rollbackStrategy": "This migration only unsets fields (no deletes, no ObjectId changes, no invented data). Revert by restoring the removed fields from the pre-mutation JSON backup via bulkWrite, matching each record by its original _id. seed.ts and migrateFoundation.ts no longer write arabicText/checksum at all (see stripAyahArabicText/stripVerseArabicFields), so re-running either is not a rollback path."
 }

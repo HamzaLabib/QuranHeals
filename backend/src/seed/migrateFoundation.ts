@@ -6,7 +6,23 @@ import { VerseModel } from '../models/Verse';
 import { VerseTranslationModel } from '../models/VerseTranslation';
 import { seedAyahs } from './ayahs';
 import { seedEmotions } from './emotions';
-import { buildFoundationSeedData, type SeedEmotionVerseMapping, type SeedVerseTranslation } from './foundation';
+import {
+  buildFoundationSeedData,
+  type SeedEmotionVerseMapping,
+  type SeedVerse,
+  type SeedVerseTranslation,
+} from './foundation';
+
+/**
+ * MongoDB is reference-only for Quran Arabic (see
+ * backend/src/quran/quranSource.ts) — arabicText/checksum are intentionally
+ * excluded from what this command writes so it can never reintroduce them.
+ */
+export function stripVerseArabicFields(verse: SeedVerse): Omit<SeedVerse, 'arabicText' | 'checksum'> {
+  const { arabicText: _arabicText, checksum: _checksum, ...verseWithoutArabic } = verse;
+
+  return verseWithoutArabic;
+}
 
 type MigrationSummary = {
   emotions: number;
@@ -57,7 +73,6 @@ async function assertMigratedEquivalence(): Promise<MigrationSummary> {
     if (
       actual.surahNumber !== expected.surahNumber ||
       actual.ayahNumber !== expected.ayahNumber ||
-      actual.checksum !== expected.checksum ||
       actual.sourceVersion !== expected.sourceVersion
     ) {
       failures.push(`Migrated verse ${expected.referenceKey} does not match expected metadata.`);
@@ -125,33 +140,25 @@ async function assertMigratedEquivalence(): Promise<MigrationSummary> {
 }
 
 async function assertNoChecksumConflicts() {
-  const { verses, translations } = buildFoundationSeedData(seedAyahs);
-  const referenceKeys = verses.map((verse) => verse.referenceKey);
+  // Verse.checksum (an Arabic-text checksum) was removed as part of making
+  // MongoDB reference-only for Quran Arabic (see
+  // backend/src/quran/quranSource.ts); live Verse documents no longer carry
+  // it, so verse-level conflict detection against Mongo's own copy is no
+  // longer possible here and is intentionally not attempted. Translation
+  // checksums are unaffected (VerseTranslation.checksum was not removed) and
+  // are still checked below.
+  const { translations } = buildFoundationSeedData(seedAyahs);
   const translationFilters = translations.map((translation) => ({
     verseReferenceKey: translation.verseReferenceKey,
     language: translation.language,
     translator: translation.translator,
     sourceVersion: translation.sourceVersion,
   }));
-  const [existingVerses, existingTranslations] = await Promise.all([
-    VerseModel.find({ referenceKey: { $in: referenceKeys } }).lean(),
-    VerseTranslationModel.find({ $or: translationFilters }).lean(),
-  ]);
-  const expectedVerseByReference = new Map(
-    verses.map((verse) => [verse.referenceKey, verse]),
-  );
+  const existingTranslations = await VerseTranslationModel.find({ $or: translationFilters }).lean();
   const expectedTranslationByKey = new Map(
     translations.map((translation) => [translationKey(translation), translation]),
   );
   const failures: string[] = [];
-
-  existingVerses.forEach((actual) => {
-    const expected = expectedVerseByReference.get(actual.referenceKey);
-
-    if (expected && actual.checksum !== expected.checksum) {
-      failures.push(`Canonical verse checksum conflict for ${actual.referenceKey}.`);
-    }
-  });
 
   existingTranslations.forEach((actual) => {
     const key = translationKey(actual);
@@ -197,7 +204,7 @@ async function migrateFoundation() {
     verses.map((verse) =>
       VerseModel.updateOne(
         { referenceKey: verse.referenceKey },
-        { $set: verse },
+        { $set: stripVerseArabicFields(verse) },
         { upsert: true, runValidators: true },
       ),
     ),
@@ -235,12 +242,14 @@ async function migrateFoundation() {
   );
 }
 
-migrateFoundation()
-  .catch((error: unknown) => {
-    const message = error instanceof Error ? error.message : 'Unknown migration error.';
-    console.error(`Foundation migration failed: ${message}`);
-    process.exitCode = 1;
-  })
-  .finally(async () => {
-    await disconnectFromDatabase();
-  });
+if (require.main === module) {
+  migrateFoundation()
+    .catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : 'Unknown migration error.';
+      console.error(`Foundation migration failed: ${message}`);
+      process.exitCode = 1;
+    })
+    .finally(async () => {
+      await disconnectFromDatabase();
+    });
+}
