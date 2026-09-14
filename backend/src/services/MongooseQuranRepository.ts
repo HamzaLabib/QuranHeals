@@ -5,7 +5,8 @@ import { EmotionVerseMappingModel } from '../models/EmotionVerseMapping';
 import { EmotionModel } from '../models/Emotion';
 import { VerseModel } from '../models/Verse';
 import { VerseTranslationModel } from '../models/VerseTranslation';
-import { getVerifiedArabicForRecord } from '../quran/quranSource';
+import { getVerifiedArabicByVerseKey, VERIFIED_QURAN_TEXT_SOURCE } from '../quran/quranSource';
+import { isValidVerseKey, parseVerseKey } from '../quran/referenceKeys';
 import {
   FOUNDATION_TRANSLATION_LANGUAGE,
   FOUNDATION_TRANSLATOR,
@@ -40,16 +41,20 @@ function toEmotionDto(emotion: MongoEntity<EmotionEntity>): EmotionDto {
   };
 }
 
+// The legacy `Ayah` collection is still its own, fully self-contained record
+// (own surah names, own emotions array) — no Verse/verseKey coverage
+// dependency has ever applied to it. `id` moves to the stable verseKey so
+// legacy and foundation ayahs share the same public identity.
 function toAyahDto(ayah: MongoEntity<AyahEntity>): AyahDto {
   return {
-    id: ayah._id.toString(),
+    id: ayah.referenceKey,
     verseKey: `${ayah.surahNumber}:${ayah.ayahNumber}`,
     referenceKey: ayah.referenceKey,
     surahNumber: ayah.surahNumber,
     surahNameArabic: ayah.surahNameArabic,
     surahNameEnglish: ayah.surahNameEnglish,
     ayahNumber: ayah.ayahNumber,
-    arabicText: getVerifiedArabicForRecord(ayah),
+    arabicText: getVerifiedArabicByVerseKey(ayah.referenceKey),
     englishTranslation: ayah.englishTranslation,
     emotions: ayah.emotions,
     quranTextSource: ayah.quranTextSource,
@@ -57,47 +62,67 @@ function toAyahDto(ayah: MongoEntity<AyahEntity>): AyahDto {
   };
 }
 
+/**
+ * Composes an ayah from `verseKey` + verified SQLite Arabic + a Mongo
+ * translation. A Mongo `Verse` document is *optional* enrichment only (surah
+ * names, historical `quranTextSource`) — its absence must never block
+ * resolution. This is the fix for the abandoned "Mongo Verse coverage must
+ * expand before activation" architecture: any approved
+ * `EmotionVerseMapping.verseReferenceKey` resolves on its own.
+ */
 function toFoundationAyahDto(
-  verse: MongoEntity<VerseEntity>,
+  verseKey: string,
+  arabicText: string,
+  verse: MongoEntity<VerseEntity> | null,
   translation: MongoEntity<VerseTranslationEntity>,
   mappings: MongoEntity<EmotionVerseMappingEntity>[],
 ): AyahDto {
+  const { surahNumber, ayahNumber } = parseVerseKey(verseKey);
+
   return {
-    id: verse._id.toString(),
-    verseKey: `${verse.surahNumber}:${verse.ayahNumber}`,
-    referenceKey: verse.referenceKey,
-    surahNumber: verse.surahNumber,
-    surahNameArabic: verse.surahNameArabic,
-    surahNameEnglish: verse.surahNameEnglish,
-    ayahNumber: verse.ayahNumber,
-    arabicText: getVerifiedArabicForRecord(verse),
+    id: verseKey,
+    verseKey,
+    referenceKey: verseKey,
+    surahNumber,
+    // No canonical, verified 114-surah-name reference asset exists yet
+    // (tracked as a follow-up); these fallbacks are honest placeholders,
+    // never invented Quran content, and only ever apply when no Mongo Verse
+    // document happens to exist for this verseKey.
+    surahNameArabic: verse?.surahNameArabic ?? '',
+    surahNameEnglish: verse?.surahNameEnglish ?? `Surah ${surahNumber}`,
+    ayahNumber,
+    arabicText,
     englishTranslation: translation.text,
     emotions: mappings.map((mapping) => mapping.emotionKey),
-    quranTextSource: verse.quranTextSource,
+    quranTextSource: verse?.quranTextSource ?? VERIFIED_QURAN_TEXT_SOURCE,
     translationSource: translation.source,
   };
 }
 
-function toObjectIds(ids: string[]) {
-  return ids.filter((id) => Types.ObjectId.isValid(id)).map((id) => new Types.ObjectId(id));
-}
-
 export class MongooseQuranRepository implements QuranRepository {
-  private async composeFoundationAyah(referenceKey: string, requiredEmotionKey?: string) {
+  private async composeFoundationAyah(verseKey: string, requiredEmotionKey?: string) {
+    let arabicText: string;
+
+    try {
+      arabicText = getVerifiedArabicByVerseKey(verseKey);
+    } catch {
+      return null;
+    }
+
     const [verse, translation, mappings] = await Promise.all([
-      VerseModel.findOne({ referenceKey }).lean<MongoEntity<VerseEntity>>(),
+      VerseModel.findOne({ referenceKey: verseKey }).lean<MongoEntity<VerseEntity>>(),
       VerseTranslationModel.findOne({
-        verseReferenceKey: referenceKey,
+        verseReferenceKey: verseKey,
         language: FOUNDATION_TRANSLATION_LANGUAGE,
         translator: FOUNDATION_TRANSLATOR,
       }).lean<MongoEntity<VerseTranslationEntity>>(),
       EmotionVerseMappingModel.find({
-        verseReferenceKey: referenceKey,
+        verseReferenceKey: verseKey,
         status: { $in: userVisibleMappingStatuses },
       }).lean<MongoEntity<EmotionVerseMappingEntity>[]>(),
     ]);
 
-    if (!verse || !translation) {
+    if (!translation) {
       return null;
     }
 
@@ -108,34 +133,17 @@ export class MongooseQuranRepository implements QuranRepository {
       return null;
     }
 
-    return toFoundationAyahDto(verse, translation, mappings);
+    return toFoundationAyahDto(verseKey, arabicText, verse, translation, mappings);
   }
 
-  private async findExcludedFoundationReferenceKeys(excludedObjectIds: Types.ObjectId[]) {
-    if (excludedObjectIds.length === 0) {
-      return [];
-    }
-
-    const excludedVerses = await VerseModel.find({ _id: { $in: excludedObjectIds } })
-      .select({ referenceKey: 1 })
-      .lean<MongoEntity<Pick<VerseEntity, 'referenceKey'>>[]>();
-
-    return excludedVerses.map((verse) => verse.referenceKey);
-  }
-
-  private async findRandomFoundationAyahByEmotion(
-    emotionKey: string,
-    excludedObjectIds: Types.ObjectId[],
-  ) {
-    const excludedReferenceKeys =
-      await this.findExcludedFoundationReferenceKeys(excludedObjectIds);
+  private async findRandomFoundationAyahByEmotion(emotionKey: string, excludedVerseKeys: string[]) {
     const matchStage: Record<string, unknown> = {
       emotionKey,
       status: { $in: userVisibleMappingStatuses },
     };
 
-    if (excludedReferenceKeys.length > 0) {
-      matchStage.verseReferenceKey = { $nin: excludedReferenceKeys };
+    if (excludedVerseKeys.length > 0) {
+      matchStage.verseReferenceKey = { $nin: excludedVerseKeys };
     }
 
     const [mapping] = await EmotionVerseMappingModel.aggregate<
@@ -150,7 +158,7 @@ export class MongooseQuranRepository implements QuranRepository {
       }
     }
 
-    if (excludedObjectIds.length === 0) {
+    if (excludedVerseKeys.length === 0) {
       return null;
     }
 
@@ -185,20 +193,16 @@ export class MongooseQuranRepository implements QuranRepository {
     return emotion ? toEmotionDto(emotion) : null;
   }
 
-  async findRandomAyahByEmotion(emotionKey: string, excludedAyahIds: string[] = []) {
-    const excludedObjectIds = toObjectIds(excludedAyahIds);
-    const foundationAyah = await this.findRandomFoundationAyahByEmotion(
-      emotionKey,
-      excludedObjectIds,
-    );
+  async findRandomAyahByEmotion(emotionKey: string, excludedVerseKeys: string[] = []) {
+    const foundationAyah = await this.findRandomFoundationAyahByEmotion(emotionKey, excludedVerseKeys);
 
     if (foundationAyah) {
       return foundationAyah;
     }
 
     const matchStage =
-      excludedObjectIds.length > 0
-        ? { emotions: emotionKey, _id: { $nin: excludedObjectIds } }
+      excludedVerseKeys.length > 0
+        ? { emotions: emotionKey, referenceKey: { $nin: excludedVerseKeys } }
         : { emotions: emotionKey };
 
     const [ayah] = await AyahModel.aggregate<MongoEntity<AyahEntity>>([
@@ -210,7 +214,7 @@ export class MongooseQuranRepository implements QuranRepository {
       return toAyahDto(ayah);
     }
 
-    if (excludedObjectIds.length === 0) {
+    if (excludedVerseKeys.length === 0) {
       return null;
     }
 
@@ -222,14 +226,18 @@ export class MongooseQuranRepository implements QuranRepository {
     return fallbackAyah ? toAyahDto(fallbackAyah) : null;
   }
 
-  async findAyahById(id: string) {
-    const verse = await VerseModel.findById(id).lean<MongoEntity<VerseEntity>>();
-
-    if (verse) {
-      return this.composeFoundationAyah(verse.referenceKey);
+  async findAyahById(verseKey: string) {
+    if (!isValidVerseKey(verseKey)) {
+      return null;
     }
 
-    const ayah = await AyahModel.findById(id).lean<MongoEntity<AyahEntity>>();
+    const foundationAyah = await this.composeFoundationAyah(verseKey);
+
+    if (foundationAyah) {
+      return foundationAyah;
+    }
+
+    const ayah = await AyahModel.findOne({ referenceKey: verseKey }).lean<MongoEntity<AyahEntity>>();
 
     return ayah ? toAyahDto(ayah) : null;
   }

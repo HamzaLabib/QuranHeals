@@ -9,7 +9,7 @@ vi.mock('@react-native-async-storage/async-storage', () => ({ default: {
 } }));
 vi.mock('@/services/quranAsset', () => ({ openBundledQuran: async () => openTestDatabase() }));
 const { getFavoriteState, addFavorite, removeFavorite, favoriteMatchesAyah } = await import('@/storage/favorites');
-const { getRecentAyahIds, getRecentAyahState, getRecentVerseKeys, rememberAyahForEmotion } = await import('@/storage/recentAyahs');
+const { getRecentAyahIds, getRecentAyahState, getRecentVerseKeys, getRecentVerseKeyState, rememberAyahForEmotion } = await import('@/storage/recentAyahs');
 const favoritesKey = 'quran-heals:favorites';
 const recentKey = 'quran-heals:recent-ayahs';
 const saved = () => ({ ...legacyAyah(), savedAt: '2026-01-01T00:00:00.000Z' });
@@ -61,6 +61,14 @@ it('preserves legacy history IDs and records new stable keys separately without 
   expect(await getRecentAyahIds('sad')).toEqual([legacyAyah().id, oldId]);
   expect(await getRecentAyahIds('anxious')).toEqual([oldId]);
   expect(await getRecentVerseKeys('sad')).toEqual(['2:153']);
+});
+
+it('records verseKey-shaped ayah ids (new verseKey-first backend contract) without throwing or polluting the legacy ID store', async () => {
+  const verseKeyIdAyah = legacyAyah({ id: '94:6' });
+  await rememberAyahForEmotion('sad', verseKeyIdAyah);
+  expect(await getRecentAyahIds('sad')).toEqual([]);
+  expect(await getRecentVerseKeys('sad')).toEqual(['2:153']);
+  expect(await getRecentVerseKeyState('sad')).toEqual({ verseKeys: ['2:153'], unresolvedCount: 0 });
 });
 
 it('preserves malformed history and rejects inconsistent new references without resetting it', async () => {

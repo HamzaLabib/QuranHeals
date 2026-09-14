@@ -67,17 +67,30 @@ export async function getRecentAyahState(emotionKey: string): Promise<{ ids: str
 }
 
 export async function getRecentVerseKeys(emotionKey: string): Promise<string[]> {
+  return (await getRecentVerseKeyState(emotionKey)).verseKeys;
+}
+
+export async function getRecentVerseKeyState(emotionKey: string): Promise<{ verseKeys: string[]; unresolvedCount: number }> {
   await pendingMutation;
   const recent = await readRecentMap(recentVerseKey);
-  return emotionEntries(recent, emotionKey).filter(isVerseKey);
+  const entries = emotionEntries(recent, emotionKey);
+  const verseKeys = entries.filter(isVerseKey);
+  return { verseKeys, unresolvedCount: entries.length - verseKeys.length };
 }
 
 export function rememberAyahForEmotion(emotionKey: string, ayah: Ayah): Promise<void> {
   const operation = async () => {
     const verseKey = resolveVerseKey(ayah);
-    if (!isId(ayah.id) || emotionKey.length === 0) throw new Error('Invalid recent ayah record.');
+    if (emotionKey.length === 0) throw new Error('Invalid recent ayah record.');
     const [legacy, stable] = await Promise.all([readRecentMap(recentKey), readRecentMap(recentVerseKey)]);
-    const nextIds = remember(emotionEntries(legacy, emotionKey), ayah.id, isId);
+    // `ayah.id` is the stable verseKey for API responses served by the
+    // verseKey-first backend; it no longer matches the legacy Mongo ObjectId
+    // shape, so the legacy id-keyed store simply stops growing rather than
+    // being force-fed a non-ID value. Old stored ObjectId entries remain
+    // valid exclusions until they age out of the four-entry window.
+    const nextIds = isId(ayah.id)
+      ? remember(emotionEntries(legacy, emotionKey), ayah.id, isId)
+      : emotionEntries(legacy, emotionKey);
     const nextKeys = remember(emotionEntries(stable, emotionKey), verseKey, isVerseKey);
 
     await AsyncStorage.multiSet([

@@ -10,7 +10,7 @@ import { StateView } from '@/components/StateView';
 import { colors, radii, spacing, typography } from '@/constants/theme';
 import { useFavorites } from '@/hooks/useFavorites';
 import { getApiErrorMessage, getRandomAyah } from '@/services/api';
-import { getRecentAyahState, rememberAyahForEmotion } from '@/storage/recentAyahs';
+import { getRecentVerseKeyState, rememberAyahForEmotion } from '@/storage/recentAyahs';
 import type { Ayah } from '@/types/domain';
 
 export default function AyahScreen() {
@@ -51,15 +51,15 @@ export default function AyahScreen() {
     setHistoryMessage(null);
 
     try {
-      let excludedIds: string[] = [];
+      let excludedVerseKeys: string[] = [];
       try {
-        const recent = await getRecentAyahState(emotionKey);
-        excludedIds = recent.ids;
+        const recent = await getRecentVerseKeyState(emotionKey);
+        excludedVerseKeys = recent.verseKeys;
         if (recent.unresolvedCount > 0) setHistoryMessage('Some older history entries could not be used to prevent repeats. Your stored history has been kept.');
       } catch {
         setHistoryMessage('Recent history could not be read. Your stored history has been kept.');
       }
-      const nextAyah = await getRandomAyah(emotionKey, excludedIds);
+      const nextAyah = await getRandomAyah(emotionKey, excludedVerseKeys);
       setAyah(nextAyah);
       try {
         await rememberAyahForEmotion(emotionKey, nextAyah);

@@ -1,11 +1,20 @@
-import { Types } from 'mongoose';
 import { z } from 'zod';
+
+import { isValidVerseKey } from '../quran/referenceKeys';
 
 const emotionKeySchema = z
   .string()
   .trim()
   .toLowerCase()
   .regex(/^[a-z][a-z_-]{1,40}$/);
+
+// The public Quran identifier is the stable "surah:ayah" verseKey, never a
+// Mongo ObjectId (see MongooseQuranRepository — resolution no longer depends
+// on a Mongo Verse document existing).
+const verseKeySchema = z
+  .string()
+  .trim()
+  .refine((key) => isValidVerseKey(key), 'Invalid verse key.');
 
 const excludedAyahsSchema = z
   .preprocess((value) => {
@@ -15,9 +24,9 @@ const excludedAyahsSchema = z
 
     return value
       .split(',')
-      .map((id) => id.trim())
+      .map((key) => key.trim())
       .filter(Boolean);
-  }, z.array(z.string().refine((id) => Types.ObjectId.isValid(id), 'Invalid excluded ayah id.')).max(20))
+  }, z.array(verseKeySchema).max(20))
   .default([]);
 
 export const randomAyahQuerySchema = z.object({
@@ -26,6 +35,5 @@ export const randomAyahQuerySchema = z.object({
 });
 
 export const ayahIdParamsSchema = z.object({
-  id: z.string().refine((id) => Types.ObjectId.isValid(id), 'Invalid ayah id.'),
+  id: verseKeySchema,
 });
-

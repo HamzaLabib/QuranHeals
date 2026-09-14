@@ -19,6 +19,15 @@ const expectedUserVersion = 1;
 
 const referenceKeyPattern = /^[1-9]\d{0,2}:[1-9]\d{0,2}$/;
 
+/**
+ * Provenance label for Arabic served straight from the verified SQLite asset
+ * when no Mongo `Verse` document exists to supply its own `quranTextSource`
+ * (see `resolveMongoVerseKey`/`getVerifiedArabicByVerseKey` callers). Matches
+ * the equivalent mobile-side constant in
+ * `mobile/src/services/quranRepository.ts`.
+ */
+export const VERIFIED_QURAN_TEXT_SOURCE = 'Tanzil Quran Text — Uthmani 1.1 — https://tanzil.net';
+
 export class QuranSourceError extends Error {
   constructor(message: string, readonly kind: 'integrity' | 'invalid_reference' = 'integrity') {
     super(message);

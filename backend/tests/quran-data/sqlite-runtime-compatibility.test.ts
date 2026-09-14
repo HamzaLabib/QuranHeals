@@ -79,7 +79,7 @@ describe('Seed mappings resolve through the immutable Quran asset', () => {
   });
 });
 
-describe('Additive verseKey compatibility on existing API routes', () => {
+describe('verseKey is the canonical public identity on existing API routes', () => {
   const legacySeed = seedAyahs.find((ayah) => ayah.referenceKey === '2:153')!;
   const legacy = { ...legacySeed, _id: new Types.ObjectId('66f100000000000000000001') };
   const verse = {
@@ -104,8 +104,7 @@ describe('Additive verseKey compatibility on existing API routes', () => {
     vi.spyOn(VerseModel, 'findOne').mockReturnValue(leanResult(verse));
     vi.spyOn(VerseTranslationModel, 'findOne').mockReturnValue(leanResult(translation));
     vi.spyOn(EmotionVerseMappingModel, 'find').mockReturnValue(leanResult(mappings));
-    vi.spyOn(VerseModel, 'findById').mockReturnValue(leanResult(verse));
-    vi.spyOn(AyahModel, 'findById').mockReturnValue(leanResult(legacy));
+    vi.spyOn(AyahModel, 'findOne').mockReturnValue(leanResult(null));
     vi.spyOn(EmotionVerseMappingModel, 'aggregate').mockResolvedValue([selectedMapping]);
     vi.spyOn(AyahModel, 'aggregate').mockResolvedValue([legacy]);
   });
@@ -113,18 +112,18 @@ describe('Additive verseKey compatibility on existing API routes', () => {
   afterEach(() => vi.restoreAllMocks());
 
   it.each(['random', 'id'] as const)(
-    'keeps foundation %s responses and Mongo IDs while adding a resolvable verseKey',
+    'serves the foundation %s route keyed by verseKey, with Verse-doc metadata as enrichment',
     async (route) => {
       const app = createApp({ repository: new MongooseQuranRepository() });
-      const path = route === 'random' ? '/api/ayahs/random?emotion=sad' : `/api/ayahs/${verse._id}`;
+      const path = route === 'random' ? '/api/ayahs/random?emotion=sad' : `/api/ayahs/${legacy.referenceKey}`;
       const response = await request(app).get(path).expect(200);
 
       expect(response.body).toEqual({
         success: true,
         data: {
-          id: verse._id.toString(),
+          id: '2:153',
           verseKey: '2:153',
-          referenceKey: verse.referenceKey,
+          referenceKey: '2:153',
           surahNumber: verse.surahNumber,
           surahNameArabic: verse.surahNameArabic,
           surahNameEnglish: verse.surahNameEnglish,
@@ -141,24 +140,25 @@ describe('Additive verseKey compatibility on existing API routes', () => {
       expect(rows[0].surah).toBe(response.body.data.surahNumber);
       expect(rows[0].ayah).toBe(response.body.data.ayahNumber);
       expect(AyahModel.aggregate).not.toHaveBeenCalled();
-      expect(AyahModel.findById).not.toHaveBeenCalled();
+      expect(AyahModel.findOne).not.toHaveBeenCalled();
     },
   );
 
   it.each(['random', 'id'] as const)(
-    'keeps legacy %s responses and Mongo IDs while adding a resolvable verseKey',
+    'falls back to the legacy Ayah collection, still keyed by verseKey, when no mapping/translation resolves',
     async (route) => {
-      vi.mocked(VerseModel.findById).mockReturnValue(leanResult(null));
+      vi.mocked(VerseTranslationModel.findOne).mockReturnValue(leanResult(null));
       vi.mocked(EmotionVerseMappingModel.aggregate).mockResolvedValue([]);
+      vi.mocked(AyahModel.findOne).mockReturnValue(leanResult(legacy));
       const app = createApp({ repository: new MongooseQuranRepository() });
-      const path = route === 'random' ? '/api/ayahs/random?emotion=sad' : `/api/ayahs/${legacy._id}`;
+      const path = route === 'random' ? '/api/ayahs/random?emotion=sad' : `/api/ayahs/${legacy.referenceKey}`;
       const response = await request(app).get(path).expect(200);
 
       expect(response.body).toEqual({
         success: true,
         data: {
           ...legacySeed,
-          id: legacy._id.toString(),
+          id: '2:153',
           verseKey: '2:153',
           arabicText: verifiedArabicFor('2:153'),
         },

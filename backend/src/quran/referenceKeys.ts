@@ -77,3 +77,9 @@ export function getVerseKeySet(): ReadonlySet<string> {
 export function isValidVerseKey(key: string): boolean {
   return getVerseKeySet().has(key);
 }
+
+/** Splits an already-validated "surah:ayah" verseKey into its numeric parts. Never validates. */
+export function parseVerseKey(verseKey: string): { surahNumber: number; ayahNumber: number } {
+  const [surahNumber, ayahNumber] = verseKey.split(':').map(Number);
+  return { surahNumber, ayahNumber };
+}

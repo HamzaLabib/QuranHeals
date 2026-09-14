@@ -204,3 +204,67 @@ rollback path. Regression coverage lives in
 Persistent favorites could optionally be versioned down to references after a
 compatibility review. Translations, source metadata and legacy ID support
 should stay until their remaining consumers are audited.
+
+## Reference-first Quran identity (Phase 6A.6)
+
+Status: **complete**. The requirement that a Mongo `Verse` document must exist
+before an ayah can be resolved — the design the abandoned "expand Mongo Verse
+coverage from 16 to 205 before Phase 6B activation" plan depended on — has
+been removed. This section documents that change; the flow described in
+"Previous and current flow" above (and the ObjectId-as-transport-ID
+compatibility layer it describes) is now historical, superseded by what
+follows.
+
+**What changed.** `MongooseQuranRepository.composeFoundationAyah` (backend)
+resolves Arabic straight from `verseKey` via `getVerifiedArabicByVerseKey` —
+no Mongo `Verse` document is queried for identity or Arabic. A `Verse`
+document is now optional *enrichment* only, supplying `surahNameArabic`,
+`surahNameEnglish` and a historical `quranTextSource` when one happens to
+exist; its absence never blocks resolution. `VerseTranslation` remains
+required (translation availability is a separate, legitimate concern from
+Arabic availability — an ayah with no approved translation is still not
+served, matching existing UX; no `translationAvailable`/nullable-translation
+contract was introduced, since no current data exercises that gap and the
+mobile UI has no null-translation rendering path yet — tracked as a
+follow-up, not implemented here).
+
+**Public identity.** `AyahDto.id` is now the stable `verseKey`
+("`surah:ayah`"), never a Mongo ObjectId — for both the foundation
+(`EmotionVerseMapping`) path and the legacy `Ayah` collection path. `GET
+/api/ayahs/:id` and the `random?...&exclude=` list now take/return verseKeys;
+`backend/src/validators/ayahValidators.ts` validates them against the same
+6,236-key canonical set (`isValidVerseKey`) instead of Mongo's ObjectId
+shape. This is an intentional, non-backward-compatible identity change,
+authorized because the project has no production users yet (see
+`backend/src/seed/migrateFoundation.ts` / Phase 4C, which already established
+`EmotionVerseMapping.verseReferenceKey` as a string identity with no Verse
+ObjectId dependency — this phase extends the same principle to the
+API-facing identity).
+
+**Mobile.** `mobile/src/app/ayah/[emotion].tsx` now excludes recent ayahs by
+verseKey (`storage/recentAyahs.getRecentVerseKeyState`) instead of the legacy
+Mongo-ObjectId `recentKey` store. `rememberAyahForEmotion` still writes to
+both stores for backward-compatible history, but no longer throws when
+`ayah.id` isn't ObjectId-shaped — it simply stops growing the legacy store
+once ids are verseKeys.
+
+**Known gap.** No canonical, verified 114-surah-name reference asset exists
+yet (unlike `surah-counts.json`, which is hash-pinned against
+`https://tanzil.net/res/text/metadata/quran-data.xml`). When an ayah resolves
+with no Mongo `Verse` enrichment, `surahNameEnglish` falls back to the
+honest, derived placeholder `` `Surah ${surahNumber}` `` and
+`surahNameArabic` falls back to `''` — never an invented name. This does not
+affect any ayah in the current 43-mapping/16-verse dev dataset (all of which
+have a real Mongo `Verse` document today); it only matters once verseKeys
+outside that set are served (e.g. after a future Phase 6B activation of the
+205-verseKey Phase 6A candidate set, which this phase does **not** perform).
+Building a verified surah-name asset the same way `surah-counts.json` was
+built is the natural next step before that happens.
+
+**Validation.** See
+`backend/tests/quran-data/mongo-arabic-independence.test.ts` ("Foundation
+path resolves without a Mongo Verse document") and
+`backend/tests/emotion-mappings/phase-6a-activation-dry-run.test.ts` ("zero
+Mongo Verse coverage requirement") for the automated proof that all 205
+Phase 6A candidate verseKeys resolve directly against `quran.sqlite` with no
+Mongo Verse document required.

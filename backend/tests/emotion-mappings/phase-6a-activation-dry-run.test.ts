@@ -10,6 +10,7 @@ import {
   loadReviewDecisions,
   validateActivationSet,
 } from '../../src/scripts/activationDryRun';
+import { getVerifiedArabicByVerseKey } from '../../src/quran/quranSource';
 
 const SCRIPT_SOURCE_PATH = resolve(__dirname, '../../src/scripts/activationDryRun.ts');
 const arabicPattern = /[؀-ۿ]/;
@@ -124,6 +125,22 @@ describe('Phase 6A: transformation determinism', () => {
     candidates.forEach((c) => {
       expect(c.status).toBe('approved');
       expect(c.mappingVersion).toBe(ACTIVATION_MAPPING_VERSION);
+    });
+  });
+});
+
+describe('Phase 6A: zero Mongo Verse coverage requirement', () => {
+  it('the script module never references the Mongo Verse model', () => {
+    const source = readFileSync(SCRIPT_SOURCE_PATH, 'utf-8');
+    expect(source).not.toMatch(/VerseModel|models\/Verse['"]/);
+  });
+
+  it('all 205 unique verseKeys resolve directly against verified quran.sqlite, with no Mongo Verse document involved', () => {
+    const uniqueVerseKeys = [...new Set(candidates.map((c) => c.verseKey))];
+    expect(uniqueVerseKeys).toHaveLength(205);
+
+    uniqueVerseKeys.forEach((verseKey) => {
+      expect(() => getVerifiedArabicByVerseKey(verseKey)).not.toThrow();
     });
   });
 });
