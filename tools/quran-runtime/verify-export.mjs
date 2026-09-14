@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
@@ -28,5 +28,8 @@ assert.ok(readFileSync(resolve(directory, 'assets/assets/quran', webDatabase[0])
 assert.ok(files.some(file => file.startsWith('TANZIL-NOTICE.') && readFileSync(resolve(directory, 'assets/assets/quran', file)).equals(notice)));
 platforms.web = { databaseExact: true, noticeExact: true };
 const report = { sqliteSha256: expectedHash, platforms, limitation: 'Exported bundles and asset bytes verified; native device execution was not available.' };
-writeFileSync(resolve(root, 'docs/quran-runtime-export-report.json'), JSON.stringify(report, null, 2) + '\n');
+const outputPath = resolve(root, 'backend/reports/quran-data/runtime/export-validation.json');
+mkdirSync(dirname(outputPath), { recursive: true });
+writeFileSync(outputPath, JSON.stringify(report, null, 2) + '\n');
+console.log(`Report: ${outputPath}`);
 console.log(JSON.stringify(report, null, 2));

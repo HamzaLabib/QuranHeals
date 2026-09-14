@@ -9,7 +9,7 @@
  * Nothing here activates an emotion or creates a Quran mapping. The live app
  * still serves exactly the 12 emotions defined in `../seed/emotions.ts`.
  *
- * See `docs/phase-5a-emotion-taxonomy.md` for the analysis and rollout plan.
+ * See `docs/emotion-mappings/taxonomy.md` for the analysis and rollout plan.
  */
 
 /** Internal grouping. Not shown to users; used for admin/review/analytics. */

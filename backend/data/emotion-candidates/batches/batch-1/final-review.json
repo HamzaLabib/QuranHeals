@@ -1,0 +1,401 @@
+{
+  "artifact": "phase5b-batch1-human-review",
+  "candidateSource": "initial-candidates.json",
+  "originalCandidateCount": 66,
+  "decisionCounts": {
+    "keep": 62,
+    "reject": 3,
+    "hold": 1
+  },
+  "note": "Human review outcomes for Batch 1. \"keep\" / \"reject\" / \"hold\" are review dispositions only, not production mapping statuses. Nothing here is approved, reviewed (in the production sense), or activated. Verses are referenced by verseKey only; no Quran text is stored. EDITORIAL CORRECTION: `decisionCounts` and the rows below reflect the `phase5b-punishment-warning-exclusion` correction recorded in `editorialCorrections`, which superseded 1 core pair (`46:35 -> patience`) from `keep` to `reject`. Superseded rows keep their `priorDecision` and an explanatory note; nothing was deleted.",
+  "reviews": [
+    {
+      "verseKey": "2:286",
+      "emotionKey": "overwhelmed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "94:5",
+      "emotionKey": "overwhelmed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "94:6",
+      "emotionKey": "overwhelmed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "65:7",
+      "emotionKey": "overwhelmed",
+      "decision": "reject",
+      "note": "Full ayah is dominated by the post-divorce maintenance obligation; the \"ease after hardship\" clause cannot be surfaced apart from that procedural context."
+    },
+    {
+      "verseKey": "6:64",
+      "emotionKey": "overwhelmed",
+      "decision": "reject",
+      "note": "The wider passage rebukes fair-weather faith (calling on Allah only in danger, then associating partners); the full ayah does not meet the full-ayah-fit requirement for overwhelmed."
+    },
+    {
+      "verseKey": "21:87",
+      "emotionKey": "overwhelmed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "21:88",
+      "emotionKey": "overwhelmed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:173",
+      "emotionKey": "overwhelmed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:129",
+      "emotionKey": "overwhelmed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "65:3",
+      "emotionKey": "overwhelmed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:214",
+      "emotionKey": "overwhelmed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:86",
+      "emotionKey": "overwhelmed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "93:3",
+      "emotionKey": "heartbroken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "94:1",
+      "emotionKey": "heartbroken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:84",
+      "emotionKey": "heartbroken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:86",
+      "emotionKey": "heartbroken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:87",
+      "emotionKey": "heartbroken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:155",
+      "emotionKey": "heartbroken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:156",
+      "emotionKey": "heartbroken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:157",
+      "emotionKey": "heartbroken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:139",
+      "emotionKey": "heartbroken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:40",
+      "emotionKey": "heartbroken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "28:7",
+      "emotionKey": "heartbroken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "28:13",
+      "emotionKey": "heartbroken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:127",
+      "emotionKey": "heartbroken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "13:28",
+      "emotionKey": "reassurance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:260",
+      "emotionKey": "reassurance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:126",
+      "emotionKey": "reassurance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "8:10",
+      "emotionKey": "reassurance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "48:4",
+      "emotionKey": "reassurance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:40",
+      "emotionKey": "reassurance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:186",
+      "emotionKey": "reassurance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "50:16",
+      "emotionKey": "reassurance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "57:4",
+      "emotionKey": "reassurance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:46",
+      "emotionKey": "reassurance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "65:3",
+      "emotionKey": "reassurance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:51",
+      "emotionKey": "reassurance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:173",
+      "emotionKey": "reassurance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:255",
+      "emotionKey": "reassurance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:153",
+      "emotionKey": "patience",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:45",
+      "emotionKey": "patience",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:155",
+      "emotionKey": "patience",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:156",
+      "emotionKey": "patience",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:200",
+      "emotionKey": "patience",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:127",
+      "emotionKey": "patience",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "8:46",
+      "emotionKey": "patience",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "39:10",
+      "emotionKey": "patience",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "13:24",
+      "emotionKey": "patience",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "11:11",
+      "emotionKey": "patience",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "31:17",
+      "emotionKey": "patience",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "70:5",
+      "emotionKey": "patience",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:186",
+      "emotionKey": "patience",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "46:35",
+      "emotionKey": "patience",
+      "decision": "reject",
+      "priorDecision": "keep",
+      "note": "SUPERSEDED by the Phase 5B punishment/warning editorial review: the human reviewer excluded this verseKey from the Phase 5B emotion-mapping pool because the dominant tone of the full ayah is punishment, warning, or eschatological fear, which does not fit the current emotional-support experience. That verse-level decision overrides the earlier `keep` recorded above, which is preserved in `priorDecision` and in this note as historical provenance rather than deleted. Review disposition only - nothing was promoted, activated, or written to MongoDB.",
+      "supersededBy": "phase5b-punishment-warning-exclusion"
+    },
+    {
+      "verseKey": "1:6",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "1:7",
+      "emotionKey": "seeking_guidance",
+      "decision": "hold",
+      "note": "Full ayah is valid and relevant but grammatically continues 1:6; less suitable as an independently surfaced ayah. Not rejected, not activated."
+    },
+    {
+      "verseKey": "3:8",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "18:10",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "18:24",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "29:69",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "64:11",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "47:17",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "10:9",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "17:9",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:43",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "22:54",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "24:35",
+      "emotionKey": "seeking_guidance",
+      "decision": "keep"
+    }
+  ],
+  "supplementalReviews": [
+    {
+      "verseKey": "65:2",
+      "emotionKey": "overwhelmed",
+      "decision": "reject",
+      "note": "Reviewed separately. NOT one of the 66 original Batch 1 candidates and NOT counted in originalCandidateCount. Full ayah is dominated by divorce/witness procedural context, so it fails the full-ayah-fit requirement for overwhelmed. Not evaluated here for any other emotion."
+    }
+  ],
+  "editorialCorrections": [
+    {
+      "id": "phase5b-punishment-warning-exclusion",
+      "recordedOn": "2026-09-11",
+      "priorDecision": "keep",
+      "newDecision": "reject",
+      "scope": "verse-level",
+      "reason": "Dominant tone of the full ayah is punishment, warning, or eschatological fear - not suitable for the current emotional-support experience.",
+      "note": "Latest human editorial decision. It supersedes every earlier `keep` recorded in Batches 1-4 for these 17 verseKeys, across every emotion they were reviewed under - the rule is verse-level, so the number of changed (verseKey, emotionKey) rows is larger than 17. Superseded rows are retained with `priorDecision` and an explanatory note; nothing was deleted. Still a review disposition only: no mapping was promoted, no emotion activated, nothing written to MongoDB.",
+      "excludedVerseKeys": [
+        "15:50",
+        "39:54",
+        "39:55",
+        "39:56",
+        "39:57",
+        "39:58",
+        "39:59",
+        "39:60",
+        "39:65",
+        "39:68",
+        "39:71",
+        "39:72",
+        "40:18",
+        "42:42",
+        "46:35",
+        "69:18",
+        "69:25"
+      ],
+      "retainedVerseKeys": [
+        "14:42",
+        "40:16",
+        "40:17",
+        "40:19",
+        "40:20"
+      ],
+      "retainedNote": "These five verses were reviewed alongside the excluded group and were explicitly RETAINED as `keep` by the same editorial decision. Their existing review decisions and every previously approved overlap destination (including `betrayed`, `wronged`, `angry`, and `reassurance`) are unchanged.",
+      "changedPairsInThisArtifact": {
+        "reviews": [
+          "46:35|patience"
+        ],
+        "supplementalReviews": []
+      }
+    }
+  ]
+}

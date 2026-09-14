@@ -30,7 +30,7 @@
  *   npm run mapping:candidates -- --input=... --check-existing      (annotate with DB status, still dry run)
  *   npm run mapping:candidates -- --input=... --apply               (insert new candidates)
  *   npm run mapping:candidates -- --input=... --mapping-version=phase-5a-candidates-1
- *   npm run mapping:candidates -- --input=... --report=reports/phase5a-candidate-mappings.json
+ *   npm run mapping:candidates -- --input=... --report=reports/emotion-mappings/candidate-mappings.json
  */
 
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -47,7 +47,7 @@ import { LIVE_EMOTION_KEY_PATTERN, taxonomyKeys } from '../taxonomy/emotionTaxon
 /** Existing enum value Phase 5A uses for "candidate" (see module header). */
 const CANDIDATE_STATUS = 'draft' as const;
 const DEFAULT_MAPPING_VERSION = 'phase-5a-candidates-1';
-const DEFAULT_REPORT_PATH = 'reports/phase5a-candidate-mappings.json';
+const DEFAULT_REPORT_PATH = 'reports/emotion-mappings/candidate-mappings.json';
 const VERSE_KEY_PATTERN = /^[1-9]\d{0,2}:[1-9]\d{0,2}$/;
 const FORBIDDEN_ROW_KEYS = ['arabicText', 'arabic', 'text', 'quranText', 'verseText', 'englishTranslation'];
 
@@ -366,7 +366,7 @@ function toMarkdown(report: Record<string, unknown>, rows: EvaluatedRow[]): stri
 
   lines.push('');
   lines.push(
-    '> Candidates are not reviewed or approved. A human must promote each mapping through the lifecycle in `docs/phase-5a-emotion-taxonomy.md`.',
+    '> Candidates are not reviewed or approved. A human must promote each mapping through the lifecycle in `docs/emotion-mappings/taxonomy.md`.',
   );
   lines.push('');
 

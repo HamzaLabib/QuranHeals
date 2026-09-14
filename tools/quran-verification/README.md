@@ -17,8 +17,8 @@ The generator produces `mobile/assets/quran/quran.sqlite` from only this pinned
 input, preserving every Arabic string without trimming, normalization, character
 substitution or other cleanup. Complete source-to-SQLite equality is required.
 See [the build instructions](../quran-import/README.md) and
-[the runtime migration checklist](../../docs/quran-sqlite-migration.md).
-The subsequent [runtime integration](../../docs/quran-runtime-migration.md)
+[the runtime migration checklist](../../docs/quran-data/sqlite-integration.md).
+The subsequent [runtime integration](../../docs/quran-data/runtime-architecture.md)
 resolves displayed/shared Arabic through this unchanged local SQLite asset.
 Existing MongoDB data and emotion mappings remain intact.
 

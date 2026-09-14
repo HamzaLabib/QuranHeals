@@ -1,0 +1,317 @@
+{
+  "artifact": "phase5c-consolidation-report",
+  "generatedAt": "2026-09-13",
+  "note": "Regenerated after the backend/data/emotion-candidates structural migration (batches/ + consolidated/ + reports/emotion-mappings/). Semantic result is unchanged from the original Phase 5C run; only source paths and provenance filenames differ.",
+  "checkpoint": {
+    "batch4": {
+      "unrecoverableOverlapSourcesPairs": 0,
+      "supersededPairs": 5,
+      "overlapFileRows": 418,
+      "editorialCorrectionCount": 3
+    },
+    "batch5": {
+      "candidateCount": 334,
+      "decisionCounts": {
+        "keep": 285,
+        "reject": 49,
+        "hold": 0
+      },
+      "supplementalCount": 28,
+      "overlapFileRows": 185
+    },
+    "globalHoldCount": 8,
+    "globalHoldPairs": [
+      {
+        "pair": "1:7|seeking_guidance",
+        "verseKey": "1:7",
+        "emotionKey": "seeking_guidance",
+        "batch": "1"
+      },
+      {
+        "pair": "3:159|rejected",
+        "verseKey": "3:159",
+        "emotionKey": "rejected",
+        "batch": "4"
+      },
+      {
+        "pair": "13:11|rejected",
+        "verseKey": "13:11",
+        "emotionKey": "rejected",
+        "batch": "4"
+      },
+      {
+        "pair": "2:44|rejected",
+        "verseKey": "2:44",
+        "emotionKey": "rejected",
+        "batch": "4"
+      },
+      {
+        "pair": "61:2|rejected",
+        "verseKey": "61:2",
+        "emotionKey": "rejected",
+        "batch": "4"
+      },
+      {
+        "pair": "61:3|rejected",
+        "verseKey": "61:3",
+        "emotionKey": "rejected",
+        "batch": "4"
+      },
+      {
+        "pair": "16:125|rejected",
+        "verseKey": "16:125",
+        "emotionKey": "rejected",
+        "batch": "4"
+      },
+      {
+        "pair": "20:44|rejected",
+        "verseKey": "20:44",
+        "emotionKey": "rejected",
+        "batch": "4"
+      }
+    ]
+  },
+  "inputInventory": [
+    {
+      "filename": "batches/batch-1/initial-candidates.json",
+      "batch": "1",
+      "artifactType": "candidates",
+      "rowCount": 66,
+      "sha256Before": "45402b1aa94185b3fdfdfdeed3632cb5e335ffe03bd0190faad6a929c47a9efd",
+      "sha256After": "45402b1aa94185b3fdfdfdeed3632cb5e335ffe03bd0190faad6a929c47a9efd"
+    },
+    {
+      "filename": "batches/batch-1/final-review.json",
+      "batch": "1",
+      "artifactType": "human-review",
+      "rowCount": 67,
+      "sha256Before": "4d97da569a018d381305c3af8647fd1810bd94598af01a67ed03f8c8dc5bb141",
+      "decisionCounts": {
+        "keep": 62,
+        "reject": 3,
+        "hold": 1
+      },
+      "sha256After": "4d97da569a018d381305c3af8647fd1810bd94598af01a67ed03f8c8dc5bb141"
+    },
+    {
+      "filename": "batches/batch-1/overlaps.json",
+      "batch": "1",
+      "artifactType": "overlap",
+      "rowCount": 194,
+      "sha256Before": "4effde46b64df71164531b438eb7d8c999c936e912e829a5120b88795c43dfab",
+      "sha256After": "4effde46b64df71164531b438eb7d8c999c936e912e829a5120b88795c43dfab"
+    },
+    {
+      "filename": "batches/batch-2/initial-candidates.json",
+      "batch": "2",
+      "artifactType": "candidates",
+      "rowCount": 74,
+      "sha256Before": "72e76f0ce3ab0ac1e1dcecfb739937084de98176b81007965ff8618ff0b4bfa3",
+      "sha256After": "72e76f0ce3ab0ac1e1dcecfb739937084de98176b81007965ff8618ff0b4bfa3"
+    },
+    {
+      "filename": "batches/batch-2/final-review.json",
+      "batch": "2",
+      "artifactType": "human-review",
+      "rowCount": 75,
+      "sha256Before": "0b821fdd197a886703dee6076ae35a15e48b8bdcd4fbb551c3e3f35baa4baa1e",
+      "decisionCounts": {
+        "keep": 74,
+        "reject": 0,
+        "hold": 0
+      },
+      "sha256After": "0b821fdd197a886703dee6076ae35a15e48b8bdcd4fbb551c3e3f35baa4baa1e"
+    },
+    {
+      "filename": "batches/batch-2/overlaps.json",
+      "batch": "2",
+      "artifactType": "overlap",
+      "rowCount": 135,
+      "sha256Before": "ab4401d5ea90f9037bb6badf4c3bbd04eb4f848271ed12d1c3f0da096dcabfde",
+      "sha256After": "ab4401d5ea90f9037bb6badf4c3bbd04eb4f848271ed12d1c3f0da096dcabfde"
+    },
+    {
+      "filename": "batches/batch-3/initial-candidates.json",
+      "batch": "3",
+      "artifactType": "candidates",
+      "rowCount": 76,
+      "sha256Before": "4f8465686d57354b2b31b80e9ae28b76bdc54233273dbd0f1db7c37c9e305213",
+      "sha256After": "4f8465686d57354b2b31b80e9ae28b76bdc54233273dbd0f1db7c37c9e305213"
+    },
+    {
+      "filename": "batches/batch-3/final-review.json",
+      "batch": "3",
+      "artifactType": "human-review",
+      "rowCount": 525,
+      "sha256Before": "77f54072ed2428bda5a8c6c890aefce54ae829be310da1cc6bcbcced51ee3d1f",
+      "decisionCounts": {
+        "keep": 69,
+        "reject": 7,
+        "hold": 0
+      },
+      "sha256After": "77f54072ed2428bda5a8c6c890aefce54ae829be310da1cc6bcbcced51ee3d1f"
+    },
+    {
+      "filename": "batches/batch-3/overlaps.json",
+      "batch": "3",
+      "artifactType": "overlap",
+      "rowCount": 464,
+      "sha256Before": "a14ac9c980b69ab1b09bca4e126f46e14c4de6586c9a868403d56cbadf95b971",
+      "sha256After": "a14ac9c980b69ab1b09bca4e126f46e14c4de6586c9a868403d56cbadf95b971"
+    },
+    {
+      "filename": "batches/batch-4/initial-candidates.json",
+      "batch": "4",
+      "artifactType": "candidates",
+      "rowCount": 130,
+      "sha256Before": "c7ef0c04a12db01ed81cc8bf2d295bf916d978e529f6ad5dfb4ff8a2a28dc130",
+      "sha256After": "c7ef0c04a12db01ed81cc8bf2d295bf916d978e529f6ad5dfb4ff8a2a28dc130"
+    },
+    {
+      "filename": "batches/batch-4/final-review.json",
+      "batch": "4",
+      "artifactType": "human-review",
+      "rowCount": 141,
+      "sha256Before": "735fa59be74a80394e177c7d7e4ac6a6531f19e0faba87c26114e037dec4df19",
+      "decisionCounts": {
+        "keep": 122,
+        "reject": 8,
+        "hold": 0
+      },
+      "sha256After": "735fa59be74a80394e177c7d7e4ac6a6531f19e0faba87c26114e037dec4df19"
+    },
+    {
+      "filename": "batches/batch-4/overlaps.json",
+      "batch": "4",
+      "artifactType": "overlap",
+      "rowCount": 418,
+      "sha256Before": "4485fd41fb4cea39634a1c929c7f635873e0d288846637b9b9f937f2b4451cd3",
+      "sha256After": "4485fd41fb4cea39634a1c929c7f635873e0d288846637b9b9f937f2b4451cd3"
+    },
+    {
+      "filename": "batches/batch-5/initial-candidates.json",
+      "batch": "5",
+      "artifactType": "candidates",
+      "rowCount": 334,
+      "sha256Before": "6177593fb283a560a78a8011e1be4e2f38c751b8fe4bf36fe7f2505b400d0358",
+      "sha256After": "6177593fb283a560a78a8011e1be4e2f38c751b8fe4bf36fe7f2505b400d0358"
+    },
+    {
+      "filename": "batches/batch-5/final-review.json",
+      "batch": "5",
+      "artifactType": "human-review",
+      "rowCount": 362,
+      "sha256Before": "47984665dc13f540e7cb011fa3549c0c9450fb810855c61ca9dfeb6b7b3094b4",
+      "decisionCounts": {
+        "keep": 285,
+        "reject": 49,
+        "hold": 0
+      },
+      "sha256After": "47984665dc13f540e7cb011fa3549c0c9450fb810855c61ca9dfeb6b7b3094b4"
+    },
+    {
+      "filename": "batches/batch-5/overlaps.json",
+      "batch": "5",
+      "artifactType": "overlap",
+      "rowCount": 185,
+      "sha256Before": "da86f50baeaa884fc3400a9dede1e516b863ff23d6142a236cf9b235c1f306c3",
+      "sha256After": "da86f50baeaa884fc3400a9dede1e516b863ff23d6142a236cf9b235c1f306c3"
+    }
+  ],
+  "crossBatchDuplicates": {
+    "expectedHistoricalDuplicateIdentities": 25,
+    "observedHistoricalDuplicateIdentities": 25,
+    "duplicateIdentitiesInvolvingBatch5": 0
+  },
+  "sourceAccounting": {
+    "mvpPairs": 43,
+    "directCoreKeepPairs": 612,
+    "directSupplementalKeepPairs": 359,
+    "directRejectPairs": 191,
+    "directHoldPairs": 8,
+    "rawApprovedOverlapProposals": 1396,
+    "duplicateOverlapProposalRows": 25,
+    "overlapProposalsAlreadyRepresentedByDirectKeep": 460,
+    "overlapProposalsAlreadyRepresentedByMvp": 9,
+    "overlapProposalsBlockedByReject": 51,
+    "overlapProposalsBlockedByHold": 0,
+    "overlapProposalsBlockedByEditorialCorrection": 25,
+    "invalidOrUntraceableProposals": 0,
+    "newOverlapRowsCreated": 831,
+    "finalUniqueApprovedPairs": 1845
+  },
+  "conflictAccounting": {
+    "directDecisionConflicts": 0,
+    "mvpVsRejectOrHoldConflicts": 0,
+    "unknownEmotionKeys": 0,
+    "invalidVerseKeys": 0,
+    "untraceableApprovals": 0
+  },
+  "accountingEquation": {
+    "holds": true,
+    "mvp": 43,
+    "directKeep": 612,
+    "supplementalKeep": 359,
+    "newOverlap": 831,
+    "unionCount": 1845,
+    "finalRows": 1845
+  },
+  "rejectProtection": {
+    "totalUniqueRejectPairs": 191,
+    "overlapProposalsBlockedByReject": 51,
+    "rejectedPairsFoundInFinalPreview": 0
+  },
+  "holdProtection": {
+    "totalHoldPairs": 8,
+    "overlapProposalsBlockedByHold": 0,
+    "heldPairsFoundInFinalPreview": 0,
+    "selfReflectionHoldsPresent": true
+  },
+  "finalMappingCounts": {
+    "totalFinalUniquePairs": 1845,
+    "uniqueVerses": 205,
+    "countByEmotion": {
+      "sad": 42,
+      "anxious": 48,
+      "lonely": 28,
+      "angry": 46,
+      "lost": 58,
+      "afraid": 65,
+      "stressed": 41,
+      "hopeless": 55,
+      "tired": 33,
+      "confused": 55,
+      "grateful": 40,
+      "peaceful": 71,
+      "want_to_cry": 44,
+      "heartbroken": 72,
+      "overwhelmed": 78,
+      "rejected": 26,
+      "betrayed": 49,
+      "wronged": 52,
+      "forgiveness_struggle": 28,
+      "guilty": 52,
+      "repentant": 58,
+      "weak": 67,
+      "reassurance": 159,
+      "patience": 59,
+      "strength": 105,
+      "hopeful": 109,
+      "content": 69,
+      "seeking_guidance": 106,
+      "closer_to_allah": 130
+    },
+    "countByProvenanceType": {
+      "mvp": 43,
+      "direct_keep": 612,
+      "supplemental_keep": 359,
+      "overlap": 1295
+    },
+    "multiProvenanceCount": 464
+  },
+  "specialProtections": {
+    "forbidden_12_100_guilty_absent": true,
+    "punishmentWarningExclusionsPreserved": true,
+    "retainedVersesPreserved": true
+  }
+}

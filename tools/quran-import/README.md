@@ -1,7 +1,7 @@
 # Verified Tanzil SQLite foundation
 
 Foundation generation is complete. The subsequent
-[runtime migration](../../docs/quran-runtime-migration.md) now uses this unchanged
+[runtime migration](../../docs/quran-data/runtime-architecture.md) now uses this unchanged
 database. The foundation implementation and validation record below describe
 the original database-generation task.
 
@@ -120,7 +120,7 @@ not the selected canonical owner. Emotion mappings and translations remain
 separate. No database connection, data deletion or data migration was performed
 for this foundation.
 
-See [the coordinated migration checklist](../../docs/quran-sqlite-migration.md)
+See [the coordinated migration checklist](../../docs/quran-data/sqlite-integration.md)
 for API/ObjectId compatibility, favorite/history preservation, mapping
 validation, native/web asset loading, local Arabic composition and offline
 tests. Existing King Fahd reports remain historical analysis, including the
@@ -160,4 +160,4 @@ Source Arabic, King Fahd artifacts, mappings, database records, runtime
 retrieval and user storage are unchanged by this build.
 
 Status: SQLite foundation complete; the runtime migration described above has
-since landed — see [the runtime migration report](../../docs/quran-runtime-migration.md).
+since landed — see [the runtime migration report](../../docs/quran-data/runtime-architecture.md).

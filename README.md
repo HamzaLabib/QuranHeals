@@ -22,7 +22,7 @@ sharing, including saved favorites. Existing MongoDB Arabic fields and saved
 snapshots remain for compatibility; no destructive migration was performed.
 
 See the [SQLite build instructions](tools/quran-import/README.md),
-[runtime migration report](docs/quran-runtime-migration.md), and
+[runtime migration report](docs/quran-data/runtime-architecture.md), and
 [verification source history](tools/quran-verification/README.md).
 The former MongoDB full-corpus import remains disabled; its reports are historical.
 
@@ -131,7 +131,7 @@ The backend uses Mongoose models for:
 
 These existing Arabic copies remain unchanged for runtime compatibility. MongoDB
 is not the intended canonical owner of Quran Arabic. The
-[migration checklist](docs/quran-sqlite-migration.md) covers reference validation,
+[migration checklist](docs/quran-data/sqlite-integration.md) covers reference validation,
 API compatibility, favorites and recent history before a runtime switch.
 
 ## Database Seeding
@@ -255,7 +255,7 @@ The complete Tanzil Uthmani 1.1 and Pickthall source exports are pinned locally 
 found six existing Arabic text conflicts and five Pickthall text differences,
 and reported an unchanged baseline of 16 verses, 16 translations, 43 development
 mappings and 12 emotions. These are historical measurements, not a fresh database
-audit. See the [Phase 3 report](backend/reports/phase3-report.md).
+audit. See the [Phase 3 report](backend/reports/quran-data/summary.md).
 
 From `backend`, `npm run validate:quran:source` checks those older pinned downloads;
 `npm run validate:quran` audits MongoDB against that older full-corpus target.

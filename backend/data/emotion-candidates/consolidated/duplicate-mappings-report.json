@@ -1,0 +1,504 @@
+{
+  "artifact": "phase5c-cross-batch-duplicate-audit",
+  "description": "Every (verseKey, emotionKey) overlap-proposal identity that appears in more than one batch overlaps.json file (batches/batch-1/overlaps.json ... batches/batch-5/overlaps.json). Source batch files are NOT modified; this audit only records how each duplicate identity collapses into the Phase 5C approved preview.",
+  "generatedAt": "2026-09-13",
+  "expectedHistoricalDuplicateIdentities": 25,
+  "observedHistoricalDuplicateIdentities": 25,
+  "duplicateIdentitiesInvolvingBatch5": 0,
+  "duplicatesRemainingInFinalPreview": 0,
+  "rows": [
+    {
+      "verseKey": "3:173",
+      "emotionKey": "strength",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-1/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "1",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "overwhelmed",
+        "reassurance",
+        "rejected",
+        "sad",
+        "want_to_cry"
+      ],
+      "resolution": "superseded_by_direct_keep",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "2:186",
+      "emotionKey": "seeking_guidance",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-1/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "1",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "lonely",
+        "reassurance"
+      ],
+      "resolution": "collapsed_to_single_overlap_row",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "2:186",
+      "emotionKey": "afraid",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-2/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "2",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "closer_to_allah",
+        "lonely"
+      ],
+      "resolution": "collapsed_to_single_overlap_row",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "2:186",
+      "emotionKey": "anxious",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-2/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "2",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "closer_to_allah",
+        "lonely"
+      ],
+      "resolution": "collapsed_to_single_overlap_row",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "1:5",
+      "emotionKey": "closer_to_allah",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-2/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "2",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "lost",
+        "tired"
+      ],
+      "resolution": "collapsed_to_single_overlap_row",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "50:16",
+      "emotionKey": "confused",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-2/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "2",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "anxious",
+        "lonely"
+      ],
+      "resolution": "collapsed_to_single_overlap_row",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "2:186",
+      "emotionKey": "lost",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-2/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "2",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "closer_to_allah",
+        "lonely"
+      ],
+      "resolution": "collapsed_to_single_overlap_row",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "1:5",
+      "emotionKey": "overwhelmed",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-2/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "2",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "lost",
+        "tired"
+      ],
+      "resolution": "collapsed_to_single_overlap_row",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "1:5",
+      "emotionKey": "reassurance",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-2/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "2",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "lost",
+        "tired"
+      ],
+      "resolution": "collapsed_to_single_overlap_row",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "1:5",
+      "emotionKey": "seeking_guidance",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-2/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "2",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "lost",
+        "tired"
+      ],
+      "resolution": "collapsed_to_single_overlap_row",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "1:5",
+      "emotionKey": "weak",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-2/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "2",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "lost",
+        "tired"
+      ],
+      "resolution": "superseded_by_direct_keep",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "3:159",
+      "emotionKey": "forgiveness_struggle",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "3",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "angry",
+        "rejected"
+      ],
+      "resolution": "superseded_by_direct_keep",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "3:159",
+      "emotionKey": "patience",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "3",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "angry",
+        "rejected"
+      ],
+      "resolution": "collapsed_to_single_overlap_row",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "3:159",
+      "emotionKey": "closer_to_allah",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "3",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "angry",
+        "rejected"
+      ],
+      "resolution": "collapsed_to_single_overlap_row",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "3:159",
+      "emotionKey": "confused",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "3",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "angry",
+        "rejected"
+      ],
+      "resolution": "collapsed_to_single_overlap_row",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "3:159",
+      "emotionKey": "seeking_guidance",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "3",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "angry",
+        "rejected"
+      ],
+      "resolution": "collapsed_to_single_overlap_row",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "7:200",
+      "emotionKey": "closer_to_allah",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "3",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "angry",
+        "rejected"
+      ],
+      "resolution": "collapsed_to_single_overlap_row",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "7:200",
+      "emotionKey": "anxious",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "3",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "angry",
+        "rejected"
+      ],
+      "resolution": "collapsed_to_single_overlap_row",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "7:200",
+      "emotionKey": "confused",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "3",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "angry",
+        "rejected"
+      ],
+      "resolution": "collapsed_to_single_overlap_row",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "7:200",
+      "emotionKey": "reassurance",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "3",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "angry",
+        "rejected"
+      ],
+      "resolution": "collapsed_to_single_overlap_row",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "3:173",
+      "emotionKey": "anxious",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "3",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "betrayed",
+        "rejected",
+        "sad",
+        "want_to_cry",
+        "wronged"
+      ],
+      "resolution": "collapsed_to_single_overlap_row",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "3:173",
+      "emotionKey": "weak",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "3",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "betrayed",
+        "rejected",
+        "sad",
+        "want_to_cry",
+        "wronged"
+      ],
+      "resolution": "superseded_by_direct_keep",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "3:173",
+      "emotionKey": "closer_to_allah",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "3",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "betrayed",
+        "rejected",
+        "sad",
+        "want_to_cry",
+        "wronged"
+      ],
+      "resolution": "collapsed_to_single_overlap_row",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "3:173",
+      "emotionKey": "hopeful",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "3",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "betrayed",
+        "rejected",
+        "sad",
+        "want_to_cry",
+        "wronged"
+      ],
+      "resolution": "superseded_by_direct_keep",
+      "finalRowIncluded": true
+    },
+    {
+      "verseKey": "3:173",
+      "emotionKey": "seeking_guidance",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/overlaps.json",
+        "batches/batch-4/overlaps.json"
+      ],
+      "sourceBatches": [
+        "3",
+        "4"
+      ],
+      "sourceEmotionKeys": [
+        "betrayed",
+        "rejected",
+        "sad",
+        "want_to_cry",
+        "wronged"
+      ],
+      "resolution": "collapsed_to_single_overlap_row",
+      "finalRowIncluded": true
+    }
+  ]
+}

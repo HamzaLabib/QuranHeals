@@ -1,0 +1,1879 @@
+{
+  "artifact": "phase5b-batch5-human-review",
+  "candidateSource": "initial-candidates.json",
+  "originalCandidateCount": 334,
+  "decisionCounts": {
+    "keep": 285,
+    "reject": 49,
+    "hold": 0
+  },
+  "note": "Human review outcomes for Batch 5 (`forgiveness_struggle`, `weak`, `strength`, `hopeful`, `content`, `grateful`, `peaceful`) - the final Phase 5B candidate batch. \"keep\" / \"reject\" / \"hold\" are review dispositions only, not production mapping statuses. Nothing here is approved, reviewed (in the production sense), or activated; nothing is written to MongoDB. Verses are referenced by verseKey only; no Quran text is stored. Rejections apply only to the exact (verseKey, emotionKey) pair reviewed - a verse rejected for one Batch 5 emotion may remain (or become) keep for another. `supplementalReviews` holds 28 directly human-reviewed pairs not among the 334 core candidates and not counted in originalCandidateCount/decisionCounts: 2 forgiveness_struggle (12:92, 12:100 - Yusuf narrative continuation), 2 strength (20:72, 7:126 - the steadfast response of Pharaoh magicians; the Quran records Pharaoh threatening execution but this artifact does not claim the execution occurred), 12 grateful and 12 peaceful fresh-discovery verses individually verified against the complete ayah before inclusion. `12:100 -> guilty` is explicitly excluded per reviewer instruction and does not appear anywhere in this artifact or in phase5b-batch5-overlap-candidates.json. All Batch 1-4 decisions, the five retained verses (14:42, 40:16, 40:17, 40:19, 40:20), the seven self-reflection hold pairs, the 17 punishment/warning exclusions, and the Batch 4 overlap-source recovery are unchanged by this batch - Batch 5 has no editorialCorrections of its own.",
+  "reviews": [
+    {
+      "verseKey": "7:43",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:186",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:159",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "42:40",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "42:43",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:126",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "41:35",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:200",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "25:63",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "28:55",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "23:96",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "64:14",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "12:18",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "3:120",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "22:60",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "21:47",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "2:186",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:125",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:44",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "4:148",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "3:134",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "24:22",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "41:34",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "42:37",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:139",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "1:5",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "8:46",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "31:17",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "70:5",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:186",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "42:43",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:127",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:51",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:173",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:129",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "40:44",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:160",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:18",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "27:62",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "21:87",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:23",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:53",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:8",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:83",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:186",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "28:13",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:40",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:200",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:152",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:255",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "10:62",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:86",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:46",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "57:4",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "21:89",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "94:1",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:25",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:26",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:42",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "23:62",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "11:6",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "29:60",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:45",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:155",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "39:10",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:2",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "35:35",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "28:73",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "4:28",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:156",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "11:11",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "65:3",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "58:10",
+      "emotionKey": "weak",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:43",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "25:63",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "8:62",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "4:45",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "4:148",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "21:47",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "8:29",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "57:28",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "3:31",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "39:53",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "4:110",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "3:135",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "20:82",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "42:25",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "66:8",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "9:104",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "25:70",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "17:25",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "19:60",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "12:84",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "94:3",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "3:146",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "25:47",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "92:7",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "94:2",
+      "emotionKey": "weak",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "3:173",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:139",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:46",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:51",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:255",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:200",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "8:46",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "39:10",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "31:17",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "70:5",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:186",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "29:69",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "47:17",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "10:9",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:68",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:126",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:175",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "39:18",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "40:44",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "41:30",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "8:10",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:129",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "96:19",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "42:40",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "42:43",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:126",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "41:35",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:200",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "25:63",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "28:55",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "23:96",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:127",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:160",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "8:62",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:18",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:120",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "4:45",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "58:10",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "14:42",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "65:3",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "42:41",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "22:60",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "4:148",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "21:47",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "11:11",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "8:29",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:135",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:82",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:53",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:8",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "66:8",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "25:70",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "50:33",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "19:60",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:83",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:186",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "1:5",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "28:13",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:40",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:159",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "13:11",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:125",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:44",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:38",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:112",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "10:62",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:86",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "57:4",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "94:1",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "94:2",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:25",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:26",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:42",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "23:62",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:87",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:45",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:155",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:146",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:286",
+      "emotionKey": "strength",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "57:28",
+      "emotionKey": "strength",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "3:31",
+      "emotionKey": "strength",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "92:7",
+      "emotionKey": "strength",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "39:10",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "13:24",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "11:11",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "64:11",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "47:17",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "10:9",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "17:9",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:43",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "22:54",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "24:35",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "10:62",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "11:6",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:112",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:269",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:38",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "29:60",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:31",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "41:30",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "57:28",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:51",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:173",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:160",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "65:3",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "8:29",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "39:53",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "4:110",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:135",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:82",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "42:25",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:53",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:8",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "66:8",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:104",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "25:70",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "50:33",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "17:25",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "19:60",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:83",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:103",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:186",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "28:13",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:40",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:152",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:255",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:139",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:129",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:86",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "4:45",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:46",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "57:4",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "21:89",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "94:1",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "94:2",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:26",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "92:7",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:42",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "23:62",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:87",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:155",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:146",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:2",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "35:35",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "28:73",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "27:62",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "8:62",
+      "emotionKey": "hopeful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "13:11",
+      "emotionKey": "hopeful",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "65:4",
+      "emotionKey": "hopeful",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "7:43",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:82",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "17:25",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:103",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:186",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "1:5",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "28:13",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:38",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:112",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:152",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:255",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:51",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:129",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "10:62",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "65:3",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "57:4",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "92:7",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:42",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "11:6",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "11:11",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "29:60",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:156",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "35:35",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "25:47",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "28:73",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "25:63",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "28:55",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "93:5",
+      "emotionKey": "content",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:31",
+      "emotionKey": "content",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "9:104",
+      "emotionKey": "content",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "25:70",
+      "emotionKey": "content",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "50:33",
+      "emotionKey": "content",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "12:83",
+      "emotionKey": "content",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "12:86",
+      "emotionKey": "content",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "21:47",
+      "emotionKey": "content",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "42:25",
+      "emotionKey": "content",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "66:8",
+      "emotionKey": "content",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "20:40",
+      "emotionKey": "content",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "65:4",
+      "emotionKey": "content",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "39:10",
+      "emotionKey": "content",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "7:43",
+      "emotionKey": "grateful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:152",
+      "emotionKey": "grateful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:186",
+      "emotionKey": "grateful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "28:13",
+      "emotionKey": "grateful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:40",
+      "emotionKey": "grateful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "25:47",
+      "emotionKey": "grateful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "28:73",
+      "emotionKey": "grateful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:172",
+      "emotionKey": "grateful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:114",
+      "emotionKey": "grateful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "27:19",
+      "emotionKey": "grateful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "27:40",
+      "emotionKey": "grateful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "31:12",
+      "emotionKey": "grateful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "48:4",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "10:9",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:43",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "22:54",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "24:35",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "10:62",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:112",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:152",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "41:30",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "25:63",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "28:55",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "23:96",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:103",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:186",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "1:5",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "28:13",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:40",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:159",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:125",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:44",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:38",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:255",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:51",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "58:10",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "65:3",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:46",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "57:4",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "94:1",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:42",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:2",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "35:35",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "25:47",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "28:73",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "89:27",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "89:28",
+      "emotionKey": "peaceful",
+      "decision": "keep"
+    }
+  ],
+  "supplementalReviews": [
+    {
+      "verseKey": "12:92",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep",
+      "supplemental": true
+    },
+    {
+      "verseKey": "12:100",
+      "emotionKey": "forgiveness_struggle",
+      "decision": "keep",
+      "supplemental": true
+    },
+    {
+      "verseKey": "20:72",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "7:126",
+      "emotionKey": "strength",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "16:18",
+      "emotionKey": "grateful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "16:53",
+      "emotionKey": "grateful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "16:78",
+      "emotionKey": "grateful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "16:81",
+      "emotionKey": "grateful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "93:11",
+      "emotionKey": "grateful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "27:15",
+      "emotionKey": "grateful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "55:13",
+      "emotionKey": "grateful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "8:26",
+      "emotionKey": "grateful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "45:12",
+      "emotionKey": "grateful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "45:13",
+      "emotionKey": "grateful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "34:15",
+      "emotionKey": "grateful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "39:74",
+      "emotionKey": "grateful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "30:21",
+      "emotionKey": "peaceful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "6:96",
+      "emotionKey": "peaceful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "10:67",
+      "emotionKey": "peaceful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "27:86",
+      "emotionKey": "peaceful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "16:80",
+      "emotionKey": "peaceful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "42:28",
+      "emotionKey": "peaceful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "48:18",
+      "emotionKey": "peaceful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "25:48",
+      "emotionKey": "peaceful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "50:9",
+      "emotionKey": "peaceful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "55:50",
+      "emotionKey": "peaceful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "55:54",
+      "emotionKey": "peaceful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    },
+    {
+      "verseKey": "55:76",
+      "emotionKey": "peaceful",
+      "decision": "keep",
+      "supplemental": true,
+      "freshDiscovery": true
+    }
+  ]
+}

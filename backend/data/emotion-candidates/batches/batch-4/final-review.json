@@ -1,0 +1,886 @@
+{
+  "artifact": "phase5b-batch4-human-review",
+  "candidateSource": "initial-candidates.json",
+  "originalCandidateCount": 130,
+  "decisionCounts": {
+    "keep": 122,
+    "reject": 8,
+    "hold": 0
+  },
+  "note": "Human review outcomes for Batch 4 (`sad`, `lonely`, `stressed`, `hopeless`, `tired`, `want_to_cry`, `rejected`). \"keep\" / \"reject\" / \"hold\" are review dispositions only, not production mapping statuses. Nothing here is approved, reviewed (in the production sense), or activated. Verses are referenced by verseKey only; no Quran text is stored. `2:286 -> stressed` is an existing MVP (`development`) mapping and is intentionally not duplicated here or in the overlap file. EDITORIAL CORRECTIONS: `decisionCounts` and the rows below reflect two later human decisions recorded in `editorialCorrections`. `phase5b-punishment-warning-exclusion` superseded 5 core pairs from `keep` to `reject` (`39:54 -> hopeless`, `46:35 -> tired`, `46:35 -> want_to_cry`, `42:42 -> rejected`, `46:35 -> rejected`) and moved their now-moot entries from `unrecoverableOverlapSources.pairs` into `unrecoverableOverlapSources.supersededPairs`. `phase5b-rejected-self-reflection-hold` moved the 7 self-reflection supplementals (`3:159`, `13:11`, `2:44`, `61:2`, `61:3`, `16:125`, `20:44` -> `rejected`) from `keep` to `hold` - a deferral, not a rejection - while leaving every one of their approved overlap destinations untouched. A third correction, `phase5b-batch4-overlap-source-recovery`, later resolved all 120 remaining `unrecoverableOverlapSources` entries with reviewer-supplied destination lists (see `editorialCorrections`); `unrecoverableOverlapSources.pairs` is now empty and `supersededPairs` is preserved.",
+  "reviews": [
+    {
+      "verseKey": "2:38",
+      "emotionKey": "sad",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:112",
+      "emotionKey": "sad",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:152",
+      "emotionKey": "sad",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:255",
+      "emotionKey": "sad",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:120",
+      "emotionKey": "sad",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:139",
+      "emotionKey": "sad",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:173",
+      "emotionKey": "sad",
+      "decision": "reject",
+      "note": "Rejected for `sad`: the full ayah - 'Allah is sufficient for us, and He is the best trustee' - is the believers' composed answer to news that a hostile force had massed against them. On review it reads primarily as a response to acute threat, betrayal by circumstance, and being outnumbered/opposed, rather than to grief or sadness as such. Preserved as an overlap proposal for `afraid`, `anxious`, `betrayed`, `wronged`, `overwhelmed`, `reassurance`, `strength`, `weak`, `hopeful`, `closer_to_allah`, and `seeking_guidance`. Explicitly NOT carried forward as an overlap for `rejected`."
+    },
+    {
+      "verseKey": "3:186",
+      "emotionKey": "sad",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:51",
+      "emotionKey": "sad",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:129",
+      "emotionKey": "sad",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "10:62",
+      "emotionKey": "sad",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:18",
+      "emotionKey": "sad",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "14:42",
+      "emotionKey": "sad",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "58:10",
+      "emotionKey": "sad",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "65:3",
+      "emotionKey": "sad",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "70:5",
+      "emotionKey": "sad",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:86",
+      "emotionKey": "sad",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:84",
+      "emotionKey": "sad",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:152",
+      "emotionKey": "lonely",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:186",
+      "emotionKey": "lonely",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:255",
+      "emotionKey": "lonely",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:186",
+      "emotionKey": "lonely",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "4:45",
+      "emotionKey": "lonely",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:129",
+      "emotionKey": "lonely",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:18",
+      "emotionKey": "lonely",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:46",
+      "emotionKey": "lonely",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "40:44",
+      "emotionKey": "lonely",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "50:16",
+      "emotionKey": "lonely",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "57:4",
+      "emotionKey": "lonely",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "21:89",
+      "emotionKey": "lonely",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:103",
+      "emotionKey": "lonely",
+      "decision": "reject",
+      "note": "Rejected for `lonely`: the full ayah - 'hold firmly to the rope of Allah all together and do not become divided... He brought your hearts together and you became, by His favour, brothers' - is addressed to the community as a whole (a collective unity instruction) rather than to an individual's felt experience of being alone. Preserved as an overlap proposal for `sad`, `hopeful`, `reassurance`, `content`, `peaceful`, `closer_to_allah`, `seeking_guidance`, and `confused`."
+    },
+    {
+      "verseKey": "12:86",
+      "emotionKey": "lonely",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "94:1",
+      "emotionKey": "stressed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "94:2",
+      "emotionKey": "stressed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "94:3",
+      "emotionKey": "stressed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:25",
+      "emotionKey": "stressed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:26",
+      "emotionKey": "stressed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "92:7",
+      "emotionKey": "stressed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:42",
+      "emotionKey": "stressed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "23:62",
+      "emotionKey": "stressed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "65:4",
+      "emotionKey": "stressed",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:31",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:135",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:139",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "4:110",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "6:64",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:23",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:43",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:104",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:129",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "11:6",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "11:11",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:87",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "14:42",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "19:60",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:82",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "21:47",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "21:87",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "25:70",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "27:62",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "29:60",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "39:54",
+      "emotionKey": "hopeless",
+      "decision": "reject",
+      "priorDecision": "keep",
+      "note": "SUPERSEDED by the Phase 5B punishment/warning editorial review: the human reviewer excluded this verseKey from the Phase 5B emotion-mapping pool because the dominant tone of the full ayah is punishment, warning, or eschatological fear, which does not fit the current emotional-support experience. That verse-level decision overrides the earlier `keep` recorded above, which is preserved in `priorDecision` and in this note as historical provenance rather than deleted. Review disposition only - nothing was promoted, activated, or written to MongoDB.",
+      "supersededBy": "phase5b-punishment-warning-exclusion"
+    },
+    {
+      "verseKey": "42:25",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "57:28",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "65:3",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "66:8",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "70:5",
+      "emotionKey": "hopeless",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:45",
+      "emotionKey": "tired",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:155",
+      "emotionKey": "tired",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:156",
+      "emotionKey": "tired",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "11:6",
+      "emotionKey": "tired",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "29:60",
+      "emotionKey": "tired",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "31:17",
+      "emotionKey": "tired",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "39:10",
+      "emotionKey": "tired",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "46:35",
+      "emotionKey": "tired",
+      "decision": "reject",
+      "priorDecision": "keep",
+      "note": "SUPERSEDED by the Phase 5B punishment/warning editorial review: the human reviewer excluded this verseKey from the Phase 5B emotion-mapping pool because the dominant tone of the full ayah is punishment, warning, or eschatological fear, which does not fit the current emotional-support experience. That verse-level decision overrides the earlier `keep` recorded above, which is preserved in `priorDecision` and in this note as historical provenance rather than deleted. Review disposition only - nothing was promoted, activated, or written to MongoDB.",
+      "supersededBy": "phase5b-punishment-warning-exclusion"
+    },
+    {
+      "verseKey": "70:5",
+      "emotionKey": "tired",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:146",
+      "emotionKey": "tired",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:2",
+      "emotionKey": "tired",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "35:35",
+      "emotionKey": "tired",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "25:47",
+      "emotionKey": "tired",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "28:73",
+      "emotionKey": "tired",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:120",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:173",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:186",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:23",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:43",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:51",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:129",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:18",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "14:42",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:126",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "17:25",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "21:87",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "27:62",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "39:53",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "42:25",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "42:40",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "42:43",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "46:35",
+      "emotionKey": "want_to_cry",
+      "decision": "reject",
+      "priorDecision": "keep",
+      "note": "SUPERSEDED by the Phase 5B punishment/warning editorial review: the human reviewer excluded this verseKey from the Phase 5B emotion-mapping pool because the dominant tone of the full ayah is punishment, warning, or eschatological fear, which does not fit the current emotional-support experience. That verse-level decision overrides the earlier `keep` recorded above, which is preserved in `priorDecision` and in this note as historical provenance rather than deleted. Review disposition only - nothing was promoted, activated, or written to MongoDB.",
+      "supersededBy": "phase5b-punishment-warning-exclusion"
+    },
+    {
+      "verseKey": "58:10",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "65:3",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "66:8",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "70:5",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:86",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "12:84",
+      "emotionKey": "want_to_cry",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:120",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:160",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:173",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:186",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "4:45",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "4:148",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "7:200",
+      "emotionKey": "rejected",
+      "decision": "reject",
+      "note": "Rejected for `rejected`: the full ayah - 'if an evil suggestion from Satan should provoke you, seek refuge in Allah' - is the prescribed response to a surge of provocation/anger, not a direct address to the experience of being turned away, dismissed, or excluded. Preserved as an overlap proposal for `angry`, `anxious`, `afraid`, `confused`, `weak`, `reassurance`, `closer_to_allah`, and `seeking_guidance`."
+    },
+    {
+      "verseKey": "8:62",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:51",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:129",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "14:42",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:126",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:127",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "23:96",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "25:63",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "28:55",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "40:44",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "42:40",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "42:41",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "42:42",
+      "emotionKey": "rejected",
+      "decision": "reject",
+      "priorDecision": "keep",
+      "note": "SUPERSEDED by the Phase 5B punishment/warning editorial review: the human reviewer excluded this verseKey from the Phase 5B emotion-mapping pool because the dominant tone of the full ayah is punishment, warning, or eschatological fear, which does not fit the current emotional-support experience. That verse-level decision overrides the earlier `keep` recorded above, which is preserved in `priorDecision` and in this note as historical provenance rather than deleted. Review disposition only - nothing was promoted, activated, or written to MongoDB.",
+      "supersededBy": "phase5b-punishment-warning-exclusion"
+    },
+    {
+      "verseKey": "42:43",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "46:35",
+      "emotionKey": "rejected",
+      "decision": "reject",
+      "priorDecision": "keep",
+      "note": "SUPERSEDED by the Phase 5B punishment/warning editorial review: the human reviewer excluded this verseKey from the Phase 5B emotion-mapping pool because the dominant tone of the full ayah is punishment, warning, or eschatological fear, which does not fit the current emotional-support experience. That verse-level decision overrides the earlier `keep` recorded above, which is preserved in `priorDecision` and in this note as historical provenance rather than deleted. Review disposition only - nothing was promoted, activated, or written to MongoDB.",
+      "supersededBy": "phase5b-punishment-warning-exclusion"
+    },
+    {
+      "verseKey": "58:10",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "65:3",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "70:5",
+      "emotionKey": "rejected",
+      "decision": "keep"
+    }
+  ],
+  "supplementalReviews": [
+    {
+      "verseKey": "12:83",
+      "emotionKey": "sad",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during the Batch 4 review of `sad`. Companion verse to 12:18 - the same 'patience is beautiful' opening from the second Yusuf incident (Benjamin's detention), ending instead with hope of reunion. NOT one of the 130 original Batch 4 candidates and NOT counted in originalCandidateCount/decisionCounts."
+    },
+    {
+      "verseKey": "1:5",
+      "emotionKey": "tired",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during the Batch 4 review of `tired`. Verse referenced by verseKey only per the established schema; no Quran text is stored in this artifact. NOT one of the 130 original Batch 4 candidates and NOT counted in originalCandidateCount/decisionCounts."
+    },
+    {
+      "verseKey": "28:13",
+      "emotionKey": "want_to_cry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during the Batch 4 review of `want_to_cry`. Musa's mother's restoration narrative ('that her eye might be comforted and she not grieve'); shares its accepted overlap set with the companion verse 20:40. NOT one of the 130 original Batch 4 candidates and NOT counted in originalCandidateCount/decisionCounts."
+    },
+    {
+      "verseKey": "20:40",
+      "emotionKey": "want_to_cry",
+      "decision": "keep",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during the Batch 4 review of `want_to_cry`. Allah's later recounting to Musa of his early life, including his restoration to his mother 'that her eye might be comforted and she not grieve'; shares its accepted overlap set with the companion verse 28:13. NOT one of the 130 original Batch 4 candidates and NOT counted in originalCandidateCount/decisionCounts."
+    },
+    {
+      "verseKey": "3:159",
+      "emotionKey": "rejected",
+      "decision": "hold",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during the Batch 4 review of `rejected`, to keep the emotion balanced: 'had you been harsh and hard-hearted, they would have dispersed from around you' names how one's own manner can cause distance, alongside the instruction to pardon, seek forgiveness for others, and consult them. NOT one of the 130 original Batch 4 candidates and NOT counted in originalCandidateCount/decisionCounts. SUPERSEDED by the Phase 5B `rejected` self-reflection editorial review: this direct `verseKey -> rejected` pair is now HOLD FOR NOW, which is a deferral and NOT a rejection. Category: self-reflection / advice-style / personal-change review deferred - the reviewer wants to revisit later whether `rejected` should surface verses that ask the user to examine their own behaviour, the consistency between their words and actions, gentleness, wisdom in advice, communication style, and what they may need to change in themselves. Only this one pair changed; every previously approved overlap destination for this verse is untouched. The earlier `keep` is preserved in `priorDecision` and in this note as historical provenance.",
+      "priorDecision": "keep",
+      "holdCategory": "self-reflection / advice-style / personal-change review deferred",
+      "supersededBy": "phase5b-rejected-self-reflection-hold"
+    },
+    {
+      "verseKey": "13:11",
+      "emotionKey": "rejected",
+      "decision": "hold",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during the Batch 4 review of `rejected`, to keep the emotion balanced: 'Allah does not change the condition of a people until they change what is in themselves' invites self-reflection alongside protection. Editorial note: this is NOT to be read or surfaced as \"if someone rejects you, it is your fault\" - its purpose is to invite the honest question of whether something in oneself or one's approach might need to change, not to assign blame for another's rejection. NOT one of the 130 original Batch 4 candidates and NOT counted in originalCandidateCount/decisionCounts. SUPERSEDED by the Phase 5B `rejected` self-reflection editorial review: this direct `verseKey -> rejected` pair is now HOLD FOR NOW, which is a deferral and NOT a rejection. Category: self-reflection / advice-style / personal-change review deferred - the reviewer wants to revisit later whether `rejected` should surface verses that ask the user to examine their own behaviour, the consistency between their words and actions, gentleness, wisdom in advice, communication style, and what they may need to change in themselves. Only this one pair changed; every previously approved overlap destination for this verse is untouched. The earlier `keep` is preserved in `priorDecision` and in this note as historical provenance.",
+      "priorDecision": "keep",
+      "holdCategory": "self-reflection / advice-style / personal-change review deferred",
+      "supersededBy": "phase5b-rejected-self-reflection-hold"
+    },
+    {
+      "verseKey": "2:44",
+      "emotionKey": "rejected",
+      "decision": "hold",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during the Batch 4 review of `rejected`, to keep the emotion balanced: 'Do you order righteousness of the people and forget yourselves...? Then will you not reason?' - a direct call to match one's own conduct to what one asks of others. NOT one of the 130 original Batch 4 candidates and NOT counted in originalCandidateCount/decisionCounts. SUPERSEDED by the Phase 5B `rejected` self-reflection editorial review: this direct `verseKey -> rejected` pair is now HOLD FOR NOW, which is a deferral and NOT a rejection. Category: self-reflection / advice-style / personal-change review deferred - the reviewer wants to revisit later whether `rejected` should surface verses that ask the user to examine their own behaviour, the consistency between their words and actions, gentleness, wisdom in advice, communication style, and what they may need to change in themselves. Only this one pair changed; every previously approved overlap destination for this verse is untouched. The earlier `keep` is preserved in `priorDecision` and in this note as historical provenance.",
+      "priorDecision": "keep",
+      "holdCategory": "self-reflection / advice-style / personal-change review deferred",
+      "supersededBy": "phase5b-rejected-self-reflection-hold"
+    },
+    {
+      "verseKey": "61:2",
+      "emotionKey": "rejected",
+      "decision": "hold",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during the Batch 4 review of `rejected`, to keep the emotion balanced: 'O you who believe, why do you say what you do not do?' - matching action to word. Paired with 61:3. NOT one of the 130 original Batch 4 candidates and NOT counted in originalCandidateCount/decisionCounts. SUPERSEDED by the Phase 5B `rejected` self-reflection editorial review: this direct `verseKey -> rejected` pair is now HOLD FOR NOW, which is a deferral and NOT a rejection. Category: self-reflection / advice-style / personal-change review deferred - the reviewer wants to revisit later whether `rejected` should surface verses that ask the user to examine their own behaviour, the consistency between their words and actions, gentleness, wisdom in advice, communication style, and what they may need to change in themselves. Only this one pair changed; every previously approved overlap destination for this verse is untouched. The earlier `keep` is preserved in `priorDecision` and in this note as historical provenance.",
+      "priorDecision": "keep",
+      "holdCategory": "self-reflection / advice-style / personal-change review deferred",
+      "supersededBy": "phase5b-rejected-self-reflection-hold"
+    },
+    {
+      "verseKey": "61:3",
+      "emotionKey": "rejected",
+      "decision": "hold",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during the Batch 4 review of `rejected`, to keep the emotion balanced: 'Great is hatred in the sight of Allah that you say what you do not do' - continues 61:2's call to match action to word. NOT one of the 130 original Batch 4 candidates and NOT counted in originalCandidateCount/decisionCounts. SUPERSEDED by the Phase 5B `rejected` self-reflection editorial review: this direct `verseKey -> rejected` pair is now HOLD FOR NOW, which is a deferral and NOT a rejection. Category: self-reflection / advice-style / personal-change review deferred - the reviewer wants to revisit later whether `rejected` should surface verses that ask the user to examine their own behaviour, the consistency between their words and actions, gentleness, wisdom in advice, communication style, and what they may need to change in themselves. Only this one pair changed; every previously approved overlap destination for this verse is untouched. The earlier `keep` is preserved in `priorDecision` and in this note as historical provenance.",
+      "priorDecision": "keep",
+      "holdCategory": "self-reflection / advice-style / personal-change review deferred",
+      "supersededBy": "phase5b-rejected-self-reflection-hold"
+    },
+    {
+      "verseKey": "16:125",
+      "emotionKey": "rejected",
+      "decision": "hold",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during the Batch 4 review of `rejected`, to keep the emotion balanced: 'Invite to the way of your Lord with wisdom and good instruction, and argue with them in a way that is best' - an invitation to review whether advice was offered with wisdom and in the best manner, not only to feel wronged when it is refused. NOT one of the 130 original Batch 4 candidates and NOT counted in originalCandidateCount/decisionCounts. SUPERSEDED by the Phase 5B `rejected` self-reflection editorial review: this direct `verseKey -> rejected` pair is now HOLD FOR NOW, which is a deferral and NOT a rejection. Category: self-reflection / advice-style / personal-change review deferred - the reviewer wants to revisit later whether `rejected` should surface verses that ask the user to examine their own behaviour, the consistency between their words and actions, gentleness, wisdom in advice, communication style, and what they may need to change in themselves. Only this one pair changed; every previously approved overlap destination for this verse is untouched. The earlier `keep` is preserved in `priorDecision` and in this note as historical provenance.",
+      "priorDecision": "keep",
+      "holdCategory": "self-reflection / advice-style / personal-change review deferred",
+      "supersededBy": "phase5b-rejected-self-reflection-hold"
+    },
+    {
+      "verseKey": "20:44",
+      "emotionKey": "rejected",
+      "decision": "hold",
+      "note": "Directly human-reviewed and accepted as a supplemental KEEP during the Batch 4 review of `rejected`, to keep the emotion balanced: Allah's instruction to Musa and Harun before Pharaoh - 'and speak to him with gentle speech, that perhaps he may be reminded or fear [Allah]' - even the hardest audience is met with gentleness; useful for reflecting on how advice or correction is delivered. NOT one of the 130 original Batch 4 candidates and NOT counted in originalCandidateCount/decisionCounts. SUPERSEDED by the Phase 5B `rejected` self-reflection editorial review: this direct `verseKey -> rejected` pair is now HOLD FOR NOW, which is a deferral and NOT a rejection. Category: self-reflection / advice-style / personal-change review deferred - the reviewer wants to revisit later whether `rejected` should surface verses that ask the user to examine their own behaviour, the consistency between their words and actions, gentleness, wisdom in advice, communication style, and what they may need to change in themselves. Only this one pair changed; every previously approved overlap destination for this verse is untouched. The earlier `keep` is preserved in `priorDecision` and in this note as historical provenance.",
+      "priorDecision": "keep",
+      "holdCategory": "self-reflection / advice-style / personal-change review deferred",
+      "supersededBy": "phase5b-rejected-self-reflection-hold"
+    }
+  ],
+  "unrecoverableOverlapSources": {
+    "note": "All 120 previously unrecoverable core KEEP pairs were resolved on 2026-09-11: the human reviewer supplied the exact accepted overlap-destination lists, which are now persisted in phase5b-batch4-overlap-candidates.json (merged with existing rows where a destination was already tracked, per the no-duplication rule). This array is intentionally empty. `supersededPairs` still holds the 5 pairs whose core KEEP decision was later superseded to reject by the punishment/warning correction, retained as historical audit provenance.",
+    "pairs": [],
+    "supersededPairs": {
+      "note": "These pairs were listed in `pairs` until `phase5b-punishment-warning-exclusion` superseded their core `keep` decisions to `reject`. Their overlap destination sets are no longer worth recovering, so they are held here as historical provenance instead of being deleted from the artifact.",
+      "pairs": [
+        {
+          "verseKey": "39:54",
+          "emotionKey": "hopeless"
+        },
+        {
+          "verseKey": "46:35",
+          "emotionKey": "tired"
+        },
+        {
+          "verseKey": "46:35",
+          "emotionKey": "want_to_cry"
+        },
+        {
+          "verseKey": "42:42",
+          "emotionKey": "rejected"
+        },
+        {
+          "verseKey": "46:35",
+          "emotionKey": "rejected"
+        }
+      ]
+    }
+  },
+  "editorialCorrections": [
+    {
+      "id": "phase5b-punishment-warning-exclusion",
+      "recordedOn": "2026-09-11",
+      "priorDecision": "keep",
+      "newDecision": "reject",
+      "scope": "verse-level",
+      "reason": "Dominant tone of the full ayah is punishment, warning, or eschatological fear - not suitable for the current emotional-support experience.",
+      "note": "Latest human editorial decision. It supersedes every earlier `keep` recorded in Batches 1-4 for these 17 verseKeys, across every emotion they were reviewed under - the rule is verse-level, so the number of changed (verseKey, emotionKey) rows is larger than 17. Superseded rows are retained with `priorDecision` and an explanatory note; nothing was deleted. Still a review disposition only: no mapping was promoted, no emotion activated, nothing written to MongoDB.",
+      "excludedVerseKeys": [
+        "15:50",
+        "39:54",
+        "39:55",
+        "39:56",
+        "39:57",
+        "39:58",
+        "39:59",
+        "39:60",
+        "39:65",
+        "39:68",
+        "39:71",
+        "39:72",
+        "40:18",
+        "42:42",
+        "46:35",
+        "69:18",
+        "69:25"
+      ],
+      "retainedVerseKeys": [
+        "14:42",
+        "40:16",
+        "40:17",
+        "40:19",
+        "40:20"
+      ],
+      "retainedNote": "These five verses were reviewed alongside the excluded group and were explicitly RETAINED as `keep` by the same editorial decision. Their existing review decisions and every previously approved overlap destination (including `betrayed`, `wronged`, `angry`, and `reassurance`) are unchanged.",
+      "changedPairsInThisArtifact": {
+        "reviews": [
+          "39:54|hopeless",
+          "46:35|tired",
+          "46:35|want_to_cry",
+          "42:42|rejected",
+          "46:35|rejected"
+        ],
+        "supplementalReviews": []
+      }
+    },
+    {
+      "id": "phase5b-rejected-self-reflection-hold",
+      "recordedOn": "2026-09-11",
+      "priorDecision": "keep",
+      "newDecision": "hold",
+      "scope": "pair-level",
+      "reason": "self-reflection / advice-style / personal-change review deferred",
+      "note": "HOLD FOR NOW is a deferral, NOT a rejection. The reviewer wants to revisit later whether `rejected` should surface verses that challenge the user to review their own behaviour, the consistency between their words and actions, gentleness, wisdom in advice, communication style, and things they may need to change in themselves. Only the direct `verseKey -> rejected` pair changed for each of these seven verses; every previously approved overlap destination for them (for example `3:159 -> angry` in the Batch 3 core review, and all of their rows in phase5b-batch4-overlap-candidates.json) is deliberately untouched.",
+      "verseKeys": [
+        "3:159",
+        "13:11",
+        "2:44",
+        "61:2",
+        "61:3",
+        "16:125",
+        "20:44"
+      ],
+      "changedPairsInThisArtifact": {
+        "reviews": [],
+        "supplementalReviews": [
+          "3:159|rejected",
+          "13:11|rejected",
+          "2:44|rejected",
+          "61:2|rejected",
+          "61:3|rejected",
+          "16:125|rejected",
+          "20:44|rejected"
+        ]
+      }
+    },
+    {
+      "id": "phase5b-batch4-overlap-source-recovery",
+      "recordedOn": "2026-09-11",
+      "scope": "overlap-provenance",
+      "reason": "The human reviewer supplied the exact accepted overlap-destination lists for the 120 core KEEP pairs that were previously listed as unrecoverable.",
+      "note": "Resolves all 120 entries that were in `unrecoverableOverlapSources.pairs` before this correction (125 minus the 5 later superseded by `phase5b-punishment-warning-exclusion`). Every listed destination was persisted to `phase5b-batch4-overlap-candidates.json` unless it was already represented by an existing MVP mapping, a direct Batch 1-4 human-review decision, or a previously persisted overlap row elsewhere (skipped per the no-duplication convention) or in this same file (merged into the existing row's `sourceEmotionKeys` instead of a duplicate row). No overlap outside the reviewer-supplied lists was invented. `unrecoverableOverlapSources.pairs` is now empty; `unrecoverableOverlapSources.supersededPairs` is preserved unchanged as historical audit provenance.",
+      "resolvedSourcePairCount": 120,
+      "finalOverlapRowCount": 418
+    }
+  ]
+}

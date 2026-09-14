@@ -3,7 +3,7 @@
  *
  * Turns free-text user input ("really sad", "زعلان أوي", "عايز أعيط") into a
  * stable emotion key. Not wired into the API yet; it exists so the alias design
- * in `docs/phase-5a-emotion-taxonomy.md` is executable and testable.
+ * in `docs/emotion-mappings/taxonomy.md` is executable and testable.
  *
  * Resolution is deliberately simple: exact/normalized match against the label
  * and alias lists in the taxonomy. Fuzzy matching, stemming and embeddings are

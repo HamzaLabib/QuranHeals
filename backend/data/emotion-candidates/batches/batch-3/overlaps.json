@@ -1,0 +1,4805 @@
+[
+  {
+    "verseKey": "8:46",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "8:46",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "8:46",
+    "emotionKey": "confused",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `confused` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "8:46",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `wronged` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "8:46",
+    "emotionKey": "betrayed",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `betrayed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "8:46",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "31:17",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "angry",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`/`wronged`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "31:17",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "angry",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`/`wronged`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "31:17",
+    "emotionKey": "repentant",
+    "sourceEmotionKeys": [
+      "angry",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`/`wronged`. Assess the full ayah for `repentant` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "70:5",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "angry",
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`/`betrayed`/`wronged`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "70:5",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "angry",
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`/`betrayed`/`wronged`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "70:5",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "angry",
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`/`betrayed`/`wronged`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "70:5",
+    "emotionKey": "repentant",
+    "sourceEmotionKeys": [
+      "angry",
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`/`betrayed`/`wronged`. Assess the full ayah for `repentant` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "70:5",
+    "emotionKey": "sad",
+    "sourceEmotionKeys": [
+      "angry",
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`/`betrayed`/`wronged`. Assess the full ayah for `sad` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "70:5",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "angry",
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`/`betrayed`/`wronged`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:186",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "angry",
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`/`betrayed`/`wronged`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:186",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "angry",
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`/`betrayed`/`wronged`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:186",
+    "emotionKey": "forgiveness_struggle",
+    "sourceEmotionKeys": [
+      "angry",
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`/`betrayed`/`wronged`. Assess the full ayah for `forgiveness_struggle` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:186",
+    "emotionKey": "confused",
+    "sourceEmotionKeys": [
+      "angry",
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`/`betrayed`/`wronged`. Assess the full ayah for `confused` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:186",
+    "emotionKey": "lost",
+    "sourceEmotionKeys": [
+      "angry",
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`/`betrayed`/`wronged`. Assess the full ayah for `lost` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:186",
+    "emotionKey": "lonely",
+    "sourceEmotionKeys": [
+      "angry",
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`/`betrayed`/`wronged`. Assess the full ayah for `lonely` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:186",
+    "emotionKey": "sad",
+    "sourceEmotionKeys": [
+      "angry",
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`/`betrayed`/`wronged`. Assess the full ayah for `sad` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:186",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "angry",
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`/`betrayed`/`wronged`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "46:35",
+    "emotionKey": "forgiveness_struggle",
+    "sourceEmotionKeys": [
+      "angry",
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`/`betrayed`/`wronged`. Assess the full ayah for `forgiveness_struggle` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review",
+    "status": "excluded",
+    "excludedBy": "phase5b-punishment-warning-exclusion",
+    "excludedReason": "EXCLUDED by the Phase 5B punishment/warning editorial review: the Phase 5B review decision(s) this proposal originated from were superseded to `reject` at verse level, so this row is no longer an active overlap proposal. It is retained in place as historical provenance of what the earlier review accepted, and must be ignored when assembling the Phase 5B overlap pool."
+  },
+  {
+    "verseKey": "46:35",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "angry",
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`/`betrayed`/`wronged`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review",
+    "status": "excluded",
+    "excludedBy": "phase5b-punishment-warning-exclusion",
+    "excludedReason": "EXCLUDED by the Phase 5B punishment/warning editorial review: the Phase 5B review decision(s) this proposal originated from were superseded to `reject` at verse level, so this row is no longer an active overlap proposal. It is retained in place as historical provenance of what the earlier review accepted, and must be ignored when assembling the Phase 5B overlap pool."
+  },
+  {
+    "verseKey": "46:35",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "angry",
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`/`betrayed`/`wronged`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review",
+    "status": "excluded",
+    "excludedBy": "phase5b-punishment-warning-exclusion",
+    "excludedReason": "EXCLUDED by the Phase 5B punishment/warning editorial review: the Phase 5B review decision(s) this proposal originated from were superseded to `reject` at verse level, so this row is no longer an active overlap proposal. It is retained in place as historical provenance of what the earlier review accepted, and must be ignored when assembling the Phase 5B overlap pool."
+  },
+  {
+    "verseKey": "46:35",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "angry",
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`/`betrayed`/`wronged`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review",
+    "status": "excluded",
+    "excludedBy": "phase5b-punishment-warning-exclusion",
+    "excludedReason": "EXCLUDED by the Phase 5B punishment/warning editorial review: the Phase 5B review decision(s) this proposal originated from were superseded to `reject` at verse level, so this row is no longer an active overlap proposal. It is retained in place as historical provenance of what the earlier review accepted, and must be ignored when assembling the Phase 5B overlap pool."
+  },
+  {
+    "verseKey": "7:43",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:43",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `content` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:43",
+    "emotionKey": "patience",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `patience` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:43",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:43",
+    "emotionKey": "repentant",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `repentant` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:43",
+    "emotionKey": "overwhelmed",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `overwhelmed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:43",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:43",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:43",
+    "emotionKey": "confused",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `confused` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:43",
+    "emotionKey": "hopeless",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `hopeless` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:43",
+    "emotionKey": "lost",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `lost` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:159",
+    "emotionKey": "forgiveness_struggle",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `forgiveness_struggle` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:159",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `wronged` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:159",
+    "emotionKey": "betrayed",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `betrayed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:159",
+    "emotionKey": "patience",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `patience` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:159",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:159",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:159",
+    "emotionKey": "confused",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `confused` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:159",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:40",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `wronged` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:40",
+    "emotionKey": "betrayed",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `betrayed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:40",
+    "emotionKey": "forgiveness_struggle",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `forgiveness_struggle` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:40",
+    "emotionKey": "patience",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `patience` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:40",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:40",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:40",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:40",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:40",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:40",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:43",
+    "emotionKey": "forgiveness_struggle",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `forgiveness_struggle` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:43",
+    "emotionKey": "patience",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `patience` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:43",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:43",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `wronged` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:43",
+    "emotionKey": "betrayed",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `betrayed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:43",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:43",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:43",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:43",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:43",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:43",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "16:126",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `wronged` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "16:126",
+    "emotionKey": "betrayed",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `betrayed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "16:126",
+    "emotionKey": "forgiveness_struggle",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `forgiveness_struggle` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "16:126",
+    "emotionKey": "patience",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `patience` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "16:126",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "16:126",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "16:126",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "16:126",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "16:126",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "41:35",
+    "emotionKey": "patience",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `patience` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "41:35",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "41:35",
+    "emotionKey": "forgiveness_struggle",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `forgiveness_struggle` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:200",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:200",
+    "emotionKey": "patience",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `patience` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:200",
+    "emotionKey": "forgiveness_struggle",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `forgiveness_struggle` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:200",
+    "emotionKey": "anxious",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `anxious` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:200",
+    "emotionKey": "overwhelmed",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `overwhelmed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:200",
+    "emotionKey": "confused",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `confused` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:200",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:200",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:200",
+    "emotionKey": "betrayed",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `betrayed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:200",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `wronged` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:200",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:63",
+    "emotionKey": "patience",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `patience` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:63",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `peaceful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:63",
+    "emotionKey": "forgiveness_struggle",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `forgiveness_struggle` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:63",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `wronged` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:63",
+    "emotionKey": "betrayed",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `betrayed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:63",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:63",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:63",
+    "emotionKey": "overwhelmed",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `overwhelmed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:63",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:63",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:63",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:63",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "28:55",
+    "emotionKey": "patience",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `patience` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "28:55",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `peaceful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "28:55",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "28:55",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `wronged` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "28:55",
+    "emotionKey": "betrayed",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `betrayed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "28:55",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "28:55",
+    "emotionKey": "forgiveness_struggle",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `forgiveness_struggle` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "28:55",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "23:96",
+    "emotionKey": "forgiveness_struggle",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `forgiveness_struggle` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "23:96",
+    "emotionKey": "patience",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `patience` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "23:96",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `wronged` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "23:96",
+    "emotionKey": "betrayed",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `betrayed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "23:96",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "23:96",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "23:96",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "23:96",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `peaceful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "23:96",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "23:96",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "64:14",
+    "emotionKey": "forgiveness_struggle",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `forgiveness_struggle` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "64:14",
+    "emotionKey": "betrayed",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `betrayed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "64:14",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `wronged` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "64:14",
+    "emotionKey": "patience",
+    "sourceEmotionKeys": [
+      "angry"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `angry`. Assess the full ayah for `patience` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "16:127",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "16:127",
+    "emotionKey": "anxious",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `anxious` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "16:127",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "16:127",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "16:127",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "16:127",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "16:127",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "16:127",
+    "emotionKey": "angry",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `angry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:51",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:51",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:51",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:51",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `wronged` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:51",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:51",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `hopeful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:51",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:173",
+    "emotionKey": "anxious",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `anxious` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:173",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:173",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:173",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:173",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:173",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `hopeful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:173",
+    "emotionKey": "sad",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `sad` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:173",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:173",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:129",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:129",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:129",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:129",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:129",
+    "emotionKey": "hopeless",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `hopeless` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:129",
+    "emotionKey": "lost",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `lost` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "40:44",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "40:44",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "40:44",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "40:44",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "40:44",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "40:44",
+    "emotionKey": "lost",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `lost` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:160",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:160",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:160",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:160",
+    "emotionKey": "afraid",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `afraid` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:160",
+    "emotionKey": "anxious",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `anxious` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:160",
+    "emotionKey": "overwhelmed",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `overwhelmed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:160",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:160",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:160",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `wronged` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:160",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:160",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `hopeful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:160",
+    "emotionKey": "lost",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `lost` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:160",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "8:62",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `wronged` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "8:62",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "8:62",
+    "emotionKey": "afraid",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `afraid` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "8:62",
+    "emotionKey": "anxious",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `anxious` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "8:62",
+    "emotionKey": "overwhelmed",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `overwhelmed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "8:62",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "8:62",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "8:62",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "8:62",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "8:62",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "8:62",
+    "emotionKey": "angry",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `angry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "8:62",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:18",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:18",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `wronged` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:18",
+    "emotionKey": "sad",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `sad` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:18",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:18",
+    "emotionKey": "patience",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `patience` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:18",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:18",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:18",
+    "emotionKey": "overwhelmed",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `overwhelmed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:18",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:18",
+    "emotionKey": "angry",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `angry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:18",
+    "emotionKey": "forgiveness_struggle",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `forgiveness_struggle` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:18",
+    "emotionKey": "lonely",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `lonely` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:18",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:120",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `wronged` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:120",
+    "emotionKey": "angry",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `angry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:120",
+    "emotionKey": "patience",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `patience` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:120",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:120",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:120",
+    "emotionKey": "sad",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `sad` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:120",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:120",
+    "emotionKey": "anxious",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `anxious` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:120",
+    "emotionKey": "overwhelmed",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `overwhelmed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:120",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:120",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:120",
+    "emotionKey": "afraid",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `afraid` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:120",
+    "emotionKey": "forgiveness_struggle",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `forgiveness_struggle` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:45",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `wronged` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:45",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:45",
+    "emotionKey": "afraid",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `afraid` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:45",
+    "emotionKey": "anxious",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `anxious` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:45",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:45",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:45",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:45",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:45",
+    "emotionKey": "lonely",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `lonely` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:45",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:45",
+    "emotionKey": "angry",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `angry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:45",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "58:10",
+    "emotionKey": "anxious",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `anxious` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "58:10",
+    "emotionKey": "afraid",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `afraid` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "58:10",
+    "emotionKey": "sad",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `sad` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "58:10",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "58:10",
+    "emotionKey": "overwhelmed",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `overwhelmed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "58:10",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "58:10",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `wronged` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "58:10",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "58:10",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "58:10",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "58:10",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "58:10",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "58:10",
+    "emotionKey": "repentant",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `repentant` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "58:10",
+    "emotionKey": "guilty",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `guilty` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "14:42",
+    "emotionKey": "angry",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `angry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "14:42",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "14:42",
+    "emotionKey": "sad",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `sad` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "14:42",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "14:42",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "14:42",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "14:42",
+    "emotionKey": "patience",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `patience` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "14:42",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "14:42",
+    "emotionKey": "hopeless",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `hopeless` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "14:42",
+    "emotionKey": "overwhelmed",
+    "sourceEmotionKeys": [
+      "betrayed",
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`/`wronged`. Assess the full ayah for `overwhelmed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "65:3",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "65:3",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "65:3",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "65:3",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "65:3",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `hopeful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "65:3",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "65:3",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "65:3",
+    "emotionKey": "sad",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `sad` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "65:3",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "betrayed"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `betrayed`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:41",
+    "emotionKey": "angry",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `angry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:41",
+    "emotionKey": "betrayed",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `betrayed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:41",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:41",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:41",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:42",
+    "emotionKey": "betrayed",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `betrayed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review",
+    "status": "excluded",
+    "excludedBy": "phase5b-punishment-warning-exclusion",
+    "excludedReason": "EXCLUDED by the Phase 5B punishment/warning editorial review: the Phase 5B review decision(s) this proposal originated from were superseded to `reject` at verse level, so this row is no longer an active overlap proposal. It is retained in place as historical provenance of what the earlier review accepted, and must be ignored when assembling the Phase 5B overlap pool."
+  },
+  {
+    "verseKey": "42:42",
+    "emotionKey": "angry",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `angry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review",
+    "status": "excluded",
+    "excludedBy": "phase5b-punishment-warning-exclusion",
+    "excludedReason": "EXCLUDED by the Phase 5B punishment/warning editorial review: the Phase 5B review decision(s) this proposal originated from were superseded to `reject` at verse level, so this row is no longer an active overlap proposal. It is retained in place as historical provenance of what the earlier review accepted, and must be ignored when assembling the Phase 5B overlap pool."
+  },
+  {
+    "verseKey": "42:42",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review",
+    "status": "excluded",
+    "excludedBy": "phase5b-punishment-warning-exclusion",
+    "excludedReason": "EXCLUDED by the Phase 5B punishment/warning editorial review: the Phase 5B review decision(s) this proposal originated from were superseded to `reject` at verse level, so this row is no longer an active overlap proposal. It is retained in place as historical provenance of what the earlier review accepted, and must be ignored when assembling the Phase 5B overlap pool."
+  },
+  {
+    "verseKey": "42:42",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review",
+    "status": "excluded",
+    "excludedBy": "phase5b-punishment-warning-exclusion",
+    "excludedReason": "EXCLUDED by the Phase 5B punishment/warning editorial review: the Phase 5B review decision(s) this proposal originated from were superseded to `reject` at verse level, so this row is no longer an active overlap proposal. It is retained in place as historical provenance of what the earlier review accepted, and must be ignored when assembling the Phase 5B overlap pool."
+  },
+  {
+    "verseKey": "42:42",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review",
+    "status": "excluded",
+    "excludedBy": "phase5b-punishment-warning-exclusion",
+    "excludedReason": "EXCLUDED by the Phase 5B punishment/warning editorial review: the Phase 5B review decision(s) this proposal originated from were superseded to `reject` at verse level, so this row is no longer an active overlap proposal. It is retained in place as historical provenance of what the earlier review accepted, and must be ignored when assembling the Phase 5B overlap pool."
+  },
+  {
+    "verseKey": "42:42",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review",
+    "status": "excluded",
+    "excludedBy": "phase5b-punishment-warning-exclusion",
+    "excludedReason": "EXCLUDED by the Phase 5B punishment/warning editorial review: the Phase 5B review decision(s) this proposal originated from were superseded to `reject` at verse level, so this row is no longer an active overlap proposal. It is retained in place as historical provenance of what the earlier review accepted, and must be ignored when assembling the Phase 5B overlap pool."
+  },
+  {
+    "verseKey": "22:60",
+    "emotionKey": "angry",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `angry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "22:60",
+    "emotionKey": "betrayed",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `betrayed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "22:60",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "22:60",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "22:60",
+    "emotionKey": "forgiveness_struggle",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `forgiveness_struggle` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:148",
+    "emotionKey": "betrayed",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `betrayed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:148",
+    "emotionKey": "angry",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `angry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:148",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `rejected` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:148",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:148",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:148",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "27:62",
+    "emotionKey": "overwhelmed",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `overwhelmed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "27:62",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "27:62",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "27:62",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "27:62",
+    "emotionKey": "afraid",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `afraid` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "27:62",
+    "emotionKey": "anxious",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `anxious` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "27:62",
+    "emotionKey": "hopeless",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `hopeless` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "27:62",
+    "emotionKey": "lost",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `lost` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "27:62",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "27:62",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "27:62",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "21:47",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "21:47",
+    "emotionKey": "betrayed",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `betrayed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "21:47",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "21:47",
+    "emotionKey": "hopeless",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `hopeless` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "21:47",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "21:47",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "21:47",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "21:47",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "21:47",
+    "emotionKey": "forgiveness_struggle",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `forgiveness_struggle` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "21:47",
+    "emotionKey": "angry",
+    "sourceEmotionKeys": [
+      "wronged"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `wronged`. Assess the full ayah for `angry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "21:87",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "21:87",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "21:87",
+    "emotionKey": "lost",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `lost` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "21:87",
+    "emotionKey": "hopeless",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `hopeless` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "21:87",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "21:87",
+    "emotionKey": "angry",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `angry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "21:87",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "21:87",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "11:11",
+    "emotionKey": "hopeless",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `hopeless` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "11:11",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "11:11",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "11:11",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "11:11",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "11:11",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "8:29",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "8:29",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `hopeful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "8:29",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "8:29",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "57:28",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "57:28",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "57:28",
+    "emotionKey": "hopeless",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `hopeless` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "57:28",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:31",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:31",
+    "emotionKey": "lost",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `lost` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:31",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:31",
+    "emotionKey": "hopeless",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `hopeless` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:31",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:31",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "guilty",
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`/`repentant`. Assess the full ayah for `content` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "39:53",
+    "emotionKey": "repentant",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `repentant` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "39:53",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `hopeful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "39:53",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "39:53",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "39:53",
+    "emotionKey": "overwhelmed",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `overwhelmed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "39:53",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "39:53",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "39:53",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "39:53",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "39:54",
+    "emotionKey": "repentant",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `repentant` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review",
+    "status": "excluded",
+    "excludedBy": "phase5b-punishment-warning-exclusion",
+    "excludedReason": "EXCLUDED by the Phase 5B punishment/warning editorial review: the Phase 5B review decision(s) this proposal originated from were superseded to `reject` at verse level, so this row is no longer an active overlap proposal. It is retained in place as historical provenance of what the earlier review accepted, and must be ignored when assembling the Phase 5B overlap pool."
+  },
+  {
+    "verseKey": "39:54",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review",
+    "status": "excluded",
+    "excludedBy": "phase5b-punishment-warning-exclusion",
+    "excludedReason": "EXCLUDED by the Phase 5B punishment/warning editorial review: the Phase 5B review decision(s) this proposal originated from were superseded to `reject` at verse level, so this row is no longer an active overlap proposal. It is retained in place as historical provenance of what the earlier review accepted, and must be ignored when assembling the Phase 5B overlap pool."
+  },
+  {
+    "verseKey": "39:54",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review",
+    "status": "excluded",
+    "excludedBy": "phase5b-punishment-warning-exclusion",
+    "excludedReason": "EXCLUDED by the Phase 5B punishment/warning editorial review: the Phase 5B review decision(s) this proposal originated from were superseded to `reject` at verse level, so this row is no longer an active overlap proposal. It is retained in place as historical provenance of what the earlier review accepted, and must be ignored when assembling the Phase 5B overlap pool."
+  },
+  {
+    "verseKey": "39:54",
+    "emotionKey": "lost",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `lost` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review",
+    "status": "excluded",
+    "excludedBy": "phase5b-punishment-warning-exclusion",
+    "excludedReason": "EXCLUDED by the Phase 5B punishment/warning editorial review: the Phase 5B review decision(s) this proposal originated from were superseded to `reject` at verse level, so this row is no longer an active overlap proposal. It is retained in place as historical provenance of what the earlier review accepted, and must be ignored when assembling the Phase 5B overlap pool."
+  },
+  {
+    "verseKey": "39:54",
+    "emotionKey": "confused",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `confused` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review",
+    "status": "excluded",
+    "excludedBy": "phase5b-punishment-warning-exclusion",
+    "excludedReason": "EXCLUDED by the Phase 5B punishment/warning editorial review: the Phase 5B review decision(s) this proposal originated from were superseded to `reject` at verse level, so this row is no longer an active overlap proposal. It is retained in place as historical provenance of what the earlier review accepted, and must be ignored when assembling the Phase 5B overlap pool."
+  },
+  {
+    "verseKey": "39:54",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review",
+    "status": "excluded",
+    "excludedBy": "phase5b-punishment-warning-exclusion",
+    "excludedReason": "EXCLUDED by the Phase 5B punishment/warning editorial review: the Phase 5B review decision(s) this proposal originated from were superseded to `reject` at verse level, so this row is no longer an active overlap proposal. It is retained in place as historical provenance of what the earlier review accepted, and must be ignored when assembling the Phase 5B overlap pool."
+  },
+  {
+    "verseKey": "39:54",
+    "emotionKey": "hopeless",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `hopeless` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review",
+    "status": "excluded",
+    "excludedBy": "phase5b-punishment-warning-exclusion",
+    "excludedReason": "EXCLUDED by the Phase 5B punishment/warning editorial review: the Phase 5B review decision(s) this proposal originated from were superseded to `reject` at verse level, so this row is no longer an active overlap proposal. It is retained in place as historical provenance of what the earlier review accepted, and must be ignored when assembling the Phase 5B overlap pool."
+  },
+  {
+    "verseKey": "39:54",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `hopeful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review",
+    "status": "excluded",
+    "excludedBy": "phase5b-punishment-warning-exclusion",
+    "excludedReason": "EXCLUDED by the Phase 5B punishment/warning editorial review: the Phase 5B review decision(s) this proposal originated from were superseded to `reject` at verse level, so this row is no longer an active overlap proposal. It is retained in place as historical provenance of what the earlier review accepted, and must be ignored when assembling the Phase 5B overlap pool."
+  },
+  {
+    "verseKey": "39:54",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review",
+    "status": "excluded",
+    "excludedBy": "phase5b-punishment-warning-exclusion",
+    "excludedReason": "EXCLUDED by the Phase 5B punishment/warning editorial review: the Phase 5B review decision(s) this proposal originated from were superseded to `reject` at verse level, so this row is no longer an active overlap proposal. It is retained in place as historical provenance of what the earlier review accepted, and must be ignored when assembling the Phase 5B overlap pool."
+  },
+  {
+    "verseKey": "4:110",
+    "emotionKey": "repentant",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `repentant` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:110",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `hopeful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:110",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:110",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:110",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:110",
+    "emotionKey": "hopeless",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `hopeless` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:110",
+    "emotionKey": "lost",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `lost` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:110",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:110",
+    "emotionKey": "overwhelmed",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `overwhelmed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "4:110",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:135",
+    "emotionKey": "repentant",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `repentant` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:135",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:135",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:135",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `hopeful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:135",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:135",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:135",
+    "emotionKey": "hopeless",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `hopeless` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:135",
+    "emotionKey": "lost",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `lost` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:135",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "20:82",
+    "emotionKey": "repentant",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `repentant` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "20:82",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `hopeful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "20:82",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "20:82",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "20:82",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "20:82",
+    "emotionKey": "lost",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `lost` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "20:82",
+    "emotionKey": "hopeless",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `hopeless` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "20:82",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "20:82",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "20:82",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `content` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:25",
+    "emotionKey": "repentant",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `repentant` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:25",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `hopeful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:25",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:25",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:25",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:25",
+    "emotionKey": "hopeless",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `hopeless` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:25",
+    "emotionKey": "lost",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `lost` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:25",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:25",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "42:25",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:23",
+    "emotionKey": "repentant",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `repentant` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:23",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:23",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:23",
+    "emotionKey": "hopeless",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `hopeless` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:23",
+    "emotionKey": "lost",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `lost` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:23",
+    "emotionKey": "overwhelmed",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `overwhelmed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:23",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:23",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:23",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "7:23",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:53",
+    "emotionKey": "repentant",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `repentant` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:53",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:53",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:53",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:53",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `hopeful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:53",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:53",
+    "emotionKey": "overwhelmed",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `overwhelmed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:53",
+    "emotionKey": "confused",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `confused` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "12:53",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "guilty"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `guilty`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:8",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:8",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `hopeful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "3:8",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "66:8",
+    "emotionKey": "guilty",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `guilty` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "66:8",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `hopeful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "66:8",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "66:8",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "66:8",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "66:8",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "66:8",
+    "emotionKey": "hopeless",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `hopeless` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "66:8",
+    "emotionKey": "lost",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `lost` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "66:8",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "66:8",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "66:8",
+    "emotionKey": "overwhelmed",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `overwhelmed` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:104",
+    "emotionKey": "guilty",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `guilty` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:104",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `hopeful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:104",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:104",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:104",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:104",
+    "emotionKey": "hopeless",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `hopeless` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:104",
+    "emotionKey": "lost",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `lost` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:104",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "9:104",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `content` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "2:222",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:70",
+    "emotionKey": "guilty",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `guilty` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:70",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `hopeful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:70",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:70",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:70",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:70",
+    "emotionKey": "hopeless",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `hopeless` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:70",
+    "emotionKey": "lost",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `lost` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:70",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:70",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "25:70",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `content` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "24:31",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "50:33",
+    "emotionKey": "guilty",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `guilty` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "50:33",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "50:33",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `hopeful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "50:33",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "50:33",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "50:33",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `content` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "50:33",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "17:25",
+    "emotionKey": "guilty",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `guilty` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "17:25",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "17:25",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `hopeful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "17:25",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "17:25",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "17:25",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "17:25",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `heartbroken` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "17:25",
+    "emotionKey": "want_to_cry",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `want_to_cry` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "17:25",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `content` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "19:60",
+    "emotionKey": "guilty",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `guilty` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "19:60",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `hopeful` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "19:60",
+    "emotionKey": "hopeless",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `hopeless` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "19:60",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `reassurance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "19:60",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `weak` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "19:60",
+    "emotionKey": "lost",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `lost` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "19:60",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `closer_to_allah` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "19:60",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `seeking_guidance` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "19:60",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `strength` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  },
+  {
+    "verseKey": "19:60",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "repentant"
+    ],
+    "rationale": "Cross-emotion proposal explicitly accepted during Batch 3 human review of `repentant`. Assess the full ayah for `wronged` when that emotion is reviewed; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch3-human-overlap-review"
+  }
+]

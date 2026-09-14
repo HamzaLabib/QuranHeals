@@ -10,7 +10,7 @@ serves the 12 emotions in `../seed/emotions.ts`.
 | `aliasResolver.ts` | Turns free-text ("really sad", "زعلان") into a stable emotion key via a normalized exact-match index. Seed for future fuzzy/search matching. |
 
 Full analysis, alias strategy, mapping lifecycle, and rollout plan:
-[`docs/phase-5a-emotion-taxonomy.md`](../../../docs/phase-5a-emotion-taxonomy.md).
+[`docs/emotion-mappings/taxonomy.md`](../../../docs/emotion-mappings/taxonomy.md).
 
 ## Rules
 

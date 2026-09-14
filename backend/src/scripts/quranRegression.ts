@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import mongoose from 'mongoose';
 import request from 'supertest';
 import { createApp } from '../app';
@@ -54,7 +54,8 @@ async function main() {
   for (const name of ['verses', 'versetranslations', 'emotionversemappings']) {
     (checks.indexes as Record<string, unknown>)[name] = await mongoose.connection.db!.collection(name).indexes();
   }
-  writeFileSync('reports/phase3-api-regression.json', JSON.stringify(checks, null, 2) + '\n');
+  mkdirSync('reports/quran-data', { recursive: true });
+  writeFileSync('reports/quran-data/api-regression.json', JSON.stringify(checks, null, 2) + '\n');
   console.log(JSON.stringify(checks, null, 2));
 }
 

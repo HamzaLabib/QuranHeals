@@ -1,0 +1,1852 @@
+[
+  {
+    "verseKey": "3:134",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "3:134",
+    "emotionKey": "grateful",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "3:134",
+    "emotionKey": "patience",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "3:134",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "3:134",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "6:96",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "6:96",
+    "emotionKey": "grateful",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "6:96",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "6:96",
+    "emotionKey": "tired",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "7:43",
+    "emotionKey": "guilty",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "7:126",
+    "emotionKey": "afraid",
+    "sourceEmotionKeys": [
+      "strength"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `strength` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "7:126",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "strength"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `strength` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "7:126",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "strength"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `strength` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "7:126",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "strength"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `strength` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "7:126",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "strength"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `strength` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "7:126",
+    "emotionKey": "repentant",
+    "sourceEmotionKeys": [
+      "strength"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `strength` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "7:126",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "strength"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `strength` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "7:126",
+    "emotionKey": "stressed",
+    "sourceEmotionKeys": [
+      "strength"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `strength` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "7:200",
+    "emotionKey": "stressed",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "8:26",
+    "emotionKey": "afraid",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "8:26",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "8:26",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "8:26",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "8:26",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "8:26",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "10:67",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "10:67",
+    "emotionKey": "grateful",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "10:67",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "10:67",
+    "emotionKey": "tired",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "11:6",
+    "emotionKey": "confused",
+    "sourceEmotionKeys": [
+      "weak"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `weak` (additional approved overlaps for a core candidate). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "11:6",
+    "emotionKey": "lost",
+    "sourceEmotionKeys": [
+      "weak"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `weak` (additional approved overlaps for a core candidate). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "12:92",
+    "emotionKey": "betrayed",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "12:92",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "12:92",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "12:92",
+    "emotionKey": "guilty",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "12:92",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "12:92",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "12:92",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "12:92",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "12:92",
+    "emotionKey": "repentant",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "12:92",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "12:100",
+    "emotionKey": "betrayed",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "12:100",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "12:100",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "12:100",
+    "emotionKey": "grateful",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "12:100",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "12:100",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "12:100",
+    "emotionKey": "lonely",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "12:100",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "12:100",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "12:100",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:18",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:18",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:18",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:18",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:18",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:53",
+    "emotionKey": "afraid",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:53",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:53",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:53",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:53",
+    "emotionKey": "stressed",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:53",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:78",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:78",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:78",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:78",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:80",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:80",
+    "emotionKey": "grateful",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:80",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:80",
+    "emotionKey": "tired",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:81",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:81",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:81",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:81",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:126",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "16:126",
+    "emotionKey": "weak",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "20:72",
+    "emotionKey": "afraid",
+    "sourceEmotionKeys": [
+      "strength"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `strength` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "20:72",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "strength"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `strength` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "20:72",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "strength"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `strength` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "20:72",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "strength"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `strength` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "20:72",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "strength"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `strength` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "20:72",
+    "emotionKey": "repentant",
+    "sourceEmotionKeys": [
+      "strength"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `strength` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "21:47",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "22:60",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "24:22",
+    "emotionKey": "angry",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "24:22",
+    "emotionKey": "betrayed",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "24:22",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "24:22",
+    "emotionKey": "guilty",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "24:22",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "24:22",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "24:22",
+    "emotionKey": "repentant",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "24:22",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "25:48",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "25:48",
+    "emotionKey": "grateful",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "25:48",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "25:48",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "27:15",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "27:15",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "27:15",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "27:15",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "27:15",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "27:86",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "27:86",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "27:86",
+    "emotionKey": "grateful",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "27:86",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "27:86",
+    "emotionKey": "tired",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "29:60",
+    "emotionKey": "confused",
+    "sourceEmotionKeys": [
+      "weak"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `weak` (additional approved overlaps for a core candidate). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "29:60",
+    "emotionKey": "lost",
+    "sourceEmotionKeys": [
+      "weak"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `weak` (additional approved overlaps for a core candidate). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "30:21",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "30:21",
+    "emotionKey": "grateful",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "30:21",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "30:21",
+    "emotionKey": "lonely",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "30:21",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "34:15",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "34:15",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "34:15",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "34:15",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "34:15",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "39:53",
+    "emotionKey": "confused",
+    "sourceEmotionKeys": [
+      "weak"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `weak` (additional approved overlaps for a core candidate). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "39:74",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "41:34",
+    "emotionKey": "betrayed",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "41:34",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "41:34",
+    "emotionKey": "patience",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "41:34",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "41:34",
+    "emotionKey": "rejected",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "41:34",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "41:34",
+    "emotionKey": "wronged",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "41:35",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "41:35",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "42:28",
+    "emotionKey": "grateful",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "42:28",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "42:28",
+    "emotionKey": "hopeless",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "42:28",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "42:28",
+    "emotionKey": "sad",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "42:28",
+    "emotionKey": "stressed",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "42:37",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "42:37",
+    "emotionKey": "patience",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "42:37",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "42:37",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "42:37",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "42:40",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "42:40",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "42:43",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "45:12",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "45:12",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "45:12",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "45:12",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "45:13",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "45:13",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "45:13",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "45:13",
+    "emotionKey": "seeking_guidance",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "48:18",
+    "emotionKey": "afraid",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "48:18",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "48:18",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "48:18",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "48:18",
+    "emotionKey": "strength",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "48:18",
+    "emotionKey": "stressed",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "50:9",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "50:9",
+    "emotionKey": "grateful",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "50:9",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "50:9",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "55:13",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "55:13",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "55:13",
+    "emotionKey": "peaceful",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "55:13",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "55:50",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "55:50",
+    "emotionKey": "grateful",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "55:50",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "55:50",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "55:54",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "55:54",
+    "emotionKey": "grateful",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "55:54",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "55:54",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "55:54",
+    "emotionKey": "tired",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "55:76",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "55:76",
+    "emotionKey": "grateful",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "55:76",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "55:76",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "55:76",
+    "emotionKey": "tired",
+    "sourceEmotionKeys": [
+      "peaceful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `peaceful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "64:14",
+    "emotionKey": "heartbroken",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "64:14",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "forgiveness_struggle"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `forgiveness_struggle`. Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "93:11",
+    "emotionKey": "closer_to_allah",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "93:11",
+    "emotionKey": "content",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "93:11",
+    "emotionKey": "hopeful",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  },
+  {
+    "verseKey": "93:11",
+    "emotionKey": "reassurance",
+    "sourceEmotionKeys": [
+      "grateful"
+    ],
+    "rationale": "Reviewer-approved cross-emotion overlap proposal raised during the Batch 5 human review of `grateful` (fresh-discovery supplemental verse). Assess for the destination emotion in a future review pass; not an approved mapping.",
+    "contextNotes": "",
+    "source": "phase5b-batch5-human-overlap-review"
+  }
+]

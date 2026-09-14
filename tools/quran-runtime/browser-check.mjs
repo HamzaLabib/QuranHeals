@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
 
@@ -98,6 +99,8 @@ try {
   await ready('Load another ayah');
   report.checks.saveAndHistory = 'New favorites have verseKey; unresolved old entry retained; old-ID exclusions and stable companion keys coexist';
   report.checks.browserErrors = browser('errors');
-  writeFileSync(new URL('../../docs/quran-runtime-browser-report.json', import.meta.url), JSON.stringify(report, null, 2) + '\n');
-  console.log('Browser runtime flow checks passed.');
+  const outputPath = fileURLToPath(new URL('../../backend/reports/quran-data/runtime/browser-validation.json', import.meta.url));
+  mkdirSync(dirname(outputPath), { recursive: true });
+  writeFileSync(outputPath, JSON.stringify(report, null, 2) + '\n');
+  console.log(`Browser runtime flow checks passed. Report: ${outputPath}`);
 } finally { db.close(); }

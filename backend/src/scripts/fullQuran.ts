@@ -1,4 +1,5 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import mongoose, { type ClientSession } from 'mongoose';
 import { env } from '../config/env';
 import { compareExisting, loadCorpus, validateCorpus, validateMappings, type Snapshot } from '../import/fullQuran';
@@ -6,6 +7,9 @@ import { seedAyahs } from '../seed/ayahs';
 import { seedEmotions } from '../seed/emotions';
 import { buildFoundationSeedData } from '../seed/foundation';
 import { validateCanonicalVerseBatch } from '../import/quranImporter';
+import { QURAN_DATA_BACKUPS_DIR } from '../utils/backupPaths';
+import { writeVerifiedJsonBackup } from '../utils/backupFile';
+import { recordsRoundTripObjectIds, unwrapBackupEnvelope, wrapBackupEnvelope } from '../utils/objectId';
 
 export async function readSnapshot(session?: ClientSession): Promise<Snapshot> {
   const db = mongoose.connection.db!;
@@ -48,9 +52,9 @@ async function main() {
   }
   if (!['source', 'validate', 'import'].includes(mode)) throw new Error('Use source, validate, or import.');
   const corpus = loadCorpus();
-  mkdirSync('reports', { recursive: true });
+  mkdirSync('reports/quran-data', { recursive: true });
   const sourceReport = validateCorpus(corpus, corpus);
-  writeFileSync('reports/phase3-source-validation.json', JSON.stringify(sourceReport, null, 2) + '\n');
+  writeFileSync('reports/quran-data/source-validation.json', JSON.stringify(sourceReport, null, 2) + '\n');
   if (mode === 'source') { console.log(JSON.stringify(sourceReport, null, 2)); return; }
   if (!env.MONGODB_URI) throw new Error('MONGODB_URI is required.');
   if (env.NODE_ENV === 'production') throw new Error('Phase 3 commands are disabled in production.');
@@ -63,7 +67,7 @@ async function main() {
   const mappings = validateMappings(snapshot);
   const baseline = baselineFailures(snapshot, corpus.verses.length);
   const report = { database: db.databaseName, nodeEnv: env.NODE_ENV, corpus: validation, mappings, baselineFailures: baseline };
-  writeFileSync('reports/phase3-database-validation.json', JSON.stringify(report, null, 2) + '\n');
+  writeFileSync('reports/quran-data/database-validation.json', JSON.stringify(report, null, 2) + '\n');
   if (mode === 'validate') {
     console.log(JSON.stringify(report, null, 2));
     if (!validation.valid || !mappings.valid || baseline.length) process.exitCode = 1;
@@ -74,8 +78,8 @@ async function main() {
   if (!/^(test|.*(?:[_-]dev|[_-]development|[_-]local))$/i.test(db.databaseName)) safetyFailures.push('Database is not recognizably local/development.');
   if (!comparison.safe) safetyFailures.push('Existing source text/checksum conflicts; no text overwrite is permitted.');
   const preflight = { source: sourceReport, database: report, comparison, safetyFailures, safeToImport: safetyFailures.length === 0 };
-  writeFileSync('reports/phase3-preflight.json', JSON.stringify(preflight, null, 2) + '\n');
-  console.log(JSON.stringify({ safeToImport: preflight.safeToImport, safetyFailures, preflightReport: 'reports/phase3-preflight.json' }, null, 2));
+  writeFileSync('reports/quran-data/preflight.json', JSON.stringify(preflight, null, 2) + '\n');
+  console.log(JSON.stringify({ safeToImport: preflight.safeToImport, safetyFailures, preflightReport: 'reports/quran-data/preflight.json' }, null, 2));
   if (safetyFailures.length) { process.exitCode = 1; return; }
   if (!process.argv.includes('--write')) { console.log('Preflight only. Use --write to import after a clean preflight.'); return; }
 
@@ -84,7 +88,35 @@ async function main() {
   const translationIndexes = await db.collection('versetranslations').indexes();
   const hasUnique = (indexes: typeof verseIndexes, keys: string[]) => indexes.some(i => i.unique && JSON.stringify(Object.keys(i.key)) === JSON.stringify(keys));
   if (!hasUnique(verseIndexes, ['referenceKey']) || !hasUnique(verseIndexes, ['surahNumber', 'ayahNumber']) || !hasUnique(translationIndexes, ['verseReferenceKey', 'language', 'translator', 'sourceVersion'])) throw new Error('Required unique indexes are missing.');
-  writeFileSync(`reports/phase3-before-write-${Date.now()}.json`, JSON.stringify(snapshot, null, 2) + '\n', { flag: 'wx' });
+  // Never placed under backend/reports/: this is a pre-mutation safety
+  // backup, not a reproducible report, and backend/backups/ is git-ignored.
+  // Wrapped in the versioned ObjectId-backup envelope (see ../utils/objectId)
+  // so restoration can reconstruct the exact original `_id` of every record,
+  // not merely confirm one was present.
+  const backupPath = join(QURAN_DATA_BACKUPS_DIR, `before-write-${Date.now()}.json`);
+  const backup = writeVerifiedJsonBackup(backupPath, wrapBackupEnvelope(snapshot), (parsed) => {
+    let candidate: Partial<Snapshot>;
+    try {
+      candidate = unwrapBackupEnvelope<Partial<Snapshot>>(parsed);
+    } catch {
+      return false;
+    }
+    if (
+      !Array.isArray(candidate.verses) ||
+      !Array.isArray(candidate.versetranslations) ||
+      !Array.isArray(candidate.emotionversemappings) ||
+      !Array.isArray(candidate.emotions)
+    ) {
+      return false;
+    }
+    return (
+      recordsRoundTripObjectIds(snapshot.verses, candidate.verses) &&
+      recordsRoundTripObjectIds(snapshot.versetranslations, candidate.versetranslations) &&
+      recordsRoundTripObjectIds(snapshot.emotionversemappings, candidate.emotionversemappings) &&
+      recordsRoundTripObjectIds(snapshot.emotions, candidate.emotions)
+    );
+  });
+  console.log(`Pre-write backup verified: ${backup.path} (sha256 ${backup.sha256}, ${backup.byteLength} bytes).`);
   const session = await mongoose.startSession();
   try {
     await session.withTransaction(async () => {

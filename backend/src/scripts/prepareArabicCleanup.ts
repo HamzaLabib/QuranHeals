@@ -10,11 +10,15 @@
 // removes the data, or any later `.save()`/`runValidators` write against a
 // cleaned document will fail.
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 import mongoose from 'mongoose';
 
 import { env } from '../config/env';
 import { isValidVerseKey } from '../quran/referenceKeys';
+import { ARABIC_CLEANUP_BACKUPS_DIR } from '../utils/backupPaths';
+import { writeVerifiedJsonBackup } from '../utils/backupFile';
+import { recordsRoundTripObjectIds, unwrapBackupEnvelope, wrapBackupEnvelope } from '../utils/objectId';
 
 export type QuranTextRecord = {
   _id?: unknown;
@@ -174,8 +178,8 @@ async function main() {
       'or, for the current foundation-seed verses, by re-running the existing migrateFoundation script.',
   };
 
-  mkdirSync('reports', { recursive: true });
-  writeFileSync('reports/phase4-cleanup-dry-run.json', `${JSON.stringify(report, null, 2)}\n`);
+  mkdirSync('reports/data-cleanup', { recursive: true });
+  writeFileSync('reports/data-cleanup/cleanup-dry-run.json', `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));
 
   if (blocked) {
@@ -194,7 +198,7 @@ async function main() {
   }
 
   await runDestructiveCleanup(reports);
-  console.log('Arabic cleanup transaction completed. Backup and updated report written to reports/.');
+  console.log(`Arabic cleanup transaction completed. Backup written to ${ARABIC_CLEANUP_BACKUPS_DIR}; updated report written to reports/data-cleanup/.`);
 }
 
 /**
@@ -206,15 +210,30 @@ async function main() {
  */
 async function runDestructiveCleanup(reports: CollectionCleanupReport[]) {
   const db = mongoose.connection.db!;
-  const backupPath = `reports/phase4-arabic-backup-${Date.now()}.json`;
   const [verses, ayahs] = await Promise.all([
     db.collection('verses').find({}).toArray(),
     db.collection('ayahs').find({}).toArray(),
   ]);
 
-  // Unconditional backup before any mutation; 'wx' refuses to overwrite an
-  // existing file rather than silently clobbering a prior backup.
-  writeFileSync(backupPath, `${JSON.stringify({ verses, ayahs }, null, 2)}\n`, { flag: 'wx' });
+  // Unconditional backup before any mutation, verified by read-back before
+  // any $unset runs. Never placed under backend/reports/: this is a
+  // pre-mutation safety backup, not a reproducible report, and
+  // backend/backups/ is git-ignored. Wrapped in the versioned ObjectId-backup
+  // envelope (see ../utils/objectId): verification below proves each
+  // restored `_id` decodes back into the exact original ObjectId, not merely
+  // that a `_id` field survived.
+  const backupPath = join(ARABIC_CLEANUP_BACKUPS_DIR, `mongodb-arabic-before-cleanup-${Date.now()}.json`);
+  const backup = writeVerifiedJsonBackup(backupPath, wrapBackupEnvelope({ verses, ayahs }), (parsed) => {
+    let candidate: { verses?: unknown; ayahs?: unknown };
+    try {
+      candidate = unwrapBackupEnvelope<{ verses?: unknown; ayahs?: unknown }>(parsed);
+    } catch {
+      return false;
+    }
+    if (!Array.isArray(candidate.verses) || !Array.isArray(candidate.ayahs)) return false;
+    return recordsRoundTripObjectIds(verses, candidate.verses) && recordsRoundTripObjectIds(ayahs, candidate.ayahs);
+  });
+  console.log(`Pre-cleanup backup verified: ${backup.path} (sha256 ${backup.sha256}, ${backup.byteLength} bytes).`);
 
   const versesReport = reports.find((report) => report.collection === 'verses')!;
   const ayahsReport = reports.find((report) => report.collection === 'ayahs')!;
