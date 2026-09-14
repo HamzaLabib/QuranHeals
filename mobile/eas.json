@@ -1,7 +1,8 @@
 {
   "build": {
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "environment": "preview"
     }
   }
 }
