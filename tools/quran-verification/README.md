@@ -77,3 +77,23 @@ to the superseded MongoDB import attempt. They are historical development
 artifacts, not the pinned SQLite input. The backend `import:quran` command remains
 disabled. No King Fahd artifacts or outstanding review cases are deleted by the
 new source decision.
+
+## Surah metadata (Phase 6A.7)
+
+`input/quran-data.xml` (SHA-256
+`8867c1d88191472adec9db694b3cd9f135b1a2ef580574d32cf888dcb22c5c7a`) is the
+same Tanzil `quran-data.xml` already trusted as `surah-counts.json`'s own
+pinned `sourceSha256` — the file was already present, downloaded and
+manifested under the now-superseded `backend/data/quran/` Phase 3 MongoDB
+attempt referenced above (see `backend/data/quran/source-manifest.json` for
+its retrieval record), and is committed here, byte-identical, as a tracked
+verified input so `surah-names.json`'s build no longer depends on a
+gitignored, machine-local file. `tools/quran-import/generate-surah-names.mjs`
+parses it (same `<sura .../>` regex as
+`backend/src/import/fullQuran.ts::loadCorpus()`) into
+`surah-names.json`: `nameArabic`/`nameEnglish`/`ayahCount`/`revelationType`
+per surah, cross-validated against `surah-counts.json`. See
+[the runtime architecture doc](../../docs/quran-data/runtime-architecture.md#verified-surah-metadata-phase-6a7)
+for ownership and integration details. Reusing this file for surah names
+does not resurrect the superseded MongoDB import path; nothing here writes
+to MongoDB or produces Quran Arabic.

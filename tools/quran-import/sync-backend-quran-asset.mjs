@@ -16,6 +16,7 @@ const backendDir = resolve(repoRoot, 'backend/assets/quran');
 
 const expectedSqliteHash = 'c380a5952e5bf946a5f35335f5f3551be7559224e81a7ebd312df195c1b30d5b';
 const expectedSurahCountsHash = '179e93716075f94bd0c7770351eb034b39bfa0e05802f8b41c2706cfc494b74f';
+const expectedSurahNamesHash = 'fc1d96a56427af6449004331602ccec6be4432d4ef4e0068e976ba34b74c412c';
 
 function sha256(path) {
   return createHash('sha256').update(readFileSync(path)).digest('hex');
@@ -54,6 +55,7 @@ function main() {
   const sourceSqlite = resolve(mobileDir, 'quran.sqlite');
   const sourceNotice = resolve(mobileDir, 'TANZIL-NOTICE.txt');
   const sourceSurahCounts = resolve(repoRoot, 'tools/quran-verification/surah-counts.json');
+  const sourceSurahNames = resolve(repoRoot, 'tools/quran-verification/surah-names.json');
 
   syncVerifiedFile(sourceSqlite, resolve(backendDir, 'quran.sqlite'), expectedSqliteHash, 'quran.sqlite');
 
@@ -79,9 +81,16 @@ function main() {
     'surah-counts.json',
   );
 
+  syncVerifiedFile(
+    sourceSurahNames,
+    resolve(backendDir, 'surah-names.json'),
+    expectedSurahNamesHash,
+    'surah-names.json',
+  );
+
   writeFileSync(
     resolve(backendDir, '.gitattributes'),
-    '*.sqlite -text -diff\nTANZIL-NOTICE.txt -text -whitespace\nsurah-counts.json text eol=lf\n',
+    '*.sqlite -text -diff\nTANZIL-NOTICE.txt -text -whitespace\nsurah-counts.json text eol=lf\nsurah-names.json text eol=lf\n',
   );
 }
 

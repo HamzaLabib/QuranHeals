@@ -151,8 +151,8 @@ describe('Foundation path resolves without a Mongo Verse document (no coverage-e
         referenceKey: '94:6',
         surahNumber: 94,
         ayahNumber: 6,
-        surahNameEnglish: 'Surah 94',
-        surahNameArabic: '',
+        surahNameEnglish: 'Ash-Sharh',
+        surahNameArabic: 'الشرح',
         arabicText: verifiedArabicFor('94:6'),
         englishTranslation: translation.text,
         emotions: ['sad'],
@@ -168,6 +168,82 @@ describe('Foundation path resolves without a Mongo Verse document (no coverage-e
 
     expect(response.body.data.id).toBe('94:6');
     expect(response.body.data.arabicText).toBe(verifiedArabicFor('94:6'));
+  });
+});
+
+describe('Mongo Verse/Ayah surah names are never authoritative (Phase 6A.7)', () => {
+  const WRONG_SURAH_NAME = 'WRONG_MONGO_SURAH_NAME_TEST_FIXTURE_DO_NOT_USE';
+  const translation = {
+    verseReferenceKey: '94:6',
+    text: 'Lo! with hardship goeth ease;',
+    source: 'Pickthall',
+    _id: new Types.ObjectId('66f300000000000000000004'),
+  };
+  const mapping = {
+    verseReferenceKey: '94:6',
+    emotionKey: 'sad',
+    status: 'approved',
+    _id: new Types.ObjectId('66f400000000000000000004'),
+  };
+
+  beforeEach(() => {
+    vi.spyOn(EmotionModel, 'findOne').mockReturnValue(leanResult(emotion));
+    // A Mongo Verse document DOES exist here, and deliberately carries wrong
+    // surah names — proving they are read as legacy enrichment only and
+    // never override the verified surah-names asset.
+    vi.spyOn(VerseModel, 'findOne').mockReturnValue(
+      leanResult({
+        referenceKey: '94:6',
+        surahNumber: 94,
+        surahNameArabic: WRONG_SURAH_NAME,
+        surahNameEnglish: WRONG_SURAH_NAME,
+        ayahNumber: 6,
+        quranTextSource: 'test',
+        _id: new Types.ObjectId(),
+      }),
+    );
+    vi.spyOn(VerseTranslationModel, 'findOne').mockReturnValue(leanResult(translation));
+    vi.spyOn(EmotionVerseMappingModel, 'find').mockReturnValue(leanResult([mapping]));
+    vi.spyOn(EmotionVerseMappingModel, 'aggregate').mockResolvedValue([mapping]);
+  });
+
+  it('serves the verified surah name, not the Mongo Verse document surah name', async () => {
+    const app = createApp({ repository: new MongooseQuranRepository() });
+    const response = await request(app).get('/api/ayahs/random?emotion=sad').expect(200);
+
+    expect(response.body.data.surahNameArabic).toBe('الشرح');
+    expect(response.body.data.surahNameEnglish).toBe('Ash-Sharh');
+    expect(response.body.data.surahNameArabic).not.toBe(WRONG_SURAH_NAME);
+    expect(response.body.data.surahNameEnglish).not.toBe(WRONG_SURAH_NAME);
+  });
+
+  it('serves the verified surah name via the legacy Ayah collection too, not that document\'s own names', async () => {
+    vi.mocked(VerseModel.findOne).mockReturnValue(leanResult(null));
+    vi.mocked(VerseTranslationModel.findOne).mockReturnValue(leanResult(null));
+    vi.mocked(EmotionVerseMappingModel.aggregate).mockResolvedValue([]);
+    vi.spyOn(AyahModel, 'findOne').mockReturnValue(
+      leanResult({
+        referenceKey: '94:6',
+        surahNumber: 94,
+        surahNameArabic: WRONG_SURAH_NAME,
+        surahNameEnglish: WRONG_SURAH_NAME,
+        ayahNumber: 6,
+        englishTranslation: 'Lo! with hardship goeth ease;',
+        emotions: ['sad'],
+        quranTextSource: 'test',
+        translationSource: 'test',
+        _id: new Types.ObjectId(),
+      }),
+    );
+    vi.spyOn(AyahModel, 'aggregate').mockResolvedValue([]);
+
+    const app = createApp({ repository: new MongooseQuranRepository() });
+    const response = await request(app).get('/api/ayahs/94:6').expect(200);
+
+    expect(response.body.data.surahNameArabic).toBe('الشرح');
+    expect(response.body.data.surahNameEnglish).toBe('Ash-Sharh');
+    expect(response.body.data.surahNameArabic).not.toBe(WRONG_SURAH_NAME);
+    expect(response.body.data.surahNameEnglish).not.toBe(WRONG_SURAH_NAME);
   });
 });
 

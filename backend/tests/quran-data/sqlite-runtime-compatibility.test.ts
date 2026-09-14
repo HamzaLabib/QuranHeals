@@ -15,6 +15,7 @@ import { seedAyahs } from '../../src/seed/ayahs';
 import { seedEmotions } from '../../src/seed/emotions';
 import { buildFoundationSeedData } from '../../src/seed/foundation';
 import { MongooseQuranRepository } from '../../src/services/MongooseQuranRepository';
+import { getSurahMetadata } from '../../src/quran/surahMetadata';
 
 const sqlitePath = resolve(__dirname, '../../assets/quran/quran.sqlite');
 const foundation = buildFoundationSeedData(seedAyahs);
@@ -111,8 +112,10 @@ describe('verseKey is the canonical public identity on existing API routes', () 
 
   afterEach(() => vi.restoreAllMocks());
 
+  const verifiedSurah = getSurahMetadata(2);
+
   it.each(['random', 'id'] as const)(
-    'serves the foundation %s route keyed by verseKey, with Verse-doc metadata as enrichment',
+    'serves the foundation %s route keyed by verseKey, with verified surah metadata (not the legacy Mongo Verse names)',
     async (route) => {
       const app = createApp({ repository: new MongooseQuranRepository() });
       const path = route === 'random' ? '/api/ayahs/random?emotion=sad' : `/api/ayahs/${legacy.referenceKey}`;
@@ -125,8 +128,8 @@ describe('verseKey is the canonical public identity on existing API routes', () 
           verseKey: '2:153',
           referenceKey: '2:153',
           surahNumber: verse.surahNumber,
-          surahNameArabic: verse.surahNameArabic,
-          surahNameEnglish: verse.surahNameEnglish,
+          surahNameArabic: verifiedSurah.nameArabic,
+          surahNameEnglish: verifiedSurah.nameEnglish,
           ayahNumber: verse.ayahNumber,
           arabicText: verifiedArabicFor('2:153'),
           englishTranslation: translation.text,
@@ -145,7 +148,7 @@ describe('verseKey is the canonical public identity on existing API routes', () 
   );
 
   it.each(['random', 'id'] as const)(
-    'falls back to the legacy Ayah collection, still keyed by verseKey, when no mapping/translation resolves',
+    'falls back to the legacy Ayah collection, still keyed by verseKey, with verified surah metadata (not the legacy Ayah names)',
     async (route) => {
       vi.mocked(VerseTranslationModel.findOne).mockReturnValue(leanResult(null));
       vi.mocked(EmotionVerseMappingModel.aggregate).mockResolvedValue([]);
@@ -161,6 +164,8 @@ describe('verseKey is the canonical public identity on existing API routes', () 
           id: '2:153',
           verseKey: '2:153',
           arabicText: verifiedArabicFor('2:153'),
+          surahNameArabic: verifiedSurah.nameArabic,
+          surahNameEnglish: verifiedSurah.nameEnglish,
         },
       });
       const rows = findLocalVerse(response.body.data.verseKey);

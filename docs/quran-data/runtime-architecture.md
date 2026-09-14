@@ -268,3 +268,68 @@ path resolves without a Mongo Verse document") and
 Mongo Verse coverage requirement") for the automated proof that all 205
 Phase 6A candidate verseKeys resolve directly against `quran.sqlite` with no
 Mongo Verse document required.
+
+## Verified surah metadata (Phase 6A.7)
+
+Status: **complete**. Closes the "known gap" noted above — surah names no
+longer fall back to a placeholder for verseKeys with no Mongo `Verse`
+enrichment.
+
+**Ownership, made explicit:**
+
+| Asset | Owns |
+| --- | --- |
+| `{backend,mobile}/assets/quran/quran.sqlite` | canonical Quran Arabic (unchanged by this phase) |
+| `{backend,mobile}/assets/quran/surah-counts.json` | canonical per-surah ayah counts (unchanged) |
+| `{backend,mobile}/assets/quran/surah-names.json` | canonical per-surah Arabic/English names, ayah count, revelation type (**new**) |
+| future `translations.sqlite` | translation content (not started — separate phase) |
+| MongoDB | dynamic application relationships/data only; never a second canonical Quran source |
+| `verseKey` ("surah:ayah") | canonical cross-system Quran identity, used to look up all of the above |
+
+**Source and provenance.** `surah-names.json` is built by
+`tools/quran-import/generate-surah-names.mjs` from
+`tools/quran-verification/input/quran-data.xml` — the same Tanzil
+`quran-data.xml` (`https://tanzil.net/res/text/metadata/quran-data.xml`,
+SHA-256 `8867c1d88191472adec9db694b3cd9f135b1a2ef580574d32cf888dcb22c5c7a`)
+already trusted as `surah-counts.json`'s own `sourceSha256` — reused for a
+second, independent purpose, not re-fetched or re-sourced. `nameArabic` comes
+from the XML's `<sura name="...">` attribute, `nameEnglish` from `tname`
+(transliteration, matching the style already displayed by the app — not
+`ename`, which is the English *meaning*, e.g. "The Cow" rather than
+"Al-Baqara"), and `revelationType` from `type`. Ayah counts were
+cross-validated 114/114 against `surah-counts.json` at generation time (see
+the script's `crossValidateAgainstCounts`); a disagreement would have failed
+the build rather than been silently reconciled — none occurred.
+`tools/quran-verification/surah-names.json` (114 records, SHA-256
+`fc1d96a56427af6449004331602ccec6be4432d4ef4e0068e976ba34b74c412c`) is the
+canonical copy; `tools/quran-import/sync-backend-quran-asset.mjs` copies it
+byte-for-byte, hash-verified, to `backend/assets/quran/surah-names.json`
+(same pattern as `surah-counts.json`).
+
+**Runtime integration.** `backend/src/quran/surahMetadata.ts` loads and
+hash-pins the asset once (mirrors `referenceKeys.ts`), exposing
+`getSurahMetadata(surahNumber)`. `MongooseQuranRepository`'s
+`toFoundationAyahDto` and `toAyahDto` both now source `surahNameArabic`/
+`surahNameEnglish` from this module unconditionally — a Mongo `Verse` or
+legacy `Ayah` document's own surah-name fields, if present, are read for
+no other purpose and never override it (see "Mongo Verse/Ayah surah names
+are never authoritative" in `mongo-arabic-independence.test.ts`). The
+`Surah ${n}` / `''` placeholder fallback described above no longer exists
+for any of the 6,236 canonical verseKeys.
+
+**Mobile.** Unaffected — mobile has no independent surah-name source; it
+only displays whatever `surahNameArabic`/`surahNameEnglish` the API response
+carries (`mobile/src/services/quranRepository.ts`'s `composeLocalAyah` never
+touches those fields), so it transparently receives verified names now. No
+mobile code or asset changes were needed. A true offline-first surah-name
+lookup (bundling `surah-names.json` into the mobile app, mirroring
+`quran.sqlite`) remains a possible future step if full-offline mode is
+prioritized, but nothing in the app currently needs it.
+
+**Validation.** `backend/tests/quran-data/surah-metadata.test.ts` proves:
+114 records with unique surah numbers 1–114, no missing Arabic/English name,
+exact ayah-count agreement with `surah-counts.json` (total 6,236), asset
+integrity pinning, deterministic/frozen loading, correct resolution for
+spot-checked verseKeys, all 6,236 canonical verseKeys resolving valid
+surah/ayah-consistent metadata, and all 205 Phase 6A candidate verseKeys
+resolving non-empty names with zero Mongo Verse coverage required.

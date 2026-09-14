@@ -7,6 +7,7 @@ import { VerseModel } from '../models/Verse';
 import { VerseTranslationModel } from '../models/VerseTranslation';
 import { getVerifiedArabicByVerseKey, VERIFIED_QURAN_TEXT_SOURCE } from '../quran/quranSource';
 import { isValidVerseKey, parseVerseKey } from '../quran/referenceKeys';
+import { getSurahMetadata } from '../quran/surahMetadata';
 import {
   FOUNDATION_TRANSLATION_LANGUAGE,
   FOUNDATION_TRANSLATOR,
@@ -42,17 +43,22 @@ function toEmotionDto(emotion: MongoEntity<EmotionEntity>): EmotionDto {
 }
 
 // The legacy `Ayah` collection is still its own, fully self-contained record
-// (own surah names, own emotions array) — no Verse/verseKey coverage
-// dependency has ever applied to it. `id` moves to the stable verseKey so
-// legacy and foundation ayahs share the same public identity.
+// (own emotions array) — no Verse/verseKey coverage dependency has ever
+// applied to it. `id` moves to the stable verseKey so legacy and foundation
+// ayahs share the same public identity. Its own surahNameArabic/English
+// fields are legacy enrichment only (Phase 6A.7) — never authoritative; the
+// verified surah-names asset is the sole source of truth for names, exactly
+// like the foundation path below.
 function toAyahDto(ayah: MongoEntity<AyahEntity>): AyahDto {
+  const surah = getSurahMetadata(ayah.surahNumber);
+
   return {
     id: ayah.referenceKey,
     verseKey: `${ayah.surahNumber}:${ayah.ayahNumber}`,
     referenceKey: ayah.referenceKey,
     surahNumber: ayah.surahNumber,
-    surahNameArabic: ayah.surahNameArabic,
-    surahNameEnglish: ayah.surahNameEnglish,
+    surahNameArabic: surah.nameArabic,
+    surahNameEnglish: surah.nameEnglish,
     ayahNumber: ayah.ayahNumber,
     arabicText: getVerifiedArabicByVerseKey(ayah.referenceKey),
     englishTranslation: ayah.englishTranslation,
@@ -64,11 +70,14 @@ function toAyahDto(ayah: MongoEntity<AyahEntity>): AyahDto {
 
 /**
  * Composes an ayah from `verseKey` + verified SQLite Arabic + a Mongo
- * translation. A Mongo `Verse` document is *optional* enrichment only (surah
- * names, historical `quranTextSource`) — its absence must never block
- * resolution. This is the fix for the abandoned "Mongo Verse coverage must
- * expand before activation" architecture: any approved
- * `EmotionVerseMapping.verseReferenceKey` resolves on its own.
+ * translation. A Mongo `Verse` document is *optional* enrichment only
+ * (historical `quranTextSource`) — its absence must never block resolution.
+ * This is the fix for the abandoned "Mongo Verse coverage must expand before
+ * activation" architecture: any approved
+ * `EmotionVerseMapping.verseReferenceKey` resolves on its own. Surah names
+ * always come from the verified surah-names asset (Phase 6A.7) — a Mongo
+ * `Verse` document's own surahNameArabic/English fields, if present, are
+ * legacy enrichment only and are never read here.
  */
 function toFoundationAyahDto(
   verseKey: string,
@@ -78,18 +87,15 @@ function toFoundationAyahDto(
   mappings: MongoEntity<EmotionVerseMappingEntity>[],
 ): AyahDto {
   const { surahNumber, ayahNumber } = parseVerseKey(verseKey);
+  const surah = getSurahMetadata(surahNumber);
 
   return {
     id: verseKey,
     verseKey,
     referenceKey: verseKey,
     surahNumber,
-    // No canonical, verified 114-surah-name reference asset exists yet
-    // (tracked as a follow-up); these fallbacks are honest placeholders,
-    // never invented Quran content, and only ever apply when no Mongo Verse
-    // document happens to exist for this verseKey.
-    surahNameArabic: verse?.surahNameArabic ?? '',
-    surahNameEnglish: verse?.surahNameEnglish ?? `Surah ${surahNumber}`,
+    surahNameArabic: surah.nameArabic,
+    surahNameEnglish: surah.nameEnglish,
     ayahNumber,
     arabicText,
     englishTranslation: translation.text,
