@@ -1,8 +1,17 @@
+import type { LocalizedText } from '../emotions/emotionCatalog';
+
 export type EmotionEntity = {
   key: string;
+  /** @deprecated Use `names.en` — retained for backward-compatible reads of pre-localization live documents. */
   name: string;
+  /** @deprecated Use `names.ar` — retained for backward-compatible reads of pre-localization live documents. */
   arabicName: string;
+  /** @deprecated Use `descriptions.en` — retained for backward-compatible reads of pre-localization live documents. */
   description: string;
+  /** Canonical localized display names, keyed by AppLocale (`en`/`ar`/`ar-EG`, open for future locales). Optional at the schema level only because live documents written before localization landed do not have it yet — see `backend/src/services/MongooseQuranRepository.ts`'s `toEmotionDto` for the fallback-to-catalog-by-key behavior. */
+  names?: LocalizedText;
+  /** Canonical localized descriptions. Data-ready only — not rendered in the app UI yet. See `names` above for the same optionality rationale. */
+  descriptions?: LocalizedText;
   icon: string;
   order: number;
   active: boolean;

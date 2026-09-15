@@ -9,12 +9,32 @@ import { FavoriteButton } from '@/components/FavoriteButton';
 import { StateView } from '@/components/StateView';
 import { colors, radii, spacing, typography } from '@/constants/theme';
 import { useFavorites } from '@/hooks/useFavorites';
+import { getDirectionStyle } from '@/localization/locales';
+import { useAppLocale } from '@/localization/useAppLocale';
 import { getApiErrorMessage, getRandomAyah } from '@/services/api';
 import { getRecentVerseKeyState, rememberAyahForEmotion } from '@/storage/recentAyahs';
-import type { Ayah } from '@/types/domain';
+import type { Ayah, LocalizedText } from '@/types/domain';
+import { resolveLocalizedEmotionName } from '@/utils/emotionLabel';
+
+/** `namesJson` carries the full localized names map from the emotion-picker screen (which already fetched it) as a JSON string route param — parsed defensively since a stale/deep-linked navigation may not carry it at all. */
+function parseNamesParam(raw: string | string[] | undefined): LocalizedText | undefined {
+  const value = typeof raw === 'string' ? raw : Array.isArray(raw) ? raw[0] : undefined;
+  if (!value) return undefined;
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      return parsed as LocalizedText;
+    }
+  } catch {
+    // Malformed param: fall through to the key-based fallback in resolveLocalizedEmotionName.
+  }
+  return undefined;
+}
 
 export default function AyahScreen() {
-  const params = useLocalSearchParams<{ emotion?: string }>();
+  const { locale, messages } = useAppLocale();
+  const direction = getDirectionStyle(locale);
+  const params = useLocalSearchParams<{ emotion?: string; namesJson?: string }>();
   const rawEmotion = params.emotion;
   const emotionKey =
     typeof rawEmotion === 'string'
@@ -22,26 +42,25 @@ export default function AyahScreen() {
       : Array.isArray(rawEmotion)
         ? rawEmotion[0]
         : undefined;
+  const names = useMemo(() => parseNamesParam(params.namesJson), [params.namesJson]);
   const [ayah, setAyah] = useState<Ayah | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [historyMessage, setHistoryMessage] = useState<string | null>(null);
   const { isFavorite, toggleFavorite, error: favoritesError } = useFavorites();
 
-  const readableEmotion = useMemo(() => {
-    if (!emotionKey) {
-      return 'Emotion';
-    }
-
-    return emotionKey
-      .split('-')
-      .map((part: string) => part.charAt(0).toUpperCase() + part.slice(1))
-      .join(' ');
-  }, [emotionKey]);
+  // Locale-aware display only. The stable route key (emotionKey) is never
+  // altered by this — it still goes to the API/history exactly as received,
+  // and re-resolves automatically if the user changes the app language
+  // while this screen is open (names/locale are both in the dependency list).
+  const readableEmotion = useMemo(
+    () => resolveLocalizedEmotionName(names, locale, emotionKey),
+    [names, locale, emotionKey],
+  );
 
   const loadAyah = useCallback(async () => {
     if (!emotionKey) {
-      setErrorMessage('Please choose an emotion first.');
+      setErrorMessage(messages.ayah.missingEmotion);
       setIsLoading(false);
       return;
     }
@@ -55,22 +74,23 @@ export default function AyahScreen() {
       try {
         const recent = await getRecentVerseKeyState(emotionKey);
         excludedVerseKeys = recent.verseKeys;
-        if (recent.unresolvedCount > 0) setHistoryMessage('Some older history entries could not be used to prevent repeats. Your stored history has been kept.');
+        if (recent.unresolvedCount > 0) setHistoryMessage(messages.ayah.historyUnresolved);
       } catch {
-        setHistoryMessage('Recent history could not be read. Your stored history has been kept.');
+        setHistoryMessage(messages.ayah.historyReadFailed);
       }
       const nextAyah = await getRandomAyah(emotionKey, excludedVerseKeys);
       setAyah(nextAyah);
       try {
         await rememberAyahForEmotion(emotionKey, nextAyah);
       } catch {
-        setHistoryMessage('This ayah could not be added to recent history. Your previous history has been kept.');
+        setHistoryMessage(messages.ayah.historySaveFailed);
       }
     } catch (error) {
-      setErrorMessage(getApiErrorMessage(error, "We couldn't load an ayah right now."));
+      setErrorMessage(getApiErrorMessage(error, messages.ayah.genericError));
     } finally {
       setIsLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- messages is stable per locale; re-running on every message identity change is unnecessary
   }, [emotionKey]);
 
   useEffect(() => {
@@ -97,30 +117,30 @@ export default function AyahScreen() {
         <View style={styles.header}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Go back"
+            accessibilityLabel={messages.ayah.goBack}
             onPress={() => router.back()}
             style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
             <ArrowLeft size={22} color={colors.ink} />
           </Pressable>
           <View style={styles.headerText}>
-            <Text style={styles.emotion}>{readableEmotion}</Text>
-            <Text style={styles.kicker}>A selected ayah for this moment</Text>
+            <Text style={[styles.emotion, direction]}>{readableEmotion}</Text>
+            <Text style={[styles.kicker, direction]}>{messages.ayah.kicker}</Text>
           </View>
         </View>
 
         {isLoading && (
           <StateView
-            title="Loading ayah"
-            message="Finding a relevant ayah."
+            title={messages.ayah.loadingTitle}
+            message={messages.ayah.loadingMessage}
             icon={<RefreshCw size={22} color={colors.olive} />}
           />
         )}
 
         {!isLoading && errorMessage && (
           <StateView
-            title="Please try again"
+            title={messages.ayah.errorTitle}
             message={errorMessage}
-            actionLabel="Try Again"
+            actionLabel={messages.ayah.retry}
             onAction={loadAyah}
           />
         )}
@@ -129,28 +149,28 @@ export default function AyahScreen() {
           <>
             <AyahCard ayah={ayah} />
 
-            {favoritesError && <StateView title="Saved ayahs" message={favoritesError} />}
-            {historyMessage && <StateView title="Recent ayahs" message={historyMessage} />}
+            {favoritesError && <StateView title={messages.favorites.title} message={favoritesError} />}
+            {historyMessage && <StateView title={messages.favorites.title} message={historyMessage} />}
 
             <View style={styles.actions}>
               <FavoriteButton isSaved={isFavorite(ayah)} onToggle={() => toggleFavorite(ayah)} />
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="Share ayah"
+                accessibilityLabel={messages.ayah.shareAyah}
                 onPress={shareAyah}
                 style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
                 <Share2 size={18} color={colors.ink} />
-                <Text style={styles.secondaryButtonText}>Share</Text>
+                <Text style={styles.secondaryButtonText}>{messages.ayah.share}</Text>
               </Pressable>
             </View>
 
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Load another ayah"
+              accessibilityLabel={messages.ayah.loadAnotherAyah}
               onPress={loadAyah}
               style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
               <RefreshCw size={19} color={colors.surface} />
-              <Text style={styles.primaryButtonText}>Another Ayah</Text>
+              <Text style={styles.primaryButtonText}>{messages.ayah.anotherAyah}</Text>
             </Pressable>
           </>
         )}

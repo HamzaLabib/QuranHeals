@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import {
-  ACTIVATION_MAPPING_VERSION,
+  APPROVED_MAPPING_VERSION,
   buildActivationCandidates,
   loadApprovedMappingsPreview,
   loadReviewDecisions,
@@ -124,7 +124,7 @@ describe('Activation dry run: transformation determinism', () => {
   it('stamps every candidate with the approved activation mapping version and approved status', () => {
     candidates.forEach((c) => {
       expect(c.status).toBe('approved');
-      expect(c.mappingVersion).toBe(ACTIVATION_MAPPING_VERSION);
+      expect(c.mappingVersion).toBe(APPROVED_MAPPING_VERSION);
     });
   });
 });

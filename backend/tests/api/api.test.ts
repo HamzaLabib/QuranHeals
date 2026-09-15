@@ -8,6 +8,12 @@ import type { AyahDto, EmotionDto } from '../../src/types/dto';
 const sadEmotion: EmotionDto = {
   id: '66f000000000000000000001',
   key: 'sad',
+  names: { en: 'Sad', ar: 'حزين', 'ar-EG': 'زعلان' },
+  descriptions: {
+    en: 'When your heart feels heavy.',
+    ar: 'عندما يشعر قلبك بالثقل.',
+    'ar-EG': 'لما تحس إن قلبك تقيل.',
+  },
   name: 'Sad',
   arabicName: 'حزين',
   description: 'When your heart feels heavy.',
@@ -19,6 +25,8 @@ const sadEmotion: EmotionDto = {
 const emptyEmotion: EmotionDto = {
   id: '66f000000000000000000002',
   key: 'empty',
+  names: { en: 'Empty', ar: 'فارغ', 'ar-EG': 'فاضي' },
+  descriptions: { en: 'No ayahs yet.', ar: 'لا توجد آيات بعد.', 'ar-EG': 'لسه مفيش آيات.' },
   name: 'Empty',
   arabicName: 'فارغ',
   description: 'No ayahs yet.',

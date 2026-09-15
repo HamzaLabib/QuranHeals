@@ -14,6 +14,8 @@
     "mapping:upsert": "tsx src/scripts/upsertEmotionMapping.ts",
     "mapping:candidates": "tsx src/scripts/importCandidateMappings.ts",
     "mapping:activation-dry-run": "tsx src/scripts/activationDryRun.ts",
+    "mapping:activate-approved": "tsx src/scripts/activateApprovedEmotionMappings.ts",
+    "mapping:rollback-activation": "tsx src/scripts/rollbackEmotionMappingActivation.ts",
     "validate:quran:source": "tsx src/scripts/fullQuran.ts source",
     "validate:quran": "tsx src/scripts/fullQuran.ts validate",
     "import:quran": "tsx src/scripts/fullQuran.ts import"

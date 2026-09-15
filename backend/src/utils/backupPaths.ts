@@ -26,3 +26,6 @@ export const TRANSLATION_CLEANUP_DRY_RUN_REPORT_PATH = resolve(
   __dirname,
   '../../reports/cleanup/translation-cleanup-dry-run.json',
 );
+
+/** Pre-activation MongoDB Emotion/EmotionVerseMapping backups for activateApprovedEmotionMappings.ts. Git-ignored. */
+export const EMOTION_MAPPING_ACTIVATION_BACKUPS_DIR = resolve(__dirname, '../../backups/emotion-mappings');

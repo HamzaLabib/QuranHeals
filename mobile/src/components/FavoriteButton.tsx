@@ -2,6 +2,7 @@ import { Heart } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { colors, radii, spacing, typography } from '@/constants/theme';
+import { useAppLocale } from '@/localization/useAppLocale';
 
 type FavoriteButtonProps = {
   isSaved: boolean;
@@ -9,10 +10,12 @@ type FavoriteButtonProps = {
 };
 
 export function FavoriteButton({ isSaved, onToggle }: FavoriteButtonProps) {
+  const { messages } = useAppLocale();
+
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={isSaved ? 'Remove ayah from favorites' : 'Save ayah to favorites'}
+      accessibilityLabel={isSaved ? messages.favoriteButton.removeLabel : messages.favoriteButton.saveLabel}
       onPress={onToggle}
       style={({ pressed }) => [styles.button, isSaved && styles.saved, pressed && styles.pressed]}>
       <Heart
@@ -20,7 +23,9 @@ export function FavoriteButton({ isSaved, onToggle }: FavoriteButtonProps) {
         color={isSaved ? colors.surface : colors.ink}
         fill={isSaved ? colors.surface : 'transparent'}
       />
-      <Text style={[styles.text, isSaved && styles.savedText]}>{isSaved ? 'Saved' : 'Save'}</Text>
+      <Text style={[styles.text, isSaved && styles.savedText]}>
+        {isSaved ? messages.favoriteButton.saved : messages.favoriteButton.save}
+      </Text>
     </Pressable>
   );
 }

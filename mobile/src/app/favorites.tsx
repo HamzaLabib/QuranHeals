@@ -8,14 +8,18 @@ import { AyahCard } from '@/components/AyahCard';
 import { StateView } from '@/components/StateView';
 import { colors, radii, spacing, typography } from '@/constants/theme';
 import { useFavorites } from '@/hooks/useFavorites';
+import { getDirectionStyle } from '@/localization/locales';
+import { useAppLocale } from '@/localization/useAppLocale';
+import type { Messages } from '@/localization/messages';
 import type { FavoriteAyah } from '@/types/domain';
 
 type FavoriteActionsProps = {
   favorite: FavoriteAyah;
   onRemove: (id: string) => void;
+  messages: Messages;
 };
 
-function FavoriteActions({ favorite, onRemove }: FavoriteActionsProps) {
+function FavoriteActions({ favorite, onRemove, messages }: FavoriteActionsProps) {
   const shareFavorite = useCallback(async () => {
     await Share.share({
       message: `${favorite.arabicText}\n\n${favorite.englishTranslation}\n\n${favorite.surahNameEnglish} ${favorite.surahNumber}:${favorite.ayahNumber}\n\n${favorite.quranTextSource}\n\nQuran Heals`,
@@ -26,25 +30,27 @@ function FavoriteActions({ favorite, onRemove }: FavoriteActionsProps) {
     <View style={styles.cardActions}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Share saved ayah"
+        accessibilityLabel={messages.favorites.shareSaved}
         onPress={shareFavorite}
         style={({ pressed }) => [styles.smallButton, pressed && styles.pressed]}>
         <Share2 size={17} color={colors.ink} />
-        <Text style={styles.smallButtonText}>Share</Text>
+        <Text style={styles.smallButtonText}>{messages.favorites.share}</Text>
       </Pressable>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Remove saved ayah"
+        accessibilityLabel={messages.favorites.removeSaved}
         onPress={() => onRemove(favorite.id)}
         style={({ pressed }) => [styles.smallButton, styles.removeButton, pressed && styles.pressed]}>
         <Trash2 size={17} color={colors.rust} />
-        <Text style={[styles.smallButtonText, styles.removeText]}>Remove</Text>
+        <Text style={[styles.smallButtonText, styles.removeText]}>{messages.favorites.remove}</Text>
       </Pressable>
     </View>
   );
 }
 
 export default function FavoritesScreen() {
+  const { locale, messages } = useAppLocale();
+  const direction = getDirectionStyle(locale);
   const { favorites, removeFavorite, isReady, error, unresolvedCount, refreshFavorites } = useFavorites();
 
   return (
@@ -53,46 +59,43 @@ export default function FavoritesScreen() {
         <View style={styles.header}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Go back"
+            accessibilityLabel={messages.ayah.goBack}
             onPress={() => router.back()}
             style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
             <ArrowLeft size={22} color={colors.ink} />
           </Pressable>
           <View style={styles.headerText}>
-            <Text style={styles.title}>Saved Ayahs</Text>
-            <Text style={styles.subtitle}>Favorites stored on this device.</Text>
+            <Text style={[styles.title, direction]}>{messages.favorites.title}</Text>
+            <Text style={[styles.subtitle, direction]}>{messages.favorites.subtitle}</Text>
           </View>
         </View>
 
         {!isReady && (
           <StateView
-            title="Loading favorites"
-            message="Opening your saved ayahs."
+            title={messages.favorites.loadingTitle}
+            message={messages.favorites.loadingMessage}
             icon={<Heart size={22} color={colors.olive} />}
           />
         )}
 
         {isReady && (error || unresolvedCount > 0) && (
           <StateView
-            title="Some saved ayahs could not be opened"
-            message={error ?? `${unresolvedCount} saved ${unresolvedCount === 1 ? 'ayah could' : 'ayahs could'} not be resolved. Your stored entries have been kept.`}
-            actionLabel="Try Again"
+            title={messages.favorites.errorTitle}
+            message={error ?? `${unresolvedCount} ${messages.favorites.unresolvedSuffix}`}
+            actionLabel={messages.favorites.retry}
             onAction={refreshFavorites}
           />
         )}
 
         {isReady && !error && unresolvedCount === 0 && favorites.length === 0 && (
-          <StateView
-            title="No saved ayahs yet"
-            message="Save an ayah from the reflection screen and it will appear here."
-          />
+          <StateView title={messages.favorites.emptyTitle} message={messages.favorites.emptyMessage} />
         )}
 
         {isReady &&
           favorites.map((favorite) => (
             <View key={favorite.id} style={styles.favoriteItem}>
               <AyahCard ayah={favorite} compact />
-              <FavoriteActions favorite={favorite} onRemove={removeFavorite} />
+              <FavoriteActions favorite={favorite} onRemove={removeFavorite} messages={messages} />
             </View>
           ))}
       </ScrollView>

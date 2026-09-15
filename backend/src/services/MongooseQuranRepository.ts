@@ -1,5 +1,6 @@
 import { Types } from 'mongoose';
 
+import { resolveEmotionLocalization } from '../emotions/emotionCatalog';
 import { AyahModel } from '../models/Ayah';
 import { EmotionVerseMappingModel } from '../models/EmotionVerseMapping';
 import { EmotionModel } from '../models/Emotion';
@@ -25,12 +26,18 @@ type MongoEntity<T> = T & {
 const userVisibleMappingStatuses: EmotionMappingStatus[] = ['development', 'reviewed', 'approved'];
 
 function toEmotionDto(emotion: MongoEntity<EmotionEntity>): EmotionDto {
+  const { names, descriptions } = resolveEmotionLocalization(emotion);
+
   return {
     id: emotion._id.toString(),
     key: emotion.key,
-    name: emotion.name,
-    arabicName: emotion.arabicName,
-    description: emotion.description,
+    names,
+    descriptions,
+    // Deprecated compatibility aliases — derived from the same resolved
+    // localized data above, never a second independent source of truth.
+    name: names.en,
+    arabicName: names.ar,
+    description: descriptions.en,
     icon: emotion.icon,
     order: emotion.order,
     active: emotion.active,

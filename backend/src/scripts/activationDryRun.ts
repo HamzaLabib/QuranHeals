@@ -50,7 +50,16 @@ const REVIEW_FILES = ['1', '2', '3', '4', '5'].map(
   (batch) => [batch, `batches/batch-${batch}/final-review.json`] as const,
 );
 
-export const ACTIVATION_MAPPING_VERSION = 'phase-6-activation-1';
+/**
+ * The `EmotionVerseMapping.mappingVersion` value the activation will stamp on
+ * every approved pair it inserts or promotes. No live document has ever used
+ * this value (activation has not happened yet), so it is safe to name
+ * descriptively rather than after the development phase that built the
+ * tooling. Historical, already-written mappingVersion values elsewhere
+ * (e.g. `mvp-seed-1`, `phase-6-activation-1` in old review-artifact
+ * provenance strings) are untouched by this rename.
+ */
+export const APPROVED_MAPPING_VERSION = 'approved-emotion-mappings-v1';
 
 // ---------------------------------------------------------------------------
 // Loading source artifacts (read-only; never rewritten by this module)
@@ -155,9 +164,9 @@ export function buildActivationCandidates(preview: PreviewFile): ActivationCandi
       verseKey: row.verseKey,
       emotionKey: row.emotionKey,
       status: 'approved',
-      mappingVersion: ACTIVATION_MAPPING_VERSION,
+      mappingVersion: APPROVED_MAPPING_VERSION,
       sourceTypes,
-      contextNotes: `[phase-5c-preview: ${sourceTypes.join('+')}]`,
+      contextNotes: `[approved-mapping-source: ${sourceTypes.join('+')}]`,
     };
   });
 }

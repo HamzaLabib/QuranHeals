@@ -1,5 +1,5 @@
 import { Link, router } from 'expo-router';
-import { Heart, RefreshCw } from 'lucide-react-native';
+import { Heart, RefreshCw, Settings } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,10 +7,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { EmotionCard } from '@/components/EmotionCard';
 import { StateView } from '@/components/StateView';
 import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
+import { getDirectionStyle } from '@/localization/locales';
+import { useAppLocale } from '@/localization/useAppLocale';
 import { getApiErrorMessage, getEmotions } from '@/services/api';
 import type { Emotion } from '@/types/domain';
 
 export default function HomeScreen() {
+  const { locale, messages } = useAppLocale();
+  const direction = getDirectionStyle(locale);
   const [emotions, setEmotions] = useState<Emotion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -23,10 +27,11 @@ export default function HomeScreen() {
       const response = await getEmotions();
       setEmotions(response);
     } catch (error) {
-      setErrorMessage(getApiErrorMessage(error, "We couldn't load the emotions right now."));
+      setErrorMessage(getApiErrorMessage(error, messages.home.errorTitle));
     } finally {
       setIsLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- messages is stable per locale
   }, []);
 
   useEffect(() => {
@@ -45,37 +50,47 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <View>
-            <Text style={styles.wordmark}>Quran Heals</Text>
-            <Text style={styles.subtitle}>{"Qur'anic guidance for every emotion."}</Text>
+            <Text style={styles.wordmark}>{messages.appName}</Text>
+            <Text style={[styles.subtitle, direction]}>{messages.home.subtitle}</Text>
           </View>
-          <Link href="/favorites" asChild>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Open saved ayahs"
-              style={({ pressed }) => [styles.favoritesButton, pressed && styles.pressed]}>
-              <Heart size={20} color={colors.ink} strokeWidth={2} />
-            </Pressable>
-          </Link>
+          <View style={styles.headerActions}>
+            <Link href="/settings" asChild>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={messages.settings.openSettings}
+                style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
+                <Settings size={20} color={colors.ink} strokeWidth={2} />
+              </Pressable>
+            </Link>
+            <Link href="/favorites" asChild>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={messages.home.openFavorites}
+                style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
+                <Heart size={20} color={colors.ink} strokeWidth={2} />
+              </Pressable>
+            </Link>
+          </View>
         </View>
 
         <View style={styles.prompt}>
-          <Text style={styles.eyebrow}>Reflect with an ayah</Text>
-          <Text style={styles.title}>How are you feeling?</Text>
+          <Text style={[styles.eyebrow, direction]}>{messages.home.eyebrow}</Text>
+          <Text style={[styles.title, direction]}>{messages.home.title}</Text>
         </View>
 
         {isLoading && (
           <StateView
-            title="Loading emotions"
-            message="Preparing the emotion list."
+            title={messages.home.loadingTitle}
+            message={messages.home.loadingMessage}
             icon={<RefreshCw size={22} color={colors.olive} />}
           />
         )}
 
         {!isLoading && errorMessage && (
           <StateView
-            title="Unable to connect"
+            title={messages.home.errorTitle}
             message={errorMessage}
-            actionLabel="Try Again"
+            actionLabel={messages.home.retry}
             onAction={loadEmotions}
           />
         )}
@@ -89,7 +104,7 @@ export default function HomeScreen() {
                 onPress={() =>
                   router.push({
                     pathname: '/ayah/[emotion]',
-                    params: { emotion: emotion.key },
+                    params: { emotion: emotion.key, namesJson: JSON.stringify(emotion.names) },
                   })
                 }
               />
@@ -97,9 +112,7 @@ export default function HomeScreen() {
           </View>
         )}
 
-        <Text style={styles.disclaimer}>
-          Quran Heals offers spiritual reflection and is not a substitute for professional care.
-        </Text>
+        <Text style={[styles.disclaimer, direction]}>{messages.home.disclaimer}</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -125,6 +138,10 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     justifyContent: 'space-between',
   },
+  headerActions: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
   wordmark: {
     color: colors.ink,
     fontSize: 29,
@@ -137,7 +154,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginTop: spacing.xs,
   },
-  favoritesButton: {
+  iconButton: {
     alignItems: 'center',
     backgroundColor: colors.surface,
     borderColor: colors.border,

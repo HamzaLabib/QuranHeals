@@ -1,38 +1,11 @@
-import {
-  Activity,
-  BatteryLow,
-  Circle,
-  CloudRain,
-  Compass,
-  Flame,
-  Gauge,
-  Heart,
-  HelpCircle,
-  Leaf,
-  type LucideIcon,
-  Moon,
-  ShieldAlert,
-  Sunrise,
-} from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
+import { getDirectionStyle } from '@/localization/locales';
+import { useAppLocale } from '@/localization/useAppLocale';
 import type { Emotion } from '@/types/domain';
-
-const icons: Record<string, LucideIcon> = {
-  activity: Activity,
-  'battery-low': BatteryLow,
-  'cloud-rain': CloudRain,
-  compass: Compass,
-  flame: Flame,
-  gauge: Gauge,
-  heart: Heart,
-  'help-circle': HelpCircle,
-  leaf: Leaf,
-  moon: Moon,
-  'shield-alert': ShieldAlert,
-  sunrise: Sunrise,
-};
+import { EMOTION_ICON_FALLBACK, EMOTION_ICONS } from '@/utils/emotionIcons';
+import { resolveEmotionDisplayName } from '@/utils/emotionLabel';
 
 type EmotionCardProps = {
   emotion: Emotion;
@@ -40,21 +13,24 @@ type EmotionCardProps = {
 };
 
 export function EmotionCard({ emotion, onPress }: EmotionCardProps) {
-  const Icon = icons[emotion.icon] ?? Circle;
+  const { locale } = useAppLocale();
+  const Icon = EMOTION_ICONS[emotion.icon] ?? EMOTION_ICON_FALLBACK;
+  // Only the selected locale's name is ever shown — never English+Arabic
+  // together, and never the description (data-ready only, not rendered).
+  const displayName = resolveEmotionDisplayName(emotion, locale);
+  const direction = getDirectionStyle(locale);
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${emotion.name}. ${emotion.description}`}
+      accessibilityLabel={displayName}
       onPress={onPress}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
       <View style={styles.iconWrap}>
         <Icon color={colors.olive} size={22} strokeWidth={2} />
       </View>
       <View style={styles.textWrap}>
-        <Text style={styles.name}>{emotion.name}</Text>
-        <Text style={styles.arabicName}>{emotion.arabicName}</Text>
-        <Text style={styles.description}>{emotion.description}</Text>
+        <Text style={[styles.name, direction]}>{displayName}</Text>
       </View>
     </Pressable>
   );
@@ -93,19 +69,6 @@ const styles = StyleSheet.create({
     fontSize: typography.bodyLarge,
     fontWeight: '800',
     letterSpacing: 0,
-  },
-  arabicName: {
-    color: colors.olive,
-    fontSize: typography.body,
-    fontWeight: '600',
-    textAlign: 'left',
-    writingDirection: 'rtl',
-  },
-  description: {
-    color: colors.muted,
-    fontSize: typography.caption,
-    lineHeight: 19,
-    marginTop: spacing.xs,
   },
 });
 

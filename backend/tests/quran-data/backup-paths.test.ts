@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import {
   ARABIC_CLEANUP_BACKUPS_DIR,
   CLEANUP_DRY_RUN_REPORT_PATH,
+  EMOTION_MAPPING_ACTIVATION_BACKUPS_DIR,
   QURAN_DATA_BACKUPS_DIR,
 } from '../../src/utils/backupPaths';
 
@@ -36,8 +37,21 @@ describe('Side-effect-free backup/report path constants', () => {
     expect(CLEANUP_DRY_RUN_REPORT_PATH).not.toMatch(/[\\/]backups([\\/]|$)/);
   });
 
-  it('the three constants are all distinct paths', () => {
-    const paths = [QURAN_DATA_BACKUPS_DIR, ARABIC_CLEANUP_BACKUPS_DIR, CLEANUP_DRY_RUN_REPORT_PATH];
+  it('EMOTION_MAPPING_ACTIVATION_BACKUPS_DIR resolves under backend/backups/emotion-mappings, not backend/reports', () => {
+    expect(EMOTION_MAPPING_ACTIVATION_BACKUPS_DIR).toBe(resolve(__dirname, '../../backups/emotion-mappings'));
+    expect(EMOTION_MAPPING_ACTIVATION_BACKUPS_DIR.split(/[\\/]/)).toEqual(
+      expect.arrayContaining(['backups', 'emotion-mappings']),
+    );
+    expect(EMOTION_MAPPING_ACTIVATION_BACKUPS_DIR).not.toMatch(/[\\/]reports([\\/]|$)/);
+  });
+
+  it('the four constants are all distinct paths', () => {
+    const paths = [
+      QURAN_DATA_BACKUPS_DIR,
+      ARABIC_CLEANUP_BACKUPS_DIR,
+      CLEANUP_DRY_RUN_REPORT_PATH,
+      EMOTION_MAPPING_ACTIVATION_BACKUPS_DIR,
+    ];
     expect(new Set(paths).size).toBe(paths.length);
   });
 

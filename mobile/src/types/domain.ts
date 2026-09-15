@@ -1,8 +1,20 @@
+import type { AppLocale } from '@/localization/locales';
+
+/** Mirrors backend EmotionDto/emotionCatalog's LocalizedText — required current locales, open for future ones. */
+export type LocalizedText = Record<AppLocale, string> & Record<string, string>;
+
 export type Emotion = {
   id: string;
   key: string;
+  /** Canonical localized display names — prefer this over `name`/`arabicName`. */
+  names: LocalizedText;
+  /** Canonical localized descriptions. Data-ready only — not rendered on emotion cards yet. */
+  descriptions: LocalizedText;
+  /** @deprecated Use `names.en`. */
   name: string;
+  /** @deprecated Use `names.ar`. */
   arabicName: string;
+  /** @deprecated Use `descriptions.en`. */
   description: string;
   icon: string;
   order: number;
