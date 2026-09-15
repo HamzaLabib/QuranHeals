@@ -53,7 +53,7 @@ const repoRoot = resolve(__dirname, '../..');
 
 const rawPath = resolve(repoRoot, 'tools/quran-import/raw/gutenberg-16955/16955.txt');
 const surahCountsPath = resolve(repoRoot, 'backend/assets/quran/surah-counts.json');
-const outDir = resolve(repoRoot, 'backend/reports/quran-data');
+const outDir = resolve(repoRoot, 'backend/reports/quran-verification');
 const artifactDir = resolve(repoRoot, 'tools/quran-verification');
 const reportJsonPath = resolve(outDir, 'gutenberg-pickthall-verification.json');
 const reportMdPath = resolve(outDir, 'gutenberg-pickthall-verification.md');

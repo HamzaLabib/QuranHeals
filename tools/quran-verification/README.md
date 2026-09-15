@@ -17,8 +17,8 @@ The generator produces `mobile/assets/quran/quran.sqlite` from only this pinned
 input, preserving every Arabic string without trimming, normalization, character
 substitution or other cleanup. Complete source-to-SQLite equality is required.
 See [the build instructions](../quran-import/README.md) and
-[the runtime migration checklist](../../docs/quran-data/sqlite-integration.md).
-The subsequent [runtime integration](../../docs/quran-data/runtime-architecture.md)
+[the runtime migration checklist](../../docs/quran-architecture/sqlite-integration.md).
+The subsequent [runtime integration](../../docs/quran-architecture/runtime-architecture.md)
 resolves displayed/shared Arabic through this unchanged local SQLite asset.
 Existing MongoDB data and emotion mappings remain intact.
 
@@ -93,7 +93,7 @@ parses it (same `<sura .../>` regex as
 `backend/src/import/fullQuran.ts::loadCorpus()`) into
 `surah-names.json`: `nameArabic`/`nameEnglish`/`ayahCount`/`revelationType`
 per surah, cross-validated against `surah-counts.json`. See
-[the runtime architecture doc](../../docs/quran-data/runtime-architecture.md#verified-surah-metadata-phase-6a7)
+[the runtime architecture doc](../../docs/quran-architecture/runtime-architecture.md#verified-surah-metadata-phase-6a7)
 for ownership and integration details. Reusing this file for surah names
 does not resurrect the superseded MongoDB import path; nothing here writes
 to MongoDB or produces Quran Arabic.

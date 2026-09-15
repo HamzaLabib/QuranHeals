@@ -3,7 +3,7 @@
 // Verse.arabicText, Verse.checksum, and Ayah.arabicText from the configured
 // development database — already executed once for the current dev
 // database's foundation-seed data (see backend/backups/data-cleanup/ for the
-// pre-mutation backup and backend/reports/data-cleanup/cleanup-dry-run.json
+// pre-mutation backup and backend/reports/cleanup/cleanup-dry-run.json
 // for the report). Re-running this script against the same data is a safe
 // no-op: the fields are already gone and `runValidators` no longer requires
 // them (see src/models/Verse.ts, src/models/Ayah.ts).
@@ -178,8 +178,8 @@ async function main() {
       're-running either is not a rollback path.',
   };
 
-  mkdirSync('reports/data-cleanup', { recursive: true });
-  writeFileSync('reports/data-cleanup/cleanup-dry-run.json', `${JSON.stringify(report, null, 2)}\n`);
+  mkdirSync('reports/cleanup', { recursive: true });
+  writeFileSync('reports/cleanup/cleanup-dry-run.json', `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));
 
   if (blocked) {
@@ -198,7 +198,7 @@ async function main() {
   }
 
   await runDestructiveCleanup(reports);
-  console.log(`Arabic cleanup transaction completed. Backup written to ${ARABIC_CLEANUP_BACKUPS_DIR}; updated report written to reports/data-cleanup/.`);
+  console.log(`Arabic cleanup transaction completed. Backup written to ${ARABIC_CLEANUP_BACKUPS_DIR}; updated report written to reports/cleanup/.`);
 }
 
 /**

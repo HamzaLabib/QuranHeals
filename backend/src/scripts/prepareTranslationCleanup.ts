@@ -184,7 +184,7 @@ async function main() {
       '(migrateFoundation.ts) — re-running either is a safe no-op for translation, not a rollback path.',
   };
 
-  mkdirSync('reports/data-cleanup', { recursive: true });
+  mkdirSync('reports/cleanup', { recursive: true });
   writeFileSync(TRANSLATION_CLEANUP_DRY_RUN_REPORT_PATH, `${JSON.stringify(output, null, 2)}\n`);
   console.log(JSON.stringify(output, null, 2));
 

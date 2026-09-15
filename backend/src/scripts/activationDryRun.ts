@@ -1,11 +1,11 @@
 /**
- * Phase 6A — activation dry-run / preparation.
+ * Approved emotion mapping activation dry-run / preparation.
  *
  * Reads the Phase 5C consolidated preview (`backend/data/emotion-candidates/
  * consolidated/approved-mappings-preview.json`) and Phase 5B review decisions
  * (`backend/data/emotion-candidates/batches/batch-N/final-review.json`),
  * transforms the preview into activation-ready records, and validates every
- * safety property required before a future Phase 6B activation:
+ * safety property required before a future activation:
  *
  *  - exact input counts (approved / reject / hold)
  *  - zero duplicate (verseKey, emotionKey) pairs
@@ -21,12 +21,12 @@
  *    The only database calls it makes are read-only `countDocuments`, used to
  *    prove the live database is unchanged.
  *  - `--apply` is recognized as an argument but intentionally throws: the
- *    Phase 6B activation transaction is a separate, not-yet-built step (see
- *    `docs/emotion-mappings/phase-6-activation-transaction-design.md`).
+ *    activation transaction is a separate, not-yet-built step (see
+ *    `docs/emotion-mappings/activation-transaction-design.md`).
  *
  * Usage:
  *   npm run mapping:activation-dry-run
- *   npm run mapping:activation-dry-run -- --report=reports/emotion-mappings/phase-6a-activation-dry-run.json
+ *   npm run mapping:activation-dry-run -- --report=reports/emotion-mappings/activation-dry-run.json
  */
 
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -42,7 +42,7 @@ import { seedEmotions } from '../seed/emotions';
 
 const DATA_DIR = resolve(__dirname, '../../data/emotion-candidates');
 const PREVIEW_RELATIVE_PATH = 'consolidated/approved-mappings-preview.json';
-const DEFAULT_REPORT_PATH = 'reports/emotion-mappings/phase-6a-activation-dry-run.json';
+const DEFAULT_REPORT_PATH = 'reports/emotion-mappings/activation-dry-run.json';
 
 const SENTINEL_EXCLUSION = { verseKey: '12:100', emotionKey: 'guilty' } as const;
 
@@ -134,7 +134,7 @@ export function loadReviewDecisions(): ReviewDecisions {
 export type ActivationCandidate = {
   verseKey: string;
   emotionKey: string;
-  /** The status these records would receive if Phase 6B ever activates them. */
+  /** The status these records would receive once activation runs. */
   status: 'approved';
   mappingVersion: string;
   sourceTypes: string[];
@@ -258,7 +258,7 @@ export async function readLiveDatabaseCounts(): Promise<LiveDatabaseCounts | nul
   }
 
   if (env.NODE_ENV === 'production') {
-    throw new Error('Phase 6A dry run refuses to read from a production database.');
+    throw new Error('Activation dry run refuses to read from a production database.');
   }
 
   await mongoose.connect(env.MONGODB_URI, {
@@ -303,7 +303,7 @@ function toMarkdown(report: Record<string, unknown>): string {
 
   const inputCounts = report.inputCounts as { approved: number; reject: number; hold: number };
 
-  lines.push('# Phase 6A — activation dry-run report');
+  lines.push('# Approved Emotion Mapping Activation — Dry Run');
   lines.push('');
   lines.push(`- Generated: ${report.generatedAt as string}`);
   lines.push(`- Mode: DRY RUN — no database writes`);
@@ -354,8 +354,8 @@ async function main(): Promise<void> {
 
   if (args.get('apply') === true) {
     throw new Error(
-      'Phase 6A activation dry-run does not support --apply. Activation is a separate, ' +
-        'not-yet-built Phase 6B step — see docs/emotion-mappings/phase-6-activation-transaction-design.md.',
+      'Activation dry-run does not support --apply. Activation is a separate, ' +
+        'not-yet-built step — see docs/emotion-mappings/activation-transaction-design.md.',
     );
   }
 
@@ -405,7 +405,7 @@ async function main(): Promise<void> {
 if (require.main === module) {
   main().catch((error: unknown) => {
     const message = error instanceof Error ? error.message : 'Unknown activation dry-run error.';
-    console.error(`Phase 6A activation dry-run failed: ${message}`);
+    console.error(`Activation dry-run failed: ${message}`);
     process.exitCode = 1;
   });
 }

@@ -16,7 +16,7 @@ export const QURAN_DATA_BACKUPS_DIR = resolve(__dirname, '../../backups/quran-da
 export const ARABIC_CLEANUP_BACKUPS_DIR = resolve(__dirname, '../../backups/data-cleanup');
 
 /** The reproducible dry-run report — a report, never a backup, and never git-ignored. */
-export const CLEANUP_DRY_RUN_REPORT_PATH = resolve(__dirname, '../../reports/data-cleanup/cleanup-dry-run.json');
+export const CLEANUP_DRY_RUN_REPORT_PATH = resolve(__dirname, '../../reports/cleanup/cleanup-dry-run.json');
 
 /** Pre-`--destructive` MongoDB translation-field/document backups for prepareTranslationCleanup.ts (Phase 6A.8C). Git-ignored. */
 export const TRANSLATION_CLEANUP_BACKUPS_DIR = resolve(__dirname, '../../backups/translation-cleanup');
@@ -24,5 +24,5 @@ export const TRANSLATION_CLEANUP_BACKUPS_DIR = resolve(__dirname, '../../backups
 /** The reproducible translation-cleanup dry-run report — a report, never a backup, and never git-ignored. */
 export const TRANSLATION_CLEANUP_DRY_RUN_REPORT_PATH = resolve(
   __dirname,
-  '../../reports/data-cleanup/translation-cleanup-dry-run.json',
+  '../../reports/cleanup/translation-cleanup-dry-run.json',
 );

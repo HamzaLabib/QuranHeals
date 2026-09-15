@@ -37,7 +37,7 @@ anywhere.
   this project only ever extracts the underlying verse text, not the
   Gutenberg wrapper.
 
-See `backend/reports/quran-data/gutenberg-pickthall-verification.md` for the
+See `backend/reports/quran-verification/gutenberg-pickthall-verification.md` for the
 full extraction/coverage verification report, and
 `tools/quran-verification/pickthall-gutenberg-16955.json` for the extracted,
 hash-recorded, canonical-verseKey-mapped Pickthall-only dataset produced from

@@ -30,9 +30,9 @@ describe('Side-effect-free backup/report path constants', () => {
     expect(ARABIC_CLEANUP_BACKUPS_DIR).not.toMatch(/[\\/]reports([\\/]|$)/);
   });
 
-  it('CLEANUP_DRY_RUN_REPORT_PATH resolves under backend/reports/data-cleanup/, never under backend/backups/', () => {
-    expect(CLEANUP_DRY_RUN_REPORT_PATH).toBe(resolve(__dirname, '../../reports/data-cleanup/cleanup-dry-run.json'));
-    expect(CLEANUP_DRY_RUN_REPORT_PATH).toMatch(/[\\/]reports[\\/]data-cleanup[\\/]cleanup-dry-run\.json$/);
+  it('CLEANUP_DRY_RUN_REPORT_PATH resolves under backend/reports/cleanup/, never under backend/backups/', () => {
+    expect(CLEANUP_DRY_RUN_REPORT_PATH).toBe(resolve(__dirname, '../../reports/cleanup/cleanup-dry-run.json'));
+    expect(CLEANUP_DRY_RUN_REPORT_PATH).toMatch(/[\\/]reports[\\/]cleanup[\\/]cleanup-dry-run\.json$/);
     expect(CLEANUP_DRY_RUN_REPORT_PATH).not.toMatch(/[\\/]backups([\\/]|$)/);
   });
 

@@ -99,7 +99,7 @@ try {
   await ready('Load another ayah');
   report.checks.saveAndHistory = 'New favorites have verseKey; unresolved old entry retained; old-ID exclusions and stable companion keys coexist';
   report.checks.browserErrors = browser('errors');
-  const outputPath = fileURLToPath(new URL('../../backend/reports/quran-data/runtime/browser-validation.json', import.meta.url));
+  const outputPath = fileURLToPath(new URL('../../backend/reports/quran-verification/runtime/browser-validation.json', import.meta.url));
   mkdirSync(dirname(outputPath), { recursive: true });
   writeFileSync(outputPath, JSON.stringify(report, null, 2) + '\n');
   console.log(`Browser runtime flow checks passed. Report: ${outputPath}`);

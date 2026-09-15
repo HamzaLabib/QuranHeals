@@ -117,7 +117,7 @@ describe('All 205 Phase 6A reviewed candidate verseKeys resolve fully from verif
   it('previously only 16/205 had a Mongo VerseTranslation document — all 205 now resolve without any Mongo coverage requirement', () => {
     // This is the direct structural counterpart of the 16-vs-205 gap
     // documented in Phase 6A.8A's audit and in
-    // docs/quran-data/runtime-architecture.md's "known gap" section. No
+    // docs/quran-architecture/runtime-architecture.md's "known gap" section. No
     // MongoDB import or connection is used anywhere in this test file.
     expect(uniqueVerseKeys.every((verseKey) => {
       try {

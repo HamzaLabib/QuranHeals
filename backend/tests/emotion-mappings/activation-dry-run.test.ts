@@ -20,7 +20,7 @@ const candidates = buildActivationCandidates(preview);
 const validation = validateActivationSet(candidates);
 const { rejectPairs, holdPairs } = loadReviewDecisions();
 
-describe('Phase 6A: activation candidate counts', () => {
+describe('Activation dry run: candidate counts', () => {
   it('parses exactly 1,845 approved mappings', () => {
     expect(candidates).toHaveLength(1845);
     expect(validation.counts.mappings).toBe(1845);
@@ -46,7 +46,7 @@ describe('Phase 6A: activation candidate counts', () => {
   });
 });
 
-describe('Phase 6A: REJECT/HOLD protection (fail-closed)', () => {
+describe('Activation dry run: REJECT/HOLD protection (fail-closed)', () => {
   it('no REJECT pair enters the activation candidate set', () => {
     expect(validation.rejectIntersection).toEqual([]);
   });
@@ -60,7 +60,7 @@ describe('Phase 6A: REJECT/HOLD protection (fail-closed)', () => {
   });
 });
 
-describe('Phase 6A: sentinel exclusion', () => {
+describe('Activation dry run: sentinel exclusion', () => {
   it('12:100 -> guilty is absent from the activation candidate set', () => {
     expect(validation.sentinel.absent).toBe(true);
     expect(
@@ -69,14 +69,14 @@ describe('Phase 6A: sentinel exclusion', () => {
   });
 });
 
-describe('Phase 6A: Quran reference validation', () => {
+describe('Activation dry run: Quran reference validation', () => {
   it('every verseKey resolves against the verified reference-key set', () => {
     expect(validation.quran.invalidVerseKeys).toEqual([]);
     expect(validation.quran.missingQuranReferences).toEqual([]);
   });
 });
 
-describe('Phase 6A: emotion taxonomy validation', () => {
+describe('Activation dry run: emotion taxonomy validation', () => {
   it('has zero missing and zero unexpected emotions against the 29-key taxonomy', () => {
     expect(validation.taxonomy.missing).toEqual([]);
     expect(validation.taxonomy.unexpected).toEqual([]);
@@ -89,13 +89,13 @@ describe('Phase 6A: emotion taxonomy validation', () => {
   });
 });
 
-describe('Phase 6A: overall validation result', () => {
+describe('Activation dry run: overall validation', () => {
   it('passes every check', () => {
     expect(validation.passed).toBe(true);
   });
 });
 
-describe('Phase 6A: importer cannot include Quran Arabic', () => {
+describe('Activation dry run: Quran text isolation', () => {
   it('no activation candidate carries Arabic script or a Quran-text field', () => {
     const serialized = JSON.stringify(candidates);
     expect(arabicPattern.test(serialized)).toBe(false);
@@ -108,7 +108,7 @@ describe('Phase 6A: importer cannot include Quran Arabic', () => {
   });
 });
 
-describe('Phase 6A: transformation determinism', () => {
+describe('Activation dry run: transformation determinism', () => {
   it('produces byte-identical output across repeated runs', () => {
     const first = buildActivationCandidates(loadApprovedMappingsPreview());
     const second = buildActivationCandidates(loadApprovedMappingsPreview());
@@ -121,7 +121,7 @@ describe('Phase 6A: transformation determinism', () => {
     );
   });
 
-  it('stamps every candidate with the Phase 6 activation mapping version and approved status', () => {
+  it('stamps every candidate with the approved activation mapping version and approved status', () => {
     candidates.forEach((c) => {
       expect(c.status).toBe('approved');
       expect(c.mappingVersion).toBe(ACTIVATION_MAPPING_VERSION);
@@ -129,7 +129,7 @@ describe('Phase 6A: transformation determinism', () => {
   });
 });
 
-describe('Phase 6A: zero Mongo Verse coverage requirement', () => {
+describe('Activation dry run: Mongo Verse independence', () => {
   it('the script module never references the Mongo Verse model', () => {
     const source = readFileSync(SCRIPT_SOURCE_PATH, 'utf-8');
     expect(source).not.toMatch(/VerseModel|models\/Verse['"]/);
@@ -145,7 +145,7 @@ describe('Phase 6A: zero Mongo Verse coverage requirement', () => {
   });
 });
 
-describe('Phase 6A: dry-run causes zero MongoDB mutation (static proof)', () => {
+describe('Activation dry run: zero MongoDB mutation (static proof)', () => {
   it('the script module never calls a Mongoose write method', () => {
     const source = readFileSync(SCRIPT_SOURCE_PATH, 'utf-8');
     const mutatingMethods = [

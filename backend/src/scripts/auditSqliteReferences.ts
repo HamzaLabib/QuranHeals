@@ -12,7 +12,7 @@ import { buildFoundationSeedData } from '../seed/foundation';
 
 const repoRoot = resolve(__dirname, '../../..');
 const databasePath = resolve(repoRoot, 'mobile/assets/quran/quran.sqlite');
-const reportPath = resolve(repoRoot, 'backend/reports/quran-data/runtime/live-audit.json');
+const reportPath = resolve(repoRoot, 'backend/reports/quran-verification/runtime/live-audit.json');
 const expectedHash = 'c380a5952e5bf946a5f35335f5f3551be7559224e81a7ebd312df195c1b30d5b';
 const referencePattern = /^[1-9]\d{0,2}:[1-9]\d{0,2}$/u;
 

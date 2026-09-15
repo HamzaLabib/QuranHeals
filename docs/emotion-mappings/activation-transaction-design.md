@@ -1,11 +1,11 @@
-# Phase 6B activation transaction — design only
+# Approved Emotion Mapping Activation Transaction — Design Only
 
 Status: **design document. Nothing described here is implemented or executed.**
-No code in this repository currently performs any step below. Phase 6A
-(`backend/src/scripts/activationDryRun.ts`) performs every validation step
-described here in dry-run form and writes nothing.
+No code in this repository currently performs any step below. The activation
+dry-run (`backend/src/scripts/activationDryRun.ts`) performs every validation
+step described here in dry-run form and writes nothing.
 
-This document exists so that when Phase 6B is explicitly authorized, the
+This document exists so that when activation is explicitly authorized, the
 activation transaction has an agreed shape before any database-mutating code
 is written.
 
@@ -25,15 +25,15 @@ is written.
    this purpose). Verify the backup files are non-empty and parse back to the
    expected pre-activation counts (43 mappings / 12 active emotions) before
    proceeding.
-4. **Re-run Phase 6A validation** — call
+4. **Re-run activation dry-run validation** — call
    `validateActivationSet(buildActivationCandidates(loadApprovedMappingsPreview()))`
    from `activationDryRun.ts` and require `passed === true` immediately before
    the transaction opens. Never trust a validation result computed earlier in
    the same process run or in a previous invocation.
 
-## The write step (step 5) — never implemented in Phase 6A
+## The write step (step 5) — never implemented by the activation dry-run
 
-Proposed shape, for when Phase 6B is authorized:
+Proposed shape, for when activation is authorized:
 
 - Use a MongoDB session (`mongoose.startSession()`) with
   `session.withTransaction(...)` so the emotion-activation and
@@ -70,7 +70,7 @@ Re-read the collections (outside the transaction, after commit) and assert:
 - No duplicate `(verseReferenceKey, emotionKey)` index violation occurred
   (the existing unique index on `EmotionVerseMapping` already prevents this
   at the database level).
-- Total counts match the Phase 6A dry-run's predicted counts exactly.
+- Total counts match the activation dry-run's predicted counts exactly.
 
 ## Rollback / fail behavior (step 7)
 
@@ -85,7 +85,7 @@ Re-read the collections (outside the transaction, after commit) and assert:
 
 ## Explicitly out of scope for this document
 
-- No estimate of *when* Phase 6B happens — that is a separate decision.
+- No estimate of *when* activation happens — that is a separate decision.
 - No change to `userVisibleMappingStatuses` in `MongooseQuranRepository`
   (tightening production to `['approved']` only) — tracked separately in
   `docs/emotion-mappings/taxonomy.md` §7.

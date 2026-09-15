@@ -100,13 +100,13 @@ MongoDB restore; the additive stable-key history can remain unused.
 
 ## Validation and known limits
 
-The [read-only live audit](../../backend/reports/quran-data/runtime/live-audit.json) found 43/43 mappings,
+The [read-only live audit](../../backend/reports/quran-verification/runtime/live-audit.json) found 43/43 mappings,
 16/16 Verse records, and 16/16 legacy Ayah records resolve exactly once.
 All 12 active emotions and all development mapping assignments remain intact,
 with zero unresolved or inconsistent backend references. The same 43
 seeded mappings and 16 unique references pass automated SQLite checks.
 
-The [browser report](../../backend/reports/quran-data/runtime/browser-validation.json) verifies all 12 emotion
+The [browser report](../../backend/reports/quran-verification/runtime/browser-validation.json) verifies all 12 emotion
 routes against exact SQLite Arabic, a numeric-only old favorite, unchanged raw
 favorite storage, explicit unresolved-record handling, exact shared Arabic,
 offline use of the initialized reader, new stable-key favorites, compatible
@@ -127,7 +127,7 @@ are not covered here.
 | Exported assets | Database and notice match original bytes on Android, iOS and web |
 | `git diff --check` | Passed |
 
-The [export report](../../backend/reports/quran-data/runtime/export-validation.json) verifies the actual bundled
+The [export report](../../backend/reports/quran-verification/runtime/export-validation.json) verifies the actual bundled
 database and notice bytes on all three targets, and native JavaScript/Hermes
 bundling. A real Android/iOS device or simulator smoke test — including first
 offline opening of the packaged asset — is still a release-checklist item; a
@@ -182,7 +182,7 @@ database name `test`) and removed `Verse.arabicText`, `Verse.checksum`, and
 Nothing else changed: record counts, `_id`s, `referenceKey`s,
 `VerseTranslation` (16), `EmotionVerseMapping` (43), and `Emotion` (12) are
 byte-identical to before (the 1,845-mapping/29-emotion Phase 5C preview
-remains unactivated). See `backend/reports/data-cleanup/cleanup-dry-run.json`
+remains unactivated). See `backend/reports/cleanup/cleanup-dry-run.json`
 for the machine-readable before/after report.
 
 A verified pre-mutation backup was written to the git-ignored
@@ -264,8 +264,8 @@ built is the natural next step before that happens.
 **Validation.** See
 `backend/tests/quran-data/mongo-arabic-independence.test.ts` ("Foundation
 path resolves without a Mongo Verse document") and
-`backend/tests/emotion-mappings/phase-6a-activation-dry-run.test.ts` ("zero
-Mongo Verse coverage requirement") for the automated proof that all 205
+`backend/tests/emotion-mappings/activation-dry-run.test.ts` ("Activation dry
+run: Mongo Verse independence") for the automated proof that all 205
 Phase 6A candidate verseKeys resolve directly against `quran.sqlite` with no
 Mongo Verse document required.
 
@@ -375,7 +375,7 @@ duplicate/empty. The raw file's own transcription had 4 corrupted verse-
 number labels (17:33, 39:46, 45:32, 56:26 — content intact, only the digit
 label was wrong); the extractor reconstructs each from strict per-surah
 sequence position and records every correction — see
-`backend/reports/quran-data/gutenberg-pickthall-verification.md`. A
+`backend/reports/quran-verification/gutenberg-pickthall-verification.md`. A
 read-only comparison against the 16 pre-existing Mongo dev rows found 11
 exact matches, 4 punctuation/capitalization-only differences, and one
 genuine wording difference at 39:53 ("Say: My slaves..." in the old Mongo
@@ -487,7 +487,7 @@ the direct template for `prepareTranslationCleanup.ts`).
   (`backend/src/utils/objectId.ts`). Verified by read-back + parse + exact
   `_id` round-trip before the transaction was allowed to proceed
   (`backend/src/utils/backupFile.ts`).
-- Dry-run report: `backend/reports/data-cleanup/translation-cleanup-dry-run.json`
+- Dry-run report: `backend/reports/cleanup/translation-cleanup-dry-run.json`
   (tracked, not git-ignored — a report, not a backup).
 - Rollback: `backend/src/scripts/rollbackTranslationCleanup.ts --backup
   <path> --apply` (defaults to dry-run; refuses if any backed-up
@@ -682,7 +682,7 @@ search of this workspace — `backend/backups/` (contains only its own
 `.gitignore`), the full repository tree, the sibling directory under `My
 App/` (none besides `QuranHeals` itself), this user's home directory
 (bounded depth, excluding `AppData`), `Downloads`, and `Desktop` — found
-**no copy of this file anywhere**. `backend/reports/data-cleanup/
+**no copy of this file anywhere**. `backend/reports/cleanup/
 translation-cleanup-dry-run.json`, the accompanying dry-run report the
 6A.8C narrative also references, is likewise absent and was never
 git-tracked (`cleanup-dry-run.json`, the earlier Phase 4C *Arabic* report,

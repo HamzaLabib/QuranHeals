@@ -1,6 +1,6 @@
-# Phase 6A — activation dry-run report
+# Approved Emotion Mapping Activation — Dry Run
 
-- Generated: 2026-09-14T02:04:52.956Z
+- Generated: 2026-09-15T18:01:23.820Z
 - Mode: DRY RUN — no database writes
 
 ## Input counts

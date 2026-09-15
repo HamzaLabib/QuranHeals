@@ -1,7 +1,7 @@
 # Verified Tanzil SQLite foundation
 
 Foundation generation is complete. The subsequent
-[runtime migration](../../docs/quran-data/runtime-architecture.md) now uses this unchanged
+[runtime migration](../../docs/quran-architecture/runtime-architecture.md) now uses this unchanged
 database. The foundation implementation and validation record below describe
 the original database-generation task.
 
@@ -120,7 +120,7 @@ not the selected canonical owner. Emotion mappings and translations remain
 separate. No database connection, data deletion or data migration was performed
 for this foundation.
 
-See [the coordinated migration checklist](../../docs/quran-data/sqlite-integration.md)
+See [the coordinated migration checklist](../../docs/quran-architecture/sqlite-integration.md)
 for API/ObjectId compatibility, favorite/history preservation, mapping
 validation, native/web asset loading, local Arabic composition and offline
 tests. Existing King Fahd reports remain historical analysis, including the
@@ -160,7 +160,7 @@ Source Arabic, King Fahd artifacts, mappings, database records, runtime
 retrieval and user storage are unchanged by this build.
 
 Status: SQLite foundation complete; the runtime migration described above has
-since landed — see [the runtime migration report](../../docs/quran-data/runtime-architecture.md).
+since landed — see [the runtime migration report](../../docs/quran-architecture/runtime-architecture.md).
 
 ## Verified English translation: translations.sqlite (Phase 6A.8)
 
@@ -171,9 +171,9 @@ mirrored to `mobile/assets/quran/` (mobile only ever displays whatever
 translation text the backend API returns), and its raw source is a
 different provenance than the Tanzil files above — see
 `tools/quran-import/raw/gutenberg-16955/README.md` and
-`backend/reports/quran-data/gutenberg-pickthall-verification.md` for full
+`backend/reports/quran-verification/gutenberg-pickthall-verification.md` for full
 source/licensing detail, and
-[the runtime architecture doc's translation section](../../docs/quran-data/runtime-architecture.md#verified-english-translation-phase-6a8)
+[the runtime architecture doc's translation section](../../docs/quran-architecture/runtime-architecture.md#verified-english-translation-phase-6a8)
 for the complete picture.
 
 SQLite SHA-256: `c6d825a2f9de0395a1391339477fce58e5850805b1df161b53dcb7816c898ce8`

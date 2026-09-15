@@ -5,14 +5,14 @@ import { describe, expect, it } from 'vitest';
 
 // Proves the docs/report reorganization moved these seven files correctly:
 // three machine-readable Quran-runtime audit reports (now under
-// backend/reports/quran-data/runtime/) and, indirectly, that the generator
-// scripts which produce them target the new location. This suite never
-// executes those generators (each needs a live browser-driver session, an
-// Expo export bundle, or a MongoDB connection) - it only inspects their
-// already-written output and their source-level output path.
+// backend/reports/quran-verification/runtime/) and, indirectly, that the
+// generator scripts which produce them target the new location. This suite
+// never executes those generators (each needs a live browser-driver
+// session, an Expo export bundle, or a MongoDB connection) - it only
+// inspects their already-written output and their source-level output path.
 
 const REPO_ROOT = resolve(__dirname, '../../..');
-const RUNTIME_REPORTS_DIR = resolve(REPO_ROOT, 'backend/reports/quran-data/runtime');
+const RUNTIME_REPORTS_DIR = resolve(REPO_ROOT, 'backend/reports/quran-verification/runtime');
 
 const OLD_DOCS_JSON_PATHS = [
   resolve(REPO_ROOT, 'docs/quran-runtime-browser-report.json'),
@@ -26,7 +26,7 @@ const OLD_DOCS_MD_PATHS = [
   resolve(REPO_ROOT, 'docs/quran-sqlite-migration.md'),
 ];
 
-describe('Runtime audit reports live under backend/reports/quran-data/runtime/', () => {
+describe('Runtime audit reports live under backend/reports/quran-verification/runtime/', () => {
   it('all three new report paths exist', () => {
     expect(existsSync(resolve(RUNTIME_REPORTS_DIR, 'browser-validation.json'))).toBe(true);
     expect(existsSync(resolve(RUNTIME_REPORTS_DIR, 'export-validation.json'))).toBe(true);
@@ -78,22 +78,22 @@ describe('Runtime audit reports live under backend/reports/quran-data/runtime/',
 });
 
 describe('Report generators target the new runtime-reports location', () => {
-  it('auditSqliteReferences.ts writes live-audit.json under backend/reports/quran-data/runtime/, never docs/', () => {
+  it('auditSqliteReferences.ts writes live-audit.json under backend/reports/quran-verification/runtime/, never docs/', () => {
     const source = readFileSync(resolve(REPO_ROOT, 'backend/src/scripts/auditSqliteReferences.ts'), 'utf-8');
-    expect(source).toContain("resolve(repoRoot, 'backend/reports/quran-data/runtime/live-audit.json')");
+    expect(source).toContain("resolve(repoRoot, 'backend/reports/quran-verification/runtime/live-audit.json')");
     expect(source).not.toMatch(/docs\/quran-runtime-live-audit\.json/);
   });
 
-  it('browser-check.mjs writes browser-validation.json under backend/reports/quran-data/runtime/, never docs/, and creates the directory recursively', () => {
+  it('browser-check.mjs writes browser-validation.json under backend/reports/quran-verification/runtime/, never docs/, and creates the directory recursively', () => {
     const source = readFileSync(resolve(REPO_ROOT, 'tools/quran-runtime/browser-check.mjs'), 'utf-8');
-    expect(source).toContain('../../backend/reports/quran-data/runtime/browser-validation.json');
+    expect(source).toContain('../../backend/reports/quran-verification/runtime/browser-validation.json');
     expect(source).toMatch(/mkdirSync\(dirname\(outputPath\), \{ ?recursive: ?true ?\}\)/);
     expect(source).not.toMatch(/docs\/quran-runtime-browser-report\.json/);
   });
 
-  it('verify-export.mjs writes export-validation.json under backend/reports/quran-data/runtime/, never docs/, and creates the directory recursively', () => {
+  it('verify-export.mjs writes export-validation.json under backend/reports/quran-verification/runtime/, never docs/, and creates the directory recursively', () => {
     const source = readFileSync(resolve(REPO_ROOT, 'tools/quran-runtime/verify-export.mjs'), 'utf-8');
-    expect(source).toContain("resolve(root, 'backend/reports/quran-data/runtime/export-validation.json')");
+    expect(source).toContain("resolve(root, 'backend/reports/quran-verification/runtime/export-validation.json')");
     expect(source).toMatch(/mkdirSync\(dirname\(outputPath\), \{ ?recursive: ?true ?\}\)/);
     expect(source).not.toMatch(/docs\/quran-runtime-export-report\.json/);
   });
@@ -107,19 +107,19 @@ describe('Moved documentation exists at its new path', () => {
     expect(content.startsWith('# Emotion taxonomy')).toBe(true);
   });
 
-  it('the three quran-data documents exist under docs/quran-data/', () => {
+  it('the three quran-architecture documents exist under docs/quran-architecture/', () => {
     ['runtime-architecture.md', 'runtime-compatibility.md', 'sqlite-integration.md'].forEach((file) => {
-      expect(existsSync(resolve(REPO_ROOT, 'docs/quran-data', file))).toBe(true);
+      expect(existsSync(resolve(REPO_ROOT, 'docs/quran-architecture', file))).toBe(true);
     });
   });
 
   it('the runtime-architecture document reflects that Phase 4C MongoDB cleanup has actually run, not stale "pending" language', () => {
     // Phase 4C (removing Verse.arabicText, Verse.checksum, Ayah.arabicText
     // from the configured development MongoDB database) has been executed;
-    // see backend/reports/data-cleanup/cleanup-dry-run.json and
+    // see backend/reports/cleanup/cleanup-dry-run.json and
     // backend/backups/data-cleanup/ for the evidence. This doc must say so,
     // and must not regress to claiming it is still pending.
-    const content = readFileSync(resolve(REPO_ROOT, 'docs/quran-data/runtime-architecture.md'), 'utf-8');
+    const content = readFileSync(resolve(REPO_ROOT, 'docs/quran-architecture/runtime-architecture.md'), 'utf-8');
     expect(content).toMatch(/Phase 4C[\s\S]{0,80}(has also been executed|has been executed)/i);
     expect(content).not.toMatch(/Phase 4C has \*\*not\*\*\s+been executed/);
     expect(content).not.toMatch(/cleanup[\s\S]{0,40}(is\s+)?still pending/i);

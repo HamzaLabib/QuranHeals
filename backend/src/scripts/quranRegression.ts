@@ -54,8 +54,8 @@ async function main() {
   for (const name of ['verses', 'versetranslations', 'emotionversemappings']) {
     (checks.indexes as Record<string, unknown>)[name] = await mongoose.connection.db!.collection(name).indexes();
   }
-  mkdirSync('reports/quran-data', { recursive: true });
-  writeFileSync('reports/quran-data/api-regression.json', JSON.stringify(checks, null, 2) + '\n');
+  mkdirSync('reports/quran-verification', { recursive: true });
+  writeFileSync('reports/quran-verification/api-regression.json', JSON.stringify(checks, null, 2) + '\n');
   console.log(JSON.stringify(checks, null, 2));
 }
 

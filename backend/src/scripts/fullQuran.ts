@@ -52,9 +52,9 @@ async function main() {
   }
   if (!['source', 'validate', 'import'].includes(mode)) throw new Error('Use source, validate, or import.');
   const corpus = loadCorpus();
-  mkdirSync('reports/quran-data', { recursive: true });
+  mkdirSync('reports/quran-verification', { recursive: true });
   const sourceReport = validateCorpus(corpus, corpus);
-  writeFileSync('reports/quran-data/source-validation.json', JSON.stringify(sourceReport, null, 2) + '\n');
+  writeFileSync('reports/quran-verification/source-validation.json', JSON.stringify(sourceReport, null, 2) + '\n');
   if (mode === 'source') { console.log(JSON.stringify(sourceReport, null, 2)); return; }
   if (!env.MONGODB_URI) throw new Error('MONGODB_URI is required.');
   if (env.NODE_ENV === 'production') throw new Error('Phase 3 commands are disabled in production.');
@@ -67,7 +67,7 @@ async function main() {
   const mappings = validateMappings(snapshot);
   const baseline = baselineFailures(snapshot, corpus.verses.length);
   const report = { database: db.databaseName, nodeEnv: env.NODE_ENV, corpus: validation, mappings, baselineFailures: baseline };
-  writeFileSync('reports/quran-data/database-validation.json', JSON.stringify(report, null, 2) + '\n');
+  writeFileSync('reports/quran-verification/database-validation.json', JSON.stringify(report, null, 2) + '\n');
   if (mode === 'validate') {
     console.log(JSON.stringify(report, null, 2));
     if (!validation.valid || !mappings.valid || baseline.length) process.exitCode = 1;
@@ -78,8 +78,8 @@ async function main() {
   if (!/^(test|.*(?:[_-]dev|[_-]development|[_-]local))$/i.test(db.databaseName)) safetyFailures.push('Database is not recognizably local/development.');
   if (!comparison.safe) safetyFailures.push('Existing source text/checksum conflicts; no text overwrite is permitted.');
   const preflight = { source: sourceReport, database: report, comparison, safetyFailures, safeToImport: safetyFailures.length === 0 };
-  writeFileSync('reports/quran-data/preflight.json', JSON.stringify(preflight, null, 2) + '\n');
-  console.log(JSON.stringify({ safeToImport: preflight.safeToImport, safetyFailures, preflightReport: 'reports/quran-data/preflight.json' }, null, 2));
+  writeFileSync('reports/quran-verification/preflight.json', JSON.stringify(preflight, null, 2) + '\n');
+  console.log(JSON.stringify({ safeToImport: preflight.safeToImport, safetyFailures, preflightReport: 'reports/quran-verification/preflight.json' }, null, 2));
   if (safetyFailures.length) { process.exitCode = 1; return; }
   if (!process.argv.includes('--write')) { console.log('Preflight only. Use --write to import after a clean preflight.'); return; }
 

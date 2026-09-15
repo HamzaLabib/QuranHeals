@@ -28,7 +28,7 @@ assert.ok(readFileSync(resolve(directory, 'assets/assets/quran', webDatabase[0])
 assert.ok(files.some(file => file.startsWith('TANZIL-NOTICE.') && readFileSync(resolve(directory, 'assets/assets/quran', file)).equals(notice)));
 platforms.web = { databaseExact: true, noticeExact: true };
 const report = { sqliteSha256: expectedHash, platforms, limitation: 'Exported bundles and asset bytes verified; native device execution was not available.' };
-const outputPath = resolve(root, 'backend/reports/quran-data/runtime/export-validation.json');
+const outputPath = resolve(root, 'backend/reports/quran-verification/runtime/export-validation.json');
 mkdirSync(dirname(outputPath), { recursive: true });
 writeFileSync(outputPath, JSON.stringify(report, null, 2) + '\n');
 console.log(`Report: ${outputPath}`);

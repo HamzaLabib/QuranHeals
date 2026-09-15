@@ -560,17 +560,17 @@ mapping:activation-dry-run`). Exports pure, tested functions:
 `countDocuments` reads. The module contains no Mongoose write call
 (`create`/`insertMany`/`updateOne`/`bulkWrite`/etc. — enforced by a static
 source-scan test) and its CLI rejects `--apply` outright, pointing at
-[`phase-6-activation-transaction-design.md`](./phase-6-activation-transaction-design.md)
+[`activation-transaction-design.md`](./activation-transaction-design.md)
 for the not-yet-built Phase 6B write path.
 
-**New tests:** `backend/tests/emotion-mappings/phase-6a-activation-dry-run.test.ts`
+**New tests:** `backend/tests/emotion-mappings/activation-dry-run.test.ts`
 (21 tests) — counts, REJECT/HOLD protection, the `12:100 -> guilty` sentinel,
 Quran-key validity, taxonomy validity, determinism, and the zero-mutation
 static proof. All pass alongside the pre-existing Phase 5C reconstruction
 suite (`consolidated-mappings.test.ts`), which independently re-derives the
 same preview from the raw batch files.
 
-**Dry-run result** (`backend/reports/emotion-mappings/phase-6a-activation-dry-run.json`):
+**Dry-run result** (`backend/reports/emotion-mappings/activation-dry-run.json`):
 
 ```
 Approved mappings:       1,845
@@ -586,7 +586,7 @@ Live emotions before/after:  12 / 12 (unchanged)
 ```
 
 **Design-only artifact:**
-[`phase-6-activation-transaction-design.md`](./phase-6-activation-transaction-design.md)
+[`activation-transaction-design.md`](./activation-transaction-design.md)
 describes the future Phase 6B atomic-activation transaction (preconditions,
 backup, transactional write, post-write verification, rollback behavior). No
 part of it is implemented; it is a plan for later explicit authorization.
