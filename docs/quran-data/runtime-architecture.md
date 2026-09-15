@@ -436,10 +436,102 @@ mobile code or asset changes were made or needed; a bundled mobile
 `translations.sqlite` (mirroring `quran.sqlite`) remains a possible future
 step for full-offline mode, not needed today.
 
-**MongoDB.** `Verse`, `Ayah`, and `VerseTranslation` translation-related
-fields are **retained, unmodified, and non-authoritative** — exactly the
-same status Phase 4C/6A.7 already gave Arabic text and surah names. Zero
-Mongo writes were performed by this phase. The existing 16
-`VerseTranslation` dev rows (some differing slightly from the approved
-Gutenberg wording, see above) were deliberately left as-is; their controlled
-retirement is future work, not part of this phase.
+**MongoDB (as of Phase 6A.8B).** `Verse`, `Ayah`, and `VerseTranslation`
+translation-related fields were **retained, unmodified, and
+non-authoritative** — exactly the same status Phase 4C/6A.7 already gave
+Arabic text and surah names. Zero Mongo writes were performed by that phase.
+
+## Controlled retirement of legacy Mongo translation storage (Phase 6A.8C)
+
+Status: **complete**. With runtime independence proven by 6A.8B's tests,
+the now-fully-obsolete Mongo translation storage was safely retired,
+mirroring the Phase 4C Arabic-field cleanup's backup → dry-run → transaction
+→ verify pattern exactly (`backend/src/scripts/prepareArabicCleanup.ts` was
+the direct template for `prepareTranslationCleanup.ts`).
+
+**What changed:**
+
+- **`VerseTranslation` collection: 16 → 0.** All 16 documents deleted by
+  exact `_id` (never `deleteMany({})`) inside a MongoDB transaction, with an
+  in-transaction post-delete count re-check before commit.
+- **Legacy `Ayah.englishTranslation`/`translationSource`: removed from all
+  16 documents that had them**, via `$unset` on the exact backed-up `_id`
+  set — no `Ayah` document was deleted, only these two fields on the exact
+  targeted documents. `Ayah` document count: 16 → 16 (unchanged).
+- **Schema safety fix (prerequisite, applied before any data mutation):**
+  `Ayah.englishTranslation`/`translationSource` were `required: true` in
+  `backend/src/models/Ayah.ts`, unlike `arabicText`'s sibling field (already
+  `required: false` since Phase 4C). Unsetting a required field would leave
+  documents that fail validation on any future `runValidators`/`.save()`
+  write. Fixed by relaxing both to `required: false`, mirroring
+  `arabicText`'s exact existing treatment — no other schema or type change
+  (the `AyahEntity` TypeScript type deliberately stays `string`
+  non-optional, matching `arabicText`'s own precedent: these are
+  aspirational/documentation types for a `.lean()` cast, not runtime-checked
+  against the live schema).
+- **`Verse`, `Emotion`, `EmotionVerseMapping`: untouched.** No translation
+  fields existed on `Verse`; `Emotion` (12) and `EmotionVerseMapping` (43)
+  counts are identical before and after — the 29-emotion/1,845-mapping
+  dataset was **not** activated by this phase.
+
+**Backup, verification and rollback:**
+
+- Pre-mutation backup (git-ignored, `backend/backups/translation-cleanup/`)
+  contains every deleted `VerseTranslation` document and every targeted
+  `Ayah` document's pre-unset field values, wrapped in the same
+  ObjectId-round-trip-verified envelope format as the Phase 4C backup
+  (`backend/src/utils/objectId.ts`). Verified by read-back + parse + exact
+  `_id` round-trip before the transaction was allowed to proceed
+  (`backend/src/utils/backupFile.ts`).
+- Dry-run report: `backend/reports/data-cleanup/translation-cleanup-dry-run.json`
+  (tracked, not git-ignored — a report, not a backup).
+- Rollback: `backend/src/scripts/rollbackTranslationCleanup.ts --backup
+  <path> --apply` (defaults to dry-run; refuses if any backed-up
+  `VerseTranslation` `_id` already exists live, or if any backed-up `Ayah`
+  `_id` no longer exists live). **Re-running `seed.ts`/`migrateFoundation.ts`
+  is NOT a rollback path** — `seed/ayahs.ts` still contains the literal
+  pre-Gutenberg `englishTranslation`/`translationSource` wording and is not
+  stripped the way `stripAyahArabicText` already strips `arabicText`; a
+  re-seed would reintroduce the *old* wording, not restore anything. This is
+  a known, documented gap (see "Remaining legacy code" below), not fixed by
+  this phase.
+
+**Runtime translation authority after cleanup:**
+
+| Before 6A.8C | After 6A.8C |
+| --- | --- |
+| `translations.sqlite` (already authoritative since 6A.8B; Mongo retained but unread) | `translations.sqlite` (unchanged — the only place translation data exists at all now, for the 16 previously-Mongo-backed verseKeys) |
+
+`VerseTranslation` runtime authority: **NONE** (collection is empty).
+Legacy `Ayah` inline translation fields: **removed** from the 16 documents
+that had them (not merely non-authoritative — actually absent now).
+
+**Verification.** Post-cleanup, with the live `VerseTranslation` collection
+at 0 documents: all 6,236 canonical verseKeys and all 205 Phase 6A candidate
+verseKeys still resolve Arabic + translation + surah metadata (same test
+suite as 6A.8B, re-run against the real post-cleanup database, plus a
+dedicated live, non-mocked script proving `findAyahById('39:53')`,
+`findAyahById('2:153')` — legacy path, fields now genuinely absent in Mongo
+— and a zero-Mongo-coverage verseKey (`114:6`) all resolve correctly through
+the real `MongooseQuranRepository` against the real database).
+`quran.sqlite`, `translations.sqlite`, `surah-names.json` and the verified
+Pickthall JSON source hashes are all unchanged (see the phase's own report
+for exact before/after hashes).
+
+**Remaining legacy code (not removed by this phase, deliberately):**
+
+- `backend/src/models/VerseTranslationModel`: classified **seed-only +
+  rollback support**, not runtime-required (confirmed: `MongooseQuranRepository`
+  no longer imports it as of 6A.8B). Still referenced by
+  `backend/src/seed/migrateFoundation.ts` (would recreate `VerseTranslation`
+  documents with the *old* wording if re-run — a real, documented risk, not
+  fixed here) and by this phase's own cleanup/rollback scripts and tests.
+  Recommend: a small future code-cleanup phase should either update
+  `migrateFoundation.ts` to stop writing `VerseTranslation` (mirroring how
+  `seed.ts` already stops writing `arabicText` via `stripAyahArabicText`) or
+  formally retire the model, not both at once with further data mutation.
+- Legacy `Ayah.englishTranslation`/`translationSource` schema fields:
+  intentionally **kept in the schema** (as optional), not deleted, since
+  `seed/ayahs.ts` still populates them literally and removing the fields
+  from the schema entirely is a separate, larger decision than this phase's
+  storage-cleanup mandate.

@@ -41,9 +41,14 @@ const ayahSchema = new Schema<AyahEntity>(
       required: false,
       trim: true,
     },
+    // Retained for legacy/compatibility data only; the API no longer reads
+    // this field (see backend/src/quran/translationSource.ts, Phase 6A.8B).
+    // Not required, preparing for its eventual removal once MongoDB becomes
+    // reference-only for translation, exactly like arabicText above already
+    // is for Arabic (Phase 4C).
     englishTranslation: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
     },
     emotions: {
@@ -60,9 +65,10 @@ const ayahSchema = new Schema<AyahEntity>(
       required: true,
       trim: true,
     },
+    // Same treatment as englishTranslation above (Phase 6A.8C).
     translationSource: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
     },
   },
