@@ -1,0 +1,40 @@
+{
+  "generatedAt": "2026-09-15T02:11:03.908Z",
+  "source": {
+    "file": "tools/quran-import/raw/gutenberg-16955/16955.txt",
+    "sha256": "8ea8efcdf76a20ac1a6a3948c292f44fc7acda597ed7cbc50ac2dc4c254be7a8",
+    "bytes": 2833442
+  },
+  "extraction": {
+    "totalRecordsExtracted": 6236,
+    "uniqueVerseKeys": 6236,
+    "canonicalTotal": 6236,
+    "missing": [],
+    "extra": [],
+    "duplicates": [],
+    "emptyTranslations": []
+  },
+  "markerCorrections": [
+    {
+      "sourceLine": 28693,
+      "foundMarker": "0.033",
+      "reconstructedVerseKey": "17:33"
+    },
+    {
+      "sourceLine": 51178,
+      "foundMarker": "039.04",
+      "reconstructedVerseKey": "39:46"
+    },
+    {
+      "sourceLine": 55783,
+      "foundMarker": "04.032",
+      "reconstructedVerseKey": "45:32"
+    },
+    {
+      "sourceLine": 60753,
+      "foundMarker": "05.026",
+      "reconstructedVerseKey": "56:26"
+    }
+  ],
+  "valid": true
+}

@@ -45,3 +45,4 @@ Thumbs.db
 tools/quran-import/raw/UthmanicHafs_v2-0.zip
 backend/data/quran/en.pickthall.txt
 backend/data/quran/quran-data.xml
+tools/quran-import/raw/gutenberg-16955/16955.txt
