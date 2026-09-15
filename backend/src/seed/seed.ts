@@ -11,13 +11,36 @@ import type { SeedAyah } from './types';
  * backend/src/quran/quranSource.ts) — arabicText is intentionally excluded
  * from what this command writes so it can never reintroduce it.
  */
-export function stripAyahArabicText(ayah: SeedAyah): Omit<SeedAyah, 'arabicText'> {
+export function stripAyahArabicText<T extends Pick<SeedAyah, 'arabicText'>>(
+  ayah: T,
+): Omit<T, 'arabicText'> {
   const { arabicText: _arabicText, ...ayahWithoutArabicText } = ayah;
 
   return ayahWithoutArabicText;
 }
 
-async function seedDatabase() {
+/**
+ * MongoDB is reference-only for English translation too (see
+ * backend/src/quran/translationSource.ts, Phase 6A.8B-D) —
+ * englishTranslation/translationSource are intentionally excluded from what
+ * this command writes so normal seeding can never reintroduce Mongo
+ * translation storage or the pre-Gutenberg wording `seedAyahs` still
+ * literally carries for historical/foundation-split reasons (see
+ * backend/src/seed/foundation.ts).
+ */
+export function stripLegacyTranslationFields<
+  T extends Pick<SeedAyah, 'englishTranslation' | 'translationSource'>,
+>(ayah: T): Omit<T, 'englishTranslation' | 'translationSource'> {
+  const {
+    englishTranslation: _englishTranslation,
+    translationSource: _translationSource,
+    ...ayahWithoutTranslation
+  } = ayah;
+
+  return ayahWithoutTranslation;
+}
+
+export async function seedDatabase() {
   if (!env.MONGODB_URI) {
     throw new Error('MONGODB_URI is required to seed the database.');
   }
@@ -34,7 +57,7 @@ async function seedDatabase() {
     seedAyahs.map((ayah) =>
       AyahModel.updateOne(
         { referenceKey: ayah.referenceKey },
-        { $set: stripAyahArabicText(ayah) },
+        { $set: stripLegacyTranslationFields(stripAyahArabicText(ayah)) },
         { upsert: true },
       ),
     ),

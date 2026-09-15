@@ -176,9 +176,13 @@ source/licensing detail, and
 [the runtime architecture doc's translation section](../../docs/quran-data/runtime-architecture.md#verified-english-translation-phase-6a8)
 for the complete picture.
 
-SQLite SHA-256: `a786f58dbdd8181abb1ba075605dbf86a958d993b68e814b05929a534509a8c3`
+SQLite SHA-256: `c6d825a2f9de0395a1391339477fce58e5850805b1df161b53dcb7816c898ce8`
 (1,732,608 bytes, 6,236 rows, `integrity_check: ok`, 0 mismatches against the
-approved source).
+approved source). Rebaselined in Phase 6A.8F to the Node 24.21.0 / SQLite
+3.53.4 canonical build toolchain (see below); the translation content is
+byte-for-byte identical to the prior `a786f58d...` build — same 6,236 rows,
+same text, same corpus checksum — only the SQLite container's own bytes
+changed.
 
 ```sh
 node tools/quran-import/generate-translations-sqlite.mjs --prove-deterministic
@@ -192,3 +196,20 @@ the raw Gutenberg text, never MongoDB — validates all 6,236 canonical
 verseKeys, and refuses to silently overwrite an existing, differing
 `translations.sqlite`. `--prove-deterministic` builds twice into independent
 OS-temp paths and fails if the resulting bytes differ.
+
+**Canonical build toolchain (Phase 6A.8F).** Unlike `quran.sqlite`'s
+generator, `translations.sqlite`'s bytes turned out to depend on the
+embedded SQLite version bundled with `node:sqlite`, not just on the schema
+and source content — two builds with identical rows/text can still differ
+byte-for-byte across SQLite engine versions. `generate-translations-sqlite.mjs`'s
+`buildDatabase()` (the function underlying both `--prove-deterministic` and
+`--publish`) therefore refuses to run unless the environment is exactly Node
+`24.21.0` with embedded SQLite `3.53.4` — the toolchain independently
+verified on both development machines to produce the same
+`c6d825a2f9de0395a1391339477fce58e5850805b1df161b53dcb7816c898ce8`. The
+repository root's `.nvmrc` pins the same Node version. **This gate applies
+only to writing a new canonical database** — `verifyDatabase()` and
+`openReadonlyDatabase()` (used to check an already-published
+`translations.sqlite`, including at backend runtime) are deliberately
+ungated and work on any Node version; the backend app itself has no pinned
+Node version requirement.

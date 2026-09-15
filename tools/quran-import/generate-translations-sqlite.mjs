@@ -30,6 +30,31 @@ export const schemaVersion = 1;
 export const applicationId = 0x51485452; // 'QHTR' — Quran Heals TRanslations (distinct from quran.sqlite's 'QHRN')
 export const generatorVersion = '1.0.0';
 
+// Phase 6A.8F — the SQLite container bytes buildDatabase() writes depend on
+// the embedded SQLite version bundled with node:sqlite, not just on the
+// schema/source content; two builds on different Node/SQLite versions can be
+// logically identical (same rows, same text) yet byte-different. Canonical
+// asset generation (the only place these are checked) is pinned to the
+// toolchain both development machines have independently verified produce
+// SHA-256 c6d825a2f9de0395a1391339477fce58e5850805b1df161b53dcb7816c898ce8.
+// Read-only verification (verifyDatabase/openReadonlyDatabase below) is
+// deliberately NOT gated by this — an already-published database must stay
+// checkable from any Node version; only writing a new canonical database
+// requires the pinned toolchain.
+export const requiredCanonicalBuildNodeVersion = '24.21.0';
+export const requiredCanonicalBuildSqliteVersion = '3.53.4';
+
+function assertCanonicalBuildToolchain() {
+  const actualNode = process.versions.node;
+  const actualSqlite = process.versions.sqlite;
+  if (actualNode !== requiredCanonicalBuildNodeVersion || actualSqlite !== requiredCanonicalBuildSqliteVersion) {
+    throw new Error(
+      `Canonical translations.sqlite generation requires Node ${requiredCanonicalBuildNodeVersion} / SQLite ${requiredCanonicalBuildSqliteVersion}. ` +
+        `Current environment: Node ${actualNode} / SQLite ${actualSqlite ?? 'unavailable'}.`,
+    );
+  }
+}
+
 export const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 /**
@@ -124,6 +149,7 @@ export function openReadonlyDatabase(path) {
 
 /** Deterministically builds translations.sqlite into `outputPath` (must not already exist) and returns its bytes. */
 export function buildDatabase(outputPath, source = readVerifiedSource()) {
+  assertCanonicalBuildToolchain();
   const db = new DatabaseSync(outputPath);
   try {
     db.exec(

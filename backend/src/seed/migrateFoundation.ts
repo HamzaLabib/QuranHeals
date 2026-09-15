@@ -3,14 +3,12 @@ import { env } from '../config/env';
 import { EmotionVerseMappingModel } from '../models/EmotionVerseMapping';
 import { EmotionModel } from '../models/Emotion';
 import { VerseModel } from '../models/Verse';
-import { VerseTranslationModel } from '../models/VerseTranslation';
 import { seedAyahs } from './ayahs';
 import { seedEmotions } from './emotions';
 import {
   buildFoundationSeedData,
   type SeedEmotionVerseMapping,
   type SeedVerse,
-  type SeedVerseTranslation,
 } from './foundation';
 
 /**
@@ -27,39 +25,26 @@ export function stripVerseArabicFields(verse: SeedVerse): Omit<SeedVerse, 'arabi
 type MigrationSummary = {
   emotions: number;
   verses: number;
-  translations: number;
   mappings: number;
 };
-
-function translationKey(translation: Pick<SeedVerseTranslation, 'verseReferenceKey' | 'language' | 'translator' | 'sourceVersion'>) {
-  return [
-    translation.verseReferenceKey,
-    translation.language,
-    translation.translator,
-    translation.sourceVersion,
-  ].join('|');
-}
 
 function mappingKey(mapping: Pick<SeedEmotionVerseMapping, 'verseReferenceKey' | 'emotionKey'>) {
   return `${mapping.verseReferenceKey}|${mapping.emotionKey}`;
 }
 
 async function assertMigratedEquivalence(): Promise<MigrationSummary> {
-  const { verses, translations, mappings } = buildFoundationSeedData(seedAyahs);
+  const { verses, mappings } = buildFoundationSeedData(seedAyahs);
   const referenceKeys = verses.map((verse) => verse.referenceKey);
-  const translationKeys = translations.map(translationKey);
   const mappingKeys = mappings.map(mappingKey);
   const failures: string[] = [];
 
-  const [dbVerses, dbTranslations, dbMappings, emotionCount] = await Promise.all([
+  const [dbVerses, dbMappings, emotionCount] = await Promise.all([
     VerseModel.find({ referenceKey: { $in: referenceKeys } }).lean(),
-    VerseTranslationModel.find({ verseReferenceKey: { $in: referenceKeys } }).lean(),
     EmotionVerseMappingModel.find({ verseReferenceKey: { $in: referenceKeys } }).lean(),
     EmotionModel.countDocuments({ key: { $in: seedEmotions.map((emotion) => emotion.key) } }),
   ]);
 
   const dbVerseByReference = new Map(dbVerses.map((verse) => [verse.referenceKey, verse]));
-  const dbTranslationByKey = new Map(dbTranslations.map((translation) => [translationKey(translation), translation]));
   const dbMappingByKey = new Map(dbMappings.map((mapping) => [mappingKey(mapping), mapping]));
 
   verses.forEach((expected) => {
@@ -76,20 +61,6 @@ async function assertMigratedEquivalence(): Promise<MigrationSummary> {
       actual.sourceVersion !== expected.sourceVersion
     ) {
       failures.push(`Migrated verse ${expected.referenceKey} does not match expected metadata.`);
-    }
-  });
-
-  translations.forEach((expected) => {
-    const key = translationKey(expected);
-    const actual = dbTranslationByKey.get(key);
-
-    if (!actual) {
-      failures.push(`Missing migrated translation ${key}.`);
-      return;
-    }
-
-    if (actual.checksum !== expected.checksum || actual.source !== expected.source) {
-      failures.push(`Migrated translation ${key} does not match expected metadata.`);
     }
   });
 
@@ -115,10 +86,6 @@ async function assertMigratedEquivalence(): Promise<MigrationSummary> {
     failures.push(`Expected ${verses.length} migrated verses, found ${dbVerses.length}.`);
   }
 
-  if (translationKeys.length !== translations.length || dbTranslationByKey.size !== translations.length) {
-    failures.push(`Expected ${translations.length} migrated translations, found ${dbTranslationByKey.size}.`);
-  }
-
   if (mappingKeys.length !== mappings.length || dbMappingByKey.size !== mappings.length) {
     failures.push(`Expected ${mappings.length} migrated mappings, found ${dbMappingByKey.size}.`);
   }
@@ -134,49 +101,11 @@ async function assertMigratedEquivalence(): Promise<MigrationSummary> {
   return {
     emotions: emotionCount,
     verses: dbVerses.length,
-    translations: dbTranslationByKey.size,
     mappings: dbMappingByKey.size,
   };
 }
 
-async function assertNoChecksumConflicts() {
-  // Verse.checksum (an Arabic-text checksum) was removed as part of making
-  // MongoDB reference-only for Quran Arabic (see
-  // backend/src/quran/quranSource.ts); live Verse documents no longer carry
-  // it, so verse-level conflict detection against Mongo's own copy is no
-  // longer possible here and is intentionally not attempted. Translation
-  // checksums are unaffected (VerseTranslation.checksum was not removed) and
-  // are still checked below.
-  const { translations } = buildFoundationSeedData(seedAyahs);
-  const translationFilters = translations.map((translation) => ({
-    verseReferenceKey: translation.verseReferenceKey,
-    language: translation.language,
-    translator: translation.translator,
-    sourceVersion: translation.sourceVersion,
-  }));
-  const existingTranslations = await VerseTranslationModel.find({ $or: translationFilters }).lean();
-  const expectedTranslationByKey = new Map(
-    translations.map((translation) => [translationKey(translation), translation]),
-  );
-  const failures: string[] = [];
-
-  existingTranslations.forEach((actual) => {
-    const key = translationKey(actual);
-    const expected = expectedTranslationByKey.get(key);
-
-    if (expected && actual.checksum !== expected.checksum) {
-      failures.push(`Translation checksum conflict for ${key}.`);
-    }
-  });
-
-  if (failures.length > 0) {
-    throw new Error(
-      `Foundation migration refused to overwrite conflicting text: ${failures.join(' ')}`,
-    );
-  }
-}
-
-async function migrateFoundation() {
+export async function migrateFoundation() {
   if (!env.MONGODB_URI) {
     throw new Error('MONGODB_URI is required to migrate the foundation dataset.');
   }
@@ -185,10 +114,18 @@ async function migrateFoundation() {
     throw new Error('Foundation migration is disabled when NODE_ENV=production.');
   }
 
-  const { verses, translations, mappings } = buildFoundationSeedData(seedAyahs);
+  // VerseTranslation is intentionally never written here (Phase 6A.8D).
+  // English translation is served exclusively from translations.sqlite (see
+  // backend/src/quran/translationSource.ts); buildFoundationSeedData(...)
+  // still computes a `translations` array (consumed elsewhere, e.g.
+  // backend/tests/quran-data/foundation-integrity.test.ts), but this
+  // migration deliberately never persists it, so a normal re-run can never
+  // recreate Mongo translation storage or the pre-Gutenberg wording
+  // `seedAyahs` still literally carries. See
+  // backend/tests/quran-data/no-translation-reintroduction.test.ts.
+  const { verses, mappings } = buildFoundationSeedData(seedAyahs);
 
   await connectToDatabase(env.MONGODB_URI);
-  await assertNoChecksumConflicts();
 
   await Promise.all(
     seedEmotions.map((emotion) =>
@@ -211,21 +148,6 @@ async function migrateFoundation() {
   );
 
   await Promise.all(
-    translations.map((translation) =>
-      VerseTranslationModel.updateOne(
-        {
-          verseReferenceKey: translation.verseReferenceKey,
-          language: translation.language,
-          translator: translation.translator,
-          sourceVersion: translation.sourceVersion,
-        },
-        { $set: translation },
-        { upsert: true, runValidators: true },
-      ),
-    ),
-  );
-
-  await Promise.all(
     mappings.map((mapping) =>
       EmotionVerseMappingModel.updateOne(
         { verseReferenceKey: mapping.verseReferenceKey, emotionKey: mapping.emotionKey },
@@ -238,7 +160,7 @@ async function migrateFoundation() {
   const summary = await assertMigratedEquivalence();
 
   console.log(
-    `Migrated foundation dataset: ${summary.emotions} emotions, ${summary.verses} verses, ${summary.translations} translations, ${summary.mappings} mappings.`,
+    `Migrated foundation dataset: ${summary.emotions} emotions, ${summary.verses} verses, ${summary.mappings} mappings.`,
   );
 }
 

@@ -399,10 +399,14 @@ schema change. Fixed PRAGMAs, sorted insertion order and a distinct
 `generate-sqlite.mjs`'s reproducibility conventions. Determinism is proven
 by building twice into independent OS-temp paths and comparing SHA-256
 (`node tools/quran-import/generate-translations-sqlite.mjs
---prove-deterministic`) — both builds hash to
+--prove-deterministic`) — both builds hashed to
 `a786f58dbdd8181abb1ba075605dbf86a958d993b68e814b05929a534509a8c3`
-(1,732,608 bytes), which is the published `backend/assets/quran/
-translations.sqlite`'s own hash. `tools/quran-import/translations-sqlite.test.mjs`
+(1,732,608 bytes) under this phase's Node 24.15.0/SQLite 3.51.3 toolchain,
+which was the published `backend/assets/quran/translations.sqlite`'s hash
+until Phase 6A.8F rebaselined the container bytes to a newer, cross-machine
+verified toolchain (see "Canonical translation-build toolchain rebaseline"
+below for the current hash and why it changed; the translation content
+itself did not). `tools/quran-import/translations-sqlite.test.mjs`
 (run via `node --test`) proves the source hash pin, full structural/content
 verification (6,236 exact matches, 0 mismatches, `integrity_check: ok`), a
 corpus-checksum match between the JSON source and the built database (same
@@ -535,3 +539,263 @@ for exact before/after hashes).
   `seed/ayahs.ts` still populates them literally and removing the fields
   from the schema entirely is a separate, larger decision than this phase's
   storage-cleanup mandate.
+
+Both of the risks named above are closed by Phase 6A.8D, directly below.
+
+## Preventing legacy Mongo translation reintroduction (Phase 6A.8D)
+
+Status: **complete**. Code-hardening only — no data mutation, no Mongo
+writes, no emotion/mapping activation. Closes the two regression risks 6A.8C
+identified but deliberately left open (see "Remaining legacy code" above).
+
+**What changed:**
+
+- **`backend/src/seed/migrateFoundation.ts` no longer writes
+  `VerseTranslation` at all.** `buildFoundationSeedData(...)` still computes
+  a `translations` array (other consumers, e.g.
+  `foundation-integrity.test.ts`, still legitimately exercise it as a pure
+  data-shape function), but `migrateFoundation()` never persists it — the
+  `VerseTranslationModel.updateOne(...)` write block, the translation half
+  of the equivalence check, and the translation-checksum-conflict guard
+  (`assertNoChecksumConflicts`) were all removed, since none of them are
+  meaningful once nothing is written. `migrateFoundation.ts` no longer
+  imports `VerseTranslationModel` at all. Re-running `npm run
+  migrate:foundation` is now a safe no-op for translation — it still
+  upserts `Emotion`, `Verse` (Arabic-stripped, as before) and
+  `EmotionVerseMapping`, exactly as it did before this phase.
+- **`backend/src/seed/seed.ts`'s Ayah write path no longer persists
+  `englishTranslation`/`translationSource`.** A new `stripLegacyTranslationFields`
+  helper (same shape and spirit as the existing `stripAyahArabicText`, now
+  generalized with a type parameter so the two compose:
+  `stripLegacyTranslationFields(stripAyahArabicText(ayah))`) strips both
+  fields from the `$set` payload before every `AyahModel.updateOne(...)`
+  call. `seed/ayahs.ts` itself is untouched and still literally carries the
+  pre-Gutenberg Pickthall wording (it remains the historical source that
+  `buildFoundationSeedData` derives from), but that wording can no longer
+  reach MongoDB through `npm run seed`.
+- **Nothing else changed.** `VerseTranslationModel` and the optional
+  `Ayah.englishTranslation`/`translationSource` schema fields are
+  deliberately **retained** — `rollbackTranslationCleanup.ts` still needs
+  the model and schema shape to restore a real backup if one is ever
+  needed, and Step 9's classification (seed/migration: none now; rollback:
+  yes) doesn't justify deleting them. `prepareTranslationCleanup.ts`'s own
+  `rollbackStrategy` report text was updated to stop claiming a re-seed
+  would reintroduce old wording — it no longer can.
+
+**Regression protection:**
+`backend/tests/quran-data/no-translation-reintroduction.test.ts` proves,
+without opening a real database connection (`connectToDatabase`/
+`disconnectFromDatabase` mocked, every Mongoose model call
+`vi.spyOn`-stubbed): `stripLegacyTranslationFields` removes both fields from
+every real seed ayah while preserving everything else; it composes with
+`stripAyahArabicText`; running the real `seedDatabase()` function never
+calls `AyahModel.updateOne` with either field in its `$set` payload; and
+running the real `migrateFoundation()` function never calls
+`VerseTranslationModel.updateOne`/`create`/`insertMany` (a canary spy that
+would catch the write coming back even if a future edit re-imports the
+model). `mongo-translation-independence.test.ts` (unchanged, still passing)
+continues to prove the read side independently, including the dedicated
+39:53 Gutenberg-wording test.
+
+**Verified live, read-only, zero Mongo writes performed by this phase:**
+`VerseTranslation` = 0, `Ayah` documents with `englishTranslation` = 0,
+`Ayah` documents with `translationSource` = 0, `Emotion` = 12,
+`EmotionVerseMapping` = 43 — identical before and after, matching the
+6A.8C baseline exactly. Rollback tooling
+(`rollbackTranslationCleanup.ts --backup <path>`, no `--apply`) was
+exercised in dry-run mode against a synthetic fixture backup (this
+workspace has no real 6A.8C backup file on disk — `backend/backups/` is
+git-ignored and empty, matching `objectId.ts`'s own comment that "no real
+backup exists yet" here) built from real, live Ayah `_id`s read-only; the
+script parsed it, computed a valid restore plan (16 Ayah documents
+restorable, 0 `VerseTranslation` conflicts), and correctly refused to write
+anything without `--apply`. This confirms the hardening did not disturb the
+rollback code path; it does not by itself prove the original 6A.8C backup
+file (wherever it now lives) is restorable, since that file was not
+available to test against.
+
+**Translation authority, restated (unchanged by this phase):**
+`translations.sqlite` remains the sole runtime source for English
+translation text. MongoDB translation authority remains **NONE**. This
+phase only removes MongoDB's ability to accumulate translation-shaped data
+through normal application workflows going forward — it does not touch
+`translations.sqlite`, `quran.sqlite`, or `surah-names.json`, and it does
+not activate the reviewed 29-emotion/1,845-mapping dataset (still pending
+Phase 6B).
+
+## Pre-6B verification hygiene (Phase 6A.8E)
+
+Status: **complete**. Two hygiene gaps only — no data mutation, no Mongo
+writes, no emotion/mapping activation.
+
+**A. Cross-platform hash verification for the Pickthall source JSON.**
+`tools/quran-verification/pickthall-gutenberg-16955.json` failed its
+hash-pin check on a Windows checkout with `core.autocrlf=true`: the
+*committed Git blob* (`git show HEAD:...`) hashes to exactly the pinned
+`f22e7ef2958bab19b36e5c604f927da8241148e73ec9763100bc9ffc27c8a4b4` — proven
+identical, byte for byte, to the blob SHA-1 already in the index
+(`29e641c3b5baafbb249a55397053c24be5e80255` both ways) — but the
+*working-tree copy* Git's smudge filter wrote to disk carried exactly
+24,975 injected CR bytes (one per line, all forming CRLF pairs; confirmed
+by direct byte counting, not assumed). This was purely a checkout-time
+line-ending conversion, never a content change, and never touched any
+commit. Fixed by pinning the file to LF in
+`tools/quran-verification/.gitattributes` (`pickthall-gutenberg-16955.json
+text eol=lf`, matching that file's existing narrow, per-file style rather
+than a repo-wide rule) and forcing a re-checkout
+(`rm` + `git checkout --`); the working-tree file now hashes to
+`f22e7ef2...` again, with `git diff`/`git status` showing zero change to
+the JSON's tracked content. The pinned expected hash was **not** changed
+to the CRLF-derived value, and `generate-translations-sqlite.mjs`'s
+`readVerifiedSource` still hashes raw file bytes directly
+(`sha256(readFileSync(path))`, no text-mode reading, no CRLF-to-LF
+replacement in code) — the fix works by making Git's checkout itself
+produce canonical bytes on every platform, so real corruption still fails
+verification; nothing about the hash check itself was weakened.
+
+**Newly discovered, separate issue (not fixed by this phase):** with the
+hash-pin exception gone, `translations-sqlite.test.mjs` surfaced a second,
+previously-masked failure — a translations.sqlite freshly built from source
+*in this environment* (Node v24.15.0; the repository pins no Node version
+via `.nvmrc`/`engines`) is not byte-identical to the published
+`backend/assets/quran/translations.sqlite`, even though two fresh builds in
+this same environment are byte-identical to *each other* and the published
+file independently passes full structural/content verification (6,236/6,236
+exact matches, corpus-checksum match, `integrity_check: ok`). This points to
+SQLite/Node version drift between whatever environment originally produced
+the published database and this one, not a content or corruption problem,
+and not a regression from this phase's `.gitattributes` change (the schema
+and generator source are already LF-pinned and untouched). Per this phase's
+restrictions, `translations.sqlite` was not regenerated or modified to
+"fix" this, and the test was not altered to hide it. It is recorded here as
+an open, separate follow-up: pin a Node version for this build (e.g. an
+`.nvmrc`/`engines` entry) and re-verify byte-for-byte determinism on it.
+
+**B. Historical 6A.8C Mongo backup — availability re-confirmed, not fabricated.**
+The Phase 6A.8C narrative above and 6A.8D's own verification both referred
+to a real, live-run backup:
+`backend/backups/translation-cleanup/mongodb-translation-before-cleanup-1789439974933.json`
+(historically reported SHA-256
+`ad6a7e4d28bc4205c32ee49ac98d1c50dbe507393d23d8fcb3d04cc57da01d91`; 16
+`VerseTranslation` documents + 16 targeted `Ayah` records). A read-only
+search of this workspace — `backend/backups/` (contains only its own
+`.gitignore`), the full repository tree, the sibling directory under `My
+App/` (none besides `QuranHeals` itself), this user's home directory
+(bounded depth, excluding `AppData`), `Downloads`, and `Desktop` — found
+**no copy of this file anywhere**. `backend/reports/data-cleanup/
+translation-cleanup-dry-run.json`, the accompanying dry-run report the
+6A.8C narrative also references, is likewise absent and was never
+git-tracked (`cleanup-dry-run.json`, the earlier Phase 4C *Arabic* report,
+is the only tracked report in that directory). Both are consistent with the
+same fact: this workspace never had the artifacts from whichever session
+ran 6A.8C's live mutation against Atlas — they were produced there,
+gitignored by design, and not carried into this checkout.
+
+**No replacement or reconstruction was created.** Regenerating a "backup"
+from the current (already-cleaned) live Mongo state would not contain the
+deleted `VerseTranslation` rows or original `Ayah` field values at all, and
+a fixture built from `seed/ayahs.ts` literals would not be the actual
+pre-cleanup documents (their original `_id`s, timestamps, or exact stored
+values) — either would be a fabrication presented as history, which this
+phase explicitly avoids. 6A.8D's synthetic dry-run fixture (real live Ayah
+`_id`s, placeholder text, built solely to exercise the rollback script's
+parse/plan code path) remains correctly labeled as synthetic in that
+section above and was not, and is not, treated as the real backup.
+
+**Capability vs. availability, stated precisely:**
+
+| Question | Answer |
+| --- | --- |
+| Does `rollbackTranslationCleanup.ts` still work mechanically? | **Yes** — proven in 6A.8D via dry-run against a synthetic fixture (parses, computes a correct plan, refuses to write without `--apply`). |
+| Is the *exact* original 6A.8C backup file available on this laptop? | **No.** Not found anywhere in this workspace after a read-only search. |
+| Can the exact 6A.8C Mongo mutation be rolled back from this laptop today? | **No** — restoring the deleted `VerseTranslation` documents and unset `Ayah` fields to their exact original values requires that specific backup file, which is not currently recoverable here. |
+
+`rollbackTranslationCleanup.ts` is retained unchanged and remains the
+correct tool to use **if** that backup file (or an equivalent verified
+pre-mutation backup) is ever located or produced again — nothing about its
+mechanism was altered or weakened by this finding.
+
+## Canonical translation-build toolchain rebaseline (Phase 6A.8F)
+
+Status: **complete**. Resolves the build-reproducibility gap 6A.8E
+discovered but explicitly left unfixed (that phase's restrictions forbade
+touching `translations.sqlite` or the Node environment; this phase does
+both, under proof).
+
+**What was wrong.** `translations.sqlite`'s bytes turned out to depend on
+the embedded SQLite version bundled with `node:sqlite`, not only on the
+schema/source content: 6A.8B's original build (Node 24.15.0, embedded
+SQLite 3.51.3) produced `a786f58dbdd8181abb1ba075605dbf86a958d993b68e814b05929a534509a8c3`;
+a fresh build with an unpinned, newer toolchain (Node 24.15.0→24.21.0
+somewhere between machines/sessions) produced different container bytes for
+logically identical content — invisible until 6A.8E's line-ending fix
+stopped a source-hash crash from masking it.
+
+**Toolchain now pinned and independently cross-verified.** Two development
+machines separately confirmed that Node `24.21.0` with embedded SQLite
+`3.53.4` deterministically produces:
+
+```
+c6d825a2f9de0395a1391339477fce58e5850805b1df161b53dcb7816c898ce8
+```
+
+— verified a third time in this phase (two fresh, independent builds in
+this session, both hashing to the same value, matching the other two
+machines' prior results exactly). The repository root's `.nvmrc` now pins
+`24.21.0`. `generate-translations-sqlite.mjs`'s `buildDatabase()` — the
+single write path underlying both `--prove-deterministic` and `--publish`
+— now refuses to run outside that exact Node/SQLite pair, failing with a
+clear error before ever touching the published asset. This gate is
+**generation-only**: `verifyDatabase()`/`openReadonlyDatabase()` (used to
+check an already-published database, including at backend runtime) remain
+ungated and work on any Node version — the backend app itself has no pinned
+Node version requirement, only canonical asset generation does.
+
+**Content equivalence proven before replacement, not assumed.** Before
+touching the published file, the old (`a786f58d...`) and a freshly built
+(`c6d825a2...`) database were compared directly, not just by row count: all
+6,236 rows matched on `verse_key`, `surah`, `ayah`, `translation_id` and
+`text` — **6,236/6,236 exact text matches, 0 text differences, 0 identity
+differences, 0 missing, 0 extra, 0 duplicates on either side** — and the
+`translation_sources` metadata (translator, title, source name, source
+hash, corpus hash, license note) was identical. The corpus checksum (the
+same sort-concatenate-SHA256 method used elsewhere in this document) was
+computed three ways — from the verified source JSON directly, from the old
+published database, and from the freshly built database — and all three
+equal `5d62a79ecdba31c2b2e876432bdb794e374d4e8e80e6da00eae225a13c2c64d3`.
+Only after all of this passed was `backend/assets/quran/translations.sqlite`
+replaced (via `generate-translations-sqlite.mjs --publish`, after removing
+the old file so its safety check — which refuses to silently overwrite a
+differing existing file — would allow the deliberate, verified swap).
+
+**Published hash, updated.** `backend/assets/quran/translations.sqlite` is
+now `c6d825a2f9de0395a1391339477fce58e5850805b1df161b53dcb7816c898ce8`
+(1,732,608 bytes — same size as before). The active runtime pin in
+`backend/src/quran/translationSource.ts` (`expectedHash`) and the current
+asset documentation in `tools/quran-import/README.md` were updated to
+match; the historical `a786f58d...` value in this document's own "Phase
+6A.8B" section above was left as a historical record of what that phase's
+toolchain produced, with an added note pointing here rather than being
+rewritten.
+
+**Unaffected by this phase (verified, not merely assumed):**
+`quran.sqlite` (both copies), `surah-names.json`, and the verified Pickthall
+source JSON (`tools/quran-verification/pickthall-gutenberg-16955.json`,
+still `f22e7ef2...`) are all byte-unchanged — confirmed by hash before and
+after. No MongoDB write of any kind occurred. The 6A.8E historical-backup
+finding (the original 6A.8C backup remains unavailable in this workspace)
+is unchanged by this phase and was not touched or re-litigated.
+
+**Second-machine verification.** After pulling the eventual commit, confirm
+on the other machine with:
+
+```sh
+node --version
+node -p "process.versions.sqlite"
+Get-FileHash backend/assets/quran/translations.sqlite -Algorithm SHA256
+node --test tools/quran-import/translations-sqlite.test.mjs
+```
+
+expecting Node `v24.21.0`, SQLite `3.53.4`,
+`translations.sqlite` = `c6d825a2f9de0395a1391339477fce58e5850805b1df161b53dcb7816c898ce8`,
+and 7/7 passing tests.

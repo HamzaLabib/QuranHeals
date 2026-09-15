@@ -11,7 +11,7 @@ import { isValidVerseKey } from './referenceKeys';
 // own (mirrors quran/quranSource.ts's asset handling).
 const databasePath = resolve(__dirname, '../../assets/quran/translations.sqlite');
 
-const expectedHash = 'a786f58dbdd8181abb1ba075605dbf86a958d993b68e814b05929a534509a8c3';
+const expectedHash = 'c6d825a2f9de0395a1391339477fce58e5850805b1df161b53dcb7816c898ce8';
 const expectedRowCount = 6236;
 const expectedApplicationId = 0x51485452; // 'QHTR'
 const expectedUserVersion = 1;

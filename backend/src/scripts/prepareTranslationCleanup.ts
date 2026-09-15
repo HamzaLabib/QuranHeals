@@ -179,9 +179,9 @@ async function main() {
     rollbackStrategy:
       'VerseTranslation documents are deleted by exact _id (never deleteMany({})); Ayah translation fields are $unset by exact _id. ' +
       'Revert via backend/src/scripts/rollbackTranslationCleanup.ts --apply, which restores from the verified pre-mutation JSON backup, ' +
-      'matching each record by its original _id. Do not re-run seed.ts/migrateFoundation.ts expecting a rollback: ' +
-      'seed/ayahs.ts still contains literal englishTranslation/translationSource values and is not stripped the way arabicText is ' +
-      '(see stripAyahArabicText in seed.ts) — re-seeding would reintroduce the OLD pre-Gutenberg wording, not restore anything.',
+      'matching each record by its original _id. Do not re-run seed.ts/migrateFoundation.ts expecting a rollback (Phase 6A.8D): ' +
+      'both now strip englishTranslation/translationSource (stripLegacyTranslationFields in seed.ts) and never write VerseTranslation ' +
+      '(migrateFoundation.ts) — re-running either is a safe no-op for translation, not a rollback path.',
   };
 
   mkdirSync('reports/data-cleanup', { recursive: true });

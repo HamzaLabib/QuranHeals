@@ -1,2 +1,3 @@
 input/quran-uthmani.txt -text
 input/quran-data.xml -text
+pickthall-gutenberg-16955.json text eol=lf

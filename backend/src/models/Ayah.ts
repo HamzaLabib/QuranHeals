@@ -41,11 +41,13 @@ const ayahSchema = new Schema<AyahEntity>(
       required: false,
       trim: true,
     },
-    // Retained for legacy/compatibility data only; the API no longer reads
-    // this field (see backend/src/quran/translationSource.ts, Phase 6A.8B).
-    // Not required, preparing for its eventual removal once MongoDB becomes
-    // reference-only for translation, exactly like arabicText above already
-    // is for Arabic (Phase 4C).
+    // Retained for legacy/rollback compatibility only; the API no longer
+    // reads this field (see backend/src/quran/translationSource.ts, Phase
+    // 6A.8B), and normal seeding no longer writes it either
+    // (stripLegacyTranslationFields in backend/src/seed/seed.ts, Phase
+    // 6A.8D). Not required, preparing for its eventual removal once the
+    // schema itself is retired, exactly like arabicText above already is for
+    // Arabic (Phase 4C).
     englishTranslation: {
       type: String,
       required: false,
