@@ -4,21 +4,16 @@ import { AyahModel } from '../models/Ayah';
 import { EmotionVerseMappingModel } from '../models/EmotionVerseMapping';
 import { EmotionModel } from '../models/Emotion';
 import { VerseModel } from '../models/Verse';
-import { VerseTranslationModel } from '../models/VerseTranslation';
 import { getVerifiedArabicByVerseKey, VERIFIED_QURAN_TEXT_SOURCE } from '../quran/quranSource';
 import { isValidVerseKey, parseVerseKey } from '../quran/referenceKeys';
 import { getSurahMetadata } from '../quran/surahMetadata';
-import {
-  FOUNDATION_TRANSLATION_LANGUAGE,
-  FOUNDATION_TRANSLATOR,
-} from '../seed/foundation';
+import { getVerifiedTranslationByVerseKey, VERIFIED_TRANSLATION_SOURCE } from '../quran/translationSource';
 import type {
   AyahEntity,
   EmotionEntity,
   EmotionMappingStatus,
   EmotionVerseMappingEntity,
   VerseEntity,
-  VerseTranslationEntity,
 } from '../types/domain';
 import type { AyahDto, EmotionDto } from '../types/dto';
 import type { QuranRepository } from './QuranRepository';
@@ -48,7 +43,10 @@ function toEmotionDto(emotion: MongoEntity<EmotionEntity>): EmotionDto {
 // ayahs share the same public identity. Its own surahNameArabic/English
 // fields are legacy enrichment only (Phase 6A.7) — never authoritative; the
 // verified surah-names asset is the sole source of truth for names, exactly
-// like the foundation path below.
+// like the foundation path below. Its own englishTranslation/translationSource
+// fields are likewise legacy enrichment only (Phase 6A.8B) — never
+// authoritative; the verified translations.sqlite asset is the sole source
+// of truth for translation text, exactly like Arabic text already was.
 function toAyahDto(ayah: MongoEntity<AyahEntity>): AyahDto {
   const surah = getSurahMetadata(ayah.surahNumber);
 
@@ -61,29 +59,31 @@ function toAyahDto(ayah: MongoEntity<AyahEntity>): AyahDto {
     surahNameEnglish: surah.nameEnglish,
     ayahNumber: ayah.ayahNumber,
     arabicText: getVerifiedArabicByVerseKey(ayah.referenceKey),
-    englishTranslation: ayah.englishTranslation,
+    englishTranslation: getVerifiedTranslationByVerseKey(ayah.referenceKey),
     emotions: ayah.emotions,
     quranTextSource: ayah.quranTextSource,
-    translationSource: ayah.translationSource,
+    translationSource: VERIFIED_TRANSLATION_SOURCE,
   };
 }
 
 /**
- * Composes an ayah from `verseKey` + verified SQLite Arabic + a Mongo
- * translation. A Mongo `Verse` document is *optional* enrichment only
+ * Composes an ayah from `verseKey` + verified SQLite Arabic + verified
+ * SQLite translation. A Mongo `Verse` document is *optional* enrichment only
  * (historical `quranTextSource`) — its absence must never block resolution.
  * This is the fix for the abandoned "Mongo Verse coverage must expand before
  * activation" architecture: any approved
  * `EmotionVerseMapping.verseReferenceKey` resolves on its own. Surah names
- * always come from the verified surah-names asset (Phase 6A.7) — a Mongo
- * `Verse` document's own surahNameArabic/English fields, if present, are
- * legacy enrichment only and are never read here.
+ * always come from the verified surah-names asset (Phase 6A.7), and
+ * translation text always comes from the verified translations.sqlite asset
+ * (Phase 6A.8B) — a Mongo `Verse`/`VerseTranslation` document's own
+ * surahNameArabic/English or translation text, if present, is never read
+ * here.
  */
 function toFoundationAyahDto(
   verseKey: string,
   arabicText: string,
+  translationText: string,
   verse: MongoEntity<VerseEntity> | null,
-  translation: MongoEntity<VerseTranslationEntity>,
   mappings: MongoEntity<EmotionVerseMappingEntity>[],
 ): AyahDto {
   const { surahNumber, ayahNumber } = parseVerseKey(verseKey);
@@ -98,39 +98,32 @@ function toFoundationAyahDto(
     surahNameEnglish: surah.nameEnglish,
     ayahNumber,
     arabicText,
-    englishTranslation: translation.text,
+    englishTranslation: translationText,
     emotions: mappings.map((mapping) => mapping.emotionKey),
     quranTextSource: verse?.quranTextSource ?? VERIFIED_QURAN_TEXT_SOURCE,
-    translationSource: translation.source,
+    translationSource: VERIFIED_TRANSLATION_SOURCE,
   };
 }
 
 export class MongooseQuranRepository implements QuranRepository {
   private async composeFoundationAyah(verseKey: string, requiredEmotionKey?: string) {
     let arabicText: string;
+    let translationText: string;
 
     try {
       arabicText = getVerifiedArabicByVerseKey(verseKey);
+      translationText = getVerifiedTranslationByVerseKey(verseKey);
     } catch {
       return null;
     }
 
-    const [verse, translation, mappings] = await Promise.all([
+    const [verse, mappings] = await Promise.all([
       VerseModel.findOne({ referenceKey: verseKey }).lean<MongoEntity<VerseEntity>>(),
-      VerseTranslationModel.findOne({
-        verseReferenceKey: verseKey,
-        language: FOUNDATION_TRANSLATION_LANGUAGE,
-        translator: FOUNDATION_TRANSLATOR,
-      }).lean<MongoEntity<VerseTranslationEntity>>(),
       EmotionVerseMappingModel.find({
         verseReferenceKey: verseKey,
         status: { $in: userVisibleMappingStatuses },
       }).lean<MongoEntity<EmotionVerseMappingEntity>[]>(),
     ]);
-
-    if (!translation) {
-      return null;
-    }
 
     if (
       requiredEmotionKey !== undefined &&
@@ -139,7 +132,7 @@ export class MongooseQuranRepository implements QuranRepository {
       return null;
     }
 
-    return toFoundationAyahDto(verseKey, arabicText, verse, translation, mappings);
+    return toFoundationAyahDto(verseKey, arabicText, translationText, verse, mappings);
   }
 
   private async findRandomFoundationAyahByEmotion(emotionKey: string, excludedVerseKeys: string[]) {

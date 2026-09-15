@@ -16,6 +16,7 @@ import { seedEmotions } from '../../src/seed/emotions';
 import { buildFoundationSeedData } from '../../src/seed/foundation';
 import { MongooseQuranRepository } from '../../src/services/MongooseQuranRepository';
 import { getSurahMetadata } from '../../src/quran/surahMetadata';
+import { getVerifiedTranslationByVerseKey, VERIFIED_TRANSLATION_SOURCE } from '../../src/quran/translationSource';
 
 const sqlitePath = resolve(__dirname, '../../assets/quran/quran.sqlite');
 const foundation = buildFoundationSeedData(seedAyahs);
@@ -41,6 +42,13 @@ function findLocalVerse(verseKey: string) {
 // arabicText field.
 function verifiedArabicFor(verseKey: string): string {
   return (findLocalVerse(verseKey)[0] as { arabic_text: string }).arabic_text;
+}
+
+// Same principle for translation (Phase 6A.8B) — assert against the verified
+// translations.sqlite text, never against a Mongo fixture's own translation
+// text (which may differ, e.g. by punctuation, from the Gutenberg edition).
+function verifiedTranslationFor(verseKey: string): string {
+  return getVerifiedTranslationByVerseKey(verseKey);
 }
 
 describe('Seed mappings resolve through the immutable Quran asset', () => {
@@ -132,10 +140,10 @@ describe('verseKey is the canonical public identity on existing API routes', () 
           surahNameEnglish: verifiedSurah.nameEnglish,
           ayahNumber: verse.ayahNumber,
           arabicText: verifiedArabicFor('2:153'),
-          englishTranslation: translation.text,
+          englishTranslation: verifiedTranslationFor('2:153'),
           emotions: mappings.map((mapping) => mapping.emotionKey),
           quranTextSource: verse.quranTextSource,
-          translationSource: translation.source,
+          translationSource: VERIFIED_TRANSLATION_SOURCE,
         },
       });
       const rows = findLocalVerse(response.body.data.verseKey);
@@ -164,6 +172,8 @@ describe('verseKey is the canonical public identity on existing API routes', () 
           id: '2:153',
           verseKey: '2:153',
           arabicText: verifiedArabicFor('2:153'),
+          englishTranslation: verifiedTranslationFor('2:153'),
+          translationSource: VERIFIED_TRANSLATION_SOURCE,
           surahNameArabic: verifiedSurah.nameArabic,
           surahNameEnglish: verifiedSurah.nameEnglish,
         },

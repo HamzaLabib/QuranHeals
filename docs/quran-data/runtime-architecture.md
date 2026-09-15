@@ -333,3 +333,113 @@ integrity pinning, deterministic/frozen loading, correct resolution for
 spot-checked verseKeys, all 6,236 canonical verseKeys resolving valid
 surah/ayah-consistent metadata, and all 205 Phase 6A candidate verseKeys
 resolving non-empty names with zero Mongo Verse coverage required.
+
+## Verified English translation (Phase 6A.8)
+
+Status: **complete**. Closes the actual blocker behind the "known gap"
+above: 189 of the 205 Phase 6A candidate verseKeys had no Mongo
+`VerseTranslation` document, and `composeFoundationAyah` used to `return
+null` whenever one was missing — the real reason those ayahs could never be
+served, independent of the surah-name placeholder issue Phase 6A.7 fixed.
+
+**Ownership, made explicit (supersedes the Phase 6A.7 table for translation):**
+
+| Asset | Owns |
+| --- | --- |
+| `{backend,mobile}/assets/quran/quran.sqlite` | canonical Quran Arabic (unchanged) |
+| `{backend,mobile}/assets/quran/surah-counts.json` | canonical per-surah ayah counts (unchanged) |
+| `{backend,mobile}/assets/quran/surah-names.json` | canonical per-surah Arabic/English names (unchanged) |
+| `backend/assets/quran/translations.sqlite` | canonical English translation text (**new**) |
+| MongoDB (`Verse`, `Ayah`, `VerseTranslation`) | dynamic application/review data only; **retained but non-authoritative** for translation text, same as it already was for Arabic and surah names |
+
+**Source and provenance (Phase 6A.8A).** The bundled translation is
+Marmaduke Pickthall's *The Meaning of the Glorious Koran*, extracted from
+Project Gutenberg eBook #16955 ("Three Translations of The Koran (Al-Qur'an)
+side by side" — Yusuf Ali / Pickthall / Shakir; only Pickthall is extracted
+or redistributed). Chosen over the earlier, never-completed Tanzil
+`en.pickthall` export specifically because Tanzil's translation-download
+terms are non-commercial-only, while Gutenberg's ebook carries no such
+restriction (Gutenberg catalog: "Public domain in the USA"; full license
+§1.D: "The Foundation makes no representations concerning the copyright
+status of any work in any country outside the United States" — a residual,
+documented, non-blocking territorial caveat, not a stated prohibition).
+Raw download: `tools/quran-import/raw/gutenberg-16955/16955.txt`
+(gitignored, 2,833,442 bytes, SHA-256
+`8ea8efcdf76a20ac1a6a3948c292f44fc7acda597ed7cbc50ac2dc4c254be7a8`) — see
+`tools/quran-import/raw/gutenberg-16955/README.md`. Extracted via
+`tools/quran-import/extract-gutenberg-pickthall.mjs` into the tracked,
+hash-pinned `tools/quran-verification/pickthall-gutenberg-16955.json`
+(SHA-256 `f22e7ef2958bab19b36e5c604f927da8241148e73ec9763100bc9ffc27c8a4b4`),
+114/114 surahs and 6,236/6,236 canonical verseKeys, 0 missing/extra/
+duplicate/empty. The raw file's own transcription had 4 corrupted verse-
+number labels (17:33, 39:46, 45:32, 56:26 — content intact, only the digit
+label was wrong); the extractor reconstructs each from strict per-surah
+sequence position and records every correction — see
+`backend/reports/quran-data/gutenberg-pickthall-verification.md`. A
+read-only comparison against the 16 pre-existing Mongo dev rows found 11
+exact matches, 4 punctuation/capitalization-only differences, and one
+genuine wording difference at 39:53 ("Say: My slaves..." in the old Mongo
+row vs "Say: O My slaves..." in the approved Gutenberg edition) — the
+Gutenberg wording now wins at runtime; the older Mongo rows were left
+untouched.
+
+**translations.sqlite (Phase 6A.8B).** Built deterministically by
+`tools/quran-import/generate-translations-sqlite.mjs` from the tracked JSON
+above (never from the raw Gutenberg text, never from MongoDB). Schema
+(`tools/quran-import/translations-schema.sql`): a `translation_sources`
+table holding source-level provenance once (translator, title, source name,
+raw/corpus hashes, license note), and a `translations` table keyed by
+`(surah, ayah, translation_id)` with a `verse_key` `CHECK`-derived column —
+deliberately mirroring `quran.sqlite`'s own `verses` table shape rather than
+the simpler `(verse_key, translation_id)` primary key, so the two Quran
+SQLite assets stay structurally consistent, and `translation_id` is a
+foreign key so a future second translation needs only new rows, never a
+schema change. Fixed PRAGMAs, sorted insertion order and a distinct
+`application_id` (`0x51485452`, `'QHTR'`, vs `quran.sqlite`'s `'QHRN'`) mirror
+`generate-sqlite.mjs`'s reproducibility conventions. Determinism is proven
+by building twice into independent OS-temp paths and comparing SHA-256
+(`node tools/quran-import/generate-translations-sqlite.mjs
+--prove-deterministic`) — both builds hash to
+`a786f58dbdd8181abb1ba075605dbf86a958d993b68e814b05929a534509a8c3`
+(1,732,608 bytes), which is the published `backend/assets/quran/
+translations.sqlite`'s own hash. `tools/quran-import/translations-sqlite.test.mjs`
+(run via `node --test`) proves the source hash pin, full structural/content
+verification (6,236 exact matches, 0 mismatches, `integrity_check: ok`), a
+corpus-checksum match between the JSON source and the built database (same
+sort-concatenate-SHA256 method as `tanzil-source.mjs`'s corpus checksum),
+byte-identical repeat builds, and that the read-only handle refuses writes.
+
+**Runtime integration.** `backend/src/quran/translationSource.ts` loads and
+hash-pins `translations.sqlite` once (mirrors `quranSource.ts`), exposing
+`getVerifiedTranslationByVerseKey(verseKey)` — throws on a missing/invalid
+key, never falls back to an empty string or to Mongo.
+`MongooseQuranRepository`'s `composeFoundationAyah` no longer queries
+`VerseTranslationModel` at all (the `if (!translation) return null` guard
+that previously blocked 189/205 candidate ayahs is gone); both
+`toFoundationAyahDto` and the legacy `toAyahDto` now source
+`englishTranslation`/`translationSource` from `translationSource.ts`
+unconditionally — a Mongo `VerseTranslation` document or a legacy `Ayah`
+document's own inline translation fields, if present, are retained in
+MongoDB but never read for this purpose (see "Foundation/Legacy path never
+reads Mongo VerseTranslation/inline translation text" in
+`mongo-translation-independence.test.ts`, including a dedicated 39:53 test
+proving the Gutenberg wording wins over the differing pre-existing Mongo
+row). `backend/tests/quran-data/full-canonical-translation-coverage.test.ts`
+proves all 6,236 canonical verseKeys and all 205 Phase 6A candidate
+verseKeys resolve Arabic + translation + surah metadata with zero Mongo
+coverage required — the direct structural fix for the 16-vs-205 gap.
+
+**Mobile.** Unaffected — mobile has no independent translation source; it
+only displays whatever `englishTranslation`/`translationSource` the API
+response carries, so it transparently receives the verified text now. No
+mobile code or asset changes were made or needed; a bundled mobile
+`translations.sqlite` (mirroring `quran.sqlite`) remains a possible future
+step for full-offline mode, not needed today.
+
+**MongoDB.** `Verse`, `Ayah`, and `VerseTranslation` translation-related
+fields are **retained, unmodified, and non-authoritative** — exactly the
+same status Phase 4C/6A.7 already gave Arabic text and surah names. Zero
+Mongo writes were performed by this phase. The existing 16
+`VerseTranslation` dev rows (some differing slightly from the approved
+Gutenberg wording, see above) were deliberately left as-is; their controlled
+retirement is future work, not part of this phase.

@@ -161,3 +161,34 @@ retrieval and user storage are unchanged by this build.
 
 Status: SQLite foundation complete; the runtime migration described above has
 since landed — see [the runtime migration report](../../docs/quran-data/runtime-architecture.md).
+
+## Verified English translation: translations.sqlite (Phase 6A.8)
+
+A second, independent SQLite asset — `backend/assets/quran/translations.sqlite`
+— holds the bundled English translation (Marmaduke Pickthall, extracted from
+Project Gutenberg eBook #16955). It does not touch `quran.sqlite`, is not
+mirrored to `mobile/assets/quran/` (mobile only ever displays whatever
+translation text the backend API returns), and its raw source is a
+different provenance than the Tanzil files above — see
+`tools/quran-import/raw/gutenberg-16955/README.md` and
+`backend/reports/quran-data/gutenberg-pickthall-verification.md` for full
+source/licensing detail, and
+[the runtime architecture doc's translation section](../../docs/quran-data/runtime-architecture.md#verified-english-translation-phase-6a8)
+for the complete picture.
+
+SQLite SHA-256: `a786f58dbdd8181abb1ba075605dbf86a958d993b68e814b05929a534509a8c3`
+(1,732,608 bytes, 6,236 rows, `integrity_check: ok`, 0 mismatches against the
+approved source).
+
+```sh
+node tools/quran-import/generate-translations-sqlite.mjs --prove-deterministic
+node tools/quran-import/generate-translations-sqlite.mjs --publish
+node --test tools/quran-import/translations-sqlite.test.mjs
+```
+
+The generator (`generate-translations-sqlite.mjs`) reads only the tracked,
+hash-pinned `tools/quran-verification/pickthall-gutenberg-16955.json` — never
+the raw Gutenberg text, never MongoDB — validates all 6,236 canonical
+verseKeys, and refuses to silently overwrite an existing, differing
+`translations.sqlite`. `--prove-deterministic` builds twice into independent
+OS-temp paths and fails if the resulting bytes differ.

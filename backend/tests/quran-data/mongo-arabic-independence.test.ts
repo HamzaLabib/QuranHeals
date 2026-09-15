@@ -12,6 +12,7 @@ import { EmotionVerseMappingModel } from '../../src/models/EmotionVerseMapping';
 import { VerseModel } from '../../src/models/Verse';
 import { VerseTranslationModel } from '../../src/models/VerseTranslation';
 import { MongooseQuranRepository } from '../../src/services/MongooseQuranRepository';
+import { getVerifiedTranslationByVerseKey, VERIFIED_TRANSLATION_SOURCE } from '../../src/quran/translationSource';
 
 // Intentionally wrong "Arabic" planted only in these in-memory Mongo mocks,
 // to prove the API never reads it. Plain ASCII, never written anywhere,
@@ -154,9 +155,9 @@ describe('Foundation path resolves without a Mongo Verse document (no coverage-e
         surahNameEnglish: 'Ash-Sharh',
         surahNameArabic: 'الشرح',
         arabicText: verifiedArabicFor('94:6'),
-        englishTranslation: translation.text,
+        englishTranslation: getVerifiedTranslationByVerseKey('94:6'),
         emotions: ['sad'],
-        translationSource: translation.source,
+        translationSource: VERIFIED_TRANSLATION_SOURCE,
       },
     });
     expect(VerseModel.findOne).toHaveBeenCalled();
