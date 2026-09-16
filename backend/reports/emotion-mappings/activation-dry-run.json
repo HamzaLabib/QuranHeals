@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-15T20:36:58.376Z",
+  "generatedAt": "2026-09-16T00:06:28.207Z",
   "mode": "dry-run (no database writes)",
   "sourceArtifacts": {
     "preview": "data/emotion-candidates/consolidated/approved-mappings-preview.json",

@@ -602,7 +602,7 @@ describe('Approved mapping activation: apply transaction (mocked Mongoose — no
     const createCalls: unknown[][] = [];
     const updateCalls: { model: string; filter: unknown; update: unknown }[] = [];
 
-    vi.spyOn(EmotionModel, 'create').mockImplementation(((docs: unknown[]) => {
+    vi.spyOn(EmotionModel, 'insertMany').mockImplementation(((docs: unknown[]) => {
       createCalls.push(docs);
       return Promise.resolve(docs as never);
     }) as never);
@@ -610,7 +610,7 @@ describe('Approved mapping activation: apply transaction (mocked Mongoose — no
       updateCalls.push({ model: 'Emotion', filter, update });
       return Promise.resolve({ acknowledged: true }) as never;
     }) as never);
-    vi.spyOn(EmotionVerseMappingModel, 'create').mockImplementation(((docs: unknown[]) => {
+    vi.spyOn(EmotionVerseMappingModel, 'insertMany').mockImplementation(((docs: unknown[]) => {
       createCalls.push(docs);
       return Promise.resolve(docs as never);
     }) as never);
@@ -684,12 +684,12 @@ describe('Approved mapping activation: apply transaction (mocked Mongoose — no
 
   it('a newly-created emotion is written with full localized names/descriptions from the catalog, and no legacy flat fields', async () => {
     const createCalls: unknown[][] = [];
-    vi.spyOn(EmotionModel, 'create').mockImplementation(((docs: unknown[]) => {
+    vi.spyOn(EmotionModel, 'insertMany').mockImplementation(((docs: unknown[]) => {
       createCalls.push(docs);
       return Promise.resolve(docs as never);
     }) as never);
     vi.spyOn(EmotionModel, 'updateOne').mockResolvedValue({ acknowledged: true } as never);
-    vi.spyOn(EmotionVerseMappingModel, 'create').mockResolvedValue([] as never);
+    vi.spyOn(EmotionVerseMappingModel, 'insertMany').mockResolvedValue([] as never);
     vi.spyOn(EmotionVerseMappingModel, 'updateOne').mockResolvedValue({ acknowledged: true } as never);
     vi.spyOn(mongoose, 'startSession').mockResolvedValue({
       withTransaction: async (fn: () => Promise<void>) => fn(),
@@ -733,7 +733,7 @@ describe('Approved mapping activation: apply transaction (mocked Mongoose — no
   });
 
   it('an error thrown mid-transaction propagates and no partial "success" is reported (session.withTransaction owns rollback)', async () => {
-    vi.spyOn(EmotionModel, 'create').mockRejectedValue(new Error('simulated failure'));
+    vi.spyOn(EmotionModel, 'insertMany').mockRejectedValue(new Error('simulated failure'));
     const fakeSession = {
       withTransaction: async (fn: () => Promise<void>) => {
         await fn(); // real mongoose re-throws from inside withTransaction on failure

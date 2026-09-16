@@ -29,6 +29,10 @@ coverage/
 .cache/
 tools/quran-import/staging/
 
+# MongoDB pre-write snapshot backups (documented as git-ignored in
+# backend/src/utils/backupPaths.ts but not previously excluded here)
+backend/backups/
+
 # Logs
 *.log
 npm-debug.log*

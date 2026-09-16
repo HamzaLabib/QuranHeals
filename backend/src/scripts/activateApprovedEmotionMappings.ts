@@ -852,21 +852,24 @@ export async function runActivationApply(params: {
   const session = await mongoose.startSession();
   try {
     await session.withTransaction(async () => {
-      for (const key of params.writePlan.emotionsToCreate) {
-        const canonical = EMOTION_CATALOG_BY_KEY.get(key)!;
-        await EmotionModel.create(
-          [
-            {
-              key: canonical.key,
-              names: canonical.names,
-              descriptions: canonical.descriptions,
-              icon: canonical.icon,
-              order: canonical.order,
-              active: true,
-            },
-          ],
-          { session },
-        );
+      if (params.writePlan.emotionsToCreate.length > 0) {
+        // insertMany (one bulk write) instead of one create() per document:
+        // with hundreds of approved candidates this keeps the transaction's
+        // total round-trip count low enough to finish inside MongoDB's
+        // default 60s transaction lifetime limit. Validation still runs
+        // per-document, in order, before the bulk write is sent.
+        const docs = params.writePlan.emotionsToCreate.map((key) => {
+          const canonical = EMOTION_CATALOG_BY_KEY.get(key)!;
+          return {
+            key: canonical.key,
+            names: canonical.names,
+            descriptions: canonical.descriptions,
+            icon: canonical.icon,
+            order: canonical.order,
+            active: true,
+          };
+        });
+        await EmotionModel.insertMany(docs, { session, ordered: true });
       }
 
       for (const key of params.writePlan.emotionsToActivate) {
@@ -882,21 +885,26 @@ export async function runActivationApply(params: {
         );
       }
 
-      for (const pairKeyValue of params.writePlan.mappingsToInsert) {
-        const candidate = candidateByKey.get(pairKeyValue)!;
-        await EmotionVerseMappingModel.create(
-          [
-            {
-              verseReferenceKey: candidate.verseKey,
-              emotionKey: candidate.emotionKey,
-              status: 'approved',
-              mappingVersion: APPROVED_MAPPING_VERSION,
-              contextNotes: candidate.contextNotes,
-              tafsirReferences: [],
-            },
-          ],
-          { session },
-        );
+      if (params.writePlan.mappingsToInsert.length > 0) {
+        // Same insertMany batching as emotionsToCreate above, and for the
+        // same reason: up to ~1,800 individual create() calls (each its own
+        // network round trip, on top of the emotionKey existence-check
+        // validator) cannot reliably finish inside one transaction's time
+        // budget. The emotionKey validator caches confirmed keys per
+        // session (see EmotionVerseMapping.ts), so this stays a handful of
+        // round trips total rather than two per document.
+        const docs = params.writePlan.mappingsToInsert.map((pairKeyValue) => {
+          const candidate = candidateByKey.get(pairKeyValue)!;
+          return {
+            verseReferenceKey: candidate.verseKey,
+            emotionKey: candidate.emotionKey,
+            status: 'approved' as const,
+            mappingVersion: APPROVED_MAPPING_VERSION,
+            contextNotes: candidate.contextNotes,
+            tafsirReferences: [],
+          };
+        });
+        await EmotionVerseMappingModel.insertMany(docs, { session, ordered: true });
       }
 
       for (const pairKeyValue of params.writePlan.mappingsToPromote) {
