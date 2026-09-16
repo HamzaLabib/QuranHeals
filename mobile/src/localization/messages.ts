@@ -154,7 +154,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     home: {
       subtitle: 'هداية قرآنية لكل شعور.',
       eyebrow: 'تأمل مع آية',
-      title: 'كيف تشعر؟',
+      title: 'بماذا تشعر الآن؟',
       loadingTitle: 'جارٍ تحميل المشاعر',
       loadingMessage: 'جارٍ إعداد قائمة المشاعر.',
       errorTitle: 'تعذّر الاتصال',
@@ -222,9 +222,9 @@ export const MESSAGES: Record<AppLocale, Messages> = {
   'ar-EG': {
     appName: 'Quran Heals',
     home: {
-      subtitle: 'هداية من القرآن لكل حاسة بتحسها.',
+      subtitle: 'رسالة من القرآن لكل إحساس بتحسه',
       eyebrow: 'اتأمل مع آية',
-      title: 'حاسس إزاي؟',
+      title: 'إيه إحساسك دلوقتي؟',
       loadingTitle: 'بنحمّل المشاعر',
       loadingMessage: 'بنجهّز قائمة المشاعر.',
       errorTitle: 'مش قادرين نتصل',
@@ -272,7 +272,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     translation: {
       showTranslation: 'عرض الترجمة',
-      hideTranslation: 'اخفي الترجمة',
+      hideTranslation: 'إخفاء الترجمة',
     },
     settings: {
       title: 'الإعدادات',

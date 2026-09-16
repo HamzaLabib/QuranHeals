@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft, RefreshCw, Share2 } from 'lucide-react-native';
+import { ArrowLeft, ArrowRight, RefreshCw, Share2 } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,7 +9,7 @@ import { FavoriteButton } from '@/components/FavoriteButton';
 import { StateView } from '@/components/StateView';
 import { colors, radii, spacing, typography } from '@/constants/theme';
 import { useFavorites } from '@/hooks/useFavorites';
-import { getDirectionStyle } from '@/localization/locales';
+import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { getApiErrorMessage, getRandomAyah } from '@/services/api';
 import { buildExhaustionRetryExclusions, getExcludedVerseKeys, recordShownAyah } from '@/storage/recentAyahHistory';
@@ -34,6 +34,8 @@ function parseNamesParam(raw: string | string[] | undefined): LocalizedText | un
 export default function AyahScreen() {
   const { locale, messages } = useAppLocale();
   const direction = getDirectionStyle(locale);
+  const isRtl = isRtlLocale(locale);
+  const BackIcon = isRtl ? ArrowRight : ArrowLeft;
   const params = useLocalSearchParams<{ emotion?: string; namesJson?: string }>();
   const rawEmotion = params.emotion;
   const emotionKey =
@@ -132,13 +134,13 @@ export default function AyahScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-        <View style={styles.header}>
+        <View style={[styles.header, isRtl && styles.headerRtl]}>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={messages.ayah.goBack}
             onPress={() => router.back()}
             style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
-            <ArrowLeft size={22} color={colors.ink} />
+            <BackIcon size={22} color={colors.ink} />
           </Pressable>
           <View style={styles.headerText}>
             <Text style={[styles.emotion, direction]}>{readableEmotion}</Text>
@@ -151,6 +153,7 @@ export default function AyahScreen() {
             title={messages.ayah.loadingTitle}
             message={messages.ayah.loadingMessage}
             icon={<RefreshCw size={22} color={colors.olive} />}
+            spin
           />
         )}
 
@@ -170,7 +173,7 @@ export default function AyahScreen() {
             {favoritesError && <StateView title={messages.favorites.title} message={favoritesError} />}
             {historyMessage && <StateView title={messages.favorites.title} message={historyMessage} />}
 
-            <View style={styles.actions}>
+            <View style={[styles.actions, isRtl && styles.actionsRtl]}>
               <FavoriteButton isSaved={isFavorite(ayah)} onToggle={() => toggleFavorite(ayah)} />
               <Pressable
                 accessibilityRole="button"
@@ -216,6 +219,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.md,
   },
+  headerRtl: {
+    flexDirection: 'row-reverse',
+  },
   iconButton: {
     alignItems: 'center',
     backgroundColor: colors.surface,
@@ -244,6 +250,9 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
     gap: spacing.md,
+  },
+  actionsRtl: {
+    flexDirection: 'row-reverse',
   },
   secondaryButton: {
     alignItems: 'center',

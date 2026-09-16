@@ -1,10 +1,10 @@
 import { router } from 'expo-router';
-import { ArrowLeft, Check } from 'lucide-react-native';
+import { ArrowLeft, ArrowRight, Check } from 'lucide-react-native';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
-import { APP_LOCALES, APP_LOCALE_DISPLAY_NAMES, getDirectionStyle } from '@/localization/locales';
+import { APP_LOCALES, APP_LOCALE_DISPLAY_NAMES, getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { useQuranTranslationPreference } from '@/localization/useQuranTranslationPreference';
 import type { TranslationDisplayMode } from '@/localization/quranTranslationPreference';
@@ -15,6 +15,10 @@ export default function SettingsScreen() {
   const { locale, setLocale, messages } = useAppLocale();
   const { preference, setDisplayMode } = useQuranTranslationPreference();
   const direction = getDirectionStyle(locale);
+  // A "back" arrow should point toward where the previous screen visually
+  // is — the right in RTL reading order, the left in LTR.
+  const isRtl = isRtlLocale(locale);
+  const BackIcon = isRtl ? ArrowRight : ArrowLeft;
 
   const translationModeLabel: Record<TranslationDisplayMode, string> = {
     always: messages.settings.translationDisplayAlways,
@@ -30,13 +34,13 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-        <View style={styles.header}>
+        <View style={[styles.header, isRtl && styles.headerRtl]}>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={messages.ayah.goBack}
             onPress={() => router.back()}
             style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
-            <ArrowLeft size={22} color={colors.ink} />
+            <BackIcon size={22} color={colors.ink} />
           </Pressable>
           <View style={styles.headerText}>
             <Text style={[styles.title, direction]}>{messages.settings.title}</Text>
@@ -89,13 +93,24 @@ type OptionRowProps = {
 };
 
 function OptionRow({ label, hint, selected, onPress, direction }: OptionRowProps) {
+  // Each row mirrors to match its own label's direction (App Language rows
+  // each display — and so mirror for — their own language, independent of
+  // the screen's current locale; Quran Translation rows all share the
+  // screen's single direction).
+  const isRtl = direction.writingDirection === 'rtl';
+
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ selected }}
       accessibilityLabel={label}
       onPress={onPress}
-      style={({ pressed }) => [styles.optionRow, selected && styles.optionRowSelected, pressed && styles.pressed]}>
+      style={({ pressed }) => [
+        styles.optionRow,
+        isRtl && styles.optionRowRtl,
+        selected && styles.optionRowSelected,
+        pressed && styles.pressed,
+      ]}>
       <View style={styles.optionTextWrap}>
         <Text style={[styles.optionLabel, direction]}>{label}</Text>
         {hint && <Text style={[styles.optionHint, direction]}>{hint}</Text>}
@@ -123,6 +138,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     gap: spacing.md,
+  },
+  headerRtl: {
+    flexDirection: 'row-reverse',
   },
   iconButton: {
     alignItems: 'center',
@@ -177,6 +195,9 @@ const styles = StyleSheet.create({
     minHeight: 56,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+  },
+  optionRowRtl: {
+    flexDirection: 'row-reverse',
   },
   optionRowSelected: {
     backgroundColor: colors.oliveWash,

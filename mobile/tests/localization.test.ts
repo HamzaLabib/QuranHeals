@@ -97,10 +97,26 @@ describe('Interface message dictionary (messages.ts)', () => {
     expect(getMessages('fr')).toBe(MESSAGES.en);
   });
 
-  it('the on-demand "Show translation" control uses the exact approved wording per locale', () => {
+  it('the on-demand "Show translation" / "Hide translation" toggle uses the exact approved wording per locale', () => {
     expect(MESSAGES.en.translation.showTranslation).toBe('Show translation');
+    expect(MESSAGES.en.translation.hideTranslation).toBe('Hide translation');
     expect(MESSAGES.ar.translation.showTranslation).toBe('إظهار الترجمة');
+    expect(MESSAGES.ar.translation.hideTranslation).toBe('إخفاء الترجمة');
+    // ar-EG: showTranslation keeps the project's existing natural-Egyptian
+    // phrasing (same meaning, distinct verb from ar); hideTranslation now
+    // matches ar exactly, per the approved wording.
     expect(MESSAGES['ar-EG'].translation.showTranslation).toBe('عرض الترجمة');
+    expect(MESSAGES['ar-EG'].translation.hideTranslation).toBe('إخفاء الترجمة');
+  });
+
+  it('the home heading uses the exact approved wording per locale', () => {
+    expect(MESSAGES.en.home.title).toBe('How are you feeling?');
+    expect(MESSAGES.ar.home.title).toBe('بماذا تشعر الآن؟');
+    expect(MESSAGES['ar-EG'].home.title).toBe('إيه إحساسك دلوقتي؟');
+  });
+
+  it('the Egyptian Arabic home subtitle uses the exact approved wording', () => {
+    expect(MESSAGES['ar-EG'].home.subtitle).toBe('رسالة من القرآن لكل إحساس بتحسه');
   });
 
   it('never localizes Quran Arabic, Pickthall translation text, verse keys, or stable emotion keys (only interface copy is present)', () => {

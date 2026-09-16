@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { EmotionCard } from '@/components/EmotionCard';
 import { StateView } from '@/components/StateView';
 import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
-import { getDirectionStyle } from '@/localization/locales';
+import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { getApiErrorMessage, getEmotions } from '@/services/api';
 import type { Emotion } from '@/types/domain';
@@ -15,6 +15,7 @@ import type { Emotion } from '@/types/domain';
 export default function HomeScreen() {
   const { locale, messages } = useAppLocale();
   const direction = getDirectionStyle(locale);
+  const isRtl = isRtlLocale(locale);
   const [emotions, setEmotions] = useState<Emotion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -48,12 +49,12 @@ export default function HomeScreen() {
         style={styles.scroll}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
+        <View style={[styles.header, isRtl && styles.headerRtl]}>
           <View>
-            <Text style={styles.wordmark}>{messages.appName}</Text>
+            <Text style={[styles.wordmark, direction]}>{messages.appName}</Text>
             <Text style={[styles.subtitle, direction]}>{messages.home.subtitle}</Text>
           </View>
-          <View style={styles.headerActions}>
+          <View style={[styles.headerActions, isRtl && styles.headerActionsRtl]}>
             <Link href="/settings" asChild>
               <Pressable
                 accessibilityRole="button"
@@ -83,6 +84,7 @@ export default function HomeScreen() {
             title={messages.home.loadingTitle}
             message={messages.home.loadingMessage}
             icon={<RefreshCw size={22} color={colors.olive} />}
+            spin
           />
         )}
 
@@ -96,7 +98,7 @@ export default function HomeScreen() {
         )}
 
         {!isLoading && !errorMessage && (
-          <View style={styles.grid}>
+          <View style={[styles.grid, isRtl && styles.gridRtl]}>
             {emotions.map((emotion) => (
               <EmotionCard
                 key={emotion.key}
@@ -138,9 +140,15 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     justifyContent: 'space-between',
   },
+  headerRtl: {
+    flexDirection: 'row-reverse',
+  },
   headerActions: {
     flexDirection: 'row',
     gap: spacing.sm,
+  },
+  headerActionsRtl: {
+    flexDirection: 'row-reverse',
   },
   wordmark: {
     color: colors.ink,
@@ -190,7 +198,15 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.md,
+    // Column gap unchanged (spacing.md) so card width — computed from the
+    // 47.5% flexBasis plus this gap — stays exactly the same; only the
+    // vertical gap between rows is trimmed to match the slightly shorter
+    // card height below.
+    columnGap: spacing.md,
+    rowGap: spacing.sm,
+  },
+  gridRtl: {
+    flexDirection: 'row-reverse',
   },
   disclaimer: {
     color: colors.softText,

@@ -5,7 +5,12 @@ export const colors = {
   surface: '#FFFDF8',
   ink: '#1F2A24',
   muted: '#66736B',
-  softText: '#8B948E',
+  // Was #8B948E — only ~2.8-3.1:1 against surface/parchment, below the 4.5:1
+  // WCAG AA minimum for the small (11-13px) captions this is always used
+  // for (AyahCard source lines, the home disclaimer, the settings note).
+  // This shade holds ~5.1-5.6:1 on both backgrounds while staying visibly
+  // the softest/tertiary tone (see colors.muted for the secondary one).
+  softText: '#5F6960',
   border: '#E5DED2',
   olive: '#617256',
   oliveWash: '#E9EEE4',
@@ -23,10 +28,14 @@ export const spacing = {
   xxl: 40,
 };
 
+// A real small/medium/large progression (previously all 8, i.e. no visual
+// hierarchy despite being used semantically as such — see EmotionCard,
+// AyahCard, StateView, settings, FavoriteButton). Softer/larger corners read
+// calmer and warmer, matching this app's intended tone.
 export const radii = {
-  sm: 8,
-  md: 8,
-  lg: 8,
+  sm: 10,
+  md: 16,
+  lg: 22,
   full: 999,
 };
 
@@ -36,7 +45,10 @@ export const typography = {
   body: 16,
   bodyLarge: 18,
   title: 34,
-  arabic: 34,
+  // Used only by AyahCard's normal Quran Arabic display (see
+  // AyahCard.tsx's `arabic` style for its paired lineHeight) — never by
+  // unrelated Arabic UI text, which uses body/bodyLarge/title instead.
+  arabic: 30,
 };
 
 export const shadows = {

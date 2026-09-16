@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
+import { resolveTranslationVisibility } from '@/localization/quranTranslationPreference';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { useQuranTranslationPreference } from '@/localization/useQuranTranslationPreference';
 import type { Ayah } from '@/types/domain';
@@ -18,7 +19,9 @@ type AyahCardProps = {
  * "Revealed on this ayah" (`on-demand` mode) is local, per-card state keyed
  * to `ayah.id` — it resets automatically whenever a different ayah is
  * shown (new `AyahCard` render for that id), and is never written to the
- * persisted global preference.
+ * persisted global preference. In `on-demand` mode this is a proper
+ * show/hide toggle (not a one-way reveal): pressing the control flips
+ * between hidden ("Show translation") and visible ("Hide translation").
  */
 export function AyahCard({ ayah, compact = false }: AyahCardProps) {
   const { messages } = useAppLocale();
@@ -35,36 +38,38 @@ export function AyahCard({ ayah, compact = false }: AyahCardProps) {
   }
 
   const isRevealed = revealedAyahId === ayah.id;
-  const showTranslation = preference.displayMode === 'always' || (preference.displayMode === 'on-demand' && isRevealed);
-  const showRevealControl = preference.displayMode === 'on-demand' && !isRevealed;
+  const { showTranslation, showToggleControl } = resolveTranslationVisibility(preference.displayMode, isRevealed);
+  const toggleLabel = isRevealed ? messages.translation.hideTranslation : messages.translation.showTranslation;
 
   return (
     <View style={[styles.card, compact && styles.compactCard]}>
       <Text style={[styles.arabic, compact && styles.compactArabic]}>{ayah.arabicText}</Text>
 
-      {showTranslation && (
-        <Text style={[styles.translation, compact && styles.compactTranslation]}>{ayah.englishTranslation}</Text>
-      )}
-
-      {showRevealControl && (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={messages.translation.showTranslation}
-          onPress={() => setRevealedAyahId(ayah.id)}
-          style={({ pressed }) => [styles.revealButton, pressed && styles.pressed]}>
-          <Text style={styles.revealButtonText}>{messages.translation.showTranslation}</Text>
-        </Pressable>
-      )}
-
       <View style={styles.referenceRow}>
         <Text style={styles.reference}>
           {ayah.surahNameEnglish} • {ayah.surahNumber}:{ayah.ayahNumber}
         </Text>
-        {showTranslation && <Text style={styles.source}>{ayah.translationSource}</Text>}
         <Text accessibilityRole="link" onPress={() => void Linking.openURL('https://tanzil.net')} style={styles.source}>
           Quran text: Tanzil · Uthmani 1.1
         </Text>
       </View>
+
+      {showTranslation && (
+        <View style={styles.translationBlock}>
+          <Text style={[styles.translation, compact && styles.compactTranslation]}>{ayah.englishTranslation}</Text>
+          <Text style={styles.source}>{ayah.translationSource}</Text>
+        </View>
+      )}
+
+      {showToggleControl && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={toggleLabel}
+          onPress={() => setRevealedAyahId(isRevealed ? null : ayah.id)}
+          style={({ pressed }) => [styles.revealButton, pressed && styles.pressed]}>
+          <Text style={styles.revealButtonText}>{toggleLabel}</Text>
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -91,13 +96,19 @@ const styles = StyleSheet.create({
     fontSize: typography.arabic,
     fontWeight: '600',
     letterSpacing: 0,
-    lineHeight: 54,
+    // Ratio 1.6 — still generous headroom so harakat/tashkeel above and
+    // below each letter never clip against the line box (Arabic diacritics
+    // need more vertical clearance than Latin ascenders/descenders).
+    lineHeight: 48,
     textAlign: 'right',
     writingDirection: 'rtl',
   },
   compactArabic: {
-    fontSize: 25,
-    lineHeight: 41,
+    fontSize: 23,
+    lineHeight: 36,
+  },
+  translationBlock: {
+    gap: spacing.xs,
   },
   translation: {
     color: colors.ink,

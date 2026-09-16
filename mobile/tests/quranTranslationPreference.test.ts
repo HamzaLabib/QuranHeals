@@ -7,7 +7,10 @@ import {
   DEFAULT_QURAN_TRANSLATION_PREFERENCE,
   PICKTHALL_TRANSLATION_ID,
   parseQuranTranslationPreference,
+  resolveTranslationVisibility,
 } from '@/localization/quranTranslationPreference';
+import { MESSAGES } from '@/localization/messages';
+import { APP_LOCALES } from '@/localization/locales';
 
 const asyncStorageState = vi.hoisted(() => new Map<string, string>());
 vi.mock('@react-native-async-storage/async-storage', () => ({
@@ -100,6 +103,80 @@ describe('AsyncStorage-backed load/save round trip', () => {
   });
 });
 
+describe('resolveTranslationVisibility: pure show/hide-toggle decision logic (behavior-level, no source-scan needed)', () => {
+  it('on-demand, not yet revealed: translation hidden, toggle control shown ("Show translation" state)', () => {
+    expect(resolveTranslationVisibility('on-demand', false)).toEqual({
+      showTranslation: false,
+      showToggleControl: true,
+    });
+  });
+
+  it('on-demand, revealed: translation visible, toggle control still shown ("Hide translation" state)', () => {
+    expect(resolveTranslationVisibility('on-demand', true)).toEqual({
+      showTranslation: true,
+      showToggleControl: true,
+    });
+  });
+
+  it('on-demand round-trips: reveal then hide again returns to exactly the initial state', () => {
+    const initial = resolveTranslationVisibility('on-demand', false);
+    const revealed = resolveTranslationVisibility('on-demand', true);
+    const hiddenAgain = resolveTranslationVisibility('on-demand', false);
+    expect(hiddenAgain).toEqual(initial);
+    expect(revealed).not.toEqual(initial);
+  });
+
+  it('always mode: translation always visible and no toggle control, regardless of local reveal state', () => {
+    expect(resolveTranslationVisibility('always', false)).toEqual({ showTranslation: true, showToggleControl: false });
+    expect(resolveTranslationVisibility('always', true)).toEqual({ showTranslation: true, showToggleControl: false });
+  });
+
+  it('off mode: translation never visible and no toggle control, regardless of local reveal state', () => {
+    expect(resolveTranslationVisibility('off', false)).toEqual({ showTranslation: false, showToggleControl: false });
+    expect(resolveTranslationVisibility('off', true)).toEqual({ showTranslation: false, showToggleControl: false });
+  });
+
+  it('a brand-new ayah (reveal state reset to false) with on-demand mode goes back to hidden, matching the initial state', () => {
+    // Simulates AyahCard's own reset-on-new-ayah behavior: whatever the
+    // previous ayah's reveal state was, a new ayah always starts at
+    // isRevealed=false.
+    const previousAyahRevealed = resolveTranslationVisibility('on-demand', true);
+    const newAyahInitial = resolveTranslationVisibility('on-demand', false);
+    expect(newAyahInitial.showTranslation).toBe(false);
+    expect(newAyahInitial.showToggleControl).toBe(true);
+    expect(newAyahInitial).not.toEqual(previousAyahRevealed);
+  });
+});
+
+describe('show/hide translation labels are localized correctly in every app locale', () => {
+  APP_LOCALES.forEach((locale) => {
+    it(`${locale}: showTranslation and hideTranslation are both non-empty and distinct from each other`, () => {
+      const { showTranslation, hideTranslation } = MESSAGES[locale].translation;
+      expect(showTranslation.trim().length).toBeGreaterThan(0);
+      expect(hideTranslation.trim().length).toBeGreaterThan(0);
+      expect(showTranslation).not.toBe(hideTranslation);
+    });
+  });
+
+  it('en matches the exact required wording', () => {
+    expect(MESSAGES.en.translation).toEqual({ showTranslation: 'Show translation', hideTranslation: 'Hide translation' });
+  });
+
+  it('ar matches the exact required wording', () => {
+    expect(MESSAGES.ar.translation).toEqual({ showTranslation: 'إظهار الترجمة', hideTranslation: 'إخفاء الترجمة' });
+  });
+
+  it('ar-EG conveys the same show/hide-translation meaning (project already uses natural Egyptian phrasing here)', () => {
+    // Not required to be byte-identical to the MSA strings — only to mean
+    // "show translation" / "hide translation" — see quranTranslationPreference
+    // usage: both already contain "الترجمة" (translation) with distinct verbs.
+    const { showTranslation, hideTranslation } = MESSAGES['ar-EG'].translation;
+    expect(showTranslation).toContain('الترجمة');
+    expect(hideTranslation).toContain('الترجمة');
+    expect(showTranslation).not.toBe(hideTranslation);
+  });
+});
+
 describe('Translation display-mode behavior in AyahCard.tsx (source-scan: no RN renderer available in this test environment)', () => {
   const AYAH_CARD_PATH = resolve(__dirname, '../src/components/AyahCard.tsx');
   const source = readFileSync(AYAH_CARD_PATH, 'utf-8');
@@ -109,23 +186,22 @@ describe('Translation display-mode behavior in AyahCard.tsx (source-scan: no RN 
     expect(arabicLine, 'could not find the unconditional Arabic <Text> element').not.toBeNull();
   });
 
-  it('computes showTranslation as "always", or "on-demand" combined with this ayah having been revealed', () => {
-    expect(source).toMatch(
-      /showTranslation\s*=\s*preference\.displayMode\s*===\s*'always'\s*\|\|\s*\(preference\.displayMode\s*===\s*'on-demand'\s*&&\s*isRevealed\)/,
-    );
-  });
-
-  it('only shows the reveal control in on-demand mode, before the ayah has been revealed', () => {
-    expect(source).toMatch(/showRevealControl\s*=\s*preference\.displayMode\s*===\s*'on-demand'\s*&&\s*!isRevealed/);
+  it('delegates show/hide-toggle visibility to the pure, independently-tested resolveTranslationVisibility function', () => {
+    expect(source).toMatch(/resolveTranslationVisibility\(preference\.displayMode,\s*isRevealed\)/);
   });
 
   it('the English translation text is rendered only when showTranslation is true (never unconditionally)', () => {
     expect(source).toMatch(/\{showTranslation\s*&&\s*\([\s\S]*?ayah\.englishTranslation/);
   });
 
-  it('the reveal button text uses the localized "Show translation" message, not a hardcoded English string', () => {
+  it('the toggle button label switches between the localized "Show translation" and "Hide translation" messages, never a hardcoded English string', () => {
     expect(source).toMatch(/messages\.translation\.showTranslation/);
-    expect(source).not.toMatch(/>\s*Show translation\s*</);
+    expect(source).toMatch(/messages\.translation\.hideTranslation/);
+    expect(source).not.toMatch(/>\s*(Show|Hide) translation\s*</);
+  });
+
+  it('pressing the toggle flips isRevealed rather than only ever setting it (a real toggle, not a one-way reveal)', () => {
+    expect(source).toMatch(/setRevealedAyahId\(isRevealed \? null : ayah\.id\)/);
   });
 
   it('reveal state is local per-ayah-id state, reset when a different ayah loads — never written to the persisted global preference', () => {

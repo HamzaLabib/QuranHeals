@@ -71,3 +71,27 @@ export async function saveQuranTranslationPreference(preference: QuranTranslatio
     // Persistence failure is non-fatal: the in-memory selection still applies this session.
   }
 }
+
+/**
+ * Pure decision logic for AyahCard's translation visibility, factored out
+ * so it's testable without a React Native renderer (this project's test
+ * environment has none — see mobile/tests/*.test.ts's other source-scans).
+ * `isRevealed` is AyahCard's own local, per-ayah-id state — never persisted
+ * here or anywhere else; this function only turns (mode, revealed) into
+ * what should currently be visible.
+ *
+ *  - "always":    translation always shown, no toggle control.
+ *  - "off":       translation never shown, no toggle control.
+ *  - "on-demand": translation shown only once revealed; the toggle control
+ *                 is always present (in EITHER state) and flips `isRevealed`
+ *                 — a proper show/hide toggle, not a one-way reveal.
+ */
+export function resolveTranslationVisibility(
+  displayMode: TranslationDisplayMode,
+  isRevealed: boolean,
+): { showTranslation: boolean; showToggleControl: boolean } {
+  return {
+    showTranslation: displayMode === 'always' || (displayMode === 'on-demand' && isRevealed),
+    showToggleControl: displayMode === 'on-demand',
+  };
+}

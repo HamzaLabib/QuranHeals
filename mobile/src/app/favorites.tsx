@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { ArrowLeft, Heart, Share2, Trash2 } from 'lucide-react-native';
+import { ArrowLeft, ArrowRight, Heart, Share2, Trash2 } from 'lucide-react-native';
 import { useCallback } from 'react';
 import { Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,7 +8,7 @@ import { AyahCard } from '@/components/AyahCard';
 import { StateView } from '@/components/StateView';
 import { colors, radii, spacing, typography } from '@/constants/theme';
 import { useFavorites } from '@/hooks/useFavorites';
-import { getDirectionStyle } from '@/localization/locales';
+import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import type { Messages } from '@/localization/messages';
 import type { FavoriteAyah } from '@/types/domain';
@@ -17,9 +17,10 @@ type FavoriteActionsProps = {
   favorite: FavoriteAyah;
   onRemove: (id: string) => void;
   messages: Messages;
+  isRtl: boolean;
 };
 
-function FavoriteActions({ favorite, onRemove, messages }: FavoriteActionsProps) {
+function FavoriteActions({ favorite, onRemove, messages, isRtl }: FavoriteActionsProps) {
   const shareFavorite = useCallback(async () => {
     await Share.share({
       message: `${favorite.arabicText}\n\n${favorite.englishTranslation}\n\n${favorite.surahNameEnglish} ${favorite.surahNumber}:${favorite.ayahNumber}\n\n${favorite.quranTextSource}\n\nQuran Heals`,
@@ -27,7 +28,7 @@ function FavoriteActions({ favorite, onRemove, messages }: FavoriteActionsProps)
   }, [favorite]);
 
   return (
-    <View style={styles.cardActions}>
+    <View style={[styles.cardActions, isRtl && styles.cardActionsRtl]}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={messages.favorites.shareSaved}
@@ -51,18 +52,20 @@ function FavoriteActions({ favorite, onRemove, messages }: FavoriteActionsProps)
 export default function FavoritesScreen() {
   const { locale, messages } = useAppLocale();
   const direction = getDirectionStyle(locale);
+  const isRtl = isRtlLocale(locale);
+  const BackIcon = isRtl ? ArrowRight : ArrowLeft;
   const { favorites, removeFavorite, isReady, error, unresolvedCount, refreshFavorites } = useFavorites();
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-        <View style={styles.header}>
+        <View style={[styles.header, isRtl && styles.headerRtl]}>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={messages.ayah.goBack}
             onPress={() => router.back()}
             style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
-            <ArrowLeft size={22} color={colors.ink} />
+            <BackIcon size={22} color={colors.ink} />
           </Pressable>
           <View style={styles.headerText}>
             <Text style={[styles.title, direction]}>{messages.favorites.title}</Text>
@@ -95,7 +98,7 @@ export default function FavoritesScreen() {
           favorites.map((favorite) => (
             <View key={favorite.id} style={styles.favoriteItem}>
               <AyahCard ayah={favorite} compact />
-              <FavoriteActions favorite={favorite} onRemove={removeFavorite} messages={messages} />
+              <FavoriteActions favorite={favorite} onRemove={removeFavorite} messages={messages} isRtl={isRtl} />
             </View>
           ))}
       </ScrollView>
@@ -121,6 +124,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     gap: spacing.md,
+  },
+  headerRtl: {
+    flexDirection: 'row-reverse',
   },
   iconButton: {
     alignItems: 'center',
@@ -153,6 +159,9 @@ const styles = StyleSheet.create({
   cardActions: {
     flexDirection: 'row',
     gap: spacing.sm,
+  },
+  cardActionsRtl: {
+    flexDirection: 'row-reverse',
   },
   smallButton: {
     alignItems: 'center',

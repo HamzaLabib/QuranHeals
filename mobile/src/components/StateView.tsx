@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState, type ReactNode } from 'react';
+import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, radii, spacing, typography } from '@/constants/theme';
 
@@ -7,14 +7,42 @@ type StateViewProps = {
   title: string;
   message: string;
   icon?: ReactNode;
+  /** Subtle continuous rotation for a loading icon (e.g. RefreshCw) — never used for error/empty states. */
+  spin?: boolean;
   actionLabel?: string;
   onAction?: () => void | Promise<void>;
 };
 
-export function StateView({ title, message, icon, actionLabel, onAction }: StateViewProps) {
+export function StateView({ title, message, icon, spin = false, actionLabel, onAction }: StateViewProps) {
+  // A lazily-initialized state value (not a ref) so it's safe to read during
+  // render — Animated.Value itself is still a mutable, imperatively-driven
+  // container; only its *identity* needs to be stable across renders.
+  const [rotation] = useState(() => new Animated.Value(0));
+
+  useEffect(() => {
+    if (!spin) return undefined;
+
+    const loop = Animated.loop(
+      Animated.timing(rotation, {
+        toValue: 1,
+        duration: 1100,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [spin, rotation]);
+
+  const spinStyle = {
+    transform: [{ rotate: rotation.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }],
+  };
+
   return (
     <View style={styles.container}>
-      {icon && <View style={styles.iconWrap}>{icon}</View>}
+      {icon && (
+        <View style={styles.iconWrap}>{spin ? <Animated.View style={spinStyle}>{icon}</Animated.View> : icon}</View>
+      )}
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.message}>{message}</Text>
       {actionLabel && onAction && (
