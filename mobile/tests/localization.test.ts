@@ -119,6 +119,47 @@ describe('Interface message dictionary (messages.ts)', () => {
     expect(MESSAGES['ar-EG'].home.subtitle).toBe('رسالة من القرآن لكل إحساس بتحسه');
   });
 
+  it('general Arabic UI copy (eyebrow, disclaimer, kicker) uses Standard Arabic in both ar and ar-EG, unlike the Egyptian home heading/subtitle', () => {
+    expect(MESSAGES.ar.home.eyebrow).toBe('تأمّل مع آية');
+    expect(MESSAGES['ar-EG'].home.eyebrow).toBe('تأمّل مع آية');
+
+    expect(MESSAGES.ar.home.disclaimer).toBe(
+      'تطبيق Quran Heals يقدّم تأملًا روحيًا، وليس بديلًا عن الرعاية المتخصصة.',
+    );
+    expect(MESSAGES['ar-EG'].home.disclaimer).toBe(
+      'تطبيق Quran Heals يقدّم تأملًا روحيًا، وليس بديلًا عن الرعاية المتخصصة.',
+    );
+
+    expect(MESSAGES.ar.ayah.kicker).toBe('آية مختارة لهذه اللحظة');
+    expect(MESSAGES['ar-EG'].ayah.kicker).toBe('آية مختارة لهذه اللحظة');
+  });
+
+  it('ar-EG general UI copy (another ayah, remove, favorites notice, translation settings) uses Standard Arabic, not Egyptian colloquial wording', () => {
+    expect(MESSAGES['ar-EG'].ayah.anotherAyah).toBe('آية أخرى');
+    expect(MESSAGES['ar-EG'].ayah.loadAnotherAyah).toBe('تحميل آية أخرى');
+
+    expect(MESSAGES['ar-EG'].favorites.remove).toBe('إزالة');
+    expect(MESSAGES['ar-EG'].favorites.removeSaved).toBe('إزالة الآية المحفوظة');
+    expect(MESSAGES['ar-EG'].favoriteButton.removeLabel).toBe('إزالة الآية من المفضّلة');
+
+    expect(MESSAGES['ar-EG'].favorites.subtitle).toBe('المفضّلة محفوظة على هذا الجهاز.');
+
+    expect(MESSAGES['ar-EG'].settings.quranTranslationSection).toBe('ترجمة القرآن');
+    expect(MESSAGES['ar-EG'].settings.translationDisplayAlways).toBe('دائمًا');
+    expect(MESSAGES['ar-EG'].settings.translationDisplayAlwaysHint).toBe(
+      'يظهر النص العربي والترجمة الإنجليزية معًا تلقائيًا.',
+    );
+    expect(MESSAGES['ar-EG'].settings.translationDisplayOnDemand).toBe('عند الطلب');
+    expect(MESSAGES['ar-EG'].settings.translationDisplayOnDemandHint).toBe(
+      'يظهر النص العربي أولًا، ويمكنك إظهار الترجمة متى شئت.',
+    );
+    expect(MESSAGES['ar-EG'].settings.translationDisplayOff).toBe('إيقاف');
+    expect(MESSAGES['ar-EG'].settings.translationDisplayOffHint).toBe('النص العربي فقط. لن تظهر الترجمة.');
+    expect(MESSAGES['ar-EG'].settings.quranArabicNote).toBe(
+      'يظهر القرآن بالعربية دائمًا — هذا الإعداد يؤثر فقط على الترجمة الإنجليزية.',
+    );
+  });
+
   it('never localizes Quran Arabic, Pickthall translation text, verse keys, or stable emotion keys (only interface copy is present)', () => {
     const disallowedSubstrings = ['pickthall', 'bismillah', 'surah_', 'verseKey', 'emotionKey'];
     for (const locale of APP_LOCALES) {
