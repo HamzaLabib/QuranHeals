@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, RefreshCw, Share2 } from 'lucide-react-native';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -12,7 +12,7 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { getDirectionStyle } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { getApiErrorMessage, getRandomAyah } from '@/services/api';
-import { getRecentVerseKeyState, rememberAyahForEmotion } from '@/storage/recentAyahs';
+import { buildExhaustionRetryExclusions, getExcludedVerseKeys, recordShownAyah } from '@/storage/recentAyahHistory';
 import type { Ayah, LocalizedText } from '@/types/domain';
 import { resolveLocalizedEmotionName } from '@/utils/emotionLabel';
 
@@ -48,6 +48,10 @@ export default function AyahScreen() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [historyMessage, setHistoryMessage] = useState<string | null>(null);
   const { isFavorite, toggleFavorite, error: favoritesError } = useFavorites();
+  // Guards against a rapid double-tap firing two overlapping loadAyah() runs:
+  // without this, both could read the same not-yet-updated recent-history
+  // snapshot and independently be free to land on the same ayah.
+  const isLoadingRef = useRef(false);
 
   // Locale-aware display only. The stable route key (emotionKey) is never
   // altered by this — it still goes to the API/history exactly as received,
@@ -65,6 +69,8 @@ export default function AyahScreen() {
       return;
     }
 
+    if (isLoadingRef.current) return;
+    isLoadingRef.current = true;
     setIsLoading(true);
     setErrorMessage(null);
     setHistoryMessage(null);
@@ -72,22 +78,34 @@ export default function AyahScreen() {
     try {
       let excludedVerseKeys: string[] = [];
       try {
-        const recent = await getRecentVerseKeyState(emotionKey);
-        excludedVerseKeys = recent.verseKeys;
-        if (recent.unresolvedCount > 0) setHistoryMessage(messages.ayah.historyUnresolved);
+        excludedVerseKeys = await getExcludedVerseKeys(emotionKey);
       } catch {
         setHistoryMessage(messages.ayah.historyReadFailed);
       }
-      const nextAyah = await getRandomAyah(emotionKey, excludedVerseKeys);
+      let nextAyah = await getRandomAyah(emotionKey, excludedVerseKeys);
+
+      // Exhaustion fallback: see buildExhaustionRetryExclusions — at most
+      // one bounded follow-up request, never a loop.
+      const retryExcludedVerseKeys = buildExhaustionRetryExclusions(excludedVerseKeys, nextAyah.verseKey);
+      if (retryExcludedVerseKeys) {
+        try {
+          nextAyah = await getRandomAyah(emotionKey, retryExcludedVerseKeys);
+        } catch {
+          // Keep the first (already-fetched, still valid) response — a
+          // failed bounded retry must never block displaying an ayah.
+        }
+      }
+
       setAyah(nextAyah);
       try {
-        await rememberAyahForEmotion(emotionKey, nextAyah);
+        await recordShownAyah(emotionKey, nextAyah);
       } catch {
         setHistoryMessage(messages.ayah.historySaveFailed);
       }
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error, messages.ayah.genericError));
     } finally {
+      isLoadingRef.current = false;
       setIsLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- messages is stable per locale; re-running on every message identity change is unnecessary

@@ -33,17 +33,17 @@ describe('Routing safety: the emotion key reaches the API/history/navigation lay
     expect(body).not.toMatch(/\.split\(|\.replace\(|\.toUpperCase\(|\.toLowerCase\(|\.charAt\(/);
   });
 
-  it('getRandomAyah and rememberAyahForEmotion are called with emotionKey, never with the human-readable label', () => {
+  it('getRandomAyah and recordShownAyah are called with emotionKey, never with the human-readable label', () => {
     const source = readFileSync(AYAH_SCREEN_PATH, 'utf-8');
     expect(source).toMatch(/getRandomAyah\(emotionKey,/);
-    expect(source).toMatch(/rememberAyahForEmotion\(emotionKey,/);
+    expect(source).toMatch(/recordShownAyah\(emotionKey,/);
     expect(source).not.toMatch(/getRandomAyah\(readableEmotion/);
-    expect(source).not.toMatch(/rememberAyahForEmotion\(readableEmotion/);
+    expect(source).not.toMatch(/recordShownAyah\(readableEmotion/);
   });
 
-  it('getRecentVerseKeyState (favorites/history exclusion) also uses the stable emotionKey, not the display label', () => {
+  it('getExcludedVerseKeys (10-minute recent-history exclusion) also uses the stable emotionKey, not the display label', () => {
     const source = readFileSync(AYAH_SCREEN_PATH, 'utf-8');
-    expect(source).toMatch(/getRecentVerseKeyState\(emotionKey\)/);
+    expect(source).toMatch(/getExcludedVerseKeys\(emotionKey\)/);
   });
 
   it('readableEmotion (the display label) is computed from resolveLocalizedEmotionName, and is never itself fed back into emotionKey, the API calls, or history storage', () => {
@@ -51,7 +51,7 @@ describe('Routing safety: the emotion key reaches the API/history/navigation lay
     expect(source).toMatch(/resolveLocalizedEmotionName\(names, locale, emotionKey\)/);
     // readableEmotion may only appear where it's actually displayed/shared —
     // never passed to any of the key-consuming calls.
-    const keyConsumingCalls = ['getRandomAyah(', 'rememberAyahForEmotion(', 'getRecentVerseKeyState('];
+    const keyConsumingCalls = ['getRandomAyah(', 'recordShownAyah(', 'getExcludedVerseKeys('];
     keyConsumingCalls.forEach((call) => {
       const callSite = source.indexOf(call);
       expect(callSite).toBeGreaterThan(-1);
