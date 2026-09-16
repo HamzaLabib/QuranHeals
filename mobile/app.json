@@ -4,16 +4,20 @@
     "slug": "quran-heals",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/appicon.png",
     "scheme": "quranheals",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/images/appicon.png",
       "bundleIdentifier": "com.quranheals.app",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSLocalNetworkUsageDescription": "Quran Heals connects to a local development server while testing.",
+        "NSAppTransportSecurity": {
+        "NSAllowsLocalNetworking": true
       }
-    },
+    }
+  },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
