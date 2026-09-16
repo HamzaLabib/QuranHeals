@@ -77,9 +77,10 @@ describe('Activation dry run: Quran reference validation', () => {
 });
 
 describe('Activation dry run: emotion taxonomy validation', () => {
-  it('has zero missing and zero unexpected emotions against the 29-key taxonomy', () => {
-    expect(validation.taxonomy.missing).toEqual([]);
+  it('has zero unexpected emotions, and reports faith_shaken as the sole "missing" key (a later, separately-reviewed addition with none of its own candidates in this frozen 1,845-row preview) — this does not affect the overall PASS decision, which never depends on `missing`', () => {
+    expect(validation.taxonomy.missing).toEqual(['faith_shaken']);
     expect(validation.taxonomy.unexpected).toEqual([]);
+    expect(validation.passed).toBe(true);
   });
 
   it('reports a sorted, de-duplicated list of exactly 29 emotions', () => {

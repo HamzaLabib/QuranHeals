@@ -25,6 +25,7 @@ import {
   writeActivationBackup,
   runActivationApply,
   runPostWriteVerification,
+  HISTORICAL_APPROVED_EMOTION_KEYS,
   type LiveEmotionDoc,
   type LiveMappingDoc,
   type EmotionAuditResult,
@@ -182,7 +183,7 @@ describe('Approved mapping activation: emotion definition audit', () => {
 
     const audit = auditEmotionDefinitions(live);
 
-    expect(audit.approvedEmotionKeys).toHaveLength(29);
+    expect(audit.approvedEmotionKeys).toHaveLength(29); // Frozen Phase 5 scope.
     expect(audit.existingActiveApprovedEmotions).toContain('sad');
     expect(audit.existingInactiveApprovedEmotions).toContain('guilty');
     expect(audit.missingApprovedEmotionDefinitions).not.toContain('sad');
@@ -200,12 +201,13 @@ describe('Approved mapping activation: emotion definition audit', () => {
     ]);
   });
 
-  it('reports zero missing/conflicting when every one of the 29 keys exists live with matching icon/order', () => {
+  it('reports all 29 historical keys as present when the current 30-key catalog exists live', () => {
     const live: LiveEmotionDoc[] = seedEmotions.map((e) => liveEmotion({ ...e }));
     const audit = auditEmotionDefinitions(live);
     expect(audit.missingApprovedEmotionDefinitions).toEqual([]);
     expect(audit.conflictingEmotionDefinitions).toEqual([]);
     expect(audit.existingApprovedEmotionDefinitions).toHaveLength(29);
+    expect(audit.unexpectedEmotionDefinitions).toEqual(['faith_shaken']);
   });
 });
 
@@ -394,7 +396,10 @@ describe('Approved mapping activation: write plan', () => {
     expect(plan.reconciliation.alreadyApproved).toBe(0);
     expect(plan.reconciliation.total).toBe(1845);
     expect(plan.reconciliation.matches).toBe(true);
+    // This historical migration creates only its 29 preview-covered emotions.
+    // The 30th catalog entry has a separate, forward-only activation path.
     expect(plan.emotionsToCreate).toHaveLength(29); // none live yet
+    expect(plan.emotionsToCreate).not.toContain('faith_shaken');
     expect(plan.predictedFinalActiveEmotions).toBe(29);
     expect(plan.blocked).toBe(false);
   });
@@ -460,8 +465,23 @@ describe('Approved mapping activation: write plan', () => {
     expect(plan.blocked).toBe(true);
   });
 
-  it('predicted final active emotion count is exactly 29 in the real dataset', () => {
+  it('predicts exactly 29 historical active emotions even though the current catalog contains 30', () => {
     const plan = buildWritePlan(auditEmotionDefinitions([]), auditMappings([], candidates, rejectPairs, holdPairs, knownEmotionKeys));
+    expect(seedEmotions).toHaveLength(30);
+    expect(plan.predictedFinalActiveEmotions).toBe(29);
+    expect(HISTORICAL_APPROVED_EMOTION_KEYS).toEqual([...new Set(candidates.map((candidate) => candidate.emotionKey))].sort());
+  });
+
+  it('never creates, activates, localizes, or maps the later faith_shaken emotion', () => {
+    const emotionAudit = auditEmotionDefinitions([liveEmotion({ key: 'faith_shaken', active: false })]);
+    const faithMapping = liveMapping({ verseReferenceKey: '51:56', emotionKey: 'faith_shaken', status: 'approved' });
+    const plan = buildWritePlan(emotionAudit, auditMappings([faithMapping], candidates, rejectPairs, holdPairs, knownEmotionKeys));
+
+    expect(plan.blocked).toBe(false);
+    expect(plan.emotionsToCreate).not.toContain('faith_shaken');
+    expect(plan.emotionsToActivate).not.toContain('faith_shaken');
+    expect(plan.emotionsToLocalize).not.toContain('faith_shaken');
+    expect([...plan.mappingsToInsert, ...plan.mappingsToPromote]).not.toContain('51:56|faith_shaken');
     expect(plan.predictedFinalActiveEmotions).toBe(29);
   });
 });
@@ -696,7 +716,7 @@ describe('Approved mapping activation: apply transaction (mocked Mongoose — no
       endSession: async () => {},
     } as never);
 
-    const emotionAudit = auditEmotionDefinitions([]); // all 29 missing
+    const emotionAudit = auditEmotionDefinitions([]); // all 29 historical definitions missing
     const mappingAudit = auditMappings([], candidates, rejectPairs, holdPairs, new Set(seedEmotions.map((e) => e.key)));
     const writePlan = buildWritePlan(emotionAudit, mappingAudit);
     expect(writePlan.emotionsToCreate).toHaveLength(29);
@@ -707,6 +727,7 @@ describe('Approved mapping activation: apply transaction (mocked Mongoose — no
       .flat()
       .filter((doc): doc is { key: string; names: unknown; descriptions: unknown } => typeof doc === 'object' && doc !== null && 'names' in doc);
     expect(createdEmotionDocs.length).toBe(29);
+    expect(createdEmotionDocs.some((doc) => doc.key === 'faith_shaken')).toBe(false);
     createdEmotionDocs.forEach((doc) => {
       const canonical = EMOTION_CATALOG_BY_KEY.get(doc.key)!;
       expect(doc.names).toEqual(canonical.names);
@@ -759,7 +780,13 @@ describe('Approved mapping activation: post-write verification (mocked)', () => 
     const approvedDocs: LiveMappingDoc[] = candidates.map((c) =>
       liveMapping({ verseReferenceKey: c.verseKey, emotionKey: c.emotionKey, status: 'approved', mappingVersion: APPROVED_MAPPING_VERSION }),
     );
-    const activeEmotions: LiveEmotionDoc[] = seedEmotions.map((e) => liveEmotion({ ...e, active: true }));
+    // Excludes the later, separately-reviewed `faith_shaken` (added after
+    // this 1,845-mapping activation was designed) — this test's "predicted
+    // final state" is specifically that historical 1845/29 outcome, which
+    // never included faith_shaken as active.
+    const activeEmotions: LiveEmotionDoc[] = seedEmotions
+      .filter((e) => e.key !== 'faith_shaken')
+      .map((e) => liveEmotion({ ...e, active: true }));
 
     vi.spyOn(EmotionModel, 'countDocuments').mockResolvedValue(29 as never);
     vi.spyOn(EmotionVerseMappingModel, 'find').mockReturnValue({ lean: async () => approvedDocs } as never);
@@ -769,6 +796,11 @@ describe('Approved mapping activation: post-write verification (mocked)', () => 
     expect(result.passed).toBe(true);
     expect(result.activeEmotionCount).toBe(29);
     expect(result.approvedMappingCount).toBe(1845);
+    // A separately activated 30th emotion is outside this historical audit.
+    const historicalFilter = { $in: [...HISTORICAL_APPROVED_EMOTION_KEYS] };
+    expect(EmotionModel.countDocuments).toHaveBeenCalledWith({ active: true, key: historicalFilter });
+    expect(EmotionModel.find).toHaveBeenCalledWith({ active: true, key: historicalFilter });
+    expect(EmotionVerseMappingModel.find).toHaveBeenCalledWith({ status: 'approved', emotionKey: historicalFilter });
   });
 
   it('fails when an approved candidate is missing from live approved mappings', async () => {

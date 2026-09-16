@@ -36,7 +36,6 @@ import mongoose, { Types } from 'mongoose';
 import { env } from '../config/env';
 import {
   APP_LOCALES,
-  EMOTION_CATALOG,
   EMOTION_CATALOG_BY_KEY,
   hasAllRequiredLocales,
   type LocalizedText,
@@ -60,6 +59,20 @@ import {
 export { APPROVED_MAPPING_VERSION };
 
 const DEFAULT_PREFLIGHT_REPORT_PATH = 'reports/emotion-mappings/activation-preflight.json';
+
+// This migration owns the frozen Phase 5 preview, not every emotion subsequently
+// added to the catalog. New emotions require their own reviewed activation path.
+const historicalPreview = loadApprovedMappingsPreview();
+export const HISTORICAL_APPROVED_EMOTION_KEYS: readonly string[] = Object.freeze(
+  [...new Set(historicalPreview.rows.map((row) => row.emotionKey))].sort(),
+);
+if (
+  historicalPreview.rows.length !== 1845 ||
+  HISTORICAL_APPROVED_EMOTION_KEYS.length !== 29 ||
+  HISTORICAL_APPROVED_EMOTION_KEYS.some((key) => !EMOTION_CATALOG_BY_KEY.has(key))
+) {
+  throw new Error('Historical activation requires the frozen 1,845-mapping / 29-emotion preview.');
+}
 
 function candidatePairKey(candidate: Pick<ActivationCandidate, 'verseKey' | 'emotionKey'>): string {
   return `${candidate.verseKey}|${candidate.emotionKey}`;
@@ -153,8 +166,8 @@ function findLocalizationConflicts(
 }
 
 /**
- * Pure classification: live Emotion documents vs. the 29-key canonical
- * catalog (`backend/src/emotions/emotionCatalog.ts`), covering both
+ * Pure classification: live Emotion documents vs. the 29 historical preview
+ * keys, using their canonical catalog definitions, covering both
  * existence/active-state (as before) and localization state (new):
  *   - a document with no `names`/`descriptions` (or missing a required
  *     locale within either) needs a localization update ($set only, legacy
@@ -167,7 +180,7 @@ function findLocalizationConflicts(
  * No I/O.
  */
 export function auditEmotionDefinitions(liveEmotions: LiveEmotionDoc[]): EmotionAuditResult {
-  const approvedEmotionKeys = [...EMOTION_CATALOG.map((emotion) => emotion.key)].sort();
+  const approvedEmotionKeys = [...HISTORICAL_APPROVED_EMOTION_KEYS];
   const approvedSet = new Set(approvedEmotionKeys);
   const liveByKey = new Map(liveEmotions.map((emotion) => [emotion.key, emotion]));
 
@@ -945,10 +958,13 @@ export type PostWriteVerificationResult = {
 /** Re-reads live state after a (hypothetical) commit and re-proves every Step 16 property. Never writes. */
 export async function runPostWriteVerification(candidates: ActivationCandidate[]): Promise<PostWriteVerificationResult> {
   const failures: string[] = [];
+  // The historical outcome remains 29 / 1,845 even after newer emotions are
+  // activated independently. Verify only the same scope this migration owns.
+  const historicalEmotionFilter = { $in: [...HISTORICAL_APPROVED_EMOTION_KEYS] };
 
   const [activeEmotionCount, approvedMappings] = await Promise.all([
-    EmotionModel.countDocuments({ active: true }),
-    EmotionVerseMappingModel.find({ status: 'approved' }).lean<LiveMappingDoc[]>(),
+    EmotionModel.countDocuments({ active: true, key: historicalEmotionFilter }),
+    EmotionVerseMappingModel.find({ status: 'approved', emotionKey: historicalEmotionFilter }).lean<LiveMappingDoc[]>(),
   ]);
 
   if (activeEmotionCount !== 29) failures.push(`Active emotion count is ${activeEmotionCount}, expected 29.`);
@@ -970,7 +986,7 @@ export async function runPostWriteVerification(candidates: ActivationCandidate[]
   if (holdIntersection.length > 0) failures.push(`${holdIntersection.length} approved pair(s) intersect HOLD.`);
 
   const emotionsWithApproved = new Set(approvedMappings.map((m) => m.emotionKey));
-  const activeEmotions = await EmotionModel.find({ active: true }).lean<LiveEmotionDoc[]>();
+  const activeEmotions = await EmotionModel.find({ active: true, key: historicalEmotionFilter }).lean<LiveEmotionDoc[]>();
   const emotionsWithoutApproved = activeEmotions.filter((e) => !emotionsWithApproved.has(e.key));
   if (emotionsWithoutApproved.length > 0) {
     failures.push(`${emotionsWithoutApproved.length} active emotion(s) have zero approved mappings.`);

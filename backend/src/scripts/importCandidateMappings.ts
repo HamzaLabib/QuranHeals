@@ -318,6 +318,33 @@ export function summarize(rows: EvaluatedRow[]) {
   };
 }
 
+export function summarizeReview(rows: EvaluatedRow[], review: {
+  originalCandidateCount: number;
+  decisionCounts: { keep: number; reject: number; hold: number };
+  reviews: { verseKey: string; emotionKey: string; decision: string }[];
+  supplementalReviews: unknown[];
+}) {
+  const pairs = new Set(rows.map((row) => `${row.emotionKey}|${row.verseKey}`));
+  const seen = new Set<string>();
+  const counts = { keep: 0, reject: 0, hold: 0 };
+  if (pairs.size !== rows.length || review.originalCandidateCount !== rows.length ||
+      review.reviews.length !== rows.length || review.supplementalReviews.length !== 0) {
+    throw new Error('Review must cover each candidate exactly once, without supplemental rows.');
+  }
+  for (const row of review.reviews) {
+    const pair = `${row.emotionKey}|${row.verseKey}`;
+    if (!pairs.has(pair) || seen.has(pair) || !['keep', 'reject', 'hold'].includes(row.decision)) {
+      throw new Error(`Invalid or duplicate review decision: ${pair}`);
+    }
+    seen.add(pair);
+    counts[row.decision as keyof typeof counts]++;
+  }
+  if (Object.keys(counts).some((key) => counts[key as keyof typeof counts] !== review.decisionCounts[key as keyof typeof counts])) {
+    throw new Error('Review decisionCounts does not match the review decisions.');
+  }
+  return counts;
+}
+
 function toMarkdown(report: Record<string, unknown>, rows: EvaluatedRow[]): string {
   const summary = report.summary as ReturnType<typeof summarize>;
   const lines: string[] = [];
@@ -338,6 +365,12 @@ function toMarkdown(report: Record<string, unknown>, rows: EvaluatedRow[]): stri
   lines.push(`| Invalid rows | ${summary.invalidRows} |`);
   lines.push(`| Activatable today (shipped emotion) | ${summary.activatableToday} |`);
   lines.push(`| Valid but emotion not yet active | ${summary.needsEmotionActivation} |`);
+  if (report.reviewCounts) {
+    const counts = report.reviewCounts as ReturnType<typeof summarizeReview>;
+    lines.push(`| Human review KEEP | ${counts.keep} |`);
+    lines.push(`| Human review REJECT | ${counts.reject} |`);
+    lines.push(`| Human review HOLD | ${counts.hold} |`);
+  }
   lines.push('');
 
   if (Object.keys(summary.issueCounts).length > 0) {
@@ -366,7 +399,9 @@ function toMarkdown(report: Record<string, unknown>, rows: EvaluatedRow[]): stri
 
   lines.push('');
   lines.push(
-    '> Candidates are not reviewed or approved. A human must promote each mapping through the lifecycle in `docs/emotion-mappings/taxonomy.md`.',
+    report.reviewCounts
+      ? '> Human editorial decisions are recorded separately from mapping lifecycle status. No mappings are promoted or activated by this report.'
+      : '> Candidates are not reviewed or approved. A human must promote each mapping through the lifecycle in `docs/emotion-mappings/taxonomy.md`.',
   );
   lines.push('');
 
@@ -382,6 +417,11 @@ async function main(): Promise<void> {
   const checkExisting = apply || args.get('check-existing') === true;
 
   const rows = evaluateRows(readRows(inputPath));
+  // Optional audit-only review ledger; validate before any database operation.
+  const reviewPath = optionalString(args, 'review', '');
+  const reviewCounts = reviewPath
+    ? summarizeReview(rows, JSON.parse(readFileSync(resolve(process.cwd(), reviewPath), 'utf8')))
+    : undefined;
 
   let mode = 'dry-run (no database, no writes)';
   let databaseUsed = false;
@@ -413,6 +453,7 @@ async function main(): Promise<void> {
     mappingVersion,
     candidateStatus: CANDIDATE_STATUS,
     databaseUsed,
+    ...(reviewCounts ? { reviewSource: reviewPath, reviewCounts } : {}),
     summary,
     rows,
   };

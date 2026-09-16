@@ -54,7 +54,12 @@ const SELF_REFLECTION_HOLD_VERSE_KEYS = ['3:159', '13:11', '2:44', '61:2', '61:3
 const HOLD_CATEGORY = 'self-reflection / advice-style / personal-change review deferred';
 
 const arabicPattern = /[؀-ۿ]/;
-const canonicalEmotionKeys = new Set(seedEmotions.map((emotion) => emotion.key));
+// This test validates a HISTORICAL Batch 4 review snapshot against the
+// canonical emotion set as it existed at that review's time (the original
+// 29 keys) — it must not silently absorb a later, unrelated catalog
+// addition such as `faith_shaken` (added in its own separate review round;
+// see batch-6-faith-shaken/), which Batch 4 never reviewed 2:186 against.
+const canonicalEmotionKeys = new Set(seedEmotions.map((emotion) => emotion.key).filter((key) => key !== 'faith_shaken'));
 
 function pairKey(row: { verseKey: string; emotionKey: string }): string {
   return `${row.verseKey}|${row.emotionKey}`;

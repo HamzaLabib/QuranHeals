@@ -133,11 +133,15 @@ describe('Emotion cards show only the selected-locale name — descriptions are 
 });
 
 describe('Result screen resolves the display label from emotion.names[currentAppLocale] with locale->en->key fallback (source-scan)', () => {
-  const AYAH_SCREEN_PATH = resolve(__dirname, '../src/app/ayah/[emotion].tsx');
-  const source = readFileSync(AYAH_SCREEN_PATH, 'utf-8');
+  // The emotion-name resolution logic lives in the shared AyahExperience
+  // component (both app/ayah/[emotion].tsx and app/ayah/general.tsx render
+  // it) since the general-Quran-flow follow-up extracted it — see
+  // AyahExperience.tsx's own doc comment.
+  const AYAH_EXPERIENCE_PATH = resolve(__dirname, '../src/components/AyahExperience.tsx');
+  const source = readFileSync(AYAH_EXPERIENCE_PATH, 'utf-8');
 
-  it('computes readableEmotion via resolveLocalizedEmotionName(names, locale, emotionKey), never a single passed English name', () => {
-    expect(source).toMatch(/resolveLocalizedEmotionName\(names, locale, emotionKey\)/);
+  it('computes headerTitle via resolveLocalizedEmotionName(source.names, locale, source.emotionKey) in emotion mode, never a single passed English name', () => {
+    expect(source).toMatch(/resolveLocalizedEmotionName\(source\.names, locale, source\.emotionKey\)/);
   });
 
   it('never renders emotion.descriptions on this screen (descriptions are data-ready only, not yet in the UI)', () => {

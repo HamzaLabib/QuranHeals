@@ -8,14 +8,28 @@ import type { Ayah } from '@/types/domain';
 // count used for the legacy favorites/history surface) — this store is
 // time-based, not count-based, and exists solely to build the `exclude`
 // list the backend's GET /ayahs/random endpoint already accepts.
+//
+// Also reused, unchanged, for the general Quran flow's own recent-history
+// namespace ("Need an ayah from the Quran?" — see GENERAL_QURAN_HISTORY_KEY
+// below): the map is keyed by a plain string, so a second, independent
+// namespace is just another key in the same map, with its own TTL tracking
+// that never reads or clears any emotion's entries. This is *not* a 30th
+// emotion — GENERAL_QURAN_HISTORY_KEY is never a real emotionKey (it starts
+// with "__", which the backend's emotionKey pattern `^[a-z][a-z_-]{1,40}$`
+// structurally rejects), never sent to the backend, and never shown to the
+// user.
 const STORAGE_KEY = 'quran-heals:recent-emotion-ayahs:v1';
+
+/** Reserved history-map key for the general "Need an ayah from the Quran?" flow — never a real emotionKey, never user-visible, never sent to the backend. See the module doc comment above. */
+export const GENERAL_QURAN_HISTORY_KEY = '__general_quran__';
 
 export const RECENT_AYAH_TTL_MS = 10 * 60 * 1000; // 10 minutes = 600,000 ms
 
 // Defensive cap so a pathological run of requests (or a corrupted/replayed
-// clock) can't grow one emotion's history without bound. Matches the
-// backend's own `exclude` query cap (ayahValidators.ts: max 20), so nothing
-// we'd ever send would be truncated server-side anyway.
+// clock) can't grow one emotion's — or the general Quran flow's — history
+// without bound. Matches the backend's own `exclude` query cap
+// (ayahValidators.ts: max 20), so nothing we'd ever send would be truncated
+// server-side anyway.
 const MAX_ENTRIES_PER_EMOTION = 20;
 
 type HistoryEntry = { verseKey: string; shownAt: number };

@@ -1,5 +1,5 @@
 import { Link, router } from 'expo-router';
-import { Heart, RefreshCw, Settings } from 'lucide-react-native';
+import { BookOpen, Heart, RefreshCw, Settings } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -114,6 +114,26 @@ export default function HomeScreen() {
           </View>
         )}
 
+        {/*
+          Completely separate from the 29 emotion cards above — visually
+          distinct (a single full-width action, not a grid tile) and
+          logically distinct (no emotionKey, no mapping; see
+          AyahExperience's `source.mode === 'general'`). Never shown inside
+          `styles.grid`, so it can never be mistaken for a 30th emotion. The
+          whole block is itself the tappable target — there is no separate
+          heading + button pair.
+        */}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={messages.generalQuran.action}
+          onPress={() => router.push('/ayah/general')}
+          style={({ pressed }) => [styles.generalQuranAction, pressed && styles.pressed]}>
+          <BookOpen size={18} color={colors.ink} strokeWidth={2} />
+          <Text style={[styles.generalQuranActionText, { writingDirection: direction.writingDirection }]}>
+            {messages.generalQuran.action}
+          </Text>
+        </Pressable>
+
         <Text style={[styles.disclaimer, direction]}>{messages.home.disclaimer}</Text>
       </ScrollView>
     </SafeAreaView>
@@ -207,6 +227,25 @@ const styles = StyleSheet.create({
   },
   gridRtl: {
     flexDirection: 'row-reverse',
+  },
+  generalQuranAction: {
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    flexDirection: 'row',
+    gap: spacing.sm,
+    justifyContent: 'center',
+    minHeight: 56,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
+    ...shadows.soft,
+  },
+  generalQuranActionText: {
+    color: colors.ink,
+    fontSize: typography.bodyLarge,
+    fontWeight: '700',
   },
   disclaimer: {
     color: colors.softText,

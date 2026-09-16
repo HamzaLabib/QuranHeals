@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, Check } from 'lucide-react-native';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AccountSection } from '@/components/AccountSection';
 import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
 import { APP_LOCALES, APP_LOCALE_DISPLAY_NAMES, getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
@@ -79,6 +80,8 @@ export default function SettingsScreen() {
           </View>
           <Text style={[styles.note, direction]}>{messages.settings.quranArabicNote}</Text>
         </View>
+
+        <AccountSection locale={locale} messages={messages} direction={direction} isRtl={isRtl} />
       </ScrollView>
     </SafeAreaView>
   );

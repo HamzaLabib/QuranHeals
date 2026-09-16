@@ -8,11 +8,12 @@ import { resolveLocalizedEmotionName } from '../src/utils/emotionLabel';
 import type { LocalizedText } from '../src/types/domain';
 
 /**
- * Reads all 29 { key, names } entries directly from
+ * Reads all 30 { key, names } entries directly from
  * backend/src/emotions/emotionCatalog.ts (never duplicated/hardcoded here —
  * same source-of-truth-reading approach as emotionIcons.test.ts and the
  * "renamed emotions" check in emotionLabel.test.ts, just extended to every
- * one of the 29 instead of a handful).
+ * one of the 30 instead of a handful). 30 = the original 29 plus
+ * `faith_shaken`, added inactive pending its own mapping review.
  */
 const CATALOG_PATH = resolve(__dirname, '../../backend/src/emotions/emotionCatalog.ts');
 
@@ -28,11 +29,23 @@ function loadCatalogEntries(): CatalogEntry[] {
   }));
 }
 
-describe('all 29 canonical emotions resolve a real localized name in every app locale', () => {
+describe('all 30 canonical emotions resolve a real localized name in every app locale', () => {
   const entries = loadCatalogEntries();
 
-  it('the parser actually found all 29 entries (sanity check on the regex itself)', () => {
-    expect(entries).toHaveLength(29);
+  it('the parser actually found all 30 entries (sanity check on the regex itself)', () => {
+    expect(entries).toHaveLength(30);
+  });
+
+  it('Seeking Guidance preserves English and standard Arabic with the exact Egyptian label', () => {
+    expect(entries.find(entry => entry.key === 'seeking_guidance')?.names).toEqual({
+      en: 'Seeking Guidance', ar: 'أطلب الهداية', 'ar-EG': 'محتاج ربنا يرشدني',
+    });
+  });
+
+  it('faith_shaken is present with the exact approved names', () => {
+    const faithShaken = entries.find((entry) => entry.key === 'faith_shaken');
+    expect(faithShaken).toBeDefined();
+    expect(faithShaken?.names).toEqual({ en: 'My Faith Feels Shaken', ar: 'إيماني مهزوز', 'ar-EG': 'إيماني مهزوز' });
   });
 
   it('resolves a non-empty, catalog-matching name for every emotion in en, ar, and ar-EG', () => {

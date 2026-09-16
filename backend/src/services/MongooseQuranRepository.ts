@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
 
-import { resolveEmotionLocalization } from '../emotions/emotionCatalog';
+import { getCanonicalEmotion, resolveEmotionLocalization } from '../emotions/emotionCatalog';
 import { AyahModel } from '../models/Ayah';
 import { EmotionVerseMappingModel } from '../models/EmotionVerseMapping';
 import { EmotionModel } from '../models/Emotion';
@@ -27,11 +27,17 @@ const userVisibleMappingStatuses: EmotionMappingStatus[] = ['development', 'revi
 
 function toEmotionDto(emotion: MongoEntity<EmotionEntity>): EmotionDto {
   const { names, descriptions } = resolveEmotionLocalization(emotion);
+  const canonical = getCanonicalEmotion(emotion.key);
+  // Presentation updates come from the catalog without rewriting live documents.
+  // Preserve every other stored locale and all activation/mapping state.
+  const displayNames = emotion.key === 'seeking_guidance' && canonical
+    ? { ...names, 'ar-EG': canonical.names['ar-EG'] }
+    : names;
 
   return {
     id: emotion._id.toString(),
     key: emotion.key,
-    names,
+    names: displayNames,
     descriptions,
     // Deprecated compatibility aliases — derived from the same resolved
     // localized data above, never a second independent source of truth.
@@ -39,7 +45,7 @@ function toEmotionDto(emotion: MongoEntity<EmotionEntity>): EmotionDto {
     arabicName: names.ar,
     description: descriptions.en,
     icon: emotion.icon,
-    order: emotion.order,
+    order: canonical?.order ?? emotion.order,
     active: emotion.active,
   };
 }
@@ -190,7 +196,7 @@ export class MongooseQuranRepository implements QuranRepository {
       MongoEntity<EmotionEntity>[]
     >();
 
-    return emotions.map(toEmotionDto);
+    return emotions.map(toEmotionDto).sort((a, b) => a.order - b.order);
   }
 
   async findActiveEmotionByKey(key: string) {

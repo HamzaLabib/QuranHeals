@@ -56,8 +56,13 @@ describe('Phase 5A emotion taxonomy', () => {
     }
   });
 
-  it('has a taxonomy entry for every seeded emotion key (active or inactive)', () => {
-    for (const seeded of seedEmotions) {
+  it('has a taxonomy entry for every seeded emotion key that existed as of Phase 5A (active or inactive)', () => {
+    // `faith_shaken` was added in its own later, separate review round (see
+    // backend/data/emotion-candidates/batches/batch-6-faith-shaken/) and was
+    // never part of the frozen Phase 5A working set this file documents —
+    // it is deliberately excluded here rather than retroactively inserted
+    // into historical planning data it was never part of.
+    for (const seeded of seedEmotions.filter((emotion) => emotion.key !== 'faith_shaken')) {
       const entry = phase5aTaxonomy.find((candidate) => candidate.key === seeded.key);
       expect(entry, `taxonomy is missing seeded emotion "${seeded.key}"`).toBeDefined();
       expect(seeded.key, seeded.key).toMatch(LIVE_EMOTION_KEY_PATTERN);
@@ -66,6 +71,13 @@ describe('Phase 5A emotion taxonomy', () => {
         expect(entry?.recommendation, seeded.key).toBe('main');
       }
     }
+  });
+
+  it('faith_shaken (added after Phase 5A, in its own review round) still satisfies the live key pattern', () => {
+    const faithShaken = seedEmotions.find((emotion) => emotion.key === 'faith_shaken');
+    expect(faithShaken).toBeDefined();
+    expect(faithShaken?.key).toMatch(LIVE_EMOTION_KEY_PATTERN);
+    expect(faithShaken?.active).toBe(false);
   });
 
   it('recommends 30 visible choices including the discovery mode', () => {

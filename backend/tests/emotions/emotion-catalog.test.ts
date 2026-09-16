@@ -1,4 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { Types } from 'mongoose';
+import { MongooseQuranRepository } from '../../src/services/MongooseQuranRepository';
 
 import {
   APP_LOCALES,
@@ -49,26 +51,28 @@ const APPROVED_NAMES: Record<string, Record<AppLocale, string>> = {
   strength: { en: 'I Need Strength', ar: 'أحتاج إلى القوة', 'ar-EG': 'محتاج قوة' },
   hopeful: { en: 'Hopeful', ar: 'لدي أمل', 'ar-EG': 'عندي أمل' },
   content: { en: 'Content', ar: 'راضٍ', 'ar-EG': 'راضي' },
-  seeking_guidance: { en: 'Seeking Guidance', ar: 'أطلب الهداية', 'ar-EG': 'عايز ربنا يهديني' },
+  seeking_guidance: { en: 'Seeking Guidance', ar: 'أطلب الهداية', 'ar-EG': 'محتاج ربنا يرشدني' },
   closer_to_allah: { en: 'I Want to Feel Closer to Allah', ar: 'أريد أن أتقرب إلى الله', 'ar-EG': 'عايز أقرب من ربنا' },
+  faith_shaken: { en: 'My Faith Feels Shaken', ar: 'إيماني مهزوز', 'ar-EG': 'إيماني مهزوز' },
 };
 
 describe('1-2. Stable keys', () => {
-  it('has exactly 29 canonical emotion keys', () => {
-    expect(EMOTION_CATALOG).toHaveLength(29);
+  it('has exactly 30 canonical emotion keys (29 original + faith_shaken, added inactive pending its own mapping review — see batch-6-faith-shaken)', () => {
+    expect(EMOTION_CATALOG).toHaveLength(30);
   });
 
-  it('no key changed from the pre-localization seed', () => {
-    // The 29 keys are byte-identical to seedEmotions' keys before this task
-    // (spot-checked against the task's own examples, which explicitly keep
-    // the key while changing only the English display name).
+  it('no key changed from the pre-localization seed, plus the newly added faith_shaken', () => {
+    // The original 29 keys are byte-identical to seedEmotions' keys before
+    // this task (spot-checked against the task's own examples, which
+    // explicitly keep the key while changing only the English display
+    // name). faith_shaken is the one deliberate addition.
     const keys = EMOTION_CATALOG.map((e) => e.key).sort();
     expect(keys).toEqual(
       [
         'sad', 'anxious', 'lonely', 'angry', 'lost', 'afraid', 'stressed', 'hopeless', 'tired', 'confused',
         'grateful', 'peaceful', 'want_to_cry', 'heartbroken', 'overwhelmed', 'rejected', 'betrayed', 'wronged',
         'forgiveness_struggle', 'guilty', 'repentant', 'weak', 'reassurance', 'patience', 'strength', 'hopeful',
-        'content', 'seeking_guidance', 'closer_to_allah',
+        'content', 'seeking_guidance', 'closer_to_allah', 'faith_shaken',
       ].sort(),
     );
   });
@@ -81,22 +85,22 @@ describe('1-2. Stable keys', () => {
 });
 
 describe('3-8. Every emotion has all required localized names/descriptions', () => {
-  it('names.en exists for all 29', () => {
+  it('names.en exists for all 30', () => {
     EMOTION_CATALOG.forEach((e) => expect(typeof e.names.en).toBe('string'));
   });
-  it('names.ar exists for all 29', () => {
+  it('names.ar exists for all 30', () => {
     EMOTION_CATALOG.forEach((e) => expect(typeof e.names.ar).toBe('string'));
   });
-  it("names['ar-EG'] exists for all 29", () => {
+  it("names['ar-EG'] exists for all 30", () => {
     EMOTION_CATALOG.forEach((e) => expect(typeof e.names['ar-EG']).toBe('string'));
   });
-  it('descriptions.en exists for all 29', () => {
+  it('descriptions.en exists for all 30', () => {
     EMOTION_CATALOG.forEach((e) => expect(typeof e.descriptions.en).toBe('string'));
   });
-  it('descriptions.ar exists for all 29', () => {
+  it('descriptions.ar exists for all 30', () => {
     EMOTION_CATALOG.forEach((e) => expect(typeof e.descriptions.ar).toBe('string'));
   });
-  it("descriptions['ar-EG'] exists for all 29", () => {
+  it("descriptions['ar-EG'] exists for all 30", () => {
     EMOTION_CATALOG.forEach((e) => expect(typeof e.descriptions['ar-EG']).toBe('string'));
   });
 });
@@ -123,7 +127,7 @@ describe('9-11. String/uniqueness integrity', () => {
 });
 
 describe('Exact approved emotion names (Section 4)', () => {
-  it('every one of the 29 emotions uses the exact approved en/ar/ar-EG names — no improvisation', () => {
+  it('every one of the 30 emotions uses the exact approved en/ar/ar-EG names — no improvisation', () => {
     const mismatches: string[] = [];
     Object.entries(APPROVED_NAMES).forEach(([key, expected]) => {
       const actual = getCanonicalEmotion(key);
@@ -138,7 +142,11 @@ describe('Exact approved emotion names (Section 4)', () => {
       });
     });
     expect(mismatches, mismatches.join('\n')).toEqual([]);
-    expect(Object.keys(APPROVED_NAMES)).toHaveLength(29);
+    expect(Object.keys(APPROVED_NAMES)).toHaveLength(30);
+  });
+
+  it('faith_shaken has an inactive seed default; live activation is a separate transactional operation', () => {
+    expect(getCanonicalEmotion('faith_shaken')?.active).toBe(false);
   });
 });
 
@@ -288,5 +296,38 @@ describe('Catalog lookup helpers', () => {
 
   it('DEFAULT_APP_LOCALE is "en", preserving current app behavior', () => {
     expect(DEFAULT_APP_LOCALE).toBe('en');
+  });
+});
+
+const DISPLAY_ORDER = 'sad anxious stressed overwhelmed afraid angry lonely heartbroken want_to_cry tired lost confused hopeless weak rejected betrayed wronged forgiveness_struggle guilty repentant faith_shaken reassurance patience strength hopeful peaceful grateful content seeking_guidance closer_to_allah'.split(' ');
+
+describe('canonical card presentation', () => {
+  it('has the exact requested order and unique positions 1 through 30', () => {
+    const sorted = [...EMOTION_CATALOG].sort((a, b) => a.order - b.order);
+    expect(sorted.map(row => row.key)).toEqual(DISPLAY_ORDER);
+    expect(sorted.map(row => row.order)).toEqual(Array.from({ length: 30 }, (_, i) => i + 1));
+    expect(getCanonicalEmotion('seeking_guidance')?.names).toEqual({ en: 'Seeking Guidance', ar: 'أطلب الهداية', 'ar-EG': 'محتاج ربنا يرشدني' });
+  });
+
+  it('serves canonical order and the Egyptian guidance correction over stale database presentation without modifying documents', async () => {
+    const stored = EMOTION_CATALOG.map((row, index) => ({ ...row, _id: new Types.ObjectId(), active: true, order: index + 1,
+      names: row.key === 'seeking_guidance' ? { ...row.names, 'ar-EG': 'عايز ربنا يهديني' } : row.names,
+    }));
+    const before = JSON.stringify(stored);
+    const find = vi.spyOn(EmotionModel, 'find').mockReturnValue({ sort: () => ({ lean: async () => stored }) } as never);
+    try {
+      const result = await new MongooseQuranRepository().listActiveEmotions();
+      expect(find).toHaveBeenCalledWith({ active: true });
+      expect(result.map(row => row.key)).toEqual(DISPLAY_ORDER);
+      for (const row of result) {
+        const original = stored.find(item => item.key === row.key)!;
+        expect(row.active).toBe(original.active);
+        expect(row.icon).toBe(original.icon);
+        expect(row.descriptions).toEqual(original.descriptions);
+        expect(row.names).toEqual(row.key === 'seeking_guidance'
+          ? { ...original.names, 'ar-EG': 'محتاج ربنا يرشدني' } : original.names);
+      }
+      expect(JSON.stringify(stored)).toBe(before);
+    } finally { find.mockRestore(); }
   });
 });

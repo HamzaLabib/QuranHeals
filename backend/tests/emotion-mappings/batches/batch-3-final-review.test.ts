@@ -53,7 +53,12 @@ const PUNISHMENT_EXCLUDED_VERSE_KEYS = [
 const PUNISHMENT_RETAINED_VERSE_KEYS = ['14:42', '40:16', '40:17', '40:19', '40:20'];
 
 const arabicPattern = /[؀-ۿ]/;
-const canonicalEmotionKeys = new Set(seedEmotions.map((emotion) => emotion.key));
+// This test validates a HISTORICAL Batch 3 review snapshot against the
+// canonical emotion set as it existed at that review's time (the original
+// 29 keys) — it must not silently absorb a later, unrelated catalog
+// addition such as `faith_shaken` (added in its own separate review round;
+// see batch-6-faith-shaken/), which Batch 3 never reviewed 39:67 against.
+const canonicalEmotionKeys = new Set(seedEmotions.map((emotion) => emotion.key).filter((key) => key !== 'faith_shaken'));
 
 function pairKey(row: { verseKey: string; emotionKey: string }): string {
   return `${row.verseKey}|${row.emotionKey}`;

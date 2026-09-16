@@ -14,6 +14,11 @@ import { describe, expect, it } from 'vitest';
 // pattern and hoping it matches.
 const INDEX_SCREEN_PATH = resolve(__dirname, '../src/app/index.tsx');
 const AYAH_SCREEN_PATH = resolve(__dirname, '../src/app/ayah/[emotion].tsx');
+// The actual emotionKey → API/history plumbing now lives in the shared
+// AyahExperience component (extracted by the general-Quran-flow follow-up
+// so app/ayah/[emotion].tsx and app/ayah/general.tsx can share it) — see
+// AyahExperience.tsx's own doc comment.
+const AYAH_EXPERIENCE_PATH = resolve(__dirname, '../src/components/AyahExperience.tsx');
 
 describe('Routing safety: the emotion key reaches the API/history/navigation layer unmodified', () => {
   it('the emotion picker screen navigates with the raw emotion.key, and separately forwards emotion.names (the localized display map) as JSON for display only', () => {
@@ -33,30 +38,33 @@ describe('Routing safety: the emotion key reaches the API/history/navigation lay
     expect(body).not.toMatch(/\.split\(|\.replace\(|\.toUpperCase\(|\.toLowerCase\(|\.charAt\(/);
   });
 
-  it('getRandomAyah and recordShownAyah are called with emotionKey, never with the human-readable label', () => {
-    const source = readFileSync(AYAH_SCREEN_PATH, 'utf-8');
-    expect(source).toMatch(/getRandomAyah\(emotionKey,/);
-    expect(source).toMatch(/recordShownAyah\(emotionKey,/);
+  it('getRandomAyah is called with source.emotionKey (emotion mode only), never with the human-readable label', () => {
+    const source = readFileSync(AYAH_EXPERIENCE_PATH, 'utf-8');
+    expect(source).toMatch(/getRandomAyah\(source\.emotionKey, exclude\)/);
+    expect(source).not.toMatch(/getRandomAyah\(headerTitle/);
     expect(source).not.toMatch(/getRandomAyah\(readableEmotion/);
-    expect(source).not.toMatch(/recordShownAyah\(readableEmotion/);
   });
 
-  it('getExcludedVerseKeys (10-minute recent-history exclusion) also uses the stable emotionKey, not the display label', () => {
-    const source = readFileSync(AYAH_SCREEN_PATH, 'utf-8');
-    expect(source).toMatch(/getExcludedVerseKeys\(emotionKey\)/);
+  it('recordShownAyah and getExcludedVerseKeys (10-minute recent-history exclusion) use historyKey — source.emotionKey in emotion mode, the reserved general-flow key in general mode — never the display label', () => {
+    const source = readFileSync(AYAH_EXPERIENCE_PATH, 'utf-8');
+    expect(source).toMatch(/getExcludedVerseKeys\(historyKey\)/);
+    expect(source).toMatch(/recordShownAyah\(historyKey, nextAyah\)/);
+    expect(source).toMatch(/const historyKey = source\.mode === 'emotion' \? source\.emotionKey : GENERAL_QURAN_HISTORY_KEY;/);
+    expect(source).not.toMatch(/getExcludedVerseKeys\(headerTitle/);
+    expect(source).not.toMatch(/recordShownAyah\(headerTitle/);
   });
 
-  it('readableEmotion (the display label) is computed from resolveLocalizedEmotionName, and is never itself fed back into emotionKey, the API calls, or history storage', () => {
-    const source = readFileSync(AYAH_SCREEN_PATH, 'utf-8');
-    expect(source).toMatch(/resolveLocalizedEmotionName\(names, locale, emotionKey\)/);
-    // readableEmotion may only appear where it's actually displayed/shared —
-    // never passed to any of the key-consuming calls.
-    const keyConsumingCalls = ['getRandomAyah(', 'recordShownAyah(', 'getExcludedVerseKeys('];
+  it('headerTitle (the display label) is computed from resolveLocalizedEmotionName in emotion mode, and is never itself fed back into emotionKey/historyKey, the API calls, or history storage', () => {
+    const source = readFileSync(AYAH_EXPERIENCE_PATH, 'utf-8');
+    expect(source).toMatch(/resolveLocalizedEmotionName\(source\.names, locale, source\.emotionKey\)/);
+    // headerTitle may only appear where it's actually displayed — never
+    // passed to any of the key-consuming calls.
+    const keyConsumingCalls = ['getRandomAyah(', 'recordShownAyah(', 'getExcludedVerseKeys(', 'getRandomGeneralAyah('];
     keyConsumingCalls.forEach((call) => {
       const callSite = source.indexOf(call);
       expect(callSite).toBeGreaterThan(-1);
       const argsSlice = source.slice(callSite, callSite + call.length + 40);
-      expect(argsSlice).not.toMatch(/readableEmotion/);
+      expect(argsSlice).not.toMatch(/headerTitle/);
     });
   });
 });

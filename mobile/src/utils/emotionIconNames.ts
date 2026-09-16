@@ -38,6 +38,7 @@ export const EMOTION_ICON_NAMES: Record<string, string> = {
   'shield-alert': 'ShieldAlert',
   smile: 'Smile',
   sparkles: 'Sparkles',
+  star: 'Star',
   sun: 'Sun',
   sunrise: 'Sunrise',
   unlink: 'Unlink',

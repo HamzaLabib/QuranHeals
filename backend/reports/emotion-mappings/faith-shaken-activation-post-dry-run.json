@@ -1,0 +1,74 @@
+{
+  "mode": "dry-run",
+  "database": "test",
+  "environment": "development",
+  "collections": [
+    "emotions",
+    "emotionversemappings"
+  ],
+  "before": {
+    "emotions": 30,
+    "activeEmotions": 30,
+    "mappings": 2014,
+    "approved": 2014,
+    "historicalMappings": 1845,
+    "targetMappings": 169
+  },
+  "plan": {
+    "targetEmotion": "faith_shaken",
+    "catalogRecordFound": true,
+    "currentEmotionExists": true,
+    "currentActive": true,
+    "keep": 169,
+    "reject": 27,
+    "keepRowsPresent": 169,
+    "keepRowsMissing": 0,
+    "unexpectedMappings": 0,
+    "duplicateMappings": 0,
+    "historicalMappingsChanging": 0,
+    "otherEmotionsChanging": 0,
+    "mappingInserts": 0,
+    "mappingUpdates": 0,
+    "emotionInserts": 0,
+    "emotionUpdates": 0,
+    "insertVerseKeys": [],
+    "blockingReasons": [],
+    "passed": true
+  },
+  "writes": {
+    "mappingInserts": 0,
+    "mappingUpdates": 0,
+    "emotionInserts": 0,
+    "emotionUpdates": 0
+  },
+  "after": {
+    "emotions": 30,
+    "activeEmotions": 30,
+    "mappings": 2014,
+    "approved": 2014,
+    "historicalMappings": 1845,
+    "targetMappings": 169
+  },
+  "postPlan": {
+    "targetEmotion": "faith_shaken",
+    "catalogRecordFound": true,
+    "currentEmotionExists": true,
+    "currentActive": true,
+    "keep": 169,
+    "reject": 27,
+    "keepRowsPresent": 169,
+    "keepRowsMissing": 0,
+    "unexpectedMappings": 0,
+    "duplicateMappings": 0,
+    "historicalMappingsChanging": 0,
+    "otherEmotionsChanging": 0,
+    "mappingInserts": 0,
+    "mappingUpdates": 0,
+    "emotionInserts": 0,
+    "emotionUpdates": 0,
+    "insertVerseKeys": [],
+    "blockingReasons": [],
+    "passed": true
+  },
+  "historicalDocumentsUnchanged": true
+}

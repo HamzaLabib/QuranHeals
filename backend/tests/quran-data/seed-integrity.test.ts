@@ -135,8 +135,11 @@ describe('Phase 5B taxonomy is seeded but inactive', () => {
     expect(active.map((emotion) => emotion.key).sort()).toEqual([...activeEmotionKeys].sort());
   });
 
-  it('carries the new MAIN emotions as explicit `active: false` rows', () => {
-    const expectedInactive = [
+  it('carries the Phase 5B MAIN emotions as explicit `active: false` rows', () => {
+    // Scoped to the original Phase 5B set only — `faith_shaken` is a later,
+    // separately-reviewed addition (see batch-6-faith-shaken/) covered by
+    // its own test below, not part of this historical Phase 5B set.
+    const expectedPhase5bInactive = [
       'want_to_cry',
       'heartbroken',
       'overwhelmed',
@@ -155,18 +158,31 @@ describe('Phase 5B taxonomy is seeded but inactive', () => {
       'seeking_guidance',
       'closer_to_allah',
     ];
+    const phase5bInactive = inactive.filter((emotion) => emotion.key !== 'faith_shaken');
 
-    expect(inactive.map((emotion) => emotion.key).sort()).toEqual([...expectedInactive].sort());
-    expect(seedEmotions).toHaveLength(active.length + expectedInactive.length);
+    expect(phase5bInactive.map((emotion) => emotion.key).sort()).toEqual([...expectedPhase5bInactive].sort());
+    expect(seedEmotions).toHaveLength(active.length + expectedPhase5bInactive.length + 1); // +1 = faith_shaken
 
-    for (const emotion of inactive) {
+    for (const emotion of phase5bInactive) {
       expect(emotion.active, emotion.key).toBe(false);
       expect(emotion.key, emotion.key).toMatch(emotionKeyPattern);
-      expect(emotion.order).toBeGreaterThan(12);
+      // Display positions may interleave historical seed cohorts.
+      expect(emotion.order).toBeGreaterThanOrEqual(1);
+      expect(emotion.order).toBeLessThanOrEqual(30);
       expect(typeof emotion.name).toBe('string');
       expect(emotion.name.length).toBeGreaterThan(0);
       expect(emotion.arabicName.length).toBeGreaterThan(0);
     }
+  });
+
+  it('carries faith_shaken as its own explicit `active: false` row, added after Phase 5B in a separate review round', () => {
+    const faithShaken = inactive.find((emotion) => emotion.key === 'faith_shaken');
+    expect(faithShaken).toBeDefined();
+    expect(faithShaken?.active).toBe(false);
+    expect(faithShaken?.key).toMatch(emotionKeyPattern);
+    expect(faithShaken?.order).toBe(21);
+    expect(faithShaken?.name.length).toBeGreaterThan(0);
+    expect(faithShaken?.arabicName.length).toBeGreaterThan(0);
   });
 
   it('does not seed the merged aliases or the discovery mode as emotions', () => {

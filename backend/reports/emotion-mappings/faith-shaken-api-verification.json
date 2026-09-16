@@ -1,0 +1,72 @@
+{
+  "health": "ok",
+  "emotions": 30,
+  "target": {
+    "id": "6aaaf92012fc959594ffb701",
+    "key": "faith_shaken",
+    "names": {
+      "en": "My Faith Feels Shaken",
+      "ar": "إيماني مهزوز",
+      "ar-EG": "إيماني مهزوز"
+    },
+    "descriptions": {
+      "en": "When your heart needs renewed faith and certainty.",
+      "ar": "عندما يحتاج قلبك إلى إيمان ويقين متجددين.",
+      "ar-EG": "لما قلبك يكون محتاج إيمان ويقين من جديد."
+    },
+    "name": "My Faith Feels Shaken",
+    "arabicName": "إيماني مهزوز",
+    "description": "When your heart needs renewed faith and certainty.",
+    "icon": "star",
+    "order": 30,
+    "active": true
+  },
+  "draws": [
+    "23:1",
+    "76:12",
+    "30:24",
+    "50:15",
+    "57:16",
+    "16:102",
+    "13:28",
+    "2:25",
+    "88:17",
+    "46:33",
+    "21:30",
+    "41:39",
+    "25:49",
+    "21:33",
+    "25:48",
+    "35:27",
+    "25:75",
+    "36:33",
+    "6:95",
+    "36:39"
+  ],
+  "allDrawsKeep": true,
+  "rejectDraws": 0,
+  "excludedDraws": 0,
+  "sqliteArabicAndTranslationMatched": true,
+  "historical": [
+    {
+      "emotion": "sad",
+      "verseKey": "2:112"
+    },
+    {
+      "emotion": "anxious",
+      "verseKey": "1:5"
+    },
+    {
+      "emotion": "grateful",
+      "verseKey": "50:9"
+    },
+    {
+      "emotion": "closer_to_allah",
+      "verseKey": "4:45"
+    },
+    {
+      "emotion": "seeking_guidance",
+      "verseKey": "50:16"
+    }
+  ]
+}

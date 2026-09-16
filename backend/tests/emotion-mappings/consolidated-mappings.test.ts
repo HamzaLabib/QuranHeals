@@ -372,8 +372,10 @@ describe('Phase 5C: traceability and precedence integrity', () => {
     expect(duplicates).toEqual([]);
   });
 
-  it('is sorted deterministically by surah, ayah, then canonical emotion order', () => {
-    const emotionOrder = new Map(seedEmotions.map((e) => [e.key, e.order]));
+  it('preserves the historical preview sort: surah, ayah, then the original emotion order', () => {
+    // Frozen Phase 5 data must not be resorted for later home-screen changes.
+    const historicalKeys = 'sad anxious lonely angry lost afraid stressed hopeless tired confused grateful peaceful want_to_cry heartbroken overwhelmed rejected betrayed wronged forgiveness_struggle guilty repentant weak reassurance patience strength hopeful content seeking_guidance closer_to_allah'.split(' ');
+    const emotionOrder = new Map(historicalKeys.map((key, index) => [key, index + 1]));
     const tupleOf = (row: PreviewRow) => {
       const [surah, ayah] = row.verseKey.split(':').map(Number);
       return surah * 1_000_000 + ayah * 1000 + (emotionOrder.get(row.emotionKey) ?? 0);
@@ -385,9 +387,11 @@ describe('Phase 5C: traceability and precedence integrity', () => {
 });
 
 describe('Phase 5C: canonical taxonomy and Quran-key validity', () => {
-  it('uses only the 29 canonical emotion keys', () => {
-    expect(seedEmotions).toHaveLength(29);
+  it('uses only canonical emotion keys (the Phase 5C preview itself is frozen at the original 29 — the later, separately-reviewed faith_shaken addition contributes none of these 1,845 rows)', () => {
+    expect(seedEmotions).toHaveLength(30);
+    expect(seedEmotions.filter((emotion) => emotion.key !== 'faith_shaken')).toHaveLength(29);
     preview.rows.forEach((row) => expect(canonicalEmotionKeySet.has(row.emotionKey)).toBe(true));
+    expect(preview.rows.some((row) => row.emotionKey === 'faith_shaken')).toBe(false);
   });
 
   it('uses only verified verse keys', () => {

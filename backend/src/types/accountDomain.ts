@@ -1,0 +1,125 @@
+/**
+ * Optional-account domain types (Part A–J of the auth/sync/reporting phase).
+ * Deliberately kept separate from domain.ts (Quran/emotion data) — these
+ * describe accounts, synced user data, and issue reports, never Quran
+ * content, and must never be confused with the 1,845 approved
+ * emotion-verse mappings or the Quran/translation collections.
+ */
+
+/** Mirrors the mobile app's TranslationDisplayMode (mobile/src/localization/quranTranslationPreference.ts) — kept as a plain string union here so the backend never needs to import mobile code. */
+export type TranslationDisplayMode = 'always' | 'on-demand' | 'off';
+
+export type AuthProvider = 'apple' | 'google';
+
+/**
+ * One account per (provider, providerSubject) pair. Signing in with Apple
+ * and Google — even with the same email — creates two separate User
+ * documents in this phase; Quran Heals does not auto-link identities by
+ * email (see Part B §9), and no other linking mechanism is implemented yet.
+ * `email` is recorded only when the provider actually supplied and, for
+ * Google, verified it — including Apple's private-relay address, which is
+ * still a usable forwarding email and is stored as-is, never rejected.
+ */
+export type UserEntity = {
+  provider: AuthProvider;
+  providerSubject: string;
+  email?: string;
+  emailVerified?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
+/** A single synced favorite ayah, keyed by the stable verseKey — never a localized label or Quran text. */
+export type UserFavoriteEntity = {
+  userId: string;
+  verseKey: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
+/**
+ * One document per user holding the durable, cross-device preferences
+ * listed in Part F §26. Deliberately excludes recent-ayah history (Part F
+ * §27), which stays device-local and is never uploaded.
+ */
+export type UserPreferenceEntity = {
+  userId: string;
+  locale?: string;
+  translationDisplayMode?: TranslationDisplayMode;
+  translationId?: string;
+  updatedAt?: Date;
+};
+
+/**
+ * Server-visible reflection record: ciphertext only. `encryptionVersion`
+ * lets the format evolve without breaking older records still on this
+ * version. Never add a plaintext/preview/summary/keyword/sentiment field
+ * here — see Part D §21.
+ */
+export type UserReflectionEntity = {
+  userId: string;
+  verseKey: string;
+  ciphertext: string;
+  nonce: string;
+  encryptionVersion: number;
+  /**
+   * Older ciphertext versions displaced by an ambiguous same-timestamp
+   * conflict (Part D §29: "if timestamps are ambiguous/conflicting, keep
+   * both conflict versions"). Empty in the overwhelmingly common case where
+   * updatedAt strictly orders two writes. Still ciphertext-only.
+   */
+  conflictVersions?: Array<{ ciphertext: string; nonce: string; encryptionVersion: number; createdAt: Date }>;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
+/**
+ * The user's reflection master key, wrapped (encrypted) under a key derived
+ * from their separate Sync Passphrase — never the plaintext key. See
+ * docs/reflection-privacy.md for the full key-recovery design. One document
+ * per user.
+ */
+export type UserSyncKeyEntity = {
+  userId: string;
+  wrappedKey: string;
+  nonce: string;
+  salt: string;
+  kdfIterations: number;
+  encryptionVersion: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
+export const ISSUE_REPORT_CATEGORIES = [
+  'ayah_not_relevant',
+  'quran_text_display',
+  'translation_issue',
+  'app_technical_issue',
+  'other',
+] as const;
+
+export type IssueReportCategory = (typeof ISSUE_REPORT_CATEGORIES)[number];
+
+export type IssueReportStatus = 'new';
+
+/**
+ * Fully separate from private reflections — see Part I §38. Never accepts
+ * or stores reflection plaintext, ciphertext, or reflection-derived
+ * metadata, even if a caller sends such a field; the validator only reads
+ * the fields listed here.
+ */
+export type IssueReportEntity = {
+  category: IssueReportCategory;
+  comment?: string;
+  email?: string;
+  verseKey?: string;
+  surahNumber?: number;
+  ayahNumber?: number;
+  emotionKey?: string;
+  appLocale?: string;
+  translationDisplayMode?: TranslationDisplayMode;
+  appVersion?: string;
+  platform?: string;
+  status: IssueReportStatus;
+  createdAt?: Date;
+};

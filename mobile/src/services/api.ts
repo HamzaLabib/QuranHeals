@@ -1,11 +1,7 @@
-import { Platform } from 'react-native';
-
 import type { ApiResponse, Ayah, Emotion } from '@/types/domain';
+import { apiBaseUrl } from './apiBase';
 import { resolveAyahArabic } from './quran';
 import { QuranDataError } from './quranReference';
-
-const fallbackApiUrl = Platform.OS === 'android' ? 'http://10.0.2.2:4000' : 'http://localhost:4000';
-const apiBaseUrl = (process.env.EXPO_PUBLIC_API_URL ?? fallbackApiUrl).replace(/\/$/, '');
 
 export type ApiErrorKind =
   | 'backend_unavailable'

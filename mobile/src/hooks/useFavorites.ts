@@ -1,7 +1,30 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { getCurrentSessionToken } from '@/auth/useAuth';
+import { resolveVerseKey } from '@/services/quranReference';
 import { addFavorite, favoriteMatchesAyah, getFavoriteState, removeFavorite as removeStoredFavorite, type FavoriteReadResult } from '@/storage/favorites';
+import { addCloudFavorites, removeCloudFavorite } from '@/sync/syncApi';
 import type { Ayah, FavoriteAyah } from '@/types/domain';
+
+/**
+ * Best-effort, fire-and-forget propagation to the cloud when signed in — a
+ * failure here never affects the already-applied local change (Part E: the
+ * device is always correct locally; sync catches up later, e.g. on the next
+ * full sync at sign-in/reconnect). A guest (no session token) is a no-op.
+ */
+async function propagateToCloud(action: 'add' | 'remove', verseKey: string) {
+  const token = await getCurrentSessionToken().catch(() => null);
+  if (!token) return;
+  try {
+    if (action === 'add') {
+      await addCloudFavorites(token, [verseKey]);
+    } else {
+      await removeCloudFavorite(token, verseKey);
+    }
+  } catch {
+    // Swallowed deliberately — see doc comment above.
+  }
+}
 
 export function useFavorites() {
   const [favorites, setFavorites] = useState<FavoriteAyah[]>([]);
@@ -37,17 +60,20 @@ export function useFavorites() {
 
   const removeFavorite = useCallback(async (id: string) => {
     try {
+      const removed = favorites.find((favorite) => favorite.id === id);
       applyResult(await removeStoredFavorite(id));
+      if (removed) void propagateToCloud('remove', resolveVerseKey(removed));
     } catch {
       setError('The saved ayah could not be removed. Please try again.');
     }
-  }, [applyResult]);
+  }, [applyResult, favorites]);
 
   const toggleFavorite = useCallback(
     async (ayah: Ayah) => {
       try {
         const saved = favorites.find(favorite => favoriteMatchesAyah(favorite, ayah));
         applyResult(saved ? await removeStoredFavorite(saved.id) : await addFavorite(ayah));
+        void propagateToCloud(saved ? 'remove' : 'add', resolveVerseKey(ayah));
       } catch {
         setError('Saved ayahs could not be updated. Please try again.');
       }

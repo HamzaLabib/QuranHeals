@@ -85,7 +85,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما تحس إنك لوحدك أو حد مش شايفك.',
     },
     icon: 'moon',
-    order: 3,
+    order: 7,
     active: true,
   },
   {
@@ -97,7 +97,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما جوه حسك يفور بسرعة.',
     },
     icon: 'flame',
-    order: 4,
+    order: 6,
     active: true,
   },
   {
@@ -109,7 +109,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما تحس إنك مش عارف تتحرك فين.',
     },
     icon: 'compass',
-    order: 5,
+    order: 11,
     active: true,
   },
   {
@@ -121,7 +121,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما تحس إن الخوف قريب منك.',
     },
     icon: 'shield-alert',
-    order: 6,
+    order: 5,
     active: true,
   },
   {
@@ -133,7 +133,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما تحس إن الضغط زاد عن حده.',
     },
     icon: 'gauge',
-    order: 7,
+    order: 3,
     active: true,
   },
   {
@@ -145,7 +145,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما تحس إن رحمة ربنا بعيدة عنك.',
     },
     icon: 'sunrise',
-    order: 8,
+    order: 13,
     active: true,
   },
   {
@@ -157,7 +157,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما تحس إن قوتك خلصت.',
     },
     icon: 'battery-low',
-    order: 9,
+    order: 10,
     active: true,
   },
   {
@@ -169,7 +169,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما قلبك يكون بيدور على اتجاه.',
     },
     icon: 'help-circle',
-    order: 10,
+    order: 12,
     active: true,
   },
   {
@@ -181,7 +181,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما تحب تفتكر النعمة اللي فيك.',
     },
     icon: 'heart',
-    order: 11,
+    order: 27,
     active: true,
   },
   {
@@ -193,7 +193,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما تحس إن قلبك مرتاح ومطمّن.',
     },
     icon: 'leaf',
-    order: 12,
+    order: 26,
     active: true,
   },
   // Phase 5B taxonomy — approved MAIN emotions, added INACTIVE. These are
@@ -211,7 +211,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما تحس إن دموعك قربت تنزل.',
     },
     icon: 'droplet',
-    order: 13,
+    order: 9,
     active: false,
   },
   {
@@ -223,7 +223,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما فقدان حاجة يكسر جوّاك.',
     },
     icon: 'heart-crack',
-    order: 14,
+    order: 8,
     active: false,
   },
   {
@@ -235,7 +235,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما كل حاجة تيجي مرة واحدة وتحس إنها فوق طاقتك.',
     },
     icon: 'waves',
-    order: 15,
+    order: 4,
     active: false,
   },
   {
@@ -247,7 +247,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما تحس إنهم بعدوك أو مش عايزينك.',
     },
     icon: 'user-x',
-    order: 16,
+    order: 15,
     active: false,
   },
   {
@@ -259,7 +259,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما حد كنت واثق فيه يخذلك.',
     },
     icon: 'user-minus',
-    order: 17,
+    order: 16,
     active: false,
   },
   {
@@ -271,7 +271,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما حد يظلمك.',
     },
     icon: 'scale',
-    order: 18,
+    order: 17,
     active: false,
   },
   {
@@ -283,7 +283,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما لسه مش قادر تسيب جرح حصلك.',
     },
     icon: 'unlink',
-    order: 19,
+    order: 18,
     active: false,
   },
   {
@@ -295,7 +295,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما ضميرك يكون تقيل عليك.',
     },
     icon: 'alert-circle',
-    order: 20,
+    order: 19,
     active: false,
   },
   {
@@ -307,7 +307,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما تحب ترجع لربنا.',
     },
     icon: 'rotate-ccw',
-    order: 21,
+    order: 20,
     active: false,
   },
   {
@@ -319,7 +319,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما تحس إنك مبقاش عندك قوة خالص.',
     },
     icon: 'battery-warning',
-    order: 22,
+    order: 14,
     active: false,
   },
   {
@@ -331,7 +331,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما محتاج حد يطمّن قلبك.',
     },
     icon: 'hand-heart',
-    order: 23,
+    order: 22,
     active: false,
   },
   {
@@ -343,7 +343,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما تكون محتاج قوة عشان تستحمل.',
     },
     icon: 'hourglass',
-    order: 24,
+    order: 23,
     active: false,
   },
   {
@@ -355,7 +355,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما محتاج حد يعديك الظرف ده.',
     },
     icon: 'anchor',
-    order: 25,
+    order: 24,
     active: false,
   },
   {
@@ -367,7 +367,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما تحس إن فيه خير جاي.',
     },
     icon: 'sun',
-    order: 26,
+    order: 25,
     active: false,
   },
   {
@@ -379,19 +379,19 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما قلبك يرضى بإللي ربنا داهولك.',
     },
     icon: 'smile',
-    order: 27,
+    order: 28,
     active: false,
   },
   {
     key: 'seeking_guidance',
-    names: { en: 'Seeking Guidance', ar: 'أطلب الهداية', 'ar-EG': 'عايز ربنا يهديني' },
+    names: { en: 'Seeking Guidance', ar: 'أطلب الهداية', 'ar-EG': 'محتاج ربنا يرشدني' },
     descriptions: {
       en: 'When you need to be shown the way.',
       ar: 'عندما تحتاج إلى من يدلك على الطريق.',
       'ar-EG': 'لما محتاج حد يوريك الطريق.',
     },
     icon: 'map',
-    order: 28,
+    order: 29,
     active: false,
   },
   {
@@ -403,7 +403,25 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
       'ar-EG': 'لما تحب تبقى أقرب لربنا.',
     },
     icon: 'sparkles',
-    order: 29,
+    order: 30,
+    active: false,
+  },
+  // Added as its own review round (not part of Phase 5B) — see
+  // backend/data/emotion-candidates/batches/batch-6-faith-shaken/.
+  // Display order is independent of activation history. `active: false` is the safe
+  // seed default, not a live-database status assertion. MongoDB activation
+  // is performed by activateFaithShaken.ts only after all KEEP mappings
+  // are ready; the API reads the live Emotion.active field.
+  {
+    key: 'faith_shaken',
+    names: { en: 'My Faith Feels Shaken', ar: 'إيماني مهزوز', 'ar-EG': 'إيماني مهزوز' },
+    descriptions: {
+      en: 'When your heart needs renewed faith and certainty.',
+      ar: 'عندما يحتاج قلبك إلى إيمان ويقين متجددين.',
+      'ar-EG': 'لما قلبك يكون محتاج إيمان ويقين من جديد.',
+    },
+    icon: 'star',
+    order: 21,
     active: false,
   },
 ];

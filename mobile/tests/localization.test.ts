@@ -160,6 +160,103 @@ describe('Interface message dictionary (messages.ts)', () => {
     );
   });
 
+  it('auth/account/reflection/sync-passphrase/issue-report/sync-status copy uses the exact approved wording for en and ar', () => {
+    expect(MESSAGES.en.auth.syncPrompt).toBe('Sign in to sync across devices');
+    expect(MESSAGES.ar.auth.syncPrompt).toBe('سجّل الدخول للمزامنة بين أجهزتك');
+    expect(MESSAGES.en.auth.signInFailed).toBe(
+      "We couldn't sign you in. You can try again or continue without an account.",
+    );
+    expect(MESSAGES.ar.auth.signInFailed).toBe('تعذّر تسجيل الدخول. يمكنك المحاولة مرة أخرى أو المتابعة دون حساب.');
+
+    expect(MESSAGES.en.account).toMatchObject({
+      sectionTitle: 'Account',
+      notSignedIn: 'Not signed in',
+      signInWithApple: 'Sign in with Apple',
+      signInWithGoogle: 'Sign in with Google',
+      signedIn: 'Signed in',
+      signOut: 'Sign out',
+    });
+    expect(MESSAGES.ar.account).toMatchObject({
+      sectionTitle: 'الحساب',
+      notSignedIn: 'لم يتم تسجيل الدخول',
+      signInWithApple: 'تسجيل الدخول باستخدام Apple',
+      signInWithGoogle: 'تسجيل الدخول باستخدام Google',
+      signedIn: 'تم تسجيل الدخول',
+      signOut: 'تسجيل الخروج',
+    });
+
+    expect(MESSAGES.en.reflection).toMatchObject({
+      action: 'Reflection',
+      title: 'Reflection on this ayah',
+      prompt: 'How did this ayah make you feel?',
+      guestNote: 'Your reflection is saved on this device. Sign in to sync it across your devices.',
+      syncedNote: 'Your reflection is privately synced across your signed-in devices.',
+      save: 'Save',
+      cancel: 'Cancel',
+    });
+    expect(MESSAGES.ar.reflection).toMatchObject({
+      action: 'خواطر',
+      title: 'خواطر حول هذه الآية',
+      prompt: 'ما الذي شعرت به بعد قراءة هذه الآية؟',
+      guestNote: 'تُحفَظ خواطرك على هذا الجهاز. سجّل الدخول لمزامنتها بين أجهزتك.',
+      syncedNote: 'تتم مزامنة خواطرك بشكل خاص بين أجهزتك التي سجّلت الدخول عليها.',
+      save: 'حفظ',
+      cancel: 'إلغاء',
+    });
+
+    expect(MESSAGES.en.issueReport).toMatchObject({
+      action: 'Report an issue',
+      description: 'Tell us what seems wrong. Your report helps us improve Quran Heals.',
+      categoryAyahNotRelevant: "Ayah doesn't feel relevant",
+      categoryQuranTextDisplay: 'Quran text display issue',
+      categoryTranslationIssue: 'Translation issue',
+      categoryAppTechnicalIssue: 'App or technical issue',
+      categoryOther: 'Other',
+      emailLabel: 'Email for follow-up (optional)',
+      successMessage: 'Thank you. Your report has been received.',
+      failureMessage: "We couldn't send your report. Please try again.",
+    });
+    expect(MESSAGES.ar.issueReport).toMatchObject({
+      action: 'الإبلاغ عن مشكلة',
+      description: 'أخبرنا بالمشكلة التي لاحظتها. يساعدنا بلاغك على تحسين Quran Heals.',
+      categoryAyahNotRelevant: 'الآية لا تبدو مرتبطة بالشعور',
+      categoryQuranTextDisplay: 'مشكلة في عرض نص القرآن',
+      categoryTranslationIssue: 'مشكلة في الترجمة',
+      categoryAppTechnicalIssue: 'مشكلة تقنية في التطبيق',
+      categoryOther: 'أخرى',
+      emailLabel: 'البريد الإلكتروني للمتابعة (اختياري)',
+      successMessage: 'شكرًا لك. تم استلام بلاغك.',
+      failureMessage: 'تعذّر إرسال البلاغ. يُرجى المحاولة مرة أخرى.',
+    });
+
+    expect(MESSAGES.en.syncStatus).toEqual({
+      savedOnDevice: 'Saved on device',
+      syncing: 'Syncing',
+      synced: 'Synced',
+      syncFailed: 'Sync failed',
+    });
+    expect(MESSAGES.ar.syncStatus).toEqual({
+      savedOnDevice: 'محفوظ على الجهاز',
+      syncing: 'جارٍ المزامنة',
+      synced: 'تمت المزامنة',
+      syncFailed: 'تعذّرت المزامنة',
+    });
+  });
+
+  it('ar-EG uses the exact same Standard Arabic wording as ar for every new general-UI section (auth/account/reflection/syncPassphrase/issueReport/syncStatus)', () => {
+    const generalUiSections = ['auth', 'account', 'reflection', 'syncPassphrase', 'issueReport', 'syncStatus'] as const;
+    for (const section of generalUiSections) {
+      expect(MESSAGES['ar-EG'][section], `ar-EG.${section} should equal ar.${section}`).toEqual(MESSAGES.ar[section]);
+    }
+  });
+
+  it('ar-EG keeps the three approved Egyptian exceptions unchanged and distinct from ar', () => {
+    expect(MESSAGES['ar-EG'].home.title).toBe('إيه إحساسك دلوقتي؟');
+    expect(MESSAGES['ar-EG'].home.subtitle).toBe('رسالة من القرآن لكل إحساس بتحسه');
+    expect(MESSAGES['ar-EG'].home.title).not.toBe(MESSAGES.ar.home.title);
+    expect(MESSAGES['ar-EG'].home.subtitle).not.toBe(MESSAGES.ar.home.subtitle);
+  });
+
   it('never localizes Quran Arabic, Pickthall translation text, verse keys, or stable emotion keys (only interface copy is present)', () => {
     const disallowedSubstrings = ['pickthall', 'bismillah', 'surah_', 'verseKey', 'emotionKey'];
     for (const locale of APP_LOCALES) {

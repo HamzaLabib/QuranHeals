@@ -32,11 +32,16 @@ function loadCanonicalIconIdentifiers(): string[] {
   return matches.map((match) => match[1]);
 }
 
-describe('canonical 29-emotion taxonomy icon coverage (backend/src/seed/emotions.ts)', () => {
+describe('canonical 30-emotion taxonomy icon coverage (backend/src/seed/emotions.ts)', () => {
   const canonicalIcons = loadCanonicalIconIdentifiers();
 
-  it('the canonical seed actually defines 29 emotions (sanity check on the parser itself)', () => {
-    expect(canonicalIcons.length).toBe(29);
+  it('the canonical seed actually defines 30 emotions — the original 29 plus faith_shaken (sanity check on the parser itself)', () => {
+    expect(canonicalIcons.length).toBe(30);
+  });
+
+  it('faith_shaken uses the "star" icon, reusing lucide-react-native (already a dependency) — no new icon dependency introduced', () => {
+    expect(canonicalIcons).toContain('star');
+    expect(EMOTION_ICON_NAMES.star).toBe('Star');
   });
 
   it('has no duplicate icon identifiers within the canonical set', () => {

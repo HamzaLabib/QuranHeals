@@ -1,0 +1,994 @@
+{
+  "artifact": "batch-6-faith-shaken/final-review.json",
+  "candidateSource": "initial-candidates.json",
+  "originalCandidateCount": 196,
+  "decisionCounts": {
+    "keep": 169,
+    "reject": 27,
+    "hold": 0
+  },
+  "note": "Final authoritative human review (September 2026): the original 195 candidate records are preserved and 51:56 is added by human review. All 196 decisions follow the supplied human KEEP/REJECT ledger, including 47:15 = KEEP. No HOLD remains in Batch 6. These are editorial review outcomes only; no mapping status is promoted and no MongoDB write or emotion activation is performed.",
+  "reviews": [
+    {
+      "verseKey": "2:260",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "6:75",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:4",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "13:2",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "51:20",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "56:95",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "69:51",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "8:2",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:124",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:173",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "33:22",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "48:4",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "74:31",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "3:8",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "41:30",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "46:13",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "14:27",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "8:11",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "8:12",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "16:102",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "47:7",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "11:112",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "29:2",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "29:3",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:214",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "33:10",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "33:11",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "3:186",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "21:35",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "47:31",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "57:16",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "39:23",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "13:28",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "6:125",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "39:22",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "2:164",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:190",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:191",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "30:8",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "45:3",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "45:4",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "45:5",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "50:6",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "88:17",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "88:18",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "88:19",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "88:20",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "41:53",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "6:95",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "6:96",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "6:97",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "6:99",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:10",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:11",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:14",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:15",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:16",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:65",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:66",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:67",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "16:68",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:69",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:78",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:79",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "21:30",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "21:31",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "21:32",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "21:33",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "24:43",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "24:45",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "25:45",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "25:47",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "25:48",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "25:49",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "25:53",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "25:61",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "25:62",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "35:27",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "35:28",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "39:5",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "41:37",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "41:39",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "45:12",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "30:20",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "30:22",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "30:23",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "30:24",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "30:25",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "36:33",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "36:37",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "36:38",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "36:39",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "36:40",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "36:41",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "51:21",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "51:22",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "30:21",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "32:7",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "32:8",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "32:9",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "23:12",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "23:13",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "23:14",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "86:5",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "86:6",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "16:5",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:6",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "16:8",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:18",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "14:34",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "31:20",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:29",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "67:15",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "67:23",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:80",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:2",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "4:174",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "5:15",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "5:16",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "14:1",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "17:9",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "22:5",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "36:78",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "36:79",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "36:81",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "30:27",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "21:104",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "50:3",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "50:4",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "50:15",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "75:3",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "75:4",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "46:33",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "2:25",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:15",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "3:133",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "9:72",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "10:9",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "10:10",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "13:23",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "13:24",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "14:23",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:31",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "16:32",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "18:107",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "18:108",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "19:60",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "19:61",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "19:63",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "20:76",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "22:23",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "23:1",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "23:11",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "25:75",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "25:76",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "29:58",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "29:59",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "32:17",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "36:55",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "36:58",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "39:73",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "39:74",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "43:70",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "43:71",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "47:15",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "50:31",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "50:34",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "50:35",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "51:15",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "52:17",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "52:18",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "54:54",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "54:55",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "55:46",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "55:56",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "55:60",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "55:78",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "56:12",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "56:25",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "56:26",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "56:28",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "56:35",
+      "emotionKey": "faith_shaken",
+      "decision": "reject"
+    },
+    {
+      "verseKey": "57:12",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "66:8",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "76:5",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "76:12",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "76:13",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "78:31",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "78:32",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "83:22",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "83:25",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "88:8",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "88:9",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "88:10",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "98:8",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    },
+    {
+      "verseKey": "51:56",
+      "emotionKey": "faith_shaken",
+      "decision": "keep"
+    }
+  ],
+  "supplementalReviews": []
+}

@@ -20,6 +20,16 @@ export type Messages = {
     disclaimer: string;
     openFavorites: string;
   };
+  /**
+   * The general Quran flow's single home-screen action — completely
+   * separate from the 29-emotion mapping system (no emotionKey involved).
+   * One tappable label, not a heading+button pair. General UI text: ar-EG
+   * uses this same Standard Arabic wording, not Egyptian colloquial.
+   */
+  generalQuran: {
+    action: string;
+    loadError: string;
+  };
   ayah: {
     kicker: string;
     goBack: string;
@@ -76,6 +86,61 @@ export type Messages = {
     translationDisplayOffHint: string;
     quranArabicNote: string;
   };
+  auth: {
+    syncPrompt: string;
+    continueWithoutAccount: string;
+    continueWithApple: string;
+    continueWithGoogle: string;
+    signInFailed: string;
+  };
+  account: {
+    sectionTitle: string;
+    notSignedIn: string;
+    signInWithApple: string;
+    signInWithGoogle: string;
+    signedIn: string;
+    signOut: string;
+  };
+  reflection: {
+    action: string;
+    writeAction: string;
+    title: string;
+    prompt: string;
+    guestNote: string;
+    syncedNote: string;
+    save: string;
+    cancel: string;
+  };
+  syncPassphrase: {
+    createTitle: string;
+    unlockTitle: string;
+    createDescription: string;
+    unlockDescription: string;
+    placeholder: string;
+    continueLabel: string;
+    cancel: string;
+    incorrectError: string;
+  };
+  issueReport: {
+    action: string;
+    description: string;
+    categoryAyahNotRelevant: string;
+    categoryQuranTextDisplay: string;
+    categoryTranslationIssue: string;
+    categoryAppTechnicalIssue: string;
+    categoryOther: string;
+    emailLabel: string;
+    submit: string;
+    cancel: string;
+    successMessage: string;
+    failureMessage: string;
+  };
+  syncStatus: {
+    savedOnDevice: string;
+    syncing: string;
+    synced: string;
+    syncFailed: string;
+  };
 };
 
 export const MESSAGES: Record<AppLocale, Messages> = {
@@ -91,6 +156,10 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       retry: 'Try Again',
       disclaimer: 'Quran Heals offers spiritual reflection and is not a substitute for professional care.',
       openFavorites: 'Open saved ayahs',
+    },
+    generalQuran: {
+      action: 'A Message from the Quran',
+      loadError: "We couldn't load an ayah. Please try again.",
     },
     ayah: {
       kicker: 'A selected ayah for this moment',
@@ -148,6 +217,62 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       translationDisplayOffHint: 'Arabic only. The translation is never shown.',
       quranArabicNote: 'The Arabic Quran is always shown — this setting only affects the English translation.',
     },
+    auth: {
+      syncPrompt: 'Sign in to sync across devices',
+      continueWithoutAccount: 'Continue without an account',
+      continueWithApple: 'Continue with Apple',
+      continueWithGoogle: 'Continue with Google',
+      signInFailed: "We couldn't sign you in. You can try again or continue without an account.",
+    },
+    account: {
+      sectionTitle: 'Account',
+      notSignedIn: 'Not signed in',
+      signInWithApple: 'Sign in with Apple',
+      signInWithGoogle: 'Sign in with Google',
+      signedIn: 'Signed in',
+      signOut: 'Sign out',
+    },
+    reflection: {
+      action: 'Reflection',
+      writeAction: 'Write a reflection',
+      title: 'Reflection on this ayah',
+      prompt: 'How did this ayah make you feel?',
+      guestNote: 'Your reflection is saved on this device. Sign in to sync it across your devices.',
+      syncedNote: 'Your reflection is privately synced across your signed-in devices.',
+      save: 'Save',
+      cancel: 'Cancel',
+    },
+    syncPassphrase: {
+      createTitle: 'Set a sync passphrase',
+      unlockTitle: 'Enter your sync passphrase',
+      createDescription:
+        'This passphrase encrypts your reflections so only your signed-in devices can read them. Quran Heals cannot see or recover it — save it somewhere safe.',
+      unlockDescription: 'Enter the sync passphrase you set on another device to unlock your reflections here.',
+      placeholder: 'Sync passphrase',
+      continueLabel: 'Continue',
+      cancel: 'Cancel',
+      incorrectError: 'Incorrect sync passphrase. Please try again.',
+    },
+    issueReport: {
+      action: 'Report an issue',
+      description: 'Tell us what seems wrong. Your report helps us improve Quran Heals.',
+      categoryAyahNotRelevant: "Ayah doesn't feel relevant",
+      categoryQuranTextDisplay: 'Quran text display issue',
+      categoryTranslationIssue: 'Translation issue',
+      categoryAppTechnicalIssue: 'App or technical issue',
+      categoryOther: 'Other',
+      emailLabel: 'Email for follow-up (optional)',
+      submit: 'Submit',
+      cancel: 'Cancel',
+      successMessage: 'Thank you. Your report has been received.',
+      failureMessage: "We couldn't send your report. Please try again.",
+    },
+    syncStatus: {
+      savedOnDevice: 'Saved on device',
+      syncing: 'Syncing',
+      synced: 'Synced',
+      syncFailed: 'Sync failed',
+    },
   },
   ar: {
     appName: 'Quran Heals',
@@ -161,6 +286,10 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       retry: 'أعد المحاولة',
       disclaimer: 'تطبيق Quran Heals يقدّم تأملًا روحيًا، وليس بديلًا عن الرعاية المتخصصة.',
       openFavorites: 'فتح الآيات المحفوظة',
+    },
+    generalQuran: {
+      action: 'رسالة من القرآن',
+      loadError: 'تعذّر تحميل الآية. يُرجى المحاولة مرة أخرى.',
     },
     ayah: {
       kicker: 'آية مختارة لهذه اللحظة',
@@ -214,9 +343,65 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       translationDisplayOnDemand: 'عند الطلب',
       translationDisplayOff: 'إيقاف',
       translationDisplayAlwaysHint: 'يظهر النص العربي والترجمة الإنجليزية معًا تلقائيًا.',
-      translationDisplayOnDemandHint: 'يظهر النص العربي أولًا، مع إمكانية إظهار الترجمة عند الطلب.',
-      translationDisplayOffHint: 'العربية فقط. لا تظهر الترجمة أبدًا.',
-      quranArabicNote: 'يظهر القرآن الكريم بالعربية دائمًا — يؤثر هذا الإعداد فقط على الترجمة الإنجليزية.',
+      translationDisplayOnDemandHint: 'يظهر النص العربي أولًا، ويمكنك إظهار الترجمة متى شئت.',
+      translationDisplayOffHint: 'النص العربي فقط. لن تظهر الترجمة.',
+      quranArabicNote: 'يظهر القرآن بالعربية دائمًا — هذا الإعداد يؤثر فقط على الترجمة الإنجليزية.',
+    },
+    auth: {
+      syncPrompt: 'سجّل الدخول للمزامنة بين أجهزتك',
+      continueWithoutAccount: 'المتابعة دون حساب',
+      continueWithApple: 'المتابعة باستخدام Apple',
+      continueWithGoogle: 'المتابعة باستخدام Google',
+      signInFailed: 'تعذّر تسجيل الدخول. يمكنك المحاولة مرة أخرى أو المتابعة دون حساب.',
+    },
+    account: {
+      sectionTitle: 'الحساب',
+      notSignedIn: 'لم يتم تسجيل الدخول',
+      signInWithApple: 'تسجيل الدخول باستخدام Apple',
+      signInWithGoogle: 'تسجيل الدخول باستخدام Google',
+      signedIn: 'تم تسجيل الدخول',
+      signOut: 'تسجيل الخروج',
+    },
+    reflection: {
+      action: 'خواطر',
+      writeAction: 'أضف خاطرة',
+      title: 'خواطر حول هذه الآية',
+      prompt: 'ما الذي شعرت به بعد قراءة هذه الآية؟',
+      guestNote: 'تُحفَظ خواطرك على هذا الجهاز. سجّل الدخول لمزامنتها بين أجهزتك.',
+      syncedNote: 'تتم مزامنة خواطرك بشكل خاص بين أجهزتك التي سجّلت الدخول عليها.',
+      save: 'حفظ',
+      cancel: 'إلغاء',
+    },
+    syncPassphrase: {
+      createTitle: 'تعيين عبارة مزامنة سرية',
+      unlockTitle: 'أدخل عبارة المزامنة السرية',
+      createDescription:
+        'تُستخدم هذه العبارة لتشفير خواطرك بحيث لا تقرأها إلا أجهزتك المسجَّل دخولها. لا يمكن لتطبيق Quran Heals رؤيتها أو استرجاعها — احتفظ بها في مكان آمن.',
+      unlockDescription: 'أدخل عبارة المزامنة التي عيّنتها على جهاز آخر لفتح خواطرك هنا.',
+      placeholder: 'عبارة المزامنة السرية',
+      continueLabel: 'متابعة',
+      cancel: 'إلغاء',
+      incorrectError: 'عبارة المزامنة غير صحيحة. يرجى المحاولة مرة أخرى.',
+    },
+    issueReport: {
+      action: 'الإبلاغ عن مشكلة',
+      description: 'أخبرنا بالمشكلة التي لاحظتها. يساعدنا بلاغك على تحسين Quran Heals.',
+      categoryAyahNotRelevant: 'الآية لا تبدو مرتبطة بالشعور',
+      categoryQuranTextDisplay: 'مشكلة في عرض نص القرآن',
+      categoryTranslationIssue: 'مشكلة في الترجمة',
+      categoryAppTechnicalIssue: 'مشكلة تقنية في التطبيق',
+      categoryOther: 'أخرى',
+      emailLabel: 'البريد الإلكتروني للمتابعة (اختياري)',
+      submit: 'إرسال',
+      cancel: 'إلغاء',
+      successMessage: 'شكرًا لك. تم استلام بلاغك.',
+      failureMessage: 'تعذّر إرسال البلاغ. يُرجى المحاولة مرة أخرى.',
+    },
+    syncStatus: {
+      savedOnDevice: 'محفوظ على الجهاز',
+      syncing: 'جارٍ المزامنة',
+      synced: 'تمت المزامنة',
+      syncFailed: 'تعذّرت المزامنة',
     },
   },
   'ar-EG': {
@@ -231,6 +416,12 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       retry: 'جرّب تاني',
       disclaimer: 'تطبيق Quran Heals يقدّم تأملًا روحيًا، وليس بديلًا عن الرعاية المتخصصة.',
       openFavorites: 'افتح الآيات المحفوظة',
+    },
+    // Standard Arabic, same as `ar` — general UI (Part J §47), not one of
+    // the three approved Egyptian exceptions.
+    generalQuran: {
+      action: 'رسالة من القرآن',
+      loadError: 'تعذّر تحميل الآية. يُرجى المحاولة مرة أخرى.',
     },
     ayah: {
       kicker: 'آية مختارة لهذه اللحظة',
@@ -287,6 +478,66 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       translationDisplayOnDemandHint: 'يظهر النص العربي أولًا، ويمكنك إظهار الترجمة متى شئت.',
       translationDisplayOffHint: 'النص العربي فقط. لن تظهر الترجمة.',
       quranArabicNote: 'يظهر القرآن بالعربية دائمًا — هذا الإعداد يؤثر فقط على الترجمة الإنجليزية.',
+    },
+    // ar-EG general UI uses the same Standard Arabic as `ar` for everything
+    // outside the three approved Egyptian exceptions (home heading/subtitle,
+    // emotion names) — see Part J §47. Account/auth/reflection/sync/issue
+    // copy is all general UI, so it is intentionally byte-identical to `ar`.
+    auth: {
+      syncPrompt: 'سجّل الدخول للمزامنة بين أجهزتك',
+      continueWithoutAccount: 'المتابعة دون حساب',
+      continueWithApple: 'المتابعة باستخدام Apple',
+      continueWithGoogle: 'المتابعة باستخدام Google',
+      signInFailed: 'تعذّر تسجيل الدخول. يمكنك المحاولة مرة أخرى أو المتابعة دون حساب.',
+    },
+    account: {
+      sectionTitle: 'الحساب',
+      notSignedIn: 'لم يتم تسجيل الدخول',
+      signInWithApple: 'تسجيل الدخول باستخدام Apple',
+      signInWithGoogle: 'تسجيل الدخول باستخدام Google',
+      signedIn: 'تم تسجيل الدخول',
+      signOut: 'تسجيل الخروج',
+    },
+    reflection: {
+      action: 'خواطر',
+      writeAction: 'أضف خاطرة',
+      title: 'خواطر حول هذه الآية',
+      prompt: 'ما الذي شعرت به بعد قراءة هذه الآية؟',
+      guestNote: 'تُحفَظ خواطرك على هذا الجهاز. سجّل الدخول لمزامنتها بين أجهزتك.',
+      syncedNote: 'تتم مزامنة خواطرك بشكل خاص بين أجهزتك التي سجّلت الدخول عليها.',
+      save: 'حفظ',
+      cancel: 'إلغاء',
+    },
+    syncPassphrase: {
+      createTitle: 'تعيين عبارة مزامنة سرية',
+      unlockTitle: 'أدخل عبارة المزامنة السرية',
+      createDescription:
+        'تُستخدم هذه العبارة لتشفير خواطرك بحيث لا تقرأها إلا أجهزتك المسجَّل دخولها. لا يمكن لتطبيق Quran Heals رؤيتها أو استرجاعها — احتفظ بها في مكان آمن.',
+      unlockDescription: 'أدخل عبارة المزامنة التي عيّنتها على جهاز آخر لفتح خواطرك هنا.',
+      placeholder: 'عبارة المزامنة السرية',
+      continueLabel: 'متابعة',
+      cancel: 'إلغاء',
+      incorrectError: 'عبارة المزامنة غير صحيحة. يرجى المحاولة مرة أخرى.',
+    },
+    issueReport: {
+      action: 'الإبلاغ عن مشكلة',
+      description: 'أخبرنا بالمشكلة التي لاحظتها. يساعدنا بلاغك على تحسين Quran Heals.',
+      categoryAyahNotRelevant: 'الآية لا تبدو مرتبطة بالشعور',
+      categoryQuranTextDisplay: 'مشكلة في عرض نص القرآن',
+      categoryTranslationIssue: 'مشكلة في الترجمة',
+      categoryAppTechnicalIssue: 'مشكلة تقنية في التطبيق',
+      categoryOther: 'أخرى',
+      emailLabel: 'البريد الإلكتروني للمتابعة (اختياري)',
+      submit: 'إرسال',
+      cancel: 'إلغاء',
+      successMessage: 'شكرًا لك. تم استلام بلاغك.',
+      failureMessage: 'تعذّر إرسال البلاغ. يُرجى المحاولة مرة أخرى.',
+    },
+    syncStatus: {
+      savedOnDevice: 'محفوظ على الجهاز',
+      syncing: 'جارٍ المزامنة',
+      synced: 'تمت المزامنة',
+      syncFailed: 'تعذّرت المزامنة',
     },
   },
 };

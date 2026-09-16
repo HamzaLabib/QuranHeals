@@ -1,0 +1,126 @@
+{
+  "database": "test",
+  "environment": "development",
+  "faithShakenEmotionDocuments": 1,
+  "activeEmotions": 30,
+  "faithShakenActive": true,
+  "faithShakenApprovedMappings": 169,
+  "totalApprovedMappings": 2014,
+  "historicalApprovedMappings": 1845,
+  "rejectedPairAudit": [
+    {
+      "verseKey": "56:95",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "69:51",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "74:31",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "8:12",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "33:10",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "33:11",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "6:125",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "39:22",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "16:67",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "36:41",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "51:22",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "32:8",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "23:13",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "86:6",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "16:6",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "36:78",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "50:3",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "50:4",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "75:3",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "75:4",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "10:10",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "18:108",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "25:76",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "29:59",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "55:78",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "56:26",
+      "mappingCount": 0
+    },
+    {
+      "verseKey": "56:35",
+      "mappingCount": 0
+    }
+  ],
+  "rejectedPairsPresent": 0,
+  "duplicateTargetPairs": 0,
+  "legacyTargetTags": 0,
+  "historicalRejectProtections": 191,
+  "historicalHoldProtections": 8,
+  "historicalAuditPassed": true
+}

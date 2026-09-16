@@ -39,7 +39,8 @@ backend/data/emotion-candidates/
 │   ├── batch-2/ { initial-candidates.json, final-review.json, overlaps.json }
 │   ├── batch-3/ { initial-candidates.json, final-review.json, overlaps.json }
 │   ├── batch-4/ { initial-candidates.json, final-review.json, overlaps.json }
-│   └── batch-5/ { initial-candidates.json, final-review.json, overlaps.json }
+│   ├── batch-5/ { initial-candidates.json, final-review.json, overlaps.json }
+│   └── batch-6-faith-shaken/ { initial-candidates.json, final-review.json }
 ├── updates/
 │   └── .gitkeep
 └── consolidated/
@@ -380,6 +381,53 @@ artifact, not runtime data. It is never read by the API, never written to
 MongoDB or SQLite, and does not change any emotion's `active` flag. Turning
 any of these pairs into a real `development`/`reviewed`/`approved` mapping
 remains a separate, explicit, manual step outside Phase 5C.
+
+## Batch 6 — `faith_shaken` (a new emotion, outside the Phase 5B/5C scope above)
+
+`batches/batch-6-faith-shaken/` covers the addition of one new emotion —
+`faith_shaken` ("My Faith Feels Shaken") — added to
+`backend/src/emotions/emotionCatalog.ts` at order 30, **inactive**. It is a
+self-contained candidate-discovery + review round, structured like a
+Batch 1–5 round (an `initial-candidates.json` + `final-review.json` pair)
+but scoped to exactly one emotion, so it has no `overlaps.json` and no
+supplemental reviews.
+
+**Candidate discovery method:** a full lexical/semantic scan of all 6,236
+verified local ayahs — Arabic root/phrase patterns (diacritics stripped
+before matching) cross-checked against the bundled Pickthall translation —
+across 12 internal review categories: `certainty`, `increase_in_faith`,
+`steadfastness`, `faith_under_trial`, `heart_softening`,
+`reflection_and_reasoning`, `signs_in_creation`, `signs_in_self`,
+`blessings_and_provision`, `revelation_and_guidance`,
+`resurrection_evidence`, and `jannah_and_reward`. These categories are
+recorded per row inside `initial-candidates.json`'s `contextNotes` field
+(`[categories: ...]`) for audit purposes only — they are not a schema field
+and have no runtime effect. Verses fitting more than one category carry all
+of them in that same note rather than being duplicated as separate rows.
+
+Raw automated hits were curated by hand before ever being added to
+`initial-candidates.json` — weak, redundant, or off-topic hits from the
+lexical scan were discarded at that stage, not merely rejected in review.
+**195 candidates** were carried into the file; every "mandatory core ayah"
+named in the task brief (including the full connected Ar-Rum 30:20–25 sign
+sequence, not just its endpoints) is among them.
+
+**Final human review: 196 candidates / 169 KEEP / 27 REJECT / 0 HOLD.**
+The original 195 candidate records are preserved. Human review added
+`51:56` with `reflection_and_reasoning` audit metadata. Both `51:56`
+and `47:15` are KEEP. The final-review ledger is authoritative; the initial
+automated decisions are superseded.
+
+**Activation:** `backend/src/scripts/activateFaithShaken.ts` is the separate,
+transactional forward activation path for these 169 KEEP pairs. See
+`docs/emotion-mappings/faith-shaken-activation.md` for its dry-run, safety
+checks, backup and idempotency verification. The canonical catalog retains
+an inactive seed default; runtime visibility comes from MongoDB
+`Emotion.active`. Candidate/review artifacts remain editorial records
+and are never rewritten by activation.
+
+The historical activation script remains scoped to the frozen 29-emotion,
+1,845-pair preview. Batch 6 does not change Batch 1-5 reports or protections.
 
 ## Structural migration (Phase 5B/5C flat files → `batches/` + `consolidated/`)
 

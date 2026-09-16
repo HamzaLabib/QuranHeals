@@ -5,4 +5,5 @@ import { composeLocalAyah, createQuranRepository } from './quranRepository';
 export const quranRepository = createQuranRepository(openBundledQuran);
 export const getVerseByKey = quranRepository.getVerseByKey;
 export const getVerse = quranRepository.getVerse;
+export const getRandomVerseKey = quranRepository.getRandomVerseKey;
 export const resolveAyahArabic = <T extends Ayah>(ayah: T) => composeLocalAyah(ayah, quranRepository);
