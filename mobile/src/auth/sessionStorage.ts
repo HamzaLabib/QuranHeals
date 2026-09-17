@@ -6,8 +6,8 @@ import * as SecureStore from 'expo-secure-store';
  * rather than plain AsyncStorage — unlike locale/favorites/preferences,
  * which are not secrets. See Part B §6 and docs/reflection-privacy.md.
  */
-const SESSION_TOKEN_KEY = 'quran-heals:auth-session-token:v1';
-const MASTER_KEY_KEY = 'quran-heals:reflection-master-key:v1';
+const SESSION_TOKEN_KEY = 'quran-heals.auth-session-token.v1';
+const MASTER_KEY_KEY = 'quran-heals.reflection-master-key.v1';
 
 export async function getSessionToken(): Promise<string | null> {
   try {
