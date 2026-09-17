@@ -130,7 +130,7 @@ describe('ReflectionSheet: deletion implementation', () => {
     const catchBlock = deleteBlock.match(/catch \{([\s\S]*?)\} finally/)?.[1] ?? '';
     expect(catchBlock).not.toMatch(/setText\(/);
     expect(catchBlock).toMatch(/setDeleteFailed\(true\);/);
-    expect(source).toMatch(/\{deleteFailed && <Text[^>]*>\{messages\.reflection\.deleteError\}<\/Text>\}/);
+    expect(source).toMatch(/\{deleteFailed && \(\s*<Text[^>]*>\s*\{messages\.reflection\.deleteError\}\s*<\/Text>\s*\)\}/,);
   });
 
   it('relies on the My Reflections screen\'s existing onClose->refresh wiring to update the list immediately (no separate refresh call needed here)', () => {

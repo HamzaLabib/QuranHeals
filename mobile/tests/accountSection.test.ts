@@ -71,7 +71,7 @@ describe('Account section: Apple/Google brand icons', () => {
     expect(googleButtonBlock).toMatch(/styles\.googleButtonText/);
     expect(googleButtonBlock).not.toMatch(/>\s*G\s*</); // never approximated with a bare "G" character
     const iconIndex = googleButtonBlock.indexOf('<GoogleIcon');
-    const labelIndex = googleButtonBlock.indexOf('messages.account.signInWithGoogle}</Text>');
+    const labelIndex = googleButtonBlock.lastIndexOf('{messages.account.signInWithGoogle}');
     expect(iconIndex).toBeGreaterThanOrEqual(0);
     expect(labelIndex).toBeGreaterThan(iconIndex);
   });
@@ -87,7 +87,7 @@ describe('Account section: Apple/Google brand icons', () => {
   it('both provider buttons keep the existing minHeight (>=44 touch target), radius, and press handlers exactly', () => {
     expect(accountSectionSource).toMatch(/button: \{[\s\S]*?minHeight: 48,[\s\S]*?\},/);
     expect(accountSectionSource).toMatch(/onPress=\{\(\) => void onApplePress\(\)\}/);
-    expect(accountSectionSource).toMatch(/onPress=\{\(\) => void promptGoogleAsync\(\)\}/);
+    expect(accountSectionSource).toMatch(/onPress=\{\(\) => \{\s*setAccountDeletedMessage\(false\);\s*void promptGoogleAsync\(\);\s*\}\}/,);
     expect(accountSectionSource).toMatch(/disabled=\{!googleRequest\}/);
   });
 
