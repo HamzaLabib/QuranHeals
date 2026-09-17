@@ -33,12 +33,14 @@ export function buildAccountTestApp<R extends IssueReportRepository = InMemoryIs
   const userRepository = new InMemoryUserRepository();
   const sessionRepository = new InMemorySessionRepository();
   const syncRepository = new InMemorySyncRepository();
-<<<<<<< HEAD
-  const issueReportRepository = new InMemoryIssueReportRepository();
-  const accountDeletionService = new InMemoryAccountDeletionService(userRepository, syncRepository, sessionRepository);
-=======
-  const issueReportRepository = (overrides.issueReportRepository ?? new InMemoryIssueReportRepository()) as R;
->>>>>>> 80cb8753b23724fbe64b6695fbc79ff88f2a783f
+  const issueReportRepository =
+    (overrides.issueReportRepository ?? new InMemoryIssueReportRepository()) as R;
+
+  const accountDeletionService = new InMemoryAccountDeletionService(
+    userRepository,
+    syncRepository,
+    sessionRepository,
+  );
   const googleTokens = new Map<string, { providerSubject: string; email?: string; emailVerified?: boolean }>();
   const appleTokens = new Map<string, { providerSubject: string; email?: string; emailVerified?: boolean }>();
 
