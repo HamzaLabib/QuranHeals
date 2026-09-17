@@ -5,6 +5,7 @@ import { AppleSignInCancelledError, isAppleSignInSupportedPlatform, requestApple
 import { extractGoogleIdToken, isGoogleAuthConfigured, useGoogleAuthRequest } from '@/auth/googleAuth';
 import { useAuth } from '@/auth/useAuth';
 import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
+import { DeleteAccountSheet } from '@/components/DeleteAccountSheet';
 import type { AppLocale } from '@/localization/locales';
 import type { Messages } from '@/localization/messages';
 
@@ -28,6 +29,11 @@ export function AccountSection({ messages, direction, isRtl }: AccountSectionPro
   const { status, lastError, signInWithGoogleIdToken, signInWithAppleIdToken, signOut } = useAuth();
   const [googleRequest, googleResponse, promptGoogleAsync] = useGoogleAuthRequest();
   const [appleRequestError, setAppleRequestError] = useState<string | null>(null);
+  const [isDeleteSheetVisible, setIsDeleteSheetVisible] = useState(false);
+  // Shown after the sheet reports a completed deletion — status has already
+  // flipped to 'guest' by then, so this is purely a one-time confirmation,
+  // never a stand-in for the signed-in/out state itself.
+  const [accountDeletedMessage, setAccountDeletedMessage] = useState(false);
 
   useEffect(() => {
     const idToken = extractGoogleIdToken(googleResponse);
@@ -38,6 +44,7 @@ export function AccountSection({ messages, direction, isRtl }: AccountSectionPro
 
   const onApplePress = async () => {
     setAppleRequestError(null);
+    setAccountDeletedMessage(false);
     try {
       const idToken = await requestAppleIdentityToken();
       await signInWithAppleIdToken(idToken);
@@ -87,7 +94,10 @@ export function AccountSection({ messages, direction, isRtl }: AccountSectionPro
                 accessibilityRole="button"
                 accessibilityLabel={messages.account.signInWithGoogle}
                 disabled={!googleRequest}
-                onPress={() => void promptGoogleAsync()}
+                onPress={() => {
+                  setAccountDeletedMessage(false);
+                  void promptGoogleAsync();
+                }}
                 style={({ pressed }) => [styles.button, isRtl && styles.buttonRtl, pressed && styles.pressed]}>
                 <Text style={styles.buttonText}>{messages.account.signInWithGoogle}</Text>
               </Pressable>
@@ -99,7 +109,31 @@ export function AccountSection({ messages, direction, isRtl }: AccountSectionPro
           </>
         )}
         {displayedError && <Text style={[styles.errorText, direction]}>{displayedError}</Text>}
+        {accountDeletedMessage && <Text style={[styles.successText, direction]}>{messages.deleteAccount.successMessage}</Text>}
       </View>
+
+      {status === 'signed-in' && (
+        <View style={styles.dangerZone}>
+          <Text style={[styles.dangerZoneTitle, direction]}>{messages.account.dangerZoneTitle}</Text>
+          <Text style={[styles.dangerZoneDescription, direction]}>{messages.account.deleteAccountActionDescription}</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={messages.account.deleteAccountAction}
+            onPress={() => setIsDeleteSheetVisible(true)}
+            style={({ pressed }) => [styles.deleteAccountButton, pressed && styles.pressed]}>
+            <Text style={styles.deleteAccountButtonText}>{messages.account.deleteAccountAction}</Text>
+          </Pressable>
+        </View>
+      )}
+
+      <DeleteAccountSheet
+        visible={isDeleteSheetVisible}
+        onClose={() => setIsDeleteSheetVisible(false)}
+        onDeleted={() => {
+          setIsDeleteSheetVisible(false);
+          setAccountDeletedMessage(true);
+        }}
+      />
     </View>
   );
 }
@@ -153,6 +187,49 @@ const styles = StyleSheet.create({
     color: colors.rust,
     fontSize: typography.caption,
     lineHeight: 18,
+  },
+  successText: {
+    color: colors.olive,
+    fontSize: typography.caption,
+    fontWeight: '700',
+    lineHeight: 18,
+  },
+  dangerZone: {
+    backgroundColor: colors.surface,
+    borderColor: colors.rustSoft,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    gap: spacing.sm,
+    padding: spacing.md,
+  },
+  dangerZoneTitle: {
+    color: colors.rust,
+    fontSize: typography.small,
+    fontWeight: '700',
+    letterSpacing: 0,
+    textTransform: 'uppercase',
+  },
+  dangerZoneDescription: {
+    color: colors.softText,
+    fontSize: typography.caption,
+    lineHeight: 18,
+  },
+  // Deliberately understated (outlined, not solid-filled) so this entry
+  // point is never as easy to tap as a normal action button — the solid
+  // destructive fill is reserved for the sheet's own final confirm button
+  // (DeleteAccountSheet.tsx), after the typed-confirmation gate.
+  deleteAccountButton: {
+    alignItems: 'center',
+    borderColor: colors.rust,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    justifyContent: 'center',
+    minHeight: 48,
+  },
+  deleteAccountButtonText: {
+    color: colors.rust,
+    fontSize: typography.body,
+    fontWeight: '700',
   },
   pressed: {
     opacity: 0.78,

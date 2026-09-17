@@ -113,6 +113,15 @@ export function removeFavorite(id: string): Promise<FavoriteReadResult> {
   });
 }
 
+/**
+ * Wipes every locally-stored favorite on this device — used only by account
+ * deletion (mobile/src/auth/useAuth.tsx's deleteAccount), never by ordinary
+ * sign-out. Safe to call even if nothing is stored.
+ */
+export function clearAllFavorites(): Promise<void> {
+  return mutateFavorites(() => AsyncStorage.removeItem(favoritesKey));
+}
+
 export function favoriteMatchesAyah(favorite: FavoriteAyah, ayah: Ayah | string): boolean {
   if (typeof ayah === 'string') return favorite.id === ayah;
   try {

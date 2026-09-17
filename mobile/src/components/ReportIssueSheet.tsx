@@ -1,6 +1,18 @@
 import { Check } from 'lucide-react-native';
 import { useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
@@ -89,80 +101,88 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
 
   return (
     <Modal visible transparent animationType="slide" onRequestClose={close}>
-      <View style={styles.backdrop}>
-        <SafeAreaView style={styles.safeArea}>
-          <View style={styles.sheet}>
-            <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
-              <Text style={[styles.title, direction]}>{messages.issueReport.action}</Text>
-              <Text style={[styles.description, direction]}>{messages.issueReport.description}</Text>
+      {/* See ReflectionSheet.tsx's matching comment — same shared bottom-sheet-over-Modal pattern and the same keyboard-overlap fix. */}
+      <KeyboardAvoidingView style={styles.backdrop} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        {/* Tap outside the fields dismisses the keyboard only — Cancel is
+            still a deliberate, separate button press; this never closes
+            the sheet itself. */}
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <SafeAreaView style={styles.safeArea}>
+            <View style={styles.sheet}>
+              <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
+                <Text style={[styles.title, direction]}>{messages.issueReport.action}</Text>
+                <Text style={[styles.description, direction]}>{messages.issueReport.description}</Text>
 
-              <View style={styles.optionList}>
-                {CATEGORIES.map((option) => (
+                <View style={styles.optionList}>
+                  {CATEGORIES.map((option) => (
+                    <Pressable
+                      key={option}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: category === option }}
+                      accessibilityLabel={categoryLabel[option]}
+                      onPress={() => setCategory(option)}
+                      style={({ pressed }) => [
+                        styles.optionRow,
+                        isRtl && styles.optionRowRtl,
+                        category === option && styles.optionRowSelected,
+                        pressed && styles.pressed,
+                      ]}>
+                      <Text style={[styles.optionLabel, direction]}>{categoryLabel[option]}</Text>
+                      {category === option && <Check size={18} color={colors.olive} strokeWidth={2.5} />}
+                    </Pressable>
+                  ))}
+                </View>
+
+                <TextInput
+                  value={comment}
+                  onChangeText={setComment}
+                  multiline
+                  maxLength={2000}
+                  placeholder={messages.issueReport.description}
+                  placeholderTextColor={colors.muted}
+                  style={[styles.input, styles.commentInput, direction]}
+                  accessibilityLabel={messages.issueReport.description}
+                />
+
+                <TextInput
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  returnKeyType="done"
+                  onSubmitEditing={() => Keyboard.dismiss()}
+                  placeholder={messages.issueReport.emailLabel}
+                  placeholderTextColor={colors.muted}
+                  style={[styles.input, direction]}
+                  accessibilityLabel={messages.issueReport.emailLabel}
+                />
+
+                {result === 'success' && <Text style={[styles.successText, direction]}>{messages.issueReport.successMessage}</Text>}
+                {result === 'failure' && <Text style={[styles.failureText, direction]}>{messages.issueReport.failureMessage}</Text>}
+
+                <View style={[styles.actions, isRtl && styles.actionsRtl]}>
                   <Pressable
-                    key={option}
                     accessibilityRole="button"
-                    accessibilityState={{ selected: category === option }}
-                    accessibilityLabel={categoryLabel[option]}
-                    onPress={() => setCategory(option)}
-                    style={({ pressed }) => [
-                      styles.optionRow,
-                      isRtl && styles.optionRowRtl,
-                      category === option && styles.optionRowSelected,
-                      pressed && styles.pressed,
-                    ]}>
-                    <Text style={[styles.optionLabel, direction]}>{categoryLabel[option]}</Text>
-                    {category === option && <Check size={18} color={colors.olive} strokeWidth={2.5} />}
+                    accessibilityLabel={messages.issueReport.cancel}
+                    onPress={close}
+                    style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
+                    <Text style={styles.secondaryButtonText}>{messages.issueReport.cancel}</Text>
                   </Pressable>
-                ))}
-              </View>
-
-              <TextInput
-                value={comment}
-                onChangeText={setComment}
-                multiline
-                maxLength={2000}
-                placeholder={messages.issueReport.description}
-                placeholderTextColor={colors.muted}
-                style={[styles.input, styles.commentInput, direction]}
-                accessibilityLabel={messages.issueReport.description}
-              />
-
-              <TextInput
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                placeholder={messages.issueReport.emailLabel}
-                placeholderTextColor={colors.muted}
-                style={[styles.input, direction]}
-                accessibilityLabel={messages.issueReport.emailLabel}
-              />
-
-              {result === 'success' && <Text style={[styles.successText, direction]}>{messages.issueReport.successMessage}</Text>}
-              {result === 'failure' && <Text style={[styles.failureText, direction]}>{messages.issueReport.failureMessage}</Text>}
-
-              <View style={[styles.actions, isRtl && styles.actionsRtl]}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={messages.issueReport.cancel}
-                  onPress={close}
-                  style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
-                  <Text style={styles.secondaryButtonText}>{messages.issueReport.cancel}</Text>
-                </Pressable>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={messages.issueReport.submit}
-                  disabled={isSubmitting}
-                  onPress={submit}
-                  style={({ pressed }) => [styles.primaryButton, isSubmitting && styles.disabled, pressed && styles.pressed]}>
-                  <Text style={styles.primaryButtonText}>{messages.issueReport.submit}</Text>
-                </Pressable>
-              </View>
-            </ScrollView>
-          </View>
-        </SafeAreaView>
-      </View>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={messages.issueReport.submit}
+                    disabled={isSubmitting}
+                    onPress={submit}
+                    style={({ pressed }) => [styles.primaryButton, isSubmitting && styles.disabled, pressed && styles.pressed]}>
+                    <Text style={styles.primaryButtonText}>{messages.issueReport.submit}</Text>
+                  </Pressable>
+                </View>
+              </ScrollView>
+            </View>
+          </SafeAreaView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

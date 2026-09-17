@@ -144,3 +144,13 @@ export function putReflectionFromSync(reflection: AyahReflection): Promise<void>
     );
   });
 }
+
+/**
+ * Wipes every locally-stored reflection on this device — used only by
+ * account deletion (mobile/src/auth/useAuth.tsx's deleteAccount), never by
+ * ordinary sign-out (which deliberately preserves local reflections). Safe
+ * to call even if nothing is stored.
+ */
+export function clearAllReflections(): Promise<void> {
+  return mutate(() => AsyncStorage.removeItem(STORAGE_KEY));
+}

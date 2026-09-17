@@ -243,11 +243,127 @@ describe('Interface message dictionary (messages.ts)', () => {
     });
   });
 
+  it('the mandatory Sync Password copy uses the exact approved wording for en and ar', () => {
+    expect(MESSAGES.en.syncPassphrase).toEqual({
+      createTitle: 'Create a password to access your synced data',
+      unlockTitle: 'Enter your password to access your synced data',
+      createDescription:
+        'This password is required to unlock your private reflections and access your synced data on your other signed-in devices. It adds an extra layer of protection for your private reflections on top of your Google or Apple sign-in. Quran Heals cannot recover this password, so keep it somewhere safe.',
+      unlockDescription:
+        'Enter the password you created on another signed-in device to unlock your private reflections and access your synced data.',
+      placeholder: 'Enter password',
+      continueLabel: 'Continue',
+      incorrectError: 'Incorrect password. Please try again.',
+    });
+
+    expect(MESSAGES.ar.syncPassphrase).toEqual({
+      createTitle: 'أنشئ كلمة مرور للوصول إلى بياناتك المحفوظة',
+      unlockTitle: 'أدخل كلمة المرور للوصول إلى بياناتك المحفوظة',
+      createDescription:
+        'كلمة المرور هذه مطلوبة لفتح خواطرك الخاصة والوصول إلى بياناتك المحفوظة على أجهزتك الأخرى التي سجّلت الدخول إليها. وهي تضيف طبقة حماية إضافية لخواطرك الخاصة إلى جانب تسجيل الدخول بحساب Google أو Apple. لا يستطيع تطبيق Quran Heals استعادة كلمة المرور، لذا احتفظ بها في مكان آمن.',
+      unlockDescription:
+        'أدخل كلمة المرور التي أنشأتها على أحد أجهزتك الأخرى لفتح خواطرك الخاصة والوصول إلى بياناتك المحفوظة.',
+      placeholder: 'أدخل كلمة المرور',
+      continueLabel: 'متابعة',
+      incorrectError: 'كلمة المرور غير صحيحة. حاول مرة أخرى.',
+    });
+  });
+
+  it('the Sync Password copy accurately distinguishes reflections (encrypted) from the broader "synced data" (merely gated) — never claims favorites are encrypted', () => {
+    expect(MESSAGES.en.syncPassphrase.createDescription).toContain('unlock your private reflections and access your synced data');
+    expect(MESSAGES.en.syncPassphrase.createDescription).not.toMatch(/favorites/i);
+    expect(MESSAGES.en.syncPassphrase.unlockDescription).not.toMatch(/favorites/i);
+  });
+
+  it('the Sync Password flow no longer has a distinct "cancel" string — it reuses account.signOut instead', () => {
+    for (const locale of APP_LOCALES) {
+      expect(MESSAGES[locale].syncPassphrase).not.toHaveProperty('cancel');
+    }
+  });
+
+  it('ar-EG matches ar exactly for the mandatory Sync Password copy — never Egyptian colloquial for this security flow', () => {
+    expect(MESSAGES['ar-EG'].syncPassphrase).toEqual(MESSAGES.ar.syncPassphrase);
+  });
+
+  it('the Delete Account confirmation copy uses the exact approved wording for en and ar, including the required confirmation word', () => {
+    expect(MESSAGES.en.deleteAccount).toEqual({
+      title: 'Delete your account?',
+      description:
+        'This will permanently delete your Quran Heals account, synced reflections, favorites, preferences, and other account data. This action cannot be undone.',
+      confirmationInstruction: 'To confirm, type DELETE below.',
+      confirmationWord: 'DELETE',
+      placeholder: 'Type DELETE',
+      deleteButton: 'Delete my account',
+      deleting: 'Deleting…',
+      cancel: 'Cancel',
+      successMessage: 'Your Quran Heals account has been deleted.',
+      failureMessage: "We couldn't delete your account right now. Please try again.",
+    });
+
+    expect(MESSAGES.ar.deleteAccount).toEqual({
+      title: 'حذف حسابك؟',
+      description:
+        'سيؤدي هذا إلى حذف حساب Quran Heals وخواطرك المحفوظة وآياتك المفضلة وتفضيلاتك وجميع البيانات المرتبطة بالحساب نهائيًا. لا يمكن التراجع عن هذا الإجراء.',
+      confirmationInstruction: 'للتأكيد، اكتب حذف في الحقل أدناه.',
+      confirmationWord: 'حذف',
+      placeholder: 'اكتب حذف',
+      deleteButton: 'حذف حسابي نهائيًا',
+      deleting: 'جارٍ الحذف…',
+      cancel: 'إلغاء',
+      successMessage: 'تم حذف حسابك في Quran Heals.',
+      failureMessage: 'تعذّر حذف حسابك الآن. يرجى المحاولة مرة أخرى.',
+    });
+  });
+
+  it('ar-EG matches ar exactly for the Delete Account copy — never Egyptian colloquial for this destructive flow', () => {
+    expect(MESSAGES['ar-EG'].deleteAccount).toEqual(MESSAGES.ar.deleteAccount);
+  });
+
+  it('the Danger Zone / Delete Account entry-point copy uses the exact approved wording for en and ar, and ar-EG matches ar', () => {
+    expect(MESSAGES.en.account.dangerZoneTitle).toBe('Danger Zone');
+    expect(MESSAGES.en.account.deleteAccountAction).toBe('Delete Account');
+    expect(MESSAGES.en.account.deleteAccountActionDescription).toBe(
+      'Permanently delete your Quran Heals account and all synced data.',
+    );
+    expect(MESSAGES['ar-EG'].account.dangerZoneTitle).toBe(MESSAGES.ar.account.dangerZoneTitle);
+    expect(MESSAGES['ar-EG'].account.deleteAccountAction).toBe(MESSAGES.ar.account.deleteAccountAction);
+    expect(MESSAGES['ar-EG'].account.deleteAccountActionDescription).toBe(MESSAGES.ar.account.deleteAccountActionDescription);
+  });
+
   it('ar-EG uses the exact same Standard Arabic wording as ar for every new general-UI section (auth/account/reflection/syncPassphrase/issueReport/syncStatus)', () => {
     const generalUiSections = ['auth', 'account', 'reflection', 'syncPassphrase', 'issueReport', 'syncStatus'] as const;
     for (const section of generalUiSections) {
       expect(MESSAGES['ar-EG'][section], `ar-EG.${section} should equal ar.${section}`).toEqual(MESSAGES.ar[section]);
     }
+  });
+
+  it('ar-EG uses Standard Arabic (not Egyptian colloquial) for favorites and ayah loading/retry/error/empty-state wording', () => {
+    const favoritesKeys: (keyof (typeof MESSAGES)['ar']['favorites'])[] = [
+      'loadingTitle',
+      'loadingMessage',
+      'errorTitle',
+      'retry',
+      'emptyTitle',
+      'emptyMessage',
+      'unresolvedSuffix',
+    ];
+    for (const key of favoritesKeys) {
+      expect(MESSAGES['ar-EG'].favorites[key], `ar-EG.favorites.${key}`).toBe(MESSAGES.ar.favorites[key]);
+    }
+    expect(MESSAGES['ar-EG'].favorites.emptyTitle).toBe('لا توجد آيات محفوظة بعد');
+
+    const ayahKeys: (keyof (typeof MESSAGES)['ar']['ayah'])[] = [
+      'loadingTitle',
+      'loadingMessage',
+      'errorTitle',
+      'retry',
+      'genericError',
+      'missingEmotion',
+    ];
+    for (const key of ayahKeys) {
+      expect(MESSAGES['ar-EG'].ayah[key], `ar-EG.ayah.${key}`).toBe(MESSAGES.ar.ayah[key]);
+    }
+    expect(MESSAGES['ar-EG'].ayah.loadingTitle).toBe('جارٍ تحميل الآية');
   });
 
   it('ar-EG keeps the three approved Egyptian exceptions unchanged and distinct from ar', () => {

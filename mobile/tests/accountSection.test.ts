@@ -59,7 +59,7 @@ describe('useAuth: guest-first + no client-spoofable identity', () => {
   });
 
   it('sign-out clears the session token and cached master key but calls no favorites/reflections/history storage function', () => {
-    const signOutBlock = (useAuthSource.match(/const signOut = useCallback\(async \(\) => \{[\s\S]*?\}, \[\]\);/)?.[0] ?? '')
+    const signOutBlock = (useAuthSource.match(/const signOut = useCallback\(async \(\) => \{[\s\S]*?\}, \[[^\]]*\]\);/)?.[0] ?? '')
       .replace(/\/\/.*$/gm, ''); // strip line comments before checking for actual function calls
     expect(signOutBlock).toMatch(/clearSessionToken\(\)/);
     expect(signOutBlock).toMatch(/clearCachedMasterKey\(\)/);

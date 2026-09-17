@@ -1,5 +1,17 @@
 import { useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
@@ -12,17 +24,29 @@ export type PassphraseRequestLike = { mode: SyncPassphraseMode } | null;
 type SyncPassphraseSheetProps = {
   request: PassphraseRequestLike;
   onSubmit: (passphrase: string) => void;
-  onCancel: () => void;
+  /**
+   * The one way out of this mandatory step other than entering the correct
+   * password: fully sign out of the account (never a "skip"/"not now" that
+   * would leave the user signed in without having satisfied it). Wired to
+   * the real signOut() by the caller (useAuth.tsx).
+   */
+  onSignOut: () => void;
 };
 
 /**
  * Shown once per device: the first time sync turns on (mode: 'create', the
- * user sets a new Sync Passphrase) or when a second device needs to recover
+ * user sets a new Sync Password) or when a second device needs to recover
  * the already-established key (mode: 'unlock'). See
- * docs/reflection-privacy.md — this passphrase never leaves the device and
- * is never sent to the backend.
+ * docs/reflection-privacy.md — this password never leaves the device and is
+ * never sent to the backend.
+ *
+ * Mandatory: this is a security gate for synced reflections/favorites, not
+ * a dismissible dialog. There is deliberately no Cancel/"Not now"/Skip —
+ * see onSignOut above for the only sanctioned way out. Backdrop tap,
+ * swipe-down, and Android Back must never close it (onRequestClose is a
+ * no-op below); only Keyboard.dismiss() happens on an outside tap.
  */
-export function SyncPassphraseSheet({ request, onSubmit, onCancel }: SyncPassphraseSheetProps) {
+export function SyncPassphraseSheet({ request, onSubmit, onSignOut }: SyncPassphraseSheetProps) {
   const { locale, messages } = useAppLocale();
   const direction = getDirectionStyle(locale);
   const isRtl = isRtlLocale(locale);
@@ -40,53 +64,68 @@ export function SyncPassphraseSheet({ request, onSubmit, onCancel }: SyncPassphr
     onSubmit(passphrase);
   };
 
-  const cancel = () => {
+  const signOut = () => {
     setValue('');
-    onCancel();
+    onSignOut();
   };
 
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={cancel}>
-      <View style={styles.backdrop}>
-        <SafeAreaView style={styles.safeArea}>
-          <View style={styles.sheet}>
-            <Text style={[styles.title, direction]}>
-              {isCreate ? messages.syncPassphrase.createTitle : messages.syncPassphrase.unlockTitle}
-            </Text>
-            <Text style={[styles.description, direction]}>
-              {isCreate ? messages.syncPassphrase.createDescription : messages.syncPassphrase.unlockDescription}
-            </Text>
-            <TextInput
-              value={value}
-              onChangeText={setValue}
-              placeholder={messages.syncPassphrase.placeholder}
-              placeholderTextColor={colors.muted}
-              secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
-              style={[styles.input, direction]}
-              accessibilityLabel={messages.syncPassphrase.placeholder}
-            />
-            <View style={[styles.actions, isRtl && styles.actionsRtl]}>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={messages.syncPassphrase.cancel}
-                onPress={cancel}
-                style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
-                <Text style={styles.secondaryButtonText}>{messages.syncPassphrase.cancel}</Text>
-              </Pressable>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={messages.syncPassphrase.continueLabel}
-                disabled={!canSubmit}
-                onPress={submit}
-                style={({ pressed }) => [styles.primaryButton, !canSubmit && styles.disabled, pressed && styles.pressed]}>
-                <Text style={styles.primaryButtonText}>{messages.syncPassphrase.continueLabel}</Text>
-              </Pressable>
+    <Modal visible transparent animationType="fade" onRequestClose={() => {}}>
+      {/* See ReflectionSheet.tsx's matching comment — same shared bottom-sheet-over-Modal pattern and the same keyboard-overlap fix. The password input is this app's closest equivalent to a password field, so it gets the same treatment. */}
+      <KeyboardAvoidingView style={styles.backdrop} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        {/* Tapping anywhere outside the TextInput (backdrop or the sheet's
+            own empty space) only dismisses the keyboard — never the sheet
+            itself. A tap that lands on a button/input inside is claimed by
+            that element first and never reaches this handler, so Continue
+            and the field itself are unaffected. */}
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <SafeAreaView style={styles.safeArea}>
+            <View style={styles.sheet}>
+              <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scrollContent}>
+                <Text style={[styles.title, direction]}>
+                  {isCreate ? messages.syncPassphrase.createTitle : messages.syncPassphrase.unlockTitle}
+                </Text>
+                <Text style={[styles.description, direction]}>
+                  {isCreate ? messages.syncPassphrase.createDescription : messages.syncPassphrase.unlockDescription}
+                </Text>
+                <TextInput
+                  value={value}
+                  onChangeText={setValue}
+                  placeholder={messages.syncPassphrase.placeholder}
+                  placeholderTextColor={colors.muted}
+                  secureTextEntry
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  returnKeyType="done"
+                  // Dismiss-only — never auto-submits an unvalidated
+                  // password just because the user pressed the keyboard's
+                  // Done key.
+                  onSubmitEditing={() => Keyboard.dismiss()}
+                  style={[styles.input, direction]}
+                  accessibilityLabel={messages.syncPassphrase.placeholder}
+                />
+                <View style={[styles.actions, isRtl && styles.actionsRtl]}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={messages.account.signOut}
+                    onPress={signOut}
+                    style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
+                    <Text style={styles.secondaryButtonText}>{messages.account.signOut}</Text>
+                  </Pressable>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={messages.syncPassphrase.continueLabel}
+                    disabled={!canSubmit}
+                    onPress={submit}
+                    style={({ pressed }) => [styles.primaryButton, !canSubmit && styles.disabled, pressed && styles.pressed]}>
+                    <Text style={styles.primaryButtonText}>{messages.syncPassphrase.continueLabel}</Text>
+                  </Pressable>
+                </View>
+              </ScrollView>
             </View>
-          </View>
-        </SafeAreaView>
-      </View>
+          </SafeAreaView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -104,9 +143,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderTopLeftRadius: radii.lg,
     borderTopRightRadius: radii.lg,
+    ...shadows.soft,
+  },
+  scrollContent: {
     gap: spacing.md,
     padding: spacing.lg,
-    ...shadows.soft,
   },
   title: {
     color: colors.ink,

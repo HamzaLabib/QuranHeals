@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
 import { ArrowLeft, ArrowRight, Heart, Share2, Trash2 } from 'lucide-react-native';
-import { useCallback } from 'react';
-import { Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { Pressable, RefreshControl, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useAuth } from '@/auth/useAuth';
 import { AyahCard } from '@/components/AyahCard';
 import { StateView } from '@/components/StateView';
 import { colors, radii, spacing, typography } from '@/constants/theme';
@@ -55,10 +56,42 @@ export default function FavoritesScreen() {
   const isRtl = isRtlLocale(locale);
   const BackIcon = isRtl ? ArrowRight : ArrowLeft;
   const { favorites, removeFavorite, isReady, error, unresolvedCount, refreshFavorites } = useFavorites();
+  const { refreshSync } = useAuth();
+  // Guards a rapid repeated pull gesture from starting a second, overlapping
+  // sync + local re-read while one is already in flight (Part 2: "Multiple
+  // rapid pull gestures must not create duplicate concurrent refresh
+  // operations").
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const onPullToRefresh = useCallback(async () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    try {
+      // Reuses the exact same sync run as sign-in/app-foreground
+      // (favorites + preferences + reflections) — a no-op for a guest.
+      // Never a duplicate sync implementation.
+      await refreshSync();
+      // Picks up whatever that sync just wrote to local storage (or, for a
+      // guest, simply re-reads current local state).
+      await refreshFavorites();
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [isRefreshing, refreshSync, refreshFavorites]);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={() => void onPullToRefresh()}
+            tintColor={colors.olive}
+            colors={[colors.olive]}
+          />
+        }>
         <View style={[styles.header, isRtl && styles.headerRtl]}>
           <Pressable
             accessibilityRole="button"

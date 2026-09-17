@@ -9,6 +9,7 @@ import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { getApiErrorMessage, getRandomAyah } from '@/services/api';
 import { getRandomGeneralAyah } from '@/services/generalQuran';
+import { withRetry } from '@/services/retry';
 import { buildExhaustionRetryExclusions, getExcludedVerseKeys, GENERAL_QURAN_HISTORY_KEY, recordShownAyah } from '@/storage/recentAyahHistory';
 import type { Ayah, LocalizedText } from '@/types/domain';
 import { resolveLocalizedEmotionName } from '@/utils/emotionLabel';
@@ -98,8 +99,12 @@ export function AyahExperience({ source }: AyahExperienceProps) {
         setHistoryMessage(messages.ayah.historyReadFailed);
       }
 
+      // A transient backend/network hiccup (exactly what's likely right
+      // after the app resumes from background/lock) gets a short bounded
+      // retry before falling back to the existing manual "Try Again" state
+      // — see Part 4 of the background/resume-reliability phase.
       const fetchAyah = (exclude: string[]) =>
-        source.mode === 'emotion' ? getRandomAyah(source.emotionKey, exclude) : getRandomGeneralAyah(exclude);
+        withRetry(() => (source.mode === 'emotion' ? getRandomAyah(source.emotionKey, exclude) : getRandomGeneralAyah(exclude)));
 
       let nextAyah = await fetchAyah(excludedVerseKeys);
 

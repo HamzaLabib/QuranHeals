@@ -100,6 +100,23 @@ export type Messages = {
     signInWithGoogle: string;
     signedIn: string;
     signOut: string;
+    dangerZoneTitle: string;
+    deleteAccountAction: string;
+    deleteAccountActionDescription: string;
+  };
+  /** The permanent account-deletion confirmation sheet — GitHub-style typed confirmation, never auto-submits. */
+  deleteAccount: {
+    title: string;
+    description: string;
+    confirmationInstruction: string;
+    /** The exact word the user must type (case-sensitive for en) — never accept a partial match. */
+    confirmationWord: string;
+    placeholder: string;
+    deleteButton: string;
+    deleting: string;
+    cancel: string;
+    successMessage: string;
+    failureMessage: string;
   };
   reflection: {
     action: string;
@@ -111,6 +128,11 @@ export type Messages = {
     save: string;
     cancel: string;
   };
+  /**
+   * The mandatory "Sync Password" gate for synced reflections/favorites
+   * (never a skip/cancel — see SyncPassphraseSheet.tsx). Reuses
+   * `account.signOut` for the sheet's one way out; no `cancel` key here.
+   */
   syncPassphrase: {
     createTitle: string;
     unlockTitle: string;
@@ -118,7 +140,6 @@ export type Messages = {
     unlockDescription: string;
     placeholder: string;
     continueLabel: string;
-    cancel: string;
     incorrectError: string;
   };
   issueReport: {
@@ -231,6 +252,22 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       signInWithGoogle: 'Sign in with Google',
       signedIn: 'Signed in',
       signOut: 'Sign out',
+      dangerZoneTitle: 'Danger Zone',
+      deleteAccountAction: 'Delete Account',
+      deleteAccountActionDescription: 'Permanently delete your Quran Heals account and all synced data.',
+    },
+    deleteAccount: {
+      title: 'Delete your account?',
+      description:
+        'This will permanently delete your Quran Heals account, synced reflections, favorites, preferences, and other account data. This action cannot be undone.',
+      confirmationInstruction: 'To confirm, type DELETE below.',
+      confirmationWord: 'DELETE',
+      placeholder: 'Type DELETE',
+      deleteButton: 'Delete my account',
+      deleting: 'Deleting…',
+      cancel: 'Cancel',
+      successMessage: 'Your Quran Heals account has been deleted.',
+      failureMessage: "We couldn't delete your account right now. Please try again.",
     },
     reflection: {
       action: 'Reflection',
@@ -243,15 +280,15 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       cancel: 'Cancel',
     },
     syncPassphrase: {
-      createTitle: 'Set a sync passphrase',
-      unlockTitle: 'Enter your sync passphrase',
+      createTitle: 'Create a password to access your synced data',
+      unlockTitle: 'Enter your password to access your synced data',
       createDescription:
-        'This passphrase encrypts your reflections so only your signed-in devices can read them. Quran Heals cannot see or recover it — save it somewhere safe.',
-      unlockDescription: 'Enter the sync passphrase you set on another device to unlock your reflections here.',
-      placeholder: 'Sync passphrase',
+        'This password is required to unlock your private reflections and access your synced data on your other signed-in devices. It adds an extra layer of protection for your private reflections on top of your Google or Apple sign-in. Quran Heals cannot recover this password, so keep it somewhere safe.',
+      unlockDescription:
+        'Enter the password you created on another signed-in device to unlock your private reflections and access your synced data.',
+      placeholder: 'Enter password',
       continueLabel: 'Continue',
-      cancel: 'Cancel',
-      incorrectError: 'Incorrect sync passphrase. Please try again.',
+      incorrectError: 'Incorrect password. Please try again.',
     },
     issueReport: {
       action: 'Report an issue',
@@ -361,6 +398,26 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       signInWithGoogle: 'تسجيل الدخول باستخدام Google',
       signedIn: 'تم تسجيل الدخول',
       signOut: 'تسجيل الخروج',
+      dangerZoneTitle: 'منطقة الخطر',
+      deleteAccountAction: 'حذف الحساب',
+      deleteAccountActionDescription: 'حذف حساب Quran Heals وجميع بياناته المتزامنة نهائيًا.',
+    },
+    // Account-deletion confirmation copy is a security/destructive-action
+    // flow — intentionally byte-identical Standard Arabic in `ar` and
+    // `ar-EG`, never Egyptian colloquial (matches the mandatory Sync
+    // Password flow's precedent).
+    deleteAccount: {
+      title: 'حذف حسابك؟',
+      description:
+        'سيؤدي هذا إلى حذف حساب Quran Heals وخواطرك المحفوظة وآياتك المفضلة وتفضيلاتك وجميع البيانات المرتبطة بالحساب نهائيًا. لا يمكن التراجع عن هذا الإجراء.',
+      confirmationInstruction: 'للتأكيد، اكتب حذف في الحقل أدناه.',
+      confirmationWord: 'حذف',
+      placeholder: 'اكتب حذف',
+      deleteButton: 'حذف حسابي نهائيًا',
+      deleting: 'جارٍ الحذف…',
+      cancel: 'إلغاء',
+      successMessage: 'تم حذف حسابك في Quran Heals.',
+      failureMessage: 'تعذّر حذف حسابك الآن. يرجى المحاولة مرة أخرى.',
     },
     reflection: {
       action: 'خواطر',
@@ -373,15 +430,15 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       cancel: 'إلغاء',
     },
     syncPassphrase: {
-      createTitle: 'تعيين عبارة مزامنة سرية',
-      unlockTitle: 'أدخل عبارة المزامنة السرية',
+      createTitle: 'أنشئ كلمة مرور للوصول إلى بياناتك المحفوظة',
+      unlockTitle: 'أدخل كلمة المرور للوصول إلى بياناتك المحفوظة',
       createDescription:
-        'تُستخدم هذه العبارة لتشفير خواطرك بحيث لا تقرأها إلا أجهزتك المسجَّل دخولها. لا يمكن لتطبيق Quran Heals رؤيتها أو استرجاعها — احتفظ بها في مكان آمن.',
-      unlockDescription: 'أدخل عبارة المزامنة التي عيّنتها على جهاز آخر لفتح خواطرك هنا.',
-      placeholder: 'عبارة المزامنة السرية',
+        'كلمة المرور هذه مطلوبة لفتح خواطرك الخاصة والوصول إلى بياناتك المحفوظة على أجهزتك الأخرى التي سجّلت الدخول إليها. وهي تضيف طبقة حماية إضافية لخواطرك الخاصة إلى جانب تسجيل الدخول بحساب Google أو Apple. لا يستطيع تطبيق Quran Heals استعادة كلمة المرور، لذا احتفظ بها في مكان آمن.',
+      unlockDescription:
+        'أدخل كلمة المرور التي أنشأتها على أحد أجهزتك الأخرى لفتح خواطرك الخاصة والوصول إلى بياناتك المحفوظة.',
+      placeholder: 'أدخل كلمة المرور',
       continueLabel: 'متابعة',
-      cancel: 'إلغاء',
-      incorrectError: 'عبارة المزامنة غير صحيحة. يرجى المحاولة مرة أخرى.',
+      incorrectError: 'كلمة المرور غير صحيحة. حاول مرة أخرى.',
     },
     issueReport: {
       action: 'الإبلاغ عن مشكلة',
@@ -423,15 +480,19 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       action: 'رسالة من القرآن',
       loadError: 'تعذّر تحميل الآية. يُرجى المحاولة مرة أخرى.',
     },
+    // Loading/retry/error/placeholder wording while an ayah is being
+    // obtained is Standard Arabic, same as `ar` — not one of the three
+    // approved Egyptian exceptions (Part J §47), and consistent with
+    // favorites' own loading/error/retry wording below.
     ayah: {
       kicker: 'آية مختارة لهذه اللحظة',
       goBack: 'رجوع',
-      loadingTitle: 'بنحمّل الآية',
-      loadingMessage: 'بندوّر على آية مناسبة.',
-      errorTitle: 'جرّب تاني من فضلك',
-      retry: 'جرّب تاني',
-      missingEmotion: 'اختار حاسة الأول من فضلك.',
-      genericError: 'مش قادرين نحمّل آية دلوقتي.',
+      loadingTitle: 'جارٍ تحميل الآية',
+      loadingMessage: 'جارٍ البحث عن آية مناسبة.',
+      errorTitle: 'يرجى إعادة المحاولة',
+      retry: 'أعد المحاولة',
+      missingEmotion: 'يرجى اختيار شعور أولًا.',
+      genericError: 'تعذّر تحميل آية الآن.',
       historyUnresolved: 'بعض السجل القديم متقدرناش نستخدمه عشان منكررش. سجلك المخزّن اتحفظ.',
       historyReadFailed: 'متقدرناش نقرا السجل الأخير. سجلك المخزّن اتحفظ.',
       historySaveFailed: 'متقدرناش نضيف الآية دي للسجل الأخير. سجلك القديم اتحفظ.',
@@ -440,16 +501,18 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       anotherAyah: 'آية أخرى',
       loadAnotherAyah: 'تحميل آية أخرى',
     },
+    // Loading/error/retry/empty-state wording is Standard Arabic, same as
+    // `ar` — see the doc comment on `ayah` above.
     favorites: {
       title: 'الآيات المحفوظة',
       subtitle: 'المفضّلة محفوظة على هذا الجهاز.',
-      loadingTitle: 'بنحمّل المفضّلة',
-      loadingMessage: 'بنفتح آياتك المحفوظة.',
-      errorTitle: 'مش قادرين نفتح بعض الآيات المحفوظة',
-      retry: 'جرّب تاني',
-      emptyTitle: 'لسه مفيش آيات محفوظة',
-      emptyMessage: 'احفظ آية من شاشة التأمل وهتلاقيها هنا.',
-      unresolvedSuffix: 'من العناصر المحفوظة متقدرناش نفتحها. سجلك المخزّن اتحفظ.',
+      loadingTitle: 'جارٍ تحميل المفضّلة',
+      loadingMessage: 'جارٍ فتح آياتك المحفوظة.',
+      errorTitle: 'تعذّر فتح بعض الآيات المحفوظة',
+      retry: 'أعد المحاولة',
+      emptyTitle: 'لا توجد آيات محفوظة بعد',
+      emptyMessage: 'احفظ آية من شاشة التأمل وستظهر هنا.',
+      unresolvedSuffix: 'من العناصر المحفوظة تعذّر فتحها. تم الاحتفاظ بسجلك المخزّن.',
       share: 'مشاركة',
       shareSaved: 'شارك الآية المحفوظة',
       remove: 'إزالة',
@@ -497,6 +560,26 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       signInWithGoogle: 'تسجيل الدخول باستخدام Google',
       signedIn: 'تم تسجيل الدخول',
       signOut: 'تسجيل الخروج',
+      dangerZoneTitle: 'منطقة الخطر',
+      deleteAccountAction: 'حذف الحساب',
+      deleteAccountActionDescription: 'حذف حساب Quran Heals وجميع بياناته المتزامنة نهائيًا.',
+    },
+    // Account-deletion confirmation copy is a security/destructive-action
+    // flow — intentionally byte-identical Standard Arabic in `ar` and
+    // `ar-EG`, never Egyptian colloquial (matches the mandatory Sync
+    // Password flow's precedent).
+    deleteAccount: {
+      title: 'حذف حسابك؟',
+      description:
+        'سيؤدي هذا إلى حذف حساب Quran Heals وخواطرك المحفوظة وآياتك المفضلة وتفضيلاتك وجميع البيانات المرتبطة بالحساب نهائيًا. لا يمكن التراجع عن هذا الإجراء.',
+      confirmationInstruction: 'للتأكيد، اكتب حذف في الحقل أدناه.',
+      confirmationWord: 'حذف',
+      placeholder: 'اكتب حذف',
+      deleteButton: 'حذف حسابي نهائيًا',
+      deleting: 'جارٍ الحذف…',
+      cancel: 'إلغاء',
+      successMessage: 'تم حذف حسابك في Quran Heals.',
+      failureMessage: 'تعذّر حذف حسابك الآن. يرجى المحاولة مرة أخرى.',
     },
     reflection: {
       action: 'خواطر',
@@ -508,16 +591,19 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       save: 'حفظ',
       cancel: 'إلغاء',
     },
+    // Sync Password copy is a security-sensitive flow — intentionally
+    // byte-identical to `ar`'s Standard Arabic (Part 9 of the mandatory
+    // sync-password phase), never Egyptian colloquial.
     syncPassphrase: {
-      createTitle: 'تعيين عبارة مزامنة سرية',
-      unlockTitle: 'أدخل عبارة المزامنة السرية',
+      createTitle: 'أنشئ كلمة مرور للوصول إلى بياناتك المحفوظة',
+      unlockTitle: 'أدخل كلمة المرور للوصول إلى بياناتك المحفوظة',
       createDescription:
-        'تُستخدم هذه العبارة لتشفير خواطرك بحيث لا تقرأها إلا أجهزتك المسجَّل دخولها. لا يمكن لتطبيق Quran Heals رؤيتها أو استرجاعها — احتفظ بها في مكان آمن.',
-      unlockDescription: 'أدخل عبارة المزامنة التي عيّنتها على جهاز آخر لفتح خواطرك هنا.',
-      placeholder: 'عبارة المزامنة السرية',
+        'كلمة المرور هذه مطلوبة لفتح خواطرك الخاصة والوصول إلى بياناتك المحفوظة على أجهزتك الأخرى التي سجّلت الدخول إليها. وهي تضيف طبقة حماية إضافية لخواطرك الخاصة إلى جانب تسجيل الدخول بحساب Google أو Apple. لا يستطيع تطبيق Quran Heals استعادة كلمة المرور، لذا احتفظ بها في مكان آمن.',
+      unlockDescription:
+        'أدخل كلمة المرور التي أنشأتها على أحد أجهزتك الأخرى لفتح خواطرك الخاصة والوصول إلى بياناتك المحفوظة.',
+      placeholder: 'أدخل كلمة المرور',
       continueLabel: 'متابعة',
-      cancel: 'إلغاء',
-      incorrectError: 'عبارة المزامنة غير صحيحة. يرجى المحاولة مرة أخرى.',
+      incorrectError: 'كلمة المرور غير صحيحة. حاول مرة أخرى.',
     },
     issueReport: {
       action: 'الإبلاغ عن مشكلة',

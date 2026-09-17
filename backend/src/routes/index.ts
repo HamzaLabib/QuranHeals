@@ -3,10 +3,13 @@ import { Router } from 'express';
 import type { AppleTokenVerifier } from '../auth/appleTokenVerifier';
 import type { GoogleTokenVerifier } from '../auth/googleTokenVerifier';
 import { healthController } from '../controllers/healthController';
+import type { AccountDeletionService } from '../services/AccountDeletionService';
 import type { IssueReportRepository } from '../services/IssueReportRepository';
 import type { QuranRepository } from '../services/QuranRepository';
+import type { SessionRepository } from '../services/SessionRepository';
 import type { SyncRepository } from '../services/SyncRepository';
 import type { UserRepository } from '../services/UserRepository';
+import { createAccountRoutes } from './accountRoutes';
 import { createAuthRoutes } from './authRoutes';
 import { createAyahRoutes } from './ayahRoutes';
 import { createEmotionRoutes } from './emotionRoutes';
@@ -15,8 +18,10 @@ import { createSyncRoutes } from './syncRoutes';
 
 export type AccountRouterDeps = {
   userRepository: UserRepository;
+  sessionRepository: SessionRepository;
   syncRepository: SyncRepository;
   issueReportRepository: IssueReportRepository;
+  accountDeletionService: AccountDeletionService;
   googleVerifier: GoogleTokenVerifier;
   appleVerifier: AppleTokenVerifier;
 };
@@ -32,12 +37,14 @@ export function createApiRouter(repository: QuranRepository, accountDeps: Accoun
     '/auth',
     createAuthRoutes({
       userRepository: accountDeps.userRepository,
+      sessionRepository: accountDeps.sessionRepository,
       googleVerifier: accountDeps.googleVerifier,
       appleVerifier: accountDeps.appleVerifier,
     }),
   );
   router.use('/sync', createSyncRoutes(accountDeps.syncRepository));
   router.use('/issues', createIssueRoutes(accountDeps.issueReportRepository));
+  router.use('/account', createAccountRoutes({ accountDeletionService: accountDeps.accountDeletionService }));
 
   return router;
 }

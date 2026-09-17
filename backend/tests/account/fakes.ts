@@ -1,9 +1,17 @@
 import { randomUUID } from 'node:crypto';
 
 import type { AppleTokenVerifier, VerifiedAppleIdentity } from '../../src/auth/appleTokenVerifier';
+import {
+  formatRefreshToken,
+  generateRefreshTokenSecret,
+  hashRefreshToken,
+  parseRefreshToken,
+  REFRESH_TOKEN_TTL_MS,
+} from '../../src/auth/session';
 import type { GoogleTokenVerifier, VerifiedGoogleIdentity } from '../../src/auth/googleTokenVerifier';
 import { AppError } from '../../src/errors/AppError';
 import type { IssueReportRepository } from '../../src/services/IssueReportRepository';
+import type { IssuedSession, SessionRepository } from '../../src/services/SessionRepository';
 import type {
   IncomingReflection,
   PutReflectionsResult,
@@ -45,6 +53,81 @@ export class InMemoryUserRepository implements UserRepository {
 
   async findById(userId: string): Promise<UserDto | null> {
     return [...this.usersByKey.values()].find((user) => user.id === userId) ?? null;
+  }
+
+  /** Test-only: mirrors MongooseAccountDeletionService's `UserModel.deleteOne`. Not part of the production UserRepository interface. */
+  deleteUser(userId: string): void {
+    for (const [key, user] of this.usersByKey) {
+      if (user.id === userId) this.usersByKey.delete(key);
+    }
+  }
+}
+
+type InMemorySession = {
+  id: string;
+  userId: string;
+  refreshTokenHash: string;
+  expiresAt: number;
+  revokedAt: number | null;
+};
+
+const INVALID_SESSION_MESSAGE = 'Session is invalid or has expired. Please sign in again.';
+
+/** Mirrors MongooseSessionRepository's rotation/revocation semantics (including reuse-detected revocation) purely in memory, using the exact same token helpers as production. */
+export class InMemorySessionRepository implements SessionRepository {
+  private readonly sessionsById = new Map<string, InMemorySession>();
+  private nextId = 1;
+
+  async createSession(userId: string): Promise<IssuedSession> {
+    const sessionId = String(this.nextId++);
+    const secret = generateRefreshTokenSecret();
+    const refreshToken = formatRefreshToken(sessionId, secret);
+
+    this.sessionsById.set(sessionId, {
+      id: sessionId,
+      userId,
+      refreshTokenHash: hashRefreshToken(refreshToken),
+      expiresAt: Date.now() + REFRESH_TOKEN_TTL_MS,
+      revokedAt: null,
+    });
+
+    return { sessionId, refreshToken };
+  }
+
+  async rotateSession(refreshToken: string): Promise<IssuedSession & { userId: string }> {
+    const parsed = parseRefreshToken(refreshToken);
+    const session = parsed ? this.sessionsById.get(parsed.sessionId) : undefined;
+
+    if (!parsed || !session || session.revokedAt !== null || session.expiresAt < Date.now()) {
+      throw new AppError(INVALID_SESSION_MESSAGE, 401);
+    }
+
+    if (session.refreshTokenHash !== hashRefreshToken(refreshToken)) {
+      session.revokedAt = Date.now();
+      throw new AppError(INVALID_SESSION_MESSAGE, 401);
+    }
+
+    const nextSecret = generateRefreshTokenSecret();
+    const nextRefreshToken = formatRefreshToken(parsed.sessionId, nextSecret);
+    session.refreshTokenHash = hashRefreshToken(nextRefreshToken);
+    session.expiresAt = Date.now() + REFRESH_TOKEN_TTL_MS;
+
+    return { sessionId: parsed.sessionId, refreshToken: nextRefreshToken, userId: session.userId };
+  }
+
+  async revokeSession(refreshToken: string): Promise<void> {
+    const parsed = parseRefreshToken(refreshToken);
+    const session = parsed ? this.sessionsById.get(parsed.sessionId) : undefined;
+    if (session && session.revokedAt === null) {
+      session.revokedAt = Date.now();
+    }
+  }
+
+  /** Test-only: mirrors MongooseAccountDeletionService's `SessionModel.deleteMany({ userId })` — deletes every session for this user, every device. Not part of the production SessionRepository interface. */
+  revokeAllSessionsForUser(userId: string): void {
+    for (const [id, session] of this.sessionsById) {
+      if (session.userId === userId) this.sessionsById.delete(id);
+    }
   }
 }
 
@@ -162,6 +245,29 @@ export class InMemorySyncRepository implements SyncRepository {
   ): Promise<SyncKeyDto> {
     this.syncKeyByUser.set(userId, key);
     return key;
+  }
+
+  /** Test-only: mirrors MongooseAccountDeletionService's four `deleteMany({ userId })` calls (favorites, preferences, reflections, sync key) in one step. Not part of the production SyncRepository interface. */
+  deleteAllForUser(userId: string): void {
+    this.favoritesByUser.delete(userId);
+    this.preferencesByUser.delete(userId);
+    this.reflectionsByUser.delete(userId);
+    this.syncKeyByUser.delete(userId);
+  }
+}
+
+/** Test-only account-deletion orchestrator — mirrors MongooseAccountDeletionService's effect (every model owned by userId is gone) by delegating to the same InMemory*Repository instances the test app already uses, so assertions made through the HTTP API see the deletion too. */
+export class InMemoryAccountDeletionService {
+  constructor(
+    private readonly userRepository: InMemoryUserRepository,
+    private readonly syncRepository: InMemorySyncRepository,
+    private readonly sessionRepository: InMemorySessionRepository,
+  ) {}
+
+  async deleteAccount(userId: string): Promise<void> {
+    this.syncRepository.deleteAllForUser(userId);
+    this.sessionRepository.revokeAllSessionsForUser(userId);
+    this.userRepository.deleteUser(userId);
   }
 }
 

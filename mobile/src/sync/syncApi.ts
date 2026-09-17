@@ -9,18 +9,45 @@ export class SyncApiError extends Error {
 
 type ApiEnvelope<T> = { success: true; data: T } | { success: false; message: string };
 
+async function sendRequest(sessionToken: string, path: string, init: RequestInit): Promise<Response> {
+  return fetch(`${apiBaseUrl}${path}`, {
+    ...init,
+    headers: {
+      Accept: 'application/json',
+      ...(init.body ? { 'Content-Type': 'application/json' } : {}),
+      Authorization: `Bearer ${sessionToken}`,
+      ...init.headers,
+    },
+  });
+}
+
+/**
+ * On a 401 (the access token expired while this device was backgrounded, or
+ * simply aged past its ~20-minute lifetime), refreshes once via the shared
+ * single-flight refresher and retries the original request exactly once
+ * with the new token — never a loop. If refresh isn't possible (offline, or
+ * the session was genuinely revoked), the original 401 is surfaced as
+ * usual, which every existing caller here already treats as a recoverable
+ * sync failure (Part 4: "401 → refresh access token → retry original
+ * request → success").
+ */
 async function authedRequest<T>(sessionToken: string, path: string, init: RequestInit = {}): Promise<T> {
   let response: Response;
   try {
-    response = await fetch(`${apiBaseUrl}${path}`, {
-      ...init,
-      headers: {
-        Accept: 'application/json',
-        ...(init.body ? { 'Content-Type': 'application/json' } : {}),
-        Authorization: `Bearer ${sessionToken}`,
-        ...init.headers,
-      },
-    });
+    response = await sendRequest(sessionToken, path, init);
+
+    if (response.status === 401) {
+      // Imported lazily (rather than as a static top-level import) so
+      // modules that never hit this branch — most test suites exercising
+      // this file — never pull in tokenManager's own dependency chain
+      // (sessionStorage.ts → expo-secure-store), which needs a native
+      // runtime this file has no other reason to require.
+      const { refreshAccessToken } = await import('@/auth/tokenManager');
+      const refreshedToken = await refreshAccessToken();
+      if (refreshedToken) {
+        response = await sendRequest(refreshedToken, path, init);
+      }
+    }
   } catch {
     throw new SyncApiError("We couldn't reach the backend to sync. Check your connection and try again.");
   }
@@ -112,4 +139,15 @@ export function getCloudSyncKey(sessionToken: string) {
 
 export function putCloudSyncKey(sessionToken: string, key: SyncKeyRecord) {
   return authedRequest<SyncKeyRecord>(sessionToken, '/api/sync/key', { method: 'PUT', body: JSON.stringify(key) });
+}
+
+/**
+ * Permanently deletes the account named by the authenticated session —
+ * never a client-supplied userId (see backend/src/controllers/accountController.ts).
+ * The backend deletes every model it owns (User, every session, favorites,
+ * preferences, reflections, sync key) before this resolves; only on success
+ * should the caller (useAuth.tsx's deleteAccount) clear local data.
+ */
+export function deleteAccountRequest(sessionToken: string): Promise<null> {
+  return authedRequest<null>(sessionToken, '/api/account', { method: 'DELETE' });
 }

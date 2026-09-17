@@ -7,8 +7,20 @@ import { useQuranTranslationPreference } from '@/localization/useQuranTranslatio
 import { SyncPassphraseSheet } from '@/components/SyncPassphraseSheet';
 import { runFullSync } from '@/sync/syncOrchestrator';
 import { SyncPassphraseCancelledError, type SyncPassphraseMode } from '@/sync/syncKeyManager';
-import { fetchCurrentUser, signInWithAppleIdToken, signInWithGoogleIdToken, AuthApiError } from './authApi';
-import { clearCachedMasterKey, clearSessionToken, getSessionToken, setSessionToken } from './sessionStorage';
+import { clearAllReflections } from '@/storage/ayahReflections';
+import { clearAllFavorites } from '@/storage/favorites';
+import { deleteAccountRequest } from '@/sync/syncApi';
+import { fetchCurrentUser, logoutSession, signInWithAppleIdToken, signInWithGoogleIdToken, AuthApiError } from './authApi';
+import {
+  clearCachedMasterKey,
+  clearRefreshToken,
+  clearSessionToken,
+  getRefreshToken,
+  getSessionToken,
+  setRefreshToken,
+  setSessionToken,
+} from './sessionStorage';
+import { registerSessionExpiredHandler } from './tokenManager';
 import type { AuthStatus, AuthUser } from './authTypes';
 
 export type AuthContextValue = {
@@ -19,6 +31,16 @@ export type AuthContextValue = {
   signInWithAppleIdToken: (idToken: string) => Promise<void>;
   signOut: () => Promise<void>;
   clearLastError: () => void;
+  /** Re-runs the same favorites/preferences/reflections sync as sign-in/foreground (runFullSync) — a no-op for a guest. The one function pull-to-refresh screens call; never a separate sync implementation. */
+  refreshSync: () => Promise<void>;
+  /**
+   * Permanently deletes the signed-in account. Local data (tokens, cached
+   * master key, local reflections, local favorites) is cleared only after
+   * the backend confirms deletion — a network/backend failure here throws
+   * and leaves everything local untouched, exactly like a failed sync
+   * (never a false "deleted" state). Throws if called while not signed in.
+   */
+  deleteAccount: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -137,8 +159,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [runSyncAfterSignIn]);
 
   const handleSignInSuccess = useCallback(
-    async (token: string, signedInUser: AuthUser) => {
+    async (token: string, refreshToken: string | undefined, signedInUser: AuthUser) => {
       await setSessionToken(token);
+      // Only absent if the backend itself omitted it — this app's backend
+      // always sends one (see authApi.ts's SignInResponse doc comment).
+      if (refreshToken) await setRefreshToken(refreshToken);
       sessionTokenRef.current = token;
       setUser(signedInUser);
       setStatus('signed-in');
@@ -151,8 +176,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = useCallback(
     async (idToken: string) => {
       try {
-        const { token, user: signedInUser } = await signInWithGoogleIdToken(idToken);
-        await handleSignInSuccess(token, signedInUser);
+        const { token, refreshToken, user: signedInUser } = await signInWithGoogleIdToken(idToken);
+        await handleSignInSuccess(token, refreshToken, signedInUser);
       } catch (error) {
         setLastError(
           error instanceof AuthApiError
@@ -167,8 +192,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithApple = useCallback(
     async (idToken: string) => {
       try {
-        const { token, user: signedInUser } = await signInWithAppleIdToken(idToken);
-        await handleSignInSuccess(token, signedInUser);
+        const { token, refreshToken, user: signedInUser } = await signInWithAppleIdToken(idToken);
+        await handleSignInSuccess(token, refreshToken, signedInUser);
       } catch (error) {
         setLastError(
           error instanceof AuthApiError
@@ -180,17 +205,69 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [handleSignInSuccess],
   );
 
-  const signOut = useCallback(async () => {
-    // Never touches local reflections/favorites/preferences storage — only
-    // ends the authenticated session (Part H §32).
-    await clearSessionToken();
-    await clearCachedMasterKey();
+  // Shared by a user-initiated sign-out and a session forcibly expired by
+  // the refresh flow (tokenManager's registerSessionExpiredHandler) —
+  // clears only this device's local auth state either way. Never touches
+  // local reflections/favorites/preferences storage (Part H §32).
+  const clearLocalSession = useCallback(() => {
     sessionTokenRef.current = null;
     setUser(null);
     setStatus('guest');
   }, []);
 
+  useEffect(() => {
+    registerSessionExpiredHandler(() => {
+      void clearCachedMasterKey();
+      clearLocalSession();
+    });
+    return () => registerSessionExpiredHandler(null);
+  }, [clearLocalSession]);
+
+  const signOut = useCallback(async () => {
+    // Revokes only this device's session server-side (best-effort — see
+    // authApi.ts's logoutSession) — every other signed-in device is
+    // unaffected. Local sign-out below always proceeds regardless.
+    const refreshToken = await getRefreshToken();
+    if (refreshToken) await logoutSession(refreshToken);
+
+    await clearSessionToken();
+    await clearRefreshToken();
+    await clearCachedMasterKey();
+    clearLocalSession();
+  }, [clearLocalSession]);
+
   const clearLastError = useCallback(() => setLastError(null), []);
+
+  const refreshSync = useCallback(async () => {
+    const token = sessionTokenRef.current;
+    if (!token) return;
+    await runSyncAfterSignIn(token);
+  }, [runSyncAfterSignIn]);
+
+  const deleteAccount = useCallback(async () => {
+    const token = sessionTokenRef.current;
+    if (!token) {
+      throw new Error('Not signed in.');
+    }
+
+    // Everything before this line only reads; nothing local is touched
+    // until the backend confirms the account (and every model it owns) is
+    // actually gone. A thrown error here (network failure, 5xx, timeout)
+    // propagates to the caller and leaves the session fully intact.
+    await deleteAccountRequest(token);
+
+    // Only reached after backend success. Local reflections/favorites are
+    // cleared here — unlike ordinary signOut(), which deliberately keeps
+    // them, deletion means there is no account left for them to belong to.
+    // Locale/translation-display preferences are left alone (an app/device
+    // setting, not account data).
+    await clearAllReflections();
+    await clearAllFavorites();
+    await clearSessionToken();
+    await clearRefreshToken();
+    await clearCachedMasterKey();
+    clearLocalSession();
+  }, [clearLocalSession]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -201,8 +278,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signInWithAppleIdToken: signInWithApple,
       signOut,
       clearLastError,
+      refreshSync,
+      deleteAccount,
     }),
-    [status, user, lastError, signInWithGoogle, signInWithApple, signOut, clearLastError],
+    [status, user, lastError, signInWithGoogle, signInWithApple, signOut, clearLastError, refreshSync, deleteAccount],
   );
 
   return (
@@ -214,9 +293,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           passphraseRequest?.resolve(passphrase);
           setPassphraseRequest(null);
         }}
-        onCancel={() => {
-          passphraseRequest?.reject(new SyncPassphraseCancelledError('Sync passphrase entry was cancelled.'));
+        onSignOut={() => {
+          // The only sanctioned way out of the mandatory password step —
+          // never a skip that leaves the user signed in without having
+          // satisfied it. Rejecting first lets the in-flight sync abort
+          // cleanly (see syncOrchestrator.ts) before signOut() clears the
+          // session it would otherwise have kept retrying against.
+          passphraseRequest?.reject(new SyncPassphraseCancelledError('Signed out during the mandatory sync password step.'));
           setPassphraseRequest(null);
+          void signOut();
         }}
       />
     </AuthContext.Provider>

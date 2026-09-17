@@ -1,7 +1,7 @@
 import { Link, router } from 'expo-router';
 import { BookOpen, Heart, RefreshCw, Settings } from 'lucide-react-native';
-import { useCallback, useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { AppState, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { EmotionCard } from '@/components/EmotionCard';
@@ -10,7 +10,15 @@ import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { getApiErrorMessage, getEmotions } from '@/services/api';
+import { withRetry } from '@/services/retry';
+import { getCachedEmotions, setCachedEmotions } from '@/storage/emotionsCache';
 import type { Emotion } from '@/types/domain';
+import { devLog } from '@/utils/devLog';
+
+// Backgrounded only briefly (e.g. a quick app switch) — not worth a full
+// revalidation on every foreground; see Part 4's "foreground refresh
+// throttling."
+const FOREGROUND_REVALIDATE_AFTER_MS = 60_000;
 
 export default function HomeScreen() {
   const { locale, messages } = useAppLocale();
@@ -19,28 +27,92 @@ export default function HomeScreen() {
   const [emotions, setEmotions] = useState<Emotion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const loadEmotions = useCallback(async () => {
-    setIsLoading(true);
-    setErrorMessage(null);
-
-    try {
-      const response = await getEmotions();
-      setEmotions(response);
-    } catch (error) {
-      setErrorMessage(getApiErrorMessage(error, messages.home.errorTitle));
-    } finally {
-      setIsLoading(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- messages is stable per locale
-  }, []);
+  // Mirrors `emotions` for use inside loadEmotions without adding it to that
+  // callback's own deps (which would recreate it, and re-fire the mount/
+  // AppState effects below, on every successful load).
+  const emotionsRef = useRef<Emotion[]>([]);
+  // Guards against the mount effect and an AppState foreground event firing
+  // an overlapping second fetch (Part 4: "Prevent duplicate foreground
+  // refreshes").
+  const isFetchingRef = useRef(false);
+  const lastFetchedAtRef = useRef(0);
 
   useEffect(() => {
+    emotionsRef.current = emotions;
+  }, [emotions]);
+
+  const loadEmotions = useCallback(
+    async (options?: { silent?: boolean }) => {
+      if (isFetchingRef.current) return;
+      isFetchingRef.current = true;
+      const silent = options?.silent ?? false;
+
+      // A silent (background revalidation) run never shows the blocking
+      // loading state or clears an already-displayed error — the emotions
+      // already on screen (from cache or a previous successful fetch) stay
+      // exactly as they are unless this call actually succeeds.
+      if (!silent) {
+        setIsLoading(emotionsRef.current.length === 0);
+        setErrorMessage(null);
+      }
+
+      try {
+        const response = await withRetry(() => getEmotions());
+        setEmotions(response);
+        setErrorMessage(null);
+        lastFetchedAtRef.current = Date.now();
+        void setCachedEmotions(response);
+      } catch (error) {
+        devLog('emotions', 'fetch failed', { kind: error instanceof Error ? error.name : 'unknown' });
+        // Never blank a screen that already has good data — Part 4: "Never
+        // replace good data with an empty list merely because the request
+        // failed." Only surface a blocking error when there's nothing to
+        // show at all.
+        if (emotionsRef.current.length === 0) {
+          setErrorMessage(getApiErrorMessage(error, messages.home.errorTitle));
+        }
+      } finally {
+        setIsLoading(false);
+        isFetchingRef.current = false;
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- messages is stable per locale
+    [],
+  );
+
+  useEffect(() => {
+    let cancelled = false;
     const timeoutId = setTimeout(() => {
-      void loadEmotions();
+      void (async () => {
+        const cached = await getCachedEmotions();
+        if (cancelled) return;
+        const hasCached = cached !== null && cached.length > 0;
+        if (hasCached) {
+          setEmotions(cached);
+          setIsLoading(false);
+        }
+        // Always revalidates against the backend even after a cache hit —
+        // the cache only avoids a blocking spinner, it's never treated as
+        // the source of truth on its own.
+        void loadEmotions({ silent: hasCached });
+      })();
     }, 0);
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, [loadEmotions]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState !== 'active') return;
+      const elapsed = Date.now() - lastFetchedAtRef.current;
+      if (elapsed < FOREGROUND_REVALIDATE_AFTER_MS) return;
+      devLog('emotions', 'revalidating on foreground', { elapsedMs: elapsed });
+      void loadEmotions({ silent: true });
+    });
+    return () => subscription.remove();
   }, [loadEmotions]);
 
   return (

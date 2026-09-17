@@ -10,20 +10,26 @@ import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFoundHandler';
 import type { AccountRouterDeps } from './routes';
 import { createApiRouter } from './routes';
+import { MongooseAccountDeletionService } from './services/MongooseAccountDeletionService';
 import { MongooseIssueReportRepository } from './services/MongooseIssueReportRepository';
 import { MongooseQuranRepository } from './services/MongooseQuranRepository';
+import { MongooseSessionRepository } from './services/MongooseSessionRepository';
 import { MongooseSyncRepository } from './services/MongooseSyncRepository';
 import { MongooseUserRepository } from './services/MongooseUserRepository';
+import type { AccountDeletionService } from './services/AccountDeletionService';
 import type { IssueReportRepository } from './services/IssueReportRepository';
 import type { QuranRepository } from './services/QuranRepository';
+import type { SessionRepository } from './services/SessionRepository';
 import type { SyncRepository } from './services/SyncRepository';
 import type { UserRepository } from './services/UserRepository';
 
 type AppOptions = {
   repository?: QuranRepository;
   userRepository?: UserRepository;
+  sessionRepository?: SessionRepository;
   syncRepository?: SyncRepository;
   issueReportRepository?: IssueReportRepository;
+  accountDeletionService?: AccountDeletionService;
   googleVerifier?: GoogleTokenVerifier;
   appleVerifier?: AppleTokenVerifier;
 };
@@ -41,8 +47,10 @@ export function createApp(options: AppOptions = {}) {
   const repository = options.repository ?? new MongooseQuranRepository();
   const accountDeps: AccountRouterDeps = {
     userRepository: options.userRepository ?? new MongooseUserRepository(),
+    sessionRepository: options.sessionRepository ?? new MongooseSessionRepository(),
     syncRepository: options.syncRepository ?? new MongooseSyncRepository(),
     issueReportRepository: options.issueReportRepository ?? new MongooseIssueReportRepository(),
+    accountDeletionService: options.accountDeletionService ?? new MongooseAccountDeletionService(),
     googleVerifier: options.googleVerifier ?? new GoogleAuthLibraryVerifier(),
     appleVerifier: options.appleVerifier ?? new AppleJwksVerifier(),
   };

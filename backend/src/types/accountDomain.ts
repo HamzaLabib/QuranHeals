@@ -29,6 +29,26 @@ export type UserEntity = {
   updatedAt?: Date;
 };
 
+/**
+ * One document per signed-in device/session (multi-device auth phase) —
+ * deliberately never a single refresh-token field on UserEntity, so signing
+ * in on a second device creates an independent session instead of
+ * overwriting/invalidating the first. `refreshTokenHash` is a sha256 hex
+ * digest of the opaque refresh token the device actually holds; the
+ * plaintext token itself is never stored. Revoking (logout, reuse
+ * detected) sets `revokedAt`; a MongoDB TTL index on `expiresAt` (see
+ * models/Session.ts) removes the document once it can no longer be used
+ * regardless of whether it was ever explicitly revoked.
+ */
+export type SessionEntity = {
+  userId: string;
+  refreshTokenHash: string;
+  expiresAt: Date;
+  revokedAt?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
 /** A single synced favorite ayah, keyed by the stable verseKey — never a localized label or Quran text. */
 export type UserFavoriteEntity = {
   userId: string;

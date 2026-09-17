@@ -1,5 +1,17 @@
 import { useEffect, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/useAuth';
@@ -63,45 +75,55 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
 
   return (
     <Modal visible transparent animationType="slide" onRequestClose={close}>
-      <View style={styles.backdrop}>
-        <SafeAreaView style={styles.safeArea}>
-          <View style={styles.sheet}>
-            <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
-              <Text style={[styles.title, direction]}>{messages.reflection.title}</Text>
-              <Text style={[styles.prompt, direction]}>{messages.reflection.prompt}</Text>
-              {!isLoading && (
-                <TextInput
-                  value={text}
-                  onChangeText={setText}
-                  multiline
-                  maxLength={REFLECTION_MAX_LENGTH}
-                  placeholder={messages.reflection.prompt}
-                  placeholderTextColor={colors.muted}
-                  style={[styles.input, direction]}
-                  accessibilityLabel={messages.reflection.title}
-                />
-              )}
-              <Text style={[styles.note, direction]}>{note}</Text>
-              <View style={[styles.actions, isRtl && styles.actionsRtl]}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={messages.reflection.cancel}
-                  onPress={close}
-                  style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
-                  <Text style={styles.secondaryButtonText}>{messages.reflection.cancel}</Text>
-                </Pressable>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={messages.reflection.save}
-                  onPress={save}
-                  style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
-                  <Text style={styles.primaryButtonText}>{messages.reflection.save}</Text>
-                </Pressable>
-              </View>
-            </ScrollView>
-          </View>
-        </SafeAreaView>
-      </View>
+      {/* KeyboardAvoidingView takes over the backdrop's flex/justify styling
+          (rather than wrapping a separate flex:1 View around it) so
+          `padding`/`height` behavior pushes the sheet — already pinned to
+          the bottom via justifyContent: 'flex-end' — up above the keyboard
+          without changing its intrinsic (content-sized) height. */}
+      <KeyboardAvoidingView style={styles.backdrop} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        {/* Tap outside the TextInput dismisses the keyboard only — Cancel/
+            close is still a deliberate, separate button press; this never
+            closes the sheet itself. */}
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <SafeAreaView style={styles.safeArea}>
+            <View style={styles.sheet}>
+              <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
+                <Text style={[styles.title, direction]}>{messages.reflection.title}</Text>
+                <Text style={[styles.prompt, direction]}>{messages.reflection.prompt}</Text>
+                {!isLoading && (
+                  <TextInput
+                    value={text}
+                    onChangeText={setText}
+                    multiline
+                    maxLength={REFLECTION_MAX_LENGTH}
+                    placeholder={messages.reflection.prompt}
+                    placeholderTextColor={colors.muted}
+                    style={[styles.input, direction]}
+                    accessibilityLabel={messages.reflection.title}
+                  />
+                )}
+                <Text style={[styles.note, direction]}>{note}</Text>
+                <View style={[styles.actions, isRtl && styles.actionsRtl]}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={messages.reflection.cancel}
+                    onPress={close}
+                    style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
+                    <Text style={styles.secondaryButtonText}>{messages.reflection.cancel}</Text>
+                  </Pressable>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={messages.reflection.save}
+                    onPress={save}
+                    style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
+                    <Text style={styles.primaryButtonText}>{messages.reflection.save}</Text>
+                  </Pressable>
+                </View>
+              </ScrollView>
+            </View>
+          </SafeAreaView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

@@ -1,7 +1,9 @@
 import { createApp } from '../../src/app';
 import type { QuranRepository } from '../../src/services/QuranRepository';
 import {
+  InMemoryAccountDeletionService,
   InMemoryIssueReportRepository,
+  InMemorySessionRepository,
   InMemorySyncRepository,
   InMemoryUserRepository,
   StubAppleVerifier,
@@ -26,19 +28,32 @@ class UnusedQuranRepository implements QuranRepository {
 
 export function buildAccountTestApp() {
   const userRepository = new InMemoryUserRepository();
+  const sessionRepository = new InMemorySessionRepository();
   const syncRepository = new InMemorySyncRepository();
   const issueReportRepository = new InMemoryIssueReportRepository();
+  const accountDeletionService = new InMemoryAccountDeletionService(userRepository, syncRepository, sessionRepository);
   const googleTokens = new Map<string, { providerSubject: string; email?: string; emailVerified?: boolean }>();
   const appleTokens = new Map<string, { providerSubject: string; email?: string; emailVerified?: boolean }>();
 
   const app = createApp({
     repository: new UnusedQuranRepository(),
     userRepository,
+    sessionRepository,
     syncRepository,
     issueReportRepository,
+    accountDeletionService,
     googleVerifier: new StubGoogleVerifier(googleTokens),
     appleVerifier: new StubAppleVerifier(appleTokens),
   });
 
-  return { app, userRepository, syncRepository, issueReportRepository, googleTokens, appleTokens };
+  return {
+    app,
+    userRepository,
+    sessionRepository,
+    syncRepository,
+    issueReportRepository,
+    accountDeletionService,
+    googleTokens,
+    appleTokens,
+  };
 }

@@ -8,6 +8,7 @@ export type ApiErrorKind =
   | 'invalid_request'
   | 'network'
   | 'no_ayah'
+  | 'rate_limited'
   | 'server'
   | 'timeout'
   | 'unknown';
@@ -52,6 +53,14 @@ function kindForStatus(status: number): ApiErrorKind {
     return 'no_ayah';
   }
 
+  if (status === 408) {
+    return 'timeout';
+  }
+
+  if (status === 429) {
+    return 'rate_limited';
+  }
+
   if (status === 502 || status === 503 || status === 504) {
     return 'backend_unavailable';
   }
@@ -73,6 +82,8 @@ function fallbackMessageForKind(kind: ApiErrorKind) {
       return "We couldn't reach the backend. Check your connection and try again.";
     case 'no_ayah':
       return 'No ayahs are available for this emotion yet.';
+    case 'rate_limited':
+      return "We're getting a lot of requests right now. Please wait a moment and try again.";
     case 'server':
       return 'The server had trouble responding. Please try again.';
     case 'timeout':
