@@ -57,7 +57,7 @@ const APPROVED_NAMES: Record<string, Record<AppLocale, string>> = {
 };
 
 describe('1-2. Stable keys', () => {
-  it('has exactly 30 canonical emotion keys (29 original + faith_shaken, added inactive pending its own mapping review — see batch-6-faith-shaken)', () => {
+  it('has exactly 30 canonical emotion keys (29 original + faith_shaken, added inactive pending its own mapping review — see batch-6)', () => {
     expect(EMOTION_CATALOG).toHaveLength(30);
   });
 

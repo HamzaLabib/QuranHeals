@@ -12,7 +12,7 @@ import { loadApprovedMappingsPreview } from '../../../src/scripts/activationDryR
 
 import { DatabaseSync } from 'node:sqlite';
 
-const DATA_DIR = resolve(__dirname, '../../../data/emotion-candidates/batches/batch-6-faith-shaken');
+const DATA_DIR = resolve(__dirname, '../../../data/emotion-candidates/batches/batch-6');
 
 type CandidateRow = { verseKey: string; emotionKey: string; rationale: string; contextNotes: string; source: string };
 type ReviewRow = { verseKey: string; emotionKey: string; decision: 'keep' | 'reject' | 'hold' };
@@ -38,7 +38,7 @@ const MANDATORY_VERSE_KEYS = [
   '30:20', '30:21', '30:22', '30:23', '30:24', '30:25', // the full Ar-Rum sign sequence, not just the endpoints
 ];
 
-describe('batch-6-faith-shaken: candidate file structure', () => {
+describe('batch-6: candidate file structure', () => {
   it('every candidate targets exactly the faith_shaken emotion key', () => {
     initialCandidates.forEach((row) => expect(row.emotionKey).toBe('faith_shaken'));
     finalReview.reviews.forEach((row) => expect(row.emotionKey).toBe('faith_shaken'));
@@ -75,7 +75,7 @@ describe('batch-6-faith-shaken: candidate file structure', () => {
   });
 });
 
-describe('batch-6-faith-shaken: review status handling', () => {
+describe('batch-6: review status handling', () => {
   it('final-review.json accounts for every candidate exactly once, with no supplemental rows for this single-emotion round', () => {
     expect(finalReview.originalCandidateCount).toBe(initialCandidates.length);
     expect(finalReview.reviews).toHaveLength(initialCandidates.length);
@@ -111,7 +111,7 @@ describe('batch-6-faith-shaken: review status handling', () => {
   });
 });
 
-describe('batch-6-faith-shaken: duplicate protection and cross-emotion reuse', () => {
+describe('batch-6: duplicate protection and cross-emotion reuse', () => {
   it('none of these candidate pairs already exist as a faith_shaken mapping elsewhere (there is no prior faith_shaken data to collide with)', () => {
     // faith_shaken has never been mapped before this round, so this is a
     // structural sanity check, not a live-database read.
@@ -146,7 +146,7 @@ describe('batch-6-faith-shaken: duplicate protection and cross-emotion reuse', (
   });
 });
 
-describe('batch-6-faith-shaken: Quran lookup by stable reference (offline, verified local source only)', () => {
+describe('batch-6: Quran lookup by stable reference (offline, verified local source only)', () => {
   it('every mandatory verseKey resolves real, non-empty Arabic text and English translation from the local verified sources', () => {
     MANDATORY_VERSE_KEYS.forEach((verseKey) => {
       const arabic = getVerifiedArabicByVerseKey(verseKey);

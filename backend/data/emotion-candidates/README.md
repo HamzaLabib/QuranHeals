@@ -40,12 +40,15 @@ backend/data/emotion-candidates/
 │   ├── batch-3/ { initial-candidates.json, final-review.json, overlaps.json }
 │   ├── batch-4/ { initial-candidates.json, final-review.json, overlaps.json }
 │   ├── batch-5/ { initial-candidates.json, final-review.json, overlaps.json }
-│   └── batch-6-faith-shaken/ { initial-candidates.json, final-review.json }
+│   ├── batch-6/ { initial-candidates.json, final-review.json }
+│   └── batch-N/ (future batches follow the same pattern)
 ├── updates/
-│   └── .gitkeep
+│   └── editorial-corrections.json
 └── consolidated/
-    ├── approved-mappings-preview.json
-    └── duplicate-mappings-report.json
+    ├── approved-mappings-preview.json       (historical Phase 5C snapshot — batches 1-5 only, frozen)
+    ├── duplicate-mappings-report.json       (historical Phase 5C snapshot — batches 1-5 only, frozen)
+    ├── approved-mappings-current.json       (current — regenerated as batches/updates are added)
+    └── duplicate-mappings-current.json      (current — regenerated as batches/updates are added)
 ```
 
 This is the canonical, permanent layout as of the Phase 5B/5C → structural
@@ -384,13 +387,53 @@ remains a separate, explicit, manual step outside Phase 5C.
 
 ## Batch 6 — `faith_shaken` (a new emotion, outside the Phase 5B/5C scope above)
 
-`batches/batch-6-faith-shaken/` covers the addition of one new emotion —
-`faith_shaken` ("My Faith Feels Shaken") — added to
+`batches/batch-6/` (canonical path — previously `batches/batch-6-faith-shaken/`,
+renamed for consistency with the generic `batch-N` layout used by Batch 7
+onward; the rename touched only the folder name and this batch's own
+`artifact` metadata string, never its review decisions) covers the addition
+of one new emotion — `faith_shaken` ("My Faith Feels Shaken") — added to
 `backend/src/emotions/emotionCatalog.ts` at order 30, **inactive**. It is a
 self-contained candidate-discovery + review round, structured like a
 Batch 1–5 round (an `initial-candidates.json` + `final-review.json` pair)
 but scoped to exactly one emotion, so it has no `overlaps.json` and no
 supplemental reviews.
+
+## Later editorial corrections — `updates/`
+
+`updates/editorial-corrections.json` holds later human editorial decisions
+made **after** a batch's `final-review.json` was already closed — it never
+edits a closed batch file to pretend a different decision was made at the
+time. Each entry blocks (or otherwise corrects) one exact
+`(verseKey, emotionKey)` pair, e.g. `2:222 -> seeking_guidance = reject`, and
+is applied last, after all batch final reviews, when generating the current
+consolidated files below.
+
+## Current consolidated files — `consolidated/approved-mappings-current.json` and `duplicate-mappings-current.json`
+
+These are the permanent, continuously-updated artifacts — never renamed or
+forked per phase/batch (git history preserves prior versions). They are
+generated deterministically by `npm run mapping:consolidate-current` (see
+`backend/src/scripts/consolidateCurrentMappings.ts`) from:
+
+1. `src/seed/ayahs.ts` MVP foundation plus Batches 1?5 `final-review.json` (`reviews` and `supplementalReviews`) and eligible `overlaps.json` rows. Final decisions include the recorded historical editorial corrections; excluded overlap rows never grant approval.
+2. every `batches/batch-N/final-review.json` for `N >= 6` (KEEP decisions only — `final-review.json` is the principal human-decision artifact; `initial-candidates.json` is never itself approval),
+3. `updates/editorial-corrections.json`, applied last.
+
+The historical preview is a validation oracle only: before later batches or updates,
+the generator checks the raw reconstruction against its exact 1,845 identities and
+fails on any missing/extra pair. No preview row feeds the generator. The raw audit
+counts all occurrences, including direct/supplemental decisions, MVP provenance,
+overlap proposals (including excluded proposals), and updates. Later-batch overlap
+proposals enrich provenance only where an exact human KEEP exists. REJECT/HOLD
+block exact identities. Ambiguous duplicate editorial updates fail closed.
+
+Use `npm run mapping:deactivate -- --verse 2:222 --emotion seeking_guidance`
+for a database dry-run when database access is available. See
+`docs/emotion-mappings/mapping-deactivation.md` for explicit write confirmation,
+backup, and transaction requirements.
+
+Re-running the generator after adding `batch-7/`, `batch-8/`, etc. updates
+these same two files in place — nothing here is Batch-6-specific.
 
 **Candidate discovery method:** a full lexical/semantic scan of all 6,236
 verified local ayahs — Arabic root/phrase patterns (diacritics stripped

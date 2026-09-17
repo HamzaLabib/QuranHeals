@@ -137,7 +137,7 @@ describe('Phase 5B taxonomy is seeded but inactive', () => {
 
   it('carries the Phase 5B MAIN emotions as explicit `active: false` rows', () => {
     // Scoped to the original Phase 5B set only — `faith_shaken` is a later,
-    // separately-reviewed addition (see batch-6-faith-shaken/) covered by
+    // separately-reviewed addition (see batch-6/) covered by
     // its own test below, not part of this historical Phase 5B set.
     const expectedPhase5bInactive = [
       'want_to_cry',

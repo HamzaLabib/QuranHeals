@@ -20,7 +20,7 @@ import { EMOTION_MAPPING_ACTIVATION_BACKUPS_DIR } from '../utils/backupPaths';
 
 export const TARGET = 'faith_shaken';
 export const VERSION = 'faith-shaken-human-review-v1';
-const DATA = resolve(__dirname, '../../data/emotion-candidates/batches/batch-6-faith-shaken');
+const DATA = resolve(__dirname, '../../data/emotion-candidates/batches/batch-6');
 type Candidate = { verseKey: string; emotionKey: string; rationale: string; contextNotes: string; source: string };
 type Review = Parameters<typeof summarizeReview>[1];
 export type Batch = { keep: Candidate[]; reject: string[] };

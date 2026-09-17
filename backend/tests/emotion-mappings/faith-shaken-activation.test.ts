@@ -24,7 +24,7 @@ import {
   type Snapshot,
 } from '../../src/scripts/activateFaithShaken';
 
-const dataDir = resolve(__dirname, '../../data/emotion-candidates/batches/batch-6-faith-shaken');
+const dataDir = resolve(__dirname, '../../data/emotion-candidates/batches/batch-6');
 const candidates: Parameters<typeof validateBatch>[0] = JSON.parse(readFileSync(resolve(dataDir, 'initial-candidates.json'), 'utf8'));
 const review: Parameters<typeof validateBatch>[1] = JSON.parse(readFileSync(resolve(dataDir, 'final-review.json'), 'utf8'));
 const batch = loadBatch();

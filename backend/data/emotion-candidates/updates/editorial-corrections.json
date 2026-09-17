@@ -1,0 +1,20 @@
+{
+  "artifact": "emotion-mapping-editorial-corrections",
+  "description": "Cumulative later editorial corrections to emotion-verse mappings, made AFTER the relevant batch's final-review.json was already closed. This file never edits a closed batch's final-review.json to pretend a different decision was made at the time — see backend/data/emotion-candidates/README.md's \"Later editorial corrections\" section. Applied last (after every batch final review) by backend/src/scripts/consolidateCurrentMappings.ts when generating consolidated/approved-mappings-current.json and consolidated/duplicate-mappings-current.json. A single stable, cumulative file — new corrections are appended here, not scattered across one file per correction.",
+  "note": "Uses the same review-decision vocabulary as batches/batch-N/final-review.json (`reject`/`hold`) plus `add` for a future explicitly-approved addition. `type: \"reject\"`/`\"hold\"` block exactly the named (verseKey, emotionKey) pair from the current approved set, regardless of how or when it was previously approved (direct KEEP, supplemental KEEP, or overlap consolidation) — never the whole verseKey, and never any other emotionKey for the same verse.",
+  "corrections": [
+    {
+      "id": "editorial-2026-09-17-2-222-seeking-guidance-reject",
+      "recordedOn": "2026-09-17",
+      "type": "reject",
+      "verseKey": "2:222",
+      "emotionKey": "seeking_guidance",
+      "priorStatus": "approved",
+      "priorProvenance": "overlap: batches/batch-3/overlaps.json (sourceEmotionKeys: [\"repentant\"]), consolidated into consolidated/approved-mappings-preview.json (historical Phase 5C, sourceBatches: [\"3\"])",
+      "reason": "The complete ayah (2:222) is specifically about menstruation and marital relations (\"...فَاعْتَزِلُوا النِّسَاءَ فِي الْمَحِيضِ...\"). Although the ayah ends with \"إِنَّ اللَّهَ يُحِبُّ التَّوَّابِينَ وَيُحِبُّ الْمُتَطَهِّرِينَ\", the full ayah is too context-specific to surface as a general Seeking Guidance ayah.",
+      "scope": "exact-pair",
+      "source": "human-editorial-review",
+      "note": "This pair was never the subject of a direct human KEEP/REJECT decision under seeking_guidance in any batch final-review.json — it entered the approved set purely via the Batch 3 overlap-consolidation step. This correction blocks only (2:222, seeking_guidance); 2:222 remains eligible for any other emotion, and verse 2:222 itself is untouched in quran.sqlite/the general Quran reading flow."
+    }
+  ]
+}

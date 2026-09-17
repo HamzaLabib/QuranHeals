@@ -17,9 +17,11 @@
     "mapping:activate-approved": "tsx src/scripts/activateApprovedEmotionMappings.ts",
     "mapping:activate-faith-shaken": "tsx src/scripts/activateFaithShaken.ts",
     "mapping:rollback-activation": "tsx src/scripts/rollbackEmotionMappingActivation.ts",
+    "mapping:consolidate-current": "tsx src/scripts/consolidateCurrentMappings.ts",
     "validate:quran:source": "tsx src/scripts/fullQuran.ts source",
     "validate:quran": "tsx src/scripts/fullQuran.ts validate",
-    "import:quran": "tsx src/scripts/fullQuran.ts import"
+    "import:quran": "tsx src/scripts/fullQuran.ts import",
+    "mapping:deactivate": "tsx src/scripts/deactivateEmotionMapping.ts"
   },
   "dependencies": {
     "cors": "^2.8.6",

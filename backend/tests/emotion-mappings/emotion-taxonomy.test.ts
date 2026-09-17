@@ -58,7 +58,7 @@ describe('Phase 5A emotion taxonomy', () => {
 
   it('has a taxonomy entry for every seeded emotion key that existed as of Phase 5A (active or inactive)', () => {
     // `faith_shaken` was added in its own later, separate review round (see
-    // backend/data/emotion-candidates/batches/batch-6-faith-shaken/) and was
+    // backend/data/emotion-candidates/batches/batch-6/) and was
     // never part of the frozen Phase 5A working set this file documents —
     // it is deliberately excluded here rather than retroactively inserted
     // into historical planning data it was never part of.

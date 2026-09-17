@@ -58,7 +58,7 @@ const arabicPattern = /[؀-ۿ]/;
 // canonical emotion set as it existed at that review's time (the original
 // 29 keys) — it must not silently absorb a later, unrelated catalog
 // addition such as `faith_shaken` (added in its own separate review round;
-// see batch-6-faith-shaken/), which Batch 4 never reviewed 2:186 against.
+// see batch-6/), which Batch 4 never reviewed 2:186 against.
 const canonicalEmotionKeys = new Set(seedEmotions.map((emotion) => emotion.key).filter((key) => key !== 'faith_shaken'));
 
 function pairKey(row: { verseKey: string; emotionKey: string }): string {

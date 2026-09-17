@@ -407,7 +407,7 @@ export const EMOTION_CATALOG: CanonicalEmotion[] = [
     active: false,
   },
   // Added as its own review round (not part of Phase 5B) — see
-  // backend/data/emotion-candidates/batches/batch-6-faith-shaken/.
+  // backend/data/emotion-candidates/batches/batch-6/.
   // Display order is independent of activation history. `active: false` is the safe
   // seed default, not a live-database status assertion. MongoDB activation
   // is performed by activateFaithShaken.ts only after all KEEP mappings
