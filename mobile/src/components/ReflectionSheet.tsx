@@ -1,6 +1,6 @@
 import { Trash2 } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/useAuth';
@@ -44,6 +44,7 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
   const [hasExistingReflection, setHasExistingReflection] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteFailed, setDeleteFailed] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -106,16 +107,24 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
 
   return (
     <Modal visible transparent animationType="slide" onRequestClose={close}>
-      <View style={styles.backdrop}>
+      <KeyboardAvoidingView
+        style={styles.backdrop}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}>
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.sheet}>
-            <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
+            <ScrollView
+              ref={scrollRef}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={styles.content}
+              onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}>
               <Text style={[styles.title, direction]}>{messages.reflection.title}</Text>
               <Text style={[styles.prompt, direction]}>{messages.reflection.prompt}</Text>
               {!isLoading && (
                 <TextInput
                   value={text}
                   onChangeText={setText}
+                  onFocus={() => scrollRef.current?.scrollToEnd({ animated: true })}
                   multiline
                   maxLength={REFLECTION_MAX_LENGTH}
                   placeholder={messages.reflection.prompt}
@@ -158,7 +167,7 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
             </ScrollView>
           </View>
         </SafeAreaView>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

@@ -1,6 +1,6 @@
 import { Check } from 'lucide-react-native';
-import { useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
@@ -45,6 +45,17 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<'success' | 'failure' | null>(null);
+  const scrollRef = useRef<ScrollView>(null);
+  const commentFieldYRef = useRef(0);
+  const emailFieldYRef = useRef(0);
+
+  // Scrolls so the field starting at `fieldY` (captured via that field's
+  // wrapper onLayout, in content-container coordinates) sits just below the
+  // top of the scroll viewport — used on focus so the newly active field
+  // moves above the keyboard without a manual scroll.
+  const scrollToField = (fieldY: number) => {
+    scrollRef.current?.scrollTo({ y: Math.max(fieldY - spacing.md, 0), animated: true });
+  };
 
   if (!visible) return null;
 
@@ -89,10 +100,16 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
 
   return (
     <Modal visible transparent animationType="slide" onRequestClose={close}>
-      <View style={styles.backdrop}>
+      <KeyboardAvoidingView
+        style={styles.backdrop}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}>
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.sheet}>
-            <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
+            <ScrollView
+              ref={scrollRef}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={styles.content}>
               <Text style={[styles.title, direction]}>{messages.issueReport.action}</Text>
               <Text style={[styles.description, direction]}>{messages.issueReport.description}</Text>
 
@@ -116,28 +133,35 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
                 ))}
               </View>
 
-              <TextInput
-                value={comment}
-                onChangeText={setComment}
-                multiline
-                maxLength={2000}
-                placeholder={messages.issueReport.description}
-                placeholderTextColor={colors.muted}
-                style={[styles.input, styles.commentInput, direction]}
-                accessibilityLabel={messages.issueReport.description}
-              />
+              <View onLayout={(e) => { commentFieldYRef.current = e.nativeEvent.layout.y; }}>
+                <TextInput
+                  value={comment}
+                  onChangeText={setComment}
+                  onFocus={() => scrollToField(commentFieldYRef.current)}
+                  onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
+                  multiline
+                  maxLength={2000}
+                  placeholder={messages.issueReport.description}
+                  placeholderTextColor={colors.muted}
+                  style={[styles.input, styles.commentInput, direction]}
+                  accessibilityLabel={messages.issueReport.description}
+                />
+              </View>
 
-              <TextInput
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                placeholder={messages.issueReport.emailLabel}
-                placeholderTextColor={colors.muted}
-                style={[styles.input, direction]}
-                accessibilityLabel={messages.issueReport.emailLabel}
-              />
+              <View onLayout={(e) => { emailFieldYRef.current = e.nativeEvent.layout.y; }}>
+                <TextInput
+                  value={email}
+                  onChangeText={setEmail}
+                  onFocus={() => scrollToField(emailFieldYRef.current)}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  placeholder={messages.issueReport.emailLabel}
+                  placeholderTextColor={colors.muted}
+                  style={[styles.input, direction]}
+                  accessibilityLabel={messages.issueReport.emailLabel}
+                />
+              </View>
 
               {result === 'success' && <Text style={[styles.successText, direction]}>{messages.issueReport.successMessage}</Text>}
               {result === 'failure' && <Text style={[styles.failureText, direction]}>{messages.issueReport.failureMessage}</Text>}
@@ -162,7 +186,7 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
             </ScrollView>
           </View>
         </SafeAreaView>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
