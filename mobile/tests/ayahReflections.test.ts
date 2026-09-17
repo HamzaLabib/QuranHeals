@@ -13,9 +13,11 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
 const {
   getReflection,
   getAllReflections,
+  getAllTombstones,
   saveReflection,
   markReflectionSyncState,
   putReflectionFromSync,
+  putTombstoneFromSync,
   REFLECTION_MAX_LENGTH,
 } = await import('@/storage/ayahReflections');
 
@@ -143,5 +145,90 @@ describe('ayahReflections: sync bookkeeping helpers (used only by sync code, not
   it('putReflectionFromSync upserts a downloaded reflection and marks it synced', async () => {
     await putReflectionFromSync({ verseKey: '2:255', text: 'from cloud', createdAt: 500, updatedAt: 500 });
     expect(await getReflection('2:255')).toMatchObject({ text: 'from cloud', syncState: 'synced' });
+  });
+});
+
+describe('ayahReflections: local deletion tombstones', () => {
+  it('deleting an existing reflection (empty save) creates a durable tombstone rather than just removing the entry', async () => {
+    await saveReflection('2:255', 'Something', 1000);
+    const result = await saveReflection('2:255', '', 2000);
+
+    expect(result).toBeNull();
+    // Still hidden from every user-facing read, exactly as before...
+    expect(await getReflection('2:255')).toBeNull();
+    expect(await getAllReflections()).toEqual([]);
+    // ...but a tombstone was actually written, not a bare removal.
+    const tombstones = await getAllTombstones();
+    expect(tombstones).toEqual([{ verseKey: '2:255', deletedAt: 2000, syncState: 'pending' }]);
+  });
+
+  it('tombstones are excluded from getReflection() and getAllReflections(), even alongside other active reflections', async () => {
+    await saveReflection('2:255', 'will be deleted', 1000);
+    await saveReflection('94:6', 'stays active', 1000);
+    await saveReflection('2:255', '', 2000);
+
+    expect(await getReflection('2:255')).toBeNull();
+    const all = await getAllReflections();
+    expect(all).toHaveLength(1);
+    expect(all[0].verseKey).toBe('94:6');
+  });
+
+  it('re-deleting an already-tombstoned verseKey is a no-op, matching deleting a nonexistent one', async () => {
+    await saveReflection('2:255', 'Something', 1000);
+    await saveReflection('2:255', '', 2000);
+    const before = state.get(STORAGE_KEY);
+
+    const result = await saveReflection('2:255', '   ', 3000);
+
+    expect(result).toBeNull();
+    expect(state.get(STORAGE_KEY)).toBe(before);
+  });
+
+  it('saving new text for a tombstoned verseKey replaces the tombstone with a fresh active reflection (a newer write supersedes the deletion)', async () => {
+    await saveReflection('2:255', 'first', 1000);
+    await saveReflection('2:255', '', 2000);
+    expect(await getAllTombstones()).toHaveLength(1);
+
+    const recreated = await saveReflection('2:255', 'recreated after deletion', 3000);
+
+    expect(recreated).toMatchObject({ verseKey: '2:255', text: 'recreated after deletion', createdAt: 3000, updatedAt: 3000, syncState: 'pending' });
+    expect(await getAllTombstones()).toEqual([]);
+    expect(await getReflection('2:255')).toMatchObject({ text: 'recreated after deletion' });
+  });
+
+  it('markReflectionSyncState marks a tombstone synced WITHOUT erasing it — an older/offline device must still learn about the deletion later', async () => {
+    await saveReflection('2:255', 'Something', 1000);
+    await saveReflection('2:255', '', 2000);
+
+    await markReflectionSyncState('2:255', 'synced');
+
+    const tombstones = await getAllTombstones();
+    expect(tombstones).toEqual([{ verseKey: '2:255', deletedAt: 2000, syncState: 'synced' }]);
+    // Still correctly hidden from every user-facing read after being synced.
+    expect(await getReflection('2:255')).toBeNull();
+    expect(await getAllReflections()).toEqual([]);
+  });
+
+  it('putTombstoneFromSync (a cloud deletion downloaded to this device) removes any local active reflection and stores the tombstone as synced', async () => {
+    await saveReflection('2:255', "this device's local copy", 1000);
+
+    await putTombstoneFromSync({ verseKey: '2:255', deletedAt: 5000 });
+
+    expect(await getReflection('2:255')).toBeNull();
+    expect(await getAllReflections()).toEqual([]);
+    expect(await getAllTombstones()).toEqual([{ verseKey: '2:255', deletedAt: 5000, syncState: 'synced' }]);
+  });
+
+  it('corrupt storage is never overwritten by a tombstone-creating delete, exactly like an active save', async () => {
+    state.set(STORAGE_KEY, '{not valid json');
+    await expect(saveReflection('2:255', '', 1000)).rejects.toThrow();
+    expect(state.get(STORAGE_KEY)).toBe('{not valid json');
+  });
+
+  it('a tombstone never carries reflection text — only verseKey/deletedAt/syncState', async () => {
+    await saveReflection('2:255', 'Something', 1000);
+    await saveReflection('2:255', '', 2000);
+    const [tombstone] = await getAllTombstones();
+    expect(Object.keys(tombstone).sort()).toEqual(['deletedAt', 'syncState', 'verseKey']);
   });
 });

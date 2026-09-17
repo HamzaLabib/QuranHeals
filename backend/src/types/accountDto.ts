@@ -20,7 +20,8 @@ export type PreferencesDto = {
   updatedAt: string;
 };
 
-export type ReflectionRecordDto = {
+export type ReflectionActiveRecordDto = {
+  type: 'active';
   verseKey: string;
   ciphertext: string;
   nonce: string;
@@ -28,6 +29,15 @@ export type ReflectionRecordDto = {
   createdAt: string;
   updatedAt: string;
 };
+
+/** A durable local deletion marker, carrying no plaintext/ciphertext/nonce — see docs/auth-and-sync/reflection-privacy.md. */
+export type ReflectionTombstoneDto = {
+  type: 'tombstone';
+  verseKey: string;
+  deletedAt: string;
+};
+
+export type ReflectionSyncRecordDto = ReflectionActiveRecordDto | ReflectionTombstoneDto;
 
 export type ReflectionConflictDto = {
   verseKey: string;

@@ -19,6 +19,7 @@ export type Messages = {
     retry: string;
     disclaimer: string;
     openFavorites: string;
+    openReflections: string;
   };
   /**
    * The general Quran flow's single home-screen action — completely
@@ -68,9 +69,37 @@ export type Messages = {
     saveLabel: string;
     removeLabel: string;
   };
+  /**
+   * The dedicated "My Reflections" list screen — separate from the singular
+   * `reflection` editor strings above (ReflectionSheet), which this screen
+   * reuses unchanged rather than duplicating.
+   */
+  reflections: {
+    title: string;
+    subtitle: string;
+    loadingTitle: string;
+    loadingMessage: string;
+    emptyTitle: string;
+    emptyMessage: string;
+    errorTitle: string;
+    errorMessage: string;
+    retry: string;
+    referenceUnresolved: string;
+    editedLabel: string;
+    statusSavedOnDevice: string;
+    statusPendingSync: string;
+    statusSynced: string;
+    openReflectionLabel: string;
+  };
   translation: {
     showTranslation: string;
     hideTranslation: string;
+  };
+  quranFontSize: {
+    decreaseLabel: string;
+    increaseLabel: string;
+    auto: string;
+    autoLabel: string;
   };
   settings: {
     title: string;
@@ -127,6 +156,12 @@ export type Messages = {
     syncedNote: string;
     save: string;
     cancel: string;
+    deleteAction: string;
+    deleteConfirmTitle: string;
+    deleteConfirmMessage: string;
+    deleteConfirmCancel: string;
+    deleteConfirmConfirm: string;
+    deleteError: string;
   };
   /**
    * The mandatory "Sync Password" gate for synced reflections/favorites
@@ -177,6 +212,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       retry: 'Try Again',
       disclaimer: 'Quran Heals offers spiritual reflection and is not a substitute for professional care.',
       openFavorites: 'Open saved ayahs',
+      openReflections: 'Open My Reflections',
     },
     generalQuran: {
       action: 'A Message from the Quran',
@@ -220,9 +256,32 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       saveLabel: 'Save ayah to favorites',
       removeLabel: 'Remove ayah from favorites',
     },
+    reflections: {
+      title: 'My Reflections',
+      subtitle: 'Your thoughts and reflections on Quran verses',
+      loadingTitle: 'Loading reflections',
+      loadingMessage: 'Opening your saved reflections.',
+      emptyTitle: 'No reflections yet',
+      emptyMessage: 'Open an ayah and write a reflection. It will appear here.',
+      errorTitle: 'Some reflections could not be opened',
+      errorMessage: 'Your reflections could not be read. Your stored data has been kept.',
+      retry: 'Try Again',
+      referenceUnresolved: 'This Quran reference could not be verified right now.',
+      editedLabel: 'Edited',
+      statusSavedOnDevice: 'Saved on device',
+      statusPendingSync: 'Pending sync',
+      statusSynced: 'Synced',
+      openReflectionLabel: 'Open reflection for',
+    },
     translation: {
       showTranslation: 'Show translation',
       hideTranslation: 'Hide translation',
+    },
+    quranFontSize: {
+      decreaseLabel: 'Decrease Quran text size',
+      increaseLabel: 'Increase Quran text size',
+      auto: 'Auto',
+      autoLabel: 'Reset Quran text size to automatic',
     },
     settings: {
       title: 'Settings',
@@ -274,10 +333,16 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       writeAction: 'Write a reflection',
       title: 'Reflection on this ayah',
       prompt: 'How did this ayah make you feel?',
-      guestNote: 'Your reflection is saved on this device. Sign in to sync it across your devices.',
+      guestNote: 'Your reflections are saved on this device. Sign in to access them across your devices.',
       syncedNote: 'Your reflection is privately synced across your signed-in devices.',
       save: 'Save',
       cancel: 'Cancel',
+      deleteAction: 'Delete reflection',
+      deleteConfirmTitle: 'Delete reflection?',
+      deleteConfirmMessage: 'This reflection will be removed from this device and your other signed-in devices.',
+      deleteConfirmCancel: 'Cancel',
+      deleteConfirmConfirm: 'Delete',
+      deleteError: 'Your reflection could not be deleted. Please try again.',
     },
     syncPassphrase: {
       createTitle: 'Create a password to access your synced data',
@@ -323,6 +388,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       retry: 'أعد المحاولة',
       disclaimer: 'تطبيق Quran Heals يقدّم تأملًا روحيًا، وليس بديلًا عن الرعاية المتخصصة.',
       openFavorites: 'فتح الآيات المحفوظة',
+      openReflections: 'فتح خواطري',
     },
     generalQuran: {
       action: 'رسالة من القرآن',
@@ -366,9 +432,32 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       saveLabel: 'حفظ الآية في المفضّلة',
       removeLabel: 'إزالة الآية من المفضّلة',
     },
+    reflections: {
+      title: 'خواطري',
+      subtitle: 'خواطرك وتأملاتك مع آيات القرآن',
+      loadingTitle: 'جارٍ تحميل الخواطر',
+      loadingMessage: 'جارٍ فتح خواطرك المحفوظة.',
+      emptyTitle: 'لا توجد خواطر بعد',
+      emptyMessage: 'افتح آية وأضف خاطرة، وستظهر هنا.',
+      errorTitle: 'تعذّر فتح بعض الخواطر',
+      errorMessage: 'تعذّرت قراءة خواطرك. تم الاحتفاظ ببياناتك المخزّنة.',
+      retry: 'أعد المحاولة',
+      referenceUnresolved: 'تعذّر التحقق من مرجع هذه الآية حاليًا.',
+      editedLabel: 'آخر تعديل',
+      statusSavedOnDevice: 'محفوظ على الجهاز',
+      statusPendingSync: 'بانتظار المزامنة',
+      statusSynced: 'تمت المزامنة',
+      openReflectionLabel: 'فتح الخاطرة الخاصة بـ',
+    },
     translation: {
       showTranslation: 'إظهار الترجمة',
       hideTranslation: 'إخفاء الترجمة',
+    },
+    quranFontSize: {
+      decreaseLabel: 'تصغير حجم نص القرآن',
+      increaseLabel: 'تكبير حجم نص القرآن',
+      auto: 'تلقائي',
+      autoLabel: 'إعادة ضبط حجم نص القرآن تلقائيًا',
     },
     settings: {
       title: 'الإعدادات',
@@ -385,7 +474,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       quranArabicNote: 'يظهر القرآن بالعربية دائمًا — هذا الإعداد يؤثر فقط على الترجمة الإنجليزية.',
     },
     auth: {
-      syncPrompt: 'سجّل الدخول للمزامنة بين أجهزتك',
+      syncPrompt: 'سجّل الدخول لتجد محتواك المحفوظ على أجهزتك الأخرى',
       continueWithoutAccount: 'المتابعة دون حساب',
       continueWithApple: 'المتابعة باستخدام Apple',
       continueWithGoogle: 'المتابعة باستخدام Google',
@@ -424,10 +513,16 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       writeAction: 'أضف خاطرة',
       title: 'خواطر حول هذه الآية',
       prompt: 'ما الذي شعرت به بعد قراءة هذه الآية؟',
-      guestNote: 'تُحفَظ خواطرك على هذا الجهاز. سجّل الدخول لمزامنتها بين أجهزتك.',
+      guestNote: 'تُحفظ خواطرك على هذا الجهاز. سجّل الدخول للوصول إليها على أجهزتك الأخرى.',
       syncedNote: 'تتم مزامنة خواطرك بشكل خاص بين أجهزتك التي سجّلت الدخول عليها.',
       save: 'حفظ',
       cancel: 'إلغاء',
+      deleteAction: 'حذف الخاطرة',
+      deleteConfirmTitle: 'حذف الخاطرة؟',
+      deleteConfirmMessage: 'ستُحذف هذه الخاطرة من هذا الجهاز وأجهزتك الأخرى التي سجّلت الدخول عليها.',
+      deleteConfirmCancel: 'إلغاء',
+      deleteConfirmConfirm: 'حذف',
+      deleteError: 'تعذّر حذف خاطرتك. يُرجى المحاولة مرة أخرى.',
     },
     syncPassphrase: {
       createTitle: 'أنشئ كلمة مرور للوصول إلى بياناتك المحفوظة',
@@ -473,6 +568,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       retry: 'جرّب تاني',
       disclaimer: 'تطبيق Quran Heals يقدّم تأملًا روحيًا، وليس بديلًا عن الرعاية المتخصصة.',
       openFavorites: 'افتح الآيات المحفوظة',
+      openReflections: 'فتح خواطري',
     },
     // Standard Arabic, same as `ar` — general UI (Part J §47), not one of
     // the three approved Egyptian exceptions.
@@ -524,9 +620,34 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       saveLabel: 'احفظ الآية في المفضّلة',
       removeLabel: 'إزالة الآية من المفضّلة',
     },
+    // Standard Arabic, same as `ar` — general UI (Part J §47), not one of
+    // the three approved Egyptian exceptions.
+    reflections: {
+      title: 'خواطري',
+      subtitle: 'خواطرك وتأملاتك مع آيات القرآن',
+      loadingTitle: 'جارٍ تحميل الخواطر',
+      loadingMessage: 'جارٍ فتح خواطرك المحفوظة.',
+      emptyTitle: 'لا توجد خواطر بعد',
+      emptyMessage: 'افتح آية وأضف خاطرة، وستظهر هنا.',
+      errorTitle: 'تعذّر فتح بعض الخواطر',
+      errorMessage: 'تعذّرت قراءة خواطرك. تم الاحتفاظ ببياناتك المخزّنة.',
+      retry: 'أعد المحاولة',
+      referenceUnresolved: 'تعذّر التحقق من مرجع هذه الآية حاليًا.',
+      editedLabel: 'آخر تعديل',
+      statusSavedOnDevice: 'محفوظ على الجهاز',
+      statusPendingSync: 'بانتظار المزامنة',
+      statusSynced: 'تمت المزامنة',
+      openReflectionLabel: 'فتح الخاطرة الخاصة بـ',
+    },
     translation: {
       showTranslation: 'عرض الترجمة',
       hideTranslation: 'إخفاء الترجمة',
+    },
+    quranFontSize: {
+      decreaseLabel: 'تصغير حجم نص القرآن',
+      increaseLabel: 'تكبير حجم نص القرآن',
+      auto: 'تلقائي',
+      autoLabel: 'إعادة ضبط حجم نص القرآن تلقائيًا',
     },
     settings: {
       title: 'الإعدادات',
@@ -547,7 +668,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     // emotion names) — see Part J §47. Account/auth/reflection/sync/issue
     // copy is all general UI, so it is intentionally byte-identical to `ar`.
     auth: {
-      syncPrompt: 'سجّل الدخول للمزامنة بين أجهزتك',
+      syncPrompt: 'سجّل الدخول لتجد محتواك المحفوظ على أجهزتك الأخرى',
       continueWithoutAccount: 'المتابعة دون حساب',
       continueWithApple: 'المتابعة باستخدام Apple',
       continueWithGoogle: 'المتابعة باستخدام Google',
@@ -586,10 +707,16 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       writeAction: 'أضف خاطرة',
       title: 'خواطر حول هذه الآية',
       prompt: 'ما الذي شعرت به بعد قراءة هذه الآية؟',
-      guestNote: 'تُحفَظ خواطرك على هذا الجهاز. سجّل الدخول لمزامنتها بين أجهزتك.',
+      guestNote: 'تُحفظ خواطرك على هذا الجهاز. سجّل الدخول للوصول إليها على أجهزتك الأخرى.',
       syncedNote: 'تتم مزامنة خواطرك بشكل خاص بين أجهزتك التي سجّلت الدخول عليها.',
       save: 'حفظ',
       cancel: 'إلغاء',
+      deleteAction: 'حذف الخاطرة',
+      deleteConfirmTitle: 'حذف الخاطرة؟',
+      deleteConfirmMessage: 'ستُحذف هذه الخاطرة من هذا الجهاز وأجهزتك الأخرى التي سجّلت الدخول عليها.',
+      deleteConfirmCancel: 'إلغاء',
+      deleteConfirmConfirm: 'حذف',
+      deleteError: 'تعذّر حذف خاطرتك. يُرجى المحاولة مرة أخرى.',
     },
     // Sync Password copy is a security-sensitive flow — intentionally
     // byte-identical to `ar`'s Standard Arabic (Part 9 of the mandatory

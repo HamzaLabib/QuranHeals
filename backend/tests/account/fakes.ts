@@ -13,7 +13,7 @@ import { AppError } from '../../src/errors/AppError';
 import type { IssueReportRepository } from '../../src/services/IssueReportRepository';
 import type { IssuedSession, SessionRepository } from '../../src/services/SessionRepository';
 import type {
-  IncomingReflection,
+  IncomingReflectionRecord,
   PutReflectionsResult,
   SyncRepository,
 } from '../../src/services/SyncRepository';
@@ -23,7 +23,7 @@ import type {
   FavoriteDto,
   IssueReportInput,
   PreferencesDto,
-  ReflectionRecordDto,
+  ReflectionSyncRecordDto,
   SyncKeyDto,
   UserDto,
 } from '../../src/types/accountDto';
@@ -131,15 +131,22 @@ export class InMemorySessionRepository implements SessionRepository {
   }
 }
 
-type ReflectionRecord = ReflectionRecordDto & {
-  conflictVersions: Array<{ ciphertext: string; nonce: string; encryptionVersion: number; createdAt: string }>;
-};
+type StoredReflection =
+  | ({ type: 'active' } & Omit<Extract<ReflectionSyncRecordDto, { type: 'active' }>, 'type'> & {
+        conflictVersions: Array<{ ciphertext: string; nonce: string; encryptionVersion: number; createdAt: string }>;
+      })
+  | ({ type: 'tombstone' } & Omit<Extract<ReflectionSyncRecordDto, { type: 'tombstone' }>, 'type'>);
 
-/** Mirrors MongooseSyncRepository's merge semantics (union favorites, last-write-wins preferences/reflections, tie → conflictVersions) purely in memory. */
+/** Mirrors both an active record's `updatedAt` and a tombstone's `deletedAt` as one comparable last-write-wins timestamp — see MongooseSyncRepository's equivalent. */
+function timestampOf(record: IncomingReflectionRecord | StoredReflection): number {
+  return new Date(record.type === 'tombstone' ? record.deletedAt : record.updatedAt).getTime();
+}
+
+/** Mirrors MongooseSyncRepository's merge semantics (union favorites, last-write-wins preferences/reflections/tombstones, tie → conflictVersions) purely in memory. */
 export class InMemorySyncRepository implements SyncRepository {
   private readonly favoritesByUser = new Map<string, Map<string, FavoriteDto>>();
   private readonly preferencesByUser = new Map<string, PreferencesDto>();
-  private readonly reflectionsByUser = new Map<string, Map<string, ReflectionRecord>>();
+  private readonly reflectionsByUser = new Map<string, Map<string, StoredReflection>>();
   private readonly syncKeyByUser = new Map<string, SyncKeyDto>();
 
   async listFavorites(userId: string): Promise<FavoriteDto[]> {
@@ -180,35 +187,56 @@ export class InMemorySyncRepository implements SyncRepository {
     return next;
   }
 
-  async listReflections(userId: string): Promise<ReflectionRecordDto[]> {
+  async listReflections(userId: string): Promise<ReflectionSyncRecordDto[]> {
     return [...(this.reflectionsByUser.get(userId)?.values() ?? [])];
   }
 
-  async putReflections(userId: string, records: IncomingReflection[]): Promise<PutReflectionsResult> {
-    const map = this.reflectionsByUser.get(userId) ?? new Map<string, ReflectionRecord>();
+  async putReflections(userId: string, records: IncomingReflectionRecord[]): Promise<PutReflectionsResult> {
+    const map = this.reflectionsByUser.get(userId) ?? new Map<string, StoredReflection>();
     const result: PutReflectionsResult = { saved: [], conflicts: [] };
 
     for (const record of records) {
       const existing = map.get(record.verseKey);
 
       if (!existing) {
-        const created: ReflectionRecord = { ...record, conflictVersions: [] };
+        const created: StoredReflection =
+          record.type === 'tombstone' ? { ...record } : { ...record, conflictVersions: [] };
         map.set(record.verseKey, created);
         result.saved.push(created);
         continue;
       }
 
-      const incomingTime = new Date(record.updatedAt).getTime();
-      const existingTime = new Date(existing.updatedAt).getTime();
+      const incomingTime = timestampOf(record);
+      const existingTime = timestampOf(existing);
 
       if (incomingTime > existingTime) {
-        const updated: ReflectionRecord = { ...existing, ...record };
+        const updated: StoredReflection =
+          record.type === 'tombstone'
+            ? { ...record }
+            : { ...record, conflictVersions: existing.type === 'active' ? existing.conflictVersions : [] };
         map.set(record.verseKey, updated);
         result.saved.push(updated);
         continue;
       }
 
       if (incomingTime < existingTime) {
+        // Server already has a strictly newer version (active or a
+        // tombstone) — never overwritten by a stale write in either
+        // direction.
+        result.saved.push(existing);
+        continue;
+      }
+
+      // Exact-timestamp tie: the tombstone wins deterministically, in
+      // either direction — mirrors MongooseSyncRepository's tie-break so
+      // both implementations converge identically.
+      if (record.type === 'tombstone' || existing.type === 'tombstone') {
+        if (record.type === 'tombstone' && existing.type !== 'tombstone') {
+          const converted: StoredReflection = { type: 'tombstone', verseKey: record.verseKey, deletedAt: record.deletedAt };
+          map.set(record.verseKey, converted);
+          result.saved.push(converted);
+          continue;
+        }
         result.saved.push(existing);
         continue;
       }

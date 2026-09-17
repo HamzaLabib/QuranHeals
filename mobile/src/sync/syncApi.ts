@@ -99,7 +99,12 @@ export function putCloudPreferences(sessionToken: string, preferences: Omit<Pref
   });
 }
 
-export type ReflectionRecord = {
+export type ReflectionActiveRecord = {
+  // Optional for backward compatibility with cloud responses/records
+  // predating deletion tombstones, which never included a `type` field at
+  // all — absent/omitted always means 'active'. New uploads always set it
+  // explicitly (see reflectionsSync.ts).
+  type?: 'active';
   verseKey: string;
   ciphertext: string;
   nonce: string;
@@ -108,17 +113,26 @@ export type ReflectionRecord = {
   updatedAt: string;
 };
 
+/** A durable local-deletion marker — carries no ciphertext/nonce/plaintext. See storage/ayahReflections.ts's ReflectionTombstone. */
+export type ReflectionTombstoneRecord = {
+  type: 'tombstone';
+  verseKey: string;
+  deletedAt: string;
+};
+
+export type ReflectionSyncRecord = ReflectionActiveRecord | ReflectionTombstoneRecord;
+
 export type ReflectionConflict = {
   verseKey: string;
   conflictVersions: { ciphertext: string; nonce: string; encryptionVersion: number; createdAt: string }[];
 };
 
 export function getCloudReflections(sessionToken: string) {
-  return authedRequest<ReflectionRecord[]>(sessionToken, '/api/sync/reflections');
+  return authedRequest<ReflectionSyncRecord[]>(sessionToken, '/api/sync/reflections');
 }
 
-export function putCloudReflections(sessionToken: string, reflections: ReflectionRecord[]) {
-  return authedRequest<{ saved: ReflectionRecord[]; conflicts: ReflectionConflict[] }>(
+export function putCloudReflections(sessionToken: string, reflections: ReflectionSyncRecord[]) {
+  return authedRequest<{ saved: ReflectionSyncRecord[]; conflicts: ReflectionConflict[] }>(
     sessionToken,
     '/api/sync/reflections',
     { method: 'PUT', body: JSON.stringify({ reflections }) },

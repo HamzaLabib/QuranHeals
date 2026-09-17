@@ -1,6 +1,8 @@
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 
+import { IssueReportModel } from '../../src/models/IssueReport';
+import type { IssueReportRepository } from '../../src/services/IssueReportRepository';
 import { buildAccountTestApp } from './testApp';
 
 const baseReport = {
@@ -93,6 +95,92 @@ describe('POST /api/issues', () => {
     expect(stored).not.toHaveProperty('reflection');
     expect(stored).not.toHaveProperty('reflectionCiphertext');
     expect(JSON.stringify(stored)).not.toContain('my private reflection text');
+  });
+
+  it('never persists reflection text/ciphertext or any sync-key/account material, even if the caller sends the exact field names used elsewhere in the app', async () => {
+    const { app, issueReportRepository } = buildAccountTestApp();
+    const forbiddenFields = {
+      reflection: 'my private reflection',
+      reflectionText: 'my private reflection text',
+      ciphertext: 'base64ciphertext',
+      syncPassphrase: 'my passphrase',
+      masterKey: 'deadbeef',
+      userId: 'user-123',
+      accountEmail: 'account-holder@example.com',
+    };
+
+    const res = await request(app).post('/api/issues').send({ ...baseReport, ...forbiddenFields });
+
+    expect(res.status).toBe(201);
+    const stored = issueReportRepository.created[0] as Record<string, unknown>;
+    for (const field of Object.keys(forbiddenFields)) {
+      expect(stored, `stored report unexpectedly has "${field}"`).not.toHaveProperty(field);
+    }
+    expect(JSON.stringify(stored)).not.toContain('my private reflection');
+  });
+
+  it('only ever persists the exact approved field set — no unexpected field survives validation', async () => {
+    const { app, issueReportRepository } = buildAccountTestApp();
+    await request(app).post('/api/issues').send({ ...baseReport, comment: 'hello', email: 'user@example.com' });
+
+    expect(Object.keys(issueReportRepository.created[0]).sort()).toEqual(
+      [
+        'appLocale',
+        'appVersion',
+        'ayahNumber',
+        'category',
+        'comment',
+        'email',
+        'emotionKey',
+        'platform',
+        'surahNumber',
+        'translationDisplayMode',
+        'verseKey',
+      ].sort(),
+    );
+  });
+
+  it('a repository/MongoDB write failure produces a safe error response, never a false success', async () => {
+    const failingRepository: IssueReportRepository = {
+      create: async () => {
+        throw new Error('Mongo write failed');
+      },
+    };
+    const { app } = buildAccountTestApp({ issueReportRepository: failingRepository });
+
+    const res = await request(app).post('/api/issues').send(baseReport);
+
+    expect(res.status).toBe(500);
+    expect(res.body).toMatchObject({ success: false });
+    expect(res.body.message).not.toMatch(/received/i);
+  });
+
+  it('the response never exposes a MongoDB document id or other internal database detail', async () => {
+    const { app } = buildAccountTestApp();
+    const res = await request(app).post('/api/issues').send(baseReport);
+
+    expect(res.status).toBe(201);
+    expect(res.body).toEqual({ success: true, data: null });
+  });
+
+  it('IssueReportModel defaults every new report to status "new" and enables createdAt-only timestamps', () => {
+    const statusPath = IssueReportModel.schema.path('status') as unknown as {
+      defaultValue: unknown;
+      enumValues?: string[];
+      isRequired?: boolean;
+    };
+    expect(statusPath.defaultValue).toBe('new');
+    expect(statusPath.enumValues).toEqual(['new']);
+    expect(IssueReportModel.schema.options.timestamps).toEqual({ createdAt: true, updatedAt: false });
+  });
+
+  it('preserves the descending createdAt index for efficient recent-report review', () => {
+    const indexes = IssueReportModel.schema.indexes();
+    expect(indexes.some(([fields]) => (fields as Record<string, unknown>).createdAt === -1)).toBe(true);
+  });
+
+  it('uses the expected MongoDB Atlas collection name (issuereports)', () => {
+    expect(IssueReportModel.collection.collectionName).toBe('issuereports');
   });
 
   it('there is no public GET /api/issues endpoint', async () => {

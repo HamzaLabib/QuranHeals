@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react';
+import { Trash2 } from 'lucide-react-native';
+import { useEffect, useRef, useState } from 'react';
 import {
+  Alert,
   Keyboard,
   KeyboardAvoidingView,
   Modal,
@@ -49,6 +51,13 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
   const isRtl = isRtlLocale(locale);
   const [text, setText] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  // Whether an existing (non-empty) reflection was loaded for this
+  // verseKey — Delete is only ever shown once this is known to be true, so
+  // it never appears while creating a brand-new reflection.
+  const [hasExistingReflection, setHasExistingReflection] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteFailed, setDeleteFailed] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -56,6 +65,7 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
       const existing = await getReflection(verseKey).catch(() => null);
       if (!cancelled) {
         setText(existing?.text ?? '');
+        setHasExistingReflection(existing !== null);
         setIsLoading(false);
       }
     })();
@@ -71,29 +81,68 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
     onClose();
   };
 
+  // Reuses the exact same storage path an empty Save already takes (see
+  // saveReflection's empty-text branch in storage/ayahReflections.ts) —
+  // this is what creates the durable local deletion tombstone and lets the
+  // existing sync merge/conflict rules propagate the deletion. There is no
+  // separate deletion API and no direct AsyncStorage access here.
+  const performDelete = async () => {
+    if (isDeleting) return;
+    setIsDeleting(true);
+    setDeleteFailed(false);
+    try {
+      await saveReflection(verseKey, '');
+      onClose();
+    } catch {
+      // Keep the sheet open and the typed text intact (never cleared here)
+      // so the user doesn't lose their reflection because of a transient
+      // storage error.
+      setDeleteFailed(true);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const confirmDelete = () => {
+    if (isDeleting) return;
+    Alert.alert(
+      messages.reflection.deleteConfirmTitle,
+      messages.reflection.deleteConfirmMessage,
+      [
+        { text: messages.reflection.deleteConfirmCancel, style: 'cancel' },
+        { text: messages.reflection.deleteConfirmConfirm, style: 'destructive', onPress: () => void performDelete() },
+      ],
+    );
+  };
+
   const note = status === 'signed-in' ? messages.reflection.syncedNote : messages.reflection.guestNote;
+  const showDelete = !isLoading && hasExistingReflection;
 
   return (
     <Modal visible transparent animationType="slide" onRequestClose={close}>
-      {/* KeyboardAvoidingView takes over the backdrop's flex/justify styling
-          (rather than wrapping a separate flex:1 View around it) so
-          `padding`/`height` behavior pushes the sheet — already pinned to
-          the bottom via justifyContent: 'flex-end' — up above the keyboard
-          without changing its intrinsic (content-sized) height. */}
-      <KeyboardAvoidingView style={styles.backdrop} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        {/* Tap outside the TextInput dismisses the keyboard only — Cancel/
-            close is still a deliberate, separate button press; this never
-            closes the sheet itself. */}
+      <KeyboardAvoidingView
+        style={styles.backdrop}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <SafeAreaView style={styles.safeArea}>
             <View style={styles.sheet}>
-              <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
+              <ScrollView
+                ref={scrollRef}
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={styles.content}
+                onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}>
                 <Text style={[styles.title, direction]}>{messages.reflection.title}</Text>
-                <Text style={[styles.prompt, direction]}>{messages.reflection.prompt}</Text>
+
+                <Text style={[styles.prompt, direction]}>
+                  {messages.reflection.prompt}
+                </Text>
+
                 {!isLoading && (
                   <TextInput
                     value={text}
                     onChangeText={setText}
+                    onFocus={() => scrollRef.current?.scrollToEnd({ animated: true })}
                     multiline
                     maxLength={REFLECTION_MAX_LENGTH}
                     placeholder={messages.reflection.prompt}
@@ -102,22 +151,59 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
                     accessibilityLabel={messages.reflection.title}
                   />
                 )}
+
                 <Text style={[styles.note, direction]}>{note}</Text>
+
+                {deleteFailed && (
+                  <Text style={[styles.errorText, direction]}>
+                    {messages.reflection.deleteError}
+                  </Text>
+                )}
+
                 <View style={[styles.actions, isRtl && styles.actionsRtl]}>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={messages.reflection.cancel}
-                    onPress={close}
-                    style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
-                    <Text style={styles.secondaryButtonText}>{messages.reflection.cancel}</Text>
-                  </Pressable>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={messages.reflection.save}
-                    onPress={save}
-                    style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
-                    <Text style={styles.primaryButtonText}>{messages.reflection.save}</Text>
-                  </Pressable>
+                  {showDelete && (
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={messages.reflection.deleteAction}
+                      accessibilityState={{ disabled: isDeleting }}
+                      disabled={isDeleting}
+                      onPress={confirmDelete}
+                      style={({ pressed }) => [
+                        styles.deleteButton,
+                        isDeleting && styles.disabled,
+                        pressed && styles.pressed,
+                      ]}>
+                      <Trash2 size={20} color={colors.rust} />
+                    </Pressable>
+                  )}
+
+                  <View style={[styles.primaryActions, isRtl && styles.actionsRtl]}>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={messages.reflection.cancel}
+                      onPress={close}
+                      style={({ pressed }) => [
+                        styles.secondaryButton,
+                        pressed && styles.pressed,
+                      ]}>
+                      <Text style={styles.secondaryButtonText}>
+                        {messages.reflection.cancel}
+                      </Text>
+                    </Pressable>
+
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={messages.reflection.save}
+                      onPress={save}
+                      style={({ pressed }) => [
+                        styles.primaryButton,
+                        pressed && styles.pressed,
+                      ]}>
+                      <Text style={styles.primaryButtonText}>
+                        {messages.reflection.save}
+                      </Text>
+                    </Pressable>
+                  </View>
                 </View>
               </ScrollView>
             </View>
@@ -174,12 +260,34 @@ const styles = StyleSheet.create({
     fontSize: typography.small,
     lineHeight: 17,
   },
+  errorText: {
+    color: colors.rust,
+    fontSize: typography.small,
+    fontWeight: '700',
+    lineHeight: 17,
+  },
   actions: {
+    alignItems: 'center',
     flexDirection: 'row',
     gap: spacing.md,
   },
   actionsRtl: {
     flexDirection: 'row-reverse',
+  },
+  primaryActions: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  deleteButton: {
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderColor: colors.rustSoft,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    justifyContent: 'center',
+    minHeight: 52,
+    minWidth: 52,
   },
   secondaryButton: {
     alignItems: 'center',
@@ -208,6 +316,9 @@ const styles = StyleSheet.create({
     color: colors.surface,
     fontSize: typography.body,
     fontWeight: '800',
+  },
+  disabled: {
+    opacity: 0.5,
   },
   pressed: {
     opacity: 0.78,
