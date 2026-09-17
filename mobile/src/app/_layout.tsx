@@ -5,6 +5,7 @@ import * as WebBrowser from 'expo-web-browser';
 
 import { AuthProvider } from '@/auth/useAuth';
 import { AppLocaleProvider } from '@/localization/useAppLocale';
+import { QuranFontSizePreferenceProvider } from '@/localization/useQuranFontSizePreference';
 import { QuranTranslationPreferenceProvider } from '@/localization/useQuranTranslationPreference';
 
 // Required once at app startup so the OAuth redirect (Google sign-in via
@@ -18,19 +19,21 @@ export default function RootLayout() {
   return (
     <AppLocaleProvider>
       <QuranTranslationPreferenceProvider>
-        <AuthProvider>
-          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-            <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: {
-                  backgroundColor: '#F7F2EA',
-                },
-              }}
-            />
-          </ThemeProvider>
-        </AuthProvider>
+        <QuranFontSizePreferenceProvider>
+          <AuthProvider>
+            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+              <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: {
+                    backgroundColor: '#F7F2EA',
+                  },
+                }}
+              />
+            </ThemeProvider>
+          </AuthProvider>
+        </QuranFontSizePreferenceProvider>
       </QuranTranslationPreferenceProvider>
     </AppLocaleProvider>
   );

@@ -162,7 +162,7 @@ describe('Interface message dictionary (messages.ts)', () => {
 
   it('auth/account/reflection/sync-passphrase/issue-report/sync-status copy uses the exact approved wording for en and ar', () => {
     expect(MESSAGES.en.auth.syncPrompt).toBe('Sign in to sync across devices');
-    expect(MESSAGES.ar.auth.syncPrompt).toBe('سجّل الدخول للمزامنة بين أجهزتك');
+    expect(MESSAGES.ar.auth.syncPrompt).toBe('سجّل الدخول لتجد محتواك المحفوظ على أجهزتك الأخرى');
     expect(MESSAGES.en.auth.signInFailed).toBe(
       "We couldn't sign you in. You can try again or continue without an account.",
     );
@@ -189,7 +189,7 @@ describe('Interface message dictionary (messages.ts)', () => {
       action: 'Reflection',
       title: 'Reflection on this ayah',
       prompt: 'How did this ayah make you feel?',
-      guestNote: 'Your reflection is saved on this device. Sign in to sync it across your devices.',
+      guestNote: 'Your reflections are saved on this device. Sign in to access them across your devices.',
       syncedNote: 'Your reflection is privately synced across your signed-in devices.',
       save: 'Save',
       cancel: 'Cancel',
@@ -198,7 +198,7 @@ describe('Interface message dictionary (messages.ts)', () => {
       action: 'خواطر',
       title: 'خواطر حول هذه الآية',
       prompt: 'ما الذي شعرت به بعد قراءة هذه الآية؟',
-      guestNote: 'تُحفَظ خواطرك على هذا الجهاز. سجّل الدخول لمزامنتها بين أجهزتك.',
+      guestNote: 'تُحفظ خواطرك على هذا الجهاز. سجّل الدخول للوصول إليها على أجهزتك الأخرى.',
       syncedNote: 'تتم مزامنة خواطرك بشكل خاص بين أجهزتك التي سجّلت الدخول عليها.',
       save: 'حفظ',
       cancel: 'إلغاء',

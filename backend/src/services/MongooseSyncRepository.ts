@@ -3,8 +3,8 @@ import { UserPreferenceModel } from '../models/UserPreference';
 import { UserReflectionModel } from '../models/UserReflection';
 import { UserSyncKeyModel } from '../models/UserSyncKey';
 import type { TranslationDisplayMode } from '../types/accountDomain';
-import type { FavoriteDto, PreferencesDto, ReflectionRecordDto, SyncKeyDto } from '../types/accountDto';
-import type { IncomingReflection, PutReflectionsResult, SyncRepository } from './SyncRepository';
+import type { FavoriteDto, PreferencesDto, ReflectionSyncRecordDto, SyncKeyDto } from '../types/accountDto';
+import type { IncomingReflectionRecord, PutReflectionsResult, SyncRepository } from './SyncRepository';
 
 function toFavoriteDto(doc: { verseKey: string; createdAt?: Date; updatedAt?: Date }): FavoriteDto {
   return {
@@ -28,20 +28,31 @@ function toPreferencesDto(doc: {
   };
 }
 
+/**
+ * Branches on `deleted` to build either shape — a pre-tombstone document
+ * (deleted absent/undefined, i.e. falsy) is always read back as `'active'`,
+ * so existing MongoDB documents need no migration. `updatedAt` is reused as
+ * a tombstone's `deletedAt` — see UserReflection.ts's schema comment.
+ */
 function toReflectionDto(doc: {
   verseKey: string;
-  ciphertext: string;
-  nonce: string;
-  encryptionVersion: number;
-  createdAt: Date;
+  deleted?: boolean;
+  ciphertext?: string;
+  nonce?: string;
+  encryptionVersion?: number;
+  createdAt?: Date;
   updatedAt: Date;
-}): ReflectionRecordDto {
+}): ReflectionSyncRecordDto {
+  if (doc.deleted) {
+    return { type: 'tombstone', verseKey: doc.verseKey, deletedAt: doc.updatedAt.toISOString() };
+  }
   return {
+    type: 'active',
     verseKey: doc.verseKey,
-    ciphertext: doc.ciphertext,
-    nonce: doc.nonce,
-    encryptionVersion: doc.encryptionVersion,
-    createdAt: doc.createdAt.toISOString(),
+    ciphertext: doc.ciphertext ?? '',
+    nonce: doc.nonce ?? '',
+    encryptionVersion: doc.encryptionVersion ?? 1,
+    createdAt: (doc.createdAt ?? doc.updatedAt).toISOString(),
     updatedAt: doc.updatedAt.toISOString(),
   };
 }
@@ -114,57 +125,101 @@ export class MongooseSyncRepository implements SyncRepository {
     return toPreferencesDto(doc as never);
   }
 
-  async listReflections(userId: string): Promise<ReflectionRecordDto[]> {
+  async listReflections(userId: string): Promise<ReflectionSyncRecordDto[]> {
     const docs = await UserReflectionModel.find({ userId }).lean();
     return docs.map((doc) => toReflectionDto(doc as never));
   }
 
-  async putReflections(userId: string, records: IncomingReflection[]): Promise<PutReflectionsResult> {
+  async putReflections(userId: string, records: IncomingReflectionRecord[]): Promise<PutReflectionsResult> {
     const result: PutReflectionsResult = { saved: [], conflicts: [] };
 
     for (const record of records) {
-      const incomingUpdatedAt = new Date(record.updatedAt);
+      const incomingTimestamp = new Date(record.type === 'tombstone' ? record.deletedAt : record.updatedAt);
       const existing = await UserReflectionModel.findOne({ userId, verseKey: record.verseKey });
 
       if (!existing) {
-        const created = await UserReflectionModel.create({
-          userId,
-          verseKey: record.verseKey,
-          ciphertext: record.ciphertext,
-          nonce: record.nonce,
-          encryptionVersion: record.encryptionVersion,
-          createdAt: new Date(record.createdAt),
-          updatedAt: incomingUpdatedAt,
-        });
+        const created = await UserReflectionModel.create(
+          record.type === 'tombstone'
+            ? { userId, verseKey: record.verseKey, deleted: true, updatedAt: incomingTimestamp }
+            : {
+                userId,
+                verseKey: record.verseKey,
+                deleted: false,
+                ciphertext: record.ciphertext,
+                nonce: record.nonce,
+                encryptionVersion: record.encryptionVersion,
+                createdAt: new Date(record.createdAt),
+                updatedAt: incomingTimestamp,
+              },
+        );
         result.saved.push(toReflectionDto(created.toObject() as never));
         continue;
       }
 
-      const existingUpdatedAt = existing.updatedAt.getTime();
+      const existingTimestamp = existing.updatedAt.getTime();
 
-      if (incomingUpdatedAt.getTime() > existingUpdatedAt) {
-        existing.ciphertext = record.ciphertext;
-        existing.nonce = record.nonce;
-        existing.encryptionVersion = record.encryptionVersion;
-        existing.updatedAt = incomingUpdatedAt;
+      if (incomingTimestamp.getTime() > existingTimestamp) {
+        if (record.type === 'tombstone') {
+          existing.deleted = true;
+          existing.ciphertext = undefined;
+          existing.nonce = undefined;
+          existing.encryptionVersion = undefined;
+          existing.createdAt = undefined;
+        } else {
+          existing.deleted = false;
+          existing.ciphertext = record.ciphertext;
+          existing.nonce = record.nonce;
+          existing.encryptionVersion = record.encryptionVersion;
+          existing.createdAt = new Date(record.createdAt);
+        }
+        existing.updatedAt = incomingTimestamp;
         await existing.save();
         result.saved.push(toReflectionDto(existing.toObject() as never));
         continue;
       }
 
-      if (incomingUpdatedAt.getTime() < existingUpdatedAt) {
-        // Server already has a strictly newer version: keep it, hand it back
-        // so the caller can adopt it locally. The incoming (older) write is
-        // simply not applied — never destroyed, since it's still what the
-        // uploading device already has locally.
+      if (incomingTimestamp.getTime() < existingTimestamp) {
+        // Server already has a strictly newer version (active or a
+        // tombstone): keep it, hand it back so the caller can adopt it
+        // locally. The incoming (older) write is simply not applied — never
+        // destroyed, since it's still what the uploading device already has
+        // locally. This is exactly what stops a stale active upload from
+        // resurrecting a reflection deleted later on another device, and
+        // stops a stale tombstone from deleting a genuinely newer active one.
         result.saved.push(toReflectionDto(existing.toObject() as never));
         continue;
       }
 
-      // Exact-timestamp tie. If the content actually matches, this is just
-      // the same edit re-uploaded — no conflict. Only genuinely differing
-      // ciphertext at the same timestamp is ambiguous enough to preserve
-      // both versions (Part D §29) rather than picking a silent winner.
+      // Exact-timestamp tie: the tombstone wins, deterministically, in
+      // either direction — never "whichever happened to already be
+      // stored" — so two devices (or a device and the backend) can never
+      // permanently disagree about a verseKey they both touched at the
+      // same instant. Two ACTIVE records at an exact tie are the only
+      // case still ambiguous enough to preserve both versions as a
+      // conflict (Part D §29); a tombstone always simply wins.
+      if (record.type === 'tombstone' || existing.deleted) {
+        if (record.type === 'tombstone' && !existing.deleted) {
+          existing.deleted = true;
+          existing.ciphertext = undefined;
+          existing.nonce = undefined;
+          existing.encryptionVersion = undefined;
+          existing.createdAt = undefined;
+          existing.updatedAt = incomingTimestamp;
+          await existing.save();
+        }
+        // Else existing is already a tombstone: an incoming tombstone at
+        // the same instant is idempotent, and an incoming ACTIVE record at
+        // the same instant as an existing tombstone still loses — either
+        // way, the (possibly just-updated) existing document is returned
+        // unchanged from here.
+        result.saved.push(toReflectionDto(existing.toObject() as never));
+        continue;
+      }
+
+      // Both active, exact-timestamp tie. If the content actually matches,
+      // this is just the same edit re-uploaded — no conflict. Only genuinely
+      // differing ciphertext at the same timestamp is ambiguous enough to
+      // preserve both versions rather than picking a silent winner.
       if (existing.ciphertext === record.ciphertext && existing.nonce === record.nonce) {
         result.saved.push(toReflectionDto(existing.toObject() as never));
         continue;

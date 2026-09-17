@@ -1,4 +1,5 @@
 import { createApp } from '../../src/app';
+import type { IssueReportRepository } from '../../src/services/IssueReportRepository';
 import type { QuranRepository } from '../../src/services/QuranRepository';
 import {
   InMemoryIssueReportRepository,
@@ -24,10 +25,12 @@ class UnusedQuranRepository implements QuranRepository {
   }
 }
 
-export function buildAccountTestApp() {
+export function buildAccountTestApp<R extends IssueReportRepository = InMemoryIssueReportRepository>(
+  overrides: { issueReportRepository?: R } = {},
+) {
   const userRepository = new InMemoryUserRepository();
   const syncRepository = new InMemorySyncRepository();
-  const issueReportRepository = new InMemoryIssueReportRepository();
+  const issueReportRepository = (overrides.issueReportRepository ?? new InMemoryIssueReportRepository()) as R;
   const googleTokens = new Map<string, { providerSubject: string; email?: string; emailVerified?: boolean }>();
   const appleTokens = new Map<string, { providerSubject: string; email?: string; emailVerified?: boolean }>();
 

@@ -7,6 +7,10 @@ import { useAuth } from '@/auth/useAuth';
 import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
 import type { AppLocale } from '@/localization/locales';
 import type { Messages } from '@/localization/messages';
+import { AppleIcon } from './AppleIcon';
+import { GoogleIcon } from './GoogleIcon';
+
+const BRAND_ICON_SIZE = 21;
 
 type Direction = { writingDirection: 'ltr' | 'rtl'; textAlign: 'left' | 'right' };
 
@@ -79,6 +83,7 @@ export function AccountSection({ messages, direction, isRtl }: AccountSectionPro
                 accessibilityLabel={messages.account.signInWithApple}
                 onPress={() => void onApplePress()}
                 style={({ pressed }) => [styles.button, isRtl && styles.buttonRtl, pressed && styles.pressed]}>
+                <AppleIcon size={BRAND_ICON_SIZE} color={colors.surface} />
                 <Text style={styles.buttonText}>{messages.account.signInWithApple}</Text>
               </Pressable>
             )}
@@ -88,8 +93,9 @@ export function AccountSection({ messages, direction, isRtl }: AccountSectionPro
                 accessibilityLabel={messages.account.signInWithGoogle}
                 disabled={!googleRequest}
                 onPress={() => void promptGoogleAsync()}
-                style={({ pressed }) => [styles.button, isRtl && styles.buttonRtl, pressed && styles.pressed]}>
-                <Text style={styles.buttonText}>{messages.account.signInWithGoogle}</Text>
+                style={({ pressed }) => [styles.button, styles.googleButton, isRtl && styles.buttonRtl, pressed && styles.pressed]}>
+                <GoogleIcon size={BRAND_ICON_SIZE} />
+                <Text style={[styles.buttonText, styles.googleButtonText]}>{messages.account.signInWithGoogle}</Text>
               </Pressable>
             )}
             {Platform.OS === 'android' && !isGoogleAuthConfigured() && !isAppleSignInSupportedPlatform() && (
@@ -138,11 +144,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.ink,
     borderRadius: radii.md,
+    flexDirection: 'row',
+    gap: 11,
     justifyContent: 'center',
     minHeight: 48,
   },
   buttonRtl: {
     flexDirection: 'row-reverse',
+  },
+  googleButton: {
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderWidth: 1,
+  },
+  googleButtonText: {
+    color: colors.ink,
   },
   buttonText: {
     color: colors.surface,

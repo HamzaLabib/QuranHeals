@@ -3,11 +3,12 @@ import type {
   FavoriteDto,
   PreferencesDto,
   ReflectionConflictDto,
-  ReflectionRecordDto,
+  ReflectionSyncRecordDto,
   SyncKeyDto,
 } from '../types/accountDto';
 
-export type IncomingReflection = {
+export type IncomingActiveReflectionRecord = {
+  type: 'active';
   verseKey: string;
   ciphertext: string;
   nonce: string;
@@ -16,8 +17,17 @@ export type IncomingReflection = {
   updatedAt: string;
 };
 
+/** A durable local-deletion marker — carries no ciphertext/nonce/plaintext. See docs/auth-and-sync/reflection-privacy.md. */
+export type IncomingReflectionTombstone = {
+  type: 'tombstone';
+  verseKey: string;
+  deletedAt: string;
+};
+
+export type IncomingReflectionRecord = IncomingActiveReflectionRecord | IncomingReflectionTombstone;
+
 export type PutReflectionsResult = {
-  saved: ReflectionRecordDto[];
+  saved: ReflectionSyncRecordDto[];
   conflicts: ReflectionConflictDto[];
 };
 
@@ -44,9 +54,18 @@ export interface SyncRepository {
     clientUpdatedAt: string,
   ): Promise<PreferencesDto>;
 
-  listReflections(userId: string): Promise<ReflectionRecordDto[]>;
-  /** Per-verseKey last-write-wins by updatedAt; an exact-timestamp/different-ciphertext tie is preserved as a conflict, never silently dropped. See Part D §29. */
-  putReflections(userId: string, records: IncomingReflection[]): Promise<PutReflectionsResult>;
+  /** Returns both active records and deletion tombstones — a caller needs the tombstones too, to learn about deletions made on other devices. */
+  listReflections(userId: string): Promise<ReflectionSyncRecordDto[]>;
+  /**
+   * Per-verseKey last-write-wins by timestamp (an active record's
+   * `updatedAt`, or a tombstone's `deletedAt`) — a newer tombstone defeats an
+   * older active record and vice versa. An exact-timestamp/different-
+   * ciphertext tie between two active records is preserved as a conflict,
+   * never silently dropped (Part D §29); an exact tie between an active
+   * record and a tombstone never flips state either way — see
+   * MongooseSyncRepository.putReflections.
+   */
+  putReflections(userId: string, records: IncomingReflectionRecord[]): Promise<PutReflectionsResult>;
 
   getSyncKey(userId: string): Promise<SyncKeyDto | null>;
   /** Set-once in normal operation (the mobile client only calls this the first time a device establishes the sync key); overwriting is allowed at the repository level but the controller never does so once a key already exists, to avoid silently orphaning devices that already unwrapped the old one. */

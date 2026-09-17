@@ -1,5 +1,5 @@
 import { Link, router } from 'expo-router';
-import { BookOpen, Heart, RefreshCw, Settings } from 'lucide-react-native';
+import { BookOpen, Heart, NotebookPen, RefreshCw, Settings } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -50,25 +50,33 @@ export default function HomeScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}>
         <View style={[styles.header, isRtl && styles.headerRtl]}>
-          <View>
+          <View style={styles.headerTitleBlock}>
             <Text style={[styles.wordmark, direction]}>{messages.appName}</Text>
             <Text style={[styles.subtitle, direction]}>{messages.home.subtitle}</Text>
           </View>
           <View style={[styles.headerActions, isRtl && styles.headerActionsRtl]}>
-            <Link href="/settings" asChild>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={messages.settings.openSettings}
-                style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
-                <Settings size={20} color={colors.ink} strokeWidth={2} />
-              </Pressable>
-            </Link>
             <Link href="/favorites" asChild>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={messages.home.openFavorites}
                 style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
                 <Heart size={20} color={colors.ink} strokeWidth={2} />
+              </Pressable>
+            </Link>
+            <Link href="/reflections" asChild>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={messages.home.openReflections}
+                style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
+                <NotebookPen size={20} color={colors.ink} strokeWidth={2} />
+              </Pressable>
+            </Link>
+            <Link href="/settings" asChild>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={messages.settings.openSettings}
+                style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
+                <Settings size={20} color={colors.ink} strokeWidth={2} />
               </Pressable>
             </Link>
           </View>
@@ -169,6 +177,14 @@ const styles = StyleSheet.create({
   },
   headerActionsRtl: {
     flexDirection: 'row-reverse',
+  },
+  // Without an explicit flexShrink, React Native's default (0, unlike web's
+  // 1) would let this block overflow past the three now-present icon
+  // buttons on narrow screens instead of wrapping — flexShrink keeps the
+  // title/subtitle text visible (wrapping if truly needed) rather than
+  // clipped or pushed under the header actions. fontSize is never reduced.
+  headerTitleBlock: {
+    flexShrink: 1,
   },
   wordmark: {
     color: colors.ink,

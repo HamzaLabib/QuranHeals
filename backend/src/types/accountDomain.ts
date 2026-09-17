@@ -55,13 +55,25 @@ export type UserPreferenceEntity = {
  * lets the format evolve without breaking older records still on this
  * version. Never add a plaintext/preview/summary/keyword/sentiment field
  * here — see Part D §21.
+ *
+ * `deleted` makes this a durable deletion tombstone instead of an active
+ * record — see docs/auth-and-sync/reflection-privacy.md's "Deletion
+ * tombstones" section. A tombstone row keeps `userId`/`verseKey`/`updatedAt`
+ * (the single LWW timestamp field, reused as the deletion time) but never
+ * has ciphertext/nonce/encryptionVersion/createdAt — those three plus
+ * createdAt are only required when `deleted` is false (see
+ * models/UserReflection.ts's conditional `required`). Existing documents
+ * from before this field existed have `deleted` absent/undefined, which is
+ * falsy — they are read back as active records unchanged, so no migration
+ * is needed.
  */
 export type UserReflectionEntity = {
   userId: string;
   verseKey: string;
-  ciphertext: string;
-  nonce: string;
-  encryptionVersion: number;
+  deleted?: boolean;
+  ciphertext?: string;
+  nonce?: string;
+  encryptionVersion?: number;
   /**
    * Older ciphertext versions displaced by an ambiguous same-timestamp
    * conflict (Part D §29: "if timestamps are ambiguous/conflicting, keep

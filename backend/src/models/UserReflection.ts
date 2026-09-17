@@ -9,6 +9,16 @@ import type { UserReflectionEntity } from '../types/accountDomain';
  * `nonce` are opaque base64 strings produced entirely on-device
  * (mobile/src/crypto/reflectionEncryption.ts); this backend never sees, and
  * has no way to derive, the plaintext reflection.
+ *
+ * `deleted: true` turns a row into a durable deletion tombstone instead of
+ * hard-deleting the document — see
+ * docs/auth-and-sync/reflection-privacy.md's "Deletion tombstones" section.
+ * A tombstone keeps `userId`/`verseKey`/`updatedAt` (reused as the deletion
+ * timestamp) but has no ciphertext/nonce/encryptionVersion/createdAt, so it
+ * carries no reflection content. `ciphertext`/`nonce`/`encryptionVersion`/
+ * `createdAt` are conditionally required — only when `deleted` is not true —
+ * so existing pre-tombstone documents (which never set `deleted` at all)
+ * keep validating exactly as before.
  */
 const userReflectionSchema = new Schema<UserReflectionEntity>(
   {
@@ -25,19 +35,30 @@ const userReflectionSchema = new Schema<UserReflectionEntity>(
         message: 'UserReflection.verseKey must be a valid Quran reference.',
       },
     },
+    deleted: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
     ciphertext: {
       type: String,
-      required: true,
+      required: function (this: { deleted?: boolean }) {
+        return !this.deleted;
+      },
       maxlength: 8000,
     },
     nonce: {
       type: String,
-      required: true,
+      required: function (this: { deleted?: boolean }) {
+        return !this.deleted;
+      },
       maxlength: 128,
     },
     encryptionVersion: {
       type: Number,
-      required: true,
+      required: function (this: { deleted?: boolean }) {
+        return !this.deleted;
+      },
       min: 1,
     },
     conflictVersions: {
@@ -54,10 +75,14 @@ const userReflectionSchema = new Schema<UserReflectionEntity>(
     },
     // Client-declared timestamps (Part D §29 compares "updatedAt" across
     // devices) — deliberately not Mongoose's auto server-time timestamps.
-    // Trusts device clocks; see docs/data-privacy-and-sync.md.
+    // Trusts device clocks; see docs/data-privacy-and-sync.md. `updatedAt` is
+    // the single last-write-wins timestamp for BOTH an active record and a
+    // tombstone (a tombstone's conceptual "deletedAt" IS its `updatedAt`).
     createdAt: {
       type: Date,
-      required: true,
+      required: function (this: { deleted?: boolean }) {
+        return !this.deleted;
+      },
     },
     updatedAt: {
       type: Date,

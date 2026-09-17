@@ -1,11 +1,19 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
+import {
+  computeCompactQuranFontSize,
+  computeMainQuranFontSize,
+  computeQuranLineHeight,
+  countArabicWords,
+} from '@/localization/quranFontSizePreference';
 import { resolveTranslationVisibility } from '@/localization/quranTranslationPreference';
 import { useAppLocale } from '@/localization/useAppLocale';
+import { useQuranFontSizePreference } from '@/localization/useQuranFontSizePreference';
 import { useQuranTranslationPreference } from '@/localization/useQuranTranslationPreference';
 import type { Ayah } from '@/types/domain';
+import { QuranFontSizeControls } from './QuranFontSizeControls';
 
 type AyahCardProps = {
   ayah: Ayah;
@@ -26,6 +34,7 @@ type AyahCardProps = {
 export function AyahCard({ ayah, compact = false }: AyahCardProps) {
   const { messages } = useAppLocale();
   const { preference } = useQuranTranslationPreference();
+  const { preferredSize } = useQuranFontSizePreference();
   const [revealedAyahId, setRevealedAyahId] = useState<string | null>(null);
   const [trackedAyahId, setTrackedAyahId] = useState(ayah.id);
 
@@ -41,9 +50,17 @@ export function AyahCard({ ayah, compact = false }: AyahCardProps) {
   const { showTranslation, showToggleControl } = resolveTranslationVisibility(preference.displayMode, isRevealed);
   const toggleLabel = isRevealed ? messages.translation.hideTranslation : messages.translation.showTranslation;
 
+  // Each ayah calculates its own automatic length adjustment from its own
+  // word count — never a value cached/shared across different ayahs.
+  const wordCount = useMemo(() => countArabicWords(ayah.arabicText), [ayah.arabicText]);
+  const arabicFontSize = compact ? computeCompactQuranFontSize(preferredSize, wordCount) : computeMainQuranFontSize(preferredSize, wordCount);
+  const arabicLineHeight = computeQuranLineHeight(arabicFontSize);
+
   return (
     <View style={[styles.card, compact && styles.compactCard]}>
-      <Text style={[styles.arabic, compact && styles.compactArabic]}>{ayah.arabicText}</Text>
+      <Text style={[styles.arabic, { fontSize: arabicFontSize, lineHeight: arabicLineHeight }]}>{ayah.arabicText}</Text>
+
+      {!compact && <QuranFontSizeControls />}
 
       <View style={styles.referenceRow}>
         <Text style={styles.reference}>
@@ -93,19 +110,13 @@ const styles = StyleSheet.create({
   },
   arabic: {
     color: colors.ink,
-    fontSize: typography.arabic,
     fontWeight: '600',
     letterSpacing: 0,
-    // Ratio 1.6 — still generous headroom so harakat/tashkeel above and
-    // below each letter never clip against the line box (Arabic diacritics
-    // need more vertical clearance than Latin ascenders/descenders).
-    lineHeight: 48,
+    // fontSize/lineHeight are computed per-render (preferred size + automatic
+    // length adjustment) — see computeMainQuranFontSize/computeCompactQuranFontSize
+    // and computeQuranLineHeight in quranFontSizePreference.ts.
     textAlign: 'right',
     writingDirection: 'rtl',
-  },
-  compactArabic: {
-    fontSize: 23,
-    lineHeight: 36,
   },
   translationBlock: {
     gap: spacing.xs,

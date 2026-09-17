@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
+import { colors, radii, shadows, spacing } from '@/constants/theme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import type { Emotion } from '@/types/domain';
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     flexBasis: '47.5%',
     flexGrow: 1,
     gap: spacing.md,
-    minHeight: 156,
+    minHeight: 144,
     padding: spacing.md,
     ...shadows.soft,
   },
@@ -76,10 +76,10 @@ const styles = StyleSheet.create({
   },
   name: {
     color: colors.ink,
-    fontSize: typography.bodyLarge,
+    fontSize: 17,
     fontWeight: '800',
     letterSpacing: 0,
-    lineHeight: 24,
+    lineHeight: 23,
   },
 });
 
