@@ -117,7 +117,7 @@ export default function SettingsScreen() {
               />
             ))}
           </View>
-          <Text style={[styles.note, direction]}>{messages.settings.quranArabicNote}</Text>
+          {/* <Text style={[styles.note, direction]}>{messages.settings.quranArabicNote}</Text> */}
         </View>
 
         <AccountSection locale={locale} messages={messages} direction={direction} isRtl={isRtl} />
