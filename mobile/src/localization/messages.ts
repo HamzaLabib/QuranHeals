@@ -537,7 +537,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       signOut: 'تسجيل الخروج',
       dangerZoneTitle: 'منطقة الخطر',
       deleteAccountAction: 'حذف الحساب',
-      deleteAccountActionDescription: 'حذف حساب Quran Heals وجميع بياناته المتزامنة نهائيًا.',
+      deleteAccountActionDescription: 'حذف حساب Quran Heals وجميع بياناته نهائيًا.',
     },
     // Account-deletion confirmation copy is a security/destructive-action
     // flow — intentionally byte-identical Standard Arabic in `ar` and
@@ -751,7 +751,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       signOut: 'تسجيل الخروج',
       dangerZoneTitle: 'منطقة الخطر',
       deleteAccountAction: 'حذف الحساب',
-      deleteAccountActionDescription: 'حذف حساب Quran Heals وجميع بياناته المتزامنة نهائيًا.',
+      deleteAccountActionDescription: 'حذف حساب Quran Heals وجميع بياناته نهائيًا.',
     },
     // Account-deletion confirmation copy is a security/destructive-action
     // flow — intentionally byte-identical Standard Arabic in `ar` and
@@ -812,7 +812,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       confirmNewPassword: "تأكيد كلمة المرور الجديدة",
       mustDiffer: "يجب أن تكون كلمة المرور الجديدة مختلفة عن كلمة المرور الحالية.",
       incorrectError: "كلمة المرور الحالية غير صحيحة.",
-      changeDescription: "غيّر كلمة المرور الخاصة بخواطرك المشفّرة المتزامنة.",
+      changeDescription: "غيّر كلمة المرور الخاصة بخواطرك المشفّرة المحدثة.",
       saveError: "تعذّر تأكيد تغيير كلمة المرور. تحقق من اتصالك وحاول مرة أخرى. إذا تم حفظ التغيير، فاستخدم كلمة المرور الجديدة.",
       loadError: "تعذّر تحميل كملة المرور للتشفير. يُرجى المحاولة مرة أخرى.",
       retry: "حاول مرة أخرى",
