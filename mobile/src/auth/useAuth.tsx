@@ -11,20 +11,20 @@ import { clearAllReflections } from '@/storage/ayahReflections';
 import { clearAllFavorites } from '@/storage/favorites';
 import { deleteAccountRequest } from '@/sync/syncApi';
 import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
-import { fetchCurrentUser, logoutSession, signInWithAppleIdToken, signInWithGoogleIdToken, AuthApiError } from './authApi';
+import { logoutSession, signInWithAppleIdToken, signInWithGoogleIdToken, AuthApiError } from './authApi';
+import { initializeSession, type InitializedSession } from './initializeSession';
 import {
   clearCachedMasterKey,
   clearCachedUser,
   clearRefreshToken,
   clearSessionToken,
-  getCachedUser,
   getRefreshToken,
   getSessionToken,
   setCachedUser,
   setRefreshToken,
   setSessionToken,
 } from './sessionStorage';
-import { refreshAccessToken, registerSessionExpiredHandler } from './tokenManager';
+import { registerSessionExpiredHandler } from './tokenManager';
 import type { AuthStatus, AuthUser } from './authTypes';
 
 // Automatic (AppState-triggered) foreground resync is throttled the same
@@ -82,11 +82,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // every render (a ref avoids that, unlike putting the token in state).
   // Only ever written from effects/event handlers, never during render.
   const sessionTokenRef = useRef<string | null>(null);
-  // Guards the one-time session-restore-from-storage logic in the mount
-  // effect below so it still only runs once even though that effect must
-  // legitimately list runSyncAfterSignIn (which changes identity when
-  // locale/preference change) in its dependency array.
+  // Mark restoration complete only after a live effect commits its result.
   const hasRestoredSessionRef = useRef(false);
+  const sessionRestorePromiseRef = useRef<Promise<InitializedSession> | null>(null);
   // Single-flight guard so cold start, an AppState foreground event, and an
   // explicit pull-to-refresh refreshSync() call can never run runFullSync
   // (and therefore the mandatory Sync Password prompt) concurrently — see
@@ -120,9 +118,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // parameter or sessionTokenRef — without this re-read, every sync
         // after the very first silent refresh would keep presenting a
         // token that's already stale.
-        const latestToken = (await getSessionToken()) ?? token;
-        sessionTokenRef.current = latestToken;
         try {
+          const latestToken = (await getSessionToken()) ?? token;
+          sessionTokenRef.current = latestToken;
           await runFullSync(latestToken, {
             local: {
               locale,
@@ -152,97 +150,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (hasRestoredSessionRef.current) return;
-    hasRestoredSessionRef.current = true;
-
     let cancelled = false;
 
-    const applySignedIn = (validToken: string, signedInUser: AuthUser) => {
-      sessionTokenRef.current = validToken;
-      setUser(signedInUser);
-      void setCachedUser(signedInUser);
-      setStatus('signed-in');
-      // Picks up anything that changed on another device (or was left
-      // pending on this one) since this device was last open — see Part H
-      // §33. Runs once per cold start; the AppState listener below covers
-      // reconnect/foreground after that.
-      void runSyncAfterSignIn(validToken);
-    };
+    // Cleanup cancels only this subscription, not initialization. If persisted
+    // preferences change runSyncAfterSignIn while restoration is pending, the
+    // replacement effect subscribes to the same promise and commits its result.
+    if (!sessionRestorePromiseRef.current) {
+      sessionRestorePromiseRef.current = initializeSession().finally(() => {
+        sessionRestorePromiseRef.current = null;
+      });
+    }
 
-    // Could not verify against the backend right now (offline, timeout,
-    // backend outage) — never proof the credential is invalid. Trust the
-    // persisted token, and show the last known-good cached profile (if any)
-    // rather than flashing/forcing a guest state — see authApi.ts's
-    // CurrentUserResult doc comment.
-    const applyUnreachable = async (presumedValidToken: string) => {
-      sessionTokenRef.current = presumedValidToken;
-      setUser(await getCachedUser());
-      setStatus('signed-in');
-      // No sync attempted while unreachable — the AppState foreground
-      // listener (or a later explicit refreshSync()) retries once
-      // connectivity returns.
-    };
-
-    (async () => {
-      const token = await getSessionToken();
-      if (!token) {
-        if (!cancelled) setStatus('guest');
-        return;
-      }
-
-      const result = await fetchCurrentUser(token);
+    void sessionRestorePromiseRef.current.then((session) => {
       if (cancelled) return;
-
-      if (result.outcome === 'valid') {
-        applySignedIn(token, result.user);
-        return;
+      hasRestoredSessionRef.current = true;
+      sessionTokenRef.current = session.token;
+      setUser(session.user);
+      setStatus(session.status);
+      if (session.shouldSync && session.token && session.user) {
+        void setCachedUser(session.user);
+        void runSyncAfterSignIn(session.token);
       }
-
-      if (result.outcome === 'unreachable') {
-        await applyUnreachable(token);
-        return;
-      }
-
-      // result.outcome === 'invalid': this specific (short-lived) access
-      // token was explicitly rejected — normal once it naturally expires.
-      // Attempt a refresh before ever concluding the user is signed out.
-      const refreshedToken = await refreshAccessToken();
-      if (cancelled) return;
-
-      if (refreshedToken) {
-        const retryResult = await fetchCurrentUser(refreshedToken);
-        if (cancelled) return;
-        if (retryResult.outcome === 'valid') {
-          applySignedIn(refreshedToken, retryResult.user);
-          return;
-        }
-        if (retryResult.outcome === 'unreachable') {
-          await applyUnreachable(refreshedToken);
-          return;
-        }
-        // A brand-new access token was STILL rejected — genuinely invalid;
-        // fall through to the signed-out path below.
-      } else {
-        // refreshAccessToken() returned null: no refresh token was stored,
-        // the refresh request couldn't reach the backend at all, or the
-        // backend definitively rejected the refresh token itself.
-        // performRefresh() (tokenManager.ts) only clears the persisted
-        // refresh token for that last, genuine case — so if it's still
-        // present here, this was a network failure, not proof of
-        // invalidity.
-        if (await getRefreshToken()) {
-          await applyUnreachable(token);
-          return;
-        }
-      }
-
-      // Genuinely invalid: the access token was rejected and there was
-      // either no way to refresh it or the refresh was itself definitively
-      // rejected too.
-      await clearSessionToken();
-      await clearRefreshToken();
-      await clearCachedUser();
-      if (!cancelled) setStatus('guest');
-    })();
+    });
 
     return () => {
       cancelled = true;

@@ -31,10 +31,8 @@ import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefres
  *
  * There is no RN renderer in this project's test environment (vitest runs
  * in plain Node — see vitest.config.mts), so this file exercises the real
- * underlying functions (authApi.ts's fetchCurrentUser, tokenManager.ts's
- * refreshAccessToken, sessionStorage.ts's persistence) through a harness
- * that reproduces useAuth.tsx's actual restoration/sync algorithm — pinned
- * against the real source below so the two can't silently drift apart.
+ * production initializeSession function and its real API/token/storage
+ * dependencies. Provider lifecycle races are covered by authBootstrap.test.ts.
  */
 
 vi.mock('react-native', () => ({ Platform: { OS: 'web' } }));
@@ -63,7 +61,7 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
   },
 }));
 
-const { fetchCurrentUser } = await import('@/auth/authApi');
+const { initializeSession: restoreSession } = await import('@/auth/initializeSession');
 const { refreshAccessToken, registerSessionExpiredHandler } = await import('@/auth/tokenManager');
 const {
   getSessionToken,
@@ -85,73 +83,6 @@ function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 }
 
-/**
- * Faithful reproduction of useAuth.tsx's cold-start restoration algorithm
- * (see the mount effect there), calling the REAL fetchCurrentUser/
- * refreshAccessToken/sessionStorage functions above — only the "React
- * state" part (status/user) is a plain local variable, since there's no
- * renderer to hold real component state. Kept in sync with source via the
- * pinning assertions in the last describe block below.
- */
-async function restoreSession() {
-  let status: 'guest' | 'signed-in' = 'guest';
-  let user: Awaited<ReturnType<typeof getCachedUser>> = null;
-  let syncAttempts = 0;
-
-  const applySignedIn = async (validToken: string, signedInUser: NonNullable<typeof user>) => {
-    user = signedInUser;
-    await setCachedUser(signedInUser);
-    status = 'signed-in';
-    syncAttempts += 1;
-    void validToken;
-  };
-
-  const applyUnreachable = async () => {
-    user = await getCachedUser();
-    status = 'signed-in';
-  };
-
-  const token = await getSessionToken();
-  if (!token) {
-    status = 'guest';
-    return { status, user, syncAttempts };
-  }
-
-  const result = await fetchCurrentUser(token);
-
-  if (result.outcome === 'valid') {
-    await applySignedIn(token, result.user);
-    return { status, user, syncAttempts };
-  }
-
-  if (result.outcome === 'unreachable') {
-    await applyUnreachable();
-    return { status, user, syncAttempts };
-  }
-
-  const refreshedToken = await refreshAccessToken();
-
-  if (refreshedToken) {
-    const retryResult = await fetchCurrentUser(refreshedToken);
-    if (retryResult.outcome === 'valid') {
-      await applySignedIn(refreshedToken, retryResult.user);
-      return { status, user, syncAttempts };
-    }
-    if (retryResult.outcome === 'unreachable') {
-      await applyUnreachable();
-      return { status, user, syncAttempts };
-    }
-  } else if (await getRefreshToken()) {
-    await applyUnreachable();
-    return { status, user, syncAttempts };
-  }
-
-  await clearSessionToken();
-  await clearRefreshToken();
-  await clearCachedUser();
-  status = 'guest';
-  return { status, user, syncAttempts };
-}
 
 beforeEach(() => {
   secureStore.clear();
@@ -422,23 +353,9 @@ describe('Explicit sign-out and account deletion still clear the appropriate sta
   });
 });
 
-describe('Source pinning: useAuth.tsx actually implements the fixed algorithm (guards against drift from the harness above)', () => {
-  it('cold start attempts refreshAccessToken() before ever concluding the user is signed out', () => {
-    expect(useAuthSource).toMatch(/const refreshedToken = await refreshAccessToken\(\);/);
-  });
-
-  it('an "unreachable" outcome never clears session/refresh tokens', () => {
-    const applyUnreachableBlock = useAuthSource.match(/const applyUnreachable = async[\s\S]*?\n {4}\};/)?.[0] ?? '';
-    expect(applyUnreachableBlock.length).toBeGreaterThan(0);
-    expect(applyUnreachableBlock).not.toMatch(/clearSessionToken/);
-    expect(applyUnreachableBlock).not.toMatch(/clearRefreshToken/);
-  });
-
-  it('only the genuinely-invalid fallthrough path clears session/refresh/cached-user state', () => {
-    const genuinelyInvalidBlock = useAuthSource.match(/\/\/ Genuinely invalid:[\s\S]*?setStatus\('guest'\);/)?.[0] ?? '';
-    expect(genuinelyInvalidBlock).toMatch(/await clearSessionToken\(\);/);
-    expect(genuinelyInvalidBlock).toMatch(/await clearRefreshToken\(\);/);
-    expect(genuinelyInvalidBlock).toMatch(/await clearCachedUser\(\);/);
+describe('Provider wiring and foreground behavior', () => {
+  it('uses the production initializer for cold start', () => {
+    expect(useAuthSource).toContain('initializeSession().finally(');
   });
 
   it('runSyncAfterSignIn is guarded by the shared runGuardedRefresh mutex, not React state alone', () => {
