@@ -94,6 +94,22 @@ describe('encryptReflectionText / decryptReflectionText (reflection AEAD)', () =
 });
 
 describe('wrapMasterKey / unwrapMasterKey (cross-device key recovery via Sync Passphrase)', () => {
+  it('new wrappers preserve whitespace and Unicode exactly', async () => {
+    const key = generateMasterKey(testRandomBytes);
+    const wrapped = await wrapMasterKey(key, ' Ａpassword ', testRandomBytes, FAST_ITERATIONS);
+    expect(wrapped.encryptionVersion).toBe(2);
+    expect(await unwrapMasterKey(wrapped, ' Ａpassword ')).toEqual(key);
+    await expect(unwrapMasterKey(wrapped, ' Apassword ')).rejects.toThrow();
+    await expect(unwrapMasterKey(wrapped, 'Ａpassword')).rejects.toThrow();
+  });
+
+  it('still reads legacy version-1 wrappers with their original NFKC derivation', async () => {
+    const key = generateMasterKey(testRandomBytes);
+    // Same primitives: a legacy wrapper was produced from normalized input.
+    const wrapped = { ...await wrapMasterKey(key, 'Ａpassword'.normalize('NFKC'), testRandomBytes, FAST_ITERATIONS), encryptionVersion: 1 };
+    expect(await unwrapMasterKey(wrapped, 'Ａpassword')).toEqual(key);
+    expect(await unwrapMasterKey(wrapped, 'Apassword')).toEqual(key);
+  });
   it('round-trips the master key through wrap/unwrap with the correct passphrase', async () => {
     const masterKey = generateMasterKey(testRandomBytes);
     const wrapped = await wrapMasterKey(masterKey, 'correct horse battery staple', testRandomBytes, FAST_ITERATIONS);

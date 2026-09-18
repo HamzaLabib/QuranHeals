@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { WrappedMasterKey } from '@/crypto/reflectionEncryption';
 
 vi.mock('@/crypto/randomBytes', () => ({ getRandomBytes: (n: number) => new Uint8Array(randomBytes(n)) }));
 
@@ -21,16 +22,99 @@ vi.mock('@/sync/syncApi', () => ({
     cloudKeyStore.value = key;
     return key;
   }),
+  replaceCloudSyncKey: vi.fn(async (_token: string, expected: unknown, key: unknown) => {
+    if (JSON.stringify(cloudKeyStore.value) !== JSON.stringify(expected)) throw new Error('Conflict');
+    cloudKeyStore.value = key;
+    return key;
+  }),
 }));
 
 const { ensureReflectionMasterKey, SyncPassphraseCancelledError } = await import('@/sync/syncKeyManager');
 const { setCachedMasterKey } = await import('@/auth/sessionStorage');
 const { putCloudSyncKey } = await import('@/sync/syncApi');
+const { changeSyncPassword, verifySyncPassphrase } = await import('@/sync/syncKeyManager');
+const { replaceCloudSyncKey, getCloudSyncKey } = await import('@/sync/syncApi');
+const crypto = await import('@/crypto/reflectionEncryption');
 
 afterEach(() => {
   cachedKeyStore.value = null;
   cloudKeyStore.value = null;
   vi.clearAllMocks();
+});
+
+describe('password change preserves envelope-encrypted reflections', { timeout: 20_000 }, () => {
+  async function setup() {
+    const key = await ensureReflectionMasterKey('token', async () => 'old-password');
+    const reflection = crypto.encryptReflectionText('private reflection', key, (n) => new Uint8Array(randomBytes(n)));
+    const previous = cloudKeyStore.value as WrappedMasterKey;
+    return { key, reflection, previous };
+  }
+
+  it('verifies the current password and rewraps the same key with fresh values; only new password unlocks', async () => {
+    const { reflection, previous } = await setup();
+    const cachedBefore = cachedKeyStore.value;
+    await changeSyncPassword('token', 'old-password', 'new-password');
+    const saved = cloudKeyStore.value as WrappedMasterKey;
+    expect(saved.salt).not.toBe(previous.salt);
+    expect(saved.nonce).not.toBe(previous.nonce);
+    expect(saved.kdfIterations).toBe(crypto.DEFAULT_KDF_ITERATIONS);
+    const recovered = await crypto.unwrapMasterKey(saved, 'new-password');
+    expect(crypto.decryptReflectionText(reflection, recovered)).toBe('private reflection');
+    expect(await verifySyncPassphrase(saved, 'old-password')).toBe(false);
+    expect(cachedKeyStore.value).toBe(cachedBefore);
+    expect(replaceCloudSyncKey).toHaveBeenCalledWith('token', previous, saved);
+  });
+
+  it('wrong current password cannot write anything', async () => {
+    const { previous } = await setup();
+    await expect(changeSyncPassword('token', 'wrong', 'new-password')).rejects.toThrow();
+    expect(cloudKeyStore.value).toEqual(previous);
+    expect(replaceCloudSyncKey).not.toHaveBeenCalled();
+  });
+
+  it.each(['short', 'a'.repeat(33), 'old-password'])('rejects invalid new password %s before writing', async (next) => {
+    await setup();
+    await expect(changeSyncPassword('token', 'old-password', next)).rejects.toThrow();
+    expect(replaceCloudSyncKey).not.toHaveBeenCalled();
+  });
+
+  it('a failed save preserves the old wrapper and its decryptable data', async () => {
+    const { previous, reflection } = await setup();
+    vi.mocked(replaceCloudSyncKey).mockRejectedValueOnce(new Error('Offline'));
+    await expect(changeSyncPassword('token', 'old-password', 'new-password')).rejects.toThrow('Offline');
+    expect(cloudKeyStore.value).toEqual(previous);
+    expect(crypto.decryptReflectionText(reflection, await crypto.unwrapMasterKey(previous, 'old-password'))).toBe('private reflection');
+  });
+
+  it('a failed re-encryption never attempts a save', async () => {
+    const { previous } = await setup();
+    vi.spyOn(crypto, 'wrapMasterKey').mockRejectedValueOnce(new Error('Encryption failed'));
+    await expect(changeSyncPassword('token', 'old-password', 'new-password')).rejects.toThrow('Encryption failed');
+    expect(replaceCloudSyncKey).not.toHaveBeenCalled();
+    expect(cloudKeyStore.value).toEqual(previous);
+  });
+
+  it('confirms a committed replacement when its response was lost', async () => {
+    await setup();
+    vi.mocked(replaceCloudSyncKey).mockImplementationOnce(async (_token, _expected, replacement) => {
+      cloudKeyStore.value = replacement;
+      throw new Error('Response lost');
+    });
+    await expect(changeSyncPassword('token', 'old-password', 'new-password')).resolves.toBeUndefined();
+    expect(await verifySyncPassphrase(cloudKeyStore.value as WrappedMasterKey, 'new-password')).toBe(true);
+  });
+
+  it('a concurrent change wins without being rolled back', async () => {
+    const { key } = await setup();
+    const concurrent = await crypto.wrapMasterKey(key, 'other-password', (n) => new Uint8Array(randomBytes(n)), 100);
+    vi.mocked(replaceCloudSyncKey).mockImplementationOnce(async () => {
+      cloudKeyStore.value = concurrent;
+      throw new Error('Conflict');
+    });
+    await expect(changeSyncPassword('token', 'old-password', 'new-password')).rejects.toThrow('Conflict');
+    expect(cloudKeyStore.value).toEqual(concurrent);
+    expect(getCloudSyncKey).toHaveBeenCalled();
+  });
 });
 
 describe('ensureReflectionMasterKey', () => {

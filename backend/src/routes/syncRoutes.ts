@@ -25,6 +25,7 @@ export function createSyncRoutes(repository: SyncRepository) {
 
   router.get('/key', asyncHandler(controller.getSyncKey));
   router.put('/key', asyncHandler(controller.putSyncKey));
+  router.patch('/key', asyncHandler(controller.replaceSyncKey));
 
   return router;
 }

@@ -8,7 +8,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
@@ -17,9 +16,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
-import type { SyncPassphraseMode } from '@/sync/syncKeyManager';
+import type { SyncPassphraseMode, VerifyPassphrase } from '@/sync/syncKeyManager';
+import { useVerifiedSyncPassword } from '@/sync/useVerifiedSyncPassword';
+import { canSetSyncPassword, passwordLengthError } from '@/utils/syncPasswordValidation';
+import { SyncPasswordField } from './SyncPasswordField';
 
-export type PassphraseRequestLike = { mode: SyncPassphraseMode } | null;
+export type PassphraseRequestLike = { mode: SyncPassphraseMode; verify?: VerifyPassphrase } | null;
 
 type SyncPassphraseSheetProps = {
   request: PassphraseRequestLike;
@@ -46,26 +48,38 @@ type SyncPassphraseSheetProps = {
  * swipe-down, and Android Back must never close it (onRequestClose is a
  * no-op below); only Keyboard.dismiss() happens on an outside tap.
  */
-export function SyncPassphraseSheet({ request, onSubmit, onSignOut }: SyncPassphraseSheetProps) {
+export function SyncPassphraseSheet(props: SyncPassphraseSheetProps) {
+  return props.request ? <SyncPassphraseForm key={props.request.mode} {...props} request={props.request} /> : null;
+}
+
+function SyncPassphraseForm({ request, onSubmit, onSignOut }: SyncPassphraseSheetProps & { request: NonNullable<PassphraseRequestLike> }) {
   const { locale, messages } = useAppLocale();
   const direction = getDirectionStyle(locale);
   const isRtl = isRtlLocale(locale);
   const [value, setValue] = useState('');
 
-  if (!request) return null;
+  const [confirmation, setConfirmation] = useState('');
+  const [touched, setTouched] = useState(false);
+  const { verified } = useVerifiedSyncPassword(value, request.mode === 'unlock' ? request.verify : undefined);
 
   const isCreate = request.mode === 'create';
-  const canSubmit = value.trim().length >= 4;
+  const canSubmit = isCreate ? canSetSyncPassword(value, confirmation) : verified;
+  const lengthError = passwordLengthError(value);
+  const feedback = isCreate && touched && lengthError ? messages.syncPassphrase[lengthError]
+    : isCreate && confirmation && value !== confirmation ? messages.syncPassphrase.mismatch : null;
+  const submitLabel = isCreate ? messages.syncPassphrase.createTitle : messages.syncPassphrase.continueLabel;
 
   const submit = () => {
     if (!canSubmit) return;
     const passphrase = value;
     setValue('');
+    setConfirmation('');
     onSubmit(passphrase);
   };
 
   const signOut = () => {
     setValue('');
+    setConfirmation('');
     onSignOut();
   };
 
@@ -88,22 +102,15 @@ export function SyncPassphraseSheet({ request, onSubmit, onSignOut }: SyncPassph
                 <Text style={[styles.description, direction]}>
                   {isCreate ? messages.syncPassphrase.createDescription : messages.syncPassphrase.unlockDescription}
                 </Text>
-                <TextInput
-                  value={value}
-                  onChangeText={setValue}
-                  placeholder={isCreate ? messages.syncPassphrase.createPlaceholder : messages.syncPassphrase.unlockPlaceholder}
-                  placeholderTextColor={colors.muted}
-                  secureTextEntry
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  returnKeyType="done"
-                  // Dismiss-only — never auto-submits an unvalidated
-                  // password just because the user pressed the keyboard's
-                  // Done key.
-                  onSubmitEditing={() => Keyboard.dismiss()}
-                  style={[styles.input, direction]}
-                  accessibilityLabel={isCreate ? messages.syncPassphrase.createPlaceholder : messages.syncPassphrase.unlockPlaceholder}
-                />
+                <SyncPasswordField value={value} onChangeText={setValue}
+                  onBlur={() => setTouched(true)}
+                  label={isCreate ? messages.syncPassphrase.createPlaceholder : messages.syncPassphrase.unlockPlaceholder} />
+                {isCreate && <>
+                  <SyncPasswordField value={confirmation} onChangeText={setConfirmation}
+                    label={messages.syncPassphrase.confirmPassword} />
+                  <Text style={[styles.description, direction]}>{messages.syncPassphrase.lengthHint}{'\n'}{messages.syncPassphrase.allowedHint}</Text>
+                </>}
+                {feedback && <Text accessibilityLiveRegion="polite" style={[styles.error, direction]}>{feedback}</Text>}
                 <View style={[styles.actions, isRtl && styles.actionsRtl]}>
                   <Pressable
                     accessibilityRole="button"
@@ -114,11 +121,11 @@ export function SyncPassphraseSheet({ request, onSubmit, onSignOut }: SyncPassph
                   </Pressable>
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel={messages.syncPassphrase.continueLabel}
+                    accessibilityLabel={submitLabel}
                     disabled={!canSubmit}
                     onPress={submit}
                     style={({ pressed }) => [styles.primaryButton, !canSubmit && styles.disabled, pressed && styles.pressed]}>
-                    <Text style={styles.primaryButtonText}>{messages.syncPassphrase.continueLabel}</Text>
+                    <Text style={styles.primaryButtonText}>{submitLabel}</Text>
                   </Pressable>
                 </View>
               </ScrollView>
@@ -130,7 +137,8 @@ export function SyncPassphraseSheet({ request, onSubmit, onSignOut }: SyncPassph
   );
 }
 
-const styles = StyleSheet.create({
+export const syncPasswordStyles = StyleSheet.create({
+  error: { color: colors.rust, fontSize: typography.caption },
   backdrop: {
     backgroundColor: 'rgba(31, 42, 36, 0.45)',
     flex: 1,
@@ -138,8 +146,10 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     width: '100%',
+    maxHeight: '100%',
   },
   sheet: {
+    flexShrink: 1,
     backgroundColor: colors.surface,
     borderTopLeftRadius: radii.lg,
     borderTopRightRadius: radii.lg,
@@ -158,16 +168,6 @@ const styles = StyleSheet.create({
     color: colors.softText,
     fontSize: typography.caption,
     lineHeight: 19,
-  },
-  input: {
-    backgroundColor: colors.parchment,
-    borderColor: colors.border,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    color: colors.ink,
-    fontSize: typography.body,
-    minHeight: 52,
-    paddingHorizontal: spacing.md,
   },
   actions: {
     flexDirection: 'row',
@@ -211,3 +211,5 @@ const styles = StyleSheet.create({
     opacity: 0.78,
   },
 });
+
+const styles = syncPasswordStyles;

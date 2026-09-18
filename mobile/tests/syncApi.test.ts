@@ -5,7 +5,7 @@ vi.mock('react-native', () => ({ Platform: { OS: 'web' } }));
 const refreshAccessToken = vi.fn<() => Promise<string | null>>();
 vi.mock('@/auth/tokenManager', () => ({ refreshAccessToken }));
 
-const { getCloudFavorites, SyncApiError } = await import('@/sync/syncApi');
+const { getCloudFavorites, replaceCloudSyncKey, SyncApiError } = await import('@/sync/syncApi');
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -68,4 +68,21 @@ describe('authedRequest 401 handling (via getCloudFavorites)', () => {
     await expect(getCloudFavorites('token')).rejects.toBeInstanceOf(SyncApiError);
     expect(refreshAccessToken).not.toHaveBeenCalled();
   });
+});
+
+it('password replacement sends only the expected/replacement encrypted wrappers and preserves token refresh', async () => {
+  const expected = { wrappedKey: 'old', nonce: 'nonce', salt: 'salt', encryptionVersion: 1, kdfIterations: 210000 };
+  const replacement = { ...expected, wrappedKey: 'new', encryptionVersion: 2 };
+  refreshAccessToken.mockResolvedValue('fresh-token');
+  const calls = mockFetchSequence([
+    new Response('', { status: 401 }),
+    new Response(JSON.stringify({ success: true, data: replacement }), { status: 200 }),
+  ]);
+  expect(await replaceCloudSyncKey('old-token', expected, replacement)).toEqual(replacement);
+  expect(calls.map(call => call.token)).toEqual(['old-token', 'fresh-token']);
+  for (const [url, init] of vi.mocked(fetch).mock.calls) {
+    expect(url).toContain('/api/sync/key');
+    expect(init?.method).toBe('PATCH');
+    expect(JSON.parse(init?.body as string)).toEqual({ expected, replacement });
+  }
 });

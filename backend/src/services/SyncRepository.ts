@@ -68,9 +68,11 @@ export interface SyncRepository {
   putReflections(userId: string, records: IncomingReflectionRecord[]): Promise<PutReflectionsResult>;
 
   getSyncKey(userId: string): Promise<SyncKeyDto | null>;
-  /** Set-once in normal operation (the mobile client only calls this the first time a device establishes the sync key); overwriting is allowed at the repository level but the controller never does so once a key already exists, to avoid silently orphaning devices that already unwrapped the old one. */
+  /** Create only: concurrent setup must never overwrite an existing key. */
   putSyncKey(
     userId: string,
     key: { wrappedKey: string; nonce: string; salt: string; kdfIterations: number; encryptionVersion: number },
   ): Promise<SyncKeyDto>;
+  /** Atomic compare-and-replace; null means the expected wrapper is stale. */
+  replaceSyncKey(userId: string, expected: SyncKeyDto, replacement: SyncKeyDto): Promise<SyncKeyDto | null>;
 }

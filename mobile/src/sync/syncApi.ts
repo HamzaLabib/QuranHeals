@@ -163,6 +163,12 @@ export function putCloudSyncKey(sessionToken: string, key: SyncKeyRecord) {
   return authedRequest<SyncKeyRecord>(sessionToken, '/api/sync/key', { method: 'PUT', body: JSON.stringify(key) });
 }
 
+export function replaceCloudSyncKey(sessionToken: string, expected: SyncKeyRecord, replacement: SyncKeyRecord) {
+  return authedRequest<SyncKeyRecord>(sessionToken, '/api/sync/key', {
+    method: 'PATCH', body: JSON.stringify({ expected, replacement }),
+  });
+}
+
 /**
  * Permanently deletes the account named by the authenticated session —
  * never a client-supplied userId (see backend/src/controllers/accountController.ts).

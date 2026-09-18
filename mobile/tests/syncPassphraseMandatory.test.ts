@@ -40,7 +40,7 @@ describe('SyncPassphraseSheet: the mandatory password step cannot be skipped/can
   });
 
   it('the password field stays a secure/masked entry', () => {
-    expect(sheetSource).toMatch(/secureTextEntry/);
+    expect(readFileSync(resolve(__dirname, '../src/components/SyncPasswordField.tsx'), 'utf-8')).toMatch(/secureTextEntry=\{!visible\}/);
   });
 });
 

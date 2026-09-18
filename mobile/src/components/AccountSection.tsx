@@ -6,6 +6,7 @@ import { extractGoogleIdToken, isGoogleAuthConfigured, useGoogleAuthRequest } fr
 import { useAuth } from '@/auth/useAuth';
 import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
 import { DeleteAccountSheet } from '@/components/DeleteAccountSheet';
+import { ChangeSyncPasswordSheet } from '@/components/ChangeSyncPasswordSheet';
 import type { AppLocale } from '@/localization/locales';
 import type { Messages } from '@/localization/messages';
 import { AppleIcon } from './AppleIcon';
@@ -77,6 +78,7 @@ export function AccountSection({ messages, direction, isRtl }: AccountSectionPro
         ) : status === 'signed-in' ? (
           <>
             <Text style={[styles.statusText, direction]}>{messages.account.signedIn}</Text>
+            <ChangePasswordAction messages={messages} />
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={messages.account.signOut}
@@ -154,6 +156,18 @@ export function AccountSection({ messages, direction, isRtl }: AccountSectionPro
       />
     </View>
   );
+}
+
+/** Signed-in subtree owns the sheet, so sign-out also resets visibility. */
+function ChangePasswordAction({ messages }: { messages: Messages }) {
+  const [visible, setVisible] = useState(false);
+  return <>
+    <Pressable accessibilityRole="button" accessibilityLabel={messages.syncPassphrase.changeTitle}
+      onPress={() => setVisible(true)} style={({ pressed }) => [styles.button, pressed && styles.pressed]}>
+      <Text style={styles.buttonText}>{messages.syncPassphrase.changeTitle}</Text>
+    </Pressable>
+    {visible && <ChangeSyncPasswordSheet onClose={() => setVisible(false)} />}
+  </>;
 }
 
 const styles = StyleSheet.create({

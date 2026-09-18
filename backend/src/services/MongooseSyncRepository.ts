@@ -2,6 +2,7 @@ import { UserFavoriteModel } from '../models/UserFavorite';
 import { UserPreferenceModel } from '../models/UserPreference';
 import { UserReflectionModel } from '../models/UserReflection';
 import { UserSyncKeyModel } from '../models/UserSyncKey';
+import { AppError } from '../errors/AppError';
 import type { TranslationDisplayMode } from '../types/accountDomain';
 import type { FavoriteDto, PreferencesDto, ReflectionSyncRecordDto, SyncKeyDto } from '../types/accountDto';
 import type { IncomingReflectionRecord, PutReflectionsResult, SyncRepository } from './SyncRepository';
@@ -259,11 +260,21 @@ export class MongooseSyncRepository implements SyncRepository {
     userId: string,
     key: { wrappedKey: string; nonce: string; salt: string; kdfIterations: number; encryptionVersion: number },
   ): Promise<SyncKeyDto> {
+    try {
+      const doc = await UserSyncKeyModel.create({ ...key, userId });
+      return toSyncKeyDto(doc);
+    } catch (error) {
+      if ((error as { code?: number }).code === 11000) throw new AppError('A sync key already exists for this account.', 409);
+      throw error;
+    }
+  }
+
+  async replaceSyncKey(userId: string, expected: SyncKeyDto, replacement: SyncKeyDto): Promise<SyncKeyDto | null> {
     const doc = await UserSyncKeyModel.findOneAndUpdate(
-      { userId },
-      { $set: { ...key, userId } },
-      { upsert: true, new: true, setDefaultsOnInsert: true },
+      { userId, ...expected },
+      { $set: replacement },
+      { new: true, runValidators: true, writeConcern: { w: 'majority' } },
     ).lean();
-    return toSyncKeyDto(doc as never);
+    return doc ? toSyncKeyDto(doc as never) : null;
   }
 }

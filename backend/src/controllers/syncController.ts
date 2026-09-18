@@ -9,6 +9,7 @@ import {
   putPreferencesSchema,
   putReflectionsSchema,
   putSyncKeySchema,
+  replaceSyncKeySchema,
 } from '../validators/syncValidators';
 
 function userId(req: Request): string {
@@ -64,6 +65,14 @@ export function createSyncController(repository: SyncRepository) {
 
     getSyncKey: async (req: Request, res: Response) => {
       res.json({ success: true, data: await repository.getSyncKey(userId(req)) });
+    },
+
+    replaceSyncKey: async (req: Request, res: Response) => {
+      const parsed = replaceSyncKeySchema.safeParse(req.body);
+      if (!parsed.success) throw new AppError('Invalid sync key replacement.', 400);
+      const saved = await repository.replaceSyncKey(userId(req), parsed.data.expected, parsed.data.replacement);
+      if (!saved) throw new AppError('The sync key has changed. Reload and try again.', 409);
+      res.json({ success: true, data: saved });
     },
 
     putSyncKey: async (req: Request, res: Response) => {

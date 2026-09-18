@@ -22,7 +22,7 @@ describe('SyncPassphraseSheet wording: Set Password (first-time) vs Enter Passwo
     expect(sheetSource).toMatch(/const isCreate = request\.mode === 'create';/);
     expect(sheetSource).toMatch(/\{isCreate \? messages\.syncPassphrase\.createTitle : messages\.syncPassphrase\.unlockTitle\}/);
     expect(sheetSource).toMatch(
-      /placeholder=\{isCreate \? messages\.syncPassphrase\.createPlaceholder : messages\.syncPassphrase\.unlockPlaceholder\}/,
+      /label=\{isCreate \? messages\.syncPassphrase\.createPlaceholder : messages\.syncPassphrase\.unlockPlaceholder\}/,
     );
   });
 
@@ -34,7 +34,7 @@ describe('SyncPassphraseSheet wording: Set Password (first-time) vs Enter Passwo
     it(`${locale}: first-time setup uses "Set Password" wording, existing-passphrase unlock uses "Enter Password" wording — never the same string`, () => {
       const copy = MESSAGES[locale].syncPassphrase;
       expect(copy.createTitle).not.toBe(copy.unlockTitle);
-      expect(copy.createPlaceholder).not.toBe(copy.unlockPlaceholder);
+      expect(copy.createPlaceholder).toBe(copy.unlockPlaceholder);
       expect(copy.createTitle.length).toBeGreaterThan(0);
       expect(copy.unlockTitle.length).toBeGreaterThan(0);
       expect(copy.createPlaceholder.length).toBeGreaterThan(0);
@@ -42,15 +42,15 @@ describe('SyncPassphraseSheet wording: Set Password (first-time) vs Enter Passwo
     });
   }
 
-  it('English: matches the exact requested wording ("Set Password" / "Enter Password" / "Set password" / "Enter password")', () => {
+  it('English: distinct setup/unlock titles and the shared Password field label', () => {
     const copy = MESSAGES.en.syncPassphrase;
     expect(copy.createTitle).toBe('Set Password');
     expect(copy.unlockTitle).toBe('Enter Password');
-    expect(copy.createPlaceholder).toBe('Set password');
-    expect(copy.unlockPlaceholder).toBe('Enter password');
+    expect(copy.createPlaceholder).toBe('Password');
+    expect(copy.unlockPlaceholder).toBe('Password');
   });
 
-  it('every locale\'s create/unlock descriptions clarify this is not the Google/Apple account password', () => {
+  it('every locale has distinct nonempty create/unlock descriptions', () => {
     for (const locale of APP_LOCALES) {
       const copy = MESSAGES[locale].syncPassphrase;
       // English wording is asserted verbatim elsewhere; here we only check
@@ -86,11 +86,11 @@ function resolveSyncPassphraseCopy(mode: 'create' | 'unlock', locale: (typeof AP
 
 describe('End-to-end mode -> wording mapping for every required state', () => {
   it('1. user has never configured a Sync Password anywhere (no cloud key) -> "create" mode -> Set Password wording', () => {
-    expect(resolveSyncPassphraseCopy('create', 'en')).toEqual({ title: 'Set Password', placeholder: 'Set password' });
+    expect(resolveSyncPassphraseCopy('create', 'en')).toEqual({ title: 'Set Password', placeholder: 'Password' });
   });
 
   it('2. user already has a Sync Password and this device needs to unlock -> "unlock" mode -> Enter Password wording', () => {
-    expect(resolveSyncPassphraseCopy('unlock', 'en')).toEqual({ title: 'Enter Password', placeholder: 'Enter password' });
+    expect(resolveSyncPassphraseCopy('unlock', 'en')).toEqual({ title: 'Enter Password', placeholder: 'Password' });
   });
 
   it('5/6. a second device signing in where encrypted reflections already exist gets "unlock" mode (never "create") -> Enter Password, never Set Password', () => {
@@ -111,7 +111,7 @@ describe('End-to-end mode -> wording mapping for every required state', () => {
       const createCopy = resolveSyncPassphraseCopy('create', locale);
       const unlockCopy = resolveSyncPassphraseCopy('unlock', locale);
       expect(createCopy.title).not.toBe(unlockCopy.title);
-      expect(createCopy.placeholder).not.toBe(unlockCopy.placeholder);
+      expect(createCopy.placeholder).toBe(unlockCopy.placeholder);
     }
   });
 });

@@ -6,7 +6,7 @@ import { DEFAULT_QURAN_TRANSLATION_PREFERENCE } from '@/localization/quranTransl
 import { useQuranTranslationPreference } from '@/localization/useQuranTranslationPreference';
 import { SyncPassphraseSheet } from '@/components/SyncPassphraseSheet';
 import { runFullSync } from '@/sync/syncOrchestrator';
-import { SyncPassphraseCancelledError, type SyncPassphraseMode } from '@/sync/syncKeyManager';
+import { SyncPassphraseCancelledError, type SyncPassphraseMode, type VerifyPassphrase } from '@/sync/syncKeyManager';
 import { clearAllReflections } from '@/storage/ayahReflections';
 import { clearAllFavorites } from '@/storage/favorites';
 import { deleteAccountRequest } from '@/sync/syncApi';
@@ -60,6 +60,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 type PassphraseRequest = {
   mode: SyncPassphraseMode;
+  verify?: VerifyPassphrase;
   resolve: (passphrase: string) => void;
   reject: (error: Error) => void;
 };
@@ -99,9 +100,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { preference, setDisplayMode } = useQuranTranslationPreference();
 
   const promptForPassphrase = useCallback(
-    (mode: SyncPassphraseMode) =>
+    (mode: SyncPassphraseMode, verify?: VerifyPassphrase) =>
       new Promise<string>((resolve, reject) => {
-        setPassphraseRequest({ mode, resolve, reject });
+        setPassphraseRequest({ mode, verify, resolve, reject });
       }),
     [],
   );

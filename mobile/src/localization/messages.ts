@@ -175,16 +175,31 @@ export type Messages = {
    * `account.signOut` for the sheet's one way out; no `cancel` key here.
    */
   syncPassphrase: {
-    /** Shown only the first time this account turns on sync (no cloud key exists yet — see syncKeyManager.ts's ensureReflectionMasterKey) — a distinct "Set" action, never the same wording as unlockTitle. */
     createTitle: string;
-    /** Shown whenever this account already has a Sync Password elsewhere (a cloud key already exists) and this device needs it to decrypt — including a brand-new device signing in for the first time. */
     unlockTitle: string;
     createDescription: string;
     unlockDescription: string;
     createPlaceholder: string;
     unlockPlaceholder: string;
     continueLabel: string;
+    confirmPassword: string;
+    show: string;
+    hide: string;
+    lengthHint: string;
+    allowedHint: string;
+    mismatch: string;
+    tooShort: string;
+    tooLong: string;
+    changeTitle: string;
+    currentPassword: string;
+    newPassword: string;
+    confirmNewPassword: string;
+    mustDiffer: string;
     incorrectError: string;
+    changeDescription: string;
+    saveError: string;
+    loadError: string;
+    retry: string;
   };
   issueReport: {
     action: string;
@@ -254,7 +269,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       errorTitle: 'Some saved ayahs could not be opened',
       retry: 'Try Again',
       emptyTitle: 'No saved ayahs yet',
-      emptyMessage: 'Save an ayah from the reflection screen and it will appear here.',
+      emptyMessage: 'Save an ayah and it will appear here.',
       unresolvedSuffix: 'saved item(s) could not be resolved. Your stored entries have been kept.',
       share: 'Share',
       shareSaved: 'Share saved ayah',
@@ -357,16 +372,31 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       deleteError: 'Your reflection could not be deleted. Please try again.',
     },
     syncPassphrase: {
-      createTitle: 'Set Password',
-      unlockTitle: 'Enter Password',
-      createDescription:
-        'Set a Sync Password to protect your private reflections when they sync across your devices. This is not your Google or Apple account password — it is a separate password just for Quran Heals, and Quran Heals cannot recover it, so keep it somewhere safe.',
-      unlockDescription:
-        'Enter the Sync Password you set on another signed-in device to unlock your private reflections and access your synced data. This is not your Google or Apple account password.',
-      createPlaceholder: 'Set password',
-      unlockPlaceholder: 'Enter password',
-      continueLabel: 'Continue',
-      incorrectError: 'Incorrect password. Please try again.',
+      createTitle: "Set Password",
+      unlockTitle: "Enter Password",
+      createDescription: "Create a Password to protect and encrypt your private reflections when they sync across your devices. Quran Heals cannot recover your Password if you forget it, so choose something you can remember.",
+      unlockDescription: "Enter your Password to unlock your encrypted synced data on this device.",
+      createPlaceholder: "Password",
+      unlockPlaceholder: "Password",
+      continueLabel: "Continue",
+      confirmPassword: "Confirm Password",
+      show: "Show",
+      hide: "Hide",
+      lengthHint: "Use 8–32 characters.",
+      allowedHint: "Letters, numbers, and symbols are allowed.",
+      mismatch: "Passwords don’t match.",
+      tooShort: "Password must be at least 8 characters.",
+      tooLong: "Password cannot exceed 32 characters.",
+      changeTitle: "Change Password",
+      currentPassword: "Current Password",
+      newPassword: "New Password",
+      confirmNewPassword: "Confirm New Password",
+      mustDiffer: "New Password must be different from your current Password.",
+      incorrectError: "Current Password is incorrect.",
+      changeDescription: "Change the Password for your encrypted synced reflections.",
+      saveError: "Could not confirm the password change. Check your connection and try again. If it was saved, use your new Password.",
+      loadError: "Could not load your encrypted sync key. Please try again.",
+      retry: "Try again",
     },
     issueReport: {
       action: 'Report an issue',
@@ -434,7 +464,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       errorTitle: 'تعذّر فتح بعض الآيات المحفوظة',
       retry: 'أعد المحاولة',
       emptyTitle: 'لا توجد آيات محفوظة بعد',
-      emptyMessage: 'احفظ آية من شاشة التأمل وستظهر هنا.',
+      emptyMessage: 'احفظ آية وستظهر هنا.',
       unresolvedSuffix: 'من العناصر المحفوظة تعذّر فتحها. تم الاحتفاظ بسجلك المخزّن.',
       share: 'مشاركة',
       shareSaved: 'مشاركة الآية المحفوظة',
@@ -541,16 +571,31 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       deleteError: 'تعذّر حذف خاطرتك. يُرجى المحاولة مرة أخرى.',
     },
     syncPassphrase: {
-      createTitle: 'تعيين كلمة المرور',
-      unlockTitle: 'إدخال كلمة المرور',
-      createDescription:
-        'عيّن كلمة مرور المزامنة لحماية خواطرك الخاصة عند مزامنتها بين أجهزتك. هذه ليست كلمة مرور حسابك في Google أو Apple، بل كلمة مرور منفصلة خاصة بتطبيق Quran Heals، ولا يمكن لتطبيق Quran Heals استعادتها، لذا احتفظ بها في مكان آمن.',
-      unlockDescription:
-        'أدخل كلمة مرور المزامنة التي عيّنتها على جهاز آخر مسجّل الدخول لفتح خواطرك الخاصة والوصول إلى بياناتك المحفوظة. هذه ليست كلمة مرور حسابك في Google أو Apple.',
-      createPlaceholder: 'عيّن كلمة المرور',
-      unlockPlaceholder: 'أدخل كلمة المرور',
-      continueLabel: 'متابعة',
-      incorrectError: 'كلمة المرور غير صحيحة. حاول مرة أخرى.',
+      createTitle: "إنشاء كلمة المرور",
+      unlockTitle: "أدخل كلمة المرور",
+      createDescription: "أنشئ كلمة مرور لحماية وتشفير خواطرك الخاصة عند مزامنتها بين أجهزتك. لا يمكن لتطبيق Quran Heals استعادة كلمة المرور إذا نسيتها، لذا اختر كلمة مرور يمكنك تذكرها.",
+      unlockDescription: "أدخل كلمة المرور لفتح بياناتك المشفّرة على هذا الجهاز.",
+      createPlaceholder: "كلمة المرور",
+      unlockPlaceholder: "كلمة المرور",
+      continueLabel: "متابعة",
+      confirmPassword: "تأكيد كلمة المرور",
+      show: "إظهار",
+      hide: "إخفاء",
+      lengthHint: "استخدم من 8 إلى 32 حرفًا.",
+      allowedHint: "يمكنك استخدام الحروف والأرقام والرموز.",
+      mismatch: "كلمتا المرور غير متطابقتين.",
+      tooShort: "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.",
+      tooLong: "لا يمكن أن تتجاوز كلمة المرور 32 حرفًا.",
+      changeTitle: "تغيير كلمة المرور",
+      currentPassword: "كلمة المرور الحالية",
+      newPassword: "كلمة المرور الجديدة",
+      confirmNewPassword: "تأكيد كلمة المرور الجديدة",
+      mustDiffer: "يجب أن تكون كلمة المرور الجديدة مختلفة عن كلمة المرور الحالية.",
+      incorrectError: "كلمة المرور الحالية غير صحيحة.",
+      changeDescription: "غيّر كلمة المرور الخاصة بخواطرك المشفّرة المتزامنة.",
+      saveError: "تعذّر تأكيد تغيير كلمة المرور. تحقق من اتصالك وحاول مرة أخرى. إذا تم حفظ التغيير، فاستخدم كلمة المرور الجديدة.",
+      loadError: "تعذّر تحميل مفتاح المزامنة المشفّر. يُرجى المحاولة مرة أخرى.",
+      retry: "حاول مرة أخرى",
     },
     issueReport: {
       action: 'الإبلاغ عن مشكلة',
@@ -626,7 +671,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       errorTitle: 'تعذّر فتح بعض الآيات المحفوظة',
       retry: 'أعد المحاولة',
       emptyTitle: 'لا توجد آيات محفوظة بعد',
-      emptyMessage: 'احفظ آية من شاشة التأمل وستظهر هنا.',
+      emptyMessage: 'احفظ آية وستظهر هنا.',
       unresolvedSuffix: 'من العناصر المحفوظة تعذّر فتحها. تم الاحتفاظ بسجلك المخزّن.',
       share: 'مشاركة',
       shareSaved: 'شارك الآية المحفوظة',
@@ -742,16 +787,31 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     // byte-identical to `ar`'s Standard Arabic (Part 9 of the mandatory
     // sync-password phase), never Egyptian colloquial.
     syncPassphrase: {
-      createTitle: 'تعيين كلمة المرور',
-      unlockTitle: 'إدخال كلمة المرور',
-      createDescription:
-        'عيّن كلمة مرور المزامنة لحماية خواطرك الخاصة عند مزامنتها بين أجهزتك. هذه ليست كلمة مرور حسابك في Google أو Apple، بل كلمة مرور منفصلة خاصة بتطبيق Quran Heals، ولا يمكن لتطبيق Quran Heals استعادتها، لذا احتفظ بها في مكان آمن.',
-      unlockDescription:
-        'أدخل كلمة مرور المزامنة التي عيّنتها على جهاز آخر مسجّل الدخول لفتح خواطرك الخاصة والوصول إلى بياناتك المحفوظة. هذه ليست كلمة مرور حسابك في Google أو Apple.',
-      createPlaceholder: 'عيّن كلمة المرور',
-      unlockPlaceholder: 'أدخل كلمة المرور',
-      continueLabel: 'متابعة',
-      incorrectError: 'كلمة المرور غير صحيحة. حاول مرة أخرى.',
+      createTitle: "إنشاء كلمة المرور",
+      unlockTitle: "أدخل كلمة المرور",
+      createDescription: "أنشئ كلمة مرور لحماية وتشفير خواطرك الخاصة عند مزامنتها بين أجهزتك. لا يمكن لتطبيق Quran Heals استعادة كلمة المرور إذا نسيتها، لذا اختر كلمة مرور يمكنك تذكرها.",
+      unlockDescription: "أدخل كلمة المرور لفتح بياناتك المشفّرة على هذا الجهاز.",
+      createPlaceholder: "كلمة المرور",
+      unlockPlaceholder: "كلمة المرور",
+      continueLabel: "متابعة",
+      confirmPassword: "تأكيد كلمة المرور",
+      show: "إظهار",
+      hide: "إخفاء",
+      lengthHint: "استخدم من 8 إلى 32 حرفًا.",
+      allowedHint: "يمكنك استخدام الحروف والأرقام والرموز.",
+      mismatch: "كلمتا المرور غير متطابقتين.",
+      tooShort: "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.",
+      tooLong: "لا يمكن أن تتجاوز كلمة المرور 32 حرفًا.",
+      changeTitle: "تغيير كلمة المرور",
+      currentPassword: "كلمة المرور الحالية",
+      newPassword: "كلمة المرور الجديدة",
+      confirmNewPassword: "تأكيد كلمة المرور الجديدة",
+      mustDiffer: "يجب أن تكون كلمة المرور الجديدة مختلفة عن كلمة المرور الحالية.",
+      incorrectError: "كلمة المرور الحالية غير صحيحة.",
+      changeDescription: "غيّر كلمة المرور الخاصة بخواطرك المشفّرة المتزامنة.",
+      saveError: "تعذّر تأكيد تغيير كلمة المرور. تحقق من اتصالك وحاول مرة أخرى. إذا تم حفظ التغيير، فاستخدم كلمة المرور الجديدة.",
+      loadError: "تعذّر تحميل مفتاح المزامنة المشفّر. يُرجى المحاولة مرة أخرى.",
+      retry: "حاول مرة أخرى",
     },
     issueReport: {
       action: 'الإبلاغ عن مشكلة',

@@ -78,3 +78,8 @@ export const putSyncKeySchema = z.object({
   kdfIterations: z.number().int().min(1000).max(10_000_000),
   encryptionVersion: z.number().int().min(1).max(100),
 });
+
+export const replaceSyncKeySchema = z.object({
+  expected: putSyncKeySchema,
+  replacement: putSyncKeySchema,
+}).strict();

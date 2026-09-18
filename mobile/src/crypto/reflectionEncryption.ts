@@ -29,6 +29,9 @@ import { decodeBase64, encodeBase64 } from './base64';
  */
 
 export const ENCRYPTION_VERSION = 1;
+// Version 1 wrappers normalized passwords. Version 2 uses exact input;
+// reflection ciphertext and all cryptographic primitives remain unchanged.
+export const SYNC_KEY_VERSION = 2;
 export const MASTER_KEY_LENGTH_BYTES = 32;
 export const NONCE_LENGTH_BYTES = 24; // XChaCha20's extended nonce.
 export const SALT_LENGTH_BYTES = 16;
@@ -70,7 +73,7 @@ export async function derivePassphraseKey(
   salt: Uint8Array,
   iterations: number = DEFAULT_KDF_ITERATIONS,
 ): Promise<Uint8Array> {
-  return pbkdf2Async(sha256, passphrase.normalize('NFKC'), salt, { c: iterations, dkLen: MASTER_KEY_LENGTH_BYTES });
+  return pbkdf2Async(sha256, passphrase, salt, { c: iterations, dkLen: MASTER_KEY_LENGTH_BYTES });
 }
 
 /** Encrypts one reflection's plaintext with the account's reflection master key. A fresh random nonce is generated for every call — nonces are never reused. */
@@ -113,30 +116,42 @@ export async function wrapMasterKey(
   const passphraseKey = await derivePassphraseKey(passphrase, salt, iterations);
   const nonce = randomBytes(NONCE_LENGTH_BYTES);
   const cipher = xchacha20poly1305(passphraseKey, nonce);
-  const wrapped = cipher.encrypt(masterKey);
+  let wrapped: Uint8Array;
+  try {
+    wrapped = cipher.encrypt(masterKey);
+  } finally {
+    passphraseKey.fill(0);
+  }
 
   return {
     wrappedKey: encodeBase64(wrapped),
     nonce: encodeBase64(nonce),
     salt: encodeBase64(salt),
     kdfIterations: iterations,
-    encryptionVersion: ENCRYPTION_VERSION,
+    encryptionVersion: SYNC_KEY_VERSION,
   };
 }
 
 /** Recovers the reflection master key on a (new) device from the wrapped blob and the user's re-entered Sync Passphrase. Throws on a wrong passphrase or corrupted blob. */
 export async function unwrapMasterKey(wrapped: WrappedMasterKey, passphrase: string): Promise<Uint8Array> {
-  if (wrapped.encryptionVersion !== ENCRYPTION_VERSION) {
+  if (wrapped.encryptionVersion !== 1 && wrapped.encryptionVersion !== SYNC_KEY_VERSION) {
     throw new Error(`Unsupported sync key encryption version: ${wrapped.encryptionVersion}`);
   }
 
   const salt = decodeBase64(wrapped.salt);
-  const passphraseKey = await derivePassphraseKey(passphrase, salt, wrapped.kdfIterations);
+  const passphraseKey = await derivePassphraseKey(
+    wrapped.encryptionVersion === 1 ? passphrase.normalize('NFKC') : passphrase,
+    salt, wrapped.kdfIterations,
+  );
   const cipher = xchacha20poly1305(passphraseKey, decodeBase64(wrapped.nonce));
 
   try {
-    return cipher.decrypt(decodeBase64(wrapped.wrappedKey));
+    const key = cipher.decrypt(decodeBase64(wrapped.wrappedKey));
+    assertKeyLength(key);
+    return key;
   } catch {
     throw new Error('Incorrect sync passphrase, or the sync key data was corrupted.');
+  } finally {
+    passphraseKey.fill(0);
   }
 }

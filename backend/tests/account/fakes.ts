@@ -271,8 +271,16 @@ export class InMemorySyncRepository implements SyncRepository {
     userId: string,
     key: { wrappedKey: string; nonce: string; salt: string; kdfIterations: number; encryptionVersion: number },
   ): Promise<SyncKeyDto> {
+    if (this.syncKeyByUser.has(userId)) throw new AppError('Sync key already exists.', 409);
     this.syncKeyByUser.set(userId, key);
     return key;
+  }
+
+  async replaceSyncKey(userId: string, expected: SyncKeyDto, replacement: SyncKeyDto): Promise<SyncKeyDto | null> {
+    const current = this.syncKeyByUser.get(userId);
+    if (!current || (Object.keys(expected) as (keyof SyncKeyDto)[]).some((field) => current[field] !== expected[field])) return null;
+    this.syncKeyByUser.set(userId, replacement);
+    return replacement;
   }
 
   /** Test-only: mirrors MongooseAccountDeletionService's four `deleteMany({ userId })` calls (favorites, preferences, reflections, sync key) in one step. Not part of the production SyncRepository interface. */
