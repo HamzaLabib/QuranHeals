@@ -44,6 +44,7 @@ function getCorsOrigin() {
 
 export function createApp(options: AppOptions = {}) {
   const app = express();
+  app.set('trust proxy', 1);
   const repository = options.repository ?? new MongooseQuranRepository();
   const accountDeps: AccountRouterDeps = {
     userRepository: options.userRepository ?? new MongooseUserRepository(),
