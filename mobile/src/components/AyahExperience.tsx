@@ -296,18 +296,6 @@ export function AyahExperience({ source }: AyahExperienceProps) {
             {favoritesError && <StateView title={messages.favorites.title} message={favoritesError} />}
             {historyMessage && <StateView title={messages.favorites.title} message={historyMessage} />}
 
-            <View style={[styles.actions, isRtl && styles.actionsRtl]}>
-              <FavoriteButton isSaved={isFavorite(ayah)} onToggle={() => toggleFavorite(ayah)} />
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={messages.ayah.shareAyah}
-                onPress={shareAyah}
-                style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
-                <Share2 size={18} color={colors.ink} />
-                <Text style={styles.secondaryButtonText}>{messages.ayah.share}</Text>
-              </Pressable>
-            </View>
-
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={messages.ayah.loadAnotherAyah}
@@ -317,15 +305,28 @@ export function AyahExperience({ source }: AyahExperienceProps) {
               <Text style={styles.primaryButtonText}>{messages.ayah.anotherAyah}</Text>
             </Pressable>
 
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={messages.reflection.writeAction}
-              onPress={() => setIsReflectionVisible(true)}
-              style={({ pressed }) => [styles.secondaryButton, styles.reflectionButton, pressed && styles.pressed]}>
-              <Text style={[styles.secondaryButtonText, direction, styles.reflectionButtonText]}>
-                {messages.reflection.writeAction}
-              </Text>
-            </Pressable>
+            {/* Share (icon only) — Add Reflection (center) — Save (icon
+                only). This physical left-to-right order is fixed in every
+                app language; it never reverses for RTL locales. */}
+            <View style={styles.actions}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={messages.ayah.shareAyah}
+                onPress={shareAyah}
+                style={({ pressed }) => [styles.iconOnlyButton, pressed && styles.pressed]}>
+                <Share2 size={20} color={colors.ink} />
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={messages.reflection.writeAction}
+                onPress={() => setIsReflectionVisible(true)}
+                style={({ pressed }) => [styles.secondaryButton, styles.reflectionButton, pressed && styles.pressed]}>
+                <Text style={[styles.secondaryButtonText, direction, styles.reflectionButtonText]}>
+                  {messages.reflection.writeAction}
+                </Text>
+              </Pressable>
+              <FavoriteButton isSaved={isFavorite(ayah)} onToggle={() => toggleFavorite(ayah)} />
+            </View>
 
             <View style={styles.tertiaryActions}>
               <Pressable
@@ -409,11 +410,19 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   actions: {
+    alignItems: 'center',
     flexDirection: 'row',
-    gap: spacing.md,
+    justifyContent: 'space-between',
   },
-  actionsRtl: {
-    flexDirection: 'row-reverse',
+  iconOnlyButton: {
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderRadius: radii.full,
+    borderWidth: 1,
+    height: 48,
+    justifyContent: 'center',
+    width: 48,
   },
   secondaryButton: {
     alignItems: 'center',
@@ -434,7 +443,9 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   reflectionButton: {
-    flex: 0,
+    flex: 1,
+    marginHorizontal: spacing.xs,
+    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
   reflectionButtonText: {

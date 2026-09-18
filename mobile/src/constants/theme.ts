@@ -14,6 +14,11 @@ export const colors = {
   border: '#E5DED2',
   olive: '#617256',
   oliveWash: '#E9EEE4',
+  // Sampled directly from the open-book/Quran shape in
+  // assets/images/appicon.png (the icon's dominant dark green) — distinct
+  // from `olive`, which is that same icon's smaller leaf accent, not the
+  // book itself. Used for "Read in Quran" specifically.
+  forest: '#19372D',
   teal: '#246A73',
   rust: '#9A4F3F',
   rustSoft: '#E7C9BF',

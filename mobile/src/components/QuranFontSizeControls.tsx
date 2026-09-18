@@ -1,7 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, radii } from '@/constants/theme';
-import { isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { useQuranFontSizePreference } from '@/localization/useQuranFontSizePreference';
 
@@ -11,21 +10,21 @@ import { useQuranFontSizePreference } from '@/localization/useQuranFontSizePrefe
 const HIT_SLOP = { top: 6, bottom: 6, left: 8, right: 8 };
 
 /**
- * Compact A−/Auto/A+ controls for the user's preferred Quran text size (see
- * quranFontSizePreference.ts). Deliberately rendered only on the main ayah
- * screen (AyahCard passes `compact={false}`/omits it) — Favorites reads the
- * same shared preference automatically via useQuranFontSizePreference and
- * does not get a second set of controls. Styled as one small, centered,
- * content-width segmented control so it never competes visually with the
- * Quran Arabic above it.
+ * A−/A+ controls for the user's preferred Quran text size (see
+ * quranFontSizePreference.ts). No "Auto" button — it only ever reset
+ * `preferredSize` to the default, which isn't a distinct automatic mode, so
+ * it was removed rather than kept as a misleading label. Rendered inside
+ * AyahCard's shared controls row (left side; the copy-ayah action occupies
+ * the right side) — deliberately never reversed for RTL locales (Arabic/
+ * Egyptian Arabic): A− always precedes A+ in every app language, matching
+ * the fixed physical layout the controls row as a whole preserves.
  */
 export function QuranFontSizeControls() {
-  const { locale, messages } = useAppLocale();
-  const { canDecrease, canIncrease, decrease, increase, reset } = useQuranFontSizePreference();
-  const isRtl = isRtlLocale(locale);
+  const { messages } = useAppLocale();
+  const { canDecrease, canIncrease, decrease, increase } = useQuranFontSizePreference();
 
   return (
-    <View style={[styles.group, isRtl && styles.groupRtl]}>
+    <View style={styles.group}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={messages.quranFontSize.decreaseLabel}
@@ -35,15 +34,6 @@ export function QuranFontSizeControls() {
         onPress={decrease}
         style={({ pressed }) => [styles.segment, !canDecrease && styles.segmentDisabled, pressed && styles.pressed]}>
         <Text style={[styles.segmentText, !canDecrease && styles.segmentTextDisabled]}>A−</Text>
-      </Pressable>
-
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={messages.quranFontSize.autoLabel}
-        hitSlop={HIT_SLOP}
-        onPress={reset}
-        style={({ pressed }) => [styles.segment, pressed && styles.pressed]}>
-        <Text style={styles.autoText}>{messages.quranFontSize.auto}</Text>
       </Pressable>
 
       <Pressable
@@ -63,7 +53,6 @@ export function QuranFontSizeControls() {
 const styles = StyleSheet.create({
   group: {
     alignItems: 'center',
-    alignSelf: 'center',
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderRadius: radii.sm,
@@ -72,9 +61,6 @@ const styles = StyleSheet.create({
     gap: 6,
     height: 38,
     paddingHorizontal: 10,
-  },
-  groupRtl: {
-    flexDirection: 'row-reverse',
   },
   segment: {
     alignItems: 'center',
@@ -90,11 +76,6 @@ const styles = StyleSheet.create({
   },
   segmentTextDisabled: {
     color: colors.muted,
-  },
-  autoText: {
-    color: colors.olive,
-    fontSize: 13,
-    fontWeight: '700',
   },
   pressed: {
     opacity: 0.78,

@@ -58,7 +58,14 @@ describe('Shared Ayah reflection action', () => {
     expect(getMessages('ar').reflection.writeAction).toBe(getMessages('ar-EG').reflection.writeAction);
   });
 
-  it('wires a separate accessible secondary Pressable to the existing sheet between Another Ayah and Report Issue', () => {
+  it('wires a separate accessible secondary Pressable to the existing sheet, positioned after Another Ayah and before Report Issue', () => {
+    // Not required to be the *immediate* neighbor of either one — the
+    // action-area layout intentionally places Share/Favorite between
+    // Another Ayah and Reflection, and Read in Quran between Reflection and
+    // Report Issue (see AyahExperience.tsx's action-row ordering). What
+    // matters here is that Reflection stays a genuinely separate control
+    // from Report Issue, positioned somewhere between the two, never merged
+    // with or mistaken for it.
     const controls: string[] = ayahScreenSource.match(/<Pressable\b[\s\S]*?<\/Pressable>/g) ?? [];
     const reflection = controls.filter((control) => control.includes('messages.reflection.writeAction'));
     expect(reflection).toHaveLength(1);
@@ -67,10 +74,15 @@ describe('Shared Ayah reflection action', () => {
     expect(reflection[0]).toContain('onPress={() => setIsReflectionVisible(true)}');
     expect(reflection[0]).toContain('styles.secondaryButton');
     expect(reflection[0]).not.toContain('messages.issueReport.action');
+
+    const anotherAyahIndex = controls.findIndex((control) => control.includes('messages.ayah.anotherAyah'));
+    const reportIssueIndex = controls.findIndex((control) => control.includes('messages.issueReport.action'));
     const reflectionIndex = controls.indexOf(reflection[0]);
-    expect(controls[reflectionIndex - 1]).toContain('messages.ayah.anotherAyah');
-    expect(controls[reflectionIndex + 1]).toContain('messages.issueReport.action');
-    expect(controls[reflectionIndex + 1]).toContain('styles.tertiaryButton');
+    expect(anotherAyahIndex).toBeGreaterThanOrEqual(0);
+    expect(reportIssueIndex).toBeGreaterThan(anotherAyahIndex);
+    expect(reflectionIndex).toBeGreaterThan(anotherAyahIndex);
+    expect(reflectionIndex).toBeLessThan(reportIssueIndex);
+
     expect(ayahScreenSource).toContain('visible={isReflectionVisible}');
     expect(ayahScreenSource.match(/<ReflectionSheet\b/g)).toHaveLength(1);
   });

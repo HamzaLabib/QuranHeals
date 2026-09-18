@@ -47,6 +47,10 @@ export type Messages = {
     shareAyah: string;
     anotherAyah: string;
     loadAnotherAyah: string;
+    /** Deep-links to this exact ayah on tanzil.net in the device's browser — see utils/tanzilLink.ts. */
+    readInQuran: string;
+    /** Accessibility label for the copy-ayah-text icon on AyahCard — the visible control is icon-only. */
+    copyAyah: string;
   };
   favorites: {
     title: string;
@@ -239,6 +243,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       shareAyah: 'Share ayah',
       anotherAyah: 'Another Ayah',
       loadAnotherAyah: 'Load another ayah',
+      readInQuran: 'Read in Quran',
+      copyAyah: 'Copy ayah',
     },
     favorites: {
       title: 'Saved Ayahs',
@@ -417,6 +423,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       shareAyah: 'مشاركة الآية',
       anotherAyah: 'آية أخرى',
       loadAnotherAyah: 'تحميل آية أخرى',
+      readInQuran: 'اقرأ الآية في المصحف',
+      copyAyah: 'نسخ الآية',
     },
     favorites: {
       title: 'الآيات المحفوظة',
@@ -605,6 +613,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       shareAyah: 'شارك الآية',
       anotherAyah: 'آية أخرى',
       loadAnotherAyah: 'تحميل آية أخرى',
+      readInQuran: 'اقرأ الآية في المصحف',
+      copyAyah: 'نسخ الآية',
     },
     // Loading/error/retry/empty-state wording is Standard Arabic, same as
     // `ar` — see the doc comment on `ayah` above.

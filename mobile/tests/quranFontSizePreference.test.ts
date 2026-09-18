@@ -324,19 +324,26 @@ describe('useQuranFontSizePreference.tsx (source-scan: no RN renderer available 
   });
 });
 
-describe('QuranFontSizeControls.tsx (source-scan): accessibility, disabled limits, RTL, and localized Auto label', () => {
+describe('QuranFontSizeControls.tsx (source-scan): A-/A+ only, no Auto, fixed physical order in every locale', () => {
   const CONTROLS_PATH = resolve(__dirname, '../src/components/QuranFontSizeControls.tsx');
   const source = readFileSync(CONTROLS_PATH, 'utf-8');
 
-  it('gives each of A-, Auto, and A+ a distinct, localized accessibility label (never a hardcoded English string)', () => {
-    expect(source).toMatch(/accessibilityLabel=\{messages\.quranFontSize\.decreaseLabel\}/);
-    expect(source).toMatch(/accessibilityLabel=\{messages\.quranFontSize\.increaseLabel\}/);
-    expect(source).toMatch(/accessibilityLabel=\{messages\.quranFontSize\.autoLabel\}/);
+  it('Auto is no longer rendered: no onPress={reset} button, no autoLabel/auto message reference, no visible "Auto" text', () => {
+    expect(source).not.toMatch(/onPress=\{reset\}/);
+    expect(source).not.toMatch(/\breset\b\s*[,}]/); // not destructured from the hook either
+    expect(source).not.toMatch(/messages\.quranFontSize\.auto\b/);
+    expect(source).not.toMatch(/messages\.quranFontSize\.autoLabel/);
+    expect(source).not.toMatch(/>\s*Auto\s*</);
   });
 
-  it('renders the Auto button`s visible label from the localized dictionary, never a hardcoded "Auto"', () => {
-    expect(source).toMatch(/\{messages\.quranFontSize\.auto\}/);
-    expect(source).not.toMatch(/>\s*Auto\s*</);
+  it('renders exactly two controls: A- and A+', () => {
+    expect(source).toMatch(/>A−</);
+    expect(source).toMatch(/>A\+</);
+  });
+
+  it('gives A- and A+ distinct, localized accessibility labels (never a hardcoded English string)', () => {
+    expect(source).toMatch(/accessibilityLabel=\{messages\.quranFontSize\.decreaseLabel\}/);
+    expect(source).toMatch(/accessibilityLabel=\{messages\.quranFontSize\.increaseLabel\}/);
   });
 
   it('disables (and visually indicates) A- when canDecrease is false, and A+ when canIncrease is false', () => {
@@ -348,17 +355,15 @@ describe('QuranFontSizeControls.tsx (source-scan): accessibility, disabled limit
     expect(source).toMatch(/!canIncrease\s*&&\s*styles\.segmentDisabled/);
   });
 
-  it('Auto resets rather than steps (calls reset, not increase/decrease)', () => {
-    expect(source).toMatch(/onPress=\{reset\}/);
+  it('A- calls decrease() and A+ calls increase() — the underlying step logic is untouched', () => {
+    expect(source).toMatch(/onPress=\{decrease\}/);
+    expect(source).toMatch(/onPress=\{increase\}/);
   });
 
-  it('mirrors row direction for RTL locales, matching the project`s existing RTL-row pattern', () => {
-    expect(source).toMatch(/isRtl\s*&&\s*styles\.groupRtl/);
-    expect(source).toMatch(/groupRtl:\s*\{\s*flexDirection:\s*'row-reverse'/);
-  });
-
-  it('keeps the group centered and content-width, never stretched full-width across the card', () => {
-    expect(source).toMatch(/alignSelf:\s*'center'/);
+  it('never reverses A-/A+ order for RTL locales — the physical layout is fixed in every app language', () => {
+    expect(source).not.toMatch(/isRtl/);
+    expect(source).not.toMatch(/groupRtl/);
+    expect(source).not.toMatch(/row-reverse/);
   });
 
   it('gives each segment a hitSlop so the effective touch target reaches at least 44x44 despite the compact ~38px visual height', () => {

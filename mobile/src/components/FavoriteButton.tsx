@@ -1,7 +1,7 @@
 import { Heart } from 'lucide-react-native';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 
-import { colors, radii, spacing, typography } from '@/constants/theme';
+import { colors, radii } from '@/constants/theme';
 import { useAppLocale } from '@/localization/useAppLocale';
 
 type FavoriteButtonProps = {
@@ -9,6 +9,7 @@ type FavoriteButtonProps = {
   onToggle: () => void;
 };
 
+/** Icon-only save/unsave toggle — the accessibility label still carries the save/saved distinction even though no visible text remains. */
 export function FavoriteButton({ isSaved, onToggle }: FavoriteButtonProps) {
   const { messages } = useAppLocale();
 
@@ -16,16 +17,10 @@ export function FavoriteButton({ isSaved, onToggle }: FavoriteButtonProps) {
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={isSaved ? messages.favoriteButton.removeLabel : messages.favoriteButton.saveLabel}
+      accessibilityState={{ selected: isSaved }}
       onPress={onToggle}
       style={({ pressed }) => [styles.button, isSaved && styles.saved, pressed && styles.pressed]}>
-      <Heart
-        size={18}
-        color={isSaved ? colors.surface : colors.ink}
-        fill={isSaved ? colors.surface : 'transparent'}
-      />
-      <Text style={[styles.text, isSaved && styles.savedText]}>
-        {isSaved ? messages.favoriteButton.saved : messages.favoriteButton.save}
-      </Text>
+      <Heart size={20} color={isSaved ? colors.surface : colors.ink} fill={isSaved ? colors.surface : 'transparent'} />
     </Pressable>
   );
 }
@@ -35,30 +30,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.surface,
     borderColor: colors.border,
-    borderRadius: radii.md,
+    borderRadius: radii.full,
     borderWidth: 1,
-    flex: 1,
-    flexDirection: 'row',
-    gap: spacing.sm,
+    height: 48,
     justifyContent: 'center',
-    minHeight: 52,
-    paddingHorizontal: spacing.md,
+    width: 48,
   },
   saved: {
     backgroundColor: colors.olive,
     borderColor: colors.olive,
-  },
-  text: {
-    color: colors.ink,
-    fontSize: typography.body,
-    fontWeight: '700',
-  },
-  savedText: {
-    color: colors.surface,
   },
   pressed: {
     opacity: 0.78,
     transform: [{ scale: 0.99 }],
   },
 });
-
