@@ -497,7 +497,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     account: {
       sectionTitle: 'الحساب',
-      checkingSession: 'جارٍ التحقق من جلستك…',
+      checkingSession: 'جارٍ التحقق من تسجيل الدخول…',
       notSignedIn: 'لم يتم تسجيل الدخول',
       signInWithApple: 'تسجيل الدخول باستخدام Apple',
       signInWithGoogle: 'تسجيل الدخول باستخدام Google',
@@ -695,7 +695,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     account: {
       sectionTitle: 'الحساب',
-      checkingSession: 'جارٍ التحقق من جلستك…',
+      checkingSession: 'جارٍ التحقق من تسجيل الدخول…',
       notSignedIn: 'لم يتم تسجيل الدخول',
       signInWithApple: 'تسجيل الدخول باستخدام Apple',
       signInWithGoogle: 'تسجيل الدخول باستخدام Google',
