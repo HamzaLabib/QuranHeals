@@ -187,8 +187,9 @@ describe('Interface message dictionary (messages.ts)', () => {
 
     expect(MESSAGES.en.reflection).toMatchObject({
       action: 'Reflection',
-      title: 'Reflection on this ayah',
-      prompt: 'How did this ayah make you feel?',
+      title: 'Reflections on this ayah',
+      prompt: 'What feeling did this ayah leave you with?',
+      placeholder: 'Write how this ayah touched your heart...',
       guestNote: 'Your reflections are saved on this device. Sign in to access them across your devices.',
       syncedNote: 'Your reflection is privately synced across your signed-in devices.',
       save: 'Save',
@@ -197,8 +198,9 @@ describe('Interface message dictionary (messages.ts)', () => {
     expect(MESSAGES.ar.reflection).toMatchObject({
       action: 'خواطر',
       title: 'خواطر حول هذه الآية',
-      prompt: 'ما الذي شعرت به بعد قراءة هذه الآية؟',
-      guestNote: 'تُحفظ خواطرك على هذا الجهاز. سجّل الدخول للوصول إليها على أجهزتك الأخرى.',
+      prompt: 'ما الشعور الذي تركته هذه الآية في نفسك؟',
+      placeholder: 'اكتب ما تركته هذه الآية في قلبك...',
+      guestNote: 'تُحفظ خواطرك على هذا الجهاز. سجّل الدخول للوصول إليها عبر أجهزتك.',
       syncedNote: 'تتم مزامنة خواطرك بشكل خاص بين أجهزتك التي سجّلت الدخول عليها.',
       save: 'حفظ',
       cancel: 'إلغاء',

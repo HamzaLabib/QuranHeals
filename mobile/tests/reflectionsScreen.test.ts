@@ -185,8 +185,8 @@ describe('reflections localization (messages.ts)', () => {
     expect(MESSAGES['ar-EG'].home.openReflections).toBe('فتح خواطري');
   });
 
-  it('the singular reflection editor strings (ReflectionSheet) are untouched', () => {
-    expect(MESSAGES.en.reflection.title).toBe('Reflection on this ayah');
+  it('the reflection editor keeps its own title and Save action', () => {
+    expect(MESSAGES.en.reflection.title).toBe('Reflections on this ayah');
     expect(MESSAGES.en.reflection.save).toBe('Save');
   });
 });

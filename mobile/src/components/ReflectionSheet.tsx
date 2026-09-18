@@ -145,7 +145,7 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
                     onFocus={() => scrollRef.current?.scrollToEnd({ animated: true })}
                     multiline
                     maxLength={REFLECTION_MAX_LENGTH}
-                    placeholder={messages.reflection.prompt}
+                    placeholder={messages.reflection.placeholder}
                     placeholderTextColor={colors.muted}
                     style={[styles.input, direction]}
                     accessibilityLabel={messages.reflection.title}
