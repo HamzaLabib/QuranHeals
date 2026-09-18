@@ -10,18 +10,31 @@ import { SyncPassphraseCancelledError, type SyncPassphraseMode } from '@/sync/sy
 import { clearAllReflections } from '@/storage/ayahReflections';
 import { clearAllFavorites } from '@/storage/favorites';
 import { deleteAccountRequest } from '@/sync/syncApi';
+import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
 import { fetchCurrentUser, logoutSession, signInWithAppleIdToken, signInWithGoogleIdToken, AuthApiError } from './authApi';
 import {
   clearCachedMasterKey,
+  clearCachedUser,
   clearRefreshToken,
   clearSessionToken,
+  getCachedUser,
   getRefreshToken,
   getSessionToken,
+  setCachedUser,
   setRefreshToken,
   setSessionToken,
 } from './sessionStorage';
-import { registerSessionExpiredHandler } from './tokenManager';
+import { refreshAccessToken, registerSessionExpiredHandler } from './tokenManager';
 import type { AuthStatus, AuthUser } from './authTypes';
+
+// Automatic (AppState-triggered) foreground resync is throttled the same
+// way Home throttles its own foreground revalidation (see app/index.tsx's
+// FOREGROUND_REVALIDATE_AFTER_MS) — a brief app-switch-and-back should never
+// re-run the full sync (and, transitively, re-touch the mandatory Sync
+// Password gate) on every single transition. An *explicit* pull-to-refresh
+// (refreshSync(), called directly by a screen) is never throttled — only
+// the passive AppState listener is.
+const FOREGROUND_RESYNC_THROTTLE_MS = 60_000;
 
 export type AuthContextValue = {
   status: AuthStatus;
@@ -74,6 +87,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // legitimately list runSyncAfterSignIn (which changes identity when
   // locale/preference change) in its dependency array.
   const hasRestoredSessionRef = useRef(false);
+  // Single-flight guard so cold start, an AppState foreground event, and an
+  // explicit pull-to-refresh refreshSync() call can never run runFullSync
+  // (and therefore the mandatory Sync Password prompt) concurrently — see
+  // utils/pullToRefresh.ts's doc comment for why this must be a ref rather
+  // than React state.
+  const syncGuardRef = useRef<RefreshInFlightRef>({ current: false });
+  // Throttles only the *automatic* AppState-triggered resync below — see
+  // FOREGROUND_RESYNC_THROTTLE_MS.
+  const lastForegroundSyncAtRef = useRef(0);
 
   const { locale, setLocale } = useAppLocale();
   const { preference, setDisplayMode } = useQuranTranslationPreference();
@@ -88,29 +110,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const runSyncAfterSignIn = useCallback(
     async (token: string) => {
-      try {
-        await runFullSync(token, {
-          local: {
-            locale,
-            translationDisplayMode: preference.displayMode,
-            translationId: preference.translationId,
-          },
-          applyPreferencesLocally: (next) => {
-            if (next.locale) setLocale(next.locale);
-            if (next.translationDisplayMode) setDisplayMode(next.translationDisplayMode);
-            // translationId has only one valid value today
-            // (DEFAULT_QURAN_TRANSLATION_PREFERENCE.translationId) — nothing
-            // to apply yet; kept here so a second bundled translation only
-            // needs a setter added, not new sync wiring.
-            void DEFAULT_QURAN_TRANSLATION_PREFERENCE;
-          },
-          promptForPassphrase,
-        });
-      } catch {
-        // Sync failures never undo a successful sign-in or block app usage
-        // (Part H §33) — the user is signed in and can keep using the app;
-        // sync can be retried later (e.g. next app foreground).
-      }
+      await runGuardedRefresh(syncGuardRef.current, async () => {
+        lastForegroundSyncAtRef.current = Date.now();
+        // Always syncs with the freshest persisted access token, not
+        // necessarily the one this call happened to be invoked with. A
+        // silent 401-triggered refresh (sync/syncApi.ts's authedRequest ->
+        // tokenManager.ts) rotates the access token in SecureStore but has
+        // no way to reach back into an already-running closure's `token`
+        // parameter or sessionTokenRef — without this re-read, every sync
+        // after the very first silent refresh would keep presenting a
+        // token that's already stale.
+        const latestToken = (await getSessionToken()) ?? token;
+        sessionTokenRef.current = latestToken;
+        try {
+          await runFullSync(latestToken, {
+            local: {
+              locale,
+              translationDisplayMode: preference.displayMode,
+              translationId: preference.translationId,
+            },
+            applyPreferencesLocally: (next) => {
+              if (next.locale) setLocale(next.locale);
+              if (next.translationDisplayMode) setDisplayMode(next.translationDisplayMode);
+              // translationId has only one valid value today
+              // (DEFAULT_QURAN_TRANSLATION_PREFERENCE.translationId) —
+              // nothing to apply yet; kept here so a second bundled
+              // translation only needs a setter added, not new sync wiring.
+              void DEFAULT_QURAN_TRANSLATION_PREFERENCE;
+            },
+            promptForPassphrase,
+          });
+        } catch {
+          // Sync failures never undo a successful sign-in or block app
+          // usage (Part H §33) — the user is signed in and can keep using
+          // the app; sync can be retried later (e.g. next app foreground).
+        }
+      });
     },
     [locale, preference.displayMode, preference.translationId, promptForPassphrase, setLocale, setDisplayMode],
   );
@@ -120,30 +155,95 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     hasRestoredSessionRef.current = true;
 
     let cancelled = false;
+
+    const applySignedIn = (validToken: string, signedInUser: AuthUser) => {
+      sessionTokenRef.current = validToken;
+      setUser(signedInUser);
+      void setCachedUser(signedInUser);
+      setStatus('signed-in');
+      // Picks up anything that changed on another device (or was left
+      // pending on this one) since this device was last open — see Part H
+      // §33. Runs once per cold start; the AppState listener below covers
+      // reconnect/foreground after that.
+      void runSyncAfterSignIn(validToken);
+    };
+
+    // Could not verify against the backend right now (offline, timeout,
+    // backend outage) — never proof the credential is invalid. Trust the
+    // persisted token, and show the last known-good cached profile (if any)
+    // rather than flashing/forcing a guest state — see authApi.ts's
+    // CurrentUserResult doc comment.
+    const applyUnreachable = async (presumedValidToken: string) => {
+      sessionTokenRef.current = presumedValidToken;
+      setUser(await getCachedUser());
+      setStatus('signed-in');
+      // No sync attempted while unreachable — the AppState foreground
+      // listener (or a later explicit refreshSync()) retries once
+      // connectivity returns.
+    };
+
     (async () => {
       const token = await getSessionToken();
       if (!token) {
         if (!cancelled) setStatus('guest');
         return;
       }
-      const currentUser = await fetchCurrentUser(token);
+
+      const result = await fetchCurrentUser(token);
       if (cancelled) return;
-      if (currentUser) {
-        sessionTokenRef.current = token;
-        setUser(currentUser);
-        setStatus('signed-in');
-        // Picks up anything that changed on another device (or was left
-        // pending on this one) since this device was last open — see Part
-        // H §33. Runs once per cold start; the AppState listener below
-        // covers reconnect/foreground after that.
-        void runSyncAfterSignIn(token);
-      } else {
-        // Expired/invalid session token — fall back to guest rather than
-        // retrying indefinitely or blocking the app.
-        await clearSessionToken();
-        setStatus('guest');
+
+      if (result.outcome === 'valid') {
+        applySignedIn(token, result.user);
+        return;
       }
+
+      if (result.outcome === 'unreachable') {
+        await applyUnreachable(token);
+        return;
+      }
+
+      // result.outcome === 'invalid': this specific (short-lived) access
+      // token was explicitly rejected — normal once it naturally expires.
+      // Attempt a refresh before ever concluding the user is signed out.
+      const refreshedToken = await refreshAccessToken();
+      if (cancelled) return;
+
+      if (refreshedToken) {
+        const retryResult = await fetchCurrentUser(refreshedToken);
+        if (cancelled) return;
+        if (retryResult.outcome === 'valid') {
+          applySignedIn(refreshedToken, retryResult.user);
+          return;
+        }
+        if (retryResult.outcome === 'unreachable') {
+          await applyUnreachable(refreshedToken);
+          return;
+        }
+        // A brand-new access token was STILL rejected — genuinely invalid;
+        // fall through to the signed-out path below.
+      } else {
+        // refreshAccessToken() returned null: no refresh token was stored,
+        // the refresh request couldn't reach the backend at all, or the
+        // backend definitively rejected the refresh token itself.
+        // performRefresh() (tokenManager.ts) only clears the persisted
+        // refresh token for that last, genuine case — so if it's still
+        // present here, this was a network failure, not proof of
+        // invalidity.
+        if (await getRefreshToken()) {
+          await applyUnreachable(token);
+          return;
+        }
+      }
+
+      // Genuinely invalid: the access token was rejected and there was
+      // either no way to refresh it or the refresh was itself definitively
+      // rejected too.
+      await clearSessionToken();
+      await clearRefreshToken();
+      await clearCachedUser();
+      if (!cancelled) setStatus('guest');
     })();
+
     return () => {
       cancelled = true;
     };
@@ -153,7 +253,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const subscription = AppState.addEventListener('change', (nextState) => {
       if (nextState !== 'active') return;
       const token = sessionTokenRef.current;
-      if (token) void runSyncAfterSignIn(token);
+      if (!token) return;
+      // A plain background -> foreground blip must never re-run the full
+      // sync (and, transitively, the mandatory Sync Password gate) on every
+      // single transition — see FOREGROUND_RESYNC_THROTTLE_MS. An explicit
+      // pull-to-refresh (refreshSync(), below) is a separate call path and
+      // is never throttled.
+      if (Date.now() - lastForegroundSyncAtRef.current < FOREGROUND_RESYNC_THROTTLE_MS) return;
+      void runSyncAfterSignIn(token);
     });
     return () => subscription.remove();
   }, [runSyncAfterSignIn]);
@@ -166,6 +273,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (refreshToken) await setRefreshToken(refreshToken);
       sessionTokenRef.current = token;
       setUser(signedInUser);
+      void setCachedUser(signedInUser);
       setStatus('signed-in');
       setLastError(null);
       await runSyncAfterSignIn(token);
@@ -212,6 +320,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const clearLocalSession = useCallback(() => {
     sessionTokenRef.current = null;
     setUser(null);
+    void clearCachedUser();
     setStatus('guest');
   }, []);
 

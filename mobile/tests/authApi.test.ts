@@ -39,12 +39,18 @@ describe('signInWithGoogleIdToken / signInWithAppleIdToken', () => {
 });
 
 describe('fetchCurrentUser', () => {
-  it('returns null (never throws) for an invalid/expired session token', async () => {
+  // A three-outcome result (never a bare boolean/null) is the whole point:
+  // useAuth.tsx's cold-start restoration must be able to tell "this
+  // specific access token was rejected" (worth trying a refresh before
+  // giving up) apart from "couldn't even reach the backend" (never proof of
+  // anything, must never sign the user out) — see authApi.ts's
+  // CurrentUserResult doc comment.
+  it('returns { outcome: "invalid" } (never throws) for an explicit 401 — an expired access token, not proof the session itself is bad', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response('', { status: 401 })));
-    expect(await fetchCurrentUser('expired')).toBeNull();
+    expect(await fetchCurrentUser('expired')).toEqual({ outcome: 'invalid' });
   });
 
-  it('returns the user for a valid session token', async () => {
+  it('returns { outcome: "valid", user } for a valid session token', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async (_url: string, init?: RequestInit) => {
@@ -54,6 +60,28 @@ describe('fetchCurrentUser', () => {
       }),
     );
 
-    expect(await fetchCurrentUser('valid-token')).toMatchObject({ id: 'u1' });
+    const result = await fetchCurrentUser('valid-token');
+    expect(result.outcome).toBe('valid');
+    expect(result).toMatchObject({ outcome: 'valid', user: { id: 'u1' } });
+  });
+
+  it('returns { outcome: "unreachable" } (never "invalid") when the request never reaches the backend at all — a network failure is never proof of an invalid credential', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        throw new Error('network down');
+      }),
+    );
+    expect(await fetchCurrentUser('any-token')).toEqual({ outcome: 'unreachable' });
+  });
+
+  it('returns { outcome: "unreachable" } (never "invalid") for a backend/server-side failure (5xx) — only an explicit 401 means the credential itself is bad', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('', { status: 503 })));
+    expect(await fetchCurrentUser('any-token')).toEqual({ outcome: 'unreachable' });
+  });
+
+  it('returns { outcome: "unreachable" } for a malformed/unsuccessful payload on an otherwise-ok response, rather than treating it as a valid user', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ success: false }), { status: 200 })));
+    expect(await fetchCurrentUser('any-token')).toEqual({ outcome: 'unreachable' });
   });
 });

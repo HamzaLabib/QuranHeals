@@ -1,4 +1,7 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
+
+import type { AuthUser } from './authTypes';
 
 /**
  * Session token and the unwrapped reflection master key are both sensitive
@@ -74,6 +77,49 @@ export async function setCachedMasterKey(masterKeyBase64: string): Promise<void>
 export async function clearCachedMasterKey(): Promise<void> {
   try {
     await SecureStore.deleteItemAsync(MASTER_KEY_KEY);
+  } catch {
+    // Best-effort — see clearSessionToken.
+  }
+}
+
+// Not a secret (id/provider/email/createdAt — nothing SecureStore-worthy),
+// so this one deliberately uses AsyncStorage like locale/preferences rather
+// than SecureStore, unlike everything else in this file. Kept here anyway
+// since it's part of the same auth-restoration lifecycle: a snapshot of the
+// last known-good signed-in profile, used ONLY so a fully-offline cold
+// start (no network at all — see useAuth.tsx) can still show "signed in"
+// instead of flashing guest, while the persisted session/refresh credential
+// itself remains the actual source of truth. Always overwritten by a fresh
+// fetchCurrentUser() the moment the backend is reachable again; never relied
+// upon for anything security-sensitive.
+const CACHED_USER_KEY = 'quran-heals.auth-cached-user.v1';
+
+export async function getCachedUser(): Promise<AuthUser | null> {
+  try {
+    const raw = await AsyncStorage.getItem(CACHED_USER_KEY);
+    if (!raw) return null;
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null;
+    const candidate = parsed as Partial<AuthUser>;
+    if (typeof candidate.id !== 'string' || (candidate.provider !== 'apple' && candidate.provider !== 'google')) return null;
+    return candidate as AuthUser;
+  } catch {
+    return null;
+  }
+}
+
+export async function setCachedUser(user: AuthUser): Promise<void> {
+  try {
+    await AsyncStorage.setItem(CACHED_USER_KEY, JSON.stringify(user));
+  } catch {
+    // Best-effort — a failed write only means a future offline cold start
+    // won't have a cached profile to show; it never blocks sign-in itself.
+  }
+}
+
+export async function clearCachedUser(): Promise<void> {
+  try {
+    await AsyncStorage.removeItem(CACHED_USER_KEY);
   } catch {
     // Best-effort — see clearSessionToken.
   }

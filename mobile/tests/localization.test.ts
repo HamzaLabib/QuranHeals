@@ -243,36 +243,52 @@ describe('Interface message dictionary (messages.ts)', () => {
     });
   });
 
-  it('the mandatory Sync Password copy uses the exact approved wording for en and ar', () => {
+  it('the mandatory Sync Password copy uses the exact approved wording for en and ar, distinguishing Set (first-time) from Enter (existing passphrase)', () => {
     expect(MESSAGES.en.syncPassphrase).toEqual({
-      createTitle: 'Create a password to access your synced data',
-      unlockTitle: 'Enter your password to access your synced data',
+      createTitle: 'Set Password',
+      unlockTitle: 'Enter Password',
       createDescription:
-        'This password is required to unlock your private reflections and access your synced data on your other signed-in devices. It adds an extra layer of protection for your private reflections on top of your Google or Apple sign-in. Quran Heals cannot recover this password, so keep it somewhere safe.',
+        'Set a Sync Password to protect your private reflections when they sync across your devices. This is not your Google or Apple account password — it is a separate password just for Quran Heals, and Quran Heals cannot recover it, so keep it somewhere safe.',
       unlockDescription:
-        'Enter the password you created on another signed-in device to unlock your private reflections and access your synced data.',
-      placeholder: 'Enter password',
+        'Enter the Sync Password you set on another signed-in device to unlock your private reflections and access your synced data. This is not your Google or Apple account password.',
+      createPlaceholder: 'Set password',
+      unlockPlaceholder: 'Enter password',
       continueLabel: 'Continue',
       incorrectError: 'Incorrect password. Please try again.',
     });
 
     expect(MESSAGES.ar.syncPassphrase).toEqual({
-      createTitle: 'أنشئ كلمة مرور للوصول إلى بياناتك المحفوظة',
-      unlockTitle: 'أدخل كلمة المرور للوصول إلى بياناتك المحفوظة',
+      createTitle: 'تعيين كلمة المرور',
+      unlockTitle: 'إدخال كلمة المرور',
       createDescription:
-        'كلمة المرور هذه مطلوبة لفتح خواطرك الخاصة والوصول إلى بياناتك المحفوظة على أجهزتك الأخرى التي سجّلت الدخول إليها. وهي تضيف طبقة حماية إضافية لخواطرك الخاصة إلى جانب تسجيل الدخول بحساب Google أو Apple. لا يستطيع تطبيق Quran Heals استعادة كلمة المرور، لذا احتفظ بها في مكان آمن.',
+        'عيّن كلمة مرور المزامنة لحماية خواطرك الخاصة عند مزامنتها بين أجهزتك. هذه ليست كلمة مرور حسابك في Google أو Apple، بل كلمة مرور منفصلة خاصة بتطبيق Quran Heals، ولا يمكن لتطبيق Quran Heals استعادتها، لذا احتفظ بها في مكان آمن.',
       unlockDescription:
-        'أدخل كلمة المرور التي أنشأتها على أحد أجهزتك الأخرى لفتح خواطرك الخاصة والوصول إلى بياناتك المحفوظة.',
-      placeholder: 'أدخل كلمة المرور',
+        'أدخل كلمة مرور المزامنة التي عيّنتها على جهاز آخر مسجّل الدخول لفتح خواطرك الخاصة والوصول إلى بياناتك المحفوظة. هذه ليست كلمة مرور حسابك في Google أو Apple.',
+      createPlaceholder: 'عيّن كلمة المرور',
+      unlockPlaceholder: 'أدخل كلمة المرور',
       continueLabel: 'متابعة',
       incorrectError: 'كلمة المرور غير صحيحة. حاول مرة أخرى.',
     });
   });
 
+  it('Set (create) and Enter (unlock) never share the same title or placeholder wording, in any locale', () => {
+    for (const locale of APP_LOCALES) {
+      const copy = MESSAGES[locale].syncPassphrase;
+      expect(copy.createTitle).not.toBe(copy.unlockTitle);
+      expect(copy.createPlaceholder).not.toBe(copy.unlockPlaceholder);
+    }
+  });
+
   it('the Sync Password copy accurately distinguishes reflections (encrypted) from the broader "synced data" (merely gated) — never claims favorites are encrypted', () => {
-    expect(MESSAGES.en.syncPassphrase.createDescription).toContain('unlock your private reflections and access your synced data');
+    expect(MESSAGES.en.syncPassphrase.createDescription).toMatch(/private reflections/);
+    expect(MESSAGES.en.syncPassphrase.unlockDescription).toContain('unlock your private reflections and access your synced data');
     expect(MESSAGES.en.syncPassphrase.createDescription).not.toMatch(/favorites/i);
     expect(MESSAGES.en.syncPassphrase.unlockDescription).not.toMatch(/favorites/i);
+  });
+
+  it('the Sync Password copy explicitly clarifies this is NOT the Google/Apple account password, for both the first-time-setup and existing-passphrase wording', () => {
+    expect(MESSAGES.en.syncPassphrase.createDescription).toMatch(/not your Google or Apple account password/i);
+    expect(MESSAGES.en.syncPassphrase.unlockDescription).toMatch(/not your Google or Apple account password/i);
   });
 
   it('the Sync Password flow no longer has a distinct "cancel" string — it reuses account.signOut instead', () => {

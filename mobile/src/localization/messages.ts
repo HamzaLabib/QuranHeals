@@ -124,6 +124,8 @@ export type Messages = {
   };
   account: {
     sectionTitle: string;
+    /** Shown only while auth status is still 'loading' (session restoration in progress) — never the same as notSignedIn, so a cold start never flashes a guest/sign-in prompt before restoration has actually concluded. */
+    checkingSession: string;
     notSignedIn: string;
     signInWithApple: string;
     signInWithGoogle: string;
@@ -169,11 +171,14 @@ export type Messages = {
    * `account.signOut` for the sheet's one way out; no `cancel` key here.
    */
   syncPassphrase: {
+    /** Shown only the first time this account turns on sync (no cloud key exists yet — see syncKeyManager.ts's ensureReflectionMasterKey) — a distinct "Set" action, never the same wording as unlockTitle. */
     createTitle: string;
+    /** Shown whenever this account already has a Sync Password elsewhere (a cloud key already exists) and this device needs it to decrypt — including a brand-new device signing in for the first time. */
     unlockTitle: string;
     createDescription: string;
     unlockDescription: string;
-    placeholder: string;
+    createPlaceholder: string;
+    unlockPlaceholder: string;
     continueLabel: string;
     incorrectError: string;
   };
@@ -306,6 +311,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     account: {
       sectionTitle: 'Account',
+      checkingSession: 'Checking your session…',
       notSignedIn: 'Not signed in',
       signInWithApple: 'Sign in with Apple',
       signInWithGoogle: 'Sign in with Google',
@@ -345,13 +351,14 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       deleteError: 'Your reflection could not be deleted. Please try again.',
     },
     syncPassphrase: {
-      createTitle: 'Create a password to access your synced data',
-      unlockTitle: 'Enter your password to access your synced data',
+      createTitle: 'Set Password',
+      unlockTitle: 'Enter Password',
       createDescription:
-        'This password is required to unlock your private reflections and access your synced data on your other signed-in devices. It adds an extra layer of protection for your private reflections on top of your Google or Apple sign-in. Quran Heals cannot recover this password, so keep it somewhere safe.',
+        'Set a Sync Password to protect your private reflections when they sync across your devices. This is not your Google or Apple account password — it is a separate password just for Quran Heals, and Quran Heals cannot recover it, so keep it somewhere safe.',
       unlockDescription:
-        'Enter the password you created on another signed-in device to unlock your private reflections and access your synced data.',
-      placeholder: 'Enter password',
+        'Enter the Sync Password you set on another signed-in device to unlock your private reflections and access your synced data. This is not your Google or Apple account password.',
+      createPlaceholder: 'Set password',
+      unlockPlaceholder: 'Enter password',
       continueLabel: 'Continue',
       incorrectError: 'Incorrect password. Please try again.',
     },
@@ -482,6 +489,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     account: {
       sectionTitle: 'الحساب',
+      checkingSession: 'جارٍ التحقق من جلستك…',
       notSignedIn: 'لم يتم تسجيل الدخول',
       signInWithApple: 'تسجيل الدخول باستخدام Apple',
       signInWithGoogle: 'تسجيل الدخول باستخدام Google',
@@ -525,13 +533,14 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       deleteError: 'تعذّر حذف خاطرتك. يُرجى المحاولة مرة أخرى.',
     },
     syncPassphrase: {
-      createTitle: 'أنشئ كلمة مرور للوصول إلى بياناتك المحفوظة',
-      unlockTitle: 'أدخل كلمة المرور للوصول إلى بياناتك المحفوظة',
+      createTitle: 'تعيين كلمة المرور',
+      unlockTitle: 'إدخال كلمة المرور',
       createDescription:
-        'كلمة المرور هذه مطلوبة لفتح خواطرك الخاصة والوصول إلى بياناتك المحفوظة على أجهزتك الأخرى التي سجّلت الدخول إليها. وهي تضيف طبقة حماية إضافية لخواطرك الخاصة إلى جانب تسجيل الدخول بحساب Google أو Apple. لا يستطيع تطبيق Quran Heals استعادة كلمة المرور، لذا احتفظ بها في مكان آمن.',
+        'عيّن كلمة مرور المزامنة لحماية خواطرك الخاصة عند مزامنتها بين أجهزتك. هذه ليست كلمة مرور حسابك في Google أو Apple، بل كلمة مرور منفصلة خاصة بتطبيق Quran Heals، ولا يمكن لتطبيق Quran Heals استعادتها، لذا احتفظ بها في مكان آمن.',
       unlockDescription:
-        'أدخل كلمة المرور التي أنشأتها على أحد أجهزتك الأخرى لفتح خواطرك الخاصة والوصول إلى بياناتك المحفوظة.',
-      placeholder: 'أدخل كلمة المرور',
+        'أدخل كلمة مرور المزامنة التي عيّنتها على جهاز آخر مسجّل الدخول لفتح خواطرك الخاصة والوصول إلى بياناتك المحفوظة. هذه ليست كلمة مرور حسابك في Google أو Apple.',
+      createPlaceholder: 'عيّن كلمة المرور',
+      unlockPlaceholder: 'أدخل كلمة المرور',
       continueLabel: 'متابعة',
       incorrectError: 'كلمة المرور غير صحيحة. حاول مرة أخرى.',
     },
@@ -676,6 +685,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     account: {
       sectionTitle: 'الحساب',
+      checkingSession: 'جارٍ التحقق من جلستك…',
       notSignedIn: 'لم يتم تسجيل الدخول',
       signInWithApple: 'تسجيل الدخول باستخدام Apple',
       signInWithGoogle: 'تسجيل الدخول باستخدام Google',
@@ -722,13 +732,14 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     // byte-identical to `ar`'s Standard Arabic (Part 9 of the mandatory
     // sync-password phase), never Egyptian colloquial.
     syncPassphrase: {
-      createTitle: 'أنشئ كلمة مرور للوصول إلى بياناتك المحفوظة',
-      unlockTitle: 'أدخل كلمة المرور للوصول إلى بياناتك المحفوظة',
+      createTitle: 'تعيين كلمة المرور',
+      unlockTitle: 'إدخال كلمة المرور',
       createDescription:
-        'كلمة المرور هذه مطلوبة لفتح خواطرك الخاصة والوصول إلى بياناتك المحفوظة على أجهزتك الأخرى التي سجّلت الدخول إليها. وهي تضيف طبقة حماية إضافية لخواطرك الخاصة إلى جانب تسجيل الدخول بحساب Google أو Apple. لا يستطيع تطبيق Quran Heals استعادة كلمة المرور، لذا احتفظ بها في مكان آمن.',
+        'عيّن كلمة مرور المزامنة لحماية خواطرك الخاصة عند مزامنتها بين أجهزتك. هذه ليست كلمة مرور حسابك في Google أو Apple، بل كلمة مرور منفصلة خاصة بتطبيق Quran Heals، ولا يمكن لتطبيق Quran Heals استعادتها، لذا احتفظ بها في مكان آمن.',
       unlockDescription:
-        'أدخل كلمة المرور التي أنشأتها على أحد أجهزتك الأخرى لفتح خواطرك الخاصة والوصول إلى بياناتك المحفوظة.',
-      placeholder: 'أدخل كلمة المرور',
+        'أدخل كلمة مرور المزامنة التي عيّنتها على جهاز آخر مسجّل الدخول لفتح خواطرك الخاصة والوصول إلى بياناتك المحفوظة. هذه ليست كلمة مرور حسابك في Google أو Apple.',
+      createPlaceholder: 'عيّن كلمة المرور',
+      unlockPlaceholder: 'أدخل كلمة المرور',
       continueLabel: 'متابعة',
       incorrectError: 'كلمة المرور غير صحيحة. حاول مرة أخرى.',
     },

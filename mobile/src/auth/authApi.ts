@@ -73,18 +73,50 @@ export async function logoutSession(refreshToken: string): Promise<void> {
   }
 }
 
-export async function fetchCurrentUser(sessionToken: string): Promise<AuthUser | null> {
+/**
+ * Three-way outcome, deliberately never collapsed into a boolean/null — see
+ * useAuth.tsx's cold-start restoration, which must NEVER treat 'unreachable'
+ * the same as 'invalid':
+ *  - 'valid': the backend confirmed this access token names a real,
+ *    still-existing user.
+ *  - 'invalid': the backend explicitly rejected this access token (401) —
+ *    normal once the token's short (~20 min) lifetime elapses, not
+ *    necessarily proof the *session* itself (the refresh token) is bad; the
+ *    caller is expected to attempt a refresh before concluding the user is
+ *    signed out.
+ *  - 'unreachable': the request never got a definitive answer at all
+ *    (network failure, timeout, DNS, or a 5xx/malformed response from the
+ *    backend itself) — never proof of anything about the credential, and
+ *    must never be treated as a reason to sign out or clear storage.
+ */
+export type CurrentUserResult = { outcome: 'valid'; user: AuthUser } | { outcome: 'invalid' } | { outcome: 'unreachable' };
+
+export async function fetchCurrentUser(sessionToken: string): Promise<CurrentUserResult> {
+  let response: Response;
   try {
     // Same bounded timeout as every other request here — this call gates
     // app-startup session restore (see useAuth.tsx), so a hung request must
     // not be able to leave the app on its initial loading state forever.
-    const response = await fetchWithTimeout(`${apiBaseUrl}/api/auth/session`, {
+    response = await fetchWithTimeout(`${apiBaseUrl}/api/auth/session`, {
       headers: { Authorization: `Bearer ${sessionToken}`, Accept: 'application/json' },
     });
-    if (!response.ok) return null;
-    const payload = (await response.json()) as { success: true; data: AuthUser } | { success: false };
-    return payload.success ? payload.data : null;
   } catch {
-    return null;
+    return { outcome: 'unreachable' };
+  }
+
+  if (response.status === 401) {
+    return { outcome: 'invalid' };
+  }
+  if (!response.ok) {
+    // A backend/server-side problem (5xx, rate limiting, ...) is never
+    // proof the credential itself is invalid — only an explicit 401 is.
+    return { outcome: 'unreachable' };
+  }
+
+  try {
+    const payload = (await response.json()) as { success: true; data: AuthUser } | { success: false };
+    return payload.success ? { outcome: 'valid', user: payload.data } : { outcome: 'unreachable' };
+  } catch {
+    return { outcome: 'unreachable' };
   }
 }

@@ -91,7 +91,7 @@ export function SyncPassphraseSheet({ request, onSubmit, onSignOut }: SyncPassph
                 <TextInput
                   value={value}
                   onChangeText={setValue}
-                  placeholder={messages.syncPassphrase.placeholder}
+                  placeholder={isCreate ? messages.syncPassphrase.createPlaceholder : messages.syncPassphrase.unlockPlaceholder}
                   placeholderTextColor={colors.muted}
                   secureTextEntry
                   autoCapitalize="none"
@@ -102,7 +102,7 @@ export function SyncPassphraseSheet({ request, onSubmit, onSignOut }: SyncPassph
                   // Done key.
                   onSubmitEditing={() => Keyboard.dismiss()}
                   style={[styles.input, direction]}
-                  accessibilityLabel={messages.syncPassphrase.placeholder}
+                  accessibilityLabel={isCreate ? messages.syncPassphrase.createPlaceholder : messages.syncPassphrase.unlockPlaceholder}
                 />
                 <View style={[styles.actions, isRtl && styles.actionsRtl]}>
                   <Pressable

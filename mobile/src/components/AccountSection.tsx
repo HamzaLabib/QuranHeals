@@ -69,7 +69,12 @@ export function AccountSection({ messages, direction, isRtl }: AccountSectionPro
     <View style={styles.section}>
       <Text style={[styles.sectionLabel, direction]}>{messages.account.sectionTitle}</Text>
       <View style={styles.card}>
-        {status === 'signed-in' ? (
+        {status === 'loading' ? (
+          // Session restoration in progress (cold start) — never flashes
+          // "Not signed in" + sign-in buttons before restoration has
+          // actually concluded either way.
+          <Text style={[styles.statusText, direction]}>{messages.account.checkingSession}</Text>
+        ) : status === 'signed-in' ? (
           <>
             <Text style={[styles.statusText, direction]}>{messages.account.signedIn}</Text>
             <Pressable
