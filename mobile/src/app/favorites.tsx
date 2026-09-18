@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { ArrowLeft, ArrowRight, Heart, Share2, Trash2 } from 'lucide-react-native';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -13,6 +13,7 @@ import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import type { Messages } from '@/localization/messages';
 import type { FavoriteAyah } from '@/types/domain';
+import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
 
 type FavoriteActionsProps = {
   favorite: FavoriteAyah;
@@ -58,26 +59,28 @@ export default function FavoritesScreen() {
   const { favorites, removeFavorite, isReady, error, unresolvedCount, refreshFavorites } = useFavorites();
   const { refreshSync } = useAuth();
   // Guards a rapid repeated pull gesture from starting a second, overlapping
-  // sync + local re-read while one is already in flight (Part 2: "Multiple
-  // rapid pull gestures must not create duplicate concurrent refresh
-  // operations").
+  // sync + local re-read while one is already in flight (a ref, not just
+  // the `isRefreshing` state below — see pullToRefresh.ts's doc comment for
+  // why a ref is required here).
+  const refreshGuardRef = useRef<RefreshInFlightRef>({ current: false });
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const onPullToRefresh = useCallback(async () => {
-    if (isRefreshing) return;
-    setIsRefreshing(true);
-    try {
-      // Reuses the exact same sync run as sign-in/app-foreground
-      // (favorites + preferences + reflections) — a no-op for a guest.
-      // Never a duplicate sync implementation.
-      await refreshSync();
-      // Picks up whatever that sync just wrote to local storage (or, for a
-      // guest, simply re-reads current local state).
-      await refreshFavorites();
-    } finally {
-      setIsRefreshing(false);
-    }
-  }, [isRefreshing, refreshSync, refreshFavorites]);
+    await runGuardedRefresh(refreshGuardRef.current, async () => {
+      setIsRefreshing(true);
+      try {
+        // Reuses the exact same sync run as sign-in/app-foreground
+        // (favorites + preferences + reflections) — a no-op for a guest.
+        // Never a duplicate sync implementation.
+        await refreshSync();
+        // Picks up whatever that sync just wrote to local storage (or, for
+        // a guest, simply re-reads current local state).
+        await refreshFavorites();
+      } finally {
+        setIsRefreshing(false);
+      }
+    });
+  }, [refreshSync, refreshFavorites]);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>

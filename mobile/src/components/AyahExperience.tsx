@@ -1,18 +1,20 @@
 import { router } from 'expo-router';
 import { ArrowLeft, ArrowRight, RefreshCw, Share2 } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useAuth } from '@/auth/useAuth';
 import { useFavorites } from '@/hooks/useFavorites';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
-import { getApiErrorMessage, getRandomAyah } from '@/services/api';
-import { getRandomGeneralAyah } from '@/services/generalQuran';
+import { getApiErrorMessage, getAyah, getRandomAyah } from '@/services/api';
+import { getRandomVerseKey } from '@/services/quran';
 import { withRetry } from '@/services/retry';
 import { buildExhaustionRetryExclusions, getExcludedVerseKeys, GENERAL_QURAN_HISTORY_KEY, recordShownAyah } from '@/storage/recentAyahHistory';
 import type { Ayah, LocalizedText } from '@/types/domain';
 import { resolveLocalizedEmotionName } from '@/utils/emotionLabel';
+import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
 import { AyahCard } from './AyahCard';
 import { FavoriteButton } from './FavoriteButton';
 import { ReflectionSheet } from './ReflectionSheet';
@@ -51,13 +53,24 @@ export function AyahExperience({ source }: AyahExperienceProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [historyMessage, setHistoryMessage] = useState<string | null>(null);
-  const { isFavorite, toggleFavorite, error: favoritesError } = useFavorites();
+  const { isFavorite, toggleFavorite, error: favoritesError, refreshFavorites } = useFavorites();
+  const { refreshSync } = useAuth();
   const [isReflectionVisible, setIsReflectionVisible] = useState(false);
   const [isReportVisible, setIsReportVisible] = useState(false);
   // Guards against a rapid double-tap firing two overlapping loadAyah() runs:
   // without this, both could read the same not-yet-updated recent-history
   // snapshot and independently be free to land on the same ayah.
   const isLoadingRef = useRef(false);
+  // General mode only: getRandomVerseKey's local selection is a separate
+  // step from getAyah's network content-load (see resolveGeneralVerseKey
+  // below) — this remembers a verse that was already chosen but whose
+  // content then failed to load, so a bounded withRetry attempt, the "Try
+  // Again" action, or a pull-to-refresh stuck-loading recovery all resume
+  // that exact same verse instead of silently drawing a different random
+  // one. Cleared the moment a load actually succeeds — see
+  // resolveGeneralVerseKey's own doc comment for why that keeps "Another
+  // ayah" a genuinely fresh selection.
+  const pendingGeneralVerseKeyRef = useRef<string | null>(null);
 
   // Locale-aware display only. In emotion mode the stable route key
   // (emotionKey) is never altered by this — it still goes to the
@@ -99,12 +112,41 @@ export function AyahExperience({ source }: AyahExperienceProps) {
         setHistoryMessage(messages.ayah.historyReadFailed);
       }
 
+      // General mode's selection (getRandomVerseKey, local/offline) and
+      // content-load (getAyah, network) are deliberately kept as two
+      // separate awaits here, rather than the atomic getRandomGeneralAyah
+      // helper — so that if getAyah throws, the verseKey already chosen
+      // survives in pendingGeneralVerseKeyRef for the next attempt to reuse
+      // instead of drawing a new one. Emotion mode has no such split: a
+      // single backend call both selects and returns the ayah's content, so
+      // there is nothing to remember across a failed attempt — an emotion
+      // that fails to load was never actually selected.
+      const resolveGeneralVerseKey = async (exclude: string[]): Promise<string> => {
+        if (pendingGeneralVerseKeyRef.current) return pendingGeneralVerseKeyRef.current;
+        const verseKey = await getRandomVerseKey(exclude);
+        pendingGeneralVerseKeyRef.current = verseKey;
+        return verseKey;
+      };
+
       // A transient backend/network hiccup (exactly what's likely right
       // after the app resumes from background/lock) gets a short bounded
       // retry before falling back to the existing manual "Try Again" state
-      // — see Part 4 of the background/resume-reliability phase.
+      // — see Part 4 of the background/resume-reliability phase. Each retry
+      // attempt inside withRetry re-invokes this same closure, so a general-
+      // mode attempt that already has a pending verseKey resumes it here too
+      // — not just across separate loadAyah() calls.
       const fetchAyah = (exclude: string[]) =>
-        withRetry(() => (source.mode === 'emotion' ? getRandomAyah(source.emotionKey, exclude) : getRandomGeneralAyah(exclude)));
+        withRetry(async () => {
+          if (source.mode === 'emotion') {
+            return getRandomAyah(source.emotionKey, exclude);
+          }
+          const verseKey = await resolveGeneralVerseKey(exclude);
+          const resolvedAyah = await getAyah(verseKey);
+          // Only cleared on success — see pendingGeneralVerseKeyRef's doc
+          // comment above.
+          pendingGeneralVerseKeyRef.current = null;
+          return resolvedAyah;
+        });
 
       let nextAyah = await fetchAyah(excludedVerseKeys);
 
@@ -145,6 +187,52 @@ export function AyahExperience({ source }: AyahExperienceProps) {
     return () => clearTimeout(timeoutId);
   }, [loadAyah]);
 
+  // Guards a rapid repeated pull gesture the same way Home/Favorites do —
+  // see pullToRefresh.ts's doc comment for why this needs a ref, not just
+  // the `isPullRefreshing` state below. Entirely separate from
+  // `isLoadingRef` above: that ref guards loadAyah() itself against
+  // overlapping fetches from any caller (mount, "Another ayah", or the
+  // recovery call below); this ref guards the pull gesture's own entry
+  // point against overlapping *pulls*.
+  const refreshGuardRef = useRef<RefreshInFlightRef>({ current: false });
+  const [isPullRefreshing, setIsPullRefreshing] = useState(false);
+
+  const onPullToRefresh = useCallback(async () => {
+    await runGuardedRefresh(refreshGuardRef.current, async () => {
+      setIsPullRefreshing(true);
+      try {
+        // Critical rule: refresh must never behave like "Another ayah". Once
+        // a verse has successfully loaded (no error, not mid-fetch), pull-
+        // to-refresh must leave it exactly as-is — it never calls loadAyah()
+        // again, so it can never fetch a different verse, switch
+        // emotion/general mode, or append another recent-history entry.
+        //
+        // The one exception is recovery: if nothing usable is currently
+        // shown (still loading, a prior load/refresh failed, or the screen
+        // never got a verse at all), there is no displayed ayah to
+        // preserve, so retrying the exact same request via the existing
+        // loader is exactly what "recover from stuck loading" means here.
+        // loadAyah()'s own isLoadingRef guard already no-ops this
+        // harmlessly if a fetch is genuinely still in flight.
+        const hasUsableAyah = ayah !== null && !isLoading && !errorMessage;
+        if (!hasUsableAyah) {
+          await loadAyah();
+        }
+
+        // Refreshes whatever else can go stale on this screen — favorites,
+        // preferences, reflections (via the same account sync used
+        // everywhere else, a no-op for a guest), then re-reads local
+        // favorites so `isFavorite(ayah)` reflects it immediately. Never a
+        // duplicate sync/fetch implementation, and never touches the
+        // current verse or recent-ayah history.
+        await refreshSync();
+        await refreshFavorites();
+      } finally {
+        setIsPullRefreshing(false);
+      }
+    });
+  }, [ayah, isLoading, errorMessage, loadAyah, refreshSync, refreshFavorites]);
+
   const shareAyah = useCallback(async () => {
     if (!ayah) {
       return;
@@ -157,7 +245,17 @@ export function AyahExperience({ source }: AyahExperienceProps) {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        refreshControl={
+          <RefreshControl
+            refreshing={isPullRefreshing}
+            onRefresh={() => void onPullToRefresh()}
+            tintColor={colors.olive}
+            colors={[colors.olive]}
+          />
+        }>
         <View style={[styles.header, isRtl && styles.headerRtl]}>
           <Pressable
             accessibilityRole="button"

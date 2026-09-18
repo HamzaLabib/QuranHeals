@@ -1,5 +1,6 @@
 import type { ApiResponse, Ayah, Emotion } from '@/types/domain';
 import { apiBaseUrl } from './apiBase';
+import { DEFAULT_FETCH_TIMEOUT_MS, fetchWithTimeout } from './fetchWithTimeout';
 import { resolveAyahArabic } from './quran';
 import { QuranDataError } from './quranReference';
 
@@ -110,17 +111,17 @@ async function parseApiResponse<T>(response: Response) {
   }
 }
 
-async function requestApi<T>(path: string, timeoutMs = 8000): Promise<T> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
-
+async function requestApi<T>(path: string, timeoutMs: number = DEFAULT_FETCH_TIMEOUT_MS): Promise<T> {
   try {
-    const response = await fetch(`${apiBaseUrl}${path}`, {
-      headers: {
-        Accept: 'application/json',
+    const response = await fetchWithTimeout(
+      `${apiBaseUrl}${path}`,
+      {
+        headers: {
+          Accept: 'application/json',
+        },
       },
-      signal: controller.signal,
-    });
+      timeoutMs,
+    );
     const payload = await parseApiResponse<T>(response);
 
     if (!response.ok) {
@@ -159,8 +160,6 @@ async function requestApi<T>(path: string, timeoutMs = 8000): Promise<T> {
     }
 
     throw new ApiError(fallbackMessageForKind('network'), 'network');
-  } finally {
-    clearTimeout(timeout);
   }
 }
 

@@ -3,10 +3,17 @@ import { resolve } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-const sheetSource = readFileSync(resolve(__dirname, '../src/components/DeleteAccountSheet.tsx'), 'utf-8');
-const accountSectionSource = readFileSync(resolve(__dirname, '../src/components/AccountSection.tsx'), 'utf-8');
-const useAuthSource = readFileSync(resolve(__dirname, '../src/auth/useAuth.tsx'), 'utf-8');
-const syncApiSource = readFileSync(resolve(__dirname, '../src/sync/syncApi.ts'), 'utf-8');
+// Normalizes CRLF to LF once here so every regex below matches the same way
+// regardless of the checkout's line endings (Windows' readFileSync can
+// return '\r\n', which would otherwise silently break any regex assuming a
+// bare '\n' — the code itself is never at fault for the platform's line
+// endings).
+const readSource = (path: string) => readFileSync(resolve(__dirname, path), 'utf-8').replace(/\r\n/g, '\n');
+
+const sheetSource = readSource('../src/components/DeleteAccountSheet.tsx');
+const accountSectionSource = readSource('../src/components/AccountSection.tsx');
+const useAuthSource = readSource('../src/auth/useAuth.tsx');
+const syncApiSource = readSource('../src/sync/syncApi.ts');
 
 describe('useAuth.tsx: deleteAccount only clears local data after a confirmed backend success', () => {
   const deleteAccountBlock = useAuthSource.match(/const deleteAccount = useCallback\(async \(\) => \{[\s\S]*?\}, \[[^\]]*\]\);/)?.[0] ?? '';

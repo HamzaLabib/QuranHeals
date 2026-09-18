@@ -28,13 +28,18 @@ export class MongooseAccountDeletionService implements AccountDeletionService {
     const session = await mongoose.startSession();
     try {
       await session.withTransaction(async () => {
-        await Promise.all([
-          UserFavoriteModel.deleteMany({ userId }).session(session),
-          UserPreferenceModel.deleteMany({ userId }).session(session),
-          UserReflectionModel.deleteMany({ userId }).session(session),
-          UserSyncKeyModel.deleteMany({ userId }).session(session),
-          SessionModel.deleteMany({ userId }).session(session),
-        ]);
+        // Sequential, not Promise.all: a single MongoDB session can only
+        // have one operation in flight on its active transaction at a time
+        // (running several `.session(session)` calls concurrently throws
+        // "Only servers in a sharded cluster can start a new transaction at
+        // the active transaction number", code 117). Everything still runs
+        // inside the one atomic transaction below.
+        await UserFavoriteModel.deleteMany({ userId }).session(session);
+        await UserPreferenceModel.deleteMany({ userId }).session(session);
+        await UserReflectionModel.deleteMany({ userId }).session(session);
+        await UserSyncKeyModel.deleteMany({ userId }).session(session);
+        await SessionModel.deleteMany({ userId }).session(session);
+
         await UserModel.deleteOne({ _id: userId }).session(session);
       });
     } finally {

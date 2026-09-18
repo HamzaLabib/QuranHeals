@@ -59,7 +59,12 @@ describe('Routing safety: the emotion key reaches the API/history/navigation lay
     expect(source).toMatch(/resolveLocalizedEmotionName\(source\.names, locale, source\.emotionKey\)/);
     // headerTitle may only appear where it's actually displayed — never
     // passed to any of the key-consuming calls.
-    const keyConsumingCalls = ['getRandomAyah(', 'recordShownAyah(', 'getExcludedVerseKeys(', 'getRandomGeneralAyah('];
+    // General mode's key-consuming calls used to be the single atomic
+    // getRandomGeneralAyah(exclude); it's now the separated
+    // resolveGeneralVerseKey(exclude) + getAyah(verseKey) pair (see
+    // AyahExperience's doc comment on why selection and content-load are
+    // kept as two separate awaits).
+    const keyConsumingCalls = ['getRandomAyah(', 'recordShownAyah(', 'getExcludedVerseKeys(', 'resolveGeneralVerseKey(', 'getAyah('];
     keyConsumingCalls.forEach((call) => {
       const callSite = source.indexOf(call);
       expect(callSite).toBeGreaterThan(-1);

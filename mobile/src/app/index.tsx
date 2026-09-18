@@ -1,7 +1,7 @@
 import { Link, router } from 'expo-router';
 import { BookOpen, Heart, NotebookPen, RefreshCw, Settings } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AppState, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { EmotionCard } from '@/components/EmotionCard';
@@ -14,6 +14,7 @@ import { withRetry } from '@/services/retry';
 import { getCachedEmotions, setCachedEmotions } from '@/storage/emotionsCache';
 import type { Emotion } from '@/types/domain';
 import { devLog } from '@/utils/devLog';
+import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
 
 // Backgrounded only briefly (e.g. a quick app switch) — not worth a full
 // revalidation on every foreground; see Part 4's "foreground refresh
@@ -115,12 +116,42 @@ export default function HomeScreen() {
     return () => subscription.remove();
   }, [loadEmotions]);
 
+  // Guards a rapid repeated pull gesture the same way Favorites does — see
+  // pullToRefresh.ts's doc comment for why this needs a ref, not just the
+  // `isPullRefreshing` state below.
+  const refreshGuardRef = useRef<RefreshInFlightRef>({ current: false });
+  const [isPullRefreshing, setIsPullRefreshing] = useState(false);
+
+  const onPullToRefresh = useCallback(async () => {
+    await runGuardedRefresh(refreshGuardRef.current, async () => {
+      setIsPullRefreshing(true);
+      try {
+        // Reuses the exact same fetch (cache write, retry, error handling)
+        // as mount/foreground revalidation — never a duplicate fetch path.
+        // Not silent: a user-initiated pull is allowed to surface an error
+        // if there's nothing on screen yet, exactly like the manual "Try
+        // Again" action does.
+        await loadEmotions();
+      } finally {
+        setIsPullRefreshing(false);
+      }
+    });
+  }, [loadEmotions]);
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isPullRefreshing}
+            onRefresh={() => void onPullToRefresh()}
+            tintColor={colors.olive}
+            colors={[colors.olive]}
+          />
+        }>
         <View style={[styles.header, isRtl && styles.headerRtl]}>
           <View style={styles.headerTitleBlock}>
             <Text style={[styles.wordmark, direction]}>{messages.appName}</Text>

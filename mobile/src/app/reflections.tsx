@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
 import { ArrowLeft, ArrowRight, RefreshCw } from 'lucide-react-native';
-import { useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useRef, useState } from 'react';
+import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useAuth } from '@/auth/useAuth';
 import { ReflectionListCard } from '@/components/ReflectionListCard';
 import { ReflectionSheet } from '@/components/ReflectionSheet';
 import { StateView } from '@/components/StateView';
@@ -11,6 +12,7 @@ import { colors, radii, spacing, typography } from '@/constants/theme';
 import { useReflections, type ReflectionListItem } from '@/hooks/useReflections';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
+import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
 
 /**
  * My Reflections (خواطري) — a read-only, offline list over the same
@@ -26,7 +28,13 @@ export default function ReflectionsScreen() {
   const isRtl = isRtlLocale(locale);
   const BackIcon = isRtl ? ArrowRight : ArrowLeft;
   const { items, isReady, hasError, refresh } = useReflections();
+  const { refreshSync } = useAuth();
   const [activeVerseKey, setActiveVerseKey] = useState<string | null>(null);
+  // Guards a rapid repeated pull gesture the same way Home/Favorites do —
+  // see pullToRefresh.ts's doc comment for why this needs a ref, not just
+  // the `isRefreshing` state below.
+  const refreshGuardRef = useRef<RefreshInFlightRef>({ current: false });
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const closeSheet = () => {
     setActiveVerseKey(null);
@@ -35,6 +43,27 @@ export default function ReflectionsScreen() {
     // immediately rather than showing stale text/timestamps.
     void refresh();
   };
+
+  const onPullToRefresh = useCallback(async () => {
+    await runGuardedRefresh(refreshGuardRef.current, async () => {
+      setIsRefreshing(true);
+      try {
+        // Reuses the exact same account sync (favorites + preferences +
+        // reflections) as everywhere else — a no-op for a guest. Never a
+        // duplicate sync implementation. A signed-in sync may have just
+        // downloaded encrypted reflection updates from another device, so
+        // the local re-read below is what actually surfaces them here.
+        await refreshSync();
+        // Re-reads local reflection storage (guest or signed-in) via the
+        // screen's own existing loader — also doubles as this screen's
+        // stuck/failed-initial-load recovery path, since it's the exact
+        // same call the mount effect and the "Try Again" action already use.
+        await refresh();
+      } finally {
+        setIsRefreshing(false);
+      }
+    });
+  }, [refreshSync, refresh]);
 
   const showLoading = !isReady;
   const showError = isReady && hasError;
@@ -47,6 +76,14 @@ export default function ReflectionsScreen() {
         data={listData}
         keyExtractor={(item) => item.reflection.verseKey}
         contentContainerStyle={styles.content}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={() => void onPullToRefresh()}
+            tintColor={colors.olive}
+            colors={[colors.olive]}
+          />
+        }
         ListHeaderComponent={
           <View style={styles.headerArea}>
             <View style={[styles.header, isRtl && styles.headerRtl]}>

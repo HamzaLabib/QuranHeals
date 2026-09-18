@@ -1,4 +1,5 @@
 import { apiBaseUrl } from '@/services/apiBase';
+import { fetchWithTimeout } from '@/services/fetchWithTimeout';
 
 export class SyncApiError extends Error {
   constructor(message: string, public readonly statusCode?: number) {
@@ -10,7 +11,14 @@ export class SyncApiError extends Error {
 type ApiEnvelope<T> = { success: true; data: T } | { success: false; message: string };
 
 async function sendRequest(sessionToken: string, path: string, init: RequestInit): Promise<Response> {
-  return fetch(`${apiBaseUrl}${path}`, {
+  // Bounded the same way as every other network layer in this app (see
+  // fetchWithTimeout's doc comment) — this is what makes refreshSync()
+  // (favorites/preferences/reflections sync, reachable from Favorites',
+  // Reflections', and Settings' pull-to-refresh) recoverable rather than
+  // able to hang forever on a dead connection. An abort here rejects like
+  // any other fetch failure, which the try/catch in authedRequest below
+  // already turns into an ordinary SyncApiError.
+  return fetchWithTimeout(`${apiBaseUrl}${path}`, {
     ...init,
     headers: {
       Accept: 'application/json',

@@ -1,25 +1,54 @@
 import { router } from 'expo-router';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react-native';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useRef, useState } from 'react';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useAuth } from '@/auth/useAuth';
 import { AccountSection } from '@/components/AccountSection';
 import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
 import { APP_LOCALES, APP_LOCALE_DISPLAY_NAMES, getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { useQuranTranslationPreference } from '@/localization/useQuranTranslationPreference';
 import type { TranslationDisplayMode } from '@/localization/quranTranslationPreference';
+import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
 
 const TRANSLATION_DISPLAY_MODES: readonly TranslationDisplayMode[] = ['always', 'on-demand', 'off'];
 
 export default function SettingsScreen() {
   const { locale, setLocale, messages } = useAppLocale();
   const { preference, setDisplayMode } = useQuranTranslationPreference();
+  const { refreshSync } = useAuth();
   const direction = getDirectionStyle(locale);
   // A "back" arrow should point toward where the previous screen visually
   // is — the right in RTL reading order, the left in LTR.
   const isRtl = isRtlLocale(locale);
   const BackIcon = isRtl ? ArrowRight : ArrowLeft;
+  // Guards a rapid repeated pull gesture the same way Home/Favorites do —
+  // see pullToRefresh.ts's doc comment for why this needs a ref, not just
+  // the `isRefreshing` state below.
+  const refreshGuardRef = useRef<RefreshInFlightRef>({ current: false });
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const onPullToRefresh = useCallback(async () => {
+    await runGuardedRefresh(refreshGuardRef.current, async () => {
+      setIsRefreshing(true);
+      try {
+        // Reuses the exact same account sync used everywhere else (a no-op
+        // for a guest) — never a duplicate preference-sync implementation.
+        // Preferences already flow through runFullSync's
+        // reconcilePreferencesOnSignIn, which applies any account-side
+        // locale/translation-display change via the exact setLocale/
+        // setDisplayMode above (through AuthProvider's
+        // applyPreferencesLocally) — both are shared context state, so this
+        // screen re-renders with the synced values automatically; no
+        // separate local re-read is needed here.
+        await refreshSync();
+      } finally {
+        setIsRefreshing(false);
+      }
+    });
+  }, [refreshSync]);
 
   const translationModeLabel: Record<TranslationDisplayMode, string> = {
     always: messages.settings.translationDisplayAlways,
@@ -34,7 +63,17 @@ export default function SettingsScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={() => void onPullToRefresh()}
+            tintColor={colors.olive}
+            colors={[colors.olive]}
+          />
+        }>
         <View style={[styles.header, isRtl && styles.headerRtl]}>
           <Pressable
             accessibilityRole="button"

@@ -243,11 +243,17 @@ describe('reflections.tsx and useReflections.ts: offline, guest-friendly, single
     expect(hookSource).not.toMatch(/from ['"]@\/auth\/useAuth['"]/);
   });
 
-  it('the screen never imports the network layer or requires auth either — guests can browse freely', () => {
+  it('the screen never imports the network layer directly — any account sync reuses the existing refreshSync(), never a bespoke fetch', () => {
     expect(screenSource).not.toMatch(/from ['"]@\/services\/api['"]/);
     expect(screenSource).not.toMatch(/\bfetch\(/);
-    expect(screenSource).not.toMatch(/from ['"]@\/auth\/useAuth['"]/);
-    expect(screenSource).not.toMatch(/useAuth\(\)/);
+  });
+
+  it('pull-to-refresh reuses the existing refreshSync() (a safe no-op for a guest) — it never gates the reflection list itself on being signed in, so guests still browse freely', () => {
+    expect(screenSource).toMatch(/from '@\/auth\/useAuth'/);
+    expect(screenSource).toMatch(/refreshSync\(\)/);
+    // Only the pull-to-refresh sync call touches auth; nothing here ever
+    // conditions rendering the list (or anything else) on account status.
+    expect(screenSource).not.toMatch(/status/);
   });
 
   it('uses a performant FlatList for the reflection list, not a large ScrollView', () => {

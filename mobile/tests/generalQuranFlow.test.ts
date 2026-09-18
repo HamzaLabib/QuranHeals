@@ -44,18 +44,28 @@ describe('Another ayah: emotion mode continues the same emotion, general mode co
   });
 
   it('loadAyah dispatches through one fetchAyah closure that branches strictly on source.mode', () => {
-    const fetchAyahBlock = experienceSource.match(/const fetchAyah = \(exclude: string\[\]\) =>\s*\n?\s*([\s\S]*?);/)?.[0] ?? '';
+    const fetchAyahBlock = experienceSource.match(/const fetchAyah = \(exclude: string\[\]\) =>[\s\S]*?\n {8}\}\);/)?.[0] ?? '';
     expect(fetchAyahBlock.length).toBeGreaterThan(0);
-    expect(fetchAyahBlock).toMatch(/source\.mode === 'emotion' \? getRandomAyah\(source\.emotionKey, exclude\) : getRandomGeneralAyah\(exclude\)/);
+    expect(fetchAyahBlock).toMatch(/if \(source\.mode === 'emotion'\) \{\s*return getRandomAyah\(source\.emotionKey, exclude\);\s*\}/);
+    // General mode's selection (resolveGeneralVerseKey — local, offline)
+    // and content-load (getAyah — network) are two separate awaits here
+    // rather than one atomic call, so a content-load failure can remember
+    // and resume the already-chosen verse instead of drawing a new one on
+    // retry (see resolveGeneralVerseKey's doc comment and
+    // ayahPullToRefresh.test.ts's dedicated regression coverage for this).
+    expect(fetchAyahBlock).toMatch(/const verseKey = await resolveGeneralVerseKey\(exclude\);/);
+    expect(fetchAyahBlock).toMatch(/await getAyah\(verseKey\)/);
   });
 
-  it('emotion mode never calls getRandomGeneralAyah, and general mode is never given an emotionKey', () => {
-    // Structural: getRandomGeneralAyah takes only an exclusion list — there
-    // is no parameter through which an emotionKey could reach it, and the
-    // ternary above proves getRandomAyah (the emotion-mapping call) is only
-    // reached when source.mode === 'emotion'.
-    expect(experienceSource).toMatch(/getRandomGeneralAyah\(exclude\)/);
-    expect(experienceSource).not.toMatch(/getRandomGeneralAyah\(source\.emotionKey/);
+  it('emotion mode never resolves a general-mode verseKey, and general mode is never given an emotionKey', () => {
+    // Structural: resolveGeneralVerseKey/getAyah(verseKey) take only a
+    // verseKey/exclusion list — there is no parameter through which an
+    // emotionKey could reach them, and the `if` above proves getRandomAyah
+    // (the emotion-mapping call) is only reached when source.mode ===
+    // 'emotion'.
+    expect(experienceSource).toMatch(/resolveGeneralVerseKey\(exclude\)/);
+    expect(experienceSource).not.toMatch(/resolveGeneralVerseKey\(source\.emotionKey/);
+    expect(experienceSource).not.toMatch(/getAyah\(source\.emotionKey/);
   });
 
   it("existing emotion-flow wording is unchanged — still آية أخرى / Another Ayah via messages.ayah.anotherAyah, not a new general-mode string", () => {
@@ -93,7 +103,11 @@ describe('Recent history: general flow has its own namespace, separate from emot
   });
 
   it('general-flow history is stored in the same device-local AsyncStorage module as emotion history — never synced, never network-backed', () => {
-    expect(experienceSource).not.toMatch(/general.*sync|sync.*general/i);
+    // \bsync\b (a word boundary), not a bare substring match — otherwise
+    // this would false-positive on "async" (e.g. an `async` arrow function
+    // declared near a "general"-named identifier) or "AsyncStorage" itself,
+    // neither of which has anything to do with account/cloud sync.
+    expect(experienceSource).not.toMatch(/general.*\bsync\b|\bsync\b.*general/i);
   });
 
   it('an expired (>10 minutes old) general-flow entry is excluded from the active list, exactly like emotion history', async () => {
@@ -130,7 +144,11 @@ describe('Integration: favorites, reflections, translation, and Report an Issue 
   });
 
   it('guest and signed-in both reach the same AyahExperience — no auth/status gating on which mode is available', () => {
-    expect(experienceSource).not.toMatch(/useAuth\(\)/);
+    // useAuth() is used only to reuse refreshSync() for pull-to-refresh (a
+    // safe no-op for a guest) — never to gate emotion/general mode, and
+    // never by checking `status` anywhere in this file.
     expect(experienceSource).not.toMatch(/status === 'guest'|status === 'signed-in'/);
+    expect(experienceSource).not.toMatch(/\bstatus\b/);
+    expect(experienceSource).toMatch(/const \{ refreshSync \} = useAuth\(\);/);
   });
 });

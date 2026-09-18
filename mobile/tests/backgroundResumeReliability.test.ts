@@ -48,7 +48,11 @@ describe('Home screen (emotions): background/resume reliability (Part 4)', () =>
 
 describe('Ayah loading: bounded retry for a transient backend/network failure (Part 4)', () => {
   it('wraps the ayah fetch in the shared bounded retry helper', () => {
-    expect(ayahExperienceSource).toMatch(/withRetry\(\(\) =>/);
+    // The callback is `async` (not a plain arrow returning a promise)
+    // because general mode's selection/content-load are two separate
+    // awaits inside it — see AyahExperience's resolveGeneralVerseKey doc
+    // comment — but it's still the exact same shared withRetry helper.
+    expect(ayahExperienceSource).toMatch(/withRetry\(async \(\) =>/);
   });
 
   it('still exposes the existing manual retry action once retries are exhausted', () => {

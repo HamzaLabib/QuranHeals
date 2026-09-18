@@ -1,4 +1,5 @@
 import { apiBaseUrl } from '@/services/apiBase';
+import { fetchWithTimeout } from '@/services/fetchWithTimeout';
 import type { AuthUser } from './authTypes';
 
 export class AuthApiError extends Error {
@@ -19,7 +20,12 @@ type RefreshResponse = { token: string; refreshToken: string };
 async function postJson<T>(path: string, body: unknown, fallbackMessage: string): Promise<T> {
   let response: Response;
   try {
-    response = await fetch(`${apiBaseUrl}${path}`, {
+    // Bounded the same way as every other network layer in this app (see
+    // fetchWithTimeout's doc comment) — refreshSession() below is reachable
+    // mid-sync (authedRequest's 401 retry, itself part of refreshSync()), so
+    // a hung refresh call must not be able to leave that stuck forever
+    // either.
+    response = await fetchWithTimeout(`${apiBaseUrl}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify(body),
@@ -69,7 +75,10 @@ export async function logoutSession(refreshToken: string): Promise<void> {
 
 export async function fetchCurrentUser(sessionToken: string): Promise<AuthUser | null> {
   try {
-    const response = await fetch(`${apiBaseUrl}/api/auth/session`, {
+    // Same bounded timeout as every other request here — this call gates
+    // app-startup session restore (see useAuth.tsx), so a hung request must
+    // not be able to leave the app on its initial loading state forever.
+    const response = await fetchWithTimeout(`${apiBaseUrl}/api/auth/session`, {
       headers: { Authorization: `Bearer ${sessionToken}`, Accept: 'application/json' },
     });
     if (!response.ok) return null;
