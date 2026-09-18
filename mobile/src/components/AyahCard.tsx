@@ -13,6 +13,7 @@ import { useAppLocale } from '@/localization/useAppLocale';
 import { useQuranFontSizePreference } from '@/localization/useQuranFontSizePreference';
 import { useQuranTranslationPreference } from '@/localization/useQuranTranslationPreference';
 import type { Ayah } from '@/types/domain';
+import { formatAyahReference } from '@/utils/ayahReference';
 import { QuranFontSizeControls } from './QuranFontSizeControls';
 
 type AyahCardProps = {
@@ -63,9 +64,13 @@ export function AyahCard({ ayah, compact = false }: AyahCardProps) {
       {!compact && <QuranFontSizeControls />}
 
       <View style={styles.referenceRow}>
-        <Text style={styles.reference}>
-          {ayah.surahNameEnglish} • {ayah.surahNumber}:{ayah.ayahNumber}
-        </Text>
+        {/* Always "English Surah name · Surah:Ayah · Arabic Surah name", in
+            that exact order, in every app language — writingDirection is
+            forced to 'ltr' here regardless of the current app locale so an
+            RTL context (Arabic/Egyptian Arabic) can never reorder the three
+            segments; the Arabic name itself still renders correctly as an
+            embedded RTL run within that fixed LTR ordering. */}
+        <Text style={styles.reference}>{formatAyahReference(ayah.surahNumber, ayah.ayahNumber)}</Text>
         <Text accessibilityRole="link" onPress={() => void Linking.openURL('https://tanzil.net')} style={styles.source}>
           Quran text: Tanzil · Uthmani 1.1
         </Text>
@@ -153,6 +158,10 @@ const styles = StyleSheet.create({
     color: colors.olive,
     fontSize: typography.body,
     fontWeight: '800',
+    // Explicit, not incidental: pins the visual order to
+    // English -> number -> Arabic regardless of the app's current locale
+    // direction — see formatAyahReference's doc comment.
+    writingDirection: 'ltr',
   },
   source: {
     color: colors.softText,

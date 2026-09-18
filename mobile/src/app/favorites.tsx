@@ -13,6 +13,7 @@ import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import type { Messages } from '@/localization/messages';
 import type { FavoriteAyah } from '@/types/domain';
+import { formatAyahReference } from '@/utils/ayahReference';
 import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
 
 type FavoriteActionsProps = {
@@ -25,7 +26,7 @@ type FavoriteActionsProps = {
 function FavoriteActions({ favorite, onRemove, messages, isRtl }: FavoriteActionsProps) {
   const shareFavorite = useCallback(async () => {
     await Share.share({
-      message: `${favorite.arabicText}\n\n${favorite.englishTranslation}\n\n${favorite.surahNameEnglish} ${favorite.surahNumber}:${favorite.ayahNumber}\n\n${favorite.quranTextSource}\n\nQuran Heals`,
+      message: `${favorite.arabicText}\n\n${favorite.englishTranslation}\n\n${formatAyahReference(favorite.surahNumber, favorite.ayahNumber)}\n\n${favorite.quranTextSource}\n\nQuran Heals`,
     });
   }, [favorite]);
 

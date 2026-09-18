@@ -13,6 +13,7 @@ import { getRandomVerseKey } from '@/services/quran';
 import { withRetry } from '@/services/retry';
 import { buildExhaustionRetryExclusions, getExcludedVerseKeys, GENERAL_QURAN_HISTORY_KEY, recordShownAyah } from '@/storage/recentAyahHistory';
 import type { Ayah, LocalizedText } from '@/types/domain';
+import { formatAyahReference } from '@/utils/ayahReference';
 import { resolveLocalizedEmotionName } from '@/utils/emotionLabel';
 import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
 import { AyahCard } from './AyahCard';
@@ -239,7 +240,7 @@ export function AyahExperience({ source }: AyahExperienceProps) {
     }
 
     await Share.share({
-      message: `${ayah.arabicText}\n\n${ayah.englishTranslation}\n\n${ayah.surahNameEnglish} ${ayah.surahNumber}:${ayah.ayahNumber}\n\n${ayah.quranTextSource}\n\nQuran Heals`,
+      message: `${ayah.arabicText}\n\n${ayah.englishTranslation}\n\n${formatAyahReference(ayah.surahNumber, ayah.ayahNumber)}\n\n${ayah.quranTextSource}\n\nQuran Heals`,
     });
   }, [ayah]);
 
