@@ -7,6 +7,8 @@ export type VerifiedGoogleIdentity = {
   providerSubject: string;
   email?: string;
   emailVerified?: boolean;
+  /** The token's `iat` (seconds since epoch), as signed by Google. */
+  issuedAt?: number;
 };
 
 export interface GoogleTokenVerifier {
@@ -41,6 +43,7 @@ export class GoogleAuthLibraryVerifier implements GoogleTokenVerifier {
       providerSubject: payload.sub,
       email: payload.email,
       emailVerified: payload.email_verified,
+      issuedAt: typeof payload.iat === 'number' ? payload.iat : undefined,
     };
   }
 }

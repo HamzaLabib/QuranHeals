@@ -50,6 +50,7 @@ export type SyncKeyDto = {
   salt: string;
   kdfIterations: number;
   encryptionVersion: number;
+  keyFingerprint?: string;
 };
 
 export type IssueReportInput = {

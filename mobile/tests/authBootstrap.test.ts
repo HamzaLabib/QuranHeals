@@ -27,12 +27,13 @@ vi.mock('@react-native-async-storage/async-storage', () => ({ default: {
   removeItem: vi.fn(async (key: string) => { native.cache.delete(key); }),
 } }));
 vi.mock('@/localization/useAppLocale', () => ({
-  useAppLocale: () => ({ locale: native.locale, setLocale: native.setLocale }),
+  useAppLocale: () => ({ locale: native.locale, setLocale: native.setLocale, isReady: true }),
 }));
 vi.mock('@/localization/useQuranTranslationPreference', () => ({
   useQuranTranslationPreference: () => ({
     preference: { displayMode: native.displayMode, translationId: 'en.pickthall.gutenberg16955' },
     setDisplayMode: native.setDisplayMode,
+    isReady: true,
   }),
 }));
 vi.mock('@/components/SyncPassphraseSheet', () => ({ SyncPassphraseSheet: () => null }));
@@ -194,9 +195,11 @@ describe('Actual AuthProvider cold-start initialization', () => {
       expect(initialize).toHaveBeenCalledTimes(1);
       await expect(initialize.mock.results[0].value).resolves.toMatchObject({ status: 'signed-in' });
       expect(native.sync).toHaveBeenCalledTimes(1);
-      if (change === 'locale') expect(native.sync.mock.calls[0]).toEqual(expect.arrayContaining([
-        expect.objectContaining({ local: expect.objectContaining({ locale: 'ar' }) }),
-      ]));
+      if (change === 'locale') {
+        // `local` is read at decision time via a getter (preferencesSync.ts).
+        const [, options] = native.sync.mock.calls[0] as unknown as [string, { local: () => { locale: string } }];
+        expect(options.local()).toEqual(expect.objectContaining({ locale: 'ar' }));
+      }
     },
   );
 

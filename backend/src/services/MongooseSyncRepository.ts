@@ -1,3 +1,5 @@
+import mongoose from 'mongoose';
+
 import { UserFavoriteModel } from '../models/UserFavorite';
 import { UserPreferenceModel } from '../models/UserPreference';
 import { UserReflectionModel } from '../models/UserReflection';
@@ -64,6 +66,7 @@ function toSyncKeyDto(doc: {
   salt: string;
   kdfIterations: number;
   encryptionVersion: number;
+  keyFingerprint?: string;
 }): SyncKeyDto {
   return {
     wrappedKey: doc.wrappedKey,
@@ -71,6 +74,7 @@ function toSyncKeyDto(doc: {
     salt: doc.salt,
     kdfIterations: doc.kdfIterations,
     encryptionVersion: doc.encryptionVersion,
+    ...(doc.keyFingerprint ? { keyFingerprint: doc.keyFingerprint } : {}),
   };
 }
 
@@ -149,6 +153,7 @@ export class MongooseSyncRepository implements SyncRepository {
                 ciphertext: record.ciphertext,
                 nonce: record.nonce,
                 encryptionVersion: record.encryptionVersion,
+                keyFingerprint: record.keyFingerprint,
                 createdAt: new Date(record.createdAt),
                 updatedAt: incomingTimestamp,
               },
@@ -165,12 +170,14 @@ export class MongooseSyncRepository implements SyncRepository {
           existing.ciphertext = undefined;
           existing.nonce = undefined;
           existing.encryptionVersion = undefined;
+          existing.keyFingerprint = undefined;
           existing.createdAt = undefined;
         } else {
           existing.deleted = false;
           existing.ciphertext = record.ciphertext;
           existing.nonce = record.nonce;
           existing.encryptionVersion = record.encryptionVersion;
+          existing.keyFingerprint = record.keyFingerprint;
           existing.createdAt = new Date(record.createdAt);
         }
         existing.updatedAt = incomingTimestamp;
@@ -256,10 +263,7 @@ export class MongooseSyncRepository implements SyncRepository {
     return doc ? toSyncKeyDto(doc as never) : null;
   }
 
-  async putSyncKey(
-    userId: string,
-    key: { wrappedKey: string; nonce: string; salt: string; kdfIterations: number; encryptionVersion: number },
-  ): Promise<SyncKeyDto> {
+  async putSyncKey(userId: string, key: SyncKeyDto): Promise<SyncKeyDto> {
     try {
       const doc = await UserSyncKeyModel.create({ ...key, userId });
       return toSyncKeyDto(doc);
@@ -276,5 +280,29 @@ export class MongooseSyncRepository implements SyncRepository {
       { new: true, runValidators: true, writeConcern: { w: 'majority' } },
     ).lean();
     return doc ? toSyncKeyDto(doc as never) : null;
+  }
+
+  async resetReflectionSync(userId: string): Promise<void> {
+    // One transaction (same pattern as MongooseAccountDeletionService): a
+    // reset never leaves the key without its reflections or vice versa.
+    // Deleting zero documents is not an error, so a repeat is a no-op.
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => {
+        await UserReflectionModel.deleteMany({ userId }).session(session);
+        await UserSyncKeyModel.deleteMany({ userId }).session(session);
+      });
+    } finally {
+      await session.endSession();
+    }
+  }
+
+  async getSyncKeyCreatedAt(userId: string): Promise<Date | null> {
+    const doc = await UserSyncKeyModel.findOne({ userId }).select('createdAt').lean<{ createdAt?: Date }>();
+    return doc?.createdAt ?? null;
+  }
+
+  async deleteReflectionsNotEncryptedWith(userId: string, keyFingerprint: string): Promise<void> {
+    await UserReflectionModel.deleteMany({ userId, deleted: { $ne: true }, keyFingerprint: { $ne: keyFingerprint } });
   }
 }

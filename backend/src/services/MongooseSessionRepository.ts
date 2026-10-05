@@ -1,5 +1,6 @@
 import { Types } from 'mongoose';
 
+import { rotateRefreshToken, type RotationSessionState, type RotationStore, type RotationUpdate } from '../auth/refreshRotation';
 import {
   formatRefreshToken,
   generateRefreshTokenSecret,
@@ -7,15 +8,57 @@ import {
   parseRefreshToken,
   REFRESH_TOKEN_TTL_MS,
 } from '../auth/session';
-import { AppError } from '../errors/AppError';
 import { SessionModel } from '../models/Session';
+import type { SessionEntity } from '../types/accountDomain';
 import type { IssuedSession, SessionRepository } from './SessionRepository';
-
-const INVALID_SESSION_MESSAGE = 'Session is invalid or has expired. Please sign in again.';
 
 function expiryFromNow(): Date {
   return new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
 }
+
+/** MongoDB persistence for auth/refreshRotation.ts. compareAndRotate is a single conditional findOneAndUpdate, so concurrent refreshes can never both apply. */
+export const mongooseRotationStore: RotationStore = {
+  async compareAndRotate(sessionId: string, expectedHash: string, update: RotationUpdate, now: number) {
+    if (!Types.ObjectId.isValid(sessionId)) return null;
+    const doc = await SessionModel.findOneAndUpdate(
+      {
+        _id: sessionId,
+        refreshTokenHash: expectedHash,
+        revokedAt: { $exists: false },
+        expiresAt: { $gt: new Date(now) },
+      },
+      {
+        $set: {
+          refreshTokenHash: update.refreshTokenHash,
+          previousRefreshTokenHash: update.previousRefreshTokenHash,
+          rotatedAt: new Date(update.rotatedAt),
+          expiresAt: new Date(update.expiresAt),
+        },
+      },
+      { new: true },
+    ).lean<SessionEntity>();
+    return doc ? doc.userId : null;
+  },
+
+  async find(sessionId: string): Promise<RotationSessionState | null> {
+    if (!Types.ObjectId.isValid(sessionId)) return null;
+    const doc = await SessionModel.findById(sessionId).lean<SessionEntity>();
+    if (!doc) return null;
+    return {
+      userId: doc.userId,
+      refreshTokenHash: doc.refreshTokenHash,
+      previousRefreshTokenHash: doc.previousRefreshTokenHash,
+      rotatedAt: doc.rotatedAt?.getTime(),
+      expiresAt: doc.expiresAt.getTime(),
+      revokedAt: doc.revokedAt?.getTime(),
+    };
+  },
+
+  async revoke(sessionId: string, now: number) {
+    if (!Types.ObjectId.isValid(sessionId)) return;
+    await SessionModel.updateOne({ _id: sessionId, revokedAt: { $exists: false } }, { $set: { revokedAt: new Date(now) } });
+  },
+};
 
 export class MongooseSessionRepository implements SessionRepository {
   async createSession(userId: string): Promise<IssuedSession> {
@@ -33,36 +76,8 @@ export class MongooseSessionRepository implements SessionRepository {
     return { sessionId: sessionId.toHexString(), refreshToken };
   }
 
-  async rotateSession(refreshToken: string): Promise<IssuedSession & { userId: string }> {
-    const parsed = parseRefreshToken(refreshToken);
-    if (!parsed || !Types.ObjectId.isValid(parsed.sessionId)) {
-      throw new AppError(INVALID_SESSION_MESSAGE, 401);
-    }
-
-    const session = await SessionModel.findById(parsed.sessionId);
-    if (!session || session.revokedAt || session.expiresAt.getTime() < Date.now()) {
-      throw new AppError(INVALID_SESSION_MESSAGE, 401);
-    }
-
-    if (session.refreshTokenHash !== hashRefreshToken(refreshToken)) {
-      // The presented token doesn't match this session's current refresh
-      // token — either a stale token from before an earlier rotation, or
-      // one that was never valid. Either way, treat it as possible
-      // theft/reuse and revoke the whole session rather than silently
-      // ignoring it ("handle reused/invalid/expired refresh tokens
-      // securely").
-      session.revokedAt = new Date();
-      await session.save();
-      throw new AppError(INVALID_SESSION_MESSAGE, 401);
-    }
-
-    const nextSecret = generateRefreshTokenSecret();
-    const nextRefreshToken = formatRefreshToken(parsed.sessionId, nextSecret);
-    session.refreshTokenHash = hashRefreshToken(nextRefreshToken);
-    session.expiresAt = expiryFromNow();
-    await session.save();
-
-    return { sessionId: parsed.sessionId, refreshToken: nextRefreshToken, userId: session.userId };
+  rotateSession(refreshToken: string): Promise<IssuedSession & { userId: string }> {
+    return rotateRefreshToken(mongooseRotationStore, refreshToken);
   }
 
   async revokeSession(refreshToken: string): Promise<void> {

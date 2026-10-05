@@ -8,6 +8,7 @@ import {
   parseRefreshToken,
   REFRESH_TOKEN_TTL_MS,
 } from '../../src/auth/session';
+import { rotateRefreshToken, type RotationStore } from '../../src/auth/refreshRotation';
 import type { GoogleTokenVerifier, VerifiedGoogleIdentity } from '../../src/auth/googleTokenVerifier';
 import { AppError } from '../../src/errors/AppError';
 import type { IssueReportRepository } from '../../src/services/IssueReportRepository';
@@ -55,6 +56,16 @@ export class InMemoryUserRepository implements UserRepository {
     return [...this.usersByKey.values()].find((user) => user.id === userId) ?? null;
   }
 
+  async findProviderIdentity(userId: string): Promise<{ provider: 'apple' | 'google'; providerSubject: string } | null> {
+    for (const [key, user] of this.usersByKey) {
+      if (user.id === userId) {
+        const separator = key.indexOf(':');
+        return { provider: user.provider, providerSubject: key.slice(separator + 1) };
+      }
+    }
+    return null;
+  }
+
   /** Test-only: mirrors MongooseAccountDeletionService's `UserModel.deleteOne`. Not part of the production UserRepository interface. */
   deleteUser(userId: string): void {
     for (const [key, user] of this.usersByKey) {
@@ -67,16 +78,48 @@ type InMemorySession = {
   id: string;
   userId: string;
   refreshTokenHash: string;
+  previousRefreshTokenHash?: string;
+  rotatedAt?: number;
   expiresAt: number;
   revokedAt: number | null;
 };
 
-const INVALID_SESSION_MESSAGE = 'Session is invalid or has expired. Please sign in again.';
-
-/** Mirrors MongooseSessionRepository's rotation/revocation semantics (including reuse-detected revocation) purely in memory, using the exact same token helpers as production. */
+/**
+ * In-memory SessionRepository. Rotation goes through the PRODUCTION decision
+ * logic (auth/refreshRotation.ts's rotateRefreshToken) via an in-memory
+ * RotationStore — only persistence is faked. compareAndRotate is atomic here
+ * because it runs synchronously, with no await between its check and write.
+ */
 export class InMemorySessionRepository implements SessionRepository {
   private readonly sessionsById = new Map<string, InMemorySession>();
   private nextId = 1;
+
+  readonly rotationStore: RotationStore = {
+    compareAndRotate: async (sessionId, expectedHash, update, now) => {
+      const session = this.sessionsById.get(sessionId);
+      if (!session || session.revokedAt !== null || session.expiresAt <= now || session.refreshTokenHash !== expectedHash) {
+        return null;
+      }
+      Object.assign(session, update);
+      return session.userId;
+    },
+    find: async (sessionId) => {
+      const session = this.sessionsById.get(sessionId);
+      if (!session) return null;
+      return {
+        userId: session.userId,
+        refreshTokenHash: session.refreshTokenHash,
+        previousRefreshTokenHash: session.previousRefreshTokenHash,
+        rotatedAt: session.rotatedAt,
+        expiresAt: session.expiresAt,
+        revokedAt: session.revokedAt ?? undefined,
+      };
+    },
+    revoke: async (sessionId, now) => {
+      const session = this.sessionsById.get(sessionId);
+      if (session && session.revokedAt === null) session.revokedAt = now;
+    },
+  };
 
   async createSession(userId: string): Promise<IssuedSession> {
     const sessionId = String(this.nextId++);
@@ -94,25 +137,19 @@ export class InMemorySessionRepository implements SessionRepository {
     return { sessionId, refreshToken };
   }
 
-  async rotateSession(refreshToken: string): Promise<IssuedSession & { userId: string }> {
-    const parsed = parseRefreshToken(refreshToken);
-    const session = parsed ? this.sessionsById.get(parsed.sessionId) : undefined;
+  rotateSession(refreshToken: string): Promise<IssuedSession & { userId: string }> {
+    return rotateRefreshToken(this.rotationStore, refreshToken);
+  }
 
-    if (!parsed || !session || session.revokedAt !== null || session.expiresAt < Date.now()) {
-      throw new AppError(INVALID_SESSION_MESSAGE, 401);
-    }
+  /** Test-only: inspect stored session state (hashes only — never raw tokens). */
+  getStoredSession(sessionId: string): Readonly<InMemorySession> | undefined {
+    return this.sessionsById.get(sessionId);
+  }
 
-    if (session.refreshTokenHash !== hashRefreshToken(refreshToken)) {
-      session.revokedAt = Date.now();
-      throw new AppError(INVALID_SESSION_MESSAGE, 401);
-    }
-
-    const nextSecret = generateRefreshTokenSecret();
-    const nextRefreshToken = formatRefreshToken(parsed.sessionId, nextSecret);
-    session.refreshTokenHash = hashRefreshToken(nextRefreshToken);
-    session.expiresAt = Date.now() + REFRESH_TOKEN_TTL_MS;
-
-    return { sessionId: parsed.sessionId, refreshToken: nextRefreshToken, userId: session.userId };
+  /** Test-only: move a session's expiry (e.g. into the past). */
+  setExpiresAt(sessionId: string, expiresAt: number): void {
+    const session = this.sessionsById.get(sessionId);
+    if (session) session.expiresAt = expiresAt;
   }
 
   async revokeSession(refreshToken: string): Promise<void> {
@@ -267,12 +304,16 @@ export class InMemorySyncRepository implements SyncRepository {
     return this.syncKeyByUser.get(userId) ?? null;
   }
 
-  async putSyncKey(
-    userId: string,
-    key: { wrappedKey: string; nonce: string; salt: string; kdfIterations: number; encryptionVersion: number },
-  ): Promise<SyncKeyDto> {
+  private readonly syncKeyCreatedAtByUser = new Map<string, Date>();
+
+  async getSyncKeyCreatedAt(userId: string): Promise<Date | null> {
+    return this.syncKeyByUser.has(userId) ? (this.syncKeyCreatedAtByUser.get(userId) ?? null) : null;
+  }
+
+  async putSyncKey(userId: string, key: SyncKeyDto): Promise<SyncKeyDto> {
     if (this.syncKeyByUser.has(userId)) throw new AppError('Sync key already exists.', 409);
     this.syncKeyByUser.set(userId, key);
+    this.syncKeyCreatedAtByUser.set(userId, new Date());
     return key;
   }
 
@@ -281,6 +322,19 @@ export class InMemorySyncRepository implements SyncRepository {
     if (!current || (Object.keys(expected) as (keyof SyncKeyDto)[]).some((field) => current[field] !== expected[field])) return null;
     this.syncKeyByUser.set(userId, replacement);
     return replacement;
+  }
+
+  async resetReflectionSync(userId: string): Promise<void> {
+    this.reflectionsByUser.delete(userId);
+    this.syncKeyByUser.delete(userId);
+  }
+
+  async deleteReflectionsNotEncryptedWith(userId: string, keyFingerprint: string): Promise<void> {
+    const map = this.reflectionsByUser.get(userId);
+    if (!map) return;
+    for (const [verseKey, record] of map) {
+      if (record.type === 'active' && (record as { keyFingerprint?: string }).keyFingerprint !== keyFingerprint) map.delete(verseKey);
+    }
   }
 
   /** Test-only: mirrors MongooseAccountDeletionService's four `deleteMany({ userId })` calls (favorites, preferences, reflections, sync key) in one step. Not part of the production SyncRepository interface. */
@@ -323,7 +377,8 @@ export class StubGoogleVerifier implements GoogleTokenVerifier {
   async verifyIdToken(idToken: string): Promise<VerifiedGoogleIdentity> {
     const identity = this.identitiesByToken.get(idToken);
     if (!identity) throw new AppError('Google sign-in could not be verified.', 401);
-    return identity;
+    // Like a real token: issued "now" unless a test sets issuedAt explicitly.
+    return { issuedAt: Math.floor(Date.now() / 1000), ...identity };
   }
 }
 
@@ -334,6 +389,6 @@ export class StubAppleVerifier implements AppleTokenVerifier {
   async verifyIdToken(idToken: string): Promise<VerifiedAppleIdentity> {
     const identity = this.identitiesByToken.get(idToken);
     if (!identity) throw new AppError('Apple sign-in could not be verified.', 401);
-    return identity;
+    return { issuedAt: Math.floor(Date.now() / 1000), ...identity };
   }
 }

@@ -1,4 +1,5 @@
 import { xchacha20poly1305 } from '@noble/ciphers/chacha.js';
+import { hmac } from '@noble/hashes/hmac.js';
 import { pbkdf2Async } from '@noble/hashes/pbkdf2.js';
 import { sha256 } from '@noble/hashes/sha2.js';
 
@@ -56,6 +57,8 @@ export type WrappedMasterKey = {
   salt: string;
   kdfIterations: number;
   encryptionVersion: number;
+  /** See masterKeyFingerprint. Absent on keys created before it existed. */
+  keyFingerprint?: string;
 };
 
 function assertKeyLength(key: Uint8Array) {
@@ -154,4 +157,19 @@ export async function unwrapMasterKey(wrapped: WrappedMasterKey, passphrase: str
   } finally {
     passphraseKey.fill(0);
   }
+}
+
+const FINGERPRINT_LABEL = new TextEncoder().encode('quran-heals:reflection-master-key-fingerprint:v1');
+
+/**
+ * Identifies WHICH master key encrypted something, without revealing it:
+ * HMAC-SHA256 keyed by the master key over a fixed label — one-way, so
+ * neither the server nor anyone holding it can derive the key. Stored with
+ * the wrapped key and sent with each uploaded reflection, so a device still
+ * holding a key the account no longer uses (after a forgotten-password
+ * reset) is detected instead of uploading ciphertext nobody can read.
+ */
+export function masterKeyFingerprint(masterKey: Uint8Array): string {
+  assertKeyLength(masterKey);
+  return encodeBase64(hmac(sha256, masterKey, FINGERPRINT_LABEL));
 }

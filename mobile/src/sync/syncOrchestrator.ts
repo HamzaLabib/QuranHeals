@@ -1,11 +1,13 @@
-import type { ApplyPreferences, LocalPreferencesSnapshot } from './preferencesSync';
+import type { ApplyPreferences, LocalPreferencesSource } from './preferencesSync';
 import { reconcilePreferencesOnSignIn } from './preferencesSync';
 import { syncFavorites } from './favoritesSync';
 import { syncReflections } from './reflectionsSync';
 import { ensureReflectionMasterKey, SyncPassphraseCancelledError, type PassphrasePrompt } from './syncKeyManager';
 
 export type FullSyncOptions = {
-  local: LocalPreferencesSnapshot;
+  /** The account `sessionToken` belongs to. Favorites/reflections sync only that account's local data and cached key. */
+  ownerUserId: string;
+  local: LocalPreferencesSource;
   applyPreferencesLocally: ApplyPreferences;
   promptForPassphrase: PassphrasePrompt;
 };
@@ -45,12 +47,12 @@ export async function runFullSync(sessionToken: string, options: FullSyncOptions
   result.preferencesSynced = true;
 
   try {
-    const masterKey = await ensureReflectionMasterKey(sessionToken, options.promptForPassphrase);
+    const masterKey = await ensureReflectionMasterKey(sessionToken, options.promptForPassphrase, options.ownerUserId);
 
-    await syncFavorites(sessionToken);
+    await syncFavorites(sessionToken, options.ownerUserId);
     result.favoritesSynced = true;
 
-    await syncReflections(sessionToken, masterKey);
+    await syncReflections(sessionToken, masterKey, options.ownerUserId);
     result.reflectionsSynced = true;
   } catch (error) {
     if (error instanceof SyncPassphraseCancelledError) {

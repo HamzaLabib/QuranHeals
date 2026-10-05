@@ -1,5 +1,5 @@
 import { getRandomBytes } from '@/crypto/randomBytes';
-import { decryptReflectionText, encryptReflectionText } from '@/crypto/reflectionEncryption';
+import { decryptReflectionText, encryptReflectionText, masterKeyFingerprint } from '@/crypto/reflectionEncryption';
 import {
   getAllReflections,
   getAllTombstones,
@@ -62,16 +62,25 @@ function tombstoneNeedsUpload(tombstone: { deletedAt: number }, cloud: Reflectio
  * reflection deleted on another device, while still letting a genuinely
  * newer active record supersede an older tombstone (intentional
  * recreation).
+ *
+ * `ownerUserId` must be the account `sessionToken` and `masterKey` belong
+ * to: only that account's local partition is ever read or written (see
+ * storage/localDataOwner.ts), so another account's reflections can never be
+ * encrypted under this key or uploaded here — even if the active account
+ * changes while this sync is in flight.
  */
-export async function syncReflections(sessionToken: string, masterKey: Uint8Array): Promise<void> {
+export async function syncReflections(sessionToken: string, masterKey: Uint8Array, ownerUserId: string): Promise<void> {
   const [localReflections, localTombstones, cloudReflections] = await Promise.all([
-    getAllReflections(),
-    getAllTombstones(),
+    getAllReflections(ownerUserId),
+    getAllTombstones(ownerUserId),
     getCloudReflections(sessionToken),
   ]);
   const cloudByVerseKey = new Map(cloudReflections.map((record) => [record.verseKey, record]));
 
   const toUpload: ReflectionSyncRecord[] = [];
+  // Tells the backend which key this ciphertext is under; it refuses
+  // ciphertext under a key the account no longer uses (see syncKeyManager.ts).
+  const keyFingerprint = masterKeyFingerprint(masterKey);
 
   for (const reflection of localReflections) {
     const cloud = cloudByVerseKey.get(reflection.verseKey);
@@ -84,6 +93,7 @@ export async function syncReflections(sessionToken: string, masterKey: Uint8Arra
       ciphertext: encrypted.ciphertext,
       nonce: encrypted.nonce,
       encryptionVersion: encrypted.encryptionVersion,
+      keyFingerprint,
       createdAt: new Date(reflection.createdAt).toISOString(),
       updatedAt: new Date(reflection.updatedAt).toISOString(),
     });
@@ -97,7 +107,7 @@ export async function syncReflections(sessionToken: string, masterKey: Uint8Arra
 
   for (const batch of chunk(toUpload, UPLOAD_BATCH_SIZE)) {
     const result = await putCloudReflections(sessionToken, batch);
-    await Promise.all(result.saved.map((saved) => markReflectionSyncState(saved.verseKey, 'synced')));
+    await Promise.all(result.saved.map((saved) => markReflectionSyncState(saved.verseKey, 'synced', ownerUserId)));
   }
 
   // Re-fetch: the uploads above may have changed what the server considers
@@ -128,18 +138,21 @@ export async function syncReflections(sessionToken: string, masterKey: Uint8Arra
     }
 
     if (cloudIsTombstone) {
-      await putTombstoneFromSync({ verseKey: cloudRecord.verseKey, deletedAt: cloudTimestamp });
+      await putTombstoneFromSync({ verseKey: cloudRecord.verseKey, deletedAt: cloudTimestamp }, ownerUserId);
       continue;
     }
 
     try {
       const text = decryptReflectionText(cloudRecord, masterKey);
-      await putReflectionFromSync({
-        verseKey: cloudRecord.verseKey,
-        text,
-        createdAt: new Date(cloudRecord.createdAt).getTime(),
-        updatedAt: cloudTimestamp,
-      });
+      await putReflectionFromSync(
+        {
+          verseKey: cloudRecord.verseKey,
+          text,
+          createdAt: new Date(cloudRecord.createdAt).getTime(),
+          updatedAt: cloudTimestamp,
+        },
+        ownerUserId,
+      );
     } catch {
       // One record failing to decrypt (wrong key, corrupted data) must never
       // abort syncing the rest — see Part D §17.

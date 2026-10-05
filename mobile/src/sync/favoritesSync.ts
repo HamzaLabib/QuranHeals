@@ -8,9 +8,12 @@ import { addCloudFavorites, getCloudFavorites, removeCloudFavorite } from './syn
  * Part G §30): union by stable verseKey, both directions, never deletes a
  * favorite the other side doesn't have. Safe to call repeatedly (e.g. on
  * every sign-in and app foreground while signed in).
+ *
+ * `ownerUserId` must be the account `sessionToken` belongs to: only that
+ * account's local partition is read or written (see storage/localDataOwner.ts).
  */
-export async function syncFavorites(sessionToken: string): Promise<void> {
-  const localFavorites = await getFavorites();
+export async function syncFavorites(sessionToken: string, ownerUserId: string): Promise<void> {
+  const localFavorites = await getFavorites(ownerUserId);
   const localVerseKeys = localFavorites.map((favorite) => resolveVerseKey(favorite));
 
   if (localVerseKeys.length > 0) {
@@ -24,7 +27,7 @@ export async function syncFavorites(sessionToken: string): Promise<void> {
   for (const favorite of missingLocally) {
     try {
       const ayah = await getAyah(favorite.verseKey);
-      await addFavorite(ayah);
+      await addFavorite(ayah, ownerUserId);
     } catch {
       // One unresolved cloud favorite (e.g. a transient network error) must
       // never abort syncing the rest.

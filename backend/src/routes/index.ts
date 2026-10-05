@@ -42,7 +42,14 @@ export function createApiRouter(repository: QuranRepository, accountDeps: Accoun
       appleVerifier: accountDeps.appleVerifier,
     }),
   );
-  router.use('/sync', createSyncRoutes(accountDeps.syncRepository));
+  router.use(
+    '/sync',
+    createSyncRoutes(accountDeps.syncRepository, {
+      userRepository: accountDeps.userRepository,
+      googleVerifier: accountDeps.googleVerifier,
+      appleVerifier: accountDeps.appleVerifier,
+    }),
+  );
   router.use('/issues', createIssueRoutes(accountDeps.issueReportRepository));
   router.use('/account', createAccountRoutes({ accountDeletionService: accountDeps.accountDeletionService }));
 

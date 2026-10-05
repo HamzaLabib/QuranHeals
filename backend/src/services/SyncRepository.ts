@@ -13,6 +13,7 @@ export type IncomingActiveReflectionRecord = {
   ciphertext: string;
   nonce: string;
   encryptionVersion: number;
+  keyFingerprint?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -69,10 +70,18 @@ export interface SyncRepository {
 
   getSyncKey(userId: string): Promise<SyncKeyDto | null>;
   /** Create only: concurrent setup must never overwrite an existing key. */
-  putSyncKey(
-    userId: string,
-    key: { wrappedKey: string; nonce: string; salt: string; kdfIterations: number; encryptionVersion: number },
-  ): Promise<SyncKeyDto>;
+  putSyncKey(userId: string, key: SyncKeyDto): Promise<SyncKeyDto>;
   /** Atomic compare-and-replace; null means the expected wrapper is stale. */
   replaceSyncKey(userId: string, expected: SyncKeyDto, replacement: SyncKeyDto): Promise<SyncKeyDto | null>;
+
+  /**
+   * Forgotten-password reset: deletes this user's sync key and every
+   * reflection record (ciphertext and deletion markers) — nothing else
+   * (never favorites, preferences, sessions, or the account). Idempotent.
+   */
+  resetReflectionSync(userId: string): Promise<void>;
+  /** When this user's current sync key was created (null if none). */
+  getSyncKeyCreatedAt(userId: string): Promise<Date | null>;
+  /** Deletes this user's active reflection records NOT encrypted under the key with this fingerprint (tombstones are kept). */
+  deleteReflectionsNotEncryptedWith(userId: string, keyFingerprint: string): Promise<void>;
 }

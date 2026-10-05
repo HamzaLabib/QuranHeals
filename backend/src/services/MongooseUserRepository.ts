@@ -1,4 +1,5 @@
 import { UserModel } from '../models/User';
+import type { AuthProvider } from '../types/accountDomain';
 import type { UserDto } from '../types/accountDto';
 import type { UserRepository, VerifiedProviderIdentity } from './UserRepository';
 
@@ -45,5 +46,10 @@ export class MongooseUserRepository implements UserRepository {
   async findById(userId: string): Promise<UserDto | null> {
     const doc = await UserModel.findById(userId).lean();
     return doc ? toUserDto(doc as never) : null;
+  }
+
+  async findProviderIdentity(userId: string): Promise<{ provider: AuthProvider; providerSubject: string } | null> {
+    const doc = await UserModel.findById(userId).lean<{ provider: AuthProvider; providerSubject: string }>();
+    return doc ? { provider: doc.provider, providerSubject: doc.providerSubject } : null;
   }
 }

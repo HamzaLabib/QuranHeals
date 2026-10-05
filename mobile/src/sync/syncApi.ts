@@ -1,4 +1,5 @@
 import { apiBaseUrl } from '@/services/apiBase';
+import type { ProviderCredential } from '@/auth/reauthentication';
 import { fetchWithTimeout } from '@/services/fetchWithTimeout';
 
 export class SyncApiError extends Error {
@@ -117,6 +118,8 @@ export type ReflectionActiveRecord = {
   ciphertext: string;
   nonce: string;
   encryptionVersion: number;
+  /** Fingerprint of the master key this ciphertext was encrypted under (crypto/reflectionEncryption.ts's masterKeyFingerprint). */
+  keyFingerprint?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -153,6 +156,7 @@ export type SyncKeyRecord = {
   salt: string;
   kdfIterations: number;
   encryptionVersion: number;
+  keyFingerprint?: string;
 };
 
 export function getCloudSyncKey(sessionToken: string) {
@@ -166,6 +170,21 @@ export function putCloudSyncKey(sessionToken: string, key: SyncKeyRecord) {
 export function replaceCloudSyncKey(sessionToken: string, expected: SyncKeyRecord, replacement: SyncKeyRecord) {
   return authedRequest<SyncKeyRecord>(sessionToken, '/api/sync/key', {
     method: 'PATCH', body: JSON.stringify({ expected, replacement }),
+  });
+}
+
+/**
+ * Forgotten sync password: deletes this account's sync key and every
+ * encrypted reflection record in the cloud — never favorites, preferences,
+ * or the account itself. The account is taken only from the session, and
+ * the backend also requires `credential`: a fresh ID token from the
+ * account's own Apple/Google identity, which it verifies itself (403 if it
+ * does not match).
+ */
+export function resetCloudReflectionSync(sessionToken: string, credential: ProviderCredential) {
+  return authedRequest<null>(sessionToken, '/api/sync/reflections/reset', {
+    method: 'POST',
+    body: JSON.stringify({ provider: credential.provider, idToken: credential.idToken }),
   });
 }
 

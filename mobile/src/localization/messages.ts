@@ -201,6 +201,25 @@ export type Messages = {
     saveError: string;
     loadError: string;
     retry: string;
+    /** Forgotten-password recovery (unlock step only). */
+    forgotPassword: string;
+    resetTitle: string;
+    resetUnrecoverable: string;
+    resetCloudLoss: string;
+    resetLocalKept: string;
+    resetUnaffected: string;
+    resetConfirm: string;
+    resetBack: string;
+    resetError: string;
+    resetting: string;
+    deleteAccountInstead: string;
+    /** Fresh Apple/Google re-authentication before the reset. */
+    reauthNoticeApple: string;
+    reauthNoticeGoogle: string;
+    reauthCancelled: string;
+    reauthFailed: string;
+    reauthUnavailable: string;
+    verifying: string;
   };
   issueReport: {
     action: string;
@@ -399,6 +418,23 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       saveError: "Could not confirm the password change. Check your connection and try again. If it was saved, use your new Password.",
       loadError: "Could not load your encrypted sync key. Please try again.",
       retry: "Try again",
+      forgotPassword: "Forgot Password?",
+      resetTitle: "Reset encrypted reflection sync?",
+      resetUnrecoverable: "Your Password cannot be recovered — not by Quran Heals, and not by anyone else.",
+      resetCloudLoss: "Resetting permanently deletes the encrypted reflections saved to your account. Any reflection that is not also stored on this device will be lost.",
+      resetLocalKept: "Reflections stored on this device are kept and will be protected by the new Password you create next.",
+      resetUnaffected: "Your saved ayahs and settings are not affected.",
+      resetConfirm: "Verify identity and reset",
+      resetBack: "Back",
+      resetError: "The reset could not be completed. Check your connection and try again.",
+      resetting: "Resetting…",
+      deleteAccountInstead: "Delete my account instead",
+      reauthNoticeApple: "To confirm it’s you, you’ll sign in again with the same Apple account you use for Quran Heals.",
+      reauthNoticeGoogle: "To confirm it’s you, you’ll sign in again with the same Google account you use for Quran Heals.",
+      reauthCancelled: "Identity verification was not completed. Nothing was reset.",
+      reauthFailed: "We couldn’t confirm it’s you with the account you’re signed in with. Nothing was reset.",
+      reauthUnavailable: "Identity verification isn’t available on this device. You can still sign out or delete your account.",
+      verifying: "Verifying…",
     },
     issueReport: {
       action: 'Report an issue',
@@ -599,6 +635,23 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       saveError: "تعذّر تأكيد تغيير كلمة المرور. تحقق من اتصالك وحاول مرة أخرى. إذا تم حفظ التغيير، فاستخدم كلمة المرور الجديدة.",
       loadError: "تعذّر تحميل كلمة المرور. يُرجى المحاولة مرة أخرى.",
       retry: "حاول مرة أخرى",
+      forgotPassword: "نسيت كلمة المرور؟",
+      resetTitle: "إعادة تعيين مزامنة الخواطر المشفّرة؟",
+      resetUnrecoverable: "لا يمكن استعادة كلمة المرور، لا من قِبل Quran Heals ولا من قِبل أي أحد آخر.",
+      resetCloudLoss: "ستؤدي إعادة التعيين إلى حذف الخواطر المشفّرة المحفوظة في حسابك نهائيًا. أي خاطرة غير محفوظة أيضًا على هذا الجهاز ستُفقد.",
+      resetLocalKept: "الخواطر المحفوظة على هذا الجهاز ستبقى، وستحميها كلمة المرور الجديدة التي ستُنشئها بعد ذلك.",
+      resetUnaffected: "لن تتأثر آياتك المحفوظة وإعداداتك.",
+      resetConfirm: "تأكيد الهوية وإعادة التعيين",
+      resetBack: "رجوع",
+      resetError: "تعذّر إكمال إعادة التعيين. تحقق من اتصالك وحاول مرة أخرى.",
+      resetting: "جارٍ إعادة التعيين…",
+      deleteAccountInstead: "حذف حسابي بدلًا من ذلك",
+      reauthNoticeApple: "للتأكد من هويتك، ستسجّل الدخول مجددًا بحساب Apple نفسه الذي تستخدمه في Quran Heals.",
+      reauthNoticeGoogle: "للتأكد من هويتك، ستسجّل الدخول مجددًا بحساب Google نفسه الذي تستخدمه في Quran Heals.",
+      reauthCancelled: "لم يكتمل التحقق من الهوية. لم تتم إعادة تعيين أي شيء.",
+      reauthFailed: "تعذّر التأكد من هويتك بالحساب الذي سجّلت الدخول به. لم تتم إعادة تعيين أي شيء.",
+      reauthUnavailable: "التحقق من الهوية غير متاح على هذا الجهاز. لا يزال بإمكانك تسجيل الخروج أو حذف حسابك.",
+      verifying: "جارٍ التحقق…",
     },
     issueReport: {
       action: 'الإبلاغ عن مشكلة',
@@ -812,10 +865,27 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       confirmNewPassword: "تأكيد كلمة المرور الجديدة",
       mustDiffer: "يجب أن تكون كلمة المرور الجديدة مختلفة عن كلمة المرور الحالية.",
       incorrectError: "كلمة المرور الحالية غير صحيحة.",
-      changeDescription: "غيّر كلمة المرور الخاصة بخواطرك المشفّرة المحدثة.",
+      changeDescription: "غيّر كلمة المرور الخاصة بخواطرك المشفّرة المحفوظة.",
       saveError: "تعذّر تأكيد تغيير كلمة المرور. تحقق من اتصالك وحاول مرة أخرى. إذا تم حفظ التغيير، فاستخدم كلمة المرور الجديدة.",
-      loadError: "تعذّر تحميل كملة المرور للتشفير. يُرجى المحاولة مرة أخرى.",
+      loadError: "تعذّر تحميل كلمة المرور. يُرجى المحاولة مرة أخرى.",
       retry: "حاول مرة أخرى",
+      forgotPassword: "نسيت كلمة المرور؟",
+      resetTitle: "إعادة تعيين مزامنة الخواطر المشفّرة؟",
+      resetUnrecoverable: "لا يمكن استعادة كلمة المرور، لا من قِبل Quran Heals ولا من قِبل أي أحد آخر.",
+      resetCloudLoss: "ستؤدي إعادة التعيين إلى حذف الخواطر المشفّرة المحفوظة في حسابك نهائيًا. أي خاطرة غير محفوظة أيضًا على هذا الجهاز ستُفقد.",
+      resetLocalKept: "الخواطر المحفوظة على هذا الجهاز ستبقى، وستحميها كلمة المرور الجديدة التي ستُنشئها بعد ذلك.",
+      resetUnaffected: "لن تتأثر آياتك المحفوظة وإعداداتك.",
+      resetConfirm: "تأكيد الهوية وإعادة التعيين",
+      resetBack: "رجوع",
+      resetError: "تعذّر إكمال إعادة التعيين. تحقق من اتصالك وحاول مرة أخرى.",
+      resetting: "جارٍ إعادة التعيين…",
+      deleteAccountInstead: "حذف حسابي بدلًا من ذلك",
+      reauthNoticeApple: "للتأكد من هويتك، ستسجّل الدخول مجددًا بحساب Apple نفسه الذي تستخدمه في Quran Heals.",
+      reauthNoticeGoogle: "للتأكد من هويتك، ستسجّل الدخول مجددًا بحساب Google نفسه الذي تستخدمه في Quran Heals.",
+      reauthCancelled: "لم يكتمل التحقق من الهوية. لم تتم إعادة تعيين أي شيء.",
+      reauthFailed: "تعذّر التأكد من هويتك بالحساب الذي سجّلت الدخول به. لم تتم إعادة تعيين أي شيء.",
+      reauthUnavailable: "التحقق من الهوية غير متاح على هذا الجهاز. لا يزال بإمكانك تسجيل الخروج أو حذف حسابك.",
+      verifying: "جارٍ التحقق…",
     },
     issueReport: {
       action: 'الإبلاغ عن مشكلة',

@@ -10,11 +10,13 @@ export interface SessionRepository {
   /**
    * Validates the presented refresh token against its session, rotates it
    * (a new refresh token replaces the old one, extending expiry), and
-   * returns the new pair plus the session's userId. Throws AppError(401)
-   * for an unknown, expired, revoked, or already-superseded token — a
-   * mismatched-but-well-formed token is treated as possible reuse and
-   * revokes the session as a side effect (see MongooseSessionRepository).
-   * Never affects any other session.
+   * returns the new pair plus the session's userId. The immediately
+   * previous token, presented again within a short grace window, is
+   * answered with the same current token (a lost-response retry). Throws
+   * AppError(401) for an unknown, expired, or revoked session; any other
+   * superseded token is treated as possible reuse and revokes the session
+   * as a side effect. See auth/refreshRotation.ts. Never affects any other
+   * session.
    */
   rotateSession(refreshToken: string): Promise<IssuedSession & { userId: string }>;
 

@@ -17,6 +17,11 @@ vi.mock('@/localization/useAppLocale', () => ({ useAppLocale: () => ({ locale: s
 vi.mock('@/auth/useAuth', () => ({ getCurrentSessionToken: async () => 'session' }));
 vi.mock('@/sync/syncApi', () => ({ getCloudSyncKey: state.getKey }));
 vi.mock('@/sync/syncKeyManager', () => ({ verifySyncPassphrase: state.verify, changeSyncPassword: state.change }));
+vi.mock('@/auth/reauthentication', () => ({
+  useFreshProviderCredential: () => vi.fn(),
+  ReauthenticationUnavailableError: class extends Error {},
+  ReauthenticationFailedError: class extends Error {},
+}));
 
 import { SyncPassphraseSheet } from '@/components/SyncPassphraseSheet';
 import { ChangeSyncPasswordSheet } from '@/components/ChangeSyncPasswordSheet';
@@ -43,7 +48,7 @@ afterEach(async () => {
 describe('first-time setup', () => {
   async function setup() {
     const submit = vi.fn();
-    await act(async () => { root = create(createElement(SyncPassphraseSheet, { request: { mode: 'create' }, onSubmit: submit, onSignOut: vi.fn() })); });
+    await act(async () => { root = create(createElement(SyncPassphraseSheet, { request: { mode: 'create' }, onSubmit: submit, onSignOut: vi.fn(), onResetComplete: vi.fn(), deleteAccount: vi.fn(async () => {}), onAccountDeleted: vi.fn(), accountProvider: 'google' as const })); });
     return submit;
   }
   it('renders both fields and warning; validates exact confirmation and boundaries', async () => {
@@ -86,7 +91,7 @@ describe('first-time setup', () => {
 describe('unlock', () => {
   it('enables only verified input, permits legacy lengths, and never displays an incorrect-password error', async () => {
     const verify = vi.fn(async (value: string) => value === 'abcd');
-    await act(async () => { root = create(createElement(SyncPassphraseSheet, { request: { mode: 'unlock', verify }, onSubmit: vi.fn(), onSignOut: vi.fn() })); });
+    await act(async () => { root = create(createElement(SyncPassphraseSheet, { request: { mode: 'unlock', verify }, onSubmit: vi.fn(), onSignOut: vi.fn(), onResetComplete: vi.fn(), deleteAccount: vi.fn(async () => {}), onAccountDeleted: vi.fn(), accountProvider: 'google' as const })); });
     await type('Password', 'wrong-password'); await verifyPending();
     expect(button('Continue').props.disabled).toBe(true);
     expect(JSON.stringify(root.toJSON())).not.toContain('incorrect');
@@ -102,7 +107,7 @@ describe('unlock', () => {
   it('discards late verification after input changes and clears secrets on dismissal', async () => {
     let finish!: (valid: boolean) => void;
     const verify = vi.fn(() => new Promise<boolean>(resolve => { finish = resolve; }));
-    const props = { request: { mode: 'unlock' as const, verify }, onSubmit: vi.fn(), onSignOut: vi.fn() };
+    const props = { request: { mode: 'unlock' as const, verify }, onSubmit: vi.fn(), onSignOut: vi.fn(), onResetComplete: vi.fn(), deleteAccount: vi.fn(async () => {}), onAccountDeleted: vi.fn(), accountProvider: 'google' as const };
     await act(async () => { root = create(createElement(SyncPassphraseSheet, props)); });
     await type('Password', 'correct'); await verifyPending();
     await type('Password', 'incorrect');

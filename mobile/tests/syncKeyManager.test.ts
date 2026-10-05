@@ -44,7 +44,7 @@ afterEach(() => {
 
 describe('password change preserves envelope-encrypted reflections', { timeout: 20_000 }, () => {
   async function setup() {
-    const key = await ensureReflectionMasterKey('token', async () => 'old-password');
+    const key = await ensureReflectionMasterKey('token', async () => 'old-password', 'user-1');
     const reflection = crypto.encryptReflectionText('private reflection', key, (n) => new Uint8Array(randomBytes(n)));
     const previous = cloudKeyStore.value as WrappedMasterKey;
     return { key, reflection, previous };
@@ -122,9 +122,11 @@ describe('ensureReflectionMasterKey', () => {
     const masterKey = new Uint8Array(32).fill(7);
     const { encodeBase64 } = await import('@/crypto/base64');
     cachedKeyStore.value = encodeBase64(masterKey);
+    // The account's current cloud key is this same master key.
+    cloudKeyStore.value = { ...(await crypto.wrapMasterKey(masterKey, 'any password', (n) => new Uint8Array(randomBytes(n)), 1000)), keyFingerprint: crypto.masterKeyFingerprint(masterKey) };
     const prompt = vi.fn();
 
-    const result = await ensureReflectionMasterKey('token', prompt);
+    const result = await ensureReflectionMasterKey('token', prompt, 'user-1');
 
     expect(prompt).not.toHaveBeenCalled();
     expect(Array.from(result)).toEqual(Array.from(masterKey));
@@ -136,7 +138,7 @@ describe('ensureReflectionMasterKey', () => {
       return 'a strong passphrase';
     });
 
-    const masterKey = await ensureReflectionMasterKey('token', prompt);
+    const masterKey = await ensureReflectionMasterKey('token', prompt, 'user-1');
 
     expect(masterKey).toHaveLength(32);
     expect(putCloudSyncKey).toHaveBeenCalledTimes(1);
@@ -149,7 +151,7 @@ describe('ensureReflectionMasterKey', () => {
 
   it('on a second device (cloud key already exists), prompts to UNLOCK and recovers the same master key with the correct passphrase', async () => {
     const firstDevicePrompt = vi.fn(async () => 'shared passphrase');
-    const masterKey = await ensureReflectionMasterKey('token', firstDevicePrompt);
+    const masterKey = await ensureReflectionMasterKey('token', firstDevicePrompt, 'user-1');
 
     // Simulate a second device: no cached key locally, but the cloud key now exists.
     cachedKeyStore.value = null;
@@ -158,15 +160,15 @@ describe('ensureReflectionMasterKey', () => {
       return 'shared passphrase';
     });
 
-    const recovered = await ensureReflectionMasterKey('token', secondDevicePrompt);
+    const recovered = await ensureReflectionMasterKey('token', secondDevicePrompt, 'user-1');
     expect(Array.from(recovered)).toEqual(Array.from(masterKey));
   });
 
   it('an incorrect passphrase on a second device fails to recover the key', async () => {
-    await ensureReflectionMasterKey('token', async () => 'correct passphrase');
+    await ensureReflectionMasterKey('token', async () => 'correct passphrase', 'user-1');
     cachedKeyStore.value = null;
 
-    await expect(ensureReflectionMasterKey('token', async () => 'wrong passphrase')).rejects.toThrow();
+    await expect(ensureReflectionMasterKey('token', async () => 'wrong passphrase', 'user-1')).rejects.toThrow();
   });
 
   it('propagates cancellation as SyncPassphraseCancelledError without caching or uploading anything', async () => {
@@ -174,8 +176,47 @@ describe('ensureReflectionMasterKey', () => {
       throw new SyncPassphraseCancelledError('cancelled');
     });
 
-    await expect(ensureReflectionMasterKey('token', prompt)).rejects.toBeInstanceOf(SyncPassphraseCancelledError);
+    await expect(ensureReflectionMasterKey('token', prompt, 'user-1')).rejects.toBeInstanceOf(SyncPassphraseCancelledError);
     expect(setCachedMasterKey).not.toHaveBeenCalled();
     expect(putCloudSyncKey).not.toHaveBeenCalled();
+  });
+});
+
+describe('the cached master key is bound to its account', { timeout: 20_000 }, () => {
+  it("a key cached for account A is never returned for account B — B must unlock its own key", async () => {
+    const { encodeBase64 } = await import('@/crypto/base64');
+    const keyA = new Uint8Array(32).fill(0xa1);
+    cachedKeyStore.value = JSON.stringify({ userId: 'user-A', key: encodeBase64(keyA) });
+    const prompt = vi.fn(async () => 'B passphrase');
+
+    const keyB = await ensureReflectionMasterKey('token-B', prompt, 'user-B');
+
+    expect(prompt).toHaveBeenCalledWith('create');
+    expect(Array.from(keyB)).not.toEqual(Array.from(keyA));
+    expect(JSON.parse(cachedKeyStore.value!)).toMatchObject({ userId: 'user-B' });
+  });
+
+  it('a newly cached key records the account it belongs to and is reused for that same account without a prompt', async () => {
+    const created = await ensureReflectionMasterKey('token', async () => 'a strong passphrase', 'user-1');
+    expect(JSON.parse(cachedKeyStore.value!)).toMatchObject({ userId: 'user-1' });
+
+    const prompt = vi.fn();
+    const reused = await ensureReflectionMasterKey('token', prompt, 'user-1');
+
+    expect(prompt).not.toHaveBeenCalled();
+    expect(Array.from(reused)).toEqual(Array.from(created));
+  });
+
+  it('a bare key cached by the previous version is accepted once for the signed-in account and rebound to it', async () => {
+    const { encodeBase64 } = await import('@/crypto/base64');
+    const legacy = new Uint8Array(32).fill(9);
+    cachedKeyStore.value = encodeBase64(legacy);
+    // A cloud key from the previous version: no fingerprint, so it cannot be checked.
+    cloudKeyStore.value = await crypto.wrapMasterKey(legacy, 'any password', (n) => new Uint8Array(randomBytes(n)), 1000);
+
+    const result = await ensureReflectionMasterKey('token', vi.fn(), 'user-1');
+
+    expect(Array.from(result)).toEqual(Array.from(legacy));
+    expect(JSON.parse(cachedKeyStore.value!)).toEqual({ userId: 'user-1', key: encodeBase64(legacy) });
   });
 });

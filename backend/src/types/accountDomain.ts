@@ -45,6 +45,8 @@ export type SessionEntity = {
   refreshTokenHash: string;
   expiresAt: Date;
   revokedAt?: Date;
+  previousRefreshTokenHash?: string;
+  rotatedAt?: Date;
   createdAt?: Date;
   updatedAt?: Date;
 };
@@ -94,6 +96,8 @@ export type UserReflectionEntity = {
   ciphertext?: string;
   nonce?: string;
   encryptionVersion?: number;
+  /** Fingerprint of the master key this record's ciphertext was encrypted under (see UserSyncKeyEntity.keyFingerprint). */
+  keyFingerprint?: string;
   /**
    * Older ciphertext versions displaced by an ambiguous same-timestamp
    * conflict (Part D §29: "if timestamps are ambiguous/conflicting, keep
@@ -118,6 +122,14 @@ export type UserSyncKeyEntity = {
   salt: string;
   kdfIterations: number;
   encryptionVersion: number;
+  /**
+   * A one-way fingerprint of the reflection master key (an HMAC computed on
+   * the device; it cannot reveal the key). Absent for keys created before
+   * it existed. Lets the backend refuse ciphertext encrypted under a key the
+   * account no longer uses — e.g. from another device after a forgotten-
+   * password reset (see syncController.ts).
+   */
+  keyFingerprint?: string;
   createdAt?: Date;
   updatedAt?: Date;
 };

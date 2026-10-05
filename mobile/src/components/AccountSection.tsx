@@ -31,7 +31,7 @@ type AccountSectionProps = {
  * app.
  */
 export function AccountSection({ messages, direction, isRtl }: AccountSectionProps) {
-  const { status, lastError, signInWithGoogleIdToken, signInWithAppleIdToken, signOut } = useAuth();
+  const { status, lastError, signInWithGoogleIdToken, signInWithAppleIdToken, signOut, deleteAccount } = useAuth();
   const [googleRequest, googleResponse, promptGoogleAsync] = useGoogleAuthRequest();
   const [appleRequestError, setAppleRequestError] = useState<string | null>(null);
   const [isDeleteSheetVisible, setIsDeleteSheetVisible] = useState(false);
@@ -147,6 +147,7 @@ export function AccountSection({ messages, direction, isRtl }: AccountSectionPro
       )}
 
       <DeleteAccountSheet
+        deleteAccount={deleteAccount}
         visible={isDeleteSheetVisible}
         onClose={() => setIsDeleteSheetVisible(false)}
         onDeleted={() => {

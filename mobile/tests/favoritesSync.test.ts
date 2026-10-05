@@ -51,10 +51,10 @@ describe('syncFavorites', () => {
       );
     });
 
-    await syncFavorites('token');
+    await syncFavorites('token', 'user-1');
 
     expect(getAyah).toHaveBeenCalledWith('2:2');
-    expect(addFavorite).toHaveBeenCalledWith({ id: '2:2', verseKey: '2:2' });
+    expect(addFavorite).toHaveBeenCalledWith({ id: '2:2', verseKey: '2:2' }, 'user-1');
   });
 
   it('never removes a local favorite the cloud does not have', async () => {
@@ -64,7 +64,7 @@ describe('syncFavorites', () => {
       return new Response(JSON.stringify({ success: true, data: [] }), { status: 200 }); // cloud is empty
     });
 
-    await syncFavorites('token');
+    await syncFavorites('token', 'user-1');
 
     expect(localFavorites.items).toEqual([{ id: '1:1', verseKey: '1:1' }]);
   });
@@ -83,8 +83,8 @@ describe('syncFavorites', () => {
       return { id: verseKey, verseKey } as unknown as Awaited<ReturnType<typeof getAyah>>;
     });
 
-    await expect(syncFavorites('token')).resolves.toBeUndefined();
-    expect(addFavorite).toHaveBeenCalledWith({ id: '2:2', verseKey: '2:2' });
+    await expect(syncFavorites('token', 'user-1')).resolves.toBeUndefined();
+    expect(addFavorite).toHaveBeenCalledWith({ id: '2:2', verseKey: '2:2' }, 'user-1');
   });
 });
 

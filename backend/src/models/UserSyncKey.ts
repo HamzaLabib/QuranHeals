@@ -39,6 +39,10 @@ const userSyncKeySchema = new Schema<UserSyncKeyEntity>(
       required: true,
       min: 1,
     },
+    keyFingerprint: {
+      type: String,
+      maxlength: 128,
+    },
   },
   {
     timestamps: true,

@@ -5,10 +5,23 @@ import { useAppLocale } from '@/localization/useAppLocale';
 import { DEFAULT_QURAN_TRANSLATION_PREFERENCE } from '@/localization/quranTranslationPreference';
 import { useQuranTranslationPreference } from '@/localization/useQuranTranslationPreference';
 import { SyncPassphraseSheet } from '@/components/SyncPassphraseSheet';
+import { pushPreferences, type LocalPreferencesSnapshot } from '@/sync/preferencesSync';
+import { hasUnsyncedLocalPreferences } from '@/sync/preferencesSyncState';
 import { runFullSync } from '@/sync/syncOrchestrator';
-import { SyncPassphraseCancelledError, type SyncPassphraseMode, type VerifyPassphrase } from '@/sync/syncKeyManager';
+import {
+  SyncPassphraseCancelledError,
+  SyncPasswordResetError,
+  type ResetEncryptedSync,
+  type SyncPassphraseMode,
+  type VerifyPassphrase,
+} from '@/sync/syncKeyManager';
 import { clearAllReflections } from '@/storage/ayahReflections';
 import { clearAllFavorites } from '@/storage/favorites';
+import {
+  activateLocalDataForAccount,
+  releaseLocalDataAfterAccountDeletion,
+  settleLocalDataOwnerAsGuest,
+} from '@/storage/localDataOwnership';
 import { deleteAccountRequest } from '@/sync/syncApi';
 import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
 import { logoutSession, signInWithAppleIdToken, signInWithGoogleIdToken, AuthApiError } from './authApi';
@@ -61,6 +74,8 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 type PassphraseRequest = {
   mode: SyncPassphraseMode;
   verify?: VerifyPassphrase;
+  /** Forgotten-password recovery, offered by the unlock step only (see syncKeyManager.ts). */
+  reset?: ResetEncryptedSync;
   resolve: (passphrase: string) => void;
   reject: (error: Error) => void;
 };
@@ -83,6 +98,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // every render (a ref avoids that, unlike putting the token in state).
   // Only ever written from effects/event handlers, never during render.
   const sessionTokenRef = useRef<string | null>(null);
+  // The signed-in account's id, for the same reason as sessionTokenRef.
+  // Every full sync is pinned to this account's local data partition (see
+  // storage/localDataOwner.ts) — never to whatever happens to be active.
+  const currentUserIdRef = useRef<string | null>(null);
   // Mark restoration complete only after a live effect commits its result.
   const hasRestoredSessionRef = useRef(false);
   const sessionRestorePromiseRef = useRef<Promise<InitializedSession> | null>(null);
@@ -96,13 +115,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // FOREGROUND_RESYNC_THROTTLE_MS.
   const lastForegroundSyncAtRef = useRef(0);
 
-  const { locale, setLocale } = useAppLocale();
-  const { preference, setDisplayMode } = useQuranTranslationPreference();
+  const { locale, setLocale, isReady: isLocaleReady } = useAppLocale();
+  const { preference, setDisplayMode, isReady: isTranslationPreferenceReady } = useQuranTranslationPreference();
+  const preferencesHydrated = isLocaleReady && isTranslationPreferenceReady;
+
+  // Latest preference values for sync, read at decision time (never a
+  // snapshot captured when a sync started — see preferencesSync.ts).
+  const latestPreferencesRef = useRef<LocalPreferencesSnapshot>({
+    locale,
+    translationDisplayMode: preference.displayMode,
+    translationId: preference.translationId,
+  });
+  useEffect(() => {
+    latestPreferencesRef.current = {
+      locale,
+      translationDisplayMode: preference.displayMode,
+      translationId: preference.translationId,
+    };
+  }, [locale, preference.displayMode, preference.translationId]);
+
+  // Sync must never read the providers' pre-hydration defaults (e.g. `en`)
+  // as if the user had chosen them — it waits until both have loaded what
+  // was persisted on this device.
+  const preferencesHydratedRef = useRef(false);
+  const hydrationWaitersRef = useRef<(() => void)[]>([]);
+  useEffect(() => {
+    if (!preferencesHydrated) return;
+    preferencesHydratedRef.current = true;
+    const waiters = hydrationWaitersRef.current;
+    hydrationWaitersRef.current = [];
+    waiters.forEach((resolve) => resolve());
+  }, [preferencesHydrated]);
+  const waitForPreferenceHydration = useCallback(
+    () =>
+      preferencesHydratedRef.current
+        ? Promise.resolve()
+        : new Promise<void>((resolve) => {
+            hydrationWaitersRef.current.push(resolve);
+          }),
+    [],
+  );
 
   const promptForPassphrase = useCallback(
-    (mode: SyncPassphraseMode, verify?: VerifyPassphrase) =>
+    (mode: SyncPassphraseMode, verify?: VerifyPassphrase, reset?: ResetEncryptedSync) =>
       new Promise<string>((resolve, reject) => {
-        setPassphraseRequest({ mode, verify, resolve, reject });
+        setPassphraseRequest({ mode, verify, reset, resolve, reject });
       }),
     [],
   );
@@ -120,17 +177,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // after the very first silent refresh would keep presenting a
         // token that's already stale.
         try {
+          // Without a known account there is no partition this sync may
+          // touch (e.g. an offline cold start with no cached profile) — it
+          // runs on a later sync once the account is known.
+          const ownerUserId = currentUserIdRef.current;
+          if (!ownerUserId) return;
+          // Already done at sign-in/restore; repeated here (a no-op then) so
+          // no sync can ever run before its account's partition is active.
+          await activateLocalDataForAccount(ownerUserId, { restored: true });
+          await waitForPreferenceHydration();
           const latestToken = (await getSessionToken()) ?? token;
           sessionTokenRef.current = latestToken;
           await runFullSync(latestToken, {
-            local: {
-              locale,
-              translationDisplayMode: preference.displayMode,
-              translationId: preference.translationId,
-            },
+            ownerUserId,
+            local: () => latestPreferencesRef.current,
             applyPreferencesLocally: (next) => {
-              if (next.locale) setLocale(next.locale);
-              if (next.translationDisplayMode) setDisplayMode(next.translationDisplayMode);
+              if (next.locale) setLocale(next.locale, { fromSync: true });
+              if (next.translationDisplayMode) setDisplayMode(next.translationDisplayMode, { fromSync: true });
               // translationId has only one valid value today
               // (DEFAULT_QURAN_TRANSLATION_PREFERENCE.translationId) —
               // nothing to apply yet; kept here so a second bundled
@@ -146,8 +209,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       });
     },
-    [locale, preference.displayMode, preference.translationId, promptForPassphrase, setLocale, setDisplayMode],
+    [promptForPassphrase, setLocale, setDisplayMode, waitForPreferenceHydration],
   );
+
+  // Pushes a preference change made on this device while signed in, as soon
+  // as it happens. Best-effort: offline or failed pushes are retried by the
+  // next full sync, which re-sends anything newer than the account's value.
+  // Values adopted from the account are already marked synced, so applying
+  // them never echoes back here.
+  useEffect(() => {
+    if (status !== 'signed-in' || !preferencesHydrated) return;
+    void (async () => {
+      try {
+        if (!(await hasUnsyncedLocalPreferences())) return;
+        const token = (await getSessionToken()) ?? sessionTokenRef.current;
+        if (!token) return;
+        await pushPreferences(token, () => latestPreferencesRef.current);
+      } catch {
+        // Left for the next full sync — see above.
+      }
+    })();
+  }, [status, preferencesHydrated, locale, preference.displayMode, preference.translationId]);
 
   useEffect(() => {
     if (hasRestoredSessionRef.current) return;
@@ -166,6 +248,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (cancelled) return;
       hasRestoredSessionRef.current = true;
       sessionTokenRef.current = session.token;
+      currentUserIdRef.current = session.user?.id ?? null;
+      if (session.status === 'signed-in' && session.user) {
+        void activateLocalDataForAccount(session.user.id, { restored: true }).catch(() => {
+          // Retried by the sync below; local data stays where it is.
+        });
+      } else if (session.status === 'guest') {
+        void settleLocalDataOwnerAsGuest().catch(() => {
+          // Re-evaluated on the next launch.
+        });
+      }
       setUser(session.user);
       setStatus(session.status);
       if (session.shouldSync && session.token && session.user) {
@@ -197,6 +289,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const handleSignInSuccess = useCallback(
     async (token: string, refreshToken: string | undefined, signedInUser: AuthUser) => {
+      // Before anything can sync: switch local data to this account's own
+      // partition. A different account's data is never adopted (see
+      // storage/localDataOwnership.ts). A storage failure here cannot route
+      // data to the wrong account — every sync names its account
+      // explicitly — so it does not block signing in.
+      await activateLocalDataForAccount(signedInUser.id, { restored: false }).catch(() => {});
+      currentUserIdRef.current = signedInUser.id;
       await setSessionToken(token);
       // Only absent if the backend itself omitted it — this app's backend
       // always sends one (see authApi.ts's SignInResponse doc comment).
@@ -249,6 +348,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // local reflections/favorites/preferences storage (Part H §32).
   const clearLocalSession = useCallback(() => {
     sessionTokenRef.current = null;
+    currentUserIdRef.current = null;
     setUser(null);
     void clearCachedUser();
     setStatus('guest');
@@ -302,6 +402,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // setting, not account data).
     await clearAllReflections();
     await clearAllFavorites();
+    // The deleted account's partition is gone; the device returns to the
+    // guest partition. Other accounts' partitions on this device are untouched.
+    await releaseLocalDataAfterAccountDeletion();
     await clearSessionToken();
     await clearRefreshToken();
     await clearCachedMasterKey();
@@ -341,6 +444,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           passphraseRequest?.reject(new SyncPassphraseCancelledError('Signed out during the mandatory sync password step.'));
           setPassphraseRequest(null);
           void signOut();
+        }}
+        onResetComplete={() => {
+          // Encrypted reflection sync was reset (forgotten password): the
+          // in-flight sync continues straight into creating a NEW password
+          // (syncKeyManager.ts) — the step is satisfied, not skipped.
+          passphraseRequest?.reject(new SyncPasswordResetError('Encrypted reflection sync was reset.'));
+          setPassphraseRequest(null);
+        }}
+        deleteAccount={deleteAccount}
+        accountProvider={user?.provider ?? null}
+        onAccountDeleted={() => {
+          // deleteAccount() has already ended the session; just end the
+          // waiting sync, exactly like signing out of this step.
+          passphraseRequest?.reject(new SyncPassphraseCancelledError('Account deleted during the mandatory sync password step.'));
+          setPassphraseRequest(null);
         }}
       />
     </AuthContext.Provider>

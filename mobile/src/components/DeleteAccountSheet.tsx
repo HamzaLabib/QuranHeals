@@ -15,7 +15,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useAuth } from '@/auth/useAuth';
 import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
@@ -26,6 +25,12 @@ type DeleteAccountSheetProps = {
   onClose: () => void;
   /** Called once the backend confirms deletion and local data has been cleared — never before either has actually happened. */
   onDeleted: () => void;
+  /**
+   * The account's deleteAccount() (useAuth). Passed in rather than read via
+   * useAuth here so the Sync Password sheet — rendered by AuthProvider
+   * itself — can offer account deletion without an import cycle.
+   */
+  deleteAccount: () => Promise<void>;
 };
 
 /**
@@ -37,9 +42,8 @@ type DeleteAccountSheetProps = {
  * flight (see isDeleting below), to avoid leaving the app mid-request in an
  * ambiguous state.
  */
-export function DeleteAccountSheet({ visible, onClose, onDeleted }: DeleteAccountSheetProps) {
+export function DeleteAccountSheet({ visible, onClose, onDeleted, deleteAccount }: DeleteAccountSheetProps) {
   const { locale, messages } = useAppLocale();
-  const { deleteAccount } = useAuth();
   const direction = getDirectionStyle(locale);
   const isRtl = isRtlLocale(locale);
   const [confirmationText, setConfirmationText] = useState('');

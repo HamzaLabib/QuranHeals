@@ -5,6 +5,8 @@ import { isValidVerseKey } from '../quran/referenceKeys';
 const verseKeySchema = z.string().trim().refine((key) => isValidVerseKey(key), 'Invalid verse key.');
 const isoDateSchema = z.string().trim().refine((value) => !Number.isNaN(Date.parse(value)), 'Invalid timestamp.');
 const translationDisplayModeSchema = z.enum(['always', 'on-demand', 'off']);
+// A one-way HMAC fingerprint of the reflection master key (see UserSyncKey.ts).
+const keyFingerprintSchema = z.string().trim().min(1).max(128);
 
 export const putFavoritesSchema = z.object({
   verseKeys: z.array(verseKeySchema).min(1).max(2000),
@@ -37,6 +39,7 @@ const activeReflectionRecordSchema = z
     ciphertext: z.string().trim().min(1).max(8000),
     nonce: z.string().trim().min(1).max(128),
     encryptionVersion: z.number().int().min(1).max(100),
+    keyFingerprint: keyFingerprintSchema.optional(),
     createdAt: isoDateSchema,
     updatedAt: isoDateSchema,
   })
@@ -77,7 +80,18 @@ export const putSyncKeySchema = z.object({
   salt: z.string().trim().min(1).max(128),
   kdfIterations: z.number().int().min(1000).max(10_000_000),
   encryptionVersion: z.number().int().min(1).max(100),
+  keyFingerprint: keyFingerprintSchema.optional(),
 });
+
+/**
+ * Forgotten-password reset: a fresh provider credential is required. Strict:
+ * nothing but the provider name and the provider's own ID token is accepted
+ * — never a userId, email or subject asserted by the client.
+ */
+export const resetReflectionSyncSchema = z.object({
+  provider: z.enum(['apple', 'google']),
+  idToken: z.string().trim().min(1).max(4096),
+}).strict();
 
 export const replaceSyncKeySchema = z.object({
   expected: putSyncKeySchema,

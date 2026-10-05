@@ -31,7 +31,7 @@ vi.mock('@/auth/authApi', () => ({
   AuthApiError: FakeAuthApiError,
 }));
 
-const { refreshAccessToken, registerSessionExpiredHandler } = await import('@/auth/tokenManager');
+const { REFRESH_RETRY_DELAY_MS, refreshAccessToken, registerSessionExpiredHandler } = await import('@/auth/tokenManager');
 const { getRefreshToken, setSessionToken, setRefreshToken } = await import('@/auth/sessionStorage');
 
 afterEach(() => {
@@ -154,5 +154,90 @@ describe('refreshAccessToken', () => {
     const second = refreshAccessToken();
     expect(second).not.toBe(first);
     await expect(second).resolves.toBeNull();
+  });
+});
+
+/**
+ * Lost refresh responses: the backend may have rotated the token even when
+ * no usable answer arrived. It accepts the superseded token for a short
+ * window (backend/src/auth/refreshRotation.ts), so the client retries once,
+ * promptly, with the SAME token — never on a definite 4xx answer.
+ */
+describe('refreshAccessToken: lost-response recovery', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  async function refreshWithTimers() {
+    vi.useFakeTimers();
+    const pending = refreshAccessToken();
+    await vi.advanceTimersByTimeAsync(REFRESH_RETRY_DELAY_MS);
+    return pending;
+  }
+
+  it('a timed-out refresh is retried once with the same token and recovers the session', async () => {
+    storedRefreshToken.value = 'held-token';
+    refreshSession
+      .mockRejectedValueOnce(new FakeAuthApiError("We couldn't reach the backend.")) // timeout: no status
+      .mockResolvedValueOnce({ token: 'new-access', refreshToken: 'new-refresh' });
+    const handler = vi.fn();
+    registerSessionExpiredHandler(handler);
+
+    expect(await refreshWithTimers()).toBe('new-access');
+    expect(refreshSession.mock.calls).toEqual([['held-token'], ['held-token']]);
+    expect(storedRefreshToken.value).toBe('new-refresh');
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['a 5xx', 503],
+    ['an unreadable success body', 200],
+  ])('%s is retried once', async (_label, status) => {
+    storedRefreshToken.value = 'held-token';
+    refreshSession
+      .mockRejectedValueOnce(new FakeAuthApiError('Session refresh failed.', status))
+      .mockResolvedValueOnce({ token: 'new-access', refreshToken: 'new-refresh' });
+
+    expect(await refreshWithTimers()).toBe('new-access');
+    expect(refreshSession).toHaveBeenCalledTimes(2);
+  });
+
+  it('retries at most once: a second unknown outcome leaves the session in place for a later attempt', async () => {
+    storedRefreshToken.value = 'held-token';
+    refreshSession.mockRejectedValue(new FakeAuthApiError("We couldn't reach the backend."));
+    const handler = vi.fn();
+    registerSessionExpiredHandler(handler);
+
+    expect(await refreshWithTimers()).toBeNull();
+    expect(refreshSession).toHaveBeenCalledTimes(2);
+    expect(handler).not.toHaveBeenCalled();
+    expect(storedRefreshToken.value).toBe('held-token');
+  });
+
+  it.each([401, 400, 429])('never retries a definite %s answer', async (status) => {
+    storedRefreshToken.value = 'held-token';
+    refreshSession.mockRejectedValue(new FakeAuthApiError('Rejected', status));
+
+    await refreshAccessToken();
+    expect(refreshSession).toHaveBeenCalledTimes(1);
+  });
+
+  it('saves the new refresh token before the new access token', async () => {
+    storedRefreshToken.value = 'held-token';
+    refreshSession.mockResolvedValue({ token: 'new-access', refreshToken: 'new-refresh' });
+
+    await refreshAccessToken();
+
+    expect(vi.mocked(setRefreshToken).mock.invocationCallOrder[0])
+      .toBeLessThan(vi.mocked(setSessionToken).mock.invocationCallOrder[0]);
+  });
+
+  it('if the app dies before the access token is saved, the device still holds the NEW refresh token', async () => {
+    storedRefreshToken.value = 'held-token';
+    refreshSession.mockResolvedValue({ token: 'new-access', refreshToken: 'new-refresh' });
+    vi.mocked(setSessionToken).mockRejectedValueOnce(new Error('Process terminated'));
+
+    expect(await refreshAccessToken()).toBeNull();
+    expect(storedRefreshToken.value).toBe('new-refresh');
   });
 });

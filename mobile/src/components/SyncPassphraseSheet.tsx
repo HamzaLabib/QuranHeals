@@ -13,15 +13,23 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import type { AuthProvider } from '@/auth/authTypes';
+import {
+  ReauthenticationFailedError,
+  ReauthenticationUnavailableError,
+  useFreshProviderCredential,
+} from '@/auth/reauthentication';
 import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
-import type { SyncPassphraseMode, VerifyPassphrase } from '@/sync/syncKeyManager';
+import { SyncApiError } from '@/sync/syncApi';
+import type { ResetEncryptedSync, SyncPassphraseMode, VerifyPassphrase } from '@/sync/syncKeyManager';
 import { useVerifiedSyncPassword } from '@/sync/useVerifiedSyncPassword';
 import { canSetSyncPassword, passwordLengthError } from '@/utils/syncPasswordValidation';
+import { DeleteAccountSheet } from './DeleteAccountSheet';
 import { SyncPasswordField } from './SyncPasswordField';
 
-export type PassphraseRequestLike = { mode: SyncPassphraseMode; verify?: VerifyPassphrase } | null;
+export type PassphraseRequestLike = { mode: SyncPassphraseMode; verify?: VerifyPassphrase; reset?: ResetEncryptedSync } | null;
 
 type SyncPassphraseSheetProps = {
   request: PassphraseRequestLike;
@@ -33,6 +41,19 @@ type SyncPassphraseSheetProps = {
    * the real signOut() by the caller (useAuth.tsx).
    */
   onSignOut: () => void;
+  /**
+   * Forgotten password (unlock step only): called after the user confirmed
+   * and the reset of encrypted reflection sync succeeded. The caller then
+   * continues into creating a NEW password — the gate is still satisfied,
+   * never skipped.
+   */
+  onResetComplete: () => void;
+  /** The account's deleteAccount(), so a user who forgot the password can still delete the account (same typed confirmation as Settings). */
+  deleteAccount: () => Promise<void>;
+  /** Called once account deletion completed; the caller ends this step (the session is gone). */
+  onAccountDeleted: () => void;
+  /** The signed-in account's own provider — the only one that can confirm the reset (each account has exactly one). */
+  accountProvider: AuthProvider | null;
 };
 
 /**
@@ -52,11 +73,27 @@ export function SyncPassphraseSheet(props: SyncPassphraseSheetProps) {
   return props.request ? <SyncPassphraseForm key={props.request.mode} {...props} request={props.request} /> : null;
 }
 
-function SyncPassphraseForm({ request, onSubmit, onSignOut }: SyncPassphraseSheetProps & { request: NonNullable<PassphraseRequestLike> }) {
+function SyncPassphraseForm({
+  request,
+  onSubmit,
+  onSignOut,
+  onResetComplete,
+  deleteAccount,
+  onAccountDeleted,
+  accountProvider,
+}: SyncPassphraseSheetProps & { request: NonNullable<PassphraseRequestLike> }) {
   const { locale, messages } = useAppLocale();
   const direction = getDirectionStyle(locale);
   const isRtl = isRtlLocale(locale);
   const [value, setValue] = useState('');
+  // 'forgot': the reset explanation/confirmation; 'delete': account deletion.
+  const [view, setView] = useState<'password' | 'forgot' | 'delete'>('password');
+  // 'verifying': the fresh Apple/Google sign-in; 'resetting': the reset itself.
+  const [resetPhase, setResetPhase] = useState<'idle' | 'verifying' | 'resetting'>('idle');
+  const [resetMessage, setResetMessage] = useState<string | null>(null);
+  const isResetting = resetPhase !== 'idle';
+  const canReset = request.mode === 'unlock' && request.reset !== undefined;
+  const authenticateWithProvider = useFreshProviderCredential(accountProvider);
 
   const [confirmation, setConfirmation] = useState('');
   const [touched, setTouched] = useState(false);
@@ -82,6 +119,110 @@ function SyncPassphraseForm({ request, onSubmit, onSignOut }: SyncPassphraseShee
     setConfirmation('');
     onSignOut();
   };
+
+  // Nothing is reset unless a fresh sign-in with the account's own
+  // Apple/Google identity succeeds AND the backend verifies it. Every other
+  // outcome stays here, with Back, Delete account and (on the password
+  // step) Sign out still available.
+  const confirmReset = async () => {
+    if (isResetting || !request.reset) return;
+    setResetMessage(null);
+    setResetPhase('verifying');
+    try {
+      const credential = await authenticateWithProvider();
+      if (!credential) {
+        setResetMessage(messages.syncPassphrase.reauthCancelled);
+        return;
+      }
+      setResetPhase('resetting');
+      await request.reset(credential);
+      onResetComplete();
+    } catch (error) {
+      // Never a raw provider/server error: one of three fixed messages.
+      setResetMessage(
+        error instanceof ReauthenticationUnavailableError
+          ? messages.syncPassphrase.reauthUnavailable
+          : error instanceof ReauthenticationFailedError || (error instanceof SyncApiError && error.statusCode === 403)
+            ? messages.syncPassphrase.reauthFailed
+            : messages.syncPassphrase.resetError,
+      );
+    } finally {
+      setResetPhase('idle');
+    }
+  };
+
+  if (view === 'delete') {
+    return (
+      <DeleteAccountSheet
+        visible
+        deleteAccount={deleteAccount}
+        onClose={() => setView('forgot')}
+        onDeleted={onAccountDeleted}
+      />
+    );
+  }
+
+  if (view === 'forgot') {
+    return (
+      <Modal visible transparent animationType="fade" onRequestClose={() => {}}>
+        <View style={styles.backdrop}>
+          <SafeAreaView style={styles.safeArea}>
+            <View style={styles.sheet}>
+              <ScrollView contentContainerStyle={styles.scrollContent}>
+                <Text style={[styles.title, direction]}>{messages.syncPassphrase.resetTitle}</Text>
+                <Text style={[styles.description, direction]}>{messages.syncPassphrase.resetUnrecoverable}</Text>
+                <Text style={[styles.description, direction]}>{messages.syncPassphrase.resetCloudLoss}</Text>
+                <Text style={[styles.description, direction]}>{messages.syncPassphrase.resetLocalKept}</Text>
+                <Text style={[styles.description, direction]}>{messages.syncPassphrase.resetUnaffected}</Text>
+                {accountProvider && (
+                  <Text style={[styles.description, direction]}>
+                    {accountProvider === 'apple' ? messages.syncPassphrase.reauthNoticeApple : messages.syncPassphrase.reauthNoticeGoogle}
+                  </Text>
+                )}
+                {resetMessage && (
+                  <Text accessibilityLiveRegion="polite" style={[styles.error, direction]}>{resetMessage}</Text>
+                )}
+                <View style={[styles.actions, isRtl && styles.actionsRtl]}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={messages.syncPassphrase.resetBack}
+                    accessibilityState={{ disabled: isResetting }}
+                    disabled={isResetting}
+                    onPress={() => setView('password')}
+                    style={({ pressed }) => [styles.secondaryButton, isResetting && styles.disabled, pressed && styles.pressed]}>
+                    <Text style={styles.secondaryButtonText}>{messages.syncPassphrase.resetBack}</Text>
+                  </Pressable>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={messages.syncPassphrase.resetConfirm}
+                    accessibilityState={{ disabled: isResetting }}
+                    disabled={isResetting}
+                    onPress={() => void confirmReset()}
+                    style={({ pressed }) => [styles.destructiveButton, isResetting && styles.disabled, pressed && styles.pressed]}>
+                    <Text style={styles.primaryButtonText}>
+                      {resetPhase === 'verifying'
+                        ? messages.syncPassphrase.verifying
+                        : resetPhase === 'resetting'
+                          ? messages.syncPassphrase.resetting
+                          : messages.syncPassphrase.resetConfirm}
+                    </Text>
+                  </Pressable>
+                </View>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={messages.syncPassphrase.deleteAccountInstead}
+                  disabled={isResetting}
+                  onPress={() => setView('delete')}
+                  style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]}>
+                  <Text style={[styles.dangerLinkText, direction]}>{messages.syncPassphrase.deleteAccountInstead}</Text>
+                </Pressable>
+              </ScrollView>
+            </View>
+          </SafeAreaView>
+        </View>
+      </Modal>
+    );
+  }
 
   return (
     <Modal visible transparent animationType="fade" onRequestClose={() => {}}>
@@ -111,6 +252,19 @@ function SyncPassphraseForm({ request, onSubmit, onSignOut }: SyncPassphraseShee
                   <Text style={[styles.description, direction]}>{messages.syncPassphrase.lengthHint}{'\n'}{messages.syncPassphrase.allowedHint}</Text>
                 </>}
                 {feedback && <Text accessibilityLiveRegion="polite" style={[styles.error, direction]}>{feedback}</Text>}
+                {canReset && (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={messages.syncPassphrase.forgotPassword}
+                    onPress={() => {
+                      setValue('');
+                      setResetMessage(null);
+                      setView('forgot');
+                    }}
+                    style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]}>
+                    <Text style={[styles.linkText, direction]}>{messages.syncPassphrase.forgotPassword}</Text>
+                  </Pressable>
+                )}
                 <View style={[styles.actions, isRtl && styles.actionsRtl]}>
                   <Pressable
                     accessibilityRole="button"
@@ -198,6 +352,30 @@ export const syncPasswordStyles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     minHeight: 52,
+  },
+  destructiveButton: {
+    alignItems: 'center',
+    backgroundColor: colors.rust,
+    borderRadius: radii.md,
+    flex: 1,
+    justifyContent: 'center',
+    minHeight: 52,
+    paddingHorizontal: spacing.sm,
+  },
+  linkButton: {
+    alignSelf: 'stretch',
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  linkText: {
+    color: colors.olive,
+    fontSize: typography.body,
+    fontWeight: '700',
+  },
+  dangerLinkText: {
+    color: colors.rust,
+    fontSize: typography.body,
+    fontWeight: '700',
   },
   disabled: {
     opacity: 0.5,

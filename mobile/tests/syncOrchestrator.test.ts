@@ -43,6 +43,7 @@ afterEach(() => {
 
 function baseOptions(promptForPassphrase: () => Promise<string>) {
   return {
+    ownerUserId: 'user-1',
     local: { locale: 'en' as const, translationDisplayMode: 'always' as const, translationId: 'pickthall' },
     applyPreferencesLocally: () => {},
     promptForPassphrase,

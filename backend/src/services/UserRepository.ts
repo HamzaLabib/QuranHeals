@@ -17,4 +17,6 @@ export interface UserRepository {
    */
   findOrCreateByProviderIdentity(identity: VerifiedProviderIdentity): Promise<UserDto>;
   findById(userId: string): Promise<UserDto | null>;
+  /** The verified provider identity that owns this account — server-side only, never sent to clients. */
+  findProviderIdentity(userId: string): Promise<{ provider: AuthProvider; providerSubject: string } | null>;
 }

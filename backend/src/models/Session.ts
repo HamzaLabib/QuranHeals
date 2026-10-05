@@ -20,6 +20,15 @@ const sessionSchema = new Schema<SessionEntity>(
     revokedAt: {
       type: Date,
     },
+    // Hash of the token rotated INTO refreshTokenHash, and when — lets a
+    // client that lost the rotation response retry once within a short
+    // window (see auth/refreshRotation.ts). Never a raw token.
+    previousRefreshTokenHash: {
+      type: String,
+    },
+    rotatedAt: {
+      type: Date,
+    },
   },
   {
     timestamps: true,

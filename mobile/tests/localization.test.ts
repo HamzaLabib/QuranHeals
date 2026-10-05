@@ -201,7 +201,7 @@ describe('Interface message dictionary (messages.ts)', () => {
       prompt: 'ما الشعور الذي تركته هذه الآية في نفسك؟',
       placeholder: 'اكتب ما تركته هذه الآية في قلبك...',
       guestNote: 'تُحفظ خواطرك على هذا الجهاز. سجّل الدخول للوصول إليها عبر أجهزتك.',
-      syncedNote: 'تتم مزامنة خواطرك بشكل خاص بين أجهزتك التي سجّلت الدخول عليها.',
+      syncedNote: 'يتم تحديث خواطرك بشكل خاص بين أجهزتك التي سجّلت الدخول عليها.',
       save: 'حفظ',
       cancel: 'إلغاء',
     });
@@ -239,9 +239,9 @@ describe('Interface message dictionary (messages.ts)', () => {
     });
     expect(MESSAGES.ar.syncStatus).toEqual({
       savedOnDevice: 'محفوظ على الجهاز',
-      syncing: 'جارٍ المزامنة',
-      synced: 'تمت المزامنة',
-      syncFailed: 'تعذّرت المزامنة',
+      syncing: 'جارٍ التحديث',
+      synced: 'تم التحديث',
+      syncFailed: 'تعذّر التحديث',
     });
   });
 
@@ -259,7 +259,7 @@ describe('Interface message dictionary (messages.ts)', () => {
     });
     expect(MESSAGES.ar.syncPassphrase).toMatchObject({
       createTitle: 'إنشاء كلمة المرور', unlockTitle: 'أدخل كلمة المرور',
-      createDescription: 'أنشئ كلمة مرور لحماية وتشفير خواطرك الخاصة عند مزامنتها بين أجهزتك. لا يمكن لتطبيق Quran Heals استعادة كلمة المرور إذا نسيتها، لذا اختر كلمة مرور يمكنك تذكرها.',
+      createDescription: 'أنشئ كلمة مرور لحماية وتشفير خواطرك الخاصة عند تحديثها عبر أجهزتك. لا يمكن لتطبيق Quran Heals استعادة كلمة المرور إذا نسيتها، لذا اختر كلمة مرور يمكنك تذكرها.',
       unlockDescription: 'أدخل كلمة المرور لفتح بياناتك المشفّرة على هذا الجهاز.',
       createPlaceholder: 'كلمة المرور', confirmPassword: 'تأكيد كلمة المرور',
       show: 'إظهار', hide: 'إخفاء', continueLabel: 'متابعة',

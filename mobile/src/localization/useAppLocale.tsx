@@ -3,13 +3,17 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 
 import { APP_LOCALES, DEFAULT_APP_LOCALE, isAppLocale, type AppLocale } from './locales';
 import { getMessages, type Messages } from './messages';
+import { recordLocalPreferencesUpdatedAt } from '@/sync/preferencesSyncState';
 
 /** Versioned/namespaced, matching the convention already used by mobile/src/storage/recentAyahs.ts. */
 export const APP_LOCALE_STORAGE_KEY = 'quran-heals:app-locale:v1';
 
+/** `fromSync` marks a value applied from the account preference rather than chosen by the user on this device. */
+export type PreferenceChangeOptions = { fromSync?: boolean };
+
 export type AppLocaleContextValue = {
   locale: AppLocale;
-  setLocale: (locale: AppLocale) => void;
+  setLocale: (locale: AppLocale, options?: PreferenceChangeOptions) => void;
   messages: Messages;
   /** True once the persisted preference has been read (or safely defaulted). */
   isReady: boolean;
@@ -51,7 +55,11 @@ export function AppLocaleProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const setLocale = useCallback((next: AppLocale) => {
+  const setLocale = useCallback((next: AppLocale, options?: PreferenceChangeOptions) => {
+    // A user's choice is stamped so sync can tell it is newer than the
+    // account's value; a value adopted from the account is stamped by sync
+    // itself (preferencesSync.ts) with the account's own timestamp.
+    if (!options?.fromSync) recordLocalPreferencesUpdatedAt(Date.now());
     setLocaleState(next);
     void AsyncStorage.setItem(APP_LOCALE_STORAGE_KEY, next).catch(() => {
       // Persistence failure is non-fatal: the in-memory selection still applies this session.

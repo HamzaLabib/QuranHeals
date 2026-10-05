@@ -8,6 +8,8 @@ export type VerifiedAppleIdentity = {
   providerSubject: string;
   email?: string;
   emailVerified?: boolean;
+  /** The token's `iat` (seconds since epoch), as signed by Apple. */
+  issuedAt?: number;
 };
 
 export interface AppleTokenVerifier {
@@ -77,6 +79,7 @@ export class AppleJwksVerifier implements AppleTokenVerifier {
       // Apple sends this as the string "true"/"false" in some token
       // versions, and a real boolean in others.
       emailVerified: payload.email_verified === true || payload.email_verified === 'true',
+      issuedAt: typeof payload.iat === 'number' ? payload.iat : undefined,
     };
   }
 }

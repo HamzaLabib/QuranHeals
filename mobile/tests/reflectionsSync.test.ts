@@ -59,7 +59,7 @@ describe('syncReflections', () => {
       return { success: true, data: [] }; // GET: cloud is empty
     });
 
-    await syncReflections('token', masterKey);
+    await syncReflections('token', masterKey, 'user-1');
 
     expect(uploadedBody).toMatchObject({
       reflections: [{ verseKey: '2:255' }],
@@ -92,7 +92,7 @@ describe('syncReflections', () => {
       };
     });
 
-    await syncReflections('token', masterKey);
+    await syncReflections('token', masterKey, 'user-1');
 
     expect(downloaded).toHaveLength(1);
     expect(downloaded[0]).toMatchObject({ verseKey: '94:6', text: 'from another device' });
@@ -110,7 +110,7 @@ describe('syncReflections', () => {
       };
     });
 
-    await syncReflections('token', masterKey);
+    await syncReflections('token', masterKey, 'user-1');
 
     expect(downloaded).toHaveLength(0);
   });
@@ -139,7 +139,7 @@ describe('syncReflections', () => {
       };
     });
 
-    await expect(syncReflections('token', masterKey)).resolves.toBeUndefined();
+    await expect(syncReflections('token', masterKey, 'user-1')).resolves.toBeUndefined();
     expect(downloaded.map((d) => d.verseKey)).toEqual(['94:6']);
   });
 
@@ -156,7 +156,7 @@ describe('syncReflections', () => {
       return { success: true, data: [] };
     });
 
-    await syncReflections('token', masterKey);
+    await syncReflections('token', masterKey, 'user-1');
     expect(sentBody).not.toContain('a secret only I should read');
   });
 });
@@ -178,7 +178,7 @@ describe('syncReflections: deletion tombstones', () => {
       return { success: true, data: [] };
     });
 
-    await syncReflections('token', masterKey);
+    await syncReflections('token', masterKey, 'user-1');
 
     const uploaded = (uploadedBody as { reflections: Record<string, unknown>[] }).reflections;
     expect(uploaded).toHaveLength(1);
@@ -199,7 +199,7 @@ describe('syncReflections: deletion tombstones', () => {
       return { success: true, data: [{ type: 'tombstone', verseKey: '94:6', deletedAt: '2026-01-05T00:00:00.000Z' }] };
     });
 
-    await syncReflections('token', masterKey);
+    await syncReflections('token', masterKey, 'user-1');
 
     expect(tombstonesDownloaded).toEqual([{ verseKey: '94:6', deletedAt: new Date('2026-01-05T00:00:00.000Z').getTime() }]);
     expect(downloaded).toHaveLength(0);
@@ -236,7 +236,7 @@ describe('syncReflections: deletion tombstones', () => {
       };
     });
 
-    await syncReflections('token', masterKey);
+    await syncReflections('token', masterKey, 'user-1');
 
     expect(downloaded).toHaveLength(0);
     expect(synced).toContain('2:255'); // the local tombstone was (re-)uploaded, confirming the deletion
@@ -268,7 +268,7 @@ describe('syncReflections: deletion tombstones', () => {
       };
     });
 
-    await syncReflections('token', masterKey);
+    await syncReflections('token', masterKey, 'user-1');
 
     expect(downloaded).toHaveLength(1);
     expect(downloaded[0]).toMatchObject({ verseKey: '2:255', text: 'recreated after being deleted' });
@@ -288,7 +288,7 @@ describe('syncReflections: deletion tombstones', () => {
       return { success: true, data: [{ type: 'tombstone', verseKey: '2:255', deletedAt: new Date(1000).toISOString() }] };
     });
 
-    await syncReflections('token', masterKey);
+    await syncReflections('token', masterKey, 'user-1');
 
     const uploaded = (uploadedBody as { reflections: Record<string, unknown>[] }).reflections;
     expect(uploaded).toHaveLength(1);
@@ -326,7 +326,7 @@ describe('syncReflections: deletion tombstones', () => {
       };
     });
 
-    await syncReflections('token', masterKey);
+    await syncReflections('token', masterKey, 'user-1');
 
     expect(putCalls).toBe(0);
     expect(downloaded).toHaveLength(0);
@@ -356,7 +356,7 @@ describe('syncReflections: deletion tombstones', () => {
       };
     });
 
-    await expect(syncReflections('token', masterKey)).resolves.toBeUndefined();
+    await expect(syncReflections('token', masterKey, 'user-1')).resolves.toBeUndefined();
     expect(tombstonesDownloaded.map((t) => t.verseKey)).toEqual(['94:6']);
     expect(downloaded).toHaveLength(0);
   });
@@ -378,7 +378,7 @@ describe('syncReflections: deletion tombstones', () => {
       return { success: true, data: cloudState };
     });
 
-    await syncReflections('token-device-a', masterKey);
+    await syncReflections('token-device-a', masterKey, 'user-1');
     expect(cloudState).toEqual([{ type: 'tombstone', verseKey: '2:255', deletedAt: new Date(5000).toISOString() }]);
 
     // Device B still thinks the reflection is active (hasn't heard about
@@ -388,7 +388,7 @@ describe('syncReflections: deletion tombstones', () => {
     downloaded.length = 0;
     tombstonesDownloaded.length = 0;
 
-    await syncReflections('token-device-b', masterKey);
+    await syncReflections('token-device-b', masterKey, 'user-1');
 
     // Device B never re-uploads its stale active copy (the cloud's
     // tombstone is newer) and instead learns about the deletion.
@@ -423,7 +423,7 @@ describe('syncReflections: deletion tombstones', () => {
       };
     });
 
-    await syncReflections('token', masterKey);
+    await syncReflections('token', masterKey, 'user-1');
 
     // The tied cloud active record is never applied locally.
     expect(downloaded).toHaveLength(0);
@@ -441,7 +441,7 @@ describe('syncReflections: deletion tombstones', () => {
       return { success: true, data: [{ type: 'tombstone', verseKey: '2:255', deletedAt: new Date(tiedAt).toISOString() }] };
     });
 
-    await syncReflections('token', masterKey);
+    await syncReflections('token', masterKey, 'user-1');
 
     // The tied cloud tombstone is applied, overriding the local active copy.
     expect(tombstonesDownloaded).toEqual([{ verseKey: '2:255', deletedAt: tiedAt }]);
@@ -465,7 +465,7 @@ describe('syncReflections: deletion tombstones', () => {
       return { success: true, data: [{ type: 'tombstone', verseKey: '2:255', deletedAt: new Date(tiedAt).toISOString() }] };
     });
 
-    await syncReflections('token', masterKey);
+    await syncReflections('token', masterKey, 'user-1');
 
     expect(putCalls).toBe(0);
     expect(tombstonesDownloaded).toHaveLength(0);
@@ -497,7 +497,7 @@ describe('syncReflections: deletion tombstones', () => {
       };
     });
 
-    await syncReflections('token', masterKey);
+    await syncReflections('token', masterKey, 'user-1');
 
     expect(downloaded).toHaveLength(1);
     expect(downloaded[0]).toMatchObject({ verseKey: '2:255', text: 'genuinely recreated later' });

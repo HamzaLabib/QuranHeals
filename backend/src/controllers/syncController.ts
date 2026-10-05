@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 
+import { verifyFreshProviderReauthentication, type ReauthenticationDeps } from '../auth/providerReauthentication';
 import { AppError } from '../errors/AppError';
 import type { AuthenticatedRequest } from '../middleware/requireAuth';
 import type { SyncRepository } from '../services/SyncRepository';
@@ -10,6 +11,7 @@ import {
   putReflectionsSchema,
   putSyncKeySchema,
   replaceSyncKeySchema,
+  resetReflectionSyncSchema,
 } from '../validators/syncValidators';
 
 function userId(req: Request): string {
@@ -19,7 +21,7 @@ function userId(req: Request): string {
   return (req as AuthenticatedRequest).auth.userId;
 }
 
-export function createSyncController(repository: SyncRepository) {
+export function createSyncController(repository: SyncRepository, reauthentication: ReauthenticationDeps) {
   return {
     getFavorites: async (req: Request, res: Response) => {
       res.json({ success: true, data: await repository.listFavorites(userId(req)) });
@@ -60,6 +62,20 @@ export function createSyncController(repository: SyncRepository) {
       const parsed = putReflectionsSchema.safeParse(req.body);
       if (!parsed.success) throw new AppError('Invalid reflections payload.', 400);
 
+      // Ciphertext must be encrypted under the account's CURRENT master key
+      // when that key has a fingerprint. Refuses stale ciphertext — e.g.
+      // from another device still holding the key a forgotten-password
+      // reset replaced — so it can never reappear. Deletion markers carry
+      // no ciphertext and are unaffected. Keys created before fingerprints
+      // existed are not checked.
+      const currentKey = await repository.getSyncKey(userId(req));
+      if (
+        currentKey?.keyFingerprint &&
+        parsed.data.reflections.some((record) => record.type === 'active' && record.keyFingerprint !== currentKey.keyFingerprint)
+      ) {
+        throw new AppError('The reflection sync key has changed. Unlock sync again and retry.', 409);
+      }
+
       res.json({ success: true, data: await repository.putReflections(userId(req), parsed.data.reflections) });
     },
 
@@ -88,7 +104,38 @@ export function createSyncController(repository: SyncRepository) {
         throw new AppError('A sync key already exists for this account.', 409);
       }
 
-      res.json({ success: true, data: await repository.putSyncKey(userId(req), parsed.data) });
+      const created = await repository.putSyncKey(userId(req), parsed.data);
+      // A new key after a reset: anything uploaded under another key in the
+      // meantime (another device still holding the old key) is removed, so
+      // it can never be shown as this account's data.
+      if (created.keyFingerprint) {
+        await repository.deleteReflectionsNotEncryptedWith(userId(req), created.keyFingerprint);
+      }
+      res.json({ success: true, data: created });
+    },
+
+    /**
+     * Forgotten sync password: the password cannot be recovered and the
+     * server cannot decrypt anything, so the only recovery is to discard
+     * the encrypted reflection sync state and start a new key. Scoped to
+     * the authenticated user only; never touches favorites, preferences,
+     * sessions, or the account. Idempotent.
+     *
+     * Requires BOTH the Quran Heals session (requireAuth) AND a fresh ID
+     * token from the account's own Apple/Google identity, verified here
+     * before anything is deleted — see auth/providerReauthentication.ts.
+     */
+    resetReflectionSync: async (req: Request, res: Response) => {
+      const parsed = resetReflectionSyncSchema.safeParse(req.body);
+      if (!parsed.success) throw new AppError('Identity verification is required.', 400);
+
+      const currentUserId = userId(req);
+      await verifyFreshProviderReauthentication(reauthentication, currentUserId, parsed.data, {
+        notIssuedBefore: await repository.getSyncKeyCreatedAt(currentUserId),
+      });
+
+      await repository.resetReflectionSync(currentUserId);
+      res.json({ success: true, data: null });
     },
   };
 }

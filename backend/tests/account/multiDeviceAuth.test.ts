@@ -1,6 +1,7 @@
 import request from 'supertest';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
+import { REFRESH_RETRY_GRACE_MS } from '../../src/auth/refreshRotation';
 import { signSessionToken, verifySessionToken } from '../../src/auth/session';
 import { buildAccountTestApp } from './testApp';
 
@@ -62,7 +63,11 @@ describe('Multi-device sessions', () => {
     expect(verifySessionToken(refreshed.body.data.token).userId).toBe(signIn.body.data.user.id);
   });
 
-  it('rejects an already-rotated (reused) refresh token and revokes that session entirely', async () => {
+  // A superseded token replayed immediately after rotation is now accepted
+  // as a lost-response retry (auth/refreshRotation.ts, covered in
+  // refreshRotation.test.ts). Reuse protection still applies outside that
+  // narrow case — these two tests keep the original revocation assertions.
+  it('rejects an already-rotated (reused) refresh token after the retry window and revokes that session entirely', async () => {
     const { app, googleTokens } = buildAccountTestApp();
     googleTokens.set('token', { providerSubject: 'sub-reuse' });
     const signIn = await request(app).post('/api/auth/google').send({ idToken: 'token' });
@@ -71,15 +76,41 @@ describe('Multi-device sessions', () => {
     const firstRefresh = await request(app).post('/api/auth/refresh').send({ refreshToken: originalRefreshToken });
     expect(firstRefresh.status).toBe(200);
 
-    // Reusing the now-superseded token must fail...
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      vi.setSystemTime(Date.now() + REFRESH_RETRY_GRACE_MS + 1);
+
+      // Reusing the now-superseded token must fail...
+      const reused = await request(app).post('/api/auth/refresh').send({ refreshToken: originalRefreshToken });
+      expect(reused.status).toBe(401);
+
+      // ...and the reuse attempt must have revoked the session, so even the
+      // legitimately-rotated token from the first refresh no longer works.
+      const afterReuse = await request(app)
+        .post('/api/auth/refresh')
+        .send({ refreshToken: firstRefresh.body.data.refreshToken });
+      expect(afterReuse.status).toBe(401);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('rejects a superseded token once its successor has itself been used, even inside the retry window, and revokes the session', async () => {
+    const { app, googleTokens } = buildAccountTestApp();
+    googleTokens.set('token', { providerSubject: 'sub-reuse-2' });
+    const signIn = await request(app).post('/api/auth/google').send({ idToken: 'token' });
+    const originalRefreshToken = signIn.body.data.refreshToken;
+
+    const firstRefresh = await request(app).post('/api/auth/refresh').send({ refreshToken: originalRefreshToken });
+    const secondRefresh = await request(app).post('/api/auth/refresh').send({ refreshToken: firstRefresh.body.data.refreshToken });
+    expect(secondRefresh.status).toBe(200);
+
     const reused = await request(app).post('/api/auth/refresh').send({ refreshToken: originalRefreshToken });
     expect(reused.status).toBe(401);
 
-    // ...and the reuse attempt must have revoked the session, so even the
-    // legitimately-rotated token from the first refresh no longer works.
     const afterReuse = await request(app)
       .post('/api/auth/refresh')
-      .send({ refreshToken: firstRefresh.body.data.refreshToken });
+      .send({ refreshToken: secondRefresh.body.data.refreshToken });
     expect(afterReuse.status).toBe(401);
   });
 

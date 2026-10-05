@@ -61,6 +61,10 @@ const userReflectionSchema = new Schema<UserReflectionEntity>(
       },
       min: 1,
     },
+    keyFingerprint: {
+      type: String,
+      maxlength: 128,
+    },
     conflictVersions: {
       type: [
         {

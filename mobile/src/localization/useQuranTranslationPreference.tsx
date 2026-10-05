@@ -7,10 +7,12 @@ import {
   type QuranTranslationPreference,
   type TranslationDisplayMode,
 } from './quranTranslationPreference';
+import type { PreferenceChangeOptions } from './useAppLocale';
+import { recordLocalPreferencesUpdatedAt } from '@/sync/preferencesSyncState';
 
 export type QuranTranslationPreferenceContextValue = {
   preference: QuranTranslationPreference;
-  setDisplayMode: (mode: TranslationDisplayMode) => void;
+  setDisplayMode: (mode: TranslationDisplayMode, options?: PreferenceChangeOptions) => void;
   isReady: boolean;
 };
 
@@ -41,7 +43,9 @@ export function QuranTranslationPreferenceProvider({ children }: { children: Rea
     };
   }, []);
 
-  const setDisplayMode = useCallback((mode: TranslationDisplayMode) => {
+  const setDisplayMode = useCallback((mode: TranslationDisplayMode, options?: PreferenceChangeOptions) => {
+    // See useAppLocale.tsx's setLocale: only a user's own change is stamped here.
+    if (!options?.fromSync) recordLocalPreferencesUpdatedAt(Date.now());
     setPreference((current) => {
       const next = { ...current, displayMode: mode };
       void saveQuranTranslationPreference(next);

@@ -1,13 +1,24 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { getActiveLocalOwner, GUEST_REFLECTIONS_KEY, reflectionsStorageKey } from './localDataOwner';
+
 /**
  * Private, device-local خواطر (reflections) — one per ayah, keyed by the
  * stable verseKey (never a localized emotion/surah name; never Quran Arabic
  * or translation text — see Part C §15). Guest and signed-in users both
  * keep this local copy; when signed in, mobile/src/sync/reflectionsSync.ts
  * layers encrypted cross-device sync on top without changing this module.
+ *
+ * Stored per owner (see localDataOwner.ts): every function works on the
+ * active owner's partition unless an explicit `ownerUserId` is given — sync
+ * always passes one, so it can only ever read or write the partition of the
+ * account it is syncing for, even if the active account changes mid-sync.
  */
-const STORAGE_KEY = 'quran-heals:ayah-reflections:v1';
+
+/** The partition an operation uses, resolved when the operation runs (never when it was queued). */
+async function storageKey(ownerUserId?: string): Promise<string> {
+  return reflectionsStorageKey(ownerUserId ?? (await getActiveLocalOwner()));
+}
 
 export const REFLECTION_MAX_LENGTH = 2000;
 
@@ -85,8 +96,7 @@ function isReflectionEntry(value: unknown): value is ReflectionEntry {
 // Corrupt/unexpectedly-shaped storage is surfaced as a thrown error rather
 // than silently treated as empty, so a caller can never accidentally wipe a
 // user's private reflections by saving over unreadable storage.
-async function readRawReflections(): Promise<ReflectionMap> {
-  const raw = await AsyncStorage.getItem(STORAGE_KEY);
+function parseReflectionMap(raw: string | null): ReflectionMap {
   if (raw === null) return {};
 
   try {
@@ -106,6 +116,10 @@ async function readRawReflections(): Promise<ReflectionMap> {
   throw new Error('Your reflections could not be read. Your stored data has been kept.');
 }
 
+async function readRawReflections(key: string): Promise<ReflectionMap> {
+  return parseReflectionMap(await AsyncStorage.getItem(key));
+}
+
 // Serializes every read/mutation through this module — mirrors
 // storage/favorites.ts's mutation queue, so a rapid double-tap Save never
 // interleaves a read of stale state with another call's write.
@@ -117,20 +131,20 @@ function mutate<T>(operation: () => Promise<T>): Promise<T> {
 }
 
 /** Returns null for a verseKey with no reflection AND for one that's been deleted (a tombstone) — both mean "nothing to show/edit". */
-export async function getReflection(verseKey: string): Promise<AyahReflection | null> {
-  const map = await readRawReflections();
+export async function getReflection(verseKey: string, ownerUserId?: string): Promise<AyahReflection | null> {
+  const map = await readRawReflections(await storageKey(ownerUserId));
   const entry = map[verseKey];
   return entry && isActiveReflection(entry) ? entry : null;
 }
 
 /** Active reflections only — tombstones are never included, matching every user-facing list (My Reflections, etc.). */
-export async function getAllReflections(): Promise<AyahReflection[]> {
-  return Object.values(await readRawReflections()).filter(isActiveReflection);
+export async function getAllReflections(ownerUserId?: string): Promise<AyahReflection[]> {
+  return Object.values(await readRawReflections(await storageKey(ownerUserId))).filter(isActiveReflection);
 }
 
 /** Deletion tombstones only — used exclusively by mobile/src/sync/reflectionsSync.ts to learn which local deletions still need to be pushed to the cloud. Never surfaced to any UI. */
-export async function getAllTombstones(): Promise<ReflectionTombstone[]> {
-  return Object.values(await readRawReflections()).filter(isTombstone);
+export async function getAllTombstones(ownerUserId?: string): Promise<ReflectionTombstone[]> {
+  return Object.values(await readRawReflections(await storageKey(ownerUserId))).filter(isTombstone);
 }
 
 /**
@@ -155,7 +169,8 @@ export async function getAllTombstones(): Promise<ReflectionTombstone[]> {
  */
 export function saveReflection(verseKey: string, text: string, now: number = Date.now()): Promise<AyahReflection | null> {
   return mutate(async () => {
-    const map = await readRawReflections();
+    const key = await storageKey();
+    const map = await readRawReflections(key);
     const trimmed = text.trim().slice(0, REFLECTION_MAX_LENGTH);
     const existing = map[verseKey];
 
@@ -163,7 +178,7 @@ export function saveReflection(verseKey: string, text: string, now: number = Dat
       if (!existing || !isActiveReflection(existing)) return null;
 
       const tombstone: ReflectionTombstone = { verseKey, deletedAt: now, syncState: 'pending' };
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ ...map, [verseKey]: tombstone }));
+      await AsyncStorage.setItem(key, JSON.stringify({ ...map, [verseKey]: tombstone }));
       return null;
     }
 
@@ -179,7 +194,7 @@ export function saveReflection(verseKey: string, text: string, now: number = Dat
       syncState: existing ? 'pending' : undefined,
     };
 
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ ...map, [verseKey]: reflection }));
+    await AsyncStorage.setItem(key, JSON.stringify({ ...map, [verseKey]: reflection }));
     return reflection;
   });
 }
@@ -190,21 +205,23 @@ export function saveReflection(verseKey: string, text: string, now: number = Dat
  * directly. A tombstone is never erased after a successful sync (only its
  * syncState changes) — see ReflectionTombstone's doc comment.
  */
-export function markReflectionSyncState(verseKey: string, syncState: SyncState): Promise<void> {
+export function markReflectionSyncState(verseKey: string, syncState: SyncState, ownerUserId?: string): Promise<void> {
   return mutate(async () => {
-    const map = await readRawReflections();
+    const key = await storageKey(ownerUserId);
+    const map = await readRawReflections(key);
     const existing = map[verseKey];
     if (!existing) return;
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ ...map, [verseKey]: { ...existing, syncState } }));
+    await AsyncStorage.setItem(key, JSON.stringify({ ...map, [verseKey]: { ...existing, syncState } }));
   });
 }
 
 /** Upserts a reflection downloaded (and decrypted) from the cloud, or created locally from a merge — used only by mobile/src/sync/reflectionsSync.ts. Overwrites any local tombstone for this verseKey, since the cloud's active record is newer (recreation). */
-export function putReflectionFromSync(reflection: AyahReflection): Promise<void> {
+export function putReflectionFromSync(reflection: AyahReflection, ownerUserId?: string): Promise<void> {
   return mutate(async () => {
-    const map = await readRawReflections();
+    const key = await storageKey(ownerUserId);
+    const map = await readRawReflections(key);
     await AsyncStorage.setItem(
-      STORAGE_KEY,
+      key,
       JSON.stringify({ ...map, [reflection.verseKey]: { ...reflection, syncState: 'synced' as const } }),
     );
   });
@@ -216,8 +233,8 @@ export function putReflectionFromSync(reflection: AyahReflection): Promise<void>
  * ordinary sign-out (which deliberately preserves local reflections). Safe
  * to call even if nothing is stored.
  */
-export function clearAllReflections(): Promise<void> {
-  return mutate(() => AsyncStorage.removeItem(STORAGE_KEY));
+export function clearAllReflections(ownerUserId?: string): Promise<void> {
+  return mutate(async () => AsyncStorage.removeItem(await storageKey(ownerUserId)));
 }
 
 /**
@@ -226,12 +243,16 @@ export function clearAllReflections(): Promise<void> {
  * Overwrites any local active reflection for this verseKey, since the cloud
  * has since deleted it.
  */
-export function putTombstoneFromSync(tombstone: {
-  verseKey: string;
-  deletedAt: number;
-}): Promise<void> {
+export function putTombstoneFromSync(
+  tombstone: {
+    verseKey: string;
+    deletedAt: number;
+  },
+  ownerUserId?: string,
+): Promise<void> {
   return mutate(async () => {
-    const map = await readRawReflections();
+    const key = await storageKey(ownerUserId);
+    const map = await readRawReflections(key);
     const next: ReflectionTombstone = {
       verseKey: tombstone.verseKey,
       deletedAt: tombstone.deletedAt,
@@ -239,11 +260,71 @@ export function putTombstoneFromSync(tombstone: {
     };
 
     await AsyncStorage.setItem(
-      STORAGE_KEY,
+      key,
       JSON.stringify({
         ...map,
         [tombstone.verseKey]: next,
       }),
     );
+  });
+}
+
+function entryTimestamp(entry: ReflectionEntry): number {
+  return isActiveReflection(entry) ? entry.updatedAt : entry.deletedAt;
+}
+
+/**
+ * Moves the guest partition into an account's partition (the first-sign-in
+ * guest → account migration; see localDataOwnership.ts). Per verseKey, the
+ * newer entry (reflection or deletion) wins; a tie keeps the account's. The
+ * guest partition is removed only after the merged result is written, so an
+ * interrupted move simply repeats. Returns false — moving nothing — if
+ * either side cannot be read, so unreadable data is never overwritten.
+ */
+export function adoptGuestReflections(userId: string): Promise<boolean> {
+  return mutate(async () => {
+    const guestRaw = await AsyncStorage.getItem(GUEST_REFLECTIONS_KEY);
+    if (guestRaw === null) return true;
+    const destinationKey = reflectionsStorageKey(userId);
+    let guest: ReflectionMap;
+    let destination: ReflectionMap;
+    try {
+      guest = parseReflectionMap(guestRaw);
+      destination = parseReflectionMap(await AsyncStorage.getItem(destinationKey));
+    } catch {
+      return false;
+    }
+    const merged: ReflectionMap = { ...destination };
+    for (const [verseKey, entry] of Object.entries(guest)) {
+      const existing = merged[verseKey];
+      if (!existing || entryTimestamp(entry) > entryTimestamp(existing)) merged[verseKey] = entry;
+    }
+    await AsyncStorage.setItem(destinationKey, JSON.stringify(merged));
+    await AsyncStorage.removeItem(GUEST_REFLECTIONS_KEY);
+    return true;
+  });
+}
+
+/**
+ * After a forgotten-password reset deleted this account's cloud copy, every
+ * local entry is unsynced again (and is re-uploaded under the new key by
+ * the next sync). Only the sync status label changes; text and timestamps
+ * are untouched.
+ */
+export function markAllReflectionsPending(ownerUserId: string): Promise<void> {
+  return mutate(async () => {
+    const key = await storageKey(ownerUserId);
+    const map = await readRawReflections(key);
+    let changed = false;
+    const next: ReflectionMap = {};
+    for (const [verseKey, entry] of Object.entries(map)) {
+      if (entry.syncState === 'synced') {
+        next[verseKey] = { ...entry, syncState: 'pending' };
+        changed = true;
+      } else {
+        next[verseKey] = entry;
+      }
+    }
+    if (changed) await AsyncStorage.setItem(key, JSON.stringify(next));
   });
 }
