@@ -1,8 +1,9 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, radii } from '@/constants/theme';
+import { radii, type Palette } from '@/constants/theme';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { useQuranFontSizePreference } from '@/localization/useQuranFontSizePreference';
+import { useThemedStyles } from '@/theme/useTheme';
 
 // Visual height (38) is intentionally below the 44px minimum touch target —
 // HIT_SLOP pads the tappable area back out to >=44x44 without inflating the
@@ -21,6 +22,7 @@ const HIT_SLOP = { top: 6, bottom: 6, left: 8, right: 8 };
  */
 export function QuranFontSizeControls() {
   const { messages } = useAppLocale();
+  const styles = useThemedStyles(makeStyles);
   const { canDecrease, canIncrease, decrease, increase } = useQuranFontSizePreference();
 
   return (
@@ -50,7 +52,7 @@ export function QuranFontSizeControls() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   group: {
     alignItems: 'center',
     backgroundColor: colors.surface,
@@ -70,12 +72,12 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   segmentText: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: 16,
     fontWeight: '700',
   },
   segmentTextDisabled: {
-    color: colors.muted,
+    color: colors.textSecondary,
   },
   pressed: {
     opacity: 0.78,

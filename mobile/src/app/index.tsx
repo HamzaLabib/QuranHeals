@@ -6,7 +6,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { EmotionCard } from '@/components/EmotionCard';
 import { StateView } from '@/components/StateView';
-import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
+import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
+import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { getApiErrorMessage, getEmotions } from '@/services/api';
@@ -22,6 +23,8 @@ import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefres
 const FOREGROUND_REVALIDATE_AFTER_MS = 60_000;
 
 export default function HomeScreen() {
+  const colors = usePalette();
+  const styles = useThemedStyles(makeStyles);
   const { locale, messages } = useAppLocale();
   const direction = getDirectionStyle(locale);
   const isRtl = isRtlLocale(locale);
@@ -148,8 +151,9 @@ export default function HomeScreen() {
           <RefreshControl
             refreshing={isPullRefreshing}
             onRefresh={() => void onPullToRefresh()}
-            tintColor={colors.olive}
-            colors={[colors.olive]}
+            tintColor={colors.accent}
+            colors={[colors.accent]}
+            progressBackgroundColor={colors.surface}
           />
         }>
         <View style={[styles.header, isRtl && styles.headerRtl]}>
@@ -163,7 +167,7 @@ export default function HomeScreen() {
                 accessibilityRole="button"
                 accessibilityLabel={messages.home.openFavorites}
                 style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
-                <Heart size={20} color={colors.ink} strokeWidth={2} />
+                <Heart size={20} color={colors.icon} strokeWidth={2} />
               </Pressable>
             </Link>
             <Link href="/reflections" asChild>
@@ -171,7 +175,7 @@ export default function HomeScreen() {
                 accessibilityRole="button"
                 accessibilityLabel={messages.home.openReflections}
                 style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
-                <NotebookPen size={20} color={colors.ink} strokeWidth={2} />
+                <NotebookPen size={20} color={colors.icon} strokeWidth={2} />
               </Pressable>
             </Link>
             <Link href="/settings" asChild>
@@ -179,7 +183,7 @@ export default function HomeScreen() {
                 accessibilityRole="button"
                 accessibilityLabel={messages.settings.openSettings}
                 style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
-                <Settings size={20} color={colors.ink} strokeWidth={2} />
+                <Settings size={20} color={colors.icon} strokeWidth={2} />
               </Pressable>
             </Link>
           </View>
@@ -194,7 +198,7 @@ export default function HomeScreen() {
           <StateView
             title={messages.home.loadingTitle}
             message={messages.home.loadingMessage}
-            icon={<RefreshCw size={22} color={colors.olive} />}
+            icon={<RefreshCw size={22} color={colors.accent} />}
             spin
           />
         )}
@@ -239,7 +243,7 @@ export default function HomeScreen() {
           accessibilityLabel={messages.generalQuran.action}
           onPress={() => router.push('/ayah/general')}
           style={({ pressed }) => [styles.generalQuranAction, pressed && styles.pressed]}>
-          <BookOpen size={18} color={colors.ink} strokeWidth={2} />
+          <BookOpen size={18} color={colors.icon} strokeWidth={2} />
           <Text style={[styles.generalQuranActionText, { writingDirection: direction.writingDirection }]}>
             {messages.generalQuran.action}
           </Text>
@@ -251,10 +255,10 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.parchment,
+    backgroundColor: colors.background,
   },
   scroll: {
     flex: 1,
@@ -290,13 +294,13 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   wordmark: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: 29,
     fontWeight: '700',
     letterSpacing: 0,
   },
   subtitle: {
-    color: colors.muted,
+    color: colors.textSecondary,
     fontSize: typography.body,
     lineHeight: 22,
     marginTop: spacing.xs,
@@ -321,14 +325,14 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
   },
   eyebrow: {
-    color: colors.olive,
+    color: colors.accent,
     fontSize: typography.small,
     fontWeight: '700',
     letterSpacing: 0,
     textTransform: 'uppercase',
   },
   title: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: typography.title,
     fontWeight: '700',
     letterSpacing: 0,
@@ -362,12 +366,12 @@ const styles = StyleSheet.create({
     ...shadows.soft,
   },
   generalQuranActionText: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: typography.bodyLarge,
     fontWeight: '700',
   },
   disclaimer: {
-    color: colors.softText,
+    color: colors.textMuted,
     fontSize: typography.caption,
     lineHeight: 19,
     paddingHorizontal: spacing.xs,

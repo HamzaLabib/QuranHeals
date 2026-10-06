@@ -8,7 +8,8 @@ import { useAuth } from '@/auth/useAuth';
 import { ReflectionListCard } from '@/components/ReflectionListCard';
 import { ReflectionSheet } from '@/components/ReflectionSheet';
 import { StateView } from '@/components/StateView';
-import { colors, radii, spacing, typography } from '@/constants/theme';
+import { radii, spacing, typography, type Palette } from '@/constants/theme';
+import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { useReflections, type ReflectionListItem } from '@/hooks/useReflections';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
@@ -23,6 +24,8 @@ import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefres
  * and editing reuses the existing ReflectionSheet unchanged.
  */
 export default function ReflectionsScreen() {
+  const colors = usePalette();
+  const styles = useThemedStyles(makeStyles);
   const { locale, messages } = useAppLocale();
   const direction = getDirectionStyle(locale);
   const isRtl = isRtlLocale(locale);
@@ -80,8 +83,9 @@ export default function ReflectionsScreen() {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={() => void onPullToRefresh()}
-            tintColor={colors.olive}
-            colors={[colors.olive]}
+            tintColor={colors.accent}
+            colors={[colors.accent]}
+            progressBackgroundColor={colors.surface}
           />
         }
         ListHeaderComponent={
@@ -92,7 +96,7 @@ export default function ReflectionsScreen() {
                 accessibilityLabel={messages.ayah.goBack}
                 onPress={() => router.back()}
                 style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
-                <BackIcon size={22} color={colors.ink} />
+                <BackIcon size={22} color={colors.icon} />
               </Pressable>
               <View style={styles.headerText}>
                 <Text style={[styles.title, direction]}>{messages.reflections.title}</Text>
@@ -104,7 +108,7 @@ export default function ReflectionsScreen() {
               <StateView
                 title={messages.reflections.loadingTitle}
                 message={messages.reflections.loadingMessage}
-                icon={<RefreshCw size={22} color={colors.olive} />}
+                icon={<RefreshCw size={22} color={colors.accent} />}
                 spin
               />
             )}
@@ -138,10 +142,10 @@ export default function ReflectionsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.parchment,
+    backgroundColor: colors.background,
   },
   content: {
     gap: spacing.md,
@@ -176,13 +180,13 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   title: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: 25,
     fontWeight: '700',
     letterSpacing: 0,
   },
   subtitle: {
-    color: colors.muted,
+    color: colors.textSecondary,
     fontSize: typography.caption,
     lineHeight: 18,
   },

@@ -21,7 +21,8 @@ import { FavoriteButton } from './FavoriteButton';
 import { ReflectionSheet } from './ReflectionSheet';
 import { ReportIssueSheet } from './ReportIssueSheet';
 import { StateView } from './StateView';
-import { colors, radii, spacing, typography } from '@/constants/theme';
+import { radii, spacing, typography, type Palette } from '@/constants/theme';
+import { usePalette, useThemedStyles } from '@/theme/useTheme';
 
 /**
  * The one shared ayah-viewing experience for BOTH flows this app supports:
@@ -46,6 +47,8 @@ type AyahExperienceProps = {
 };
 
 export function AyahExperience({ source }: AyahExperienceProps) {
+  const colors = usePalette();
+  const styles = useThemedStyles(makeStyles);
   const { locale, messages } = useAppLocale();
   const direction = getDirectionStyle(locale);
   const isRtl = isRtlLocale(locale);
@@ -253,8 +256,9 @@ export function AyahExperience({ source }: AyahExperienceProps) {
           <RefreshControl
             refreshing={isPullRefreshing}
             onRefresh={() => void onPullToRefresh()}
-            tintColor={colors.olive}
-            colors={[colors.olive]}
+            tintColor={colors.accent}
+            colors={[colors.accent]}
+            progressBackgroundColor={colors.surface}
           />
         }>
         <View style={[styles.header, isRtl && styles.headerRtl]}>
@@ -263,7 +267,7 @@ export function AyahExperience({ source }: AyahExperienceProps) {
             accessibilityLabel={messages.ayah.goBack}
             onPress={() => router.back()}
             style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
-            <BackIcon size={22} color={colors.ink} />
+            <BackIcon size={22} color={colors.icon} />
           </Pressable>
           <View style={styles.headerText}>
             <Text style={[styles.emotion, direction]}>{headerTitle}</Text>
@@ -275,7 +279,7 @@ export function AyahExperience({ source }: AyahExperienceProps) {
           <StateView
             title={messages.ayah.loadingTitle}
             message={messages.ayah.loadingMessage}
-            icon={<RefreshCw size={22} color={colors.olive} />}
+            icon={<RefreshCw size={22} color={colors.accent} />}
             spin
           />
         )}
@@ -301,7 +305,7 @@ export function AyahExperience({ source }: AyahExperienceProps) {
               accessibilityLabel={messages.ayah.loadAnotherAyah}
               onPress={loadAyah}
               style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
-              <RefreshCw size={19} color={colors.surface} />
+              <RefreshCw size={19} color={colors.onPrimaryButton} />
               <Text style={styles.primaryButtonText}>{messages.ayah.anotherAyah}</Text>
             </Pressable>
 
@@ -314,7 +318,7 @@ export function AyahExperience({ source }: AyahExperienceProps) {
                 accessibilityLabel={messages.ayah.shareAyah}
                 onPress={shareAyah}
                 style={({ pressed }) => [styles.iconOnlyButton, pressed && styles.pressed]}>
-                <Share2 size={20} color={colors.ink} />
+                <Share2 size={20} color={colors.icon} />
               </Pressable>
               <Pressable
                 accessibilityRole="button"
@@ -362,10 +366,10 @@ export function AyahExperience({ source }: AyahExperienceProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.parchment,
+    backgroundColor: colors.background,
   },
   scroll: {
     flex: 1,
@@ -399,13 +403,13 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   emotion: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: 25,
     fontWeight: '700',
     letterSpacing: 0,
   },
   kicker: {
-    color: colors.muted,
+    color: colors.textSecondary,
     fontSize: typography.caption,
     lineHeight: 18,
   },
@@ -438,7 +442,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
   },
   secondaryButtonText: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: typography.body,
     fontWeight: '700',
   },
@@ -454,7 +458,7 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     alignItems: 'center',
-    backgroundColor: colors.ink,
+    backgroundColor: colors.primaryButton,
     borderRadius: radii.md,
     flexDirection: 'row',
     gap: spacing.sm,
@@ -463,7 +467,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
   },
   primaryButtonText: {
-    color: colors.surface,
+    color: colors.onPrimaryButton,
     fontSize: typography.body,
     fontWeight: '800',
   },
@@ -479,7 +483,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
   },
   tertiaryButtonText: {
-    color: colors.muted,
+    color: colors.textSecondary,
     fontSize: typography.caption,
     fontWeight: '600',
   },

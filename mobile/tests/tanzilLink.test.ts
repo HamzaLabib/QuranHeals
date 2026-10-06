@@ -23,6 +23,7 @@ vi.mock('react-native', () => ({
   Text: 'Text',
   View: 'View',
   StyleSheet: { create: (styles: unknown) => styles },
+  useColorScheme: () => 'light',
 }));
 vi.mock('lucide-react-native', () => ({ ArrowUpRight: 'ArrowUpRight', Check: 'Check', Copy: 'Copy' }));
 vi.mock('expo-clipboard', () => ({ setStringAsync: vi.fn() }));
@@ -41,7 +42,7 @@ vi.mock('@/components/QuranFontSizeControls', () => ({ QuranFontSizeControls: 'Q
 import { AyahCard } from '@/components/AyahCard';
 import { APP_LOCALES } from '@/localization/locales';
 import { MESSAGES } from '@/localization/messages';
-import { colors } from '@/constants/theme';
+import { lightPalette } from '@/constants/theme';
 import type { Ayah } from '@/types/domain';
 import { formatAyahReference } from '@/utils/ayahReference';
 import { buildTanzilAyahUrl } from '@/utils/tanzilLink';
@@ -146,7 +147,7 @@ describe('AyahCard reference opens the current ayah in Tanzil', () => {
     expect(children.find((child) => child.type === 'Text')?.props.children)
       .toBe(formatAyahReference(39, 62));
     expect(children.find((child) => child.type === 'ArrowUpRight')?.props)
-      .toMatchObject({ size: 16, color: colors.olive });
+      .toMatchObject({ size: 16, color: lightPalette.accent });
     expect(mocks.openURL).not.toHaveBeenCalled();
     link.props.onPress!();
     expect(mocks.openURL).toHaveBeenCalledExactlyOnceWith('https://tanzil.net/#39:62');
@@ -241,8 +242,8 @@ describe('Shared reference link and action hierarchy', () => {
     expect(referenceRow).toContain('gap: spacing.xs');
     expect(card).toContain('[styles.referenceLink, pressed && styles.pressed]');
     const reference = card.match(/reference: \{[\s\S]*?\n {2}\},/)?.[0];
-    expect(reference).toContain('color: colors.olive');
-    expect(colors.olive).toBe('#617256');
+    expect(reference).toContain('color: colors.accent');
+    expect(lightPalette.accent).toBe('#617256');
   });
 });
 
@@ -277,7 +278,7 @@ describe('Save and Share are icon-only, with accessibility labels preserved and 
 
   it('FavoriteButton keeps its saveLabel/removeLabel accessibility labels and saved/unsaved visual state (fill + colors) exactly as before', () => {
     expect(favoriteButtonSource).toMatch(/accessibilityLabel=\{isSaved \? messages\.favoriteButton\.removeLabel : messages\.favoriteButton\.saveLabel\}/);
-    expect(favoriteButtonSource).toMatch(/fill=\{isSaved \? colors\.surface : 'transparent'\}/);
+    expect(favoriteButtonSource).toMatch(/fill=\{isSaved \? colors\.onAccentFill : 'transparent'\}/);
     expect(favoriteButtonSource).toMatch(/isSaved && styles\.saved/);
   });
 

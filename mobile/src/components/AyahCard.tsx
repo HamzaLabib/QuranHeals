@@ -3,7 +3,8 @@ import { ArrowUpRight, Check, Copy } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
+import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
+import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import {
   computeCompactQuranFontSize,
   computeMainQuranFontSize,
@@ -39,6 +40,8 @@ const COPY_CONFIRMATION_MS = 1300;
  * between hidden ("Show translation") and visible ("Hide translation").
  */
 export function AyahCard({ ayah, compact = false }: AyahCardProps) {
+  const colors = usePalette();
+  const styles = useThemedStyles(makeStyles);
   const { messages } = useAppLocale();
   const { preference } = useQuranTranslationPreference();
   const { preferredSize } = useQuranFontSizePreference();
@@ -115,7 +118,7 @@ export function AyahCard({ ayah, compact = false }: AyahCardProps) {
           onPress={() => void copyAyahText()}
           hitSlop={8}
           style={({ pressed }) => [styles.copyButton, pressed && styles.pressed]}>
-          {isCopied ? <Check size={18} color={colors.olive} /> : <Copy size={18} color={colors.ink} />}
+          {isCopied ? <Check size={18} color={colors.accent} /> : <Copy size={18} color={colors.icon} />}
         </Pressable>
       </View>
 
@@ -134,7 +137,7 @@ export function AyahCard({ ayah, compact = false }: AyahCardProps) {
           onPress={openInTanzil}
           style={({ pressed }) => [styles.referenceLink, pressed && styles.pressed]}>
           <Text style={styles.reference}>{formatAyahReference(ayah.surahNumber, ayah.ayahNumber)}</Text>
-          {tanzilAyahUrl && <ArrowUpRight size={16} color={colors.olive} accessible={false} />}
+          {tanzilAyahUrl && <ArrowUpRight size={16} color={colors.accent} accessible={false} />}
         </Pressable>
         <Text style={styles.source}>Quran text: Tanzil · Uthmani 1.1</Text>
       </View>
@@ -159,9 +162,9 @@ export function AyahCard({ ayah, compact = false }: AyahCardProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.card,
     borderColor: colors.border,
     borderRadius: radii.lg,
     borderWidth: 1,
@@ -177,7 +180,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.lg,
   },
   arabic: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontWeight: '600',
     letterSpacing: 0,
     // fontSize/lineHeight are computed per-render (preferred size + automatic
@@ -190,7 +193,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   translation: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: typography.bodyLarge,
     lineHeight: 28,
   },
@@ -200,14 +203,14 @@ const styles = StyleSheet.create({
   },
   revealButton: {
     alignItems: 'center',
-    backgroundColor: colors.oliveWash,
+    backgroundColor: colors.accentSoft,
     borderRadius: radii.sm,
     justifyContent: 'center',
     minHeight: 44,
     paddingHorizontal: spacing.md,
   },
   revealButtonText: {
-    color: colors.olive,
+    color: colors.accent,
     fontSize: typography.body,
     fontWeight: '700',
   },
@@ -226,7 +229,7 @@ const styles = StyleSheet.create({
     width: 44,
   },
   referenceRow: {
-    borderTopColor: colors.border,
+    borderTopColor: colors.divider,
     borderTopWidth: 1,
     gap: spacing.xs,
     paddingTop: spacing.md,
@@ -237,7 +240,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   reference: {
-    color: colors.olive,
+    color: colors.accent,
     flexShrink: 1,
     fontSize: typography.body,
     fontWeight: '800',
@@ -247,7 +250,7 @@ const styles = StyleSheet.create({
     writingDirection: 'ltr',
   },
   source: {
-    color: colors.softText,
+    color: colors.textMuted,
     fontSize: 11,
     lineHeight: 16,
   },

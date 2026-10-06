@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
+import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
+import { useThemedStyles } from '@/theme/useTheme';
 import type { ReflectionListItem } from '@/hooks/useReflections';
 import type { AppLocale } from '@/localization/locales';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
@@ -31,6 +32,7 @@ type ReflectionListCardProps = {
  * component never edits or saves a reflection itself.
  */
 export function ReflectionListCard({ item, locale, messages, onPress }: ReflectionListCardProps) {
+  const styles = useThemedStyles(makeStyles);
   const direction = getDirectionStyle(locale);
   const isRtl = isRtlLocale(locale);
   const { preferredSize } = useQuranFontSizePreference();
@@ -74,9 +76,9 @@ export function ReflectionListCard({ item, locale, messages, onPress }: Reflecti
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.card,
     borderColor: colors.border,
     borderRadius: radii.md,
     borderWidth: 1,
@@ -96,33 +98,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
   },
   reference: {
-    color: colors.olive,
+    color: colors.accent,
     fontSize: typography.caption,
     fontWeight: '800',
   },
   statusText: {
-    color: colors.muted,
+    color: colors.textSecondary,
     fontSize: typography.small,
     fontWeight: '600',
   },
   arabic: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontWeight: '600',
     textAlign: 'right',
     writingDirection: 'rtl',
   },
   unresolvedNote: {
-    color: colors.rust,
+    color: colors.danger,
     fontSize: typography.caption,
     lineHeight: 18,
   },
   reflectionText: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: typography.body,
     lineHeight: 22,
   },
   editedDate: {
-    color: colors.softText,
+    color: colors.textMuted,
     fontSize: typography.small,
   },
 });

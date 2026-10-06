@@ -15,7 +15,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
+import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
+import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { isValidDeleteConfirmation } from '@/utils/deleteAccountConfirmation';
@@ -43,6 +44,8 @@ type DeleteAccountSheetProps = {
  * ambiguous state.
  */
 export function DeleteAccountSheet({ visible, onClose, onDeleted, deleteAccount }: DeleteAccountSheetProps) {
+  const colors = usePalette();
+  const styles = useThemedStyles(makeStyles);
   const { locale, messages } = useAppLocale();
   const direction = getDirectionStyle(locale);
   const isRtl = isRtlLocale(locale);
@@ -105,7 +108,7 @@ export function DeleteAccountSheet({ visible, onClose, onDeleted, deleteAccount 
                   returnKeyType="done"
                   onSubmitEditing={() => Keyboard.dismiss()}
                   placeholder={messages.deleteAccount.placeholder}
-                  placeholderTextColor={colors.muted}
+                  placeholderTextColor={colors.placeholder}
                   style={[styles.input, direction]}
                   accessibilityLabel={messages.deleteAccount.placeholder}
                 />
@@ -133,7 +136,7 @@ export function DeleteAccountSheet({ visible, onClose, onDeleted, deleteAccount 
                     ]}>
                     {isDeleting ? (
                       <>
-                        <ActivityIndicator size="small" color={colors.surface} />
+                        <ActivityIndicator size="small" color={colors.onDangerFill} />
                         <Text style={styles.destructiveButtonText}>{messages.deleteAccount.deleting}</Text>
                       </>
                     ) : (
@@ -150,9 +153,9 @@ export function DeleteAccountSheet({ visible, onClose, onDeleted, deleteAccount 
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   backdrop: {
-    backgroundColor: 'rgba(31, 42, 36, 0.45)',
+    backgroundColor: colors.overlay,
     flex: 1,
     justifyContent: 'flex-end',
   },
@@ -161,7 +164,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   sheet: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.sheetBackground,
     borderTopLeftRadius: radii.lg,
     borderTopRightRadius: radii.lg,
     ...shadows.soft,
@@ -171,32 +174,32 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   title: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: typography.bodyLarge,
     fontWeight: '800',
   },
   description: {
-    color: colors.softText,
+    color: colors.textMuted,
     fontSize: typography.caption,
     lineHeight: 19,
   },
   instruction: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: typography.body,
     fontWeight: '700',
   },
   input: {
-    backgroundColor: colors.parchment,
+    backgroundColor: colors.inputBackground,
     borderColor: colors.border,
     borderRadius: radii.md,
     borderWidth: 1,
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: typography.body,
     minHeight: 52,
     paddingHorizontal: spacing.md,
   },
   errorText: {
-    color: colors.rust,
+    color: colors.danger,
     fontSize: typography.caption,
     fontWeight: '700',
     lineHeight: 18,
@@ -219,13 +222,13 @@ const styles = StyleSheet.create({
     minHeight: 52,
   },
   secondaryButtonText: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: typography.body,
     fontWeight: '700',
   },
   destructiveButton: {
     alignItems: 'center',
-    backgroundColor: colors.rust,
+    backgroundColor: colors.dangerFill,
     borderRadius: radii.md,
     flex: 1,
     flexDirection: 'row',
@@ -237,7 +240,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   destructiveButtonText: {
-    color: colors.surface,
+    color: colors.onDangerFill,
     fontSize: typography.body,
     fontWeight: '800',
   },

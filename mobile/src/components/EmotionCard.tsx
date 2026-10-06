@@ -1,8 +1,9 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, radii, shadows, spacing } from '@/constants/theme';
+import { radii, shadows, spacing, type Palette } from '@/constants/theme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
+import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import type { Emotion } from '@/types/domain';
 import { EMOTION_ICON_FALLBACK, EMOTION_ICONS } from '@/utils/emotionIcons';
 import { resolveEmotionDisplayName } from '@/utils/emotionLabel';
@@ -14,6 +15,8 @@ type EmotionCardProps = {
 
 export function EmotionCard({ emotion, onPress }: EmotionCardProps) {
   const { locale } = useAppLocale();
+  const colors = usePalette();
+  const styles = useThemedStyles(makeStyles);
   const Icon = EMOTION_ICONS[emotion.icon] ?? EMOTION_ICON_FALLBACK;
   // Only the selected locale's name is ever shown — never English+Arabic
   // together, and never the description (data-ready only, not rendered).
@@ -32,7 +35,7 @@ export function EmotionCard({ emotion, onPress }: EmotionCardProps) {
       onPress={onPress}
       style={({ pressed }) => [styles.card, alignEnd && styles.cardRtl, pressed && styles.pressed]}>
       <View style={styles.iconWrap}>
-        <Icon color={colors.olive} size={22} strokeWidth={2} />
+        <Icon color={colors.accent} size={22} strokeWidth={2} />
       </View>
       <View style={styles.textWrap}>
         <Text style={[styles.name, direction]}>{displayName}</Text>
@@ -41,10 +44,10 @@ export function EmotionCard({ emotion, onPress }: EmotionCardProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   card: {
     alignItems: 'flex-start',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.card,
     borderColor: colors.border,
     borderRadius: radii.md,
     borderWidth: 1,
@@ -64,7 +67,7 @@ const styles = StyleSheet.create({
   },
   iconWrap: {
     alignItems: 'center',
-    backgroundColor: colors.oliveWash,
+    backgroundColor: colors.accentSoft,
     borderRadius: radii.full,
     height: 44,
     justifyContent: 'center',
@@ -75,7 +78,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   name: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: 17,
     fontWeight: '800',
     letterSpacing: 0,

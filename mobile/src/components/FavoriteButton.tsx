@@ -1,8 +1,9 @@
 import { Heart } from 'lucide-react-native';
 import { Pressable, StyleSheet } from 'react-native';
 
-import { colors, radii } from '@/constants/theme';
+import { radii, type Palette } from '@/constants/theme';
 import { useAppLocale } from '@/localization/useAppLocale';
+import { usePalette, useThemedStyles } from '@/theme/useTheme';
 
 type FavoriteButtonProps = {
   isSaved: boolean;
@@ -12,6 +13,8 @@ type FavoriteButtonProps = {
 /** Icon-only save/unsave toggle — the accessibility label still carries the save/saved distinction even though no visible text remains. */
 export function FavoriteButton({ isSaved, onToggle }: FavoriteButtonProps) {
   const { messages } = useAppLocale();
+  const colors = usePalette();
+  const styles = useThemedStyles(makeStyles);
 
   return (
     <Pressable
@@ -20,12 +23,12 @@ export function FavoriteButton({ isSaved, onToggle }: FavoriteButtonProps) {
       accessibilityState={{ selected: isSaved }}
       onPress={onToggle}
       style={({ pressed }) => [styles.button, isSaved && styles.saved, pressed && styles.pressed]}>
-      <Heart size={20} color={isSaved ? colors.surface : colors.ink} fill={isSaved ? colors.surface : 'transparent'} />
+      <Heart size={20} color={isSaved ? colors.onAccentFill : colors.icon} fill={isSaved ? colors.onAccentFill : 'transparent'} />
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   button: {
     alignItems: 'center',
     backgroundColor: colors.surface,
@@ -37,8 +40,8 @@ const styles = StyleSheet.create({
     width: 48,
   },
   saved: {
-    backgroundColor: colors.olive,
-    borderColor: colors.olive,
+    backgroundColor: colors.accentFill,
+    borderColor: colors.accentFill,
   },
   pressed: {
     opacity: 0.78,

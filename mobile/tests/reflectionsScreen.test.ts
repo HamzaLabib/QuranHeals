@@ -197,7 +197,7 @@ describe('index.tsx: My Reflections header action (source-scan)', () => {
   it('routes a NotebookPen icon to /reflections, beside Settings and Favorites', () => {
     expect(homeSource).toMatch(/NotebookPen/);
     expect(homeSource).toMatch(/<Link href="\/reflections" asChild>/);
-    expect(homeSource).toMatch(/<NotebookPen size=\{20\} color=\{colors\.ink\} strokeWidth=\{2\} \/>/);
+    expect(homeSource).toMatch(/<NotebookPen size=\{20\} color=\{colors\.icon\} strokeWidth=\{2\} \/>/);
   });
 
   it('gives the new action a localized accessibility label, never a hardcoded string', () => {

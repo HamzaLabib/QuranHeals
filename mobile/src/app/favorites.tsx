@@ -7,7 +7,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/useAuth';
 import { AyahCard } from '@/components/AyahCard';
 import { StateView } from '@/components/StateView';
-import { colors, radii, spacing, typography } from '@/constants/theme';
+import { radii, spacing, typography, type Palette } from '@/constants/theme';
+import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { useFavorites } from '@/hooks/useFavorites';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
@@ -24,6 +25,8 @@ type FavoriteActionsProps = {
 };
 
 function FavoriteActions({ favorite, onRemove, messages, isRtl }: FavoriteActionsProps) {
+  const colors = usePalette();
+  const styles = useThemedStyles(makeStyles);
   const shareFavorite = useCallback(async () => {
     await Share.share({
       message: `${favorite.arabicText}\n\n${favorite.englishTranslation}\n\n${formatAyahReference(favorite.surahNumber, favorite.ayahNumber)}\n\n${favorite.quranTextSource}\n\nQuran Heals`,
@@ -37,7 +40,7 @@ function FavoriteActions({ favorite, onRemove, messages, isRtl }: FavoriteAction
         accessibilityLabel={messages.favorites.shareSaved}
         onPress={shareFavorite}
         style={({ pressed }) => [styles.smallButton, pressed && styles.pressed]}>
-        <Share2 size={17} color={colors.ink} />
+        <Share2 size={17} color={colors.icon} />
         <Text style={styles.smallButtonText}>{messages.favorites.share}</Text>
       </Pressable>
       <Pressable
@@ -45,7 +48,7 @@ function FavoriteActions({ favorite, onRemove, messages, isRtl }: FavoriteAction
         accessibilityLabel={messages.favorites.removeSaved}
         onPress={() => onRemove(favorite.id)}
         style={({ pressed }) => [styles.smallButton, styles.removeButton, pressed && styles.pressed]}>
-        <Trash2 size={17} color={colors.rust} />
+        <Trash2 size={17} color={colors.danger} />
         <Text style={[styles.smallButtonText, styles.removeText]}>{messages.favorites.remove}</Text>
       </Pressable>
     </View>
@@ -53,6 +56,8 @@ function FavoriteActions({ favorite, onRemove, messages, isRtl }: FavoriteAction
 }
 
 export default function FavoritesScreen() {
+  const colors = usePalette();
+  const styles = useThemedStyles(makeStyles);
   const { locale, messages } = useAppLocale();
   const direction = getDirectionStyle(locale);
   const isRtl = isRtlLocale(locale);
@@ -92,8 +97,9 @@ export default function FavoritesScreen() {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={() => void onPullToRefresh()}
-            tintColor={colors.olive}
-            colors={[colors.olive]}
+            tintColor={colors.accent}
+            colors={[colors.accent]}
+            progressBackgroundColor={colors.surface}
           />
         }>
         <View style={[styles.header, isRtl && styles.headerRtl]}>
@@ -102,7 +108,7 @@ export default function FavoritesScreen() {
             accessibilityLabel={messages.ayah.goBack}
             onPress={() => router.back()}
             style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
-            <BackIcon size={22} color={colors.ink} />
+            <BackIcon size={22} color={colors.icon} />
           </Pressable>
           <View style={styles.headerText}>
             <Text style={[styles.title, direction]}>{messages.favorites.title}</Text>
@@ -114,7 +120,7 @@ export default function FavoritesScreen() {
           <StateView
             title={messages.favorites.loadingTitle}
             message={messages.favorites.loadingMessage}
-            icon={<Heart size={22} color={colors.olive} />}
+            icon={<Heart size={22} color={colors.accent} />}
           />
         )}
 
@@ -143,10 +149,10 @@ export default function FavoritesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.parchment,
+    backgroundColor: colors.background,
   },
   scroll: {
     flex: 1,
@@ -180,13 +186,13 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   title: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: 25,
     fontWeight: '700',
     letterSpacing: 0,
   },
   subtitle: {
-    color: colors.muted,
+    color: colors.textSecondary,
     fontSize: typography.caption,
     lineHeight: 18,
   },
@@ -214,15 +220,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
   },
   smallButtonText: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: typography.caption,
     fontWeight: '700',
   },
   removeButton: {
-    borderColor: colors.rustSoft,
+    borderColor: colors.dangerBorder,
   },
   removeText: {
-    color: colors.rust,
+    color: colors.danger,
   },
   pressed: {
     opacity: 0.78,

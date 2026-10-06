@@ -17,7 +17,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/useAuth';
-import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
+import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
+import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { getReflection, REFLECTION_MAX_LENGTH, saveReflection } from '@/storage/ayahReflections';
@@ -45,6 +46,8 @@ export function ReflectionSheet({ visible, verseKey, onClose }: ReflectionSheetP
 }
 
 function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClose: () => void }) {
+  const colors = usePalette();
+  const styles = useThemedStyles(makeStyles);
   const { locale, messages } = useAppLocale();
   const { status } = useAuth();
   const direction = getDirectionStyle(locale);
@@ -167,7 +170,7 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
                     multiline
                     maxLength={REFLECTION_MAX_LENGTH}
                     placeholder={messages.reflection.placeholder}
-                    placeholderTextColor={colors.muted}
+                    placeholderTextColor={colors.placeholder}
                     style={[styles.input, direction]}
                     accessibilityLabel={messages.reflection.title}
                   />
@@ -199,7 +202,7 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
                         (isDeleting || isSaving) && styles.disabled,
                         pressed && styles.pressed,
                       ]}>
-                      <Trash2 size={20} color={colors.rust} />
+                      <Trash2 size={20} color={colors.danger} />
                     </Pressable>
                   )}
 
@@ -243,9 +246,9 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   backdrop: {
-    backgroundColor: 'rgba(31, 42, 36, 0.45)',
+    backgroundColor: colors.overlay,
     flex: 1,
     justifyContent: 'flex-end',
   },
@@ -254,7 +257,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   sheet: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.sheetBackground,
     borderTopLeftRadius: radii.lg,
     borderTopRightRadius: radii.lg,
     ...shadows.soft,
@@ -264,33 +267,33 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   title: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: typography.bodyLarge,
     fontWeight: '800',
   },
   prompt: {
-    color: colors.softText,
+    color: colors.textMuted,
     fontSize: typography.caption,
     lineHeight: 19,
   },
   input: {
-    backgroundColor: colors.parchment,
+    backgroundColor: colors.inputBackground,
     borderColor: colors.border,
     borderRadius: radii.md,
     borderWidth: 1,
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: typography.body,
     minHeight: 140,
     padding: spacing.md,
     textAlignVertical: 'top',
   },
   note: {
-    color: colors.muted,
+    color: colors.textSecondary,
     fontSize: typography.small,
     lineHeight: 17,
   },
   errorText: {
-    color: colors.rust,
+    color: colors.danger,
     fontSize: typography.small,
     fontWeight: '700',
     lineHeight: 17,
@@ -311,7 +314,7 @@ const styles = StyleSheet.create({
   deleteButton: {
     alignItems: 'center',
     backgroundColor: colors.surface,
-    borderColor: colors.rustSoft,
+    borderColor: colors.dangerBorder,
     borderRadius: radii.md,
     borderWidth: 1,
     justifyContent: 'center',
@@ -329,20 +332,20 @@ const styles = StyleSheet.create({
     minHeight: 52,
   },
   secondaryButtonText: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: typography.body,
     fontWeight: '700',
   },
   primaryButton: {
     alignItems: 'center',
-    backgroundColor: colors.ink,
+    backgroundColor: colors.primaryButton,
     borderRadius: radii.md,
     flex: 1,
     justifyContent: 'center',
     minHeight: 52,
   },
   primaryButtonText: {
-    color: colors.surface,
+    color: colors.onPrimaryButton,
     fontSize: typography.body,
     fontWeight: '800',
   },

@@ -49,7 +49,11 @@
         {
           "backgroundColor": "#F7F2EA",
           "image": "./assets/images/appicon.png",
-          "imageWidth": 76
+          "imageWidth": 76,
+          "dark": {
+            "backgroundColor": "#1C1A17",
+            "image": "./assets/images/appicon.png"
+          }
         }
       ],
       "expo-secure-store",
@@ -71,7 +75,7 @@
       }
     },
     "runtimeVersion": {
-      "policy": "appVersion"
+      "policy": "fingerprint"
     },
     "updates": {
       "url": "https://u.expo.dev/40e37048-b7c6-471d-bb5d-de97d17ed0aa"

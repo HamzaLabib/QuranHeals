@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { colors, radii, spacing, typography } from '@/constants/theme';
+import { radii, spacing, typography, type Palette } from '@/constants/theme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
+import { usePalette, useThemedStyles } from '@/theme/useTheme';
 
 export function SyncPasswordField({ value, onChangeText, label, editable = true, onBlur }: {
   value: string;
@@ -12,6 +13,8 @@ export function SyncPasswordField({ value, onChangeText, label, editable = true,
   onBlur?: () => void;
 }) {
   const [visible, setVisible] = useState(false);
+  const colors = usePalette();
+  const styles = useThemedStyles(makeStyles);
   const { locale, messages } = useAppLocale();
   const direction = getDirectionStyle(locale);
   const toggle = visible ? messages.syncPassphrase.hide : messages.syncPassphrase.show;
@@ -20,7 +23,7 @@ export function SyncPasswordField({ value, onChangeText, label, editable = true,
       <Text style={[styles.label, direction]}>{label}</Text>
       <View style={[styles.row, isRtlLocale(locale) && styles.rtl]}>
         <TextInput value={value} onChangeText={onChangeText} onBlur={onBlur}
-          placeholder={label} accessibilityLabel={label} placeholderTextColor={colors.muted}
+          placeholder={label} accessibilityLabel={label} placeholderTextColor={colors.placeholder}
           secureTextEntry={!visible} autoCapitalize="none" autoCorrect={false}
           spellCheck={false} editable={editable} returnKeyType="done"
           onSubmitEditing={() => Keyboard.dismiss()} style={[styles.input, direction]} />
@@ -33,12 +36,12 @@ export function SyncPasswordField({ value, onChangeText, label, editable = true,
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   field: { gap: spacing.sm },
-  row: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.parchment,
-    borderColor: colors.border, borderRadius: radii.md, borderWidth: 1 },
+  row: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.inputBackground,
+    borderColor: colors.inputBorder, borderRadius: radii.md, borderWidth: 1 },
   rtl: { flexDirection: 'row-reverse' },
-  label: { color: colors.ink, fontSize: typography.caption },
-  input: { flex: 1, minWidth: 0, minHeight: 52, paddingHorizontal: spacing.md, color: colors.ink, fontSize: typography.body },
+  label: { color: colors.textPrimary, fontSize: typography.caption },
+  input: { flex: 1, minWidth: 0, minHeight: 52, paddingHorizontal: spacing.md, color: colors.textPrimary, fontSize: typography.body },
   toggle: { minHeight: 48, minWidth: 48, paddingHorizontal: spacing.md, justifyContent: 'center', alignItems: 'center' },
 });

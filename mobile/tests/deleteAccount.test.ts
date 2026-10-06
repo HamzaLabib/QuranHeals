@@ -124,7 +124,7 @@ describe('DeleteAccountSheet.tsx: destructive-action safety', () => {
   });
 
   it('uses destructive (rust) styling for the final delete action', () => {
-    expect(sheetSource).toMatch(/destructiveButton:\s*\{[\s\S]*?backgroundColor: colors\.rust,/);
+    expect(sheetSource).toMatch(/destructiveButton:\s*\{[\s\S]*?backgroundColor: colors\.dangerFill,/);
   });
 
   it('shows a loading state and disables the field/buttons while a request is in flight', () => {

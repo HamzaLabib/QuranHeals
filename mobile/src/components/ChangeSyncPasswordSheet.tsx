@@ -9,11 +9,13 @@ import { changeSyncPassword, verifySyncPassphrase } from '@/sync/syncKeyManager'
 import { useVerifiedSyncPassword } from '@/sync/useVerifiedSyncPassword';
 import { canChangeSyncPassword, passwordLengthError } from '@/utils/syncPasswordValidation';
 import { SyncPasswordField } from './SyncPasswordField';
-import { syncPasswordStyles as styles } from './SyncPassphraseSheet';
+import { useThemedStyles } from '@/theme/useTheme';
+import { makeSyncPasswordStyles } from './SyncPassphraseSheet';
 
 /** Mounted only while open, so dismissal/sign-out drops all password state. */
 export function ChangeSyncPasswordSheet({ onClose }: { onClose: () => void }) {
   const { locale, messages } = useAppLocale();
+  const styles = useThemedStyles(makeSyncPasswordStyles);
   const copy = messages.syncPassphrase;
   const direction = getDirectionStyle(locale);
   const [current, setCurrent] = useState('');

@@ -1,7 +1,8 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, radii, spacing, typography } from '@/constants/theme';
+import { radii, spacing, typography, type Palette } from '@/constants/theme';
+import { useThemedStyles } from '@/theme/useTheme';
 
 type StateViewProps = {
   title: string;
@@ -17,6 +18,7 @@ export function StateView({ title, message, icon, spin = false, actionLabel, onA
   // A lazily-initialized state value (not a ref) so it's safe to read during
   // render — Animated.Value itself is still a mutable, imperatively-driven
   // container; only its *identity* needs to be stable across renders.
+  const styles = useThemedStyles(makeStyles);
   const [rotation] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
@@ -58,10 +60,10 @@ export function StateView({ title, message, icon, spin = false, actionLabel, onA
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   container: {
     alignItems: 'center',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.card,
     borderColor: colors.border,
     borderRadius: radii.md,
     borderWidth: 1,
@@ -71,27 +73,27 @@ const styles = StyleSheet.create({
   },
   iconWrap: {
     alignItems: 'center',
-    backgroundColor: colors.oliveWash,
+    backgroundColor: colors.accentSoft,
     borderRadius: radii.full,
     height: 48,
     justifyContent: 'center',
     width: 48,
   },
   title: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: typography.bodyLarge,
     fontWeight: '800',
     letterSpacing: 0,
     textAlign: 'center',
   },
   message: {
-    color: colors.muted,
+    color: colors.textSecondary,
     fontSize: typography.body,
     lineHeight: 23,
     textAlign: 'center',
   },
   button: {
-    backgroundColor: colors.ink,
+    backgroundColor: colors.primaryButton,
     borderRadius: radii.sm,
     justifyContent: 'center',
     marginTop: spacing.sm,
@@ -99,7 +101,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
   },
   buttonText: {
-    color: colors.surface,
+    color: colors.onPrimaryButton,
     fontSize: typography.body,
     fontWeight: '800',
   },

@@ -15,7 +15,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
+import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
+import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { useQuranTranslationPreference } from '@/localization/useQuranTranslationPreference';
@@ -47,6 +48,8 @@ type ReportIssueSheetProps = {
  * (Part I §38). Works with or without an account (§34/§37).
  */
 export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheetProps) {
+  const colors = usePalette();
+  const styles = useThemedStyles(makeStyles);
   const { locale, messages } = useAppLocale();
   const { preference } = useQuranTranslationPreference();
   const direction = getDirectionStyle(locale);
@@ -152,7 +155,7 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
                   {category === option && (
                     <Check
                       size={18}
-                      color={colors.olive}
+                      color={colors.accent}
                       strokeWidth={2.5}
                     />
                   )}
@@ -174,7 +177,7 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
                 multiline
                 maxLength={2000}
                 placeholder={messages.issueReport.description}
-                placeholderTextColor={colors.muted}
+                placeholderTextColor={colors.placeholder}
                 style={[styles.input, styles.commentInput, direction]}
                 accessibilityLabel={messages.issueReport.description}
               />
@@ -194,7 +197,7 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
                 returnKeyType="done"
                 onSubmitEditing={() => Keyboard.dismiss()}
                 placeholder={messages.issueReport.emailLabel}
-                placeholderTextColor={colors.muted}
+                placeholderTextColor={colors.placeholder}
                 style={[styles.input, direction]}
                 accessibilityLabel={messages.issueReport.emailLabel}
               />
@@ -250,9 +253,9 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   backdrop: {
-    backgroundColor: 'rgba(31, 42, 36, 0.45)',
+    backgroundColor: colors.overlay,
     flex: 1,
     justifyContent: 'flex-end',
   },
@@ -261,7 +264,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   sheet: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.sheetBackground,
     borderTopLeftRadius: radii.lg,
     borderTopRightRadius: radii.lg,
     ...shadows.soft,
@@ -271,17 +274,17 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   title: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: typography.bodyLarge,
     fontWeight: '800',
   },
   description: {
-    color: colors.softText,
+    color: colors.textMuted,
     fontSize: typography.caption,
     lineHeight: 19,
   },
   optionList: {
-    backgroundColor: colors.parchment,
+    backgroundColor: colors.inputBackground,
     borderColor: colors.border,
     borderRadius: radii.md,
     borderWidth: 1,
@@ -289,7 +292,7 @@ const styles = StyleSheet.create({
   },
   optionRow: {
     alignItems: 'center',
-    borderBottomColor: colors.border,
+    borderBottomColor: colors.divider,
     borderBottomWidth: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -300,20 +303,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
   },
   optionRowSelected: {
-    backgroundColor: colors.oliveWash,
+    backgroundColor: colors.accentSoft,
   },
   optionLabel: {
-    color: colors.ink,
+    color: colors.textPrimary,
     flex: 1,
     fontSize: typography.body,
     fontWeight: '600',
   },
   input: {
-    backgroundColor: colors.parchment,
+    backgroundColor: colors.inputBackground,
     borderColor: colors.border,
     borderRadius: radii.md,
     borderWidth: 1,
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: typography.body,
     minHeight: 52,
     paddingHorizontal: spacing.md,
@@ -324,12 +327,12 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   successText: {
-    color: colors.olive,
+    color: colors.accent,
     fontSize: typography.caption,
     fontWeight: '700',
   },
   failureText: {
-    color: colors.rust,
+    color: colors.danger,
     fontSize: typography.caption,
     fontWeight: '700',
   },
@@ -351,13 +354,13 @@ const styles = StyleSheet.create({
     minHeight: 52,
   },
   secondaryButtonText: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: typography.body,
     fontWeight: '700',
   },
   primaryButton: {
     alignItems: 'center',
-    backgroundColor: colors.ink,
+    backgroundColor: colors.primaryButton,
     borderRadius: radii.md,
     flex: 1,
     justifyContent: 'center',
@@ -367,7 +370,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   primaryButtonText: {
-    color: colors.surface,
+    color: colors.onPrimaryButton,
     fontSize: typography.body,
     fontWeight: '800',
   },

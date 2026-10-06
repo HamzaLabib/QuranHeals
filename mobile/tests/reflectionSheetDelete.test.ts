@@ -49,9 +49,9 @@ describe('ReflectionSheet: Delete layout', () => {
 
   it('uses the existing restrained destructive palette (rust/rustSoft), not a filled red block', () => {
     const deleteButtonStyle = source.match(/deleteButton: \{[\s\S]*?\n {2}\},/)?.[0] ?? '';
-    expect(deleteButtonStyle).toMatch(/borderColor: colors\.rustSoft/);
+    expect(deleteButtonStyle).toMatch(/borderColor: colors\.dangerBorder/);
     expect(deleteButtonStyle).toMatch(/backgroundColor: colors\.surface/);
-    expect(source).toMatch(/<Trash2 size=\{20\} color=\{colors\.rust\}\s*\/>/);
+    expect(source).toMatch(/<Trash2 size=\{20\} color=\{colors\.danger\}\s*\/>/);
   });
 
   it('gives Delete an accessible >=44x44 touch target', () => {

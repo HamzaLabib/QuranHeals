@@ -47,7 +47,7 @@ describe('Account section: Apple/Google brand icons', () => {
     expect(accountSectionSource).toMatch(/import \{ AppleIcon \} from '\.\/AppleIcon'/);
     expect(accountSectionSource).not.toMatch(/from 'lucide-react-native'/);
     const appleButtonBlock = accountSectionSource.match(/isAppleSignInSupportedPlatform\(\) && \([\s\S]*?<\/Pressable>/)?.[0] ?? '';
-    expect(appleButtonBlock).toMatch(/<AppleIcon size=\{BRAND_ICON_SIZE\} color=\{colors\.surface\}\s*\/>/);
+    expect(appleButtonBlock).toMatch(/<AppleIcon size=\{BRAND_ICON_SIZE\} color=\{colors\.onAppleButton\}\s*\/>/);
     // Icon appears before the label in source order (icon-then-label group).
     const iconIndex = appleButtonBlock.indexOf('<AppleIcon');
     const labelIndex = appleButtonBlock.indexOf('messages.account.signInWithApple}</Text>');
@@ -78,8 +78,8 @@ describe('Account section: Apple/Google brand icons', () => {
 
   it('the Google button style overrides only background/border/text color — never width, height, or radius', () => {
     const googleButtonStyle = accountSectionSource.match(/googleButton: \{[\s\S]*?\n {2}\},/)?.[0] ?? '';
-    expect(googleButtonStyle).toMatch(/backgroundColor: colors\.surface/);
-    expect(googleButtonStyle).toMatch(/borderColor: colors\.border/);
+    expect(googleButtonStyle).toMatch(/backgroundColor: colors\.googleButton,/);
+    expect(googleButtonStyle).toMatch(/borderColor: colors\.googleButtonBorder,/);
     expect(googleButtonStyle).toMatch(/borderWidth: 1/);
     expect(googleButtonStyle).not.toMatch(/minHeight|borderRadius|width:/);
   });

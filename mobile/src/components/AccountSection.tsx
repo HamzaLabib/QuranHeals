@@ -4,7 +4,8 @@ import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { AppleSignInCancelledError, isAppleSignInSupportedPlatform, requestAppleCredential } from '@/auth/appleAuth';
 import { extractGoogleIdToken, isGoogleAuthConfigured, useGoogleAuthRequest } from '@/auth/googleAuth';
 import { useAuth } from '@/auth/useAuth';
-import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
+import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
+import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { DeleteAccountSheet } from '@/components/DeleteAccountSheet';
 import { ChangeSyncPasswordSheet } from '@/components/ChangeSyncPasswordSheet';
 import type { AppLocale } from '@/localization/locales';
@@ -31,6 +32,8 @@ type AccountSectionProps = {
  * app.
  */
 export function AccountSection({ messages, direction, isRtl }: AccountSectionProps) {
+  const colors = usePalette();
+  const styles = useThemedStyles(makeStyles);
   const { status, lastError, signInWithGoogleIdToken, signInWithAppleIdToken, signOut, deleteAccount } = useAuth();
   const [googleRequest, googleResponse, promptGoogleAsync] = useGoogleAuthRequest();
   const [appleRequestError, setAppleRequestError] = useState<string | null>(null);
@@ -96,9 +99,9 @@ export function AccountSection({ messages, direction, isRtl }: AccountSectionPro
                 accessibilityRole="button"
                 accessibilityLabel={messages.account.signInWithApple}
                 onPress={() => void onApplePress()}
-                style={({ pressed }) => [styles.button, isRtl && styles.buttonRtl, pressed && styles.pressed]}>
-                <AppleIcon size={BRAND_ICON_SIZE} color={colors.surface} />
-                <Text style={styles.buttonText}>{messages.account.signInWithApple}</Text>
+                style={({ pressed }) => [styles.button, styles.appleButton, isRtl && styles.buttonRtl, pressed && styles.pressed]}>
+                <AppleIcon size={BRAND_ICON_SIZE} color={colors.onAppleButton} />
+                <Text style={[styles.buttonText, styles.appleButtonText]}>{messages.account.signInWithApple}</Text>
               </Pressable>
             )}
             {isGoogleAuthConfigured() && (
@@ -161,6 +164,7 @@ export function AccountSection({ messages, direction, isRtl }: AccountSectionPro
 
 /** Signed-in subtree owns the sheet, so sign-out also resets visibility. */
 function ChangePasswordAction({ messages }: { messages: Messages }) {
+  const styles = useThemedStyles(makeStyles);
   const [visible, setVisible] = useState(false);
   return <>
     <Pressable accessibilityRole="button" accessibilityLabel={messages.syncPassphrase.changeTitle}
@@ -171,19 +175,19 @@ function ChangePasswordAction({ messages }: { messages: Messages }) {
   </>;
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   section: {
     gap: spacing.sm,
   },
   sectionLabel: {
-    color: colors.olive,
+    color: colors.accent,
     fontSize: typography.small,
     fontWeight: '700',
     letterSpacing: 0,
     textTransform: 'uppercase',
   },
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.card,
     borderColor: colors.border,
     borderRadius: radii.md,
     borderWidth: 1,
@@ -192,18 +196,18 @@ const styles = StyleSheet.create({
     ...shadows.soft,
   },
   statusText: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: typography.body,
     fontWeight: '700',
   },
   syncPrompt: {
-    color: colors.softText,
+    color: colors.textMuted,
     fontSize: typography.caption,
     lineHeight: 18,
   },
   button: {
     alignItems: 'center',
-    backgroundColor: colors.ink,
+    backgroundColor: colors.primaryButton,
     borderRadius: radii.md,
     flexDirection: 'row',
     gap: 11,
@@ -213,47 +217,56 @@ const styles = StyleSheet.create({
   buttonRtl: {
     flexDirection: 'row-reverse',
   },
+  // Sign in with Apple: black in light mode, white in dark mode (Apple HIG
+  // button styles). Same ink fill as the other buttons in light mode.
+  appleButton: {
+    backgroundColor: colors.appleButton,
+  },
+  appleButtonText: {
+    color: colors.onAppleButton,
+  },
+  // Google's own light/dark button themes; GoogleIcon keeps its brand colors.
   googleButton: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
+    backgroundColor: colors.googleButton,
+    borderColor: colors.googleButtonBorder,
     borderWidth: 1,
   },
   googleButtonText: {
-    color: colors.ink,
+    color: colors.onGoogleButton,
   },
   buttonText: {
-    color: colors.surface,
+    color: colors.onPrimaryButton,
     fontSize: typography.body,
     fontWeight: '700',
   },
   errorText: {
-    color: colors.rust,
+    color: colors.danger,
     fontSize: typography.caption,
     lineHeight: 18,
   },
   successText: {
-    color: colors.olive,
+    color: colors.accent,
     fontSize: typography.caption,
     fontWeight: '700',
     lineHeight: 18,
   },
   dangerZone: {
-    backgroundColor: colors.surface,
-    borderColor: colors.rustSoft,
+    backgroundColor: colors.card,
+    borderColor: colors.dangerBorder,
     borderRadius: radii.md,
     borderWidth: 1,
     gap: spacing.sm,
     padding: spacing.md,
   },
   dangerZoneTitle: {
-    color: colors.rust,
+    color: colors.danger,
     fontSize: typography.small,
     fontWeight: '700',
     letterSpacing: 0,
     textTransform: 'uppercase',
   },
   dangerZoneDescription: {
-    color: colors.softText,
+    color: colors.textMuted,
     fontSize: typography.caption,
     lineHeight: 18,
   },
@@ -263,14 +276,14 @@ const styles = StyleSheet.create({
   // (DeleteAccountSheet.tsx), after the typed-confirmation gate.
   deleteAccountButton: {
     alignItems: 'center',
-    borderColor: colors.rust,
+    borderColor: colors.danger,
     borderRadius: radii.md,
     borderWidth: 1,
     justifyContent: 'center',
     minHeight: 48,
   },
   deleteAccountButtonText: {
-    color: colors.rust,
+    color: colors.danger,
     fontSize: typography.body,
     fontWeight: '700',
   },

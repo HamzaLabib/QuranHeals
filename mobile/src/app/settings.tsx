@@ -6,7 +6,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/useAuth';
 import { AccountSection } from '@/components/AccountSection';
-import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
+import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
+import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { APP_LOCALES, APP_LOCALE_DISPLAY_NAMES, getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { useQuranTranslationPreference } from '@/localization/useQuranTranslationPreference';
@@ -16,6 +17,8 @@ import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefres
 const TRANSLATION_DISPLAY_MODES: readonly TranslationDisplayMode[] = ['always', 'on-demand', 'off'];
 
 export default function SettingsScreen() {
+  const colors = usePalette();
+  const styles = useThemedStyles(makeStyles);
   const { locale, setLocale, messages } = useAppLocale();
   const { preference, setDisplayMode } = useQuranTranslationPreference();
   const { refreshSync } = useAuth();
@@ -70,8 +73,9 @@ export default function SettingsScreen() {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={() => void onPullToRefresh()}
-            tintColor={colors.olive}
-            colors={[colors.olive]}
+            tintColor={colors.accent}
+            colors={[colors.accent]}
+            progressBackgroundColor={colors.surface}
           />
         }>
         <View style={[styles.header, isRtl && styles.headerRtl]}>
@@ -80,7 +84,7 @@ export default function SettingsScreen() {
             accessibilityLabel={messages.ayah.goBack}
             onPress={() => router.back()}
             style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
-            <BackIcon size={22} color={colors.ink} />
+            <BackIcon size={22} color={colors.icon} />
           </Pressable>
           <View style={styles.headerText}>
             <Text style={[styles.title, direction]}>{messages.settings.title}</Text>
@@ -135,6 +139,8 @@ type OptionRowProps = {
 };
 
 function OptionRow({ label, hint, selected, onPress, direction }: OptionRowProps) {
+  const colors = usePalette();
+  const styles = useThemedStyles(makeStyles);
   // Each row mirrors to match its own label's direction (App Language rows
   // each display — and so mirror for — their own language, independent of
   // the screen's current locale; Quran Translation rows all share the
@@ -157,15 +163,15 @@ function OptionRow({ label, hint, selected, onPress, direction }: OptionRowProps
         <Text style={[styles.optionLabel, direction]}>{label}</Text>
         {hint && <Text style={[styles.optionHint, direction]}>{hint}</Text>}
       </View>
-      {selected && <Check size={20} color={colors.olive} strokeWidth={2.5} />}
+      {selected && <Check size={20} color={colors.accent} strokeWidth={2.5} />}
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.parchment,
+    backgroundColor: colors.background,
   },
   scroll: {
     flex: 1,
@@ -199,13 +205,13 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   title: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: 25,
     fontWeight: '700',
     letterSpacing: 0,
   },
   subtitle: {
-    color: colors.muted,
+    color: colors.textSecondary,
     fontSize: typography.caption,
     lineHeight: 18,
   },
@@ -213,14 +219,14 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   sectionLabel: {
-    color: colors.olive,
+    color: colors.accent,
     fontSize: typography.small,
     fontWeight: '700',
     letterSpacing: 0,
     textTransform: 'uppercase',
   },
   optionList: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.card,
     borderColor: colors.border,
     borderRadius: radii.md,
     borderWidth: 1,
@@ -229,7 +235,7 @@ const styles = StyleSheet.create({
   },
   optionRow: {
     alignItems: 'center',
-    borderBottomColor: colors.border,
+    borderBottomColor: colors.divider,
     borderBottomWidth: 1,
     flexDirection: 'row',
     gap: spacing.md,
@@ -242,24 +248,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
   },
   optionRowSelected: {
-    backgroundColor: colors.oliveWash,
+    backgroundColor: colors.accentSoft,
   },
   optionTextWrap: {
     flex: 1,
     gap: 2,
   },
   optionLabel: {
-    color: colors.ink,
+    color: colors.textPrimary,
     fontSize: typography.body,
     fontWeight: '700',
   },
   optionHint: {
-    color: colors.muted,
+    color: colors.textSecondary,
     fontSize: typography.caption,
     lineHeight: 17,
   },
   note: {
-    color: colors.softText,
+    color: colors.textMuted,
     fontSize: typography.caption,
     lineHeight: 18,
     paddingHorizontal: spacing.xs,

@@ -11,6 +11,7 @@ const state = vi.hoisted(() => ({
   saveReflection: vi.fn(),
 }));
 vi.mock('react-native', () => ({
+  useColorScheme: () => 'light',
   Alert: { alert: vi.fn() }, Keyboard: { dismiss: vi.fn() },
   Platform: { OS: 'ios', select: (values: { ios: unknown }) => values.ios },
   StyleSheet: { create: (value: unknown) => value },
