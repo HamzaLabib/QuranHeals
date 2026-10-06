@@ -37,6 +37,16 @@ export type Ayah = {
   translationSource: string;
 };
 
+/**
+ * "How this ayah connects" for one emotion–ayah mapping, as returned by
+ * GET /api/ayahs/random?emotion=… — tagged with the emotion it belongs to.
+ * 'ar' serves both ar and ar-EG. Never stored with favorites or history.
+ */
+export type AyahConnection = { emotionKey: string; en?: string; ar?: string };
+
+/** An ayah loaded for a specific emotion, possibly with that mapping's connection text. */
+export type EmotionAyah = Ayah & { connection?: AyahConnection };
+
 export type FavoriteAyah = Ayah & {
   savedAt: string;
 };

@@ -12,11 +12,13 @@ import { getApiErrorMessage, getAyah, getRandomAyah } from '@/services/api';
 import { getRandomVerseKey } from '@/services/quran';
 import { withRetry } from '@/services/retry';
 import { buildExhaustionRetryExclusions, getExcludedVerseKeys, GENERAL_QURAN_HISTORY_KEY, recordShownAyah } from '@/storage/recentAyahHistory';
-import type { Ayah, LocalizedText } from '@/types/domain';
+import type { Ayah, AyahConnection, LocalizedText } from '@/types/domain';
+import { resolveConnectionText, splitAyahConnection } from '@/utils/ayahConnection';
 import { formatAyahReference } from '@/utils/ayahReference';
 import { resolveLocalizedEmotionName } from '@/utils/emotionLabel';
 import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
 import { AyahCard } from './AyahCard';
+import { AyahConnectionAccordion } from './AyahConnectionAccordion';
 import { FavoriteButton } from './FavoriteButton';
 import { ReflectionSheet } from './ReflectionSheet';
 import { ReportIssueSheet } from './ReportIssueSheet';
@@ -54,6 +56,11 @@ export function AyahExperience({ source }: AyahExperienceProps) {
   const isRtl = isRtlLocale(locale);
   const BackIcon = isRtl ? ArrowRight : ArrowLeft;
   const [ayah, setAyah] = useState<Ayah | null>(null);
+  // The shown emotion–ayah mapping's "How this ayah connects" text, kept
+  // apart from `ayah` so favorites/history never store it.
+  const [connection, setConnection] = useState<AyahConnection | undefined>(undefined);
+  // Bumped for every newly shown ayah; collapses the connection section.
+  const [ayahLoadId, setAyahLoadId] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [historyMessage, setHistoryMessage] = useState<string | null>(null);
@@ -94,6 +101,8 @@ export function AyahExperience({ source }: AyahExperienceProps) {
   // see recentAyahHistory.ts's doc comment — so the emotion flow's own
   // history is never read or touched by general-mode loads, and vice versa.
   const historyKey = source.mode === 'emotion' ? source.emotionKey : GENERAL_QURAN_HISTORY_KEY;
+  // Null (section not rendered) unless this emotion's own mapping has text in the active locale.
+  const connectionText = resolveConnectionText(connection, source.mode === 'emotion' ? source.emotionKey : undefined, locale);
 
   const loadAyah = useCallback(async () => {
     if (source.mode === 'emotion' && !source.emotionKey) {
@@ -167,9 +176,12 @@ export function AyahExperience({ source }: AyahExperienceProps) {
         }
       }
 
-      setAyah(nextAyah);
+      const shown = splitAyahConnection(nextAyah);
+      setAyah(shown.ayah);
+      setConnection(shown.connection);
+      setAyahLoadId((id) => id + 1);
       try {
-        await recordShownAyah(historyKey, nextAyah);
+        await recordShownAyah(historyKey, shown.ayah);
       } catch {
         setHistoryMessage(messages.ayah.historySaveFailed);
       }
@@ -331,6 +343,8 @@ export function AyahExperience({ source }: AyahExperienceProps) {
               </Pressable>
               <FavoriteButton isSaved={isFavorite(ayah)} onToggle={() => toggleFavorite(ayah)} />
             </View>
+
+            {connectionText && <AyahConnectionAccordion text={connectionText} resetKey={ayahLoadId} />}
 
             <View style={styles.tertiaryActions}>
               <Pressable

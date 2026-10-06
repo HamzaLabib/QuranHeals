@@ -31,7 +31,15 @@ export type AyahDto = {
   emotions: string[];
   quranTextSource: string;
   translationSource: string;
+  /**
+   * Only on GET /api/ayahs/random?emotion=…: the requested emotion's own
+   * mapping text for this verse, tagged with that emotionKey. Omitted when
+   * that mapping has no text, and never on lookups by id (no emotion).
+   */
+  connection?: AyahConnectionDto;
 };
+
+export type AyahConnectionDto = { emotionKey: string; en?: string; ar?: string };
 
 export type ApiResponse<T> =
   | {

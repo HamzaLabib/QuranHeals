@@ -16,7 +16,7 @@ import type {
   EmotionVerseMappingEntity,
   VerseEntity,
 } from '../types/domain';
-import type { AyahDto, EmotionDto } from '../types/dto';
+import type { AyahConnectionDto, AyahDto, EmotionDto } from '../types/dto';
 import type { QuranRepository } from './QuranRepository';
 
 type MongoEntity<T> = T & {
@@ -92,12 +92,35 @@ function toAyahDto(ayah: MongoEntity<AyahEntity>): AyahDto {
  * surahNameArabic/English or translation text, if present, is never read
  * here.
  */
+/**
+ * "How this ayah connects": the text of the REQUESTED emotion's mapping for
+ * this verse only (never another emotion's, never per verse), and only when
+ * that mapping is APPROVED — development/reviewed mappings are user-visible
+ * as ayahs but never surface connection text, even if a document somehow
+ * carries some. Blank strings are dropped; undefined when there is no
+ * emotion, no approved mapping, or no text.
+ */
+export function selectMappingConnection(
+  mappings: Pick<EmotionVerseMappingEntity, 'emotionKey' | 'status' | 'connection'>[],
+  emotionKey: string | undefined,
+): AyahConnectionDto | undefined {
+  if (emotionKey === undefined) return undefined;
+  const mapping = mappings.find((candidate) => candidate.emotionKey === emotionKey);
+  if (mapping?.status !== 'approved') return undefined;
+  const connection = mapping.connection;
+  const en = connection?.en?.trim();
+  const ar = connection?.ar?.trim();
+  if (!en && !ar) return undefined;
+  return { emotionKey, ...(en ? { en } : {}), ...(ar ? { ar } : {}) };
+}
+
 function toFoundationAyahDto(
   verseKey: string,
   arabicText: string,
   translationText: string,
   verse: MongoEntity<VerseEntity> | null,
   mappings: MongoEntity<EmotionVerseMappingEntity>[],
+  connection?: AyahConnectionDto,
 ): AyahDto {
   const { surahNumber, ayahNumber } = parseVerseKey(verseKey);
   const surah = getSurahMetadata(surahNumber);
@@ -115,6 +138,7 @@ function toFoundationAyahDto(
     emotions: mappings.map((mapping) => mapping.emotionKey),
     quranTextSource: verse?.quranTextSource ?? VERIFIED_QURAN_TEXT_SOURCE,
     translationSource: VERIFIED_TRANSLATION_SOURCE,
+    ...(connection ? { connection } : {}),
   };
 }
 
@@ -145,7 +169,7 @@ export class MongooseQuranRepository implements QuranRepository {
       return null;
     }
 
-    return toFoundationAyahDto(verseKey, arabicText, translationText, verse, mappings);
+    return toFoundationAyahDto(verseKey, arabicText, translationText, verse, mappings, selectMappingConnection(mappings, requiredEmotionKey));
   }
 
   private async findRandomFoundationAyahByEmotion(emotionKey: string, excludedVerseKeys: string[]) {

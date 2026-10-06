@@ -28,6 +28,11 @@ export type Palette = {
   accent: string;
   /** Tinted wash behind accent icons and selected rows. */
   accentSoft: string;
+  /** Very light olive/sage surface for calm explanatory sections ("How this ayah connects"), and its subtle outline. */
+  sageSurface: string;
+  sageBorder: string;
+  /** Filled heart on the sage surface: a calm olive, a step darker than the surface. */
+  sageHeart: string;
   /** Accent used as a filled background (e.g. a saved favorite). */
   accentFill: string;
   onAccentFill: string;
@@ -74,6 +79,9 @@ export const lightPalette: Palette = {
   icon: '#1F2A24',
   accent: '#617256',
   accentSoft: '#E9EEE4',
+  sageSurface: '#EEF2E9',
+  sageBorder: '#DCE4D3',
+  sageHeart: '#6B7F5E',
   accentFill: '#617256',
   onAccentFill: '#FFFDF8',
   primaryButton: '#1F2A24',
@@ -112,6 +120,11 @@ export const darkPalette: Palette = {
   icon: '#EDE6DA',
   accent: '#A7B78F',
   accentSoft: '#2F3529',
+  // Warm, muted olive lift over the card surface — not the light sage reused.
+  sageSurface: '#2A2E24',
+  sageBorder: '#3B4232',
+  // Muted on purpose: the dark accent (#A7B78F) reads too bright as a filled shape.
+  sageHeart: '#8C9D76',
   accentFill: '#5E6E52',
   onAccentFill: '#F5EFE4',
   primaryButton: '#5E6E52',

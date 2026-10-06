@@ -137,7 +137,7 @@ export function AyahCard({ ayah, compact = false }: AyahCardProps) {
           onPress={openInTanzil}
           style={({ pressed }) => [styles.referenceLink, pressed && styles.pressed]}>
           <Text style={styles.reference}>{formatAyahReference(ayah.surahNumber, ayah.ayahNumber)}</Text>
-          {tanzilAyahUrl && <ArrowUpRight size={16} color={colors.accent} accessible={false} />}
+          {tanzilAyahUrl && <ArrowUpRight size={16} color={colors.accent} />}
         </Pressable>
         <Text style={styles.source}>Quran text: Tanzil · Uthmani 1.1</Text>
       </View>

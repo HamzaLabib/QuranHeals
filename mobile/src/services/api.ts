@@ -1,4 +1,4 @@
-import type { ApiResponse, Ayah, Emotion } from '@/types/domain';
+import type { ApiResponse, Ayah, Emotion, EmotionAyah } from '@/types/domain';
 import { apiBaseUrl } from './apiBase';
 import { DEFAULT_FETCH_TIMEOUT_MS, fetchWithTimeout } from './fetchWithTimeout';
 import { resolveAyahArabic } from './quran';
@@ -178,7 +178,7 @@ export async function getRandomAyah(emotion: string, excludedAyahIds: string[] =
     params.set('exclude', excludedAyahIds.join(','));
   }
 
-  return resolveAyahArabic(await requestApi<Ayah>(`/api/ayahs/random?${params.toString()}`));
+  return resolveAyahArabic(await requestApi<EmotionAyah>(`/api/ayahs/random?${params.toString()}`));
 }
 
 export async function getAyah(id: string) {

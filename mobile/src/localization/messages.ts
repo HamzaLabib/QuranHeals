@@ -47,6 +47,8 @@ export type Messages = {
     shareAyah: string;
     anotherAyah: string;
     loadAnotherAyah: string;
+    /** Heading of the collapsible "why this ayah for this feeling" section. Its body comes from the emotion–ayah mapping, never from here. */
+    connectionHeading: string;
     /** Deep-links to this exact ayah on tanzil.net in the device's browser — see utils/tanzilLink.ts. */
     readInQuran: string;
     /** Accessibility label for the copy-ayah-text icon on AyahCard — the visible control is icon-only. */
@@ -279,6 +281,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       shareAyah: 'Share ayah',
       anotherAyah: 'Another Ayah',
       loadAnotherAyah: 'Load another ayah',
+      connectionHeading: 'How this ayah connects',
       readInQuran: 'Read in Quran',
       copyAyah: 'Copy ayah',
     },
@@ -493,6 +496,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       shareAyah: 'مشاركة الآية',
       anotherAyah: 'آية أخرى',
       loadAnotherAyah: 'تحميل آية أخرى',
+      connectionHeading: 'كيف ترتبط هذه الآية بشعورك',
       readInQuran: 'اقرأ الآية في المصحف',
       copyAyah: 'نسخ الآية',
     },
@@ -717,6 +721,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       shareAyah: 'شارك الآية',
       anotherAyah: 'آية أخرى',
       loadAnotherAyah: 'تحميل آية أخرى',
+      connectionHeading: 'كيف ترتبط هذه الآية بشعورك',
       readInQuran: 'اقرأ الآية في المصحف',
       copyAyah: 'نسخ الآية',
     },

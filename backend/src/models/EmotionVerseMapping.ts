@@ -115,6 +115,21 @@ const emotionVerseMappingSchema = new Schema<EmotionVerseMappingEntity>(
       type: [String],
       default: [],
     },
+    // Reviewed, user-facing explanation of why this verse speaks to THIS
+    // emotion ("How this ayah connects"). Per mapping, never per verse: the
+    // same verse can connect to different emotions for different reasons.
+    // Optional; the app shows the section only when the active locale's text
+    // is present. 'ar' serves both Arabic locales.
+    connection: {
+      type: new Schema(
+        {
+          en: { type: String, trim: true, maxlength: 2000 },
+          ar: { type: String, trim: true, maxlength: 2000 },
+        },
+        { _id: false },
+      ),
+      required: false,
+    },
   },
   {
     timestamps: true,

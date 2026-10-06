@@ -82,6 +82,10 @@ export type EmotionVerseMappingEntity = {
   reviewedAt?: Date;
   contextNotes?: string;
   tafsirReferences: string[];
+  /** "How this ayah connects" text for this emotion–verse pair; see models/EmotionVerseMapping.ts. */
+  connection?: MappingConnection;
   createdAt?: Date;
   updatedAt?: Date;
 };
+
+export type MappingConnection = { en?: string; ar?: string };

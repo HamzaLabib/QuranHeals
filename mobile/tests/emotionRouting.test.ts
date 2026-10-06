@@ -48,7 +48,8 @@ describe('Routing safety: the emotion key reaches the API/history/navigation lay
   it('recordShownAyah and getExcludedVerseKeys (10-minute recent-history exclusion) use historyKey — source.emotionKey in emotion mode, the reserved general-flow key in general mode — never the display label', () => {
     const source = readFileSync(AYAH_EXPERIENCE_PATH, 'utf-8');
     expect(source).toMatch(/getExcludedVerseKeys\(historyKey\)/);
-    expect(source).toMatch(/recordShownAyah\(historyKey, nextAyah\)/);
+    // Recorded without its emotion-specific connection text (see utils/ayahConnection.ts).
+    expect(source).toMatch(/recordShownAyah\(historyKey, shown\.ayah\)/);
     expect(source).toMatch(/const historyKey = source\.mode === 'emotion' \? source\.emotionKey : GENERAL_QURAN_HISTORY_KEY;/);
     expect(source).not.toMatch(/getExcludedVerseKeys\(headerTitle/);
     expect(source).not.toMatch(/recordShownAyah\(headerTitle/);
