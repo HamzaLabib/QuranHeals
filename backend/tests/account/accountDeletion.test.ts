@@ -3,6 +3,9 @@ import { describe, expect, it } from 'vitest';
 
 import { buildAccountTestApp } from './testApp';
 
+// Google account deletion requires a fresh Google sign-in (the fake verifier issues tokens "now").
+const fresh = (idToken: string) => ({ provider: 'google', idToken });
+
 async function signInAndSync(app: ReturnType<typeof buildAccountTestApp>['app'], googleTokens: Map<string, { providerSubject: string }>, idToken: string, providerSubject: string) {
   googleTokens.set(idToken, { providerSubject });
   const signIn = await request(app).post('/api/auth/google').send({ idToken });
@@ -60,7 +63,7 @@ describe('DELETE /api/account', () => {
     const { app, googleTokens } = buildAccountTestApp();
     const { token } = await signInAndSync(app, googleTokens, 'token', 'sub-1');
 
-    const del = await request(app).delete('/api/account').set('Authorization', `Bearer ${token}`);
+    const del = await request(app).delete('/api/account').set('Authorization', `Bearer ${token}`).send(fresh('token'));
     expect(del.status).toBe(200);
     expect(del.body.success).toBe(true);
 
@@ -81,7 +84,8 @@ describe('DELETE /api/account', () => {
 
     await request(app)
       .delete('/api/account')
-      .set('Authorization', `Bearer ${deviceA.body.data.token}`);
+      .set('Authorization', `Bearer ${deviceA.body.data.token}`)
+      .send(fresh('device-a'));
 
     // Device B's refresh token — issued before deletion — must no longer work.
     const refreshB = await request(app).post('/api/auth/refresh').send({ refreshToken: deviceB.body.data.refreshToken });
@@ -100,7 +104,7 @@ describe('DELETE /api/account', () => {
     const { app, googleTokens } = buildAccountTestApp();
     const { token } = await signInAndSync(app, googleTokens, 'token', 'sub-data');
 
-    await request(app).delete('/api/account').set('Authorization', `Bearer ${token}`);
+    await request(app).delete('/api/account').set('Authorization', `Bearer ${token}`).send(fresh('token'));
 
     // The access token is now orphaned (its userId no longer exists), so
     // re-signing in as the *same* provider identity proves this is a fresh
@@ -128,7 +132,7 @@ describe('DELETE /api/account', () => {
     const { token: toDeleteToken } = await signInAndSync(app, googleTokens, 'to-delete', 'sub-delete');
     const { token: otherToken, userId: otherUserId } = await signInAndSync(app, googleTokens, 'other', 'sub-other');
 
-    await request(app).delete('/api/account').set('Authorization', `Bearer ${toDeleteToken}`);
+    await request(app).delete('/api/account').set('Authorization', `Bearer ${toDeleteToken}`).send(fresh('to-delete'));
 
     const otherFavorites = await request(app).get('/api/sync/favorites').set('Authorization', `Bearer ${otherToken}`);
     expect(otherFavorites.body.data).toEqual(expect.arrayContaining([expect.objectContaining({ verseKey: '1:1' })]));
@@ -139,21 +143,21 @@ describe('DELETE /api/account', () => {
     const { app, googleTokens } = buildAccountTestApp();
     const { token } = await signInAndSync(app, googleTokens, 'token', 'sub-repeat');
 
-    const first = await request(app).delete('/api/account').set('Authorization', `Bearer ${token}`);
+    const first = await request(app).delete('/api/account').set('Authorization', `Bearer ${token}`).send(fresh('token'));
     expect(first.status).toBe(200);
 
     // The same (still cryptographically valid, not yet expired) access
     // token presented again — the account and session it names are already
     // gone, so requireAuth now rejects it outright (401) rather than
     // letting a stale-but-unexpired token reach the controller again.
-    const second = await request(app).delete('/api/account').set('Authorization', `Bearer ${token}`);
+    const second = await request(app).delete('/api/account').set('Authorization', `Bearer ${token}`).send(fresh('token'));
     expect(second.status).toBe(401);
   });
 
   it('never touches Quran/global data (no route exists for it to call, but assert the health/emotions surface is unaffected)', async () => {
     const { app, googleTokens } = buildAccountTestApp();
     const { token } = await signInAndSync(app, googleTokens, 'token', 'sub-global');
-    await request(app).delete('/api/account').set('Authorization', `Bearer ${token}`);
+    await request(app).delete('/api/account').set('Authorization', `Bearer ${token}`).send(fresh('token'));
 
     const health = await request(app).get('/api/health');
     expect(health.status).toBe(200);

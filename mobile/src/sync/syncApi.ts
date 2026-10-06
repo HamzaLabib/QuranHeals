@@ -11,7 +11,7 @@ export class SyncApiError extends Error {
 
 type ApiEnvelope<T> = { success: true; data: T } | { success: false; message: string };
 
-async function sendRequest(sessionToken: string, path: string, init: RequestInit): Promise<Response> {
+async function sendRequest(sessionToken: string, path: string, init: RequestInit, timeoutMs?: number): Promise<Response> {
   // Bounded the same way as every other network layer in this app (see
   // fetchWithTimeout's doc comment) — this is what makes refreshSync()
   // (favorites/preferences/reflections sync, reachable from Favorites',
@@ -27,7 +27,7 @@ async function sendRequest(sessionToken: string, path: string, init: RequestInit
       Authorization: `Bearer ${sessionToken}`,
       ...init.headers,
     },
-  });
+  }, timeoutMs);
 }
 
 /**
@@ -40,10 +40,10 @@ async function sendRequest(sessionToken: string, path: string, init: RequestInit
  * sync failure (Part 4: "401 → refresh access token → retry original
  * request → success").
  */
-async function authedRequest<T>(sessionToken: string, path: string, init: RequestInit = {}): Promise<T> {
+async function authedRequest<T>(sessionToken: string, path: string, init: RequestInit = {}, timeoutMs?: number): Promise<T> {
   let response: Response;
   try {
-    response = await sendRequest(sessionToken, path, init);
+    response = await sendRequest(sessionToken, path, init, timeoutMs);
 
     if (response.status === 401) {
       // Imported lazily (rather than as a static top-level import) so
@@ -54,7 +54,7 @@ async function authedRequest<T>(sessionToken: string, path: string, init: Reques
       const { refreshAccessToken } = await import('@/auth/tokenManager');
       const refreshedToken = await refreshAccessToken();
       if (refreshedToken) {
-        response = await sendRequest(refreshedToken, path, init);
+        response = await sendRequest(refreshedToken, path, init, timeoutMs);
       }
     }
   } catch {
@@ -231,11 +231,23 @@ export function resetCloudReflectionSync(sessionToken: string, credential: Provi
  * stored Apple credential) before this resolves; only on success should
  * the caller clear local data.
  */
+/**
+ * Longer than the default 8s: an Apple account's deletion may make two
+ * Apple calls (bounded at 10s each on the backend) before deleting. Giving
+ * up earlier could show "failed" while the backend completes the deletion.
+ */
+export const ACCOUNT_DELETION_TIMEOUT_MS = 30_000;
+
 export function deleteAccountRequest(sessionToken: string, credential?: ProviderCredential): Promise<null> {
-  return authedRequest<null>(sessionToken, '/api/account', {
-    method: 'DELETE',
-    ...(credential
-      ? { body: JSON.stringify({ provider: credential.provider, idToken: credential.idToken, authorizationCode: credential.authorizationCode }) }
-      : {}),
-  });
+  return authedRequest<null>(
+    sessionToken,
+    '/api/account',
+    {
+      method: 'DELETE',
+      ...(credential
+        ? { body: JSON.stringify({ provider: credential.provider, idToken: credential.idToken, authorizationCode: credential.authorizationCode }) }
+        : {}),
+    },
+    ACCOUNT_DELETION_TIMEOUT_MS,
+  );
 }

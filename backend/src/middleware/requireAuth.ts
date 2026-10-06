@@ -27,9 +27,9 @@ export type RequireAuthDeps = {
  * userId) and that the user still exists — so a logout, a server-side
  * session revocation, or an account deletion takes effect immediately on
  * the next request, rather than only once the access token's own ~20-minute
- * expiry is reached. A token issued before the multi-device auth phase
- * carries no `sid` at all (see SessionPayload's doc comment) — that case
- * skips only the session-liveness check, never the user-existence one.
+ * expiry is reached. A token without a `sid` (the old pre-session 180-day
+ * format) is rejected by verifySessionToken, so there is no path around
+ * the session check.
  *
  * Every failure (missing header, invalid JWT, revoked/missing session,
  * session/user mismatch, missing user) returns the same generic 401 — never
@@ -49,7 +49,7 @@ export function createRequireAuth({ sessionRepository, userRepository }: Require
       const { userId, sid } = verifySessionToken(token);
 
       const [sessionActive, user] = await Promise.all([
-        sid ? sessionRepository.isSessionActive(sid, userId) : Promise.resolve(true),
+        sessionRepository.isSessionActive(sid, userId),
         userRepository.findById(userId),
       ]);
 

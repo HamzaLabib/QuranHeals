@@ -9,7 +9,7 @@ import type { AuthenticatedRequest } from '../middleware/requireAuth';
 import type { AccountDeletionService } from '../services/AccountDeletionService';
 import type { AppleCredentialRepository } from '../services/AppleCredentialRepository';
 import type { UserRepository } from '../services/UserRepository';
-import { appleReauthForDeletionSchema } from '../validators/accountValidators';
+import { appleReauthForDeletionSchema, googleReauthForDeletionSchema } from '../validators/accountValidators';
 
 type AccountControllerDeps = {
   accountDeletionService: AccountDeletionService;
@@ -21,6 +21,7 @@ type AccountControllerDeps = {
 };
 
 const APPLE_REAUTH_REQUIRED_MESSAGE = 'Apple re-authentication is required to delete this account.';
+const GOOGLE_REAUTH_REQUIRED_MESSAGE = 'Google re-authentication is required to delete this account.';
 const DELETION_FAILED_MESSAGE = 'Account deletion could not be completed. Please try again.';
 
 export function createAccountController({
@@ -73,6 +74,23 @@ export function createAccountController({
     deleteAccount: async (req: Request, res: Response) => {
       const { userId } = (req as AuthenticatedRequest).auth;
       const identity = await userRepository.findProviderIdentity(userId);
+
+      // A Google account must prove, right now, that it still controls its
+      // Google identity — a stolen or left-signed-in session alone can't
+      // delete it. 428 tells the client to prompt for a fresh Google sign-in
+      // and retry; the same check as the sync-password reset (fresh, same
+      // Google subject as this account). Nothing is deleted on any failure.
+      if (identity?.provider === 'google') {
+        const parsed = googleReauthForDeletionSchema.safeParse(req.body);
+        if (!parsed.success) {
+          throw new AppError(GOOGLE_REAUTH_REQUIRED_MESSAGE, 428);
+        }
+        await verifyFreshProviderReauthentication(
+          { userRepository, googleVerifier, appleVerifier },
+          userId,
+          { provider: 'google', idToken: parsed.data.idToken },
+        );
+      }
 
       if (identity?.provider === 'apple') {
         let refreshToken = await appleCredentialRepository.get(userId);

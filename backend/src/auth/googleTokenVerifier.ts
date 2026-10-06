@@ -23,9 +23,16 @@ export interface GoogleTokenVerifier {
  * out of an unverifiable token. See Part B §4/§7.
  */
 export class GoogleAuthLibraryVerifier implements GoogleTokenVerifier {
+  /**
+   * Tests inject a client (with stubbed certificates) and the audience list;
+   * production uses a fresh client and GOOGLE_CLIENT_IDS — every Quran Heals
+   * iOS/Android/web OAuth client ID, and nothing else.
+   */
+  constructor(private readonly options: { client?: OAuth2Client; audiences?: readonly string[] } = {}) {}
+
   async verifyIdToken(idToken: string): Promise<VerifiedGoogleIdentity> {
-    const audience = requireGoogleAuthConfig();
-    const client = new OAuth2Client();
+    const audience = this.options.audiences ?? requireGoogleAuthConfig();
+    const client = this.options.client ?? new OAuth2Client();
 
     let ticket;
     try {

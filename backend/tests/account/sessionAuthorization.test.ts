@@ -5,6 +5,9 @@ import { REFRESH_RETRY_GRACE_MS } from '../../src/auth/refreshRotation';
 import { parseRefreshToken, signAccessToken } from '../../src/auth/session';
 import { buildAccountTestApp } from './testApp';
 
+// Google account deletion requires a fresh Google sign-in (the fake verifier issues tokens "now").
+const fresh = (idToken: string) => ({ provider: 'google', idToken });
+
 /**
  * requireAuth is now DB-authoritative (Phase B2): beyond the JWT's own
  * signature/expiry, it re-checks on every request that the session the
@@ -65,7 +68,7 @@ describe('requireAuth: session/user authorization invariant', () => {
     const { token } = await signIn(built, 'd-token', 'sub-d');
     expect((await protectedRequest(built, token)).status).toBe(200);
 
-    const del = await request(built.app).delete('/api/account').set('Authorization', `Bearer ${token}`);
+    const del = await request(built.app).delete('/api/account').set('Authorization', `Bearer ${token}`).send(fresh('d-token'));
     expect(del.status).toBe(200);
 
     expect((await protectedRequest(built, token)).status).toBe(401);
@@ -139,7 +142,7 @@ describe('requireAuth: session/user authorization invariant', () => {
     const deviceA = await signIn(built, 'j-token-a', 'sub-j');
     const deviceB = await signIn(built, 'j-token-b', 'sub-j');
 
-    await request(built.app).delete('/api/account').set('Authorization', `Bearer ${deviceA.token}`);
+    await request(built.app).delete('/api/account').set('Authorization', `Bearer ${deviceA.token}`).send(fresh('j-token-a'));
 
     expect((await protectedRequest(built, deviceA.token)).status).toBe(401);
     expect((await protectedRequest(built, deviceB.token)).status).toBe(401);
@@ -148,7 +151,7 @@ describe('requireAuth: session/user authorization invariant', () => {
   it('Test K — a protected sync write attempted after account deletion is rejected and recreates nothing', async () => {
     const built = buildAccountTestApp();
     const { token, userId } = await signIn(built, 'k-token', 'sub-k');
-    await request(built.app).delete('/api/account').set('Authorization', `Bearer ${token}`);
+    await request(built.app).delete('/api/account').set('Authorization', `Bearer ${token}`).send(fresh('k-token'));
 
     const put = await request(built.app)
       .put('/api/sync/favorites')

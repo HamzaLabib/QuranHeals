@@ -403,14 +403,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!(error instanceof SyncApiError) || error.statusCode !== 428) {
         throw error;
       }
-      // The backend has no stored Apple revocation credential for this
-      // account yet (an existing pre-Phase-B4 Apple user, or sign-in's own
-      // best-effort capture never succeeded) — a fresh Apple sign-in is
-      // required so the backend can revoke Apple's authorization before
-      // deleting anything. See backend/src/controllers/accountController.ts.
+      // The backend needs a fresh sign-in with this account's own provider
+      // before deleting anything: always for Google accounts, and for an
+      // Apple account with no stored revocation credential yet (so Apple's
+      // authorization can be revoked first). See
+      // backend/src/controllers/accountController.ts.
       const credential = await promptForFreshProviderCredential();
       if (!credential) {
-        throw new Error('Account deletion needs a fresh Apple sign-in.');
+        throw new Error('Account deletion needs a fresh sign-in.');
       }
       await deleteAccountRequest(token, credential);
     }

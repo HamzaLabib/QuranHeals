@@ -188,8 +188,8 @@ describe('session and replay', () => {
   it('a deleted account cannot be reset — its old access token is rejected by requireAuth before reauthentication is even checked', async () => {
     const built = buildAccountTestApp();
     const account = await accountWithSyncData(built, 'google', 'g-a');
-    await request(built.app).delete('/api/account').set(account.auth);
     registerToken(built, 'google', 'fresh', { providerSubject: 'g-a' });
+    expect((await request(built.app).delete('/api/account').set(account.auth).send({ provider: 'google', idToken: 'fresh' })).status).toBe(200);
 
     // The deleted account's own (still cryptographically valid) access
     // token no longer authorizes any protected request at all — 401, not

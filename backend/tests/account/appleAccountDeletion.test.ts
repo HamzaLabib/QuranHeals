@@ -118,11 +118,12 @@ describe('Apple account deletion: revocation', () => {
     expect(built.appleRevocationClient.revokedTokens).toEqual(['refresh-f']); // not called again
   });
 
-  it('Test G — a Google account deletes exactly as before, with no Apple API call at all', async () => {
+  it('Test G — a Google account needs a fresh Google sign-in to delete, and never calls Apple', async () => {
     const built = buildAccountTestApp();
     const { token } = await signInGoogle(built, 'id-google', 'sub-google');
 
-    const res = await deleteAccount(built, token);
+    expect((await deleteAccount(built, token)).status).toBe(428);
+    const res = await deleteAccount(built, token, { provider: 'google', idToken: 'id-google' });
 
     expect(res.status).toBe(200);
     expect(built.appleRevocationClient.revokedTokens).toEqual([]);

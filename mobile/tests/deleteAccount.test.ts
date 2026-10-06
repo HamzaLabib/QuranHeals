@@ -56,7 +56,7 @@ describe('useAuth.tsx: deleteAccount retries with fresh Apple re-authentication 
 
   it('a cancelled re-authentication (null credential) throws before any local data is cleared', () => {
     const catchBlockIndex = deleteAccountBlock.indexOf('const credential = await promptForFreshProviderCredential();');
-    const throwIndex = deleteAccountBlock.indexOf("throw new Error('Account deletion needs a fresh Apple sign-in.');");
+    const throwIndex = deleteAccountBlock.indexOf("throw new Error('Account deletion needs a fresh sign-in.');");
     const clearReflectionsIndex = deleteAccountBlock.indexOf('clearAllReflections()');
 
     expect(catchBlockIndex).toBeGreaterThan(-1);

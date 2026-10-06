@@ -23,6 +23,9 @@ const jwks = jwksClient({
   cache: true,
   cacheMaxAge: 60 * 60 * 1000,
   rateLimit: true,
+  // Only hit when the key cache is cold; bounded so sign-in stays within
+  // the mobile client's 8s request timeout.
+  timeout: 5_000,
 });
 
 function getSigningKey(header: jwt.JwtHeader, callback: jwt.SigningKeyCallback) {

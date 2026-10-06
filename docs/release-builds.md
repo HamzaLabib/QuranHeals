@@ -22,6 +22,8 @@ For plain local development, `npx expo start` with `mobile/.env` works as before
 
 `EXPO_PUBLIC_API_URL` is a public value inlined into the JavaScript bundle. It is not a secret. For EAS builds, set it per environment on expo.dev (or `eas env:create --environment production`). It is never committed to `eas.json` or source code. `mobile/.env` is gitignored, so it is never uploaded to EAS.
 
+Google sign-in uses `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`, `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID` and `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`, set per EAS environment the same way. A platform without its ID hides Google sign-in, and a malformed ID fails the build. See `docs/auth-and-sync/setup.md`.
+
 ## How the guard works
 
 - `eas.json` gives each profile `QURAN_HEALS_API_URL_POLICY`: `local` for development, `hosted` for preview and production.

@@ -12,6 +12,14 @@ import type { UserRepository } from '../services/UserRepository';
 import type { UserDto } from '../types/accountDto';
 import { appleSignInSchema, googleSignInSchema, logoutSchema, refreshSessionSchema } from '../validators/authValidators';
 
+/**
+ * Sign-in's optional Apple credential capture gets a short budget: it must
+ * never push sign-in past the mobile client's 8s request timeout (an
+ * uncached Apple JWKS fetch can take up to 5s). Deletion re-captures with
+ * the full timeout if this one is skipped.
+ */
+export const APPLE_SIGN_IN_CAPTURE_TIMEOUT_MS = 2_500;
+
 type AuthControllerDeps = {
   userRepository: UserRepository;
   sessionRepository: SessionRepository;
@@ -81,7 +89,9 @@ export function createAuthController({
       // deletion time. See Part B4 §4/§5.
       if (parsed.data.authorizationCode) {
         try {
-          const { refreshToken } = await appleRevocationClient.exchangeAuthorizationCode(parsed.data.authorizationCode);
+          const { refreshToken } = await appleRevocationClient.exchangeAuthorizationCode(parsed.data.authorizationCode, {
+            timeoutMs: APPLE_SIGN_IN_CAPTURE_TIMEOUT_MS,
+          });
           await appleCredentialRepository.save(user.id, refreshToken);
         } catch {
           // Swallowed deliberately — see doc comment above.

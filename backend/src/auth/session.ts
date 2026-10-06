@@ -19,18 +19,17 @@ export const REFRESH_TOKEN_TTL_MS = 60 * 24 * 60 * 60 * 1000; // 60 days
 export type SessionPayload = {
   userId: string;
   /**
-   * Absent on a token issued before the multi-device auth phase shipped
-   * (the old, single 180-day stateless token) — requireAuth never depends
-   * on this field being present, so those already-issued tokens keep
-   * working unchanged until they naturally expire. Only present on tokens
-   * issued by signAccessToken with a sessionId.
+   * The Session this token belongs to; requireAuth checks it is still
+   * active on every request. Required: the old single 180-day stateless
+   * tokens (issued before multi-device sessions, without a sid) could never
+   * be revoked by logout, so they are rejected outright.
    */
-  sid?: string;
+  sid: string;
 };
 
 /** Issues this backend's own access token after a verified Apple/Google sign-in or a refresh. Never encodes anything the client sent unverified. */
-export function signAccessToken(userId: string, sessionId?: string): string {
-  const payload: SessionPayload = sessionId ? { userId, sid: sessionId } : { userId };
+export function signAccessToken(userId: string, sessionId: string): string {
+  const payload: SessionPayload = { userId, sid: sessionId };
   return jwt.sign(payload, env.SESSION_JWT_SECRET, { expiresIn: ACCESS_TOKEN_TTL });
 }
 
@@ -50,7 +49,10 @@ export function verifySessionToken(token: string): SessionPayload {
       throw new Error('Malformed session token payload.');
     }
     const sid = (decoded as { sid?: unknown }).sid;
-    return { userId: (decoded as SessionPayload).userId, sid: typeof sid === 'string' ? sid : undefined };
+    if (typeof sid !== 'string' || sid.length === 0) {
+      throw new Error('Access token has no session id.');
+    }
+    return { userId: (decoded as SessionPayload).userId, sid };
   } catch {
     throw new AppError('Session is invalid or has expired. Please sign in again.', 401);
   }

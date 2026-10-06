@@ -13,7 +13,7 @@ the *optional* sign-in path described in the product spec (Part A–B).
 
 | Piece | Status |
 |---|---|
-| Backend Google ID token verification (`google-auth-library`) | Built, tested with a mock verifier |
+| Backend Google ID token verification (`google-auth-library`) | Built; signature, audience, issuer and expiry tested against the real library with a local key |
 | Backend Apple ID token verification (JWKS via `jsonwebtoken` + `jwks-rsa`) | Built, tested with a mock verifier |
 | Backend session issuance/verification, sync/favorites/preferences/reflections/issue-report endpoints | Built and tested against in-memory fakes |
 | Mobile Apple sign-in (`expo-apple-authentication`) | Built; **not tested on a real device** — no Apple Developer account/bundle entitlement was configured in this environment |
@@ -24,76 +24,73 @@ Nothing here claims real-device Apple/Google authentication has succeeded —
 it has not been attempted, because no real provider credentials exist in
 this environment.
 
-## 2. Backend environment variables
+## 2. Environment variables
 
-Add these to the backend's environment (never commit real values):
+Never commit real values. Public client IDs are identifiers, not secrets, but they stay environment-managed so each EAS environment can differ.
 
-| Variable | Purpose | Secret? |
+**Mobile: EAS environment variables** (expo.dev → Environment variables, per `development`/`preview`/`production`; local `mobile/.env` for dev)
+
+| Variable | What | Secret? |
 |---|---|---|
-| `SESSION_JWT_SECRET` | Signs this backend's own session tokens (issued after a verified Apple/Google sign-in). | **Yes — server-only.** |
-| `GOOGLE_CLIENT_IDS` | Comma-separated Google OAuth client ID(s) this backend accepts as the audience of a Google ID token (typically the iOS + Android + Web client IDs from the same Google Cloud project). | No (public identifiers), but must match exactly. |
-| `APPLE_AUDIENCE_IDS` | Comma-separated Apple bundle ID / Services ID(s) this backend accepts as the audience of an Apple ID token (e.g. `com.quranheals.app`). | No (public identifiers). |
+| `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` | Google OAuth **iOS** client ID | No (public) |
+| `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID` | Google OAuth **Android** client ID | No (public) |
+| `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` | Google OAuth **web** client ID (web builds only) | No (public) |
 
-The server refuses to boot in `NODE_ENV=production` with the default
-development `SESSION_JWT_SECRET` — see `backend/src/config/env.ts`. Google
-and Apple verification each throw a clear error at first use if their env
-vars aren't set, rather than silently accepting unverifiable tokens.
+Each platform uses only its own ID (`mobile/src/auth/googleConfig.ts`). If the current platform's ID is unset, the app hides Google sign-in there instead of showing a broken button. On the EAS build worker, a set but malformed ID fails the build (`mobile/app.config.ts`). There is no generic `EXPO_PUBLIC_GOOGLE_CLIENT_ID`; it was never read.
 
-Never add a real Apple private key or Google client secret anywhere in this
-project — the identity-token verification implemented here needs neither
-(see §5).
+**Backend: Render only** (never `EXPO_PUBLIC_*`, never in the mobile bundle)
+
+| Variable | What | Secret? |
+|---|---|---|
+| `SESSION_JWT_SECRET` | Signs this backend's access tokens; also keys refresh-token rotation | **Yes** |
+| `GOOGLE_CLIENT_IDS` | Comma-separated iOS, Android and web Google client IDs: the only accepted ID-token audiences | No |
+| `APPLE_AUDIENCE_IDS` | Accepted Apple identity-token audiences; must include the bundle ID `com.quranheals.app` | No |
+| `APPLE_CLIENT_ID` | `com.quranheals.app`, used for Apple's token and revoke calls | No |
+| `APPLE_TEAM_ID` | 10-character Apple Developer Team ID | No |
+| `APPLE_KEY_ID` | 10-character ID of the Sign in with Apple key | No |
+| `APPLE_PRIVATE_KEY` | That key's `.p8` contents, newlines escaped as `\n` | **Yes** |
+| `APPLE_REFRESH_TOKEN_ENCRYPTION_KEY` | 32 random bytes, base64 (`openssl rand -base64 32`); encrypts stored Apple refresh tokens | **Yes** |
+
+**Production startup checks** (`backend/src/config/authConfig.ts`) make the server refuse to start, naming variables only, never values, when:
+
+- no provider is configured;
+- `GOOGLE_CLIENT_IDS` contains something that isn't a Google client ID;
+- `APPLE_AUDIENCE_IDS` is set (Apple enabled) but any of `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY`, `APPLE_CLIENT_ID` or `APPLE_REFRESH_TOKEN_ENCRYPTION_KEY` is missing or malformed, or `APPLE_CLIENT_ID` isn't one of the accepted audiences.
+
+Without these, deleting an Apple account would fail at runtime, because Apple's authorization must be revoked first. **Set them on Render before deploying this check.** The server also refuses to start with the default `SESSION_JWT_SECRET`.
 
 ## 3. Google Cloud Console setup (manual)
 
-1. Create (or reuse) a Google Cloud project.
-2. Configure the OAuth consent screen (External, or Internal if using
-   Google Workspace).
-3. Create an OAuth 2.0 Client ID for each platform you ship:
-   - **iOS**: bundle identifier `com.quranheals.app` (see `mobile/app.json`).
-   - **Android**: package name + SHA-1 signing certificate fingerprint.
-   - **Web** (used for Expo Go / development, and web builds): authorized
-     redirect URI from `expo-auth-session`'s `makeRedirectUri()` — for a
-     managed/Expo Go dev session this is typically
-     `https://auth.expo.io/@<expo-username>/quran-heals`; for a standalone
-     build it's the app's own custom scheme (`quranheals://oauthredirect`,
-     matching `mobile/app.json`'s `"scheme": "quranheals"`).
-4. Put the resulting client IDs into:
-   - Mobile: `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`, `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID`, `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` (public identifiers — safe as `EXPO_PUBLIC_*`, unlike a secret).
-   - Backend: `GOOGLE_CLIENT_IDS` (comma-separated list of the same values).
+Native builds use `expo-auth-session`'s Google provider: authorization code + PKCE, redirecting to **`com.quranheals.app:/oauthredirect`** (the app's application ID, not a reversed client ID; see `node_modules/expo-auth-session/build/providers/Google.js`).
+
+1. Configure the OAuth consent screen.
+2. **iOS client:** bundle ID `com.quranheals.app`. Expo registers the bundle ID as a URL scheme automatically, so no reversed-client-ID scheme is needed.
+3. **Android client:** package `com.quranheals.app`, plus the **SHA-1 of the EAS signing certificate**. Get it from `cd mobile && eas credentials --platform android` (Keystore → SHA1 fingerprint), or expo.dev → project → Credentials → Android. If Play App Signing is used, add the Play signing SHA-1 too. The app registers `com.quranheals.app` as an Android URL scheme (`mobile/app.config.ts`). Google disables custom URI schemes for Android clients by default: check the client's **Advanced settings → Enable custom URI scheme**, or the redirect is refused.
+4. **Web client:** only for web builds.
+5. Put each ID in the matching `EXPO_PUBLIC_GOOGLE_*_CLIENT_ID` (per EAS environment), and all of them in Render's `GOOGLE_CLIENT_IDS`.
 
 ## 4. Apple Developer setup (manual)
 
-1. In the Apple Developer portal, enable **Sign In with Apple** capability
-   for the app ID `com.quranheals.app`.
-2. In Xcode/EAS build config, the `usesAppleSignIn: true` flag is already
-   set in `mobile/app.json`'s `ios` block — this adds the required
-   entitlement automatically on the next native build.
-3. No client ID configuration is needed on the mobile side — Apple's native
-   `expo-apple-authentication` module uses the app's own bundle ID as the
-   audience automatically.
-4. Set the backend's `APPLE_AUDIENCE_IDS` to `com.quranheals.app` (and any
-   additional Services ID you use for a web sign-in flow, if ever added).
+1. App ID `com.quranheals.app`: enable **Sign In with Apple**. `mobile/app.json` already has `ios.usesAppleSignIn: true`, so the entitlement is added on the next native build.
+2. Keys: create a key with **Sign in with Apple** enabled for that App ID. Download the `.p8` once, then set `APPLE_KEY_ID`, `APPLE_TEAM_ID` and `APPLE_PRIVATE_KEY` on Render. Store the `.p8` in a password manager, never in the repo or this OneDrive folder.
+3. Render: `APPLE_CLIENT_ID=com.quranheals.app`, `APPLE_AUDIENCE_IDS=com.quranheals.app`, and a fresh `APPLE_REFRESH_TOKEN_ENCRYPTION_KEY`. Changing that key later makes stored Apple refresh tokens unreadable; deletion then falls back to a fresh Apple sign-in.
 
-Apple Sign In is iOS-only in this implementation (`isAppleSignInSupportedPlatform()`
-in `mobile/src/auth/appleAuth.ts`) — there is no Android or web Apple button,
-which matches Apple's own native-module availability.
+Apple Sign In is iOS-only in this app: Android and web never show an Apple button, so an Apple-ID account can only be used on iOS.
 
-## 5. Why no Apple private key or Google client secret is needed
+## 5. Security behavior
 
-Both providers issue a signed **identity token** (a JWT) to the device on
-sign-in. This backend verifies that token's signature directly against each
-provider's public keys:
+- **Token verification:** Google tokens go through `google-auth-library` (signature, expiry, issuer `accounts.google.com`, audience restricted to `GOOGLE_CLIENT_IDS`). Apple tokens go through Apple's JWKS (RS256, issuer `https://appleid.apple.com`, audience `APPLE_AUDIENCE_IDS`). Accounts are keyed by provider + subject only, never linked by email.
+- **Sessions:** access tokens last 20 minutes and must carry a session id that is still active on every request. The old 180-day tokens without a session id are rejected, so their holders must sign in again. Refresh tokens rotate, with a 2-minute grace window for retrying a lost response.
+- **Apple calls:** token exchange and revocation are bounded at 10s each, the sign-in credential capture at 2.5s, and the JWKS fetch at 5s. A timeout is a generic 502, and nothing is deleted.
+- **Destructive actions need a fresh provider sign-in**: a token for this account's own provider and subject, issued within the last 10 minutes.
+  - **Forgotten-password reset:** the token must also be issued after the current sync key.
+  - **Account deletion, Google:** always requires the fresh sign-in.
+  - **Account deletion, Apple:** requires it only when no revocation credential is stored. Apple's authorization is revoked before any data is deleted.
+- **Deferred (P2, before public launch): nonce / request binding.** Provider ID tokens aren't bound to a server-issued one-time challenge, so a stolen ID token can be replayed until it expires (Google: about 1 hour). Doing this properly needs:
+  - a challenge endpoint and a consumable server-side store;
+  - passing the nonce through both native SDKs, and confirming on real devices how Apple's native flow and Google's code flow carry it into the token (hashed or raw).
 
-- **Google**: `google-auth-library`'s `OAuth2Client.verifyIdToken` fetches
-  Google's public JWKS itself.
-- **Apple**: `jsonwebtoken` + `jwks-rsa` fetch and cache Apple's public JWKS
-  from `https://appleid.apple.com/auth/keys`.
-
-A private key (Apple) or client secret (Google) is only needed for
-server-to-server calls this app doesn't make in this phase — e.g. revoking
-a token block-side. If that's added later, keep the private key itself
-**out of `EXPO_PUBLIC_*` and out of the mobile bundle entirely** — it would
-be a server-only secret, exactly like `MONGODB_URI` today.
+  That can't be verified before device QA. A partial version would only add false confidence. Audience restriction limits the risk to tokens issued to Quran Heals itself.
 
 ## 6. EAS / build config notes
 

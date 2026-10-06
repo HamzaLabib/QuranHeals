@@ -1,8 +1,10 @@
+import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { describe, expect, it, vi } from 'vitest';
 
 import { REFRESH_RETRY_GRACE_MS } from '../../src/auth/refreshRotation';
-import { signSessionToken, verifySessionToken } from '../../src/auth/session';
+import { verifySessionToken } from '../../src/auth/session';
+import { env } from '../../src/config/env';
 import { buildAccountTestApp } from './testApp';
 
 describe('Multi-device sessions', () => {
@@ -164,19 +166,31 @@ describe('Multi-device sessions', () => {
     expect(res.body.success).toBe(true);
   });
 
-  it('a pre-existing (old-format) access token with no session id keeps working unaffected by the session system', async () => {
+  it('rejects an old-format access token with no session id, even when correctly signed for an existing user', async () => {
     const { app, googleTokens } = buildAccountTestApp();
     googleTokens.set('token', { providerSubject: 'sub-legacy' });
     const signIn = await request(app).post('/api/auth/google').send({ idToken: 'token' });
 
-    // Old clients never called /refresh or /logout — verifySessionToken must
-    // still accept a token without a sid, and existing sync routes must
-    // still resolve it to the right account.
-    const legacyToken = signSessionToken(signIn.body.data.user.id);
+    // The pre-multi-device 180-day format: { userId } only, no sid. Logout
+    // could never revoke it, so it is no longer accepted anywhere.
+    const legacyToken = jwt.sign({ userId: signIn.body.data.user.id }, env.SESSION_JWT_SECRET, { expiresIn: '180d' });
+    expect(() => verifySessionToken(legacyToken)).toThrow();
 
-    const res = await request(app).get('/api/auth/session').set('Authorization', `Bearer ${legacyToken}`);
-    expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe(signIn.body.data.user.id);
+    const session = await request(app).get('/api/auth/session').set('Authorization', `Bearer ${legacyToken}`);
+    expect(session.status).toBe(401);
+    const sync = await request(app).get('/api/sync/favorites').set('Authorization', `Bearer ${legacyToken}`);
+    expect(sync.status).toBe(401);
+    // The same account's current, session-backed token still works.
+    expect((await request(app).get('/api/auth/session').set('Authorization', `Bearer ${signIn.body.data.token}`)).status).toBe(200);
+  });
+
+  it.each([['empty sid', ''], ['non-string sid', 123], ['malformed ObjectId sid', 'not-an-object-id']])('rejects an access token with a %s safely (401, no crash)', async (_label, sid) => {
+    const { app, googleTokens } = buildAccountTestApp();
+    googleTokens.set('token', { providerSubject: 'sub-malformed' });
+    const signIn = await request(app).post('/api/auth/google').send({ idToken: 'token' });
+    const forged = jwt.sign({ userId: signIn.body.data.user.id, sid }, env.SESSION_JWT_SECRET, { expiresIn: '20m' });
+    const res = await request(app).get('/api/auth/session').set('Authorization', `Bearer ${forged}`);
+    expect(res.status).toBe(401);
   });
 
   it('account sync (favorites) keeps working after refreshing the access token', async () => {

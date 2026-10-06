@@ -1,4 +1,5 @@
 import { createApp } from './app';
+import { assertAuthConfig } from './config/authConfig';
 import { connectToDatabase } from './config/database';
 import { env } from './config/env';
 import { describeError, flushMonitoring, initMonitoring, reportError } from './monitoring/monitoring';
@@ -13,6 +14,10 @@ const monitoring = initMonitoring({
 
 async function startServer() {
   console.log(`Error monitoring: ${monitoring ? 'enabled' : 'disabled'}`);
+
+  // Production refuses to start with incomplete Google/Apple sign-in config
+  // (config/authConfig.ts); messages name variables only.
+  if (env.NODE_ENV === 'production') assertAuthConfig(env, { production: true });
 
   // Validates NODE_ENV + MONGODB_URI + MONGODB_DB_NAME first (see
   // config/databaseTarget.ts): a production process never starts against

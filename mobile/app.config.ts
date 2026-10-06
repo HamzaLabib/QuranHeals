@@ -1,11 +1,12 @@
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
 // app.json stays the source of truth for the app config. This file only adds
-// a build-time guard on the backend URL a build embeds, so a bad
-// preview/production EAS build fails before a binary exists (see
-// docs/release-builds.md). Kept self-contained: Expo transpiles this file
-// when it evaluates the config but not other TypeScript files it imports.
-// The helpers are exported for tests/apiUrlPolicy.test.ts.
+// build-time guards on the backend URL and Google client IDs a build embeds,
+// so a bad preview/production EAS build fails before a binary exists (see
+// docs/release-builds.md), plus the Android Google sign-in redirect scheme.
+// Kept self-contained: Expo transpiles this file when it evaluates the
+// config but not other TypeScript files it imports. The helpers are
+// exported for tests/apiUrlPolicy.test.ts and tests/googleAuthConfig.test.ts.
 
 export const API_URL_ENV = 'EXPO_PUBLIC_API_URL';
 /** Set per EAS build profile in eas.json (`env`). */
@@ -106,7 +107,42 @@ export function assertApiUrlForBuild(env: Env): void {
   }
 }
 
+const GOOGLE_CLIENT_ID_ENVS = ['EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID', 'EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID', 'EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID'] as const;
+const GOOGLE_CLIENT_ID = /^[0-9]+-[a-z0-9]+\.apps\.googleusercontent\.com$/;
+
+/**
+ * On the EAS build worker, any Google client ID that is set must look like
+ * one. An unset ID is allowed: the app then hides Google sign-in on that
+ * platform (src/auth/googleConfig.ts) instead of offering a broken button.
+ */
+export function assertGoogleClientIdsForBuild(env: Env): void {
+  if (env.EAS_BUILD !== 'true') return;
+  for (const name of GOOGLE_CLIENT_ID_ENVS) {
+    const value = env[name]?.trim();
+    if (value && !GOOGLE_CLIENT_ID.test(value)) {
+      throw new Error(`Refusing to build Quran Heals: ${name} is not a Google OAuth client ID (expected …apps.googleusercontent.com).`);
+    }
+  }
+}
+
+/**
+ * Google sign-in (expo-auth-session) redirects native builds to
+ * `<applicationId>:/oauthredirect`. iOS registers the bundle identifier as a
+ * URL scheme automatically; Android only registers `scheme`/`android.scheme`,
+ * so the package name is added here, derived from android.package so the two
+ * can never drift apart.
+ */
+export function withGoogleRedirectScheme(config: ExpoConfig): ExpoConfig {
+  const androidPackage = config.android?.package;
+  if (!androidPackage) return config;
+  const current = config.android?.scheme;
+  const schemes = Array.isArray(current) ? current : current ? [current] : [];
+  if (schemes.includes(androidPackage)) return config;
+  return { ...config, android: { ...config.android, scheme: [...schemes, androidPackage] } };
+}
+
 export default ({ config }: ConfigContext): ExpoConfig => {
   assertApiUrlForBuild(process.env);
-  return config as ExpoConfig;
+  assertGoogleClientIdsForBuild(process.env);
+  return withGoogleRedirectScheme(config as ExpoConfig);
 };

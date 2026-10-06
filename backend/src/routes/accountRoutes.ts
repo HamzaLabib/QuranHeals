@@ -22,8 +22,9 @@ export function createAccountRoutes(deps: {
   const router = Router();
   const controller = createAccountController(deps);
 
-  // No body, no :userId param — the account to delete comes only from the
-  // verified session (requireAuth). See accountController.deleteAccount.
+  // No :userId param — the account to delete comes only from the verified
+  // session (requireAuth). The body only ever carries a fresh provider
+  // credential, after a 428. See accountController.deleteAccount.
   router.delete('/', deps.requireAuth, asyncHandler(controller.deleteAccount));
 
   return router;
