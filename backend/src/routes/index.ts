@@ -44,10 +44,6 @@ export function createApiRouter(repository: QuranRepository, accountDeps: Accoun
   });
 
   router.get('/health', createHealthController(checkDatabase));
-  // TEMPORARY: one-off Sentry verification. Remove right after the event is confirmed.
-  router.get('/__sentry-test', () => {
-    throw new Error('Sentry test error');
-  });
   router.use('/emotions', createEmotionRoutes(repository));
   router.use('/ayahs', createAyahRoutes(repository));
 
