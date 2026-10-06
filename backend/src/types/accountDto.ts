@@ -13,6 +13,22 @@ export type FavoriteDto = {
   updatedAt: string;
 };
 
+export type FavoriteActiveRecordDto = {
+  type: 'active';
+  verseKey: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** A durable local deletion marker — see docs on deletion tombstones (mirrors ReflectionTombstoneDto). */
+export type FavoriteTombstoneDto = {
+  type: 'tombstone';
+  verseKey: string;
+  deletedAt: string;
+};
+
+export type FavoriteSyncRecordDto = FavoriteActiveRecordDto | FavoriteTombstoneDto;
+
 export type PreferencesDto = {
   locale?: string;
   translationDisplayMode?: TranslationDisplayMode;

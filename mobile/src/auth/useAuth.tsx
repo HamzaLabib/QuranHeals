@@ -22,10 +22,11 @@ import {
   releaseLocalDataAfterAccountDeletion,
   settleLocalDataOwnerAsGuest,
 } from '@/storage/localDataOwnership';
-import { deleteAccountRequest } from '@/sync/syncApi';
+import { deleteAccountRequest, SyncApiError } from '@/sync/syncApi';
 import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
 import { logoutSession, signInWithAppleIdToken, signInWithGoogleIdToken, AuthApiError } from './authApi';
 import { initializeSession, type InitializedSession } from './initializeSession';
+import { useFreshProviderCredential } from './reauthentication';
 import {
   clearCachedMasterKey,
   clearCachedUser,
@@ -54,7 +55,7 @@ export type AuthContextValue = {
   user: AuthUser | null;
   lastError: string | null;
   signInWithGoogleIdToken: (idToken: string) => Promise<void>;
-  signInWithAppleIdToken: (idToken: string) => Promise<void>;
+  signInWithAppleIdToken: (idToken: string, authorizationCode?: string | null) => Promise<void>;
   signOut: () => Promise<void>;
   clearLastError: () => void;
   /** Re-runs the same favorites/preferences/reflections sync as sign-in/foreground (runFullSync) — a no-op for a guest. The one function pull-to-refresh screens call; never a separate sync implementation. */
@@ -327,9 +328,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const signInWithApple = useCallback(
-    async (idToken: string) => {
+    async (idToken: string, authorizationCode?: string | null) => {
       try {
-        const { token, refreshToken, user: signedInUser } = await signInWithAppleIdToken(idToken);
+        const { token, refreshToken, user: signedInUser } = await signInWithAppleIdToken(idToken, authorizationCode);
         await handleSignInSuccess(token, refreshToken, signedInUser);
       } catch (error) {
         setLastError(
@@ -383,17 +384,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await runSyncAfterSignIn(token);
   }, [runSyncAfterSignIn]);
 
+  const promptForFreshProviderCredential = useFreshProviderCredential(user?.provider ?? null);
+
   const deleteAccount = useCallback(async () => {
     const token = sessionTokenRef.current;
     if (!token) {
       throw new Error('Not signed in.');
     }
 
-    // Everything before this line only reads; nothing local is touched
-    // until the backend confirms the account (and every model it owns) is
-    // actually gone. A thrown error here (network failure, 5xx, timeout)
+    // Everything before local clearing below only reads/calls the backend;
+    // nothing local is touched until the backend confirms the account (and
+    // every model it owns) is actually gone. A thrown error anywhere here
+    // (network failure, 5xx, timeout, cancelled re-authentication)
     // propagates to the caller and leaves the session fully intact.
-    await deleteAccountRequest(token);
+    try {
+      await deleteAccountRequest(token);
+    } catch (error) {
+      if (!(error instanceof SyncApiError) || error.statusCode !== 428) {
+        throw error;
+      }
+      // The backend has no stored Apple revocation credential for this
+      // account yet (an existing pre-Phase-B4 Apple user, or sign-in's own
+      // best-effort capture never succeeded) — a fresh Apple sign-in is
+      // required so the backend can revoke Apple's authorization before
+      // deleting anything. See backend/src/controllers/accountController.ts.
+      const credential = await promptForFreshProviderCredential();
+      if (!credential) {
+        throw new Error('Account deletion needs a fresh Apple sign-in.');
+      }
+      await deleteAccountRequest(token, credential);
+    }
 
     // Only reached after backend success. Local reflections/favorites are
     // cleared here — unlike ordinary signOut(), which deliberately keeps
@@ -409,7 +429,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await clearRefreshToken();
     await clearCachedMasterKey();
     clearLocalSession();
-  }, [clearLocalSession]);
+  }, [clearLocalSession, promptForFreshProviderCredential]);
 
   const value = useMemo<AuthContextValue>(
     () => ({

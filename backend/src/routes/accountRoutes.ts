@@ -1,17 +1,30 @@
 import { Router } from 'express';
 
+import type { AppleRevocationClient } from '../auth/appleRevocationClient';
+import type { AppleTokenVerifier } from '../auth/appleTokenVerifier';
+import type { GoogleTokenVerifier } from '../auth/googleTokenVerifier';
 import { createAccountController } from '../controllers/accountController';
 import { asyncHandler } from '../middleware/asyncHandler';
-import { requireAuth } from '../middleware/requireAuth';
+import type { createRequireAuth } from '../middleware/requireAuth';
 import type { AccountDeletionService } from '../services/AccountDeletionService';
+import type { AppleCredentialRepository } from '../services/AppleCredentialRepository';
+import type { UserRepository } from '../services/UserRepository';
 
-export function createAccountRoutes(deps: { accountDeletionService: AccountDeletionService }) {
+export function createAccountRoutes(deps: {
+  accountDeletionService: AccountDeletionService;
+  userRepository: UserRepository;
+  appleCredentialRepository: AppleCredentialRepository;
+  appleRevocationClient: AppleRevocationClient;
+  googleVerifier: GoogleTokenVerifier;
+  appleVerifier: AppleTokenVerifier;
+  requireAuth: ReturnType<typeof createRequireAuth>;
+}) {
   const router = Router();
   const controller = createAccountController(deps);
 
   // No body, no :userId param — the account to delete comes only from the
   // verified session (requireAuth). See accountController.deleteAccount.
-  router.delete('/', requireAuth, asyncHandler(controller.deleteAccount));
+  router.delete('/', deps.requireAuth, asyncHandler(controller.deleteAccount));
 
   return router;
 }

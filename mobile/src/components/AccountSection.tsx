@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { AppleSignInCancelledError, isAppleSignInSupportedPlatform, requestAppleIdentityToken } from '@/auth/appleAuth';
+import { AppleSignInCancelledError, isAppleSignInSupportedPlatform, requestAppleCredential } from '@/auth/appleAuth';
 import { extractGoogleIdToken, isGoogleAuthConfigured, useGoogleAuthRequest } from '@/auth/googleAuth';
 import { useAuth } from '@/auth/useAuth';
 import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
@@ -51,8 +51,8 @@ export function AccountSection({ messages, direction, isRtl }: AccountSectionPro
     setAppleRequestError(null);
     setAccountDeletedMessage(false);
     try {
-      const idToken = await requestAppleIdentityToken();
-      await signInWithAppleIdToken(idToken);
+      const { identityToken, authorizationCode } = await requestAppleCredential();
+      await signInWithAppleIdToken(identityToken, authorizationCode);
     } catch (error) {
       // A cancelled native sheet is not a failure worth showing — anything
       // else (device/native-module error, before the backend is ever

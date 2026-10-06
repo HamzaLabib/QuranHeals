@@ -43,6 +43,11 @@ vi.mock('@react-native-async-storage/async-storage', () => ({ default: {
   removeItem: vi.fn(async (key: string) => { env.storage.delete(key); }),
 } }));
 vi.mock('@/components/SyncPassphraseSheet', () => ({ SyncPassphraseSheet: () => null }));
+// useAuth.tsx's deleteAccount calls this hook directly now (Phase B4's
+// Apple-reauth-on-deletion retry) — stubbed here since this file never
+// exercises that path, and the real module pulls in expo-apple-authentication
+// / expo-auth-session.
+vi.mock('@/auth/reauthentication', () => ({ useFreshProviderCredential: () => async () => null }));
 vi.mock('@/sync/syncKeyManager', () => {
   class SyncPassphraseCancelledError extends Error {}
   return {

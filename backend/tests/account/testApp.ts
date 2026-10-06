@@ -3,10 +3,12 @@ import type { IssueReportRepository } from '../../src/services/IssueReportReposi
 import type { QuranRepository } from '../../src/services/QuranRepository';
 import {
   InMemoryAccountDeletionService,
+  InMemoryAppleCredentialRepository,
   InMemoryIssueReportRepository,
   InMemorySessionRepository,
   InMemorySyncRepository,
   InMemoryUserRepository,
+  StubAppleRevocationClient,
   StubAppleVerifier,
   StubGoogleVerifier,
 } from './fakes';
@@ -35,14 +37,17 @@ export function buildAccountTestApp<R extends IssueReportRepository = InMemoryIs
   const syncRepository = new InMemorySyncRepository();
   const issueReportRepository =
     (overrides.issueReportRepository ?? new InMemoryIssueReportRepository()) as R;
+  const appleCredentialRepository = new InMemoryAppleCredentialRepository();
 
   const accountDeletionService = new InMemoryAccountDeletionService(
     userRepository,
     syncRepository,
     sessionRepository,
+    appleCredentialRepository,
   );
   const googleTokens = new Map<string, { providerSubject: string; email?: string; emailVerified?: boolean }>();
   const appleTokens = new Map<string, { providerSubject: string; email?: string; emailVerified?: boolean }>();
+  const appleRevocationClient = new StubAppleRevocationClient();
 
   const app = createApp({
     repository: new UnusedQuranRepository(),
@@ -51,6 +56,8 @@ export function buildAccountTestApp<R extends IssueReportRepository = InMemoryIs
     syncRepository,
     issueReportRepository,
     accountDeletionService,
+    appleCredentialRepository,
+    appleRevocationClient,
     googleVerifier: new StubGoogleVerifier(googleTokens),
     appleVerifier: new StubAppleVerifier(appleTokens),
   });
@@ -62,6 +69,8 @@ export function buildAccountTestApp<R extends IssueReportRepository = InMemoryIs
     syncRepository,
     issueReportRepository,
     accountDeletionService,
+    appleCredentialRepository,
+    appleRevocationClient,
     googleTokens,
     appleTokens,
   };

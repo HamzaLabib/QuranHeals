@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 
+import { AppleCredentialModel } from '../models/AppleCredential';
 import { SessionModel } from '../models/Session';
 import { UserModel } from '../models/User';
 import { UserFavoriteModel } from '../models/UserFavorite';
@@ -38,6 +39,7 @@ export class MongooseAccountDeletionService implements AccountDeletionService {
         await UserPreferenceModel.deleteMany({ userId }).session(session);
         await UserReflectionModel.deleteMany({ userId }).session(session);
         await UserSyncKeyModel.deleteMany({ userId }).session(session);
+        await AppleCredentialModel.deleteMany({ userId }).session(session);
         await SessionModel.deleteMany({ userId }).session(session);
 
         await UserModel.deleteOne({ _id: userId }).session(session);

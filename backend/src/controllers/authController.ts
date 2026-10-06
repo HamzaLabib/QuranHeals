@@ -1,10 +1,12 @@
 import type { Request, Response } from 'express';
 
+import type { AppleRevocationClient } from '../auth/appleRevocationClient';
 import type { AppleTokenVerifier } from '../auth/appleTokenVerifier';
 import type { GoogleTokenVerifier } from '../auth/googleTokenVerifier';
 import { signAccessToken } from '../auth/session';
 import { AppError } from '../errors/AppError';
 import type { AuthenticatedRequest } from '../middleware/requireAuth';
+import type { AppleCredentialRepository } from '../services/AppleCredentialRepository';
 import type { SessionRepository } from '../services/SessionRepository';
 import type { UserRepository } from '../services/UserRepository';
 import type { UserDto } from '../types/accountDto';
@@ -15,9 +17,18 @@ type AuthControllerDeps = {
   sessionRepository: SessionRepository;
   googleVerifier: GoogleTokenVerifier;
   appleVerifier: AppleTokenVerifier;
+  appleRevocationClient: AppleRevocationClient;
+  appleCredentialRepository: AppleCredentialRepository;
 };
 
-export function createAuthController({ userRepository, sessionRepository, googleVerifier, appleVerifier }: AuthControllerDeps) {
+export function createAuthController({
+  userRepository,
+  sessionRepository,
+  googleVerifier,
+  appleVerifier,
+  appleRevocationClient,
+  appleCredentialRepository,
+}: AuthControllerDeps) {
   // A fresh, independent session per sign-in — never overwrites or revokes
   // any session already issued to this user on another device (Part 1 of
   // the multi-device auth phase).
@@ -60,6 +71,22 @@ export function createAuthController({ userRepository, sessionRepository, google
         email: identity.email,
         emailVerified: identity.emailVerified,
       });
+
+      // Best-effort: captures a revocation credential now, while a fresh
+      // authorization code happens to be available, so a later account
+      // deletion (accountController.deleteAccount) doesn't need to ask the
+      // person to sign in with Apple again. Never blocks sign-in itself —
+      // a transient failure here just leaves this account without a
+      // stored credential, falling back to the re-authentication path at
+      // deletion time. See Part B4 §4/§5.
+      if (parsed.data.authorizationCode) {
+        try {
+          const { refreshToken } = await appleRevocationClient.exchangeAuthorizationCode(parsed.data.authorizationCode);
+          await appleCredentialRepository.save(user.id, refreshToken);
+        } catch {
+          // Swallowed deliberately — see doc comment above.
+        }
+      }
 
       await respondWithNewSession(res, user);
     },

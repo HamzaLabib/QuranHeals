@@ -27,11 +27,21 @@ export function createSyncController(repository: SyncRepository, reauthenticatio
       res.json({ success: true, data: await repository.listFavorites(userId(req)) });
     },
 
+    /** Both active favorites and deletion tombstones — only ever called by tombstone-aware clients (see routes/syncRoutes.ts). */
+    getFavoritesSync: async (req: Request, res: Response) => {
+      res.json({ success: true, data: await repository.listFavoriteSyncRecords(userId(req)) });
+    },
+
     putFavorites: async (req: Request, res: Response) => {
       const parsed = putFavoritesSchema.safeParse(req.body);
       if (!parsed.success) throw new AppError('Invalid favorites payload.', 400);
 
-      res.json({ success: true, data: await repository.addFavorites(userId(req), parsed.data.verseKeys) });
+      if ('verseKeys' in parsed.data) {
+        res.json({ success: true, data: await repository.addFavorites(userId(req), parsed.data.verseKeys) });
+        return;
+      }
+
+      res.json({ success: true, data: { saved: await repository.putFavorites(userId(req), parsed.data.favorites) } });
     },
 
     deleteFavorite: async (req: Request, res: Response) => {

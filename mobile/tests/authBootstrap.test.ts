@@ -37,6 +37,11 @@ vi.mock('@/localization/useQuranTranslationPreference', () => ({
   }),
 }));
 vi.mock('@/components/SyncPassphraseSheet', () => ({ SyncPassphraseSheet: () => null }));
+// useAuth.tsx's deleteAccount calls this hook directly now (Phase B4's
+// Apple-reauth-on-deletion retry) — stubbed here since this file never
+// exercises that path, and the real module pulls in expo-apple-authentication
+// / expo-auth-session, which don't run under this test's jsdom-less setup.
+vi.mock('@/auth/reauthentication', () => ({ useFreshProviderCredential: () => async () => null }));
 vi.mock('@/sync/syncOrchestrator', () => ({ runFullSync: native.sync }));
 vi.mock('@/sync/syncKeyManager', () => ({ SyncPassphraseCancelledError: class extends Error {} }));
 vi.mock('@/storage/ayahReflections', () => ({ clearAllReflections: vi.fn() }));

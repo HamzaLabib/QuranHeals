@@ -56,7 +56,7 @@ describe('DELETE /api/account', () => {
     expect(victimSession.status).toBe(200);
   });
 
-  it('deletes the User record — GET /api/auth/session subsequently 404s even with a still-valid access token', async () => {
+  it('deletes the User record — the old access token is rejected immediately by requireAuth, never reaching the 404 the controller would otherwise give', async () => {
     const { app, googleTokens } = buildAccountTestApp();
     const { token } = await signInAndSync(app, googleTokens, 'token', 'sub-1');
 
@@ -64,8 +64,12 @@ describe('DELETE /api/account', () => {
     expect(del.status).toBe(200);
     expect(del.body.success).toBe(true);
 
+    // requireAuth is now DB-authoritative (Part B §7 revisited): the
+    // session row for this token was deleted in the same transaction as
+    // the User row, so the still-cryptographically-valid JWT is rejected
+    // at the auth boundary itself — 401, not a 404 from inside the route.
     const session = await request(app).get('/api/auth/session').set('Authorization', `Bearer ${token}`);
-    expect(session.status).toBe(404);
+    expect(session.status).toBe(401);
   });
 
   it('revokes every session (all devices), not only the one that requested deletion', async () => {
@@ -82,6 +86,14 @@ describe('DELETE /api/account', () => {
     // Device B's refresh token — issued before deletion — must no longer work.
     const refreshB = await request(app).post('/api/auth/refresh').send({ refreshToken: deviceB.body.data.refreshToken });
     expect(refreshB.status).toBe(401);
+
+    // Test J: both devices' still-unexpired access tokens must also fail on
+    // a protected request — not only refresh. Device A used its token to
+    // request the deletion itself; Device B never did anything.
+    const deviceAProtected = await request(app).get('/api/sync/favorites').set('Authorization', `Bearer ${deviceA.body.data.token}`);
+    expect(deviceAProtected.status).toBe(401);
+    const deviceBProtected = await request(app).get('/api/sync/favorites').set('Authorization', `Bearer ${deviceB.body.data.token}`);
+    expect(deviceBProtected.status).toBe(401);
   });
 
   it('deletes favorites, preferences, reflections, and the wrapped sync key', async () => {
@@ -123,7 +135,7 @@ describe('DELETE /api/account', () => {
     expect(await syncRepository.getPreferences(otherUserId)).not.toBeNull();
   });
 
-  it('is idempotent — a repeated deletion request for an already-deleted session does not error or restore anything', async () => {
+  it('a repeated deletion request with the same (now-stale) access token is rejected, not re-processed — the underlying deletion itself stays idempotent at the service level (see mongooseAccountDeletionService.test.ts)', async () => {
     const { app, googleTokens } = buildAccountTestApp();
     const { token } = await signInAndSync(app, googleTokens, 'token', 'sub-repeat');
 
@@ -131,9 +143,11 @@ describe('DELETE /api/account', () => {
     expect(first.status).toBe(200);
 
     // The same (still cryptographically valid, not yet expired) access
-    // token presented again — the account it names is already gone.
+    // token presented again — the account and session it names are already
+    // gone, so requireAuth now rejects it outright (401) rather than
+    // letting a stale-but-unexpired token reach the controller again.
     const second = await request(app).delete('/api/account').set('Authorization', `Bearer ${token}`);
-    expect(second.status).toBe(200);
+    expect(second.status).toBe(401);
   });
 
   it('never touches Quran/global data (no route exists for it to call, but assert the health/emotions surface is unaffected)', async () => {

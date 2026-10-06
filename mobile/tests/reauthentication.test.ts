@@ -10,7 +10,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const provider = vi.hoisted(() => ({
   appleSupported: true,
-  appleToken: vi.fn(),
+  appleCredential: vi.fn(),
   googleConfigured: true,
   googleRequest: {} as object | null,
   googlePrompt: vi.fn(),
@@ -22,7 +22,7 @@ vi.mock('@/auth/appleAuth', () => {
   return {
     AppleSignInCancelledError,
     isAppleSignInSupportedPlatform: () => provider.appleSupported,
-    requestAppleIdentityToken: () => provider.appleToken(),
+    requestAppleCredential: () => provider.appleCredential(),
   };
 });
 vi.mock('@/auth/googleAuth', async () => {
@@ -63,7 +63,7 @@ async function mount(accountProvider: 'apple' | 'google' | null) {
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   provider.appleSupported = true;
-  provider.appleToken.mockReset();
+  provider.appleCredential.mockReset();
   provider.googleConfigured = true;
   provider.googleRequest = {};
   provider.googlePrompt.mockReset().mockResolvedValue({ type: 'opened' });
@@ -74,21 +74,21 @@ afterEach(async () => {
 });
 
 describe('Apple account', () => {
-  it('returns a fresh Apple ID token — and never starts a Google sign-in', async () => {
-    provider.appleToken.mockResolvedValue('fresh-apple-token');
+  it('returns a fresh Apple ID token and authorization code — and never starts a Google sign-in', async () => {
+    provider.appleCredential.mockResolvedValue({ identityToken: 'fresh-apple-token', authorizationCode: 'fresh-code' });
     await mount('apple');
-    await expect(authenticate()).resolves.toEqual({ provider: 'apple', idToken: 'fresh-apple-token' });
+    await expect(authenticate()).resolves.toEqual({ provider: 'apple', idToken: 'fresh-apple-token', authorizationCode: 'fresh-code' });
     expect(provider.googlePrompt).not.toHaveBeenCalled();
   });
 
   it('a dismissed Apple sheet resolves to null (nothing to reset with)', async () => {
-    provider.appleToken.mockRejectedValue(new AppleSignInCancelledError('cancelled'));
+    provider.appleCredential.mockRejectedValue(new AppleSignInCancelledError('cancelled'));
     await mount('apple');
     await expect(authenticate()).resolves.toBeNull();
   });
 
   it('any other Apple failure is a generic failure, never the provider\'s own error', async () => {
-    provider.appleToken.mockRejectedValue(new Error('AuthorizationError 1000: internal detail'));
+    provider.appleCredential.mockRejectedValue(new Error('AuthorizationError 1000: internal detail'));
     await mount('apple');
     const error = await authenticate().catch((caught: unknown) => caught);
     expect(error).toBeInstanceOf(ReauthenticationFailedError);
@@ -99,7 +99,7 @@ describe('Apple account', () => {
     provider.appleSupported = false;
     await mount('apple');
     await expect(authenticate()).rejects.toBeInstanceOf(ReauthenticationUnavailableError);
-    expect(provider.appleToken).not.toHaveBeenCalled();
+    expect(provider.appleCredential).not.toHaveBeenCalled();
   });
 });
 
@@ -113,7 +113,7 @@ describe('Google account', () => {
     await act(async () => { provider.setGoogleResponse({ type: 'success', params: { id_token: 'fresh-google-token' } }); });
 
     await expect(pending).resolves.toEqual({ provider: 'google', idToken: 'fresh-google-token' });
-    expect(provider.appleToken).not.toHaveBeenCalled();
+    expect(provider.appleCredential).not.toHaveBeenCalled();
   });
 
   it('a dismissed Google sign-in resolves to null', async () => {
@@ -148,7 +148,7 @@ describe('no known account provider', () => {
   it('is unavailable rather than guessing a provider', async () => {
     await mount(null);
     await expect(authenticate()).rejects.toBeInstanceOf(ReauthenticationUnavailableError);
-    expect(provider.appleToken).not.toHaveBeenCalled();
+    expect(provider.appleCredential).not.toHaveBeenCalled();
     expect(provider.googlePrompt).not.toHaveBeenCalled();
   });
 });

@@ -3,6 +3,7 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 
+import { HttpAppleRevocationClient, type AppleRevocationClient } from './auth/appleRevocationClient';
 import { AppleJwksVerifier, type AppleTokenVerifier } from './auth/appleTokenVerifier';
 import { GoogleAuthLibraryVerifier, type GoogleTokenVerifier } from './auth/googleTokenVerifier';
 import { env } from './config/env';
@@ -11,12 +12,14 @@ import { notFoundHandler } from './middleware/notFoundHandler';
 import type { AccountRouterDeps } from './routes';
 import { createApiRouter } from './routes';
 import { MongooseAccountDeletionService } from './services/MongooseAccountDeletionService';
+import { MongooseAppleCredentialRepository } from './services/MongooseAppleCredentialRepository';
 import { MongooseIssueReportRepository } from './services/MongooseIssueReportRepository';
 import { MongooseQuranRepository } from './services/MongooseQuranRepository';
 import { MongooseSessionRepository } from './services/MongooseSessionRepository';
 import { MongooseSyncRepository } from './services/MongooseSyncRepository';
 import { MongooseUserRepository } from './services/MongooseUserRepository';
 import type { AccountDeletionService } from './services/AccountDeletionService';
+import type { AppleCredentialRepository } from './services/AppleCredentialRepository';
 import type { IssueReportRepository } from './services/IssueReportRepository';
 import type { QuranRepository } from './services/QuranRepository';
 import type { SessionRepository } from './services/SessionRepository';
@@ -30,6 +33,8 @@ type AppOptions = {
   syncRepository?: SyncRepository;
   issueReportRepository?: IssueReportRepository;
   accountDeletionService?: AccountDeletionService;
+  appleCredentialRepository?: AppleCredentialRepository;
+  appleRevocationClient?: AppleRevocationClient;
   googleVerifier?: GoogleTokenVerifier;
   appleVerifier?: AppleTokenVerifier;
 };
@@ -52,6 +57,8 @@ export function createApp(options: AppOptions = {}) {
     syncRepository: options.syncRepository ?? new MongooseSyncRepository(),
     issueReportRepository: options.issueReportRepository ?? new MongooseIssueReportRepository(),
     accountDeletionService: options.accountDeletionService ?? new MongooseAccountDeletionService(),
+    appleCredentialRepository: options.appleCredentialRepository ?? new MongooseAppleCredentialRepository(),
+    appleRevocationClient: options.appleRevocationClient ?? new HttpAppleRevocationClient(),
     googleVerifier: options.googleVerifier ?? new GoogleAuthLibraryVerifier(),
     appleVerifier: options.appleVerifier ?? new AppleJwksVerifier(),
   };

@@ -1,6 +1,7 @@
 import type { TranslationDisplayMode } from '../types/accountDomain';
 import type {
   FavoriteDto,
+  FavoriteSyncRecordDto,
   PreferencesDto,
   ReflectionConflictDto,
   ReflectionSyncRecordDto,
@@ -32,16 +33,53 @@ export type PutReflectionsResult = {
   conflicts: ReflectionConflictDto[];
 };
 
+export type IncomingActiveFavoriteRecord = {
+  type: 'active';
+  verseKey: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** A durable local-deletion marker — carries no other fields. */
+export type IncomingFavoriteTombstone = {
+  type: 'tombstone';
+  verseKey: string;
+  deletedAt: string;
+};
+
+export type IncomingFavoriteRecord = IncomingActiveFavoriteRecord | IncomingFavoriteTombstone;
+
 /**
  * Every method is scoped by a `userId` that the caller (syncController) must
  * derive from the verified session token — never from the request body. See
  * Part B §7.
  */
 export interface SyncRepository {
+  /** Active favorites only — the long-standing contract pre-tombstone clients rely on. */
   listFavorites(userId: string): Promise<FavoriteDto[]>;
-  /** Union-add only — never removes a favorite the caller didn't list. See Part E §25/§30. */
+  /**
+   * Legacy union-add (no timestamps) — used by pre-tombstone app versions
+   * and the mobile app's own best-effort fire-and-forget add. Never
+   * resurrects an existing tombstone or touches an existing active record:
+   * `$setOnInsert` only applies when the (userId, verseKey) document doesn't
+   * exist yet, so re-adding a verseKey that's already active OR already
+   * tombstoned is always a complete no-op. A genuinely newer "undelete" must
+   * go through `putFavorites` below, with a real client timestamp.
+   */
   addFavorites(userId: string, verseKeys: string[]): Promise<FavoriteDto[]>;
+  /** Legacy single-item delete (no timestamp) — writes/refreshes a deletion tombstone using the current server time, same as before but durable instead of a hard delete. */
   removeFavorite(userId: string, verseKey: string): Promise<void>;
+
+  /** Returns both active favorites and deletion tombstones — a caller needs the tombstones too, to learn about deletions made on other devices. Never returned to pre-tombstone clients (see listFavorites). */
+  listFavoriteSyncRecords(userId: string): Promise<FavoriteSyncRecordDto[]>;
+  /**
+   * Per-verseKey last-write-wins by timestamp (an active record's
+   * `updatedAt`, or a tombstone's `deletedAt`) — mirrors putReflections,
+   * minus conflict-version preservation (a favorite carries no content to
+   * disagree about, so an exact tie is resolved deterministically: the
+   * tombstone always wins, in either direction).
+   */
+  putFavorites(userId: string, records: IncomingFavoriteRecord[]): Promise<FavoriteSyncRecordDto[]>;
 
   getPreferences(userId: string): Promise<PreferencesDto | null>;
   /**

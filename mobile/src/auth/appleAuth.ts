@@ -8,16 +8,28 @@ export function isAppleSignInSupportedPlatform(): boolean {
   return Platform.OS === 'ios';
 }
 
+export type AppleCredential = {
+  identityToken: string;
+  /**
+   * Short-lived (~5 minutes), single-use — only useful to the backend for
+   * exchanging it for a revocable refresh token (see
+   * backend/src/auth/appleRevocationClient.ts), either right after sign-in
+   * or when account deletion needs a fresh one (no stored credential yet).
+   * Apple can in principle omit this; callers that need it should treat a
+   * missing code as "revocation can't be captured this time," never as a
+   * reason to fail the overall sign-in/re-authentication.
+   */
+  authorizationCode: string | null;
+};
+
 /**
- * Requests an Apple identity token via the native Sign In with Apple sheet.
- * Returns the raw identityToken JWT for the backend to verify
- * (backend/src/auth/appleTokenVerifier.ts) — this module never verifies it
- * itself. Apple only returns the user's name/email on the very first
+ * Requests a fresh Apple credential via the native Sign In with Apple
+ * sheet. Apple only returns the user's name/email on the very first
  * authorization for this app; a caller wanting to keep an email should read
  * it from the backend's sign-in response instead of relying on a later call
  * here returning it again.
  */
-export async function requestAppleIdentityToken(): Promise<string> {
+export async function requestAppleCredential(): Promise<AppleCredential> {
   if (!isAppleSignInSupportedPlatform()) {
     throw new Error('Sign in with Apple is only available on iOS.');
   }
@@ -41,5 +53,15 @@ export async function requestAppleIdentityToken(): Promise<string> {
     throw new Error('Apple did not return an identity token.');
   }
 
-  return credential.identityToken;
+  return { identityToken: credential.identityToken, authorizationCode: credential.authorizationCode };
+}
+
+/**
+ * The identity token alone, for callers that only need to prove identity
+ * (never a revocation credential) — e.g. the existing sync-password-reset
+ * re-authentication. See backend/src/auth/appleTokenVerifier.ts, the only
+ * thing that ever verifies it.
+ */
+export async function requestAppleIdentityToken(): Promise<string> {
+  return (await requestAppleCredential()).identityToken;
 }

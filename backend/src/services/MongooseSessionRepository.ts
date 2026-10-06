@@ -85,4 +85,13 @@ export class MongooseSessionRepository implements SessionRepository {
     if (!parsed || !Types.ObjectId.isValid(parsed.sessionId)) return;
     await SessionModel.updateOne({ _id: parsed.sessionId, revokedAt: { $exists: false } }, { $set: { revokedAt: new Date() } });
   }
+
+  async isSessionActive(sessionId: string, userId: string): Promise<boolean> {
+    if (!Types.ObjectId.isValid(sessionId)) return false;
+    const session = await SessionModel.findById(sessionId).lean<SessionEntity>();
+    if (!session || session.userId !== userId || session.revokedAt || session.expiresAt.getTime() <= Date.now()) {
+      return false;
+    }
+    return true;
+  }
 }

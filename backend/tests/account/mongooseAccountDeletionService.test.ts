@@ -59,6 +59,7 @@ const mock = vi.hoisted(() => {
     userPreferenceModel: fakeModel('UserPreference', 'deleteMany'),
     userReflectionModel: fakeModel('UserReflection', 'deleteMany'),
     userSyncKeyModel: fakeModel('UserSyncKey', 'deleteMany'),
+    appleCredentialModel: fakeModel('AppleCredential', 'deleteMany'),
     sessionModel: fakeModel('Session', 'deleteMany'),
     endSession: vi.fn(async () => {}),
     withTransaction: vi.fn(async (fn: () => Promise<void>) => {
@@ -72,6 +73,7 @@ vi.mock('../../src/models/UserFavorite', () => ({ UserFavoriteModel: mock.userFa
 vi.mock('../../src/models/UserPreference', () => ({ UserPreferenceModel: mock.userPreferenceModel }));
 vi.mock('../../src/models/UserReflection', () => ({ UserReflectionModel: mock.userReflectionModel }));
 vi.mock('../../src/models/UserSyncKey', () => ({ UserSyncKeyModel: mock.userSyncKeyModel }));
+vi.mock('../../src/models/AppleCredential', () => ({ AppleCredentialModel: mock.appleCredentialModel }));
 vi.mock('../../src/models/Session', () => ({ SessionModel: mock.sessionModel }));
 vi.mock('mongoose', () => ({
   default: {
@@ -96,8 +98,8 @@ describe('MongooseAccountDeletionService: session/transaction concurrency', () =
     await service.deleteAccount('user-1');
 
     // This is the exact regression: Promise.all([...]) would have started
-    // all five deleteMany calls before any of them resolved, so
-    // getMaxConcurrentOperations() would be 5 instead of 1.
+    // every deleteMany call before any of them resolved, so
+    // getMaxConcurrentOperations() would be greater than 1 instead of 1.
     expect(mock.getMaxConcurrentOperations()).toBe(1);
   });
 
@@ -111,6 +113,7 @@ describe('MongooseAccountDeletionService: session/transaction concurrency', () =
       'UserPreference',
       'UserReflection',
       'UserSyncKey',
+      'AppleCredential',
       'Session',
       'User',
     ]);
@@ -125,6 +128,7 @@ describe('MongooseAccountDeletionService: session/transaction concurrency', () =
     expect(mock.userPreferenceModel.deleteMany).toHaveBeenCalledWith({ userId: 'user-42' });
     expect(mock.userReflectionModel.deleteMany).toHaveBeenCalledWith({ userId: 'user-42' });
     expect(mock.userSyncKeyModel.deleteMany).toHaveBeenCalledWith({ userId: 'user-42' });
+    expect(mock.appleCredentialModel.deleteMany).toHaveBeenCalledWith({ userId: 'user-42' });
     expect(mock.sessionModel.deleteMany).toHaveBeenCalledWith({ userId: 'user-42' });
     expect(mock.userModel.deleteOne).toHaveBeenCalledWith({ _id: 'user-42' });
   });

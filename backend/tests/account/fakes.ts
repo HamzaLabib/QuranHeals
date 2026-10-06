@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 
+import type { AppleRevocationClient } from '../../src/auth/appleRevocationClient';
 import type { AppleTokenVerifier, VerifiedAppleIdentity } from '../../src/auth/appleTokenVerifier';
 import {
   formatRefreshToken,
@@ -11,9 +12,11 @@ import {
 import { rotateRefreshToken, type RotationStore } from '../../src/auth/refreshRotation';
 import type { GoogleTokenVerifier, VerifiedGoogleIdentity } from '../../src/auth/googleTokenVerifier';
 import { AppError } from '../../src/errors/AppError';
+import type { AppleCredentialRepository } from '../../src/services/AppleCredentialRepository';
 import type { IssueReportRepository } from '../../src/services/IssueReportRepository';
 import type { IssuedSession, SessionRepository } from '../../src/services/SessionRepository';
 import type {
+  IncomingFavoriteRecord,
   IncomingReflectionRecord,
   PutReflectionsResult,
   SyncRepository,
@@ -22,6 +25,7 @@ import type { UserRepository, VerifiedProviderIdentity } from '../../src/service
 import type { TranslationDisplayMode } from '../../src/types/accountDomain';
 import type {
   FavoriteDto,
+  FavoriteSyncRecordDto,
   IssueReportInput,
   PreferencesDto,
   ReflectionSyncRecordDto,
@@ -160,6 +164,15 @@ export class InMemorySessionRepository implements SessionRepository {
     }
   }
 
+  /** Mirrors MongooseSessionRepository.isSessionActive. */
+  async isSessionActive(sessionId: string, userId: string): Promise<boolean> {
+    const session = this.sessionsById.get(sessionId);
+    if (!session || session.userId !== userId || session.revokedAt !== null || session.expiresAt <= Date.now()) {
+      return false;
+    }
+    return true;
+  }
+
   /** Test-only: mirrors MongooseAccountDeletionService's `SessionModel.deleteMany({ userId })` — deletes every session for this user, every device. Not part of the production SessionRepository interface. */
   revokeAllSessionsForUser(userId: string): void {
     for (const [id, session] of this.sessionsById) {
@@ -174,28 +187,42 @@ type StoredReflection =
       })
   | ({ type: 'tombstone' } & Omit<Extract<ReflectionSyncRecordDto, { type: 'tombstone' }>, 'type'>);
 
+type StoredFavorite =
+  | { type: 'active'; verseKey: string; createdAt: string; updatedAt: string }
+  | { type: 'tombstone'; verseKey: string; deletedAt: string };
+
 /** Mirrors both an active record's `updatedAt` and a tombstone's `deletedAt` as one comparable last-write-wins timestamp — see MongooseSyncRepository's equivalent. */
-function timestampOf(record: IncomingReflectionRecord | StoredReflection): number {
+function timestampOf(record: IncomingReflectionRecord | StoredReflection | IncomingFavoriteRecord | StoredFavorite): number {
   return new Date(record.type === 'tombstone' ? record.deletedAt : record.updatedAt).getTime();
 }
 
-/** Mirrors MongooseSyncRepository's merge semantics (union favorites, last-write-wins preferences/reflections/tombstones, tie → conflictVersions) purely in memory. */
+function toFavoriteSyncRecordDto(stored: StoredFavorite): FavoriteSyncRecordDto {
+  return stored.type === 'tombstone'
+    ? { type: 'tombstone', verseKey: stored.verseKey, deletedAt: stored.deletedAt }
+    : { type: 'active', verseKey: stored.verseKey, createdAt: stored.createdAt, updatedAt: stored.updatedAt };
+}
+
+/** Mirrors MongooseSyncRepository's merge semantics (tombstone-aware last-write-wins for favorites and reflections, tie → tombstone wins / conflictVersions) purely in memory. */
 export class InMemorySyncRepository implements SyncRepository {
-  private readonly favoritesByUser = new Map<string, Map<string, FavoriteDto>>();
+  private readonly favoritesByUser = new Map<string, Map<string, StoredFavorite>>();
   private readonly preferencesByUser = new Map<string, PreferencesDto>();
   private readonly reflectionsByUser = new Map<string, Map<string, StoredReflection>>();
   private readonly syncKeyByUser = new Map<string, SyncKeyDto>();
 
   async listFavorites(userId: string): Promise<FavoriteDto[]> {
-    return [...(this.favoritesByUser.get(userId)?.values() ?? [])];
+    return [...(this.favoritesByUser.get(userId)?.values() ?? [])]
+      .filter((stored): stored is Extract<StoredFavorite, { type: 'active' }> => stored.type === 'active')
+      .map(({ verseKey, createdAt, updatedAt }) => ({ verseKey, createdAt, updatedAt }));
   }
 
   async addFavorites(userId: string, verseKeys: string[]): Promise<FavoriteDto[]> {
-    const map = this.favoritesByUser.get(userId) ?? new Map<string, FavoriteDto>();
+    const map = this.favoritesByUser.get(userId) ?? new Map<string, StoredFavorite>();
     const now = new Date().toISOString();
     for (const verseKey of new Set(verseKeys)) {
+      // Mirrors $setOnInsert: only applies when nothing exists yet for this
+      // verseKey — an existing active OR tombstone entry is left untouched.
       if (!map.has(verseKey)) {
-        map.set(verseKey, { verseKey, createdAt: now, updatedAt: now });
+        map.set(verseKey, { type: 'active', verseKey, createdAt: now, updatedAt: now });
       }
     }
     this.favoritesByUser.set(userId, map);
@@ -203,7 +230,57 @@ export class InMemorySyncRepository implements SyncRepository {
   }
 
   async removeFavorite(userId: string, verseKey: string): Promise<void> {
-    this.favoritesByUser.get(userId)?.delete(verseKey);
+    const map = this.favoritesByUser.get(userId) ?? new Map<string, StoredFavorite>();
+    map.set(verseKey, { type: 'tombstone', verseKey, deletedAt: new Date().toISOString() });
+    this.favoritesByUser.set(userId, map);
+  }
+
+  async listFavoriteSyncRecords(userId: string): Promise<FavoriteSyncRecordDto[]> {
+    return [...(this.favoritesByUser.get(userId)?.values() ?? [])].map(toFavoriteSyncRecordDto);
+  }
+
+  async putFavorites(userId: string, records: IncomingFavoriteRecord[]): Promise<FavoriteSyncRecordDto[]> {
+    const map = this.favoritesByUser.get(userId) ?? new Map<string, StoredFavorite>();
+    const saved: FavoriteSyncRecordDto[] = [];
+
+    for (const record of records) {
+      const existing = map.get(record.verseKey);
+
+      if (!existing) {
+        const created: StoredFavorite = { ...record };
+        map.set(record.verseKey, created);
+        saved.push(toFavoriteSyncRecordDto(created));
+        continue;
+      }
+
+      const incomingTime = timestampOf(record);
+      const existingTime = timestampOf(existing);
+
+      if (incomingTime > existingTime) {
+        const updated: StoredFavorite = { ...record };
+        map.set(record.verseKey, updated);
+        saved.push(toFavoriteSyncRecordDto(updated));
+        continue;
+      }
+
+      if (incomingTime < existingTime) {
+        saved.push(toFavoriteSyncRecordDto(existing));
+        continue;
+      }
+
+      // Exact-timestamp tie: the tombstone wins deterministically, in
+      // either direction — mirrors MongooseSyncRepository.
+      if (record.type === 'tombstone' && existing.type !== 'tombstone') {
+        const converted: StoredFavorite = { type: 'tombstone', verseKey: record.verseKey, deletedAt: record.deletedAt };
+        map.set(record.verseKey, converted);
+        saved.push(toFavoriteSyncRecordDto(converted));
+        continue;
+      }
+      saved.push(toFavoriteSyncRecordDto(existing));
+    }
+
+    this.favoritesByUser.set(userId, map);
+    return saved;
   }
 
   async getPreferences(userId: string): Promise<PreferencesDto | null> {
@@ -352,12 +429,74 @@ export class InMemoryAccountDeletionService {
     private readonly userRepository: InMemoryUserRepository,
     private readonly syncRepository: InMemorySyncRepository,
     private readonly sessionRepository: InMemorySessionRepository,
+    private readonly appleCredentialRepository?: InMemoryAppleCredentialRepository,
   ) {}
 
   async deleteAccount(userId: string): Promise<void> {
     this.syncRepository.deleteAllForUser(userId);
     this.sessionRepository.revokeAllSessionsForUser(userId);
+    await this.appleCredentialRepository?.delete(userId);
     this.userRepository.deleteUser(userId);
+  }
+}
+
+/** Mirrors MongooseAppleCredentialRepository purely in memory — no encryption, since there's nothing to protect against in a test process. */
+export class InMemoryAppleCredentialRepository implements AppleCredentialRepository {
+  private readonly refreshTokenByUserId = new Map<string, string>();
+
+  async save(userId: string, refreshToken: string): Promise<void> {
+    this.refreshTokenByUserId.set(userId, refreshToken);
+  }
+
+  async get(userId: string): Promise<string | null> {
+    return this.refreshTokenByUserId.get(userId) ?? null;
+  }
+
+  async delete(userId: string): Promise<void> {
+    this.refreshTokenByUserId.delete(userId);
+  }
+}
+
+/**
+ * Test double standing in for HttpAppleRevocationClient. `codesToRefreshTokens`
+ * maps a fake authorization code to the refresh token exchanging it should
+ * yield. `revokedTokens` records every token successfully revoked (including
+ * ones treated as idempotently-already-revoked, tracked separately in
+ * `alreadyRevokedTokens`), so a test can assert exactly what was revoked
+ * without ever needing a real Apple response shape. `failingCodes`/
+ * `failingTokens` make the corresponding call reject, simulating a network
+ * or Apple-side failure.
+ */
+export class StubAppleRevocationClient implements AppleRevocationClient {
+  public readonly revokedTokens: string[] = [];
+  public readonly exchangedCodes: string[] = [];
+
+  constructor(
+    public readonly codesToRefreshTokens = new Map<string, string>(),
+    public readonly alreadyRevokedTokens = new Set<string>(),
+    public readonly failingCodes = new Set<string>(),
+    public readonly failingTokens = new Set<string>(),
+  ) {}
+
+  async exchangeAuthorizationCode(authorizationCode: string): Promise<{ refreshToken: string }> {
+    this.exchangedCodes.push(authorizationCode);
+    if (this.failingCodes.has(authorizationCode)) {
+      throw new AppError('Account deletion could not be completed. Please try again.', 502);
+    }
+    const refreshToken = this.codesToRefreshTokens.get(authorizationCode);
+    if (!refreshToken) throw new AppError('Account deletion could not be completed. Please try again.', 502);
+    return { refreshToken };
+  }
+
+  async revokeRefreshToken(refreshToken: string): Promise<void> {
+    if (this.failingTokens.has(refreshToken)) {
+      throw new AppError('Account deletion could not be completed. Please try again.', 502);
+    }
+    // Mirrors HttpAppleRevocationClient: an already-revoked token resolves
+    // as success, never a thrown error.
+    if (!this.alreadyRevokedTokens.has(refreshToken)) {
+      this.revokedTokens.push(refreshToken);
+    }
   }
 }
 

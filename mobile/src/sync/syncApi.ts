@@ -90,6 +90,36 @@ export function removeCloudFavorite(sessionToken: string, verseKey: string) {
   return authedRequest<null>(sessionToken, `/api/sync/favorites/${encodeURIComponent(verseKey)}`, { method: 'DELETE' });
 }
 
+export type FavoriteActiveRecord = {
+  // Optional for symmetry with the tombstone variant — every upload this
+  // client makes sets it explicitly (see favoritesSync.ts).
+  type?: 'active';
+  verseKey: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** A durable local-deletion marker. See storage/favorites.ts's FavoriteTombstone. */
+export type FavoriteTombstoneRecord = {
+  type: 'tombstone';
+  verseKey: string;
+  deletedAt: string;
+};
+
+export type FavoriteSyncRecord = FavoriteActiveRecord | FavoriteTombstoneRecord;
+
+/** Active favorites + deletion tombstones — unlike getCloudFavorites, this never omits a deletion learned from another device. */
+export function getCloudFavoriteSyncRecords(sessionToken: string) {
+  return authedRequest<FavoriteSyncRecord[]>(sessionToken, '/api/sync/favorites/sync');
+}
+
+export function putCloudFavoriteSyncRecords(sessionToken: string, favorites: FavoriteSyncRecord[]) {
+  return authedRequest<{ saved: FavoriteSyncRecord[] }>(sessionToken, '/api/sync/favorites', {
+    method: 'PUT',
+    body: JSON.stringify({ favorites }),
+  });
+}
+
 export type PreferencesRecord = {
   locale?: string;
   translationDisplayMode?: 'always' | 'on-demand' | 'off';
@@ -191,10 +221,21 @@ export function resetCloudReflectionSync(sessionToken: string, credential: Provi
 /**
  * Permanently deletes the account named by the authenticated session —
  * never a client-supplied userId (see backend/src/controllers/accountController.ts).
- * The backend deletes every model it owns (User, every session, favorites,
- * preferences, reflections, sync key) before this resolves; only on success
- * should the caller (useAuth.tsx's deleteAccount) clear local data.
+ * For an Apple-authenticated account, the backend revokes Apple's
+ * authorization before deleting anything; if it has no stored revocation
+ * credential yet, it rejects with 428 (SyncApiError.statusCode) and the
+ * caller (useAuth.tsx's deleteAccount) must retry this same call with a
+ * fresh `credential` (a just-obtained Apple identity token +
+ * authorization code). The backend deletes every model it owns (User,
+ * every session, favorites, preferences, reflections, sync key, any
+ * stored Apple credential) before this resolves; only on success should
+ * the caller clear local data.
  */
-export function deleteAccountRequest(sessionToken: string): Promise<null> {
-  return authedRequest<null>(sessionToken, '/api/account', { method: 'DELETE' });
+export function deleteAccountRequest(sessionToken: string, credential?: ProviderCredential): Promise<null> {
+  return authedRequest<null>(sessionToken, '/api/account', {
+    method: 'DELETE',
+    ...(credential
+      ? { body: JSON.stringify({ provider: credential.provider, idToken: credential.idToken, authorizationCode: credential.authorizationCode }) }
+      : {}),
+  });
 }

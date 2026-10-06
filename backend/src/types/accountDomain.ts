@@ -51,10 +51,22 @@ export type SessionEntity = {
   updatedAt?: Date;
 };
 
-/** A single synced favorite ayah, keyed by the stable verseKey — never a localized label or Quran text. */
+/**
+ * A single synced favorite ayah, keyed by the stable verseKey — never a
+ * localized label or Quran text.
+ *
+ * `deleted` makes this a durable deletion tombstone instead of an active
+ * record, mirroring UserReflectionEntity. A tombstone row keeps `userId`/
+ * `verseKey`/`updatedAt` (the single LWW timestamp, reused as the deletion
+ * time) but never has `createdAt` (see models/UserFavorite.ts's conditional
+ * `required`). Existing documents from before this field existed have
+ * `deleted` absent/undefined, which is falsy — they are read back as active
+ * records unchanged, so no migration is needed.
+ */
 export type UserFavoriteEntity = {
   userId: string;
   verseKey: string;
+  deleted?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 };
@@ -105,6 +117,26 @@ export type UserReflectionEntity = {
    * updatedAt strictly orders two writes. Still ciphertext-only.
    */
   conflictVersions?: Array<{ ciphertext: string; nonce: string; encryptionVersion: number; createdAt: Date }>;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
+/**
+ * The Apple refresh token this backend obtained by exchanging a Sign in
+ * with Apple authorization code (see auth/appleRevocationClient.ts) —
+ * stored only so account deletion can later revoke this app's Apple
+ * authorization for this user (App Store requirement; see Phase B4 /
+ * docs/auth-and-sync). Encrypted at rest with a server-only AES-256-GCM key
+ * (crypto/appleCredentialEncryption.ts) that never leaves this backend;
+ * the plaintext refresh token itself is never returned to any client and
+ * never logged. One document per Apple-authenticated user — deleted as
+ * part of account deletion, whether or not revocation already consumed it.
+ */
+export type AppleCredentialEntity = {
+  userId: string;
+  ciphertext: string;
+  iv: string;
+  authTag: string;
   createdAt?: Date;
   updatedAt?: Date;
 };

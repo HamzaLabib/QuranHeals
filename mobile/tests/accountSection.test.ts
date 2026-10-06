@@ -120,6 +120,16 @@ describe('Account section: Apple/Google brand icons', () => {
   });
 });
 
+describe('Account section: Apple sign-in captures a revocation credential (Phase B4)', () => {
+  it('requests the full Apple credential (identity token + authorization code), not just the identity token', () => {
+    const onApplePressBlock = accountSectionSource.match(/const onApplePress = async \(\) => \{[\s\S]*?\n  \};/)?.[0] ?? '';
+    expect(accountSectionSource).toMatch(/requestAppleCredential/);
+    expect(accountSectionSource).not.toMatch(/requestAppleIdentityToken/);
+    expect(onApplePressBlock).toMatch(/const \{ identityToken, authorizationCode \} = await requestAppleCredential\(\);/);
+    expect(onApplePressBlock).toMatch(/signInWithAppleIdToken\(identityToken, authorizationCode\)/);
+  });
+});
+
 describe('GoogleIcon: bundled official multicolour "G" logomark', () => {
   const googleIconSource = readFileSync(resolve(__dirname, '../src/components/GoogleIcon.tsx'), 'utf-8');
 

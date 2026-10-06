@@ -39,6 +39,11 @@ vi.mock('@react-native-async-storage/async-storage', () => ({ default: {
 } }));
 vi.mock('@/crypto/randomBytes', () => ({ getRandomBytes: (n: number) => new Uint8Array(randomBytes(n)) }));
 vi.mock('@/components/SyncPassphraseSheet', () => ({ SyncPassphraseSheet: () => null }));
+// useAuth.tsx's deleteAccount calls this hook directly now (Phase B4's
+// Apple-reauth-on-deletion retry) — stubbed here since this file's accounts
+// never hit the 428/reauth-required path, and the real module pulls in
+// expo-apple-authentication / expo-auth-session.
+vi.mock('@/auth/reauthentication', () => ({ useFreshProviderCredential: () => async () => null }));
 vi.mock('@/localization/useAppLocale', () => ({
   useAppLocale: () => ({ locale: 'en', setLocale: vi.fn(), isReady: true }),
 }));
@@ -87,7 +92,12 @@ import { syncReflections } from '@/sync/reflectionsSync';
 
 type UploadedReflection = { type?: string; verseKey: string; ciphertext?: string; nonce?: string; encryptionVersion?: number; deletedAt?: string };
 type CloudAccount = {
+  /** Active verseKeys only — what GET /api/sync/favorites (legacy) returns. */
   favorites: Set<string>;
+  /** createdAt/updatedAt per active verseKey, so /api/sync/favorites/sync can hand back real timestamps instead of a placeholder. */
+  favoriteTimestamps: Map<string, { createdAt: string; updatedAt: string }>;
+  /** verseKey -> deletedAt, for deletion tombstones only tombstone-aware sync (/api/sync/favorites/sync) ever sees. */
+  favoriteTombstones: Map<string, string>;
   reflections: Map<string, UploadedReflection & { createdAt?: string; updatedAt?: string }>;
   uploadedFavorites: string[];
   uploadedReflections: UploadedReflection[];
@@ -96,7 +106,15 @@ type CloudAccount = {
 let cloud: Record<string, CloudAccount>;
 
 function emptyAccount(): CloudAccount {
-  return { favorites: new Set(), reflections: new Map(), uploadedFavorites: [], uploadedReflections: [], deleted: false };
+  return {
+    favorites: new Set(),
+    favoriteTimestamps: new Map(),
+    favoriteTombstones: new Map(),
+    reflections: new Map(),
+    uploadedFavorites: [],
+    uploadedReflections: [],
+    deleted: false,
+  };
 }
 
 function json(data: unknown, status = 200) {
@@ -129,10 +147,35 @@ async function fakeBackend(url: string, init?: RequestInit): Promise<Response> {
   const account = cloud[user];
 
   if (path === '/api/sync/preferences') return json(method === 'PUT' ? body : null);
+  if (path === '/api/sync/favorites/sync') {
+    const active = [...account.favorites].map((verseKey) => ({
+      type: 'active' as const,
+      verseKey,
+      ...(account.favoriteTimestamps.get(verseKey) ?? { createdAt: 'x', updatedAt: 'x' }),
+    }));
+    const tombstones = [...account.favoriteTombstones].map(([verseKey, deletedAt]) => ({ type: 'tombstone' as const, verseKey, deletedAt }));
+    return json([...active, ...tombstones]);
+  }
   if (path === '/api/sync/favorites') {
-    if (method === 'PUT') {
+    if (method === 'PUT' && 'verseKeys' in body) {
+      // Legacy union-add: never resurrects an existing tombstone.
       account.uploadedFavorites.push(...body.verseKeys);
-      for (const verseKey of body.verseKeys) account.favorites.add(verseKey);
+      for (const verseKey of body.verseKeys as string[]) {
+        if (!account.favoriteTombstones.has(verseKey)) account.favorites.add(verseKey);
+      }
+    } else if (method === 'PUT' && 'favorites' in body) {
+      for (const record of body.favorites as { type: string; verseKey: string; createdAt?: string; updatedAt?: string; deletedAt?: string }[]) {
+        account.uploadedFavorites.push(record.verseKey);
+        if (record.type === 'tombstone') {
+          account.favorites.delete(record.verseKey);
+          account.favoriteTimestamps.delete(record.verseKey);
+          account.favoriteTombstones.set(record.verseKey, record.deletedAt!);
+        } else {
+          account.favorites.add(record.verseKey);
+          account.favoriteTombstones.delete(record.verseKey);
+          account.favoriteTimestamps.set(record.verseKey, { createdAt: record.createdAt!, updatedAt: record.updatedAt! });
+        }
+      }
     }
     return json([...account.favorites].map((verseKey) => ({ verseKey, createdAt: 'x', updatedAt: 'x' })));
   }

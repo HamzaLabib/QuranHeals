@@ -55,8 +55,15 @@ export function signInWithGoogleIdToken(idToken: string): Promise<SignInResponse
   return postJson('/api/auth/google', { idToken }, SIGN_IN_FAILED_MESSAGE);
 }
 
-export function signInWithAppleIdToken(idToken: string): Promise<SignInResponse> {
-  return postJson('/api/auth/apple', { idToken }, SIGN_IN_FAILED_MESSAGE);
+/**
+ * `authorizationCode` is best-effort: when present, the backend tries to
+ * exchange it for an Apple refresh token so a later account deletion can
+ * revoke Apple's authorization without asking for another sign-in (Part
+ * B4). A failed/absent exchange never affects whether sign-in itself
+ * succeeds.
+ */
+export function signInWithAppleIdToken(idToken: string, authorizationCode?: string | null): Promise<SignInResponse> {
+  return postJson('/api/auth/apple', { idToken, ...(authorizationCode ? { authorizationCode } : {}) }, SIGN_IN_FAILED_MESSAGE);
 }
 
 /** Rotates this device's refresh token and returns a new access token — see auth/tokenManager.ts, the only caller. Never affects any other device's session. */

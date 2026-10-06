@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 
-import { AppleSignInCancelledError, isAppleSignInSupportedPlatform, requestAppleIdentityToken } from './appleAuth';
+import { AppleSignInCancelledError, isAppleSignInSupportedPlatform, requestAppleCredential } from './appleAuth';
 import type { AuthProvider } from './authTypes';
 import { extractGoogleIdToken, isGoogleAuthConfigured, useGoogleAuthRequest, wasGoogleSignInCancelled } from './googleAuth';
 
@@ -13,7 +13,12 @@ import { extractGoogleIdToken, isGoogleAuthConfigured, useGoogleAuthRequest, was
  * never creates or replaces a Quran Heals session.
  */
 
-export type ProviderCredential = { provider: AuthProvider; idToken: string };
+export type ProviderCredential = {
+  provider: AuthProvider;
+  idToken: string;
+  /** Only ever set for `provider: 'apple'` — see appleAuth.ts's AppleCredential. Existing callers (sync-password reset) simply never read this field. */
+  authorizationCode?: string | null;
+};
 
 /** This device cannot sign in with the account's provider (e.g. Google not configured, Apple on Android). */
 export class ReauthenticationUnavailableError extends Error {}
@@ -47,7 +52,8 @@ export function useFreshProviderCredential(provider: AuthProvider | null): () =>
     if (provider === 'apple') {
       if (!isAppleSignInSupportedPlatform()) throw new ReauthenticationUnavailableError('Apple sign-in is unavailable here.');
       try {
-        return { provider: 'apple', idToken: await requestAppleIdentityToken() };
+        const credential = await requestAppleCredential();
+        return { provider: 'apple', idToken: credential.identityToken, authorizationCode: credential.authorizationCode };
       } catch (error) {
         if (error instanceof AppleSignInCancelledError) return null;
         throw new ReauthenticationFailedError('Apple re-authentication failed.');

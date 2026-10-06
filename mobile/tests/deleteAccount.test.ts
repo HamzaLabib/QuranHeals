@@ -45,6 +45,30 @@ describe('useAuth.tsx: deleteAccount only clears local data after a confirmed ba
   });
 });
 
+describe('useAuth.tsx: deleteAccount retries with fresh Apple re-authentication when the backend asks for one (Phase B4)', () => {
+  const deleteAccountBlock = useAuthSource.match(/const deleteAccount = useCallback\(async \(\) => \{[\s\S]*?\}, \[[^\]]*\]\);/)?.[0] ?? '';
+
+  it('retries deleteAccountRequest with a fresh credential only on a 428 from SyncApiError, never any other error', () => {
+    expect(deleteAccountBlock).toMatch(/if \(!\(error instanceof SyncApiError\) \|\| error\.statusCode !== 428\) \{\s*throw error;/);
+    expect(deleteAccountBlock).toMatch(/promptForFreshProviderCredential\(\)/);
+    expect(deleteAccountBlock).toMatch(/deleteAccountRequest\(token, credential\)/);
+  });
+
+  it('a cancelled re-authentication (null credential) throws before any local data is cleared', () => {
+    const catchBlockIndex = deleteAccountBlock.indexOf('const credential = await promptForFreshProviderCredential();');
+    const throwIndex = deleteAccountBlock.indexOf("throw new Error('Account deletion needs a fresh Apple sign-in.');");
+    const clearReflectionsIndex = deleteAccountBlock.indexOf('clearAllReflections()');
+
+    expect(catchBlockIndex).toBeGreaterThan(-1);
+    expect(throwIndex).toBeGreaterThan(catchBlockIndex);
+    expect(clearReflectionsIndex).toBeGreaterThan(throwIndex);
+  });
+
+  it("uses the signed-in account's own provider for the re-authentication prompt, never a hardcoded one", () => {
+    expect(useAuthSource).toMatch(/const promptForFreshProviderCredential = useFreshProviderCredential\(user\?\.provider \?\? null\);/);
+  });
+});
+
 describe('syncApi.ts: deleteAccountRequest', () => {
   it('sends a DELETE to /api/account — no :userId in the path', () => {
     expect(syncApiSource).toMatch(/method: 'DELETE'/);
@@ -55,6 +79,14 @@ describe('syncApi.ts: deleteAccountRequest', () => {
   it('reuses authedRequest (the same 401-refresh-and-retry path as every other sync call) rather than a bespoke fetch', () => {
     const block = syncApiSource.match(/export function deleteAccountRequest\([\s\S]*?\n\}/)?.[0] ?? '';
     expect(block).toMatch(/authedRequest</);
+  });
+
+  it('accepts an optional re-authentication credential (Phase B4) and sends provider/idToken/authorizationCode only when given', () => {
+    const block = syncApiSource.match(/export function deleteAccountRequest\([\s\S]*?\n\}/)?.[0] ?? '';
+    expect(block).toMatch(/credential\?: ProviderCredential/);
+    expect(block).toMatch(/credential\.provider/);
+    expect(block).toMatch(/credential\.idToken/);
+    expect(block).toMatch(/credential\.authorizationCode/);
   });
 });
 

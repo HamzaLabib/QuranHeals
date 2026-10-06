@@ -52,6 +52,12 @@ vi.mock('@/components/SyncPassphraseSheet', () => ({
     return null;
   },
 }));
+// useAuth.tsx's deleteAccount calls this hook directly now (Phase B4's
+// Apple-reauth-on-deletion retry) — stubbed here since this file's fake
+// backend's DELETE /api/account always succeeds outright (never 428), so
+// the real module (which pulls in expo-apple-authentication /
+// expo-auth-session) is never actually needed.
+vi.mock('@/auth/reauthentication', () => ({ useFreshProviderCredential: () => async () => null }));
 vi.mock('@/localization/useAppLocale', () => ({
   useAppLocale: () => ({ locale: 'ar', setLocale: vi.fn(), isReady: true }),
 }));
@@ -128,8 +134,17 @@ async function fakeBackend(url: string, init?: RequestInit): Promise<Response> {
     if (method === 'PUT' && !account.preferences) account.preferences = body;
     return json(account.preferences);
   }
+  if (path === '/api/sync/favorites/sync') {
+    return json([...account.favorites].map((verseKey) => ({ type: 'active', verseKey, createdAt: 'x', updatedAt: 'x' })));
+  }
   if (path === '/api/sync/favorites') {
-    if (method === 'PUT') for (const verseKey of body.verseKeys) account.favorites.add(verseKey);
+    if (method === 'PUT' && 'verseKeys' in body) for (const verseKey of body.verseKeys as string[]) account.favorites.add(verseKey);
+    if (method === 'PUT' && 'favorites' in body) {
+      for (const record of body.favorites as { type: string; verseKey: string }[]) {
+        if (record.type === 'tombstone') account.favorites.delete(record.verseKey);
+        else account.favorites.add(record.verseKey);
+      }
+    }
     return json([...account.favorites].map((verseKey) => ({ verseKey, createdAt: 'x', updatedAt: 'x' })));
   }
   if (path === '/api/sync/key') {

@@ -28,6 +28,29 @@ const envSchema = z
     // audience of an Apple identity token. Comma-separated, same convention
     // as GOOGLE_CLIENT_IDS. Optional at parse time — see requireAppleAuthConfig().
     APPLE_AUDIENCE_IDS: z.string().optional(),
+
+    // Server-to-server Apple config (Phase B4), needed only to exchange an
+    // authorization code for a refresh token and to later revoke it on
+    // account deletion — identity-token verification (above) never needs
+    // these. All four are required together; see requireAppleRevocationConfig().
+    APPLE_TEAM_ID: z.string().optional(),
+    APPLE_KEY_ID: z.string().optional(),
+    // The Sign in with Apple private key's (.p8) PEM contents, with its
+    // literal newlines escaped as the two characters `\n` — the standard
+    // way to fit a multi-line PEM into a single-line env var. Decoded back
+    // to real newlines by requireAppleRevocationConfig(). Never logged.
+    APPLE_PRIVATE_KEY: z.string().optional(),
+    // The app's bundle identifier — used both as the client secret JWT's
+    // `sub` claim and as `client_id` on Apple's /auth/token and
+    // /auth/revoke calls. For a native (non-web) Sign in with Apple
+    // integration, Apple requires this to be the bundle ID, not a
+    // separate web Services ID.
+    APPLE_CLIENT_ID: z.string().optional(),
+    // 32 raw bytes, base64-encoded (e.g. `openssl rand -base64 32`) — the
+    // AES-256-GCM key used to encrypt the Apple refresh token at rest (see
+    // crypto/appleCredentialEncryption.ts). Never logged, never sent to
+    // any client. Optional at parse time — see requireAppleRefreshTokenEncryptionKey().
+    APPLE_REFRESH_TOKEN_ENCRYPTION_KEY: z.string().optional(),
   })
   .transform((value) => ({
     ...value,
@@ -66,5 +89,32 @@ export function requireAppleAuthConfig(): readonly [string, ...string[]] {
     throw new Error('Apple sign-in is not configured: set APPLE_AUDIENCE_IDS in the backend environment.');
   }
   return env.APPLE_AUDIENCE_IDS as [string, ...string[]];
+}
+
+export type AppleRevocationConfig = { teamId: string; keyId: string; privateKey: string; clientId: string };
+
+/** Throws a clear, actionable error if an Apple authorization-code exchange or revocation call is attempted before all four vars are configured. */
+export function requireAppleRevocationConfig(): AppleRevocationConfig {
+  const { APPLE_TEAM_ID, APPLE_KEY_ID, APPLE_PRIVATE_KEY, APPLE_CLIENT_ID } = env;
+  if (!APPLE_TEAM_ID || !APPLE_KEY_ID || !APPLE_PRIVATE_KEY || !APPLE_CLIENT_ID) {
+    throw new Error(
+      'Apple account-deletion revocation is not configured: set APPLE_TEAM_ID, APPLE_KEY_ID, APPLE_PRIVATE_KEY, and APPLE_CLIENT_ID in the backend environment.',
+    );
+  }
+  return { teamId: APPLE_TEAM_ID, keyId: APPLE_KEY_ID, privateKey: APPLE_PRIVATE_KEY.replace(/\\n/g, '\n'), clientId: APPLE_CLIENT_ID };
+}
+
+const APPLE_REFRESH_TOKEN_KEY_BYTES = 32;
+
+/** Throws a clear, actionable error if Apple credential encryption is used before APPLE_REFRESH_TOKEN_ENCRYPTION_KEY is configured correctly. */
+export function requireAppleRefreshTokenEncryptionKey(): Buffer {
+  if (!env.APPLE_REFRESH_TOKEN_ENCRYPTION_KEY) {
+    throw new Error('Apple credential encryption is not configured: set APPLE_REFRESH_TOKEN_ENCRYPTION_KEY in the backend environment.');
+  }
+  const key = Buffer.from(env.APPLE_REFRESH_TOKEN_ENCRYPTION_KEY, 'base64');
+  if (key.length !== APPLE_REFRESH_TOKEN_KEY_BYTES) {
+    throw new Error('APPLE_REFRESH_TOKEN_ENCRYPTION_KEY must decode to exactly 32 bytes (AES-256).');
+  }
+  return key;
 }
 

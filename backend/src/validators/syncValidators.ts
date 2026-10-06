@@ -8,9 +8,41 @@ const translationDisplayModeSchema = z.enum(['always', 'on-demand', 'off']);
 // A one-way HMAC fingerprint of the reflection master key (see UserSyncKey.ts).
 const keyFingerprintSchema = z.string().trim().min(1).max(128);
 
-export const putFavoritesSchema = z.object({
+// Legacy union-add shape, used by pre-tombstone app versions and the mobile
+// app's own best-effort fire-and-forget add — see SyncRepository.addFavorites.
+const legacyPutFavoritesSchema = z.object({
   verseKeys: z.array(verseKeySchema).min(1).max(2000),
 });
+
+// `type` is optional here, like activeReflectionRecordSchema below, for the
+// same reason: every caller predating deletion tombstones only ever sends
+// the legacy shape above, never this one, so there is no existing payload
+// to stay compatible with — `type` is simply optional for symmetry with the
+// tombstone variant below.
+const favoriteActiveRecordSchema = z
+  .object({
+    type: z.literal('active').optional(),
+    verseKey: verseKeySchema,
+    createdAt: isoDateSchema,
+    updatedAt: isoDateSchema,
+  })
+  .transform((value) => ({ ...value, type: 'active' as const }));
+
+/** A durable local-deletion marker — deliberately declares no other field. */
+const favoriteTombstoneRecordSchema = z.object({
+  type: z.literal('tombstone'),
+  verseKey: verseKeySchema,
+  deletedAt: isoDateSchema,
+});
+
+const favoriteSyncRecordSchema = z.union([favoriteTombstoneRecordSchema, favoriteActiveRecordSchema]);
+
+const newPutFavoritesSchema = z.object({
+  favorites: z.array(favoriteSyncRecordSchema).min(1).max(2000),
+});
+
+/** Accepts either the legacy `{ verseKeys }` shape or the newer tombstone-aware `{ favorites }` shape — see syncController.ts's putFavorites. */
+export const putFavoritesSchema = z.union([legacyPutFavoritesSchema, newPutFavoritesSchema]);
 
 export const favoriteVerseKeyParamsSchema = z.object({
   verseKey: verseKeySchema,

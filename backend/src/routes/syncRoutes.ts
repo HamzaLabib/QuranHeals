@@ -3,10 +3,14 @@ import { Router } from 'express';
 import type { ReauthenticationDeps } from '../auth/providerReauthentication';
 import { createSyncController } from '../controllers/syncController';
 import { asyncHandler } from '../middleware/asyncHandler';
-import { requireAuth } from '../middleware/requireAuth';
+import type { createRequireAuth } from '../middleware/requireAuth';
 import type { SyncRepository } from '../services/SyncRepository';
 
-export function createSyncRoutes(repository: SyncRepository, reauthentication: ReauthenticationDeps) {
+export function createSyncRoutes(
+  repository: SyncRepository,
+  reauthentication: ReauthenticationDeps,
+  requireAuth: ReturnType<typeof createRequireAuth>,
+) {
   const router = Router();
   const controller = createSyncController(repository, reauthentication);
 
@@ -15,6 +19,8 @@ export function createSyncRoutes(repository: SyncRepository, reauthentication: R
   router.use(requireAuth);
 
   router.get('/favorites', asyncHandler(controller.getFavorites));
+  // Active favorites + deletion tombstones — only tombstone-aware clients call this; see controllers/syncController.ts.
+  router.get('/favorites/sync', asyncHandler(controller.getFavoritesSync));
   router.put('/favorites', asyncHandler(controller.putFavorites));
   router.delete('/favorites/:verseKey', asyncHandler(controller.deleteFavorite));
 

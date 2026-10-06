@@ -22,4 +22,16 @@ export interface SessionRepository {
 
   /** Revokes only the session identified by this refresh token. A malformed/unknown token is a silent no-op — logout never leaks which tokens are valid. */
   revokeSession(refreshToken: string): Promise<void>;
+
+  /**
+   * Whether this session currently authorizes requests: it exists, is
+   * owned by `userId`, is not revoked, and has not expired. This is what
+   * makes an access token's authority DB-checked rather than purely
+   * cryptographic — requireAuth calls this on every request so logout,
+   * server-side revocation, and account deletion take effect immediately
+   * instead of waiting out the access token's own short expiry. A
+   * malformed/unknown sessionId (including one naming a different user)
+   * returns false rather than throwing.
+   */
+  isSessionActive(sessionId: string, userId: string): Promise<boolean>;
 }
