@@ -54,6 +54,14 @@ const envSchema = z
     // crypto/appleCredentialEncryption.ts). Never logged, never sent to
     // any client. Optional at parse time — see requireAppleRefreshTokenEncryptionKey().
     APPLE_REFRESH_TOKEN_ENCRYPTION_KEY: z.string().optional(),
+
+    // Error monitoring (monitoring/monitoring.ts). Off when SENTRY_DSN is
+    // unset. Environment defaults to NODE_ENV; release defaults to Render's
+    // RENDER_GIT_COMMIT when present.
+    SENTRY_DSN: z.string().optional(),
+    SENTRY_ENVIRONMENT: z.string().optional(),
+    SENTRY_RELEASE: z.string().optional(),
+    RENDER_GIT_COMMIT: z.string().optional(),
   })
   .transform((value) => ({
     ...value,

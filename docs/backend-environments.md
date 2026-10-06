@@ -48,6 +48,7 @@ NODE_ENV=production
 MONGODB_URI=<Atlas connection string, ideally for a production-only database user>
 MONGODB_DB_NAME=quranheals_prod
 SESSION_JWT_SECRET=<real secret>      # already required in production by env.ts
+SENTRY_DSN=<project DSN>              # optional; error monitoring, see docs/backend-operations.md
 ```
 
 The other provider and Apple settings are unchanged; see `docs/auth-and-sync/setup.md`.
