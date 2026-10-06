@@ -11,5 +11,7 @@ export default defineConfig({
   // transitively by auth/sessionStorage.ts) reference it at module-eval
   // time, which otherwise throws under vitest's plain Node environment.
   define: { __DEV__: 'false' },
-  test: { environment: 'node', include: ['tests/**/*.test.ts'], restoreMocks: true },
+  // __DEV__ is false here, so services/apiBase.ts requires an explicit API
+  // URL exactly like a release bundle; tests use the local dev backend URL.
+  test: { environment: 'node', include: ['tests/**/*.test.ts'], restoreMocks: true, env: { EXPO_PUBLIC_API_URL: 'http://localhost:4000' } },
 });

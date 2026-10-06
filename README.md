@@ -117,6 +117,8 @@ EXPO_PUBLIC_API_URL=http://localhost:4000
 
 For Android emulator, use `http://10.0.2.2:4000`.
 
+EAS builds take `EXPO_PUBLIC_API_URL` from the EAS environment instead; preview and production builds require a public `https://` URL. See [docs/release-builds.md](docs/release-builds.md).
+
 ## MongoDB Configuration
 
 Create a MongoDB Atlas cluster, create a database user, allow your development IP address, and put the connection string in `backend/.env` as `MONGODB_URI`.
