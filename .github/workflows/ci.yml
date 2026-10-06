@@ -1,0 +1,76 @@
+name: Quran Heals CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Read-only: CI checks out code and runs tests; it never writes to the repo.
+permissions:
+  contents: read
+
+# Cancel superseded runs for the same PR / branch.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (tests + typecheck)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          # Pinned toolchain (node:sqlite is stable/unflagged on Node 24).
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      # backend/data/quran/{quran-data.xml,en.pickthall.txt} are third-party
+      # Tanzil files kept out of git (see .gitignore and
+      # backend/data/quran/README.md). tests/quran-data/full-quran.test.ts
+      # loads them via loadCorpus(), which also enforces the SHA-256 pins in
+      # src/import/fullQuran.ts. The XML is restored from the tracked,
+      # byte-identical copy; the Pickthall export is fetched from the URL in
+      # retrieval.json. Both are hash-checked here so drift fails loudly.
+      - name: Restore pinned Tanzil source files
+        run: |
+          cp ../tools/quran-verification/input/quran-data.xml data/quran/quran-data.xml
+          curl -fsSL --retry 3 --retry-all-errors --max-time 60 \
+            -o data/quran/en.pickthall.txt https://tanzil.net/trans/en.pickthall
+          sha256sum -c - <<'EOF'
+          8867c1d88191472adec9db694b3cd9f135b1a2ef580574d32cf888dcb22c5c7a  data/quran/quran-data.xml
+          4aabbfa9d96796f5a6b0217d2c39dce1a3084f772bf6f2650e37082a774e3cc7  data/quran/en.pickthall.txt
+          EOF
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+
+  mobile:
+    name: Mobile (tests + typecheck + lint)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test

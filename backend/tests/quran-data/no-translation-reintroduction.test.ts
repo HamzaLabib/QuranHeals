@@ -5,6 +5,14 @@ vi.mock('../../src/config/database', () => ({
   disconnectFromDatabase: vi.fn().mockResolvedValue(undefined),
 }));
 
+// seedDatabase()/migrateFoundation() refuse to run without MONGODB_URI. Pin an
+// obviously fake value so this suite never depends on a developer's local
+// backend/.env (CI has none). The connection itself is mocked above.
+vi.mock('../../src/config/env', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../src/config/env')>();
+  return { ...actual, env: { ...actual.env, MONGODB_URI: 'mongodb://fake-ci-host.invalid/quran-heals-test' } };
+});
+
 import { stripLegacyTranslationFields, seedDatabase } from '../../src/seed/seed';
 import { stripAyahArabicText } from '../../src/seed/seed';
 import { migrateFoundation } from '../../src/seed/migrateFoundation';
