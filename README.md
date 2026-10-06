@@ -99,6 +99,7 @@ Set:
 ```text
 PORT=4000
 MONGODB_URI=mongodb+srv://...
+MONGODB_DB_NAME=quranheals_dev
 NODE_ENV=development
 CORS_ORIGIN=*
 ```
@@ -121,7 +122,7 @@ EAS builds take `EXPO_PUBLIC_API_URL` from the EAS environment instead; preview 
 
 ## MongoDB Configuration
 
-Create a MongoDB Atlas cluster, create a database user, allow your development IP address, and put the connection string in `backend/.env` as `MONGODB_URI`.
+Create a MongoDB Atlas cluster, create a database user, allow your development IP address, and put the connection string in `backend/.env` as `MONGODB_URI`. Set `MONGODB_DB_NAME=quranheals_dev`: the backend never falls back to MongoDB's default `test` database, and development, test and production each have their own database. See [docs/backend-environments.md](docs/backend-environments.md).
 
 The backend uses Mongoose models for:
 

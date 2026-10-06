@@ -1,4 +1,4 @@
-import { connectToDatabase, disconnectFromDatabase } from '../config/database';
+import { connectScriptDatabase, disconnectFromDatabase } from '../config/database';
 import { env } from '../config/env';
 import { AyahModel } from '../models/Ayah';
 import { EmotionModel } from '../models/Emotion';
@@ -45,7 +45,8 @@ export async function seedDatabase() {
     throw new Error('MONGODB_URI is required to seed the database.');
   }
 
-  await connectToDatabase(env.MONGODB_URI);
+  // Never production: seeding overwrites live Emotion.active flags.
+  await connectScriptDatabase({ script: 'seed', writes: true });
 
   await Promise.all(
     seedEmotions.map((emotion) =>

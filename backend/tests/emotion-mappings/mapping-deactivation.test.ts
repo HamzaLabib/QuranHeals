@@ -1,9 +1,10 @@
 ﻿import { beforeEach, describe, expect, it, vi } from 'vitest';
 const mock = vi.hoisted(() => ({ connect: vi.fn(), disconnect: vi.fn(), find: vi.fn(), updateOne: vi.fn(),
   backup: vi.fn(), endSession: vi.fn(), withTransaction: vi.fn() }));
-vi.mock('mongoose', () => ({ default: { connect: mock.connect, disconnect: mock.disconnect,
+vi.mock('mongoose', () => ({ default: { connect: mock.connect, disconnect: mock.disconnect, set: vi.fn(),
+  connection: { db: { databaseName: 'quranheals_test' } },
   startSession: async () => ({ withTransaction: mock.withTransaction, endSession: mock.endSession }) } }));
-vi.mock('../../src/config/env', () => ({ env: { MONGODB_URI: 'mock-only' } }));
+vi.mock('../../src/config/env', () => ({ env: { NODE_ENV: 'test', MONGODB_URI: 'mongodb://mock-only.invalid', MONGODB_DB_NAME: 'quranheals_test' } }));
 vi.mock('../../src/models/EmotionVerseMapping', () => ({ EmotionVerseMappingModel: { find: mock.find, updateOne: mock.updateOne } }));
 vi.mock('../../src/utils/backupFile', () => ({ writeVerifiedJsonBackup: mock.backup }));
 import { runRemoval } from '../../src/scripts/deactivateEmotionMapping';
@@ -23,6 +24,8 @@ describe('Deactivation database boundary (mocked; never connects)', () => {
     expect(mock.find).toHaveBeenCalledExactlyOnceWith({ verseReferenceKey: '2:222', emotionKey: 'seeking_guidance' });
     expect(mock.updateOne).not.toHaveBeenCalled(); expect(mock.backup).not.toHaveBeenCalled();
     expect(mock.disconnect).toHaveBeenCalled();
+    // Always an explicit database, never MongoDB's implicit default.
+    expect(mock.connect).toHaveBeenCalledWith('mongodb://mock-only.invalid', expect.objectContaining({ dbName: 'quranheals_test' }));
   });
   it('backs up then changes only the exact identity, document and prior status inside a transaction', async () => {
     mock.find.mockReturnValueOnce(query([doc])).mockReturnValueOnce(query([{ ...doc, status: 'rejected' }]));

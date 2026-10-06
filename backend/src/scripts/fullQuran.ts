@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import mongoose, { type ClientSession } from 'mongoose';
+import { connectScriptDatabase } from '../config/database';
 import { env } from '../config/env';
 import { compareExisting, loadCorpus, validateCorpus, validateMappings, type Snapshot } from '../import/fullQuran';
 import { seedAyahs } from '../seed/ayahs';
@@ -60,7 +61,7 @@ async function main() {
   if (env.NODE_ENV === 'production') throw new Error('Phase 3 commands are disabled in production.');
   const uri = new URL(env.MONGODB_URI);
   if (/prod/i.test(uri.hostname + uri.pathname)) throw new Error('Production-like database target; stopped.');
-  await mongoose.connect(env.MONGODB_URI, { autoIndex: false, autoCreate: false, serverSelectionTimeoutMS: 10000 });
+  await connectScriptDatabase({ script: 'quran:full', writes: mode === 'import' && process.argv.includes('--write') }, { autoIndex: false, autoCreate: false, serverSelectionTimeoutMS: 10000 });
   const db = mongoose.connection.db!;
   const snapshot = await readSnapshot();
   const validation = validateCorpus({ verses: snapshot.verses, translations: snapshot.versetranslations }, corpus);
@@ -75,7 +76,7 @@ async function main() {
   }
   const comparison = compareExisting(snapshot, corpus);
   const safetyFailures = [...baseline];
-  if (!/^(test|.*(?:[_-]dev|[_-]development|[_-]local))$/i.test(db.databaseName)) safetyFailures.push('Database is not recognizably local/development.');
+  if (!/^.*(?:[_-]dev|[_-]development|[_-]local)(?:[_-][a-z0-9]+)*$/i.test(db.databaseName)) safetyFailures.push('Database is not recognizably local/development.');
   if (!comparison.safe) safetyFailures.push('Existing source text/checksum conflicts; no text overwrite is permitted.');
   const preflight = { source: sourceReport, database: report, comparison, safetyFailures, safeToImport: safetyFailures.length === 0 };
   writeFileSync('reports/quran-verification/preflight.json', JSON.stringify(preflight, null, 2) + '\n');

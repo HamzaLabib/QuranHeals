@@ -60,6 +60,8 @@ export function buildAccountTestApp<R extends IssueReportRepository = InMemoryIs
     appleRevocationClient,
     googleVerifier: new StubGoogleVerifier(googleTokens),
     appleVerifier: new StubAppleVerifier(appleTokens),
+    // In-memory repositories, so the database is "up" for /api/health.
+    databaseHealthCheck: async () => true,
   });
 
   return {

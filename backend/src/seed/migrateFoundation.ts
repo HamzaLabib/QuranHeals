@@ -1,4 +1,4 @@
-import { connectToDatabase, disconnectFromDatabase } from '../config/database';
+import { connectScriptDatabase, disconnectFromDatabase } from '../config/database';
 import { env } from '../config/env';
 import { EmotionVerseMappingModel } from '../models/EmotionVerseMapping';
 import { EmotionModel } from '../models/Emotion';
@@ -125,7 +125,7 @@ export async function migrateFoundation() {
   // backend/tests/quran-data/no-translation-reintroduction.test.ts.
   const { verses, mappings } = buildFoundationSeedData(seedAyahs);
 
-  await connectToDatabase(env.MONGODB_URI);
+  await connectScriptDatabase({ script: 'migrate:foundation', writes: true });
 
   await Promise.all(
     seedEmotions.map((emotion) =>

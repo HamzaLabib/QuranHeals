@@ -6,7 +6,9 @@ import helmet from 'helmet';
 import { HttpAppleRevocationClient, type AppleRevocationClient } from './auth/appleRevocationClient';
 import { AppleJwksVerifier, type AppleTokenVerifier } from './auth/appleTokenVerifier';
 import { GoogleAuthLibraryVerifier, type GoogleTokenVerifier } from './auth/googleTokenVerifier';
+import { pingDatabase } from './config/database';
 import { env } from './config/env';
+import type { DatabaseHealthCheck } from './controllers/healthController';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFoundHandler';
 import type { AccountRouterDeps } from './routes';
@@ -37,6 +39,8 @@ type AppOptions = {
   appleRevocationClient?: AppleRevocationClient;
   googleVerifier?: GoogleTokenVerifier;
   appleVerifier?: AppleTokenVerifier;
+  /** Defaults to a real MongoDB ping; tests inject their own. */
+  databaseHealthCheck?: DatabaseHealthCheck;
 };
 
 function getCorsOrigin() {
@@ -82,7 +86,7 @@ export function createApp(options: AppOptions = {}) {
     }),
   );
 
-  app.use('/api', createApiRouter(repository, accountDeps));
+  app.use('/api', createApiRouter(repository, accountDeps, options.databaseHealthCheck ?? pingDatabase));
   app.use(notFoundHandler);
   app.use(errorHandler);
 

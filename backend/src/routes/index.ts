@@ -3,7 +3,7 @@ import { Router } from 'express';
 import type { AppleRevocationClient } from '../auth/appleRevocationClient';
 import type { AppleTokenVerifier } from '../auth/appleTokenVerifier';
 import type { GoogleTokenVerifier } from '../auth/googleTokenVerifier';
-import { healthController } from '../controllers/healthController';
+import { createHealthController, type DatabaseHealthCheck } from '../controllers/healthController';
 import { createRequireAuth } from '../middleware/requireAuth';
 import type { AccountDeletionService } from '../services/AccountDeletionService';
 import type { AppleCredentialRepository } from '../services/AppleCredentialRepository';
@@ -31,7 +31,7 @@ export type AccountRouterDeps = {
   appleVerifier: AppleTokenVerifier;
 };
 
-export function createApiRouter(repository: QuranRepository, accountDeps: AccountRouterDeps) {
+export function createApiRouter(repository: QuranRepository, accountDeps: AccountRouterDeps, checkDatabase: DatabaseHealthCheck) {
   const router = Router();
 
   // Built once per app and shared by every protected route group below, so
@@ -43,7 +43,7 @@ export function createApiRouter(repository: QuranRepository, accountDeps: Accoun
     userRepository: accountDeps.userRepository,
   });
 
-  router.get('/health', healthController);
+  router.get('/health', createHealthController(checkDatabase));
   router.use('/emotions', createEmotionRoutes(repository));
   router.use('/ayahs', createAyahRoutes(repository));
 

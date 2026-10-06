@@ -81,7 +81,7 @@ class MemoryQuranRepository implements QuranRepository {
 
 describe('Quran Heals API', () => {
   it('returns a healthy API response', async () => {
-    const app = createApp({ repository: new MemoryQuranRepository() });
+    const app = createApp({ repository: new MemoryQuranRepository(), databaseHealthCheck: async () => true });
 
     const response = await request(app).get('/api/health').expect(200);
 

@@ -14,6 +14,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import mongoose from 'mongoose';
+import { connectScriptDatabase } from '../config/database';
 
 import { env } from '../config/env';
 import { AyahModel } from '../models/Ayah';
@@ -154,10 +155,10 @@ async function main() {
   const destructive = process.argv.includes('--destructive');
   const confirmed = process.argv.includes('--confirm-irreversible');
 
-  await mongoose.connect(env.MONGODB_URI, { autoIndex: false, autoCreate: false, serverSelectionTimeoutMS: 10000 });
+  await connectScriptDatabase({ script: 'cleanup:translation', writes: destructive }, { autoIndex: false, autoCreate: false, serverSelectionTimeoutMS: 10000 });
   const db = mongoose.connection.db!;
 
-  if (!/^(test|.*(?:[_-]dev|[_-]development|[_-]local))$/i.test(db.databaseName)) {
+  if (!/^.*(?:[_-]dev|[_-]development|[_-]local)(?:[_-][a-z0-9]+)*$/i.test(db.databaseName)) {
     throw new Error('Database is not recognizably local/development; refusing to proceed.');
   }
 
@@ -245,7 +246,7 @@ async function runDestructiveCleanup(report: TranslationCleanupReport) {
   // transaction spanning two collections fails deterministically if the same
   // connection already ran non-transactional multi-collection reads.
   await mongoose.disconnect();
-  await mongoose.connect(env.MONGODB_URI!, { autoIndex: false, autoCreate: false, serverSelectionTimeoutMS: 10000 });
+  await connectScriptDatabase({ script: 'cleanup:translation', writes: true }, { autoIndex: false, autoCreate: false, serverSelectionTimeoutMS: 10000 });
   db = mongoose.connection.db!;
 
   const session = await mongoose.startSession();

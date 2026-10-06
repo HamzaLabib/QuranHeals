@@ -11,6 +11,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import mongoose from 'mongoose';
+import { connectScriptDatabase } from '../config/database';
 
 import { env } from '../config/env';
 import { isValidVerseKey } from '../quran/referenceKeys';
@@ -135,7 +136,7 @@ async function main() {
   const destructive = process.argv.includes('--destructive');
   const confirmed = process.argv.includes('--confirm-irreversible');
 
-  await mongoose.connect(env.MONGODB_URI, {
+  await connectScriptDatabase({ script: 'cleanup:arabic', writes: destructive }, {
     autoIndex: false,
     autoCreate: false,
     serverSelectionTimeoutMS: 10000,
@@ -143,7 +144,7 @@ async function main() {
 
   const db = mongoose.connection.db!;
 
-  if (!/^(test|.*(?:[_-]dev|[_-]development|[_-]local))$/i.test(db.databaseName)) {
+  if (!/^.*(?:[_-]dev|[_-]development|[_-]local)(?:[_-][a-z0-9]+)*$/i.test(db.databaseName)) {
     throw new Error('Database is not recognizably local/development; refusing to proceed.');
   }
 
@@ -248,7 +249,7 @@ async function runDestructiveCleanup(reports: CollectionCleanupReport[]) {
   // pre-existing state without changing any read, write, commit, or rollback
   // behavior of the transaction itself.
   await mongoose.disconnect();
-  await mongoose.connect(env.MONGODB_URI!, {
+  await connectScriptDatabase({ script: 'cleanup:arabic', writes: true }, {
     autoIndex: false,
     autoCreate: false,
     serverSelectionTimeoutMS: 10000,

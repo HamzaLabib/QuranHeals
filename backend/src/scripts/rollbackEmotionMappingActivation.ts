@@ -23,6 +23,7 @@
 import { readFileSync } from 'node:fs';
 
 import mongoose from 'mongoose';
+import { connectScriptDatabase } from '../config/database';
 
 import { env } from '../config/env';
 import { EmotionModel } from '../models/Emotion';
@@ -209,7 +210,7 @@ async function main() {
 
   const backup = loadBackup(backupPath);
 
-  await mongoose.connect(env.MONGODB_URI, { autoIndex: false, autoCreate: false, serverSelectionTimeoutMS: 10000 });
+  await connectScriptDatabase({ script: 'mapping:rollback-activation', writes: apply }, { autoIndex: false, autoCreate: false, serverSelectionTimeoutMS: 10000 });
 
   try {
     const liveDatabaseName = mongoose.connection.db!.databaseName;

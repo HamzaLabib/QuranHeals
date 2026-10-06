@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import mongoose, { type ClientSession } from 'mongoose';
+import { connectScriptDatabase } from '../config/database';
 import { env } from '../config/env';
 import { getCanonicalEmotion } from '../emotions/emotionCatalog';
 import { EmotionModel } from '../models/Emotion';
@@ -130,7 +131,7 @@ export function planActivation(batch: Batch, snapshot: Snapshot) {
 
 export function assertDevelopmentTarget(environment: string, databaseName: string, confirmedDatabase: string) {
   assert.ok(environment === 'development' || environment === 'test', 'Only development/test environments are allowed');
-  assert.match(databaseName, /^(test|quran[-_]heals[-_](dev|test))$/, 'Database is not an explicitly development-safe name');
+  assert.match(databaseName, /^quranheals_(dev|test)(_[a-z0-9]+)*$/, 'Database is not an explicitly development-safe name (MongoDB default "test" never is)');
   assert.equal(confirmedDatabase, databaseName, 'Explicit database confirmation must match the connected target');
 }
 
@@ -190,7 +191,7 @@ async function main() {
   const batch = loadBatch();
   assert.ok(env.MONGODB_URI, 'MONGODB_URI required');
   assert.notEqual(env.NODE_ENV, 'production', 'Production is forbidden');
-  await mongoose.connect(env.MONGODB_URI, { autoIndex: false, autoCreate: false, serverSelectionTimeoutMS: 10000 });
+  await connectScriptDatabase({ script: 'mapping:activate-faith-shaken', writes: args.has('apply') }, { autoIndex: false, autoCreate: false, serverSelectionTimeoutMS: 10000 });
   const database = mongoose.connection.db!.databaseName;
   assertDevelopmentTarget(env.NODE_ENV, database, args.get('confirm-database') ?? '');
   const before = await readSnapshot();

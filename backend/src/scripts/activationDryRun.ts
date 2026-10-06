@@ -33,6 +33,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
 import mongoose from 'mongoose';
+import { connectScriptDatabase } from '../config/database';
 
 import { env } from '../config/env';
 import { EmotionModel } from '../models/Emotion';
@@ -270,7 +271,7 @@ export async function readLiveDatabaseCounts(): Promise<LiveDatabaseCounts | nul
     throw new Error('Activation dry run refuses to read from a production database.');
   }
 
-  await mongoose.connect(env.MONGODB_URI, {
+  await connectScriptDatabase({ script: 'mapping:activation-dry-run', writes: false }, {
     autoIndex: false,
     autoCreate: false,
     serverSelectionTimeoutMS: 10000,

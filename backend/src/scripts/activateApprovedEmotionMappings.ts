@@ -32,6 +32,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
 import mongoose, { Types } from 'mongoose';
+import { connectScriptDatabase } from '../config/database';
 
 import { env } from '../config/env';
 import {
@@ -518,9 +519,9 @@ function assertNonProductionConnectable() {
 }
 
 /** Opens a read-only-safe connection (autoIndex/autoCreate disabled) and returns the live database name. Caller must disconnect. */
-async function connectReadOnly(): Promise<string> {
+async function connectReadOnly(writes = false): Promise<string> {
   assertNonProductionConnectable();
-  await mongoose.connect(env.MONGODB_URI!, {
+  await connectScriptDatabase({ script: 'mapping:activate-approved', writes }, {
     autoIndex: false,
     autoCreate: false,
     serverSelectionTimeoutMS: 10000,
@@ -1153,7 +1154,7 @@ async function main(): Promise<void> {
     throw new Error(`Refusing to apply: preflight decision is ${report.overallDecision} (${report.blockingReasons.join('; ')}).`);
   }
 
-  const databaseName2 = await connectReadOnly();
+  const databaseName2 = await connectReadOnly(true);
   try {
     const backupPath = resolve(
       EMOTION_MAPPING_ACTIVATION_BACKUPS_DIR,

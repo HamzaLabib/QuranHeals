@@ -10,6 +10,7 @@
 import { readFileSync } from 'node:fs';
 
 import mongoose from 'mongoose';
+import { connectScriptDatabase } from '../config/database';
 
 import { env } from '../config/env';
 import { recordsRoundTripObjectIds, unwrapBackupEnvelope } from '../utils/objectId';
@@ -45,10 +46,10 @@ async function main() {
     throw new Error('Backup file does not contain the expected versetranslations/ayahs arrays.');
   }
 
-  await mongoose.connect(env.MONGODB_URI, { autoIndex: false, autoCreate: false, serverSelectionTimeoutMS: 10000 });
+  await connectScriptDatabase({ script: 'cleanup:rollback-translation', writes: apply }, { autoIndex: false, autoCreate: false, serverSelectionTimeoutMS: 10000 });
   const db = mongoose.connection.db!;
 
-  if (!/^(test|.*(?:[_-]dev|[_-]development|[_-]local))$/i.test(db.databaseName)) {
+  if (!/^.*(?:[_-]dev|[_-]development|[_-]local)(?:[_-][a-z0-9]+)*$/i.test(db.databaseName)) {
     throw new Error('Database is not recognizably local/development; refusing to proceed.');
   }
 

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import mongoose from 'mongoose';
+import { connectScriptDatabase } from '../config/database';
 import request from 'supertest';
 import { createApp } from '../app';
 import { env } from '../config/env';
@@ -14,7 +15,7 @@ import { readSnapshot } from './fullQuran';
 
 async function main() {
   if (!env.MONGODB_URI || env.NODE_ENV === 'production') throw new Error('Development database required.');
-  await mongoose.connect(env.MONGODB_URI, { autoIndex: false, autoCreate: false, serverSelectionTimeoutMS: 10000 });
+  await connectScriptDatabase({ script: 'quran:regression', writes: false }, { autoIndex: false, autoCreate: false, serverSelectionTimeoutMS: 10000 });
   const before = await readSnapshot();
   const app = createApp();
   const checks: Record<string, unknown> = {};

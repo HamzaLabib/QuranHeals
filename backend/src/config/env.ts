@@ -7,6 +7,9 @@ const envSchema = z
   .object({
     PORT: z.coerce.number().int().positive().default(4000),
     MONGODB_URI: z.string().optional(),
+    // Explicit database name; never inferred from the URI or MongoDB's
+    // default `test`. Validated per NODE_ENV in config/databaseTarget.ts.
+    MONGODB_DB_NAME: z.string().optional(),
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
     CORS_ORIGIN: z.string().default('*'),
 

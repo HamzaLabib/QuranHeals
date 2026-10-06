@@ -1,4 +1,4 @@
-import { connectToDatabase, disconnectFromDatabase } from '../config/database';
+import { connectScriptDatabase, disconnectFromDatabase } from '../config/database';
 import { env } from '../config/env';
 import { emotionMappingStatuses } from '../models/EmotionVerseMapping';
 import { EmotionVerseMappingModel } from '../models/EmotionVerseMapping';
@@ -133,7 +133,7 @@ async function upsertEmotionMapping() {
   const reviewedBy = one(args, 'reviewedBy');
   const reviewedAt = parseReviewDate(one(args, 'reviewedAt'));
 
-  await connectToDatabase(env.MONGODB_URI);
+  await connectScriptDatabase({ script: 'mapping:upsert', writes: true });
 
   if (!isValidVerseKey(verseReferenceKey)) {
     throw new Error(`"${verseReferenceKey}" is not a valid Quran reference.`);

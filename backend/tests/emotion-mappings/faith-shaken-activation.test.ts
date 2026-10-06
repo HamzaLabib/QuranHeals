@@ -241,13 +241,16 @@ describe('faith_shaken activation: incremental write plan', () => {
 });
 
 describe('faith_shaken activation: development target confirmation', () => {
-  it.each(['test', 'quran_heals_dev', 'quran-heals-test'])('accepts explicitly named safe target %s with exact confirmation', database => {
+  it.each(['quranheals_dev', 'quranheals_dev_alex', 'quranheals_test'])('accepts explicitly named safe target %s with exact confirmation', database => {
     expect(() => assertDevelopmentTarget('development', database, database)).not.toThrow();
   });
 
   it.each([
     ['production', 'test', 'test'],
     ['staging', 'test', 'test'],
+    ['development', 'test', 'test'], // MongoDB's implicit default is never a safe target
+    ['development', 'quranheals_prod', 'quranheals_prod'],
+    ['development', 'quran_heals_dev', 'quran_heals_dev'],
     ['development', 'quran_heals', 'quran_heals'],
     ['development', 'quran_heals_prod', 'quran_heals_prod'],
     ['development', 'test', ''],

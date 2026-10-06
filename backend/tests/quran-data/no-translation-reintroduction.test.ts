@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../src/config/database', () => ({
   connectToDatabase: vi.fn().mockResolvedValue(undefined),
+  connectScriptDatabase: vi.fn().mockResolvedValue(undefined),
   disconnectFromDatabase: vi.fn().mockResolvedValue(undefined),
 }));
 

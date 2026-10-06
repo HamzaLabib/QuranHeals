@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
 import mongoose from 'mongoose';
+import { connectScriptDatabase } from '../config/database';
 import { env } from '../config/env';
 import { EmotionVerseMappingModel } from '../models/EmotionVerseMapping';
 import { writeVerifiedJsonBackup } from '../utils/backupFile';
@@ -49,7 +50,10 @@ export async function runRemoval(args: string[]) {
   const { target, apply, backup } = parseRemovalArgs(args);
   authorizeRemoval(target);
   assert.ok(env.MONGODB_URI, 'MONGODB_URI required');
-  await mongoose.connect(env.MONGODB_URI, { autoIndex: false });
+  // The one editorial write explicitly supported in production (exact REJECT/HOLD pair,
+  // verified backup, typed confirmation); a production write also needs
+  // QURAN_HEALS_CONFIRM_PRODUCTION_WRITE (see config/databaseTarget.ts).
+  await connectScriptDatabase({ script: 'mapping:deactivate', writes: apply, productionSupported: true }, { autoIndex: false });
   try {
     const filter = { verseReferenceKey: target.verseKey, emotionKey: target.emotionKey };
     if (!apply) {

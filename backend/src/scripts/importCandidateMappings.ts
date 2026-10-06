@@ -36,7 +36,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
-import { connectToDatabase, disconnectFromDatabase } from '../config/database';
+import { connectScriptDatabase, disconnectFromDatabase } from '../config/database';
 import { env } from '../config/env';
 import { EmotionModel } from '../models/Emotion';
 import { EmotionVerseMappingModel } from '../models/EmotionVerseMapping';
@@ -435,7 +435,7 @@ async function main(): Promise<void> {
       throw new Error('This tool is disabled when NODE_ENV=production.');
     }
 
-    await connectToDatabase(env.MONGODB_URI);
+    await connectScriptDatabase({ script: 'mapping:candidates', writes: apply });
     databaseUsed = true;
     await annotateExisting(rows);
     mode = apply ? 'apply (insert-only)' : 'dry-run with existing-mapping check';

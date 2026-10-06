@@ -5,6 +5,7 @@ import { DatabaseSync } from 'node:sqlite';
 
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import { connectScriptDatabase } from '../config/database';
 
 import { seedAyahs } from '../seed/ayahs';
 import { seedEmotions } from '../seed/emotions';
@@ -141,7 +142,7 @@ async function main() {
     if (!uri || process.env.NODE_ENV === 'production') throw new Error('Development database required.');
 
     phase = 'mongodb-read';
-    await mongoose.connect(uri, {
+    await connectScriptDatabase({ script: 'audit:sqlite-references', writes: false }, {
       autoIndex: false,
       autoCreate: false,
       serverSelectionTimeoutMS: 10000,
