@@ -134,6 +134,22 @@ describe('ayahReflections: storage safety', () => {
   });
 });
 
+describe('ayahReflections: account isolation on failure (Phase B5 Test I)', () => {
+  it('a failed partition/ownership lookup rejects the save outright — never falls back to the guest partition or writes anywhere else', async () => {
+    const { resetLocalDataOwnerForTests } = await import('@/storage/localDataOwner');
+    resetLocalDataOwnerForTests();
+
+    const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
+    vi.mocked(AsyncStorage.getItem).mockRejectedValueOnce(new Error('owner state unreadable'));
+
+    await expect(saveReflection('2:255', 'should not be written anywhere', 1000)).rejects.toThrow();
+
+    // Nothing was written at all — not to the guest partition, not to any
+    // account partition, not anywhere — the whole save simply failed.
+    expect(state.size).toBe(0);
+  });
+});
+
 describe('ayahReflections: sync bookkeeping helpers (used only by sync code, not the reflection UI)', () => {
   it('markReflectionSyncState updates syncState without changing text/timestamps', async () => {
     await saveReflection('2:255', 'text', 1000);

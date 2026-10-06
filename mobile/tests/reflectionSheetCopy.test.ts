@@ -101,3 +101,107 @@ describe.each(APP_LOCALES)('reflection sheet: %s', (locale) => {
     expect(texts).not.toContain(MESSAGES[locale].reflection.guestNote);
   });
 });
+
+/**
+ * Phase B5: a failed LOCAL save must never be mistaken for success — the
+ * sheet stays open, the typed text is never cleared, and a clear error is
+ * shown. These are locale-independent behaviors (the guard/data-safety
+ * logic), so they run once against 'en' rather than under describe.each.
+ */
+describe('ReflectionSheet: save failure handling (Phase B5)', () => {
+  beforeEach(() => { state.locale = 'en'; });
+
+  function findSaveButton() {
+    return root.root.findAllByType('Pressable' as never).find(node => node.props.accessibilityLabel === MESSAGES.en.reflection.save)!;
+  }
+
+  it('Test B — editing an existing reflection persists the new text', async () => {
+    state.getReflection.mockResolvedValueOnce({ text: 'Original text' });
+    const onClose = await renderSheet();
+    await act(async () => root.root.findByType('TextInput' as never).props.onChangeText('Edited text'));
+
+    await act(async () => { await findSaveButton().props.onPress(); });
+
+    expect(state.saveReflection).toHaveBeenCalledExactlyOnceWith('2:286', 'Edited text');
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  it('Test C/D — a failed local save (read or write failure inside saveReflection) keeps the sheet open, keeps the typed text, and shows a clear error', async () => {
+    const onClose = await renderSheet();
+    await act(async () => root.root.findByType('TextInput' as never).props.onChangeText('My unsaved reflection'));
+    state.saveReflection.mockRejectedValueOnce(new Error('AsyncStorage is unavailable'));
+
+    await act(async () => { await findSaveButton().props.onPress(); });
+
+    expect(onClose).not.toHaveBeenCalled();
+    expect(root.root.findByType('TextInput' as never).props.value).toBe('My unsaved reflection');
+    const texts = root.root.findAllByType('Text' as never).map(node => node.props.children);
+    expect(texts).toContain(MESSAGES.en.reflection.saveError);
+    // Never the raw storage error, a stack trace, or a storage key/internal detail.
+    expect(texts.join(' ')).not.toContain('AsyncStorage');
+  });
+
+  it('Test E — retrying after a failure succeeds, and saveReflection is only ever called once per tap (no duplicate from the failed attempt)', async () => {
+    const onClose = await renderSheet();
+    await act(async () => root.root.findByType('TextInput' as never).props.onChangeText('Retry me'));
+    state.saveReflection.mockRejectedValueOnce(new Error('transient failure'));
+
+    await act(async () => { await findSaveButton().props.onPress(); });
+    expect(onClose).not.toHaveBeenCalled();
+
+    await act(async () => { await findSaveButton().props.onPress(); });
+
+    expect(state.saveReflection).toHaveBeenCalledTimes(2);
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  it('Test F — an existing reflection is left untouched in storage while a failed edit keeps the unsaved edited text visible', async () => {
+    state.getReflection.mockResolvedValueOnce({ text: 'Previously saved version' });
+    const onClose = await renderSheet();
+    await act(async () => root.root.findByType('TextInput' as never).props.onChangeText('New unsaved edit'));
+    state.saveReflection.mockRejectedValueOnce(new Error('write failed'));
+
+    await act(async () => { await findSaveButton().props.onPress(); });
+
+    expect(onClose).not.toHaveBeenCalled();
+    // The sheet shows the new (unsaved) text, never reverted to the old saved value.
+    expect(root.root.findByType('TextInput' as never).props.value).toBe('New unsaved edit');
+    // saveReflection was called with the new text, attempting to persist it
+    // (and, per ayahReflections.ts's own guarantee, a failed write never
+    // touches whatever was previously stored) — never with the old text.
+    expect(state.saveReflection).toHaveBeenCalledExactlyOnceWith('2:286', 'New unsaved edit');
+  });
+
+  it('Test G — a second tap while a save is already in flight triggers no second storage write', async () => {
+    const onClose = await renderSheet();
+    await act(async () => root.root.findByType('TextInput' as never).props.onChangeText('Only once please'));
+    let resolveSave!: () => void;
+    state.saveReflection.mockImplementationOnce(() => new Promise<null>(resolve => { resolveSave = () => resolve(null); }));
+
+    // Each tap gets its own act() so React actually re-renders with
+    // isSaving=true between them — exactly like two separate physical
+    // taps (never perfectly synchronous), which is what the save()
+    // guard is designed to catch. The button is also visually `disabled`
+    // by then, but this calls onPress directly to prove the guard inside
+    // save() itself — not just the disabled prop — is what stops it.
+    let firstPress!: Promise<void>;
+    await act(async () => { firstPress = findSaveButton().props.onPress(); });
+    await act(async () => { findSaveButton().props.onPress(); });
+
+    expect(state.saveReflection).toHaveBeenCalledTimes(1);
+    await act(async () => { resolveSave(); await firstPress; });
+    expect(onClose).toHaveBeenCalledOnce();
+    expect(state.saveReflection).toHaveBeenCalledTimes(1);
+  });
+
+  it('Test H — a save succeeds locally even though this component never touches the sync/cloud layer at all', async () => {
+    // No @/sync/* mock exists anywhere in this file — saveReflection
+    // resolving is the entire, sufficient contract for a successful save.
+    const onClose = await renderSheet();
+    await act(async () => root.root.findByType('TextInput' as never).props.onChangeText('Local only'));
+
+    await act(async () => { await findSaveButton().props.onPress(); });
+
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+});

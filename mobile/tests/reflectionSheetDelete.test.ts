@@ -103,17 +103,18 @@ describe('ReflectionSheet: deletion implementation', () => {
     expect(source).not.toMatch(/deleteReflection\(|removeReflection\(|DELETE ['"`]/);
   });
 
-  it('guards against rapid double presses by bailing out while a deletion is already in flight', () => {
+  it('guards against rapid double presses by bailing out while a deletion is already in flight — and also while a save is', () => {
     const deleteBlock = source.match(/const performDelete = async \(\) => \{[\s\S]*?\n {2}\};/)?.[0] ?? '';
-    expect(deleteBlock).toMatch(/const performDelete = async \(\) => \{\s*if \(isDeleting\) return;/);
+    expect(deleteBlock).toMatch(/const performDelete = async \(\) => \{\s*if \(isDeleting \|\| isSaving\) return;/);
     expect(deleteBlock).toMatch(/setIsDeleting\(true\);/);
     expect(deleteBlock).toMatch(/setIsDeleting\(false\);/);
     // The confirmation trigger itself is also guarded, so a second tap on
-    // Delete while the dialog/deletion is in flight can't queue another one.
-    expect(source).toMatch(/const confirmDelete = \(\) => \{\s*if \(isDeleting\) return;/);
-    // The button is visually/functionally disabled while deleting, too.
-    expect(source).toMatch(/disabled=\{isDeleting\}/);
-    expect(source).toMatch(/accessibilityState=\{\{ disabled: isDeleting \}\}/);
+    // Delete while the dialog/deletion is in flight (or a save is) can't
+    // queue another one.
+    expect(source).toMatch(/const confirmDelete = \(\) => \{\s*if \(isDeleting \|\| isSaving\) return;/);
+    // The button is visually/functionally disabled while deleting OR saving, too.
+    expect(source).toMatch(/disabled=\{isDeleting \|\| isSaving\}/);
+    expect(source).toMatch(/accessibilityState=\{\{ disabled: isDeleting \|\| isSaving \}\}/);
   });
 
   it('closes the sheet only inside the success path, after the save has resolved — never in the catch/failure path', () => {
@@ -144,12 +145,45 @@ describe('ReflectionSheet: deletion implementation', () => {
   });
 });
 
-describe('ReflectionSheet: Save/Cancel/encryption/sync/length-limit behavior is unchanged', () => {
-  it('save() is byte-identical to its pre-Delete form — no new guard, no new error handling added to it', () => {
-    const saveBlock = source.match(/const save = async \(\) => \{[\s\S]*?\n {2}\};/)?.[0] ?? '';
-    expect(saveBlock.replace(/\s+/g, ' ').trim()).toBe("const save = async () => { await saveReflection(verseKey, text); onClose(); };");
+describe('ReflectionSheet: save() failure handling (Phase B5)', () => {
+  const saveBlock = source.match(/const save = async \(\) => \{[\s\S]*?\n {2}\};/)?.[0] ?? '';
+
+  it('guards against rapid double presses by bailing out while a save (or a deletion) is already in flight', () => {
+    expect(saveBlock).toMatch(/const save = async \(\) => \{\s*if \(isSaving \|\| isDeleting\) return;/);
+    expect(saveBlock).toMatch(/setIsSaving\(true\);/);
+    expect(saveBlock).toMatch(/setIsSaving\(false\);/);
+    expect(source).toMatch(/disabled=\{isSaving \|\| isDeleting\}/);
+    expect(source).toMatch(/accessibilityState=\{\{ disabled: isSaving \|\| isDeleting \}\}/);
   });
 
+  it('closes the sheet only inside the success path, after the save has resolved — never in the catch/failure path', () => {
+    const tryBlock = saveBlock.match(/try \{([\s\S]*?)\} catch/)?.[1] ?? '';
+    const catchBlock = saveBlock.match(/catch \{([\s\S]*?)\} finally/)?.[1] ?? '';
+    expect(tryBlock).toMatch(/await saveReflection\(verseKey, text\);/);
+    expect(tryBlock).toMatch(/onClose\(\);/);
+    expect(catchBlock).not.toMatch(/onClose\(\)/);
+  });
+
+  it('on failure, preserves the typed reflection text (never calls setText) and surfaces a dedicated error message instead', () => {
+    const catchBlock = saveBlock.match(/catch \{([\s\S]*?)\} finally/)?.[1] ?? '';
+    expect(catchBlock).not.toMatch(/setText\(/);
+    expect(catchBlock).toMatch(/setSaveFailed\(true\);/);
+    expect(source).toMatch(/\{saveFailed && \(\s*<Text[^>]*>\s*\{messages\.reflection\.saveError\}\s*<\/Text>\s*\)\}/);
+  });
+
+  it('never falls back to a different account partition, writes with a client-supplied owner, or touches guest storage directly — the same single saveReflection(verseKey, text) call, resolved to whichever partition is active, is the only write', () => {
+    expect(saveBlock).not.toMatch(/ownerUserId|GUEST_REFLECTIONS_KEY|adoptGuest|activateLocalDataForAccount/);
+    const saveCalls = saveBlock.match(/saveReflection\([^)]*\)/g) ?? [];
+    expect(saveCalls).toEqual(['saveReflection(verseKey, text)']);
+  });
+
+  it('local save success is reported regardless of cloud sync — save() never imports or calls anything from the sync layer', () => {
+    expect(source).not.toMatch(/from ['"]@\/sync\//);
+    expect(saveBlock).not.toMatch(/reflectionsSync|syncReflections|markReflectionSyncState/);
+  });
+});
+
+describe('ReflectionSheet: Cancel/encryption/length-limit behavior is unchanged', () => {
   it('close() (Cancel) is unchanged', () => {
     expect(source).toMatch(/const close = \(\) => onClose\(\);/);
   });
@@ -207,6 +241,23 @@ describe('ReflectionSheet: Delete confirmation localization', () => {
       for (const key of keys) {
         expect(MESSAGES[locale].reflection[key].trim().length, `${locale}.reflection.${key} is empty`).toBeGreaterThan(0);
       }
+    }
+  });
+});
+
+describe('ReflectionSheet: save failure localization (Phase B5)', () => {
+  it('English matches the suggested required copy', () => {
+    expect(MESSAGES.en.reflection.saveError).toBe("Your reflection couldn't be saved. Please try again.");
+  });
+
+  it('Standard and Egyptian Arabic use the same polished wording', () => {
+    expect(MESSAGES.ar.reflection.saveError).toBe('تعذّر حفظ خاطرتك. يُرجى المحاولة مرة أخرى.');
+    expect(MESSAGES['ar-EG'].reflection.saveError).toBe(MESSAGES.ar.reflection.saveError);
+  });
+
+  it('every locale defines saveError, and it is non-empty', () => {
+    for (const locale of APP_LOCALES) {
+      expect(MESSAGES[locale].reflection.saveError.trim().length, `${locale}.reflection.saveError is empty`).toBeGreaterThan(0);
     }
   });
 });

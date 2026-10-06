@@ -143,6 +143,22 @@ describe('syncReflections', () => {
     expect(downloaded.map((d) => d.verseKey)).toEqual(['94:6']);
   });
 
+  it('Phase B5 Test H: a cloud upload failure (e.g. offline) never touches the already-saved local reflection — only the upload rejects', async () => {
+    const masterKey = generateMasterKey(getRandomBytes);
+    localReflections.items = [{ verseKey: '2:255', text: 'saved locally before going offline', createdAt: 1000, updatedAt: 1000 }];
+
+    vi.stubGlobal('fetch', vi.fn(async () => {
+      throw new Error('network unreachable');
+    }));
+
+    await expect(syncReflections('token', masterKey, 'user-1')).rejects.toThrow();
+
+    // The local reflection's own sync bookkeeping is untouched — a failed
+    // upload never marks it synced, never deletes it, never rewrites it.
+    expect(synced).toEqual([]);
+    expect(downloaded).toEqual([]);
+  });
+
   it('never sends plaintext in the network request body', async () => {
     const masterKey = generateMasterKey(getRandomBytes);
     localReflections.items = [{ verseKey: '2:255', text: 'a secret only I should read', createdAt: 1000, updatedAt: 1000 }];

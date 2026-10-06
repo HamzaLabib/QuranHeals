@@ -55,6 +55,8 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
   // verseKey — Delete is only ever shown once this is known to be true, so
   // it never appears while creating a brand-new reflection.
   const [hasExistingReflection, setHasExistingReflection] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveFailed, setSaveFailed] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteFailed, setDeleteFailed] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
@@ -76,9 +78,28 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
 
   const close = () => onClose();
 
+  /**
+   * Local persistence (storage/ayahReflections.ts) is the entire save
+   * contract — this never waits on, or is affected by, cloud sync (which
+   * runs separately and later; see sync/reflectionsSync.ts). A storage
+   * failure (corrupt/unreadable data, a full device, etc.) must never be
+   * mistaken for success: the sheet stays open, the typed text is never
+   * cleared, and a clear error is shown so the user can simply press Save
+   * again without retyping anything. Guarded against a second concurrent
+   * tap the same way performDelete is below.
+   */
   const save = async () => {
-    await saveReflection(verseKey, text);
-    onClose();
+    if (isSaving || isDeleting) return;
+    setIsSaving(true);
+    setSaveFailed(false);
+    try {
+      await saveReflection(verseKey, text);
+      onClose();
+    } catch {
+      setSaveFailed(true);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Reuses the exact same storage path an empty Save already takes (see
@@ -87,7 +108,7 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
   // existing sync merge/conflict rules propagate the deletion. There is no
   // separate deletion API and no direct AsyncStorage access here.
   const performDelete = async () => {
-    if (isDeleting) return;
+    if (isDeleting || isSaving) return;
     setIsDeleting(true);
     setDeleteFailed(false);
     try {
@@ -104,7 +125,7 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
   };
 
   const confirmDelete = () => {
-    if (isDeleting) return;
+    if (isDeleting || isSaving) return;
     Alert.alert(
       messages.reflection.deleteConfirmTitle,
       messages.reflection.deleteConfirmMessage,
@@ -159,18 +180,23 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
                     {messages.reflection.deleteError}
                   </Text>
                 )}
+                {saveFailed && (
+                  <Text style={[styles.errorText, direction]}>
+                    {messages.reflection.saveError}
+                  </Text>
+                )}
 
                 <View style={[styles.actions, isRtl && styles.actionsRtl]}>
                   {showDelete && (
                     <Pressable
                       accessibilityRole="button"
                       accessibilityLabel={messages.reflection.deleteAction}
-                      accessibilityState={{ disabled: isDeleting }}
-                      disabled={isDeleting}
+                      accessibilityState={{ disabled: isDeleting || isSaving }}
+                      disabled={isDeleting || isSaving}
                       onPress={confirmDelete}
                       style={({ pressed }) => [
                         styles.deleteButton,
-                        isDeleting && styles.disabled,
+                        (isDeleting || isSaving) && styles.disabled,
                         pressed && styles.pressed,
                       ]}>
                       <Trash2 size={20} color={colors.rust} />
@@ -194,9 +220,12 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
                     <Pressable
                       accessibilityRole="button"
                       accessibilityLabel={messages.reflection.save}
+                      accessibilityState={{ disabled: isSaving || isDeleting }}
+                      disabled={isSaving || isDeleting}
                       onPress={save}
                       style={({ pressed }) => [
                         styles.primaryButton,
+                        (isSaving || isDeleting) && styles.disabled,
                         pressed && styles.pressed,
                       ]}>
                       <Text style={styles.primaryButtonText}>

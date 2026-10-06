@@ -169,6 +169,7 @@ export type Messages = {
     deleteConfirmCancel: string;
     deleteConfirmConfirm: string;
     deleteError: string;
+    saveError: string;
   };
   /**
    * The mandatory "Sync Password" gate for synced reflections/favorites
@@ -391,6 +392,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       deleteConfirmCancel: 'Cancel',
       deleteConfirmConfirm: 'Delete',
       deleteError: 'Your reflection could not be deleted. Please try again.',
+      saveError: "Your reflection couldn't be saved. Please try again.",
     },
     syncPassphrase: {
       createTitle: "Set Password",
@@ -608,6 +610,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       deleteConfirmCancel: 'إلغاء',
       deleteConfirmConfirm: 'حذف',
       deleteError: 'تعذّر حذف خاطرتك. يُرجى المحاولة مرة أخرى.',
+      saveError: 'تعذّر حفظ خاطرتك. يُرجى المحاولة مرة أخرى.',
     },
     syncPassphrase: {
       createTitle: "إنشاء كلمة المرور",
@@ -839,6 +842,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       deleteConfirmCancel: 'إلغاء',
       deleteConfirmConfirm: 'حذف',
       deleteError: 'تعذّر حذف خاطرتك. يُرجى المحاولة مرة أخرى.',
+      saveError: 'تعذّر حفظ خاطرتك. يُرجى المحاولة مرة أخرى.',
     },
     // Sync Password copy is a security-sensitive flow — intentionally
     // byte-identical to `ar`'s Standard Arabic (Part 9 of the mandatory
