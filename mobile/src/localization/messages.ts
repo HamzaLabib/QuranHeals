@@ -222,8 +222,6 @@ export type Messages = {
     resetTitle: string;
     resetUnrecoverable: string;
     resetCloudLoss: string;
-    resetLocalKept: string;
-    resetUnaffected: string;
     resetConfirm: string;
     resetBack: string;
     resetError: string;
@@ -450,11 +448,9 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       retry: "Try again",
       forgotPassword: "Forgot Password?",
       resetTitle: "Reset encrypted reflection sync?",
-      resetUnrecoverable: "Your Password cannot be recovered — not by Quran Heals, and not by anyone else.",
-      resetCloudLoss: "Resetting permanently deletes the encrypted reflections saved to your account. Any reflection that is not also stored on this device will be lost.",
-      resetLocalKept: "Reflections stored on this device are kept and will be protected by the new Password you create next.",
-      resetUnaffected: "Your saved ayahs and settings are not affected.",
-      resetConfirm: "Verify identity and reset",
+      resetUnrecoverable: "Your password cannot be recovered.",
+      resetCloudLoss: "Resetting will permanently delete the reflections saved to your account, unless they are also saved on this device.",
+      resetConfirm: "Reset",
       resetBack: "Back",
       resetError: "The reset could not be completed. Check your connection and try again.",
       resetting: "Resetting…",
@@ -681,11 +677,9 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       retry: "حاول مرة أخرى",
       forgotPassword: "نسيت كلمة المرور؟",
       resetTitle: "إعادة تعيين مزامنة الخواطر المشفّرة؟",
-      resetUnrecoverable: "لا يمكن استعادة كلمة المرور، لا من قِبل Quran Heals ولا من قِبل أي أحد آخر.",
-      resetCloudLoss: "ستؤدي إعادة التعيين إلى حذف الخواطر المشفّرة المحفوظة في حسابك نهائيًا. أي خاطرة غير محفوظة أيضًا على هذا الجهاز ستُفقد.",
-      resetLocalKept: "الخواطر المحفوظة على هذا الجهاز ستبقى، وستحميها كلمة المرور الجديدة التي ستُنشئها بعد ذلك.",
-      resetUnaffected: "لن تتأثر آياتك المحفوظة وإعداداتك.",
-      resetConfirm: "تأكيد الهوية وإعادة التعيين",
+      resetUnrecoverable: "لا يمكن استعادة كلمة المرور.",
+      resetCloudLoss: "ستؤدي إعادة التعيين إلى حذف الخواطر المحفوظة في حسابك نهائيًا، إلا إذا كانت محفوظة على هذا الجهاز.",
+      resetConfirm: "إعادة التعيين",
       resetBack: "رجوع",
       resetError: "تعذّر إكمال إعادة التعيين. تحقق من اتصالك وحاول مرة أخرى.",
       resetting: "جارٍ إعادة التعيين…",
@@ -929,11 +923,9 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       retry: "حاول مرة أخرى",
       forgotPassword: "نسيت كلمة المرور؟",
       resetTitle: "إعادة تعيين مزامنة الخواطر المشفّرة؟",
-      resetUnrecoverable: "لا يمكن استعادة كلمة المرور، لا من قِبل Quran Heals ولا من قِبل أي أحد آخر.",
-      resetCloudLoss: "ستؤدي إعادة التعيين إلى حذف الخواطر المشفّرة المحفوظة في حسابك نهائيًا. أي خاطرة غير محفوظة أيضًا على هذا الجهاز ستُفقد.",
-      resetLocalKept: "الخواطر المحفوظة على هذا الجهاز ستبقى، وستحميها كلمة المرور الجديدة التي ستُنشئها بعد ذلك.",
-      resetUnaffected: "لن تتأثر آياتك المحفوظة وإعداداتك.",
-      resetConfirm: "تأكيد الهوية وإعادة التعيين",
+      resetUnrecoverable: "لا يمكن استعادة كلمة المرور.",
+      resetCloudLoss: "ستؤدي إعادة التعيين إلى حذف الخواطر المحفوظة في حسابك نهائيًا، إلا إذا كانت محفوظة على هذا الجهاز.",
+      resetConfirm: "إعادة التعيين",
       resetBack: "رجوع",
       resetError: "تعذّر إكمال إعادة التعيين. تحقق من اتصالك وحاول مرة أخرى.",
       resetting: "جارٍ إعادة التعيين…",

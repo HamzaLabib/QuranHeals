@@ -176,8 +176,6 @@ function SyncPassphraseForm({
                 <Text style={[styles.title, direction]}>{messages.syncPassphrase.resetTitle}</Text>
                 <Text style={[styles.description, direction]}>{messages.syncPassphrase.resetUnrecoverable}</Text>
                 <Text style={[styles.description, direction]}>{messages.syncPassphrase.resetCloudLoss}</Text>
-                <Text style={[styles.description, direction]}>{messages.syncPassphrase.resetLocalKept}</Text>
-                <Text style={[styles.description, direction]}>{messages.syncPassphrase.resetUnaffected}</Text>
                 {accountProvider && (
                   <Text style={[styles.description, direction]}>
                     {accountProvider === 'apple' ? messages.syncPassphrase.reauthNoticeApple : messages.syncPassphrase.reauthNoticeGoogle}

@@ -91,7 +91,7 @@ describe('Forgot Password? on the unlock step', () => {
     const { reset } = await renderUnlock();
     await press(en.syncPassphrase.forgotPassword);
 
-    for (const line of ['resetTitle', 'resetUnrecoverable', 'resetCloudLoss', 'resetLocalKept', 'resetUnaffected'] as const) {
+    for (const line of ['resetTitle', 'resetUnrecoverable', 'resetCloudLoss'] as const) {
       expect(text()).toContain(en.syncPassphrase[line]);
     }
     expect(reset).not.toHaveBeenCalled(); // opening the explanation never resets anything
@@ -183,7 +183,7 @@ describe('localization', () => {
       expect(text()).toContain(MESSAGES[locale].syncPassphrase.resetCloudLoss);
       await act(async () => root.unmount());
     }
-    const keys = ['forgotPassword', 'resetTitle', 'resetUnrecoverable', 'resetCloudLoss', 'resetLocalKept', 'resetUnaffected',
+    const keys = ['forgotPassword', 'resetTitle', 'resetUnrecoverable', 'resetCloudLoss', 'reauthNoticeApple', 'reauthNoticeGoogle',
       'resetConfirm', 'resetBack', 'resetError', 'resetting', 'deleteAccountInstead'] as const;
     for (const key of keys) {
       expect(MESSAGES['ar-EG'].syncPassphrase[key]).toBe(MESSAGES.ar.syncPassphrase[key]);
@@ -258,5 +258,47 @@ describe('fresh Apple/Google re-authentication before the reset', () => {
     await press(en.syncPassphrase.resetBack);
     await press(en.account.signOut);
     expect(props.onSignOut).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('reset confirmation copy', () => {
+  const COPY = {
+    en: {
+      title: 'Reset encrypted reflection sync?',
+      body: [
+        'Your password cannot be recovered.',
+        'Resetting will permanently delete the reflections saved to your account, unless they are also saved on this device.',
+      ],
+      provider: (name: string) => `To confirm it’s you, you’ll sign in again with the same ${name} account you use for Quran Heals.`,
+      reset: 'Reset',
+      back: 'Back',
+    },
+    ar: {
+      title: 'إعادة تعيين مزامنة الخواطر المشفّرة؟',
+      body: [
+        'لا يمكن استعادة كلمة المرور.',
+        'ستؤدي إعادة التعيين إلى حذف الخواطر المحفوظة في حسابك نهائيًا، إلا إذا كانت محفوظة على هذا الجهاز.',
+      ],
+      provider: (name: string) => `للتأكد من هويتك، ستسجّل الدخول مجددًا بحساب ${name} نفسه الذي تستخدمه في Quran Heals.`,
+      reset: 'إعادة التعيين',
+      back: 'رجوع',
+    },
+  };
+
+  it.each([
+    ['en', 'en'], ['ar', 'ar'], ['ar-EG', 'ar'],
+  ] as const)('%s shows exactly the approved title, body, provider line and short buttons', async (locale, copy) => {
+    const expected = COPY[copy];
+    for (const [provider, name] of [['apple', 'Apple'], ['google', 'Google']] as const) {
+      state.locale = locale;
+      await renderUnlock(vi.fn(async () => {}), { ...handlers(), accountProvider: provider });
+      await press(MESSAGES[locale].syncPassphrase.forgotPassword);
+
+      const shown = root.root.findAllByType('Text' as never).map((node) => node.props.children).filter((child) => typeof child === 'string');
+      expect(shown.slice(0, 4)).toEqual([expected.title, ...expected.body, expected.provider(name)]);
+      expect(button(expected.reset)).toBeDefined();
+      expect(button(expected.back)).toBeDefined();
+      await act(async () => root.unmount());
+    }
   });
 });
