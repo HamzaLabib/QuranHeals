@@ -90,9 +90,13 @@ export const lightPalette: Palette = {
   // existing plain-fill look (no visible border) — this task is dark-mode-only.
   secondaryButtonSurface: '#E9EEE4',
   secondaryButtonBorder: '#E9EEE4',
-  sageSurface: '#EEF2E9',
-  sageBorder: '#DCE4D3',
-  sageHeart: '#6B7F5E',
+  // Final selected very-light olive/sage reference for the "How this ayah
+  // connects" accordion — calm, soft, clearly distinct from the page
+  // background, never beige/yellow/blue-green. Independent of darkPalette's
+  // own sage values below (each theme keeps its own tuned set).
+  sageSurface: '#EEF1E8',
+  sageBorder: '#DCE1D6',
+  sageHeart: '#6A7B57',
   accentFill: '#617256',
   onAccentFill: '#FFFDF8',
   primaryButton: '#1F2A24',

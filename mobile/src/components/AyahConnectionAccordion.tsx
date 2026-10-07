@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
-import { usePalette, useThemedStyles } from '@/theme/useTheme';
+import { usePalette, useThemedStyles, useThemeName } from '@/theme/useTheme';
 
 type AyahConnectionAccordionProps = {
   /** This emotion–ayah mapping's text for the active locale (see utils/ayahConnection.ts). Callers render nothing when there is none. */
@@ -24,11 +24,18 @@ type AyahConnectionAccordionProps = {
 export function AyahConnectionAccordion({ text, resetKey }: AyahConnectionAccordionProps) {
   const { locale, messages } = useAppLocale();
   const colors = usePalette();
+  const theme = useThemeName();
   const styles = useThemedStyles(makeStyles);
   const direction = getDirectionStyle(locale);
   const isRtl = isRtlLocale(locale);
   const [expanded, setExpanded] = useState(false);
   const [trackedResetKey, setTrackedResetKey] = useState(resetKey);
+
+  // Light mode reads clearly against the very-light sage surface with the
+  // app's existing dark-green primary text; dark mode keeps the original
+  // muted textSecondary (unchanged) — see constants/theme.ts for the actual
+  // sage surface/border/heart values themselves.
+  const chevronColor = theme === 'light' ? colors.textPrimary : colors.textSecondary;
 
   // A newly shown ayah always starts collapsed. Adjusting state during
   // render (as AyahCard does) avoids a visible expanded frame.
@@ -61,7 +68,7 @@ export function AyahConnectionAccordion({ text, resetKey }: AyahConnectionAccord
           <Text style={[styles.heading, { writingDirection: direction.writingDirection }]}>{messages.ayah.connectionHeading}</Text>
         </View>
         <View style={[styles.chevron, isRtl ? styles.chevronRtl : styles.chevronLtr]}>
-          <Chevron size={ICON_SIZE} color={colors.textSecondary} />
+          <Chevron size={ICON_SIZE} color={chevronColor} />
         </View>
       </Pressable>
       {expanded && <Text style={[styles.body, direction]}>{text}</Text>}

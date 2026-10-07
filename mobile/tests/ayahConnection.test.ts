@@ -176,7 +176,7 @@ describe('AyahConnectionAccordion', () => {
     for (const icon of ['Heart', 'ChevronDown']) expect(root.root.findByType(icon as never).props).not.toHaveProperty('accessible');
   });
 
-  it('uses a solid (filled) olive heart, inline with the title — not inside a circular button like Favorite', () => {
+  it('uses a solid (filled) heart, inline with the title — not inside a circular button like Favorite', () => {
     render('TEST-EN body');
     const heart = root.root.findByType('Heart' as never);
     expect(heart.props).toMatchObject({ size: 18, color: lightPalette.sageHeart, fill: lightPalette.sageHeart });
@@ -184,12 +184,19 @@ describe('AyahConnectionAccordion', () => {
     expect(heart.parent?.type).toBe('View'); // the title group, not a Pressable of its own
   });
 
-  it('16. switches to the dark sage surface and the muted dark heart in dark mode', () => {
+  it('light mode: the chevron uses the existing dark-green primary text token, not the medium-gray secondary one', () => {
+    render('TEST-EN body');
+    expect(root.root.findByType('ChevronDown' as never).props.color).toBe(lightPalette.textPrimary);
+    expect(root.root.findByType('ChevronDown' as never).props.color).not.toBe(lightPalette.textSecondary);
+  });
+
+  it('16. switches to the dark sage surface/heart in dark mode, and the chevron keeps its original (unchanged) textSecondary color', () => {
     state.scheme = 'dark';
     render('TEST-EN body');
-    const container = root.root.findAllByType('View' as never)[0].props.style;
+    const container = flat(root.root.findAllByType('View' as never)[0].props.style);
     expect(container).toMatchObject({ backgroundColor: darkPalette.sageSurface, borderColor: darkPalette.sageBorder });
     expect(root.root.findByType('Heart' as never).props).toMatchObject({ color: darkPalette.sageHeart, fill: darkPalette.sageHeart });
+    expect(root.root.findByType('ChevronDown' as never).props.color).toBe(darkPalette.textSecondary);
   });
 });
 
@@ -209,25 +216,31 @@ describe('sage theme tokens', () => {
 
   it('16. light and dark each have their own sage surface (dark is not the light color reused)', () => {
     expect(lightPalette.sageSurface).not.toBe(darkPalette.sageSurface);
-    expect(lightPalette).toMatchObject({ sageSurface: '#EEF2E9', sageBorder: '#DCE4D3' });
-    // Dark mode uses the blue/cyan accent family, not the light theme's olive/sage.
+    // Final selected very-light olive/sage reference for light mode.
+    expect(lightPalette).toMatchObject({ sageSurface: '#EEF1E8', sageBorder: '#DCE1D6' });
+    // Dark mode is untouched by the light-mode refinement — the blue/cyan
+    // accent family, not the light theme's olive/sage.
     expect(darkPalette).toMatchObject({ sageSurface: '#2A303A', sageBorder: '#44617A' });
   });
 
-  it('keeps heading/body text well above AA and both icons visible (≥3:1, non-text) on sage in both themes', () => {
+  it('keeps heading/body text well above AA and the filled heart visible (≥3:1, non-text) on sage in both themes', () => {
     for (const palette of [lightPalette, darkPalette]) {
       expect(contrast(palette.textPrimary, palette.sageSurface)).toBeGreaterThanOrEqual(7); // heading + body
       expect(contrast(palette.sageHeart, palette.sageSurface)).toBeGreaterThanOrEqual(3); // filled heart icon
-      expect(contrast(palette.textSecondary, palette.sageSurface)).toBeGreaterThanOrEqual(3); // chevron icon only
     }
-    // No text in the section uses textSecondary (it is below 4.5:1 on light sage).
+    // Dark mode's chevron still uses textSecondary (unchanged); light mode's
+    // chevron now uses textPrimary instead (see the dedicated test above) —
+    // textPrimary already clears a far higher bar (>=7) than textSecondary's
+    // own >=3 non-text minimum ever did, so light mode's chevron contrast
+    // only improved.
+    expect(contrast(darkPalette.textSecondary, darkPalette.sageSurface)).toBeGreaterThanOrEqual(3);
     const source = read('src/components/AyahConnectionAccordion.tsx');
-    expect(source.match(/textSecondary/g)).toHaveLength(1);
-    expect(source).toMatch(/<Chevron size=\{ICON_SIZE\} color=\{colors\.textSecondary\}/);
+    expect(source).toMatch(/const chevronColor = theme === 'light' \? colors\.textPrimary : colors\.textSecondary;/);
+    expect(source).toMatch(/<Chevron size=\{ICON_SIZE\} color=\{chevronColor\}/);
   });
 
   it('the filled heart is a calm olive in light mode: darker than the sage surface', () => {
-    expect(lightPalette.sageHeart).toBe('#6B7F5E');
+    expect(lightPalette.sageHeart).toBe('#6A7B57');
     expect(luminance(lightPalette.sageHeart)).toBeLessThan(luminance(lightPalette.sageSurface)); // darker than light sage
     const n = parseInt(lightPalette.sageHeart.slice(1), 16);
     const [r, g, b] = [n >> 16, (n >> 8) & 255, n & 255];
