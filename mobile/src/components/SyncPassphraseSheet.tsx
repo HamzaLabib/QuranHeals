@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  ActivityIndicator,
   Keyboard,
   KeyboardAvoidingView,
   Modal,
@@ -20,7 +21,7 @@ import {
   useFreshProviderCredential,
 } from '@/auth/reauthentication';
 import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
-import { useThemedStyles } from '@/theme/useTheme';
+import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { SyncApiError } from '@/sync/syncApi';
@@ -84,6 +85,7 @@ function SyncPassphraseForm({
   accountProvider,
 }: SyncPassphraseSheetProps & { request: NonNullable<PassphraseRequestLike> }) {
   const styles = useThemedStyles(makeSyncPasswordStyles);
+  const colors = usePalette();
   const { locale, messages } = useAppLocale();
   const direction = getDirectionStyle(locale);
   const isRtl = isRtlLocale(locale);
@@ -99,7 +101,7 @@ function SyncPassphraseForm({
 
   const [confirmation, setConfirmation] = useState('');
   const [touched, setTouched] = useState(false);
-  const { verified } = useVerifiedSyncPassword(value, request.mode === 'unlock' ? request.verify : undefined);
+  const { verified, checking } = useVerifiedSyncPassword(value, request.mode === 'unlock' ? request.verify : undefined);
 
   const isCreate = request.mode === 'create';
   const canSubmit = isCreate ? canSetSyncPassword(value, confirmation) : verified;
@@ -278,10 +280,15 @@ function SyncPassphraseForm({
                   <Pressable
                     accessibilityRole="button"
                     accessibilityLabel={submitLabel}
+                    accessibilityState={{ disabled: !canSubmit, busy: checking }}
                     disabled={!canSubmit}
                     onPress={submit}
                     style={({ pressed }) => [styles.primaryButton, !canSubmit && styles.disabled, pressed && styles.pressed]}>
-                    <Text style={styles.primaryButtonText}>{submitLabel}</Text>
+                    {/* While the password is still being checked (the KDF takes a moment), Continue shows it is waiting rather than looking broken. */}
+                    <View style={[styles.buttonContent, isRtl && styles.actionsRtl]}>
+                      {checking && <ActivityIndicator size="small" color={colors.onPrimaryButton} />}
+                      <Text style={styles.primaryButtonText}>{submitLabel}</Text>
+                    </View>
                   </Pressable>
                 </View>
               </ScrollView>
@@ -381,6 +388,11 @@ export const makeSyncPasswordStyles = (colors: Palette) => StyleSheet.create({
   },
   disabled: {
     opacity: 0.5,
+  },
+  buttonContent: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: spacing.sm,
   },
   primaryButtonText: {
     color: colors.onPrimaryButton,

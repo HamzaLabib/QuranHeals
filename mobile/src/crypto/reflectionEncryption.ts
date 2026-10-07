@@ -41,6 +41,11 @@ export const SALT_LENGTH_BYTES = 16;
 // once per device per sign-in (to unwrap the master key), not per
 // reflection save, so this cost is acceptable.
 export const DEFAULT_KDF_ITERATIONS = 210_000;
+// How long PBKDF2 computes before yielding to the event loop. Scheduling only:
+// the derived key is identical for any value. noble's 10ms default yields via
+// setTimeout(0), which on React Native costs about a frame each time, so the
+// yields alone took longer than the KDF itself.
+export const KDF_ASYNC_TICK_MS = 50;
 
 /** Real randomness always comes from mobile/src/crypto/randomBytes.ts (expo-crypto); tests inject Node's crypto.randomBytes. Never a Math.random()-backed source. */
 export type RandomBytesFn = (length: number) => Uint8Array;
@@ -76,7 +81,7 @@ export async function derivePassphraseKey(
   salt: Uint8Array,
   iterations: number = DEFAULT_KDF_ITERATIONS,
 ): Promise<Uint8Array> {
-  return pbkdf2Async(sha256, passphrase, salt, { c: iterations, dkLen: MASTER_KEY_LENGTH_BYTES });
+  return pbkdf2Async(sha256, passphrase, salt, { c: iterations, dkLen: MASTER_KEY_LENGTH_BYTES, asyncTick: KDF_ASYNC_TICK_MS });
 }
 
 /** Encrypts one reflection's plaintext with the account's reflection master key. A fresh random nonce is generated for every call — nonces are never reused. */

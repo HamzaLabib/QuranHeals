@@ -43,6 +43,33 @@ export async function verifySyncPassphrase(key: WrappedMasterKey, value: string)
   }
 }
 
+/**
+ * The unlock step's verifier: verification IS the unwrap (KDF + AEAD
+ * decryption of the cloud key), so the unwrap that proved the password is
+ * kept and reused once the user continues instead of running the KDF a
+ * second time. Only the latest value is kept; a superseded result is wiped.
+ */
+export function createPassphraseVerifier(key: WrappedMasterKey) {
+  let latest: { value: string; masterKey: Promise<Uint8Array> } | null = null;
+  const wipe = (entry: typeof latest) => void entry?.masterKey.then((masterKey) => masterKey.fill(0), () => {});
+  const unwrap = (value: string) => {
+    if (latest?.value !== value) {
+      wipe(latest);
+      latest = { value, masterKey: unwrapMasterKey(key, value) };
+    }
+    return latest.masterKey;
+  };
+  return {
+    verify: ((value) => unwrap(value).then(() => true, () => false)) as VerifyPassphrase,
+    /** The master key for `value` (a copy the caller owns); throws on a wrong password. */
+    unwrap: async (value: string) => (await unwrap(value)).slice(),
+    dispose: () => {
+      wipe(latest);
+      latest = null;
+    },
+  };
+}
+
 export class SyncPassphraseCancelledError extends Error {}
 
 /**
@@ -108,16 +135,22 @@ export async function ensureReflectionMasterKey(
       await resetEncryptedReflectionSync(sessionToken, ownerUserId, credential);
       resetCompleted = true;
     };
+    const verifier = createPassphraseVerifier(cloudKey);
     let passphrase: string;
     try {
-      passphrase = await promptForPassphrase('unlock', (value) => verifySyncPassphrase(cloudKey, value), reset);
+      passphrase = await promptForPassphrase('unlock', verifier.verify, reset);
     } catch (error) {
+      verifier.dispose();
       if (!(resetCompleted && error instanceof SyncPasswordResetError)) throw error;
       return createMasterKey(sessionToken, promptForPassphrase, ownerUserId);
     }
-    const masterKey = await unwrapMasterKey(cloudKey, passphrase);
-    await cacheMasterKey(ownerUserId, masterKey);
-    return masterKey;
+    try {
+      const masterKey = await verifier.unwrap(passphrase);
+      await cacheMasterKey(ownerUserId, masterKey);
+      return masterKey;
+    } finally {
+      verifier.dispose();
+    }
   }
 
   return createMasterKey(sessionToken, promptForPassphrase, ownerUserId);

@@ -10,7 +10,7 @@ const state = vi.hoisted(() => ({
 vi.mock('react-native', () => ({
   useColorScheme: () => 'light',
   Keyboard: { dismiss: vi.fn() }, Platform: { OS: 'ios', select: (values: { ios: unknown }) => values.ios }, StyleSheet: { create: (value: unknown) => value },
-  Modal: 'Modal', KeyboardAvoidingView: 'KeyboardAvoidingView', Pressable: 'Pressable', ScrollView: 'ScrollView',
+  ActivityIndicator: 'ActivityIndicator', Modal: 'Modal', KeyboardAvoidingView: 'KeyboardAvoidingView', Pressable: 'Pressable', ScrollView: 'ScrollView',
   Text: 'Text', TextInput: 'TextInput', TouchableWithoutFeedback: 'TouchableWithoutFeedback', View: 'View',
 }));
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView' }));
@@ -118,6 +118,69 @@ describe('unlock', () => {
     await act(async () => root.update(createElement(SyncPassphraseSheet, props)));
     expect(input('Password').props.value).toBe('');
     expect(input('Password').props.secureTextEntry).toBe(true);
+  });
+
+  async function renderUnlock(verify: (value: string) => Promise<boolean>) {
+    const props = { request: { mode: 'unlock' as const, verify }, onSubmit: vi.fn(), onSignOut: vi.fn(), onResetComplete: vi.fn(), deleteAccount: vi.fn(async () => {}), onAccountDeleted: vi.fn(), accountProvider: 'google' as const };
+    await act(async () => { root = create(createElement(SyncPassphraseSheet, props)); });
+    return props;
+  }
+  const spinners = () => root.root.findAllByType('ActivityIndicator' as never).length;
+
+  it('verifies the same input once, however often it rerenders or is retyped', async () => {
+    const verify = vi.fn(async (value: string) => value === 'abcd');
+    const props = await renderUnlock(verify);
+    await type('Password', 'abcd'); await verifyPending();
+    expect(button('Continue').props.disabled).toBe(false);
+    await act(async () => root.update(createElement(SyncPassphraseSheet, { ...props })));
+    await type('Password', 'abcd'); await verifyPending();
+    // Typed away and back before the debounce elapsed: nothing new to check.
+    await type('Password', 'abc'); await type('Password', 'abcd'); await verifyPending();
+    expect(verify).toHaveBeenCalledTimes(1);
+    expect(button('Continue').props.disabled).toBe(false);
+  });
+
+  it('runs one verification at a time and then checks only the latest input', async () => {
+    const pending: ((valid: boolean) => void)[] = [];
+    const verify = vi.fn(() => new Promise<boolean>(resolve => { pending.push(resolve); }));
+    await renderUnlock(verify);
+    await type('Password', 'abc'); await verifyPending();
+    expect(verify).toHaveBeenCalledTimes(1);
+    // Typing pauses while the first check is still running start no parallel work.
+    await type('Password', 'abcd'); await verifyPending();
+    await type('Password', 'abcde'); await verifyPending();
+    expect(verify).toHaveBeenCalledTimes(1);
+    await act(async () => pending[0](false));
+    expect(verify).toHaveBeenCalledTimes(2);
+    expect(verify).toHaveBeenLastCalledWith('abcde'); // 'abcd' was superseded and skipped
+    await act(async () => pending[1](true));
+    expect(button('Continue').props.disabled).toBe(false);
+  });
+
+  it('a late success for earlier input never enables Continue for newer input', async () => {
+    const pending: ((valid: boolean) => void)[] = [];
+    const verify = vi.fn(() => new Promise<boolean>(resolve => { pending.push(resolve); }));
+    await renderUnlock(verify);
+    await type('Password', 'correct'); await verifyPending();
+    await type('Password', 'correct-plus-typo'); await verifyPending();
+    await act(async () => pending[0](true));
+    expect(button('Continue').props.disabled).toBe(true);
+    await act(async () => pending[1](false));
+    expect(button('Continue').props.disabled).toBe(true);
+  });
+
+  it('shows a busy Continue while checking, without enabling it early', async () => {
+    let finish!: (valid: boolean) => void;
+    await renderUnlock(vi.fn(() => new Promise<boolean>(resolve => { finish = resolve; })));
+    expect(spinners()).toBe(0);
+    await type('Password', 'correct');
+    expect(spinners()).toBe(1);
+    expect(button('Continue').props.accessibilityState).toEqual({ disabled: true, busy: true });
+    await verifyPending();
+    expect(button('Continue').props.disabled).toBe(true);
+    await act(async () => finish(true));
+    expect(spinners()).toBe(0);
+    expect(button('Continue').props.accessibilityState).toEqual({ disabled: false, busy: false });
   });
 });
 
