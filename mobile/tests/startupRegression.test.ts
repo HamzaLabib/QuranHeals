@@ -226,6 +226,14 @@ describe('Startup loading state always terminates (regression)', () => {
   });
 });
 
+// Representative example values used below — deliberately NOT read from the
+// developer's real, gitignored mobile/.env. CI (GitHub Actions) has no such
+// file, so this entire suite must be able to run with mobile/.env absent.
+// Any address in a private/local range behaves identically for the checks
+// below; this one is just test data, not a real backend.
+const REPRESENTATIVE_LOCAL_API_URL = 'http://192.168.1.50:4000';
+const RENDER_PRODUCTION_API_URL = 'https://quran-heals-api.onrender.com';
+
 describe('Configured API base URL is resolved and logged correctly (regression)', () => {
   afterEach(() => {
     vi.unstubAllEnvs();
@@ -233,10 +241,16 @@ describe('Configured API base URL is resolved and logged correctly (regression)'
   });
 
   it('resolves to EXPO_PUBLIC_API_URL when set (never silently substitutes the LAN fallback)', async () => {
-    vi.stubEnv('EXPO_PUBLIC_API_URL', 'https://quran-heals-api.onrender.com');
+    vi.stubEnv('EXPO_PUBLIC_API_URL', RENDER_PRODUCTION_API_URL);
     vi.resetModules();
     const { apiBaseUrl } = await import('@/services/apiBase');
-    expect(apiBaseUrl).toBe('https://quran-heals-api.onrender.com');
+    expect(apiBaseUrl).toBe(RENDER_PRODUCTION_API_URL);
+  });
+
+  it('fails safely (throws, never silently falls back) when EXPO_PUBLIC_API_URL is unset — vitest.config.mts sets __DEV__ false, matching a release bundle', async () => {
+    vi.stubEnv('EXPO_PUBLIC_API_URL', '');
+    vi.resetModules();
+    await expect(import('@/services/apiBase')).rejects.toThrow(/EXPO_PUBLIC_API_URL was not set/);
   });
 
   it('logs the resolved API base URL in development (dev-only diagnostic)', () => {
@@ -244,39 +258,55 @@ describe('Configured API base URL is resolved and logged correctly (regression)'
     expect(source).toMatch(/devLog\('apiBase', 'resolved API base URL'/);
   });
 
-  // A LAN IP (e.g. 192.168.x.x) in mobile/.env is valid and expected for
-  // local Expo Go development on the same Wi-Fi — it is NOT banned
-  // globally. The real safety rule lives in app.config.ts's hosted-build
-  // guard (see tests/apiUrlPolicy.test.ts for its full coverage): local/dev
-  // never blocks, but any EAS "hosted" build (preview/production) refuses a
-  // LAN/private URL. These two tests exercise that guard directly against
-  // whatever value is currently in mobile/.env, instead of asserting
-  // anything about the value itself.
-  it('the current local .env value is allowed for local development (no EAS_BUILD, no hosted policy)', async () => {
-    const envSource = read('.env');
-    const currentApiUrl = envSource.match(/^EXPO_PUBLIC_API_URL=(.*)$/m)?.[1].trim();
-    expect(currentApiUrl).toBeTruthy();
-
+  // A LAN IP (e.g. 192.168.x.x) is valid and expected for local Expo Go
+  // development on the same Wi-Fi — it is NOT banned globally. The real
+  // safety rule lives in app.config.ts's hosted-build guard (see
+  // tests/apiUrlPolicy.test.ts for its full coverage): local/dev never
+  // blocks, but any EAS "hosted" build (preview/production) refuses a
+  // LAN/private URL. These tests exercise that guard directly against
+  // explicit, self-contained test data — never the real mobile/.env, which
+  // does not exist in CI.
+  it('a representative LAN URL is allowed for local development (no EAS_BUILD, no hosted policy)', async () => {
     const { assertApiUrlForBuild } = await import('../app.config');
     // Plain `expo start` / Expo Go: EAS_BUILD is never 'true'.
-    expect(() => assertApiUrlForBuild({ EXPO_PUBLIC_API_URL: currentApiUrl })).not.toThrow();
+    expect(() => assertApiUrlForBuild({ EXPO_PUBLIC_API_URL: REPRESENTATIVE_LOCAL_API_URL })).not.toThrow();
   });
 
-  it('the current local .env value would be refused if a hosted (preview/production) EAS build tried to embed it', async () => {
-    const envSource = read('.env');
-    const currentApiUrl = envSource.match(/^EXPO_PUBLIC_API_URL=(.*)$/m)?.[1].trim();
-
+  it('the same representative LAN URL would be refused if a hosted (preview/production) EAS build tried to embed it', async () => {
     const { assertApiUrlForBuild, checkHostedApiUrl } = await import('../app.config');
-    // Only meaningful while .env actually holds a local/private URL, which
-    // is the current, intentional setup — if it's a public https URL this
-    // assertion would no longer apply, which is fine.
-    if (checkHostedApiUrl(currentApiUrl).ok) return;
+    expect(checkHostedApiUrl(REPRESENTATIVE_LOCAL_API_URL)).toMatchObject({ ok: false });
 
     for (const profile of ['preview', 'production']) {
       expect(() =>
-        assertApiUrlForBuild({ EAS_BUILD: 'true', EAS_BUILD_PROFILE: profile, EXPO_PUBLIC_API_URL: currentApiUrl }),
+        assertApiUrlForBuild({ EAS_BUILD: 'true', EAS_BUILD_PROFILE: profile, EXPO_PUBLIC_API_URL: REPRESENTATIVE_LOCAL_API_URL }),
       ).toThrow(/EXPO_PUBLIC_API_URL/);
     }
+  });
+
+  it('the Render production URL is accepted for a hosted (preview/production) EAS build', async () => {
+    const { assertApiUrlForBuild, checkHostedApiUrl } = await import('../app.config');
+    expect(checkHostedApiUrl(RENDER_PRODUCTION_API_URL)).toMatchObject({ ok: true, url: RENDER_PRODUCTION_API_URL });
+
+    for (const profile of ['preview', 'production']) {
+      expect(() =>
+        assertApiUrlForBuild({ EAS_BUILD: 'true', EAS_BUILD_PROFILE: profile, EXPO_PUBLIC_API_URL: RENDER_PRODUCTION_API_URL }),
+      ).not.toThrow();
+    }
+  });
+
+  it('a missing/empty URL for a hosted build fails safely (throws with a clear reason, never silently passes)', async () => {
+    const { assertApiUrlForBuild, checkHostedApiUrl } = await import('../app.config');
+    expect(checkHostedApiUrl(undefined)).toMatchObject({ ok: false });
+    expect(checkHostedApiUrl('')).toMatchObject({ ok: false });
+    expect(() => assertApiUrlForBuild({ EAS_BUILD: 'true', EAS_BUILD_PROFILE: 'production' })).toThrow(/EXPO_PUBLIC_API_URL/);
+  });
+});
+
+describe('This suite is self-contained and never depends on the real mobile/.env (CI has none)', () => {
+  it('startupRegression.test.ts itself never reads the real .env file', () => {
+    const source = readFileSync(resolve(__dirname, 'startupRegression.test.ts'), 'utf-8');
+    expect(source).not.toMatch(/read\('\.env'\)/);
+    expect(source).not.toMatch(/readFileSync\([^)]*'\.env'/);
   });
 });
 
