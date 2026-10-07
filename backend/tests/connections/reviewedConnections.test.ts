@@ -12,6 +12,30 @@ import {
   REVIEWED_CONNECTIONS_PATH,
   type StoredMapping,
 } from '../../src/connections/reviewedConnections';
+import { selectMappingConnection } from '../../src/services/MongooseQuranRepository';
+
+const SAD_VERSE_KEYS = [
+  '2:38', '2:112', '2:152', '2:153', '2:155', '2:156', '2:186', '2:255',
+  '3:103', '3:120', '3:139', '3:186',
+  '4:45', '4:148',
+  '9:40', '9:51', '9:129',
+  '10:62',
+  '12:18', '12:83', '12:84', '12:86', '12:87',
+  '14:42',
+  '16:127',
+  '20:40', '20:46',
+  '21:89',
+  '28:13',
+  '39:53', '39:67',
+  '40:44',
+  '42:28',
+  '57:4',
+  '58:10',
+  '65:3',
+  '70:5',
+  '93:3',
+  '94:1', '94:2', '94:5', '94:6',
+];
 
 const json = (value: unknown) => JSON.stringify(value);
 const problemsOf = (run: () => unknown): string[] => {
@@ -59,6 +83,67 @@ describe('the committed reviewed-connections.json', () => {
       if (isPlaceholder) expect(entry.connection, `${entry.emotionKey} ${entry.verseKey}`).toEqual({ en: '...', ar: '...' });
       else expect(entry.connection.en ?? entry.connection.ar).toBeTruthy();
     }
+  });
+
+  describe('"sad" is populated with the approved copy; every other emotion is untouched', () => {
+    const sadEntries = entries.filter((entry) => entry.emotionKey === 'sad');
+    const sadByVerse = new Map(sadEntries.map((entry) => [entry.verseKey, entry.connection]));
+
+    it('6. has exactly the 42 approved "sad" verse keys — none lost, none duplicated', () => {
+      expect(sadEntries).toHaveLength(42);
+      expect([...sadByVerse.keys()].sort()).toEqual([...SAD_VERSE_KEYS].sort());
+    });
+
+    it('none of the 42 "sad" entries are still the "..." placeholder', () => {
+      for (const [verseKey, connection] of sadByVerse) {
+        expect(connection.en, verseKey).not.toBe('...');
+        expect(connection.ar, verseKey).not.toBe('...');
+        expect(connection.en, verseKey).toBeTruthy();
+        expect(connection.ar, verseKey).toBeTruthy();
+      }
+    });
+
+    it('1. sad + 20:40 resolves the approved English connection', () => {
+      expect(sadByVerse.get('20:40')?.en).toBe(
+        'Painful events may feel heavy while you are living through them, but this ayah shows how Allah guides your path through things whose wisdom you could not see at the time, and that He is able to deliver you from anguish after hardship.',
+      );
+    });
+
+    it('2. sad + 20:40 resolves the approved Arabic connection', () => {
+      expect(sadByVerse.get('20:40')?.ar).toBe(
+        'قد تبدو الأحداث المؤلمة ثقيلة وأنت تعيشها، لكن هذه الآية تريك كيف يدبّر الله طريقك عبر أمور لم ترَ حكمتها حينها، وأنه قادر أن ينجيك من الغم بعد الشدة.',
+      );
+    });
+
+    it('3. sad + 39:67 resolves the approved revised wording', () => {
+      expect(sadByVerse.get('39:67')?.en).toBe(
+        'When sadness makes your problem feel bigger than everything else, this ayah restores perspective by reminding you of Allah’s greatness and power; what weighs heavily on you is not greater than Allah’s power.',
+      );
+      expect(sadByVerse.get('39:67')?.ar).toBe(
+        'حين يجعل الحزن مشكلتك تبدو أكبر من كل شيء، تعيد هذه الآية لقلبك المنظور الصحيح بتذكيرك بعظمة الله وقدرته؛ فما يثقل عليك ليس أكبر من قدرة الله.',
+      );
+    });
+
+    it('5. every entry outside "sad" is still exactly the "..." placeholder (no other emotion was touched)', () => {
+      const others = entries.filter((entry) => entry.emotionKey !== 'sad');
+      expect(others.length).toBeGreaterThan(0);
+      for (const entry of others) {
+        expect(entry.connection, `${entry.emotionKey} ${entry.verseKey}`).toEqual({ en: '...', ar: '...' });
+      }
+    });
+
+    it('1/2. full pipeline: selectMappingConnection resolves sad 20:40 by locale exactly like an approved mapping would', () => {
+      const connection = sadByVerse.get('20:40')!;
+      const resolved = selectMappingConnection([{ emotionKey: 'sad', status: 'approved', connection }], 'sad');
+      expect(resolved?.en).toBe(connection.en);
+      expect(resolved?.ar).toBe(connection.ar);
+    });
+
+    it('4. a mapping for a different emotion never receives the "sad" connection, even for the same verse key', () => {
+      const connection = sadByVerse.get('20:40')!;
+      expect(selectMappingConnection([{ emotionKey: 'sad', status: 'approved', connection }], 'hopeless')).toBeUndefined();
+      expect(selectMappingConnection([{ emotionKey: 'hopeless', status: 'approved' }], 'hopeless')).toBeUndefined();
+    });
   });
 });
 
