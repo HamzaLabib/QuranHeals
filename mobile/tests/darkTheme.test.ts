@@ -15,6 +15,13 @@ vi.mock('lucide-react-native', () => ({ Heart: 'Heart' }));
 vi.mock('@/localization/useAppLocale', () => ({
   useAppLocale: () => ({ messages: { favoriteButton: { saveLabel: 'Save', removeLabel: 'Remove' } } }),
 }));
+// Appearance mode is 'system' for these tests specifically so they can
+// exercise "follows the live device appearance" — the app's default is now
+// Light (see appearancePreference.ts), which does NOT follow the device;
+// that default is covered in appearancePreference.test.ts instead.
+vi.mock('@/theme/useAppearancePreference', () => ({
+  useAppearancePreference: () => ({ mode: 'system', isReady: true, setMode: vi.fn() }),
+}));
 
 import {
   darkPalette,
@@ -85,14 +92,21 @@ describe('light palette keeps the existing Quran Heals colors', () => {
 });
 
 describe('dark palette: warm, soft, readable', () => {
-  it('avoids pure black backgrounds and pure white reading text', () => {
-    for (const token of ['background', 'surface', 'card', 'sheetBackground', 'inputBackground'] as const) {
+  it('keeps the background and reading text warm, never pure black/white', () => {
+    const n = parseInt(darkPalette.background.slice(1), 16);
+    expect(darkPalette.background).not.toBe('#000000');
+    // Warm, not cold blue-gray: red channel >= blue channel.
+    expect(n >> 16).toBeGreaterThanOrEqual(n & 255);
+    expect(darkPalette.textPrimary).not.toBe('#FFFFFF');
+  });
+
+  it('uses blue-gray (not warm olive) secondary surfaces and inputs, per the dark accent direction', () => {
+    for (const token of ['surface', 'card', 'sheetBackground', 'inputBackground'] as const) {
       expect(darkPalette[token]).not.toBe('#000000');
       const n = parseInt(darkPalette[token].slice(1), 16);
-      // Warm, not cold blue-gray: red channel >= blue channel.
-      expect(n >> 16).toBeGreaterThanOrEqual(n & 255);
+      // Blue-leaning, not warm: blue channel >= red channel.
+      expect(n & 255).toBeGreaterThanOrEqual(n >> 16);
     }
-    expect(darkPalette.textPrimary).not.toBe('#FFFFFF');
   });
 
   it('keeps every meaningful text/action pair at WCAG AA (4.5:1) or better', () => {

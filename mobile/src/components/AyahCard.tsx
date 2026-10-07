@@ -203,8 +203,10 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   },
   revealButton: {
     alignItems: 'center',
-    backgroundColor: colors.accentSoft,
+    backgroundColor: colors.secondaryButtonSurface,
+    borderColor: colors.secondaryButtonBorder,
     borderRadius: radii.sm,
+    borderWidth: 1,
     justifyContent: 'center',
     minHeight: 44,
     paddingHorizontal: spacing.md,

@@ -121,6 +121,12 @@ export type Messages = {
     translationDisplayOffHint: string;
     quranArabicNote: string;
   };
+  appearance: {
+    sectionLabel: string;
+    system: string;
+    light: string;
+    dark: string;
+  };
   auth: {
     syncPrompt: string;
     continueWithoutAccount: string;
@@ -347,6 +353,12 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       translationDisplayOffHint: 'Arabic only. The translation is never shown.',
       quranArabicNote: 'The Arabic Quran is always shown — this setting only affects the English translation.',
     },
+    appearance: {
+      sectionLabel: 'Appearance',
+      system: 'System',
+      light: 'Light',
+      dark: 'Dark',
+    },
     auth: {
       syncPrompt: 'Sign in to sync across devices',
       continueWithoutAccount: 'Continue without an account',
@@ -561,6 +573,12 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       translationDisplayOnDemandHint: 'يظهر النص العربي أولًا، ويمكنك إظهار الترجمة متى شئت.',
       translationDisplayOffHint: 'النص العربي فقط. لن تظهر الترجمة.',
       quranArabicNote: 'يظهر القرآن بالعربية دائمًا — هذا الإعداد يؤثر فقط على الترجمة الإنجليزية.',
+    },
+    appearance: {
+      sectionLabel: 'المظهر',
+      system: 'تلقائي',
+      light: 'فاتح',
+      dark: 'الوضع الليلي',
     },
     auth: {
       syncPrompt: 'سجّل الدخول لتجد محتواك المحفوظ على أجهزتك الأخرى',
@@ -790,6 +808,12 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       translationDisplayOnDemandHint: 'يظهر النص العربي أولًا، ويمكنك إظهار الترجمة متى شئت.',
       translationDisplayOffHint: 'النص العربي فقط. لن تظهر الترجمة.',
       quranArabicNote: 'يظهر القرآن بالعربية دائمًا — هذا الإعداد يؤثر فقط على الترجمة الإنجليزية.',
+    },
+    appearance: {
+      sectionLabel: 'المظهر',
+      system: 'تلقائي',
+      light: 'فاتح',
+      dark: 'الوضع الليلي',
     },
     // ar-EG general UI uses the same Standard Arabic as `ar` for everything
     // outside the three approved Egyptian exceptions (home heading/subtitle,

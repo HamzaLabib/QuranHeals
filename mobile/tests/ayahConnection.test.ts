@@ -19,6 +19,12 @@ vi.mock('@/localization/useAppLocale', async () => {
   const { MESSAGES } = await import('@/localization/messages');
   return { useAppLocale: () => ({ locale: state.locale, messages: MESSAGES[state.locale] }) };
 });
+// Appearance mode is 'system' for these tests so flipping state.scheme
+// still exercises dark mode — the app default is now Light (see
+// appearancePreference.ts), which would otherwise ignore state.scheme.
+vi.mock('@/theme/useAppearancePreference', () => ({
+  useAppearancePreference: () => ({ mode: 'system', isReady: true, setMode: vi.fn() }),
+}));
 
 import { AyahConnectionAccordion } from '@/components/AyahConnectionAccordion';
 import { darkPalette, lightPalette } from '@/constants/theme';
@@ -204,7 +210,8 @@ describe('sage theme tokens', () => {
   it('16. light and dark each have their own sage surface (dark is not the light color reused)', () => {
     expect(lightPalette.sageSurface).not.toBe(darkPalette.sageSurface);
     expect(lightPalette).toMatchObject({ sageSurface: '#EEF2E9', sageBorder: '#DCE4D3' });
-    expect(darkPalette).toMatchObject({ sageSurface: '#2A2E24', sageBorder: '#3B4232' });
+    // Dark mode uses the blue/cyan accent family, not the light theme's olive/sage.
+    expect(darkPalette).toMatchObject({ sageSurface: '#2A303A', sageBorder: '#44617A' });
   });
 
   it('keeps heading/body text well above AA and both icons visible (≥3:1, non-text) on sage in both themes', () => {
@@ -219,21 +226,27 @@ describe('sage theme tokens', () => {
     expect(source).toMatch(/<Chevron size=\{ICON_SIZE\} color=\{colors\.textSecondary\}/);
   });
 
-  it('the filled heart is a calm olive: darker than the sage surface, softer than the main accent in dark mode', () => {
+  it('the filled heart is a calm olive in light mode: darker than the sage surface', () => {
     expect(lightPalette.sageHeart).toBe('#6B7F5E');
-    expect(darkPalette.sageHeart).toBe('#8C9D76');
     expect(luminance(lightPalette.sageHeart)).toBeLessThan(luminance(lightPalette.sageSurface)); // darker than light sage
-    expect(luminance(darkPalette.sageHeart)).toBeLessThan(luminance(darkPalette.accent)); // not the bright dark accent
-    for (const hex of [lightPalette.sageHeart, darkPalette.sageHeart]) {
-      const n = parseInt(hex.slice(1), 16);
-      const [r, g, b] = [n >> 16, (n >> 8) & 255, n & 255];
-      expect(g).toBeGreaterThan(r); // green-leaning olive, never pink/rose/red
-      expect(g).toBeGreaterThan(b);
-      expect(Math.max(r, g, b) - Math.min(r, g, b)).toBeLessThanOrEqual(40); // muted, not bright green
-    }
+    const n = parseInt(lightPalette.sageHeart.slice(1), 16);
+    const [r, g, b] = [n >> 16, (n >> 8) & 255, n & 255];
+    expect(g).toBeGreaterThan(r); // green-leaning olive, never pink/rose/red
+    expect(g).toBeGreaterThan(b);
+    expect(Math.max(r, g, b) - Math.min(r, g, b)).toBeLessThanOrEqual(40); // muted, not bright green
   });
 
-  it('stays muted (no saturated/neon sage) in dark mode', () => {
+  it('the filled heart is a calm blue in dark mode: softer than the main accent, never olive/green', () => {
+    expect(darkPalette.sageHeart).toBe('#6E8694');
+    expect(luminance(darkPalette.sageHeart)).toBeLessThan(luminance(darkPalette.accent)); // not the bright dark accent
+    const n = parseInt(darkPalette.sageHeart.slice(1), 16);
+    const [r, g, b] = [n >> 16, (n >> 8) & 255, n & 255];
+    expect(b).toBeGreaterThan(r); // blue-leaning, never green/olive
+    expect(b).toBeGreaterThanOrEqual(g);
+    expect(Math.max(r, g, b) - Math.min(r, g, b)).toBeLessThanOrEqual(40); // muted, not neon cyan
+  });
+
+  it('stays muted (no saturated/neon blue) in dark mode', () => {
     const n = parseInt(darkPalette.sageSurface.slice(1), 16);
     const channels = [n >> 16, (n >> 8) & 255, n & 255];
     expect(Math.max(...channels) - Math.min(...channels)).toBeLessThanOrEqual(16);

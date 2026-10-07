@@ -37,6 +37,9 @@ vi.mock('@/localization/useQuranTranslationPreference', () => ({
 vi.mock('@/localization/useQuranFontSizePreference', () => ({
   useQuranFontSizePreference: () => ({ preferredSize: 26 }),
 }));
+vi.mock('@/theme/useAppearancePreference', () => ({
+  useAppearancePreference: () => ({ mode: 'system', isReady: true, setMode: vi.fn() }),
+}));
 vi.mock('@/components/QuranFontSizeControls', () => ({ QuranFontSizeControls: 'QuranFontSizeControls' }));
 
 import { AyahCard } from '@/components/AyahCard';

@@ -1,10 +1,21 @@
 import { useColorScheme } from 'react-native';
 
 import { paletteFor, resolveThemeName, type Palette, type ThemeName } from '@/constants/theme';
+import { useAppearancePreference } from './useAppearancePreference';
 
-/** The app theme for the device's current appearance; re-renders when the system appearance changes. */
+/**
+ * The app theme to render, from the user's saved Appearance preference
+ * (default: Light — see appearancePreference.ts). 'system' follows the
+ * device color scheme and re-renders live when it changes; 'light'/'dark'
+ * force that theme regardless of the device appearance. This is the ONLY
+ * place device appearance (useColorScheme) is read — every screen should go
+ * through this hook (via usePalette/useThemedStyles) rather than calling
+ * useColorScheme directly, so the saved preference is never bypassed.
+ */
 export function useThemeName(): ThemeName {
-  return resolveThemeName(useColorScheme());
+  const { mode } = useAppearancePreference();
+  const deviceScheme = useColorScheme();
+  return mode === 'system' ? resolveThemeName(deviceScheme) : mode;
 }
 
 export function usePalette(): Palette {

@@ -12,15 +12,19 @@ import { APP_LOCALES, APP_LOCALE_DISPLAY_NAMES, getDirectionStyle, isRtlLocale }
 import { useAppLocale } from '@/localization/useAppLocale';
 import { useQuranTranslationPreference } from '@/localization/useQuranTranslationPreference';
 import type { TranslationDisplayMode } from '@/localization/quranTranslationPreference';
+import type { AppearanceMode } from '@/theme/appearancePreference';
+import { useAppearancePreference } from '@/theme/useAppearancePreference';
 import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
 
 const TRANSLATION_DISPLAY_MODES: readonly TranslationDisplayMode[] = ['always', 'on-demand', 'off'];
+const APPEARANCE_MODES: readonly AppearanceMode[] = ['system', 'light', 'dark'];
 
 export default function SettingsScreen() {
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
   const { locale, setLocale, messages } = useAppLocale();
   const { preference, setDisplayMode } = useQuranTranslationPreference();
+  const { mode, setMode } = useAppearancePreference();
   const { refreshSync } = useAuth();
   const direction = getDirectionStyle(locale);
   // A "back" arrow should point toward where the previous screen visually
@@ -62,6 +66,11 @@ export default function SettingsScreen() {
     always: messages.settings.translationDisplayAlwaysHint,
     'on-demand': messages.settings.translationDisplayOnDemandHint,
     off: messages.settings.translationDisplayOffHint,
+  };
+  const appearanceModeLabel: Record<AppearanceMode, string> = {
+    system: messages.appearance.system,
+    light: messages.appearance.light,
+    dark: messages.appearance.dark,
   };
 
   return (
@@ -122,6 +131,21 @@ export default function SettingsScreen() {
             ))}
           </View>
           {/* <Text style={[styles.note, direction]}>{messages.settings.quranArabicNote}</Text> */}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionLabel, direction]}>{messages.appearance.sectionLabel}</Text>
+          <View style={styles.optionList}>
+            {APPEARANCE_MODES.map((option) => (
+              <OptionRow
+                key={option}
+                label={appearanceModeLabel[option]}
+                selected={option === mode}
+                onPress={() => setMode(option)}
+                direction={direction}
+              />
+            ))}
+          </View>
         </View>
 
         <AccountSection locale={locale} messages={messages} direction={direction} isRtl={isRtl} />

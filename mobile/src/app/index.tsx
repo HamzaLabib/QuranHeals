@@ -45,6 +45,12 @@ export default function HomeScreen() {
     emotionsRef.current = emotions;
   }, [emotions]);
 
+  useEffect(() => {
+    if (!isLoading) {
+      devLog('home', 'render readiness', { emotionCount: emotions.length, hasError: errorMessage !== null });
+    }
+  }, [isLoading, emotions.length, errorMessage]);
+
   const loadEmotions = useCallback(
     async (options?: { silent?: boolean }) => {
       if (isFetchingRef.current) return;
@@ -60,8 +66,10 @@ export default function HomeScreen() {
         setErrorMessage(null);
       }
 
+      devLog('emotions', 'load start', { silent });
       try {
         const response = await withRetry(() => getEmotions());
+        devLog('emotions', 'load result', { count: response.length });
         setEmotions(response);
         setErrorMessage(null);
         lastFetchedAtRef.current = Date.now();

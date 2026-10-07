@@ -28,10 +28,17 @@ export type Palette = {
   accent: string;
   /** Tinted wash behind accent icons and selected rows. */
   accentSoft: string;
-  /** Very light olive/sage surface for calm explanatory sections ("How this ayah connects"), and its subtle outline. */
+  /**
+   * Secondary button (e.g. "Show/Hide Translation"): a surface distinct
+   * from both the card behind it and the primary button, plus its border —
+   * a weaker, secondary-weight control, never as strong as primaryButton.
+   */
+  secondaryButtonSurface: string;
+  secondaryButtonBorder: string;
+  /** Soft tinted surface for calm explanatory sections ("How this ayah connects"), and its subtle outline. */
   sageSurface: string;
   sageBorder: string;
-  /** Filled heart on the sage surface: a calm olive, a step darker than the surface. */
+  /** Filled heart on the sage surface: muted, a step darker than the surface. */
   sageHeart: string;
   /** Accent used as a filled background (e.g. a saved favorite). */
   accentFill: string;
@@ -79,6 +86,10 @@ export const lightPalette: Palette = {
   icon: '#1F2A24',
   accent: '#617256',
   accentSoft: '#E9EEE4',
+  // Identical to accentSoft on purpose: light mode's reveal button keeps its
+  // existing plain-fill look (no visible border) — this task is dark-mode-only.
+  secondaryButtonSurface: '#E9EEE4',
+  secondaryButtonBorder: '#E9EEE4',
   sageSurface: '#EEF2E9',
   sageBorder: '#DCE4D3',
   sageHeart: '#6B7F5E',
@@ -101,36 +112,49 @@ export const lightPalette: Palette = {
 };
 
 // Warm night palette: deep warm charcoal instead of black, warm off-white
-// instead of pure white, and the same olive family lifted for contrast.
-// WCAG ratios (checked against card #26231F / background #1C1A17):
-// textPrimary 12.6/14.0, textSecondary 7.6/8.5, textMuted 5.6/6.3,
-// accent 7.3/8.1, danger 6.2/6.9, onPrimaryButton on primaryButton 4.8,
+// instead of pure white — background and text stay warm, but every accent,
+// secondary-surface and border token is a blue/cyan family instead of the
+// light theme's olive/sage (dark mode is the only theme using blue).
+// WCAG ratios (checked against card #1E2530 / background #1C1A17):
+// textPrimary 12.4/14.0, textSecondary 9.8/11.1, textMuted 7.1/8.0,
+// accent 8.1/9.1, danger 6.1/6.9, onPrimaryButton on primaryButton 5.1,
 // onDangerFill on dangerFill 5.2.
 export const darkPalette: Palette = {
   background: '#1C1A17',
-  surface: '#26231F',
-  card: '#26231F',
-  sheetBackground: '#26231F',
-  inputBackground: '#1F1D1A',
-  inputBorder: '#4A443C',
+  surface: '#1E2530',
+  card: '#1E2530',
+  sheetBackground: '#1E2530',
+  inputBackground: '#171E27',
+  inputBorder: '#4A5A6B',
   placeholder: '#A39A8C',
   textPrimary: '#EDE6DA',
-  textSecondary: '#BDB4A6',
-  textMuted: '#A39A8C',
+  // Cooler/brighter than the first blue/cyan pass (was #BDB4A6/#A39A8C,
+  // warm beige-gray): still clearly a muted/tertiary tone, never competing
+  // with textPrimary, but reads less dull against the warm near-black
+  // background — see "Quran text: Tanzil..." and "Report an issue" copy.
+  textSecondary: '#C9CFD9',
+  textMuted: '#A9B1BC',
   icon: '#EDE6DA',
-  accent: '#A7B78F',
-  accentSoft: '#2F3529',
-  // Warm, muted olive lift over the card surface — not the light sage reused.
-  sageSurface: '#2A2E24',
-  sageBorder: '#3B4232',
-  // Muted on purpose: the dark accent (#A7B78F) reads too bright as a filled shape.
-  sageHeart: '#8C9D76',
-  accentFill: '#5E6E52',
+  accent: '#7FC6E0',
+  accentSoft: '#16262E',
+  // A visibly distinct, bordered secondary-button surface — weaker than
+  // primaryButton, but clearly lighter than the card behind it (unlike
+  // accentSoft, which this button used to share with icon washes/selected
+  // rows and which reads as nearly the same tone as the card).
+  secondaryButtonSurface: '#2A4258',
+  secondaryButtonBorder: '#4A7E98',
+  // Blue-gray lift over the card surface — not the light sage reused.
+  // Slightly lighter/more separated from the card than the first pass.
+  sageSurface: '#2A303A',
+  sageBorder: '#44617A',
+  // Muted on purpose: the dark accent (#7FC6E0) reads too bright as a filled shape.
+  sageHeart: '#6E8694',
+  accentFill: '#146C94',
   onAccentFill: '#F5EFE4',
-  primaryButton: '#5E6E52',
+  primaryButton: '#146C94',
   onPrimaryButton: '#F5EFE4',
-  border: '#3A352F',
-  divider: '#3A352F',
+  border: '#3B4854',
+  divider: '#3B4854',
   danger: '#E08E7B',
   dangerBorder: '#5A3A32',
   dangerFill: '#9A4F3F',
@@ -145,7 +169,7 @@ export const darkPalette: Palette = {
 
 export type ThemeName = 'light' | 'dark';
 
-/** Maps the device appearance (useColorScheme()) to an app theme; anything other than 'dark' (light, null, unspecified) stays light. */
+/** Maps a device color-scheme value (the OS appearance) to an app theme; anything other than 'dark' (light, null, unspecified) stays light. */
 export function resolveThemeName(scheme: string | null | undefined): ThemeName {
   return scheme === 'dark' ? 'dark' : 'light';
 }

@@ -1,4 +1,5 @@
 import type { Ayah } from '@/types/domain';
+import { devLog } from '@/utils/devLog';
 import { parseVerseKey, QuranDataError, resolveVerseKey, verseKeyFromNumbers } from './quranReference';
 
 export type QuranVerse = { surah: number; ayah: number; verseKey: string; arabicText: string };
@@ -40,8 +41,10 @@ export function createQuranRepository(open: () => Promise<QuranConnection>): Qur
           version?.user_version !== 1 || identity?.application_id !== 1363694158) {
         throw new QuranDataError('The local Quran data could not be verified. Please try again.', 'integrity');
       }
+      devLog('quran', 'sqlite init complete', { rows: counts.rows, surahs: counts.surahs });
       return db;
     } catch (error) {
+      devLog('quran', 'sqlite init failed', { message: error instanceof Error ? error.message : 'unknown' });
       await db.closeAsync();
       throw error;
     }

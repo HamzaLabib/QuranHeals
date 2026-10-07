@@ -23,6 +23,7 @@ import {
   settleLocalDataOwnerAsGuest,
 } from '@/storage/localDataOwnership';
 import { deleteAccountRequest, SyncApiError } from '@/sync/syncApi';
+import { devLog } from '@/utils/devLog';
 import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
 import { logoutSession, signInWithAppleIdToken, signInWithGoogleIdToken, AuthApiError } from './authApi';
 import { initializeSession, type InitializedSession } from './initializeSession';
@@ -247,6 +248,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     void sessionRestorePromiseRef.current.then((session) => {
       if (cancelled) return;
+      devLog('auth', 'session init complete', { status: session.status });
       hasRestoredSessionRef.current = true;
       sessionTokenRef.current = session.token;
       currentUserIdRef.current = session.user?.id ?? null;
