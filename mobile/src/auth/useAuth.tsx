@@ -12,6 +12,7 @@ import { runFullSync } from '@/sync/syncOrchestrator';
 import {
   SyncPassphraseCancelledError,
   SyncPasswordResetError,
+  discardUnfinishedKeySetup,
   type ResetEncryptedSync,
   type SyncPassphraseMode,
   type VerifyPassphrase,
@@ -454,6 +455,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     sessionTokenRef.current = null;
     currentUserIdRef.current = null;
     rejectOpenPrompts();
+    discardUnfinishedKeySetup();
     hideAccountDataNow();
     setUser(null);
     setStatus('guest');

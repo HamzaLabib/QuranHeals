@@ -80,6 +80,7 @@ const MASTER_KEYS = vi.hoisted(() => ({
 } as Record<string, Uint8Array>));
 vi.mock('@/sync/syncKeyManager', () => ({
   SyncPassphraseCancelledError: class extends Error {},
+  discardUnfinishedKeySetup: vi.fn(),
   ensureReflectionMasterKey: vi.fn(async (_token: string, _prompt: unknown, ownerUserId: string) => {
     env.keyRequests.push(ownerUserId);
     return MASTER_KEYS[ownerUserId];

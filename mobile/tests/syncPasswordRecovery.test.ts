@@ -83,7 +83,7 @@ vi.mock('@/services/api', () => ({ getAyah: async (verseKey: string) => ayah(ver
 import { AuthProvider, useAuth, type AuthContextValue } from '@/auth/useAuth';
 import { registerSessionExpiredHandler } from '@/auth/tokenManager';
 import { decodeBase64 } from '@/crypto/base64';
-import { decryptReflectionText } from '@/crypto/reflectionEncryption';
+import { decryptReflectionText, unwrapMasterKey } from '@/crypto/reflectionEncryption';
 import { addFavorite, getFavorites } from '@/storage/favorites';
 import { getAllReflections, saveReflection } from '@/storage/ayahReflections';
 import { resetLocalDataOwnerForTests } from '@/storage/localDataOwner';
@@ -525,5 +525,198 @@ describe('fresh re-authentication guards the reset', { timeout: 60_000 }, () => 
     expect(cloud.A.resets).toBe(1);
     expect(cloud.A.key).toBeNull();
     expect(cloud.A.favorites).toEqual(new Set(['2:255']));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Set Password must not come back after the user already set it
+// ---------------------------------------------------------------------------
+
+/** The next PUT /api/sync/key fails the way a real network can: 'lost' = the server saved it but the answer never arrived; 'unsent' = it never reached the server. */
+function failNextKeyStore(how: 'lost' | 'unsent') {
+  let pending = true;
+  vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => {
+    if (pending && new URL(url).pathname === '/api/sync/key' && init?.method === 'PUT') {
+      pending = false;
+      if (how === 'lost') await fakeBackend(url, init);
+      throw new TypeError('Network request failed');
+    }
+    return fakeBackend(url, init);
+  }));
+}
+
+/** Every password sheet the app opened, in order. */
+function sheetsShown(): string[] {
+  return shownSheets;
+}
+let shownSheets: string[] = [];
+let lastRequest: unknown = null;
+function recordSheet() {
+  const request = prompt();
+  if (request && request !== lastRequest) shownSheets.push(request.mode);
+  lastRequest = request;
+}
+
+async function syncAgain() {
+  await act(async () => { void account.refreshSync(); });
+  for (let i = 0; i < 60; i += 1) {
+    recordSheet();
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 10)); });
+  }
+  recordSheet();
+}
+
+describe('Set Password appears once and stays closed', { timeout: 60_000 }, () => {
+  beforeEach(() => {
+    shownSheets = [];
+    lastRequest = null;
+  });
+
+  it('a store whose answer was lost (the server saved the key): later syncs use that key — no Set Password, no Enter Password', async () => {
+    await launchOn(newDevice());
+    await signIn('A');
+    recordSheet();
+    failNextKeyStore('lost');
+    await submitPassword('first password');
+    const savedFingerprint = cloud.A.key?.keyFingerprint;
+    expect(savedFingerprint).toBeTruthy();
+
+    await syncAgain();
+    await syncAgain();
+
+    expect(sheetsShown()).toEqual(['create']);
+    expect(cloud.A.key?.keyFingerprint).toBe(savedFingerprint);
+    expect(cachedKey()).not.toBeNull();
+  });
+
+  it('a store that never reached the server: the next sync stores the SAME key without asking again', async () => {
+    await launchOn(newDevice());
+    await signIn('A');
+    recordSheet();
+    failNextKeyStore('unsent');
+    await submitPassword('first password');
+    expect(cloud.A.key).toBeNull();
+
+    await syncAgain();
+    await syncAgain();
+
+    expect(sheetsShown()).toEqual(['create']);
+    expect(cloud.A.key).not.toBeNull();
+    // The key stored is the one wrapped under the password the user set.
+    await closeApp();
+    const otherDevice = newDevice();
+    await launchOn(otherDevice);
+    await signIn('A');
+    expect(prompt()?.mode).toBe('unlock');
+    expect(await prompt()!.verify!('first password')).toBe(true);
+  });
+
+  it('after Forgot Password, a failed store of the new key does not bring Set Password back', async () => {
+    await accountWithCloudReflection('A', 'old cloud reflection');
+    await launchOn(newDevice());
+    await signIn('A');
+    recordSheet();
+    await forgotPasswordReset('A');
+    recordSheet();
+    failNextKeyStore('unsent');
+    await submitPassword('new password');
+
+    await syncAgain();
+    await syncAgain();
+
+    expect(sheetsShown()).toEqual(['unlock', 'create']);
+    expect(cloud.A.key).not.toBeNull();
+    expect(cachedKey()).not.toBeNull();
+  });
+});
+
+describe('Set Password across syncs, sessions, accounts and restarts', { timeout: 60_000 }, () => {
+  beforeEach(() => {
+    shownSheets = [];
+    lastRequest = null;
+  });
+
+  it('opens once, closes on success, and the syncs right after (and later) never reopen it; data stays readable', async () => {
+    await launchOn(newDevice());
+    await signIn('A');
+    recordSheet();
+    await submitPassword('my password');
+    expect(prompt()).toBeNull();
+    await addFavorite(ayah('30:1'));
+    await saveReflection('30:2', 'written after setup');
+
+    await syncAgain();
+    await syncAgain();
+    await syncAgain();
+
+    expect(sheetsShown()).toEqual(['create']);
+    expect(cloud.A.favorites).toEqual(new Set(['30:1']));
+    expect(decryptCloud('A', cachedKey()!)).toEqual(['written after setup']);
+  });
+
+  it('Account 1 set → sign out → Account 2 set on its own → Account 1 back: Enter Password with its own key', async () => {
+    await launchOn(newDevice());
+    await signIn('A');
+    recordSheet();
+    await submitPassword('password of A');
+    const keyA = cachedKey()!;
+    const cloudKeyA = cloud.A.key;
+    await act(async () => { await account.signOut(); });
+    await settle();
+
+    await signIn('B');
+    recordSheet();
+    await submitPassword('password of B');
+    const keyB = cachedKey()!;
+    await act(async () => { await account.signOut(); });
+    await settle();
+
+    await signIn('A');
+    recordSheet();
+    expect(prompt()?.mode).toBe('unlock');
+    await submitPassword('password of A');
+
+    expect(sheetsShown()).toEqual(['create', 'create', 'unlock']);
+    expect(Array.from(cachedKey()!)).toEqual(Array.from(keyA));
+    expect(Array.from(keyA)).not.toEqual(Array.from(keyB));
+    expect(cloud.A.key).toBe(cloudKeyA);
+  });
+
+  it("an unfinished setup of Account 1 is dropped at sign-out: never sent with Account 2's session", async () => {
+    await launchOn(newDevice());
+    await signIn('A');
+    failNextKeyStore('unsent');
+    await submitPassword('password of A');
+    expect(cloud.A.key).toBeNull();
+    vi.stubGlobal('fetch', vi.fn(fakeBackend));
+    await act(async () => { await account.signOut(); });
+    await settle();
+
+    await signIn('B');
+    recordSheet();
+    await submitPassword('password of B');
+
+    expect(sheetsShown()).toEqual(['create']);
+    expect(cloud.A.key).toBeNull();
+    // B's stored key opens with B's password only.
+    const unwrapped = await unwrapMasterKey(cloud.B.key!, 'password of B');
+    expect(Array.from(unwrapped)).toEqual(Array.from(cachedKey()!));
+  });
+
+  it('restarting the app after setup, or restoring the session on a device without the cached key, never shows Set Password', async () => {
+    const device = newDevice();
+    await launchOn(device);
+    await signIn('A');
+    await submitPassword('my password');
+    await settleUntil(() => !!cachedKey(), 'key cached');
+
+    await launchOn(device); // restart
+    await syncAgain();
+    expect(prompt()).toBeNull();
+
+    device.secure.delete('quran-heals.reflection-master-key.v1'); // e.g. a restored keychain without it
+    await launchOn(device);
+    await settleUntil(() => prompt() !== null, 'password prompt');
+    expect(prompt()?.mode).toBe('unlock');
   });
 });

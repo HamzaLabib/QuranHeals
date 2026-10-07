@@ -115,13 +115,55 @@ function cacheMasterKeyFor(ownerUserId: string, masterKey: Uint8Array): Promise<
  * no device still holding the cached key means reflections cannot be
  * recovered, which is disclosed to the user, not hidden.
  */
-export async function ensureReflectionMasterKey(
+export function ensureReflectionMasterKey(
   sessionToken: string,
   promptForPassphrase: PassphrasePrompt,
   ownerUserId: string,
   // False once this sync's session ended: its key is then never cached
   // (sign-out has just cleared the cached key; it must stay cleared).
   isCurrent: () => boolean = () => true,
+): Promise<Uint8Array> {
+  // One password step per account per session: a second request while one
+  // is in progress waits for it instead of opening another sheet.
+  if (inFlight && inFlight.ownerUserId === ownerUserId && inFlight.isCurrent() && isCurrent()) return inFlight.promise;
+  // Cleared before any caller sees the outcome, so only a step that is
+  // still running is ever shared.
+  const promise: Promise<Uint8Array> = recoverOrCreateMasterKey(sessionToken, promptForPassphrase, ownerUserId, isCurrent).finally(() => {
+    if (inFlight?.promise === promise) inFlight = null;
+  });
+  inFlight = { ownerUserId, isCurrent, promise };
+  return promise;
+}
+
+let inFlight: { ownerUserId: string; isCurrent: () => boolean; promise: Promise<Uint8Array> } | null = null;
+
+/**
+ * A sync password the user has already set in this session, whose key could
+ * not yet be confirmed as stored: the upload failed, or its answer was lost
+ * (the server may well have saved it). Remembered BEFORE the upload is sent,
+ * so whatever happens to that request, the session finishes this same setup
+ * — it never asks for a new password again and never makes a second key.
+ * Kept in memory only, for one account and one session.
+ */
+type KeySetup = { ownerUserId: string; isCurrent: () => boolean; masterKey: Uint8Array; record: WrappedMasterKey & { keyFingerprint: string } };
+let keySetup: KeySetup | null = null;
+
+/** Wipes an unfinished setup: superseded by another key, reset, or its session ended (sign-out). */
+export function discardUnfinishedKeySetup(): void {
+  keySetup?.masterKey.fill(0);
+  keySetup = null;
+}
+
+function unfinishedKeySetupFor(ownerUserId: string): KeySetup | null {
+  if (keySetup && !keySetup.isCurrent()) discardUnfinishedKeySetup();
+  return keySetup?.ownerUserId === ownerUserId ? keySetup : null;
+}
+
+async function recoverOrCreateMasterKey(
+  sessionToken: string,
+  promptForPassphrase: PassphrasePrompt,
+  ownerUserId: string,
+  isCurrent: () => boolean,
 ): Promise<Uint8Array> {
   const cacheMasterKey = async (owner: string, masterKey: Uint8Array) => {
     if (!isCurrent()) throw new SyncPassphraseCancelledError('The session ended before the sync password step completed.');
@@ -134,6 +176,17 @@ export async function ensureReflectionMasterKey(
     // The account's key was reset elsewhere (forgotten password on another
     // device): this key must never encrypt anything again.
     await clearCachedMasterKey();
+  }
+
+  const setup = unfinishedKeySetupFor(ownerUserId);
+  if (setup) {
+    // Not stored yet: send the same key again.
+    if (!cloudKey) return storeKeySetup(sessionToken, setup, cacheMasterKey);
+    // Stored, only the answer was lost.
+    if (cloudKey.keyFingerprint === setup.record.keyFingerprint) return finishKeySetup(setup, cacheMasterKey);
+    // Another device set the account's key first: unlock that one; ours is
+    // dropped and never replaces it.
+    discardUnfinishedKeySetup();
   }
 
   if (cloudKey) {
@@ -149,7 +202,7 @@ export async function ensureReflectionMasterKey(
     } catch (error) {
       verifier.dispose();
       if (!(resetCompleted && error instanceof SyncPasswordResetError)) throw error;
-      return createMasterKey(sessionToken, promptForPassphrase, ownerUserId, cacheMasterKey);
+      return createMasterKey(sessionToken, promptForPassphrase, ownerUserId, isCurrent, cacheMasterKey);
     }
     try {
       const masterKey = await verifier.unwrap(passphrase);
@@ -160,7 +213,7 @@ export async function ensureReflectionMasterKey(
     }
   }
 
-  return createMasterKey(sessionToken, promptForPassphrase, ownerUserId, cacheMasterKey);
+  return createMasterKey(sessionToken, promptForPassphrase, ownerUserId, isCurrent, cacheMasterKey);
 }
 
 /**
@@ -174,20 +227,48 @@ function cachedKeyIsCurrent(cached: Uint8Array, cloudKey: WrappedMasterKey | nul
   return !cloudKey.keyFingerprint || cloudKey.keyFingerprint === masterKeyFingerprint(cached);
 }
 
+type CacheMasterKey = (owner: string, masterKey: Uint8Array) => Promise<void>;
+
 /** Always a brand-new random master key — a reset never reuses the old one. */
 async function createMasterKey(
   sessionToken: string,
   promptForPassphrase: PassphrasePrompt,
   ownerUserId: string,
-  cacheMasterKey: (owner: string, masterKey: Uint8Array) => Promise<void>,
+  isCurrent: () => boolean,
+  cacheMasterKey: CacheMasterKey,
 ): Promise<Uint8Array> {
   const passphrase = await promptForPassphrase('create');
   if (passwordLengthError(passphrase)) throw new Error('Invalid new sync password length.');
+  if (!isCurrent()) throw new SyncPassphraseCancelledError('The session ended before the sync password step completed.');
   const masterKey = generateMasterKey(getRandomBytes);
   const wrapped = await wrapMasterKey(masterKey, passphrase, getRandomBytes);
-  await putCloudSyncKey(sessionToken, { ...wrapped, keyFingerprint: masterKeyFingerprint(masterKey) });
-  await cacheMasterKey(ownerUserId, masterKey);
-  return masterKey;
+  discardUnfinishedKeySetup();
+  keySetup = { ownerUserId, isCurrent, masterKey, record: { ...wrapped, keyFingerprint: masterKeyFingerprint(masterKey) } };
+  return storeKeySetup(sessionToken, keySetup, cacheMasterKey);
+}
+
+/**
+ * Uploads the setup's wrapped key. The server only ever stores a first key
+ * (a second one is refused), so after a failure — including a lost answer
+ * or a refusal — only finding OUR key there counts as stored. Anything else
+ * leaves the setup unfinished for the next sync; an existing key is never
+ * replaced.
+ */
+async function storeKeySetup(sessionToken: string, setup: KeySetup, cacheMasterKey: CacheMasterKey): Promise<Uint8Array> {
+  try {
+    await putCloudSyncKey(sessionToken, setup.record);
+  } catch (error) {
+    const saved = await getCloudSyncKey(sessionToken).catch(() => null);
+    if (saved?.keyFingerprint !== setup.record.keyFingerprint) throw error;
+  }
+  return finishKeySetup(setup, cacheMasterKey);
+}
+
+/** Stored: cached on this device, and the setup is complete (its key now belongs to the caller). */
+async function finishKeySetup(setup: KeySetup, cacheMasterKey: CacheMasterKey): Promise<Uint8Array> {
+  await cacheMasterKey(setup.ownerUserId, setup.masterKey);
+  if (keySetup === setup) keySetup = null;
+  return setup.masterKey;
 }
 
 /**
@@ -209,6 +290,7 @@ export async function resetEncryptedReflectionSync(
   credential: ProviderCredential,
 ): Promise<void> {
   await resetCloudReflectionSync(sessionToken, credential);
+  discardUnfinishedKeySetup();
   await clearCachedMasterKey();
   await markAllReflectionsPending(ownerUserId);
 }

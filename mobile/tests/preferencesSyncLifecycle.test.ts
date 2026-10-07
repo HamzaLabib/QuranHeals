@@ -53,6 +53,7 @@ vi.mock('@/sync/syncKeyManager', () => {
   class SyncPassphraseCancelledError extends Error {}
   return {
     SyncPassphraseCancelledError,
+    discardUnfinishedKeySetup: vi.fn(),
     ensureReflectionMasterKey: vi.fn(async () => {
       throw new SyncPassphraseCancelledError('Preferences-only sync for this test.');
     }),

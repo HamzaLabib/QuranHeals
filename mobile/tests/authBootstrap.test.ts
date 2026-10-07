@@ -44,7 +44,7 @@ vi.mock('@/components/SyncPassphraseSheet', () => ({ SyncPassphraseSheet: () => 
 // / expo-auth-session, which don't run under this test's jsdom-less setup.
 vi.mock('@/auth/reauthentication', () => ({ useFreshProviderCredential: () => async () => null }));
 vi.mock('@/sync/syncOrchestrator', () => ({ runFullSync: native.sync }));
-vi.mock('@/sync/syncKeyManager', () => ({ SyncPassphraseCancelledError: class extends Error {} }));
+vi.mock('@/sync/syncKeyManager', () => ({ SyncPassphraseCancelledError: class extends Error {}, discardUnfinishedKeySetup: vi.fn() }));
 vi.mock('@/storage/ayahReflections', () => ({ clearAllReflections: vi.fn(), guestHasReflections: vi.fn(async () => false), adoptGuestReflections: vi.fn(async () => true) }));
 vi.mock('@/storage/favorites', () => ({ clearAllFavorites: vi.fn(), guestHasFavorites: vi.fn(async () => false), adoptGuestFavorites: vi.fn(async () => true) }));
 vi.mock('@/sync/syncApi', () => ({ deleteAccountRequest: vi.fn() }));
