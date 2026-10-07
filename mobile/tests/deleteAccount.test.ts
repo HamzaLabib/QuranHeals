@@ -25,9 +25,9 @@ describe('useAuth.tsx: deleteAccount only clears local data after a confirmed ba
 
   it('calls the backend delete request before any local-clearing call — never the other way around', () => {
     const backendCallIndex = deleteAccountBlock.indexOf('deleteAccountRequest(token)');
-    const clearReflectionsIndex = deleteAccountBlock.indexOf('clearAllReflections()');
-    const clearFavoritesIndex = deleteAccountBlock.indexOf('clearAllFavorites()');
-    const clearSessionIndex = deleteAccountBlock.indexOf('clearSessionToken()');
+    const clearReflectionsIndex = deleteAccountBlock.indexOf('clearAllReflections(');
+    const clearFavoritesIndex = deleteAccountBlock.indexOf('clearAllFavorites(');
+    const clearSessionIndex = deleteAccountBlock.indexOf('endSession()');
 
     expect(backendCallIndex).toBeGreaterThan(-1);
     expect(clearReflectionsIndex).toBeGreaterThan(backendCallIndex);
@@ -35,9 +35,9 @@ describe('useAuth.tsx: deleteAccount only clears local data after a confirmed ba
     expect(clearSessionIndex).toBeGreaterThan(backendCallIndex);
   });
 
-  it('clears local reflections and favorites on deletion — unlike ordinary signOut(), which deliberately keeps them', () => {
-    expect(deleteAccountBlock).toMatch(/clearAllReflections\(\)/);
-    expect(deleteAccountBlock).toMatch(/clearAllFavorites\(\)/);
+  it("clears the deleted account's own local reflections and favorites — unlike ordinary signOut(), which keeps them on the device", () => {
+    expect(deleteAccountBlock).toMatch(/clearAllReflections\(deletedUserId \?\? undefined\)/);
+    expect(deleteAccountBlock).toMatch(/clearAllFavorites\(deletedUserId \?\? undefined\)/);
   });
 
   it('throws (never silently no-ops) when called while not signed in', () => {
@@ -57,7 +57,7 @@ describe('useAuth.tsx: deleteAccount retries with fresh Apple re-authentication 
   it('a cancelled re-authentication (null credential) throws before any local data is cleared', () => {
     const catchBlockIndex = deleteAccountBlock.indexOf('const credential = await promptForFreshProviderCredential();');
     const throwIndex = deleteAccountBlock.indexOf("throw new Error('Account deletion needs a fresh sign-in.');");
-    const clearReflectionsIndex = deleteAccountBlock.indexOf('clearAllReflections()');
+    const clearReflectionsIndex = deleteAccountBlock.indexOf('clearAllReflections(');
 
     expect(catchBlockIndex).toBeGreaterThan(-1);
     expect(throwIndex).toBeGreaterThan(catchBlockIndex);

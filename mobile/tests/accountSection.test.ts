@@ -167,12 +167,18 @@ describe('useAuth: guest-first + no client-spoofable identity', () => {
     expect(signInAppleBlock).not.toMatch(/\bthrow\b/);
   });
 
-  it('sign-out clears the session token and cached master key but calls no favorites/reflections/history storage function', () => {
-    const signOutBlock = (useAuthSource.match(/const signOut = useCallback\(async \(\) => \{[\s\S]*?\}, \[[^\]]*\]\);/)?.[0] ?? '')
-      .replace(/\/\/.*$/gm, ''); // strip line comments before checking for actual function calls
-    expect(signOutBlock).toMatch(/clearSessionToken\(\)/);
-    expect(signOutBlock).toMatch(/clearCachedMasterKey\(\)/);
-    expect(signOutBlock).not.toMatch(/favorites\.|ayahReflections\.|recentAyah\w*\(/i);
+  it('sign-out ends the session (persisted session incl. cached master key cleared, guest data shown) but deletes no favorites/reflections/history', () => {
+    const strip = (block: string) => block.replace(/\/\/.*$/gm, ''); // strip line comments before checking for actual function calls
+    const signOutBlock = strip(useAuthSource.match(/const signOut = useCallback\(async \(\) => \{[\s\S]*?\}, \[[^\]]*\]\);/)?.[0] ?? '');
+    const endSessionBlock = strip(useAuthSource.match(/const endSession = useCallback\(\(\) => \{[\s\S]*?\}, \[[^\]]*\]\);/)?.[0] ?? '');
+    const tokenManagerSource = readFileSync(resolve(__dirname, '../src/auth/tokenManager.ts'), 'utf-8');
+    const clearBlock = tokenManagerSource.match(/export function clearPersistedSession[\s\S]*?\r?\n\}/)?.[0] ?? '';
+    expect(signOutBlock).toMatch(/endSession\(\)/);
+    expect(endSessionBlock).toMatch(/clearPersistedSession\(epoch\)/);
+    expect(endSessionBlock).toMatch(/hideAccountDataNow\(\)/);
+    expect(clearBlock).toMatch(/clearSessionToken\(\)/);
+    expect(clearBlock).toMatch(/clearCachedMasterKey\(\)/);
+    for (const block of [signOutBlock, endSessionBlock]) expect(block).not.toMatch(/clearAll\w*\(|recentAyah\w*\(/i);
   });
 
   it('never accepts or forwards a client-supplied userId anywhere in the auth flow', () => {

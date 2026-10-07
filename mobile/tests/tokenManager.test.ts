@@ -241,3 +241,42 @@ describe('refreshAccessToken: lost-response recovery', () => {
     expect(storedRefreshToken.value).toBe('new-refresh');
   });
 });
+
+describe('a refresh that outlives its session (sign-out, or another account signing in)', () => {
+  it('is discarded: the rotated tokens are never stored or returned, so they cannot replace the new session', async () => {
+    const { beginAuthEpoch } = await import('@/auth/authEpoch');
+    storedRefreshToken.value = 'refresh-A';
+    let finish!: (value: { token: string; refreshToken: string }) => void;
+    refreshSession.mockReturnValue(new Promise((resolve) => { finish = resolve; }));
+
+    const refreshing = refreshAccessToken();
+    await Promise.resolve();
+    beginAuthEpoch(); // A signed out; B signs in and stores its own tokens
+    storedRefreshToken.value = 'refresh-B';
+    finish({ token: 'access-A2', refreshToken: 'refresh-A2' });
+
+    expect(await refreshing).toBeNull();
+    expect(storedRefreshToken.value).toBe('refresh-B');
+    expect(setSessionToken).not.toHaveBeenCalledWith('access-A2');
+  });
+
+  it("a rejection for the ended session neither clears the new session's tokens nor signs it out", async () => {
+    const { beginAuthEpoch } = await import('@/auth/authEpoch');
+    storedRefreshToken.value = 'refresh-A';
+    let fail!: (error: Error) => void;
+    refreshSession.mockReturnValue(new Promise((_resolve, reject) => { fail = reject; }));
+    const expired = vi.fn();
+    registerSessionExpiredHandler(expired);
+
+    const refreshing = refreshAccessToken();
+    await Promise.resolve();
+    beginAuthEpoch();
+    storedRefreshToken.value = 'refresh-B';
+    fail(new FakeAuthApiError('revoked', 401));
+
+    expect(await refreshing).toBeNull();
+    expect(storedRefreshToken.value).toBe('refresh-B');
+    expect(clearedTokens.count).toBe(0);
+    expect(expired).not.toHaveBeenCalled();
+  });
+});

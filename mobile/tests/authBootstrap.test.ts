@@ -36,6 +36,7 @@ vi.mock('@/localization/useQuranTranslationPreference', () => ({
     isReady: true,
   }),
 }));
+vi.mock('@/components/GuestDataSheet', () => ({ GuestDataSheet: () => null }));
 vi.mock('@/components/SyncPassphraseSheet', () => ({ SyncPassphraseSheet: () => null }));
 // useAuth.tsx's deleteAccount calls this hook directly now (Phase B4's
 // Apple-reauth-on-deletion retry) — stubbed here since this file never
@@ -44,8 +45,8 @@ vi.mock('@/components/SyncPassphraseSheet', () => ({ SyncPassphraseSheet: () => 
 vi.mock('@/auth/reauthentication', () => ({ useFreshProviderCredential: () => async () => null }));
 vi.mock('@/sync/syncOrchestrator', () => ({ runFullSync: native.sync }));
 vi.mock('@/sync/syncKeyManager', () => ({ SyncPassphraseCancelledError: class extends Error {} }));
-vi.mock('@/storage/ayahReflections', () => ({ clearAllReflections: vi.fn() }));
-vi.mock('@/storage/favorites', () => ({ clearAllFavorites: vi.fn() }));
+vi.mock('@/storage/ayahReflections', () => ({ clearAllReflections: vi.fn(), guestHasReflections: vi.fn(async () => false), adoptGuestReflections: vi.fn(async () => true) }));
+vi.mock('@/storage/favorites', () => ({ clearAllFavorites: vi.fn(), guestHasFavorites: vi.fn(async () => false), adoptGuestFavorites: vi.fn(async () => true) }));
 vi.mock('@/sync/syncApi', () => ({ deleteAccountRequest: vi.fn() }));
 
 import * as SecureStore from 'expo-secure-store';

@@ -10,8 +10,8 @@ import { favoritesStorageKey, getActiveLocalOwner, GUEST_FAVORITES_KEY } from '.
  * the active owner's partition unless an explicit `ownerUserId` is given,
  * which sync always passes. Resolved when an operation runs, not when queued.
  */
-async function storageKey(ownerUserId?: string): Promise<string> {
-  return favoritesStorageKey(ownerUserId ?? (await getActiveLocalOwner()));
+async function storageKey(ownerUserId?: string | null): Promise<string> {
+  return favoritesStorageKey(ownerUserId === undefined ? await getActiveLocalOwner() : ownerUserId);
 }
 
 export type FavoriteReadResult = {
@@ -117,17 +117,17 @@ function mutateFavorites<T>(operation: () => Promise<T>): Promise<T> {
   return result;
 }
 
-export async function getFavoriteState(ownerUserId?: string): Promise<FavoriteReadResult> {
+export async function getFavoriteState(ownerUserId?: string | null): Promise<FavoriteReadResult> {
   await pendingMutation;
   const records = await readRawFavorites(await storageKey(ownerUserId));
   return toReadResult(records, await resolveFavorites(records));
 }
 
-export async function getFavorites(ownerUserId?: string): Promise<FavoriteAyah[]> {
+export async function getFavorites(ownerUserId?: string | null): Promise<FavoriteAyah[]> {
   return (await getFavoriteState(ownerUserId)).favorites;
 }
 
-export function addFavorite(ayah: Ayah, ownerUserId?: string): Promise<FavoriteReadResult> {
+export function addFavorite(ayah: Ayah, ownerUserId?: string | null): Promise<FavoriteReadResult> {
   return mutateFavorites(async () => {
     const key = await storageKey(ownerUserId);
     const localAyah = await resolveAyahArabic(ayah);
@@ -153,7 +153,7 @@ export function addFavorite(ayah: Ayah, ownerUserId?: string): Promise<FavoriteR
   });
 }
 
-export function removeFavorite(id: string, ownerUserId?: string): Promise<FavoriteReadResult> {
+export function removeFavorite(id: string, ownerUserId?: string | null): Promise<FavoriteReadResult> {
   return mutateFavorites(async () => {
     const key = await storageKey(ownerUserId);
     const records = await readRawFavorites(key);
@@ -182,7 +182,7 @@ export function removeFavorite(id: string, ownerUserId?: string): Promise<Favori
  * to the cloud, or compared against the cloud's own state. Never surfaced
  * to any UI.
  */
-export async function getAllFavoriteTombstones(ownerUserId?: string): Promise<FavoriteTombstone[]> {
+export async function getAllFavoriteTombstones(ownerUserId?: string | null): Promise<FavoriteTombstone[]> {
   await pendingMutation;
   const records = await readRawFavorites(await storageKey(ownerUserId));
   return records.filter(isFavoriteTombstone);
@@ -196,7 +196,7 @@ export async function getAllFavoriteTombstones(ownerUserId?: string): Promise<Fa
  * is taken from the cloud record's own timestamp, not "now", so later
  * last-write-wins comparisons stay accurate.
  */
-export function putFavoriteFromSync(favorite: FavoriteAyah, ownerUserId?: string): Promise<FavoriteReadResult> {
+export function putFavoriteFromSync(favorite: FavoriteAyah, ownerUserId?: string | null): Promise<FavoriteReadResult> {
   return mutateFavorites(async () => {
     const key = await storageKey(ownerUserId);
     const localAyah = await resolveAyahArabic(favorite);
@@ -226,7 +226,7 @@ export function putFavoriteFromSync(favorite: FavoriteAyah, ownerUserId?: string
  * Overwrites any local active favorite for this verseKey, since the cloud
  * has since deleted it.
  */
-export function putFavoriteTombstoneFromSync(tombstone: { verseKey: string; deletedAt: number }, ownerUserId?: string): Promise<void> {
+export function putFavoriteTombstoneFromSync(tombstone: { verseKey: string; deletedAt: number }, ownerUserId?: string | null): Promise<void> {
   return mutateFavorites(async () => {
     const key = await storageKey(ownerUserId);
     const records = await readRawFavorites(key);
@@ -253,7 +253,7 @@ export function putFavoriteTombstoneFromSync(tombstone: { verseKey: string; dele
  * deletion (mobile/src/auth/useAuth.tsx's deleteAccount), never by ordinary
  * sign-out. Safe to call even if nothing is stored.
  */
-export function clearAllFavorites(ownerUserId?: string): Promise<void> {
+export function clearAllFavorites(ownerUserId?: string | null): Promise<void> {
   return mutateFavorites(async () => AsyncStorage.removeItem(await storageKey(ownerUserId)));
 }
 
@@ -266,8 +266,8 @@ function verseKeyOrNull(record: unknown): string | null {
 }
 
 /**
- * Moves the guest partition into an account's partition (the first-sign-in
- * guest → account migration; see localDataOwnership.ts). Per verseKey, the
+ * Moves the guest partition into an account's partition — only after the
+ * user chose "Add to this account" (see localDataOwnership.ts). Per verseKey, the
  * newer entry (a favorite or a deletion) wins — mirrors
  * ayahReflections.ts's adoptGuestReflections — so a guest deletion can
  * still beat (or lose to) an older/newer account favorite for the same
@@ -319,6 +319,16 @@ export function adoptGuestFavorites(userId: string): Promise<boolean> {
     await AsyncStorage.removeItem(GUEST_FAVORITES_KEY);
     return true;
   });
+}
+
+/** Whether the guest partition holds a favorite to offer to an account. Deletion markers alone are nothing to offer; unreadable data could not be moved, so it is never offered. */
+export async function guestHasFavorites(): Promise<boolean> {
+  await pendingMutation;
+  try {
+    return parseFavoriteRecords(await AsyncStorage.getItem(GUEST_FAVORITES_KEY)).some(isFavoriteSnapshot);
+  } catch {
+    return false;
+  }
 }
 
 export function favoriteMatchesAyah(favorite: FavoriteAyah, ayah: Ayah | string): boolean {

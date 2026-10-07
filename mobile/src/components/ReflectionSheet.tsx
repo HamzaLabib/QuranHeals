@@ -22,6 +22,7 @@ import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { getReflection, REFLECTION_MAX_LENGTH, saveReflection } from '@/storage/ayahReflections';
+import { getLocalDataGeneration, subscribeToLocalDataOwner } from '@/storage/localDataOwner';
 
 type ReflectionSheetProps = {
   visible: boolean;
@@ -63,6 +64,17 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteFailed, setDeleteFailed] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
+  // The owner whose reflection this sheet edits. If it changes (sign-out,
+  // account switch) the sheet closes unsaved: text loaded for one owner must
+  // never be written into another owner's partition.
+  const ownerGeneration = useRef(getLocalDataGeneration());
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+  useEffect(() => subscribeToLocalDataOwner((change) => {
+    if (change === 'owner') onCloseRef.current();
+  }), []);
 
   useEffect(() => {
     let cancelled = false;
@@ -93,6 +105,7 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
    */
   const save = async () => {
     if (isSaving || isDeleting) return;
+    if (ownerGeneration.current !== getLocalDataGeneration()) return onClose();
     setIsSaving(true);
     setSaveFailed(false);
     try {
@@ -112,6 +125,7 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
   // separate deletion API and no direct AsyncStorage access here.
   const performDelete = async () => {
     if (isDeleting || isSaving) return;
+    if (ownerGeneration.current !== getLocalDataGeneration()) return onClose();
     setIsDeleting(true);
     setDeleteFailed(false);
     try {

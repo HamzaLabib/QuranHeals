@@ -4,6 +4,7 @@ import { AppState } from 'react-native';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { DEFAULT_QURAN_TRANSLATION_PREFERENCE } from '@/localization/quranTranslationPreference';
 import { useQuranTranslationPreference } from '@/localization/useQuranTranslationPreference';
+import { GuestDataSheet, type GuestDataChoice } from '@/components/GuestDataSheet';
 import { SyncPassphraseSheet } from '@/components/SyncPassphraseSheet';
 import { pushPreferences, type LocalPreferencesSnapshot } from '@/sync/preferencesSync';
 import { hasUnsyncedLocalPreferences } from '@/sync/preferencesSyncState';
@@ -17,30 +18,35 @@ import {
 } from '@/sync/syncKeyManager';
 import { clearAllReflections } from '@/storage/ayahReflections';
 import { clearAllFavorites } from '@/storage/favorites';
+import { hideAccountDataNow, notifyLocalDataChanged } from '@/storage/localDataOwner';
 import {
+  activateGuestLocalData,
   activateLocalDataForAccount,
+  confirmRestoredLocalDataOwner,
+  forgetGuestDataDecision,
+  guestDataAwaitsDecision,
+  keepGuestDataSeparate,
+  mergeGuestDataIntoAccount,
   releaseLocalDataAfterAccountDeletion,
-  settleLocalDataOwnerAsGuest,
 } from '@/storage/localDataOwnership';
 import { deleteAccountRequest, SyncApiError } from '@/sync/syncApi';
 import { devLog } from '@/utils/devLog';
-import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
 import { logoutSession, signInWithAppleIdToken, signInWithGoogleIdToken, AuthApiError } from './authApi';
+import { beginAuthEpoch, currentAuthEpoch } from './authEpoch';
 import { initializeSession, type InitializedSession } from './initializeSession';
 import { useFreshProviderCredential } from './reauthentication';
+import { getRefreshToken, getSessionToken, setCachedUser } from './sessionStorage';
 import {
-  clearCachedMasterKey,
-  clearCachedUser,
-  clearRefreshToken,
-  clearSessionToken,
-  getRefreshToken,
-  getSessionToken,
-  setCachedUser,
-  setRefreshToken,
-  setSessionToken,
-} from './sessionStorage';
-import { registerSessionExpiredHandler } from './tokenManager';
+  clearPersistedSession,
+  forgetInFlightRefresh,
+  persistSessionTokens,
+  registerSessionExpiredHandler,
+  writeForEpoch,
+} from './tokenManager';
 import type { AuthStatus, AuthUser } from './authTypes';
+
+/** Thrown into a pending prompt when the session it was asked for has ended. */
+class SessionEndedError extends SyncPassphraseCancelledError {}
 
 // Automatic (AppState-triggered) foreground resync is throttled the same
 // way Home throttles its own foreground revalidation (see app/index.tsx's
@@ -95,6 +101,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [lastError, setLastError] = useState<string | null>(null);
   const [passphraseRequest, setPassphraseRequest] = useState<PassphraseRequest | null>(null);
+  // "Add your local data to this account?" — see runSyncAfterSignIn.
+  const [guestDataRequest, setGuestDataRequest] = useState<{ resolve: (choice: GuestDataChoice) => void; reject: (error: Error) => void } | null>(null);
+  // Mirrors of both open prompts, so ending a session can reject them
+  // immediately (an old account's question must never be answered under
+  // another session).
+  const passphraseRequestRef = useRef<PassphraseRequest | null>(null);
+  const guestDataRequestRef = useRef<typeof guestDataRequest>(null);
+  useEffect(() => {
+    passphraseRequestRef.current = passphraseRequest;
+  }, [passphraseRequest]);
+  useEffect(() => {
+    guestDataRequestRef.current = guestDataRequest;
+  }, [guestDataRequest]);
   // Mirrors the current session token for the AppState-foreground sync
   // effect below, which needs the latest token without re-subscribing on
   // every render (a ref avoids that, unlike putting the token in state).
@@ -107,12 +126,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Mark restoration complete only after a live effect commits its result.
   const hasRestoredSessionRef = useRef(false);
   const sessionRestorePromiseRef = useRef<Promise<InitializedSession> | null>(null);
-  // Single-flight guard so cold start, an AppState foreground event, and an
-  // explicit pull-to-refresh refreshSync() call can never run runFullSync
-  // (and therefore the mandatory Sync Password prompt) concurrently — see
-  // utils/pullToRefresh.ts's doc comment for why this must be a ref rather
-  // than React state.
-  const syncGuardRef = useRef<RefreshInFlightRef>({ current: false });
+  // Single-flight per session: cold start, an AppState foreground event, and
+  // an explicit pull-to-refresh refreshSync() call can never run runFullSync
+  // (and therefore the mandatory Sync Password prompt) concurrently. A sync
+  // still finishing for an EARLIER session (see auth/authEpoch.ts) never
+  // blocks the new session's sync: that one waits for it to stop instead.
+  const syncInFlightRef = useRef<{ epoch: number; promise: Promise<void> } | null>(null);
+  // A sign-out still clearing storage; a sign-in waits for it to finish.
+  const pendingSignOutRef = useRef<Promise<void>>(Promise.resolve());
   // Throttles only the *automatic* AppState-triggered resync below — see
   // FOREGROUND_RESYNC_THROTTLE_MS.
   const lastForegroundSyncAtRef = useRef(0);
@@ -166,9 +187,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const promptForGuestData = useCallback(
+    () =>
+      new Promise<GuestDataChoice>((resolve, reject) => {
+        setGuestDataRequest({ resolve, reject });
+      }),
+    [],
+  );
+
+  /** Ends any open prompt of the session that just ended. */
+  const rejectOpenPrompts = useCallback(() => {
+    passphraseRequestRef.current?.reject(new SessionEndedError('The session ended.'));
+    guestDataRequestRef.current?.reject(new SessionEndedError('The session ended.'));
+    passphraseRequestRef.current = null;
+    guestDataRequestRef.current = null;
+    setPassphraseRequest(null);
+    setGuestDataRequest(null);
+  }, []);
+
   const runSyncAfterSignIn = useCallback(
     async (token: string) => {
-      await runGuardedRefresh(syncGuardRef.current, async () => {
+      // The session this sync is for. Every step below stops as soon as it
+      // is no longer current (sign-out, or another account signed in), and
+      // only ever touches `ownerUserId`'s own data and server account.
+      const epoch = currentAuthEpoch();
+      const isCurrent = () => epoch === currentAuthEpoch();
+      const previous = syncInFlightRef.current;
+      if (previous) {
+        if (previous.epoch === epoch) return;
+        await previous.promise.catch(() => undefined);
+        if (!isCurrent() || syncInFlightRef.current) return;
+      }
+
+      const run = async () => {
         lastForegroundSyncAtRef.current = Date.now();
         // Always syncs with the freshest persisted access token, not
         // necessarily the one this call happened to be invoked with. A
@@ -186,14 +237,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (!ownerUserId) return;
           // Already done at sign-in/restore; repeated here (a no-op then) so
           // no sync can ever run before its account's partition is active.
-          await activateLocalDataForAccount(ownerUserId, { restored: true });
+          await activateLocalDataForAccount(ownerUserId, isCurrent);
+          if (!isCurrent()) return;
+
+          // Guest data joins the account only if the user says so, and
+          // before this sync, so an added copy is uploaded right away.
+          if (await guestDataAwaitsDecision(ownerUserId)) {
+            const choice = await promptForGuestData();
+            if (!isCurrent()) return;
+            if (choice === 'add') await mergeGuestDataIntoAccount(ownerUserId, isCurrent);
+            else await keepGuestDataSeparate(ownerUserId);
+          }
+
           await waitForPreferenceHydration();
           const latestToken = (await getSessionToken()) ?? token;
+          if (!isCurrent()) return;
           sessionTokenRef.current = latestToken;
-          await runFullSync(latestToken, {
+          const result = await runFullSync(latestToken, {
             ownerUserId,
             local: () => latestPreferencesRef.current,
             applyPreferencesLocally: (next) => {
+              if (!isCurrent()) return;
               if (next.locale) setLocale(next.locale, { fromSync: true });
               if (next.translationDisplayMode) setDisplayMode(next.translationDisplayMode, { fromSync: true });
               // translationId has only one valid value today
@@ -203,15 +267,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               void DEFAULT_QURAN_TRANSLATION_PREFERENCE;
             },
             promptForPassphrase,
+            isCurrent,
           });
+          // Screens showing this account's data pick up what was downloaded.
+          if (isCurrent() && (result.favoritesSynced || result.reflectionsSynced)) notifyLocalDataChanged();
         } catch {
           // Sync failures never undo a successful sign-in or block app
           // usage (Part H §33) — the user is signed in and can keep using
           // the app; sync can be retried later (e.g. next app foreground).
         }
-      });
+      };
+
+      const promise = run();
+      syncInFlightRef.current = { epoch, promise };
+      try {
+        await promise;
+      } finally {
+        if (syncInFlightRef.current?.promise === promise) syncInFlightRef.current = null;
+      }
     },
-    [promptForPassphrase, setLocale, setDisplayMode, waitForPreferenceHydration],
+    [promptForPassphrase, promptForGuestData, setLocale, setDisplayMode, waitForPreferenceHydration],
   );
 
   // Pushes a preference change made on this device while signed in, as soon
@@ -252,19 +327,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hasRestoredSessionRef.current = true;
       sessionTokenRef.current = session.token;
       currentUserIdRef.current = session.user?.id ?? null;
+      // Until this point no account data is shown (see localDataOwner.ts's
+      // `resolved`): the last session may have expired or signed out.
+      const epoch = currentAuthEpoch();
       if (session.status === 'signed-in' && session.user) {
-        void activateLocalDataForAccount(session.user.id, { restored: true }).catch(() => {
+        const userId = session.user.id;
+        void activateLocalDataForAccount(userId, () => epoch === currentAuthEpoch()).catch(() => {
           // Retried by the sync below; local data stays where it is.
         });
-      } else if (session.status === 'guest') {
-        void settleLocalDataOwnerAsGuest().catch(() => {
+      } else if (session.status === 'signed-in') {
+        void confirmRestoredLocalDataOwner().catch(() => {});
+      } else {
+        void activateGuestLocalData().catch(() => {
           // Re-evaluated on the next launch.
         });
       }
       setUser(session.user);
       setStatus(session.status);
       if (session.shouldSync && session.token && session.user) {
-        void setCachedUser(session.user);
+        const signedInUser = session.user;
+        void writeForEpoch(epoch, () => setCachedUser(signedInUser));
         void runSyncAfterSignIn(session.token);
       }
     });
@@ -292,25 +374,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const handleSignInSuccess = useCallback(
     async (token: string, refreshToken: string | undefined, signedInUser: AuthUser) => {
+      // A sign-out still clearing storage finishes first, so it can never
+      // clear this new session's tokens (they are written after it).
+      await pendingSignOutRef.current.catch(() => undefined);
+      // A new session: anything still running for an earlier one is stale
+      // from here on (see auth/authEpoch.ts).
+      const epoch = beginAuthEpoch();
+      const isCurrent = () => epoch === currentAuthEpoch();
+      forgetInFlightRefresh();
+      rejectOpenPrompts();
       // Before anything can sync: switch local data to this account's own
-      // partition. A different account's data is never adopted (see
-      // storage/localDataOwnership.ts). A storage failure here cannot route
-      // data to the wrong account — every sync names its account
+      // partition. Nothing moves into it here — guest data only on request
+      // (see storage/localDataOwnership.ts). A storage failure here cannot
+      // route data to the wrong account — every sync names its account
       // explicitly — so it does not block signing in.
-      await activateLocalDataForAccount(signedInUser.id, { restored: false }).catch(() => {});
+      await activateLocalDataForAccount(signedInUser.id, isCurrent).catch(() => {});
+      // An interactive sign-in asks about guest data again.
+      await forgetGuestDataDecision(signedInUser.id).catch(() => {});
+      if (!isCurrent()) return;
       currentUserIdRef.current = signedInUser.id;
-      await setSessionToken(token);
       // Only absent if the backend itself omitted it — this app's backend
       // always sends one (see authApi.ts's SignInResponse doc comment).
-      if (refreshToken) await setRefreshToken(refreshToken);
+      await persistSessionTokens(epoch, token, refreshToken);
+      if (!isCurrent()) return;
       sessionTokenRef.current = token;
       setUser(signedInUser);
-      void setCachedUser(signedInUser);
+      void writeForEpoch(epoch, () => setCachedUser(signedInUser));
       setStatus('signed-in');
       setLastError(null);
       await runSyncAfterSignIn(token);
     },
-    [runSyncAfterSignIn],
+    [runSyncAfterSignIn, rejectOpenPrompts],
   );
 
   const signInWithGoogle = useCallback(
@@ -345,38 +439,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [handleSignInSuccess],
   );
 
-  // Shared by a user-initiated sign-out and a session forcibly expired by
-  // the refresh flow (tokenManager's registerSessionExpiredHandler) —
-  // clears only this device's local auth state either way. Never touches
-  // local reflections/favorites/preferences storage (Part H §32).
-  const clearLocalSession = useCallback(() => {
+  // Shared by sign-out, a session forcibly expired by the refresh flow
+  // (tokenManager's registerSessionExpiredHandler) and account deletion.
+  // Synchronously, before anything else can render or run: a new auth
+  // epoch (everything still running for this session is stale from here
+  // on), its prompts closed, and the guest partition shown instead of the
+  // account's. Then the persisted session (tokens, cached profile, cached
+  // master key) is cleared — unless a newer sign-in got there first. The
+  // account's local partition is kept on this device for that account
+  // only, and nothing on the server is deleted.
+  const endSession = useCallback(() => {
+    const epoch = beginAuthEpoch();
+    forgetInFlightRefresh();
     sessionTokenRef.current = null;
     currentUserIdRef.current = null;
+    rejectOpenPrompts();
+    hideAccountDataNow();
     setUser(null);
-    void clearCachedUser();
     setStatus('guest');
-  }, []);
+    const cleared = (async () => {
+      await activateGuestLocalData().catch(() => {});
+      await clearPersistedSession(epoch);
+    })();
+    pendingSignOutRef.current = cleared;
+    return cleared;
+  }, [rejectOpenPrompts]);
 
   useEffect(() => {
     registerSessionExpiredHandler(() => {
-      void clearCachedMasterKey();
-      clearLocalSession();
+      void endSession();
     });
     return () => registerSessionExpiredHandler(null);
-  }, [clearLocalSession]);
+  }, [endSession]);
 
   const signOut = useCallback(async () => {
+    // Read before the session is cleared: revocation needs it.
+    const refreshToken = await getRefreshToken().catch(() => null);
+    await endSession();
     // Revokes only this device's session server-side (best-effort — see
     // authApi.ts's logoutSession) — every other signed-in device is
-    // unaffected. Local sign-out below always proceeds regardless.
-    const refreshToken = await getRefreshToken();
-    if (refreshToken) await logoutSession(refreshToken);
-
-    await clearSessionToken();
-    await clearRefreshToken();
-    await clearCachedMasterKey();
-    clearLocalSession();
-  }, [clearLocalSession]);
+    // unaffected. Local sign-out has already completed regardless.
+    if (refreshToken) await logoutSession(refreshToken).catch(() => {});
+  }, [endSession]);
 
   const clearLastError = useCallback(() => setLastError(null), []);
 
@@ -393,6 +497,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!token) {
       throw new Error('Not signed in.');
     }
+    // The partition to clear is this account's own — never whatever is
+    // active by the time the backend answers.
+    const deletedUserId = currentUserIdRef.current;
 
     // Everything before local clearing below only reads/calls the backend;
     // nothing local is touched until the backend confirms the account (and
@@ -418,20 +525,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     // Only reached after backend success. Local reflections/favorites are
-    // cleared here — unlike ordinary signOut(), which deliberately keeps
-    // them, deletion means there is no account left for them to belong to.
-    // Locale/translation-display preferences are left alone (an app/device
-    // setting, not account data).
-    await clearAllReflections();
-    await clearAllFavorites();
-    // The deleted account's partition is gone; the device returns to the
-    // guest partition. Other accounts' partitions on this device are untouched.
-    await releaseLocalDataAfterAccountDeletion();
-    await clearSessionToken();
-    await clearRefreshToken();
-    await clearCachedMasterKey();
-    clearLocalSession();
-  }, [clearLocalSession, promptForFreshProviderCredential]);
+    // cleared here — unlike ordinary signOut(), which keeps them on this
+    // device for the account, deletion means there is no account left for
+    // them to belong to. Guest data and other accounts' partitions are
+    // untouched. Locale/translation-display preferences are left alone (an
+    // app/device setting, not account data).
+    await clearAllReflections(deletedUserId ?? undefined);
+    await clearAllFavorites(deletedUserId ?? undefined);
+    await endSession();
+    if (deletedUserId) await releaseLocalDataAfterAccountDeletion(deletedUserId);
+  }, [endSession, promptForFreshProviderCredential]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -451,6 +554,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={value}>
       {children}
+      <GuestDataSheet
+        visible={guestDataRequest !== null}
+        onChoose={(choice) => {
+          guestDataRequest?.resolve(choice);
+          guestDataRequestRef.current = null;
+          setGuestDataRequest(null);
+        }}
+      />
       <SyncPassphraseSheet
         request={passphraseRequest}
         onSubmit={(passphrase: string) => {

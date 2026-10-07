@@ -179,6 +179,13 @@ export type Messages = {
     deleteError: string;
     saveError: string;
   };
+  /** Asked when signing in with favorites/reflections saved on this device as a guest (see GuestDataSheet.tsx). */
+  guestData: {
+    title: string;
+    body: string;
+    add: string;
+    keepSeparate: string;
+  };
   /**
    * The mandatory "Sync Password" gate for synced reflections/favorites
    * (never a skip/cancel — see SyncPassphraseSheet.tsx). Reuses
@@ -409,6 +416,12 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       deleteError: 'Your reflection could not be deleted. Please try again.',
       saveError: "Your reflection couldn't be saved. Please try again.",
     },
+    guestData: {
+      title: "Add your local data to this account?",
+      body: "You have favorites or reflections saved on this device. Would you like to add them to this account and sync them across your devices?",
+      add: "Add to this account",
+      keepSeparate: "Keep separate",
+    },
     syncPassphrase: {
       createTitle: "Set Password",
       unlockTitle: "Enter Password",
@@ -633,6 +646,12 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       deleteConfirmConfirm: 'حذف',
       deleteError: 'تعذّر حذف خاطرتك. يُرجى المحاولة مرة أخرى.',
       saveError: 'تعذّر حفظ خاطرتك. يُرجى المحاولة مرة أخرى.',
+    },
+    guestData: {
+      title: "إضافة بياناتك المحلية إلى هذا الحساب؟",
+      body: "لديك مفضلة أو خواطر محفوظة على هذا الجهاز. هل تريد إضافتها إلى هذا الحساب ومزامنتها عبر أجهزتك؟",
+      add: "إضافة إلى هذا الحساب",
+      keepSeparate: "إبقاؤها منفصلة",
     },
     syncPassphrase: {
       createTitle: "إنشاء كلمة المرور",
@@ -876,6 +895,12 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     // Sync Password copy is a security-sensitive flow — intentionally
     // byte-identical to `ar`'s Standard Arabic (Part 9 of the mandatory
     // sync-password phase), never Egyptian colloquial.
+    guestData: {
+      title: "إضافة بياناتك المحلية إلى هذا الحساب؟",
+      body: "لديك مفضلة أو خواطر محفوظة على هذا الجهاز. هل تريد إضافتها إلى هذا الحساب ومزامنتها عبر أجهزتك؟",
+      add: "إضافة إلى هذا الحساب",
+      keepSeparate: "إبقاؤها منفصلة",
+    },
     syncPassphrase: {
       createTitle: "إنشاء كلمة المرور",
       unlockTitle: "أدخل كلمة المرور",

@@ -1,4 +1,5 @@
 import { apiBaseUrl } from '@/services/apiBase';
+import { isStaleSessionToken } from '@/auth/authEpoch';
 import type { ProviderCredential } from '@/auth/reauthentication';
 import { fetchWithTimeout } from '@/services/fetchWithTimeout';
 
@@ -45,7 +46,11 @@ async function authedRequest<T>(sessionToken: string, path: string, init: Reques
   try {
     response = await sendRequest(sessionToken, path, init, timeoutMs);
 
-    if (response.status === 401) {
+    // Never for an earlier session's token: the refresh credential stored
+    // now belongs to the current session — possibly another account — and
+    // retrying with its token would send this request's data there (see
+    // auth/authEpoch.ts). The stale request simply fails.
+    if (response.status === 401 && !isStaleSessionToken(sessionToken)) {
       // Imported lazily (rather than as a static top-level import) so
       // modules that never hit this branch — most test suites exercising
       // this file — never pull in tokenManager's own dependency chain
@@ -53,7 +58,7 @@ async function authedRequest<T>(sessionToken: string, path: string, init: Reques
       // runtime this file has no other reason to require.
       const { refreshAccessToken } = await import('@/auth/tokenManager');
       const refreshedToken = await refreshAccessToken();
-      if (refreshedToken) {
+      if (refreshedToken && !isStaleSessionToken(sessionToken)) {
         response = await sendRequest(refreshedToken, path, init, timeoutMs);
       }
     }

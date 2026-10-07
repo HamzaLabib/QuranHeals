@@ -16,8 +16,8 @@ import { getActiveLocalOwner, GUEST_REFLECTIONS_KEY, reflectionsStorageKey } fro
  */
 
 /** The partition an operation uses, resolved when the operation runs (never when it was queued). */
-async function storageKey(ownerUserId?: string): Promise<string> {
-  return reflectionsStorageKey(ownerUserId ?? (await getActiveLocalOwner()));
+async function storageKey(ownerUserId?: string | null): Promise<string> {
+  return reflectionsStorageKey(ownerUserId === undefined ? await getActiveLocalOwner() : ownerUserId);
 }
 
 export const REFLECTION_MAX_LENGTH = 2000;
@@ -131,19 +131,19 @@ function mutate<T>(operation: () => Promise<T>): Promise<T> {
 }
 
 /** Returns null for a verseKey with no reflection AND for one that's been deleted (a tombstone) — both mean "nothing to show/edit". */
-export async function getReflection(verseKey: string, ownerUserId?: string): Promise<AyahReflection | null> {
+export async function getReflection(verseKey: string, ownerUserId?: string | null): Promise<AyahReflection | null> {
   const map = await readRawReflections(await storageKey(ownerUserId));
   const entry = map[verseKey];
   return entry && isActiveReflection(entry) ? entry : null;
 }
 
 /** Active reflections only — tombstones are never included, matching every user-facing list (My Reflections, etc.). */
-export async function getAllReflections(ownerUserId?: string): Promise<AyahReflection[]> {
+export async function getAllReflections(ownerUserId?: string | null): Promise<AyahReflection[]> {
   return Object.values(await readRawReflections(await storageKey(ownerUserId))).filter(isActiveReflection);
 }
 
 /** Deletion tombstones only — used exclusively by mobile/src/sync/reflectionsSync.ts to learn which local deletions still need to be pushed to the cloud. Never surfaced to any UI. */
-export async function getAllTombstones(ownerUserId?: string): Promise<ReflectionTombstone[]> {
+export async function getAllTombstones(ownerUserId?: string | null): Promise<ReflectionTombstone[]> {
   return Object.values(await readRawReflections(await storageKey(ownerUserId))).filter(isTombstone);
 }
 
@@ -205,7 +205,7 @@ export function saveReflection(verseKey: string, text: string, now: number = Dat
  * directly. A tombstone is never erased after a successful sync (only its
  * syncState changes) — see ReflectionTombstone's doc comment.
  */
-export function markReflectionSyncState(verseKey: string, syncState: SyncState, ownerUserId?: string): Promise<void> {
+export function markReflectionSyncState(verseKey: string, syncState: SyncState, ownerUserId?: string | null): Promise<void> {
   return mutate(async () => {
     const key = await storageKey(ownerUserId);
     const map = await readRawReflections(key);
@@ -216,7 +216,7 @@ export function markReflectionSyncState(verseKey: string, syncState: SyncState, 
 }
 
 /** Upserts a reflection downloaded (and decrypted) from the cloud, or created locally from a merge — used only by mobile/src/sync/reflectionsSync.ts. Overwrites any local tombstone for this verseKey, since the cloud's active record is newer (recreation). */
-export function putReflectionFromSync(reflection: AyahReflection, ownerUserId?: string): Promise<void> {
+export function putReflectionFromSync(reflection: AyahReflection, ownerUserId?: string | null): Promise<void> {
   return mutate(async () => {
     const key = await storageKey(ownerUserId);
     const map = await readRawReflections(key);
@@ -233,7 +233,7 @@ export function putReflectionFromSync(reflection: AyahReflection, ownerUserId?: 
  * ordinary sign-out (which deliberately preserves local reflections). Safe
  * to call even if nothing is stored.
  */
-export function clearAllReflections(ownerUserId?: string): Promise<void> {
+export function clearAllReflections(ownerUserId?: string | null): Promise<void> {
   return mutate(async () => AsyncStorage.removeItem(await storageKey(ownerUserId)));
 }
 
@@ -248,7 +248,7 @@ export function putTombstoneFromSync(
     verseKey: string;
     deletedAt: number;
   },
-  ownerUserId?: string,
+  ownerUserId?: string | null,
 ): Promise<void> {
   return mutate(async () => {
     const key = await storageKey(ownerUserId);
@@ -274,8 +274,8 @@ function entryTimestamp(entry: ReflectionEntry): number {
 }
 
 /**
- * Moves the guest partition into an account's partition (the first-sign-in
- * guest → account migration; see localDataOwnership.ts). Per verseKey, the
+ * Moves the guest partition into an account's partition — only after the
+ * user chose "Add to this account" (see localDataOwnership.ts). Per verseKey, the
  * newer entry (reflection or deletion) wins; a tie keeps the account's. The
  * guest partition is removed only after the merged result is written, so an
  * interrupted move simply repeats. Returns false — moving nothing — if
@@ -303,6 +303,16 @@ export function adoptGuestReflections(userId: string): Promise<boolean> {
     await AsyncStorage.removeItem(GUEST_REFLECTIONS_KEY);
     return true;
   });
+}
+
+/** Whether the guest partition holds a reflection to offer to an account — see favorites.ts's guestHasFavorites. */
+export async function guestHasReflections(): Promise<boolean> {
+  await pendingMutation;
+  try {
+    return Object.values(parseReflectionMap(await AsyncStorage.getItem(GUEST_REFLECTIONS_KEY))).some(isActiveReflection);
+  } catch {
+    return false;
+  }
 }
 
 /**

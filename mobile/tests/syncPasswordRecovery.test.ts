@@ -46,6 +46,7 @@ vi.mock('@react-native-async-storage/async-storage', () => ({ default: {
   removeItem: vi.fn(async (key: string) => { env.device.storage.delete(key); }),
 } }));
 vi.mock('@/crypto/randomBytes', () => ({ getRandomBytes: (n: number) => new Uint8Array(randomBytes(n)) }));
+vi.mock('@/components/GuestDataSheet', () => ({ GuestDataSheet: () => null }));
 vi.mock('@/components/SyncPassphraseSheet', () => ({
   SyncPassphraseSheet: (props: SheetProps) => {
     env.sheet = props;

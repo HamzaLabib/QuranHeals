@@ -358,8 +358,9 @@ describe('Provider wiring and foreground behavior', () => {
     expect(useAuthSource).toContain('initializeSession().finally(');
   });
 
-  it('runSyncAfterSignIn is guarded by the shared runGuardedRefresh mutex, not React state alone', () => {
-    expect(useAuthSource).toMatch(/runGuardedRefresh\(syncGuardRef\.current,/);
+  it('runSyncAfterSignIn is single-flight per session through a ref, not React state alone', () => {
+    expect(useAuthSource).toMatch(/const syncInFlightRef = useRef</);
+    expect(useAuthSource).toMatch(/if \(previous\.epoch === epoch\) return;/);
   });
 
   it('the AppState listener throttles the automatic foreground resync', () => {
@@ -367,9 +368,12 @@ describe('Provider wiring and foreground behavior', () => {
     expect(listenerBlock).toMatch(/FOREGROUND_RESYNC_THROTTLE_MS/);
   });
 
-  it('clearLocalSession (shared by signOut and a forced session expiry) also clears the cached user profile', () => {
-    const block = useAuthSource.match(/const clearLocalSession = useCallback\(\(\) => \{[\s\S]*?\}, \[\]\);/)?.[0] ?? '';
-    expect(block).toMatch(/clearCachedUser\(\)/);
+  it('endSession (shared by signOut, a forced session expiry and deletion) also clears the cached user profile', () => {
+    const block = useAuthSource.match(/const endSession = useCallback\(\(\) => \{[\s\S]*?\}, \[[^\]]*\]\);/)?.[0] ?? '';
+    const tokenManagerSource = readFileSync(resolve(__dirname, '../src/auth/tokenManager.ts'), 'utf-8');
+    expect(block).toMatch(/clearPersistedSession\(epoch\)/);
+    expect(tokenManagerSource.match(/export function clearPersistedSession[\s\S]*?\r?\n\}/)?.[0]).toMatch(/clearCachedUser\(\)/);
+    expect(useAuthSource).toMatch(/registerSessionExpiredHandler\(\(\) => \{\s*void endSession\(\);/);
   });
 
   it('AccountSection never flashes the sign-in prompt while status is "loading"', () => {

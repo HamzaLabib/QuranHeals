@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { getVerseByKey } from '@/services/quran';
 import { parseVerseKey } from '@/services/quranReference';
 import { getAllReflections, type AyahReflection } from '@/storage/ayahReflections';
+import { getLocalDataGeneration, getLocalDataOwnerState, subscribeToLocalDataOwner } from '@/storage/localDataOwner';
 
 export type ReflectionListItem = {
   reflection: AyahReflection;
@@ -41,8 +42,8 @@ function sortByUpdatedAtDesc(reflections: AyahReflection[]): AyahReflection[] {
  * (not a hook) so it's directly testable without a React renderer — see
  * useReflections() below, which is a thin state wrapper around this.
  */
-export async function loadReflectionListItems(): Promise<ReflectionListItem[]> {
-  const reflections = sortByUpdatedAtDesc(await getAllReflections());
+export async function loadReflectionListItems(ownerUserId?: string | null): Promise<ReflectionListItem[]> {
+  const reflections = sortByUpdatedAtDesc(await getAllReflections(ownerUserId));
   return Promise.all(reflections.map(resolveItem));
 }
 
@@ -51,6 +52,10 @@ export async function loadReflectionListItems(): Promise<ReflectionListItem[]> {
  * Reflections screen. Shared by the screen so every reflection card reads
  * the same loaded list rather than each independently touching
  * AsyncStorage/sqlite.
+ *
+ * Shows only the active owner's reflections (see useFavorites.ts): an owner
+ * change (sign-in, sign-out, account switch) drops the list at once and
+ * loads the new owner's, and a read begun for an earlier owner is discarded.
  */
 export function useReflections() {
   const [items, setItems] = useState<ReflectionListItem[]>([]);
@@ -58,15 +63,22 @@ export function useReflections() {
   const [hasError, setHasError] = useState(false);
 
   const refresh = useCallback(async () => {
+    const generation = getLocalDataGeneration();
     try {
-      setItems(await loadReflectionListItems());
+      const { activeUserId, resolved } = await getLocalDataOwnerState();
+      // Not known yet: stay loading; the owner change reloads.
+      if (!resolved) return;
+      const loaded = await loadReflectionListItems(activeUserId);
+      if (generation !== getLocalDataGeneration()) return;
+      setItems(loaded);
       setHasError(false);
+      setIsReady(true);
     } catch {
       // Mirrors storage/ayahReflections.ts's own guarantee: a read failure
       // never discards or overwrites what's already stored on disk — this
       // hook simply reports the failure without touching prior state.
+      if (generation !== getLocalDataGeneration()) return;
       setHasError(true);
-    } finally {
       setIsReady(true);
     }
   }, []);
@@ -75,7 +87,18 @@ export function useReflections() {
     const timeoutId = setTimeout(() => {
       void refresh();
     }, 0);
-    return () => clearTimeout(timeoutId);
+    const unsubscribe = subscribeToLocalDataOwner((change) => {
+      if (change === 'owner') {
+        setItems([]);
+        setHasError(false);
+        setIsReady(false);
+      }
+      void refresh();
+    });
+    return () => {
+      clearTimeout(timeoutId);
+      unsubscribe();
+    };
   }, [refresh]);
 
   return { items, isReady, hasError, refresh };

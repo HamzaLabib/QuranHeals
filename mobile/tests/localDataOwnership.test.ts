@@ -21,6 +21,11 @@ const env = vi.hoisted(() => ({
   secure: new Map<string, string>(),
   storage: new Map<string, string>(),
   keyRequests: [] as string[],
+  /** How the "Add your local data to this account?" question is answered; 'hold' leaves it open (see heldGuestChoice). */
+  guestAnswer: 'keep-separate' as 'add' | 'keep-separate' | 'hold',
+  guestPrompts: 0,
+  guestSheetVisible: false,
+  heldGuestChoice: null as null | ((choice: 'add' | 'keep-separate') => void),
 }));
 
 vi.mock('react-native', () => ({
@@ -39,6 +44,21 @@ vi.mock('@react-native-async-storage/async-storage', () => ({ default: {
 } }));
 vi.mock('@/crypto/randomBytes', () => ({ getRandomBytes: (n: number) => new Uint8Array(randomBytes(n)) }));
 vi.mock('@/components/SyncPassphraseSheet', () => ({ SyncPassphraseSheet: () => null }));
+// The guest-data question, answered as env.guestAnswer says (each time it opens).
+vi.mock('@/components/GuestDataSheet', () => ({
+  GuestDataSheet: ({ visible, onChoose }: { visible: boolean; onChoose: (choice: 'add' | 'keep-separate') => void }) => {
+    if (visible && !env.guestSheetVisible) {
+      env.guestPrompts += 1;
+      if (env.guestAnswer === 'hold') env.heldGuestChoice = onChoose;
+      else {
+        const answer = env.guestAnswer;
+        setTimeout(() => onChoose(answer), 0);
+      }
+    }
+    env.guestSheetVisible = visible;
+    return null;
+  },
+}));
 // useAuth.tsx's deleteAccount calls this hook directly now (Phase B4's
 // Apple-reauth-on-deletion retry) — stubbed here since this file's accounts
 // never hit the 428/reauth-required path, and the real module pulls in
@@ -73,14 +93,23 @@ function ayah(verseKey: string) {
     englishTranslation: 'translation', emotions: [], quranTextSource: 'Tanzil', translationSource: 'Pickthall',
   };
 }
-vi.mock('@/services/quran', () => ({ resolveAyahArabic: async (value: { verseKey: string }) => ({ ...value, arabicText: 'ARABIC' }) }));
+vi.mock('@/services/quran', () => ({
+  resolveAyahArabic: async (value: { verseKey: string }) => ({ ...value, arabicText: 'ARABIC' }),
+  getVerseByKey: async (verseKey: string) => {
+    const [surah, ayahNumber] = verseKey.split(':').map(Number);
+    return { surah, ayah: ayahNumber, arabicText: 'ARABIC' };
+  },
+}));
 vi.mock('@/services/api', () => ({ getAyah: async (verseKey: string) => ayah(verseKey) }));
 
 import { AuthProvider, useAuth, type AuthContextValue } from '@/auth/useAuth';
+import { resetAuthEpochForTests } from '@/auth/authEpoch';
 import * as sessionStorage from '@/auth/sessionStorage';
 import { registerSessionExpiredHandler } from '@/auth/tokenManager';
 import { decryptReflectionText, encryptReflectionText } from '@/crypto/reflectionEncryption';
-import { addFavorite, getFavorites } from '@/storage/favorites';
+import { useFavorites } from '@/hooks/useFavorites';
+import { useReflections } from '@/hooks/useReflections';
+import { addFavorite, getFavorites, removeFavorite } from '@/storage/favorites';
 import { getAllReflections, saveReflection } from '@/storage/ayahReflections';
 import { GUEST_FAVORITES_KEY, GUEST_REFLECTIONS_KEY, resetLocalDataOwnerForTests } from '@/storage/localDataOwner';
 import { activateLocalDataForAccount } from '@/storage/localDataOwnership';
@@ -138,6 +167,11 @@ async function fakeBackend(url: string, init?: RequestInit): Promise<Response> {
     return json({ token: `access-${id}`, refreshToken: `refresh-${id}`, user: { id, provider: 'google', createdAt: '2026-01-01T00:00:00.000Z' } });
   }
   if (path === '/api/auth/logout') return json(null);
+  if (path === '/api/auth/refresh') {
+    // A rotation for whichever account the presented refresh token belongs to.
+    const id = String(body.refreshToken).replace('refresh-', '');
+    return json({ token: `access-${id}`, refreshToken: `refresh-${id}` });
+  }
 
   const user = accountFor(init);
   if (path === '/api/auth/session') {
@@ -212,9 +246,25 @@ function uploadedVerseKeys(user: string): string[] {
 let root: ReactTestRenderer | undefined;
 let account: AuthContextValue;
 
+/** Every rendered frame of the real Favorites/Reflections hooks: what the user could have seen. */
+type Frame = { user: string | null; favorites: string[]; reflections: string[] };
+let frames: Frame[] = [];
+
 function Probe() {
   account = useAuth();
+  const { favorites } = useFavorites();
+  const { items } = useReflections();
+  frames.push({
+    user: account.user?.id ?? null,
+    favorites: favorites.map((favorite) => favorite.verseKey ?? favorite.id),
+    reflections: items.map((item) => item.reflection.text),
+  });
   return null;
+}
+
+/** The latest rendered frame. */
+function screen(): Frame {
+  return frames[frames.length - 1];
 }
 
 async function settle() {
@@ -235,30 +285,50 @@ async function closeApp() {
   resetLocalDataOwnerForTests();
 }
 
-async function signIn(user: 'A' | 'B') {
-  await act(async () => { await account.signInWithGoogleIdToken(`id-${user}`); });
+/**
+ * Starts `action` inside act() but lets it finish across later act() rounds:
+ * React flushes renders only when an act() scope ends, and an action that
+ * waits for a question rendered meanwhile (the guest-data sheet) would
+ * otherwise never see it.
+ */
+async function perform(action: () => Promise<void>) {
+  let outcome: { error?: unknown } | null = null;
+  await act(async () => {
+    void action().then(() => { outcome = {}; }, (error: unknown) => { outcome = { error }; });
+  });
+  for (let round = 0; round < 50 && !outcome; round += 1) await settle();
   await settle();
+  if (!outcome) throw new Error('The action never finished.');
+  if ((outcome as { error?: unknown }).error) throw (outcome as { error?: unknown }).error;
+}
+
+async function signIn(user: 'A' | 'B') {
+  await perform(() => account.signInWithGoogleIdToken(`id-${user}`));
   expect(account.status).toBe('signed-in');
   expect(account.user?.id).toBe(user);
 }
 
 async function signOut() {
-  await act(async () => { await account.signOut(); });
-  await settle();
+  await perform(() => account.signOut());
   expect(account.status).toBe('guest');
 }
 
 async function sync() {
-  await act(async () => { await account.refreshSync(); });
-  await settle();
+  await perform(() => account.refreshSync());
 }
 
 beforeEach(() => {
   env.secure.clear();
   env.storage.clear();
   env.keyRequests.length = 0;
+  env.guestAnswer = 'keep-separate';
+  env.guestPrompts = 0;
+  env.guestSheetVisible = false;
+  env.heldGuestChoice = null;
+  frames = [];
   cloud = { A: emptyAccount(), B: emptyAccount() };
   resetLocalDataOwnerForTests();
+  resetAuthEpochForTests();
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true);
   vi.stubGlobal('fetch', vi.fn(fakeBackend));
 });
@@ -272,7 +342,7 @@ afterEach(async () => {
 // ---------------------------------------------------------------------------
 
 describe('Test A — the same account returns', () => {
-  it("A's data stays available after sign-out, and syncs only to A when A signs back in", async () => {
+  it("A's data is hidden after sign-out (guest edits stay guest data) and is A's again when A signs back in", async () => {
     await launchApp();
     await signIn('A');
     await saveReflection('1:1', 'A-private reflection');
@@ -281,14 +351,16 @@ describe('Test A — the same account returns', () => {
     expect(decryptedUploads('A')).toEqual(['A-private reflection']);
 
     await signOut();
-    // Current product behavior: sign-out keeps the account's local data on its device.
-    expect((await getAllReflections()).map((r) => r.text)).toEqual(['A-private reflection']);
-    await saveReflection('1:3', 'A written while signed out');
+    expect(await getAllReflections()).toEqual([]);
+    expect(await getFavorites()).toEqual([]);
+    await saveReflection('1:3', 'written while signed out');
 
-    await signIn('A');
+    await signIn('A'); // asked about the guest reflection: kept separate
     await sync();
 
-    expect(new Set(decryptedUploads('A'))).toEqual(new Set(['A-private reflection', 'A written while signed out']));
+    expect(env.guestPrompts).toBe(1);
+    expect(decryptedUploads('A')).toEqual(['A-private reflection']);
+    expect((await getAllReflections()).map((r) => r.text)).toEqual(['A-private reflection']);
     expect(cloud.A.favorites).toEqual(new Set(['1:2']));
     expect(cloud.B.uploadedReflections).toEqual([]);
     expect(cloud.B.uploadedFavorites).toEqual([]);
@@ -303,7 +375,7 @@ describe('Test B — reflections never cross to a different account', () => {
     await sync();
     await saveReflection('2:256', 'A unsynced reflection');
     await signOut();
-    await saveReflection('2:257', 'A written while signed out');
+    await saveReflection('2:257', 'written while signed out (guest data, kept separate)');
 
     await signIn('B');
     await sync();
@@ -339,7 +411,7 @@ describe('Test C — favorites never cross to a different account', () => {
     await addFavorite(ayah('1:5'));
     await sync();
     await signOut();
-    await addFavorite(ayah('1:6')); // added while signed out: still A's
+    await addFavorite(ayah('1:6')); // added while signed out: guest data, kept separate
 
     await signIn('B');
     await sync();
@@ -373,7 +445,7 @@ describe('Test D — encryption isolation', () => {
   });
 
   it("an in-flight sync for A keeps writing only to A's partition if the device switches to B mid-sync", async () => {
-    await activateLocalDataForAccount('A', { restored: false });
+    await activateLocalDataForAccount('A');
     // A reflection A wrote on another device, waiting in A's cloud.
     const fromOtherDevice = encryptReflectionText('A from another device', MASTER_KEYS.A, (n) => new Uint8Array(randomBytes(n)));
     cloud.A.reflections.set('7:1', {
@@ -389,7 +461,7 @@ describe('Test D — encryption isolation', () => {
     }));
     const syncingA = syncReflections('access-A', MASTER_KEYS.A, 'A');
 
-    await activateLocalDataForAccount('B', { restored: false });
+    await activateLocalDataForAccount('B');
     releaseGet();
     await syncingA;
 
@@ -399,12 +471,14 @@ describe('Test D — encryption isolation', () => {
 });
 
 describe('Test E — guest data (fresh install)', () => {
-  it('is adopted by the first account to sign in, and by no other account afterwards', async () => {
+  it('joins the account only after "Add to this account", and no other account afterwards', async () => {
     await launchApp();
     await saveReflection('8:1', 'guest reflection');
     await addFavorite(ayah('8:2'));
 
+    env.guestAnswer = 'add';
     await signIn('A');
+    expect(env.guestPrompts).toBe(1);
     await sync();
     expect(decryptedUploads('A')).toEqual(['guest reflection']);
     expect(cloud.A.favorites).toEqual(new Set(['8:2']));
@@ -469,50 +543,340 @@ describe('Test G — account deletion', () => {
   });
 });
 
-describe('Migration of data stored before ownership existed', () => {
+describe('Existing local data whose owner cannot be proven', () => {
+  // Stored before ownership existed: it sits in the guest keys with no owner marker.
   const LEGACY_SYNCED = JSON.stringify({
     '11:1': { verseKey: '11:1', text: 'legacy reflection', createdAt: 1, updatedAt: 1, syncState: 'synced' },
   });
-  const LEGACY_GUEST_ONLY = JSON.stringify({
-    '11:1': { verseKey: '11:1', text: 'legacy guest reflection', createdAt: 1, updatedAt: 1 },
-  });
 
-  it('is kept by the session that was already signed in across the upgrade (it was already syncing all of it to that account)', async () => {
+  it('is guest data even for a session signed in across the upgrade: asked once, and kept separate it is never uploaded', async () => {
     env.storage.set(GUEST_REFLECTIONS_KEY, LEGACY_SYNCED);
     await sessionStorage.setSessionToken('access-A');
     await sessionStorage.setRefreshToken('refresh-A');
 
     await launchApp();
     expect(account.user?.id).toBe('A');
+    expect(env.guestPrompts).toBe(1);
+    expect(cloud.A.uploadedReflections).toEqual([]);
+    expect(await getAllReflections('A')).toEqual([]);
+    expect(env.storage.get(GUEST_REFLECTIONS_KEY)).toBe(LEGACY_SYNCED);
 
-    expect((await getAllReflections('A')).map((r) => r.text)).toEqual(['legacy reflection']);
-    expect(env.storage.has(GUEST_REFLECTIONS_KEY)).toBe(false);
+    // The restored session does not ask the same account again on the next launch.
+    await closeApp();
+    await launchApp();
+    expect(account.user?.id).toBe('A');
+    expect(env.guestPrompts).toBe(1);
+  });
+
+  it('is added to the restored account only when the user chooses "Add to this account"', async () => {
+    env.storage.set(GUEST_REFLECTIONS_KEY, LEGACY_SYNCED);
+    await sessionStorage.setSessionToken('access-A');
+    await sessionStorage.setRefreshToken('refresh-A');
+    env.guestAnswer = 'add';
+
+    await launchApp();
+
     expect(decryptedUploads('A')).toEqual(['legacy reflection']);
+    expect(env.storage.has(GUEST_REFLECTIONS_KEY)).toBe(false);
     expect(cloud.B.uploadedReflections).toEqual([]);
   });
 
-  it('is NOT given to a later sign-in when it shows an account synced it and nobody was signed in at upgrade', async () => {
+  it('is never silently given to a later sign-in, and stays untouched when kept separate', async () => {
     env.storage.set(GUEST_REFLECTIONS_KEY, LEGACY_SYNCED);
-    env.storage.set(GUEST_FAVORITES_KEY, JSON.stringify([{ ...ayah('11:2'), savedAt: 'x' }]));
+    env.storage.set(GUEST_FAVORITES_KEY, JSON.stringify([{ ...ayah('11:2'), savedAt: '2026-01-01T00:00:00.000Z' }]));
 
     await launchApp();
     await signIn('B');
     await sync();
 
+    expect(env.guestPrompts).toBe(1);
     expect(cloud.B.uploadedReflections).toEqual([]);
     expect(cloud.B.uploadedFavorites).toEqual([]);
-    // Kept, untouched, never deleted.
     expect(env.storage.get(GUEST_REFLECTIONS_KEY)).toBe(LEGACY_SYNCED);
     expect(env.storage.has(GUEST_FAVORITES_KEY)).toBe(true);
   });
 
-  it('is adopted by the first sign-in when it shows no sign of any account (a never-signed-in guest)', async () => {
-    env.storage.set(GUEST_REFLECTIONS_KEY, LEGACY_GUEST_ONLY);
+  it("an account partition left active by the previous version after sign-out is hidden at launch, never shown as guest data", async () => {
+    // The previous version kept the signed-out account's partition active.
+    env.storage.set('quran-heals:local-data-owner:v1', JSON.stringify({ activeUserId: 'A', guestAdoptable: false }));
+    env.storage.set(`${GUEST_REFLECTIONS_KEY}:account:A`, JSON.stringify({
+      '12:1': { verseKey: '12:1', text: 'A old-version reflection', createdAt: 1, updatedAt: 1, syncState: 'synced' },
+    }));
 
     await launchApp();
+
+    expect(account.status).toBe('guest');
+    expect(frames.some((frame) => frame.reflections.includes('A old-version reflection'))).toBe(false);
+    expect(await getAllReflections()).toEqual([]);
+    // Still on the device for A alone.
+    expect((await getAllReflections('A')).map((r) => r.text)).toEqual(['A old-version reflection']);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Account boundaries: Guest → (optionally merge) → A → sign out → Guest → B
+// ---------------------------------------------------------------------------
+
+const AT = '2026-01-01T00:00:00.000Z';
+function cloudFavorite(user: 'A' | 'B', verseKey: string) {
+  cloud[user].favorites.add(verseKey);
+  cloud[user].favoriteTimestamps.set(verseKey, { createdAt: AT, updatedAt: AT });
+}
+function cloudReflection(user: 'A' | 'B', verseKey: string, text: string) {
+  const encrypted = encryptReflectionText(text, MASTER_KEYS[user], (n) => new Uint8Array(randomBytes(n)));
+  cloud[user].reflections.set(verseKey, { type: 'active', verseKey, ...encrypted, createdAt: AT, updatedAt: AT });
+}
+async function sortedFavorites(owner?: string | null) {
+  return (await getFavorites(owner)).map((favorite) => favorite.id).sort();
+}
+async function sortedReflections(owner?: string | null) {
+  return (await getAllReflections(owner)).map((reflection) => reflection.text).sort();
+}
+
+describe('Account boundaries', () => {
+  it('1. guest empty → A → sign-out → guest empty; A keeps its data for itself and nothing remote is deleted', async () => {
+    await launchApp();
+    expect(screen()).toEqual({ user: null, favorites: [], reflections: [] });
+
+    await signIn('A');
+    await saveReflection('20:1', 'A note');
+    await addFavorite(ayah('20:2'));
+    await sync();
+    expect(screen()).toEqual({ user: 'A', favorites: ['20:2'], reflections: ['A note'] });
+    const remoteBefore = JSON.stringify([[...cloud.A.favorites], [...cloud.A.reflections.keys()]]);
+
+    await signOut();
+
+    expect(screen()).toEqual({ user: null, favorites: [], reflections: [] });
+    expect(await getFavorites()).toEqual([]);
+    expect(await getAllReflections()).toEqual([]);
+    expect(JSON.stringify([[...cloud.A.favorites], [...cloud.A.reflections.keys()]])).toBe(remoteBefore);
+    expect(await sortedReflections('A')).toEqual(['A note']);
+    expect(env.guestPrompts).toBe(0);
+  });
+
+  it("2/7/16. guest empty → A → sign-out → B shows only B's data, and no frame after A's sign-out ever shows A's data", async () => {
+    cloudFavorite('B', '21:9');
+    cloudReflection('B', '21:8', 'B cloud note');
+    await launchApp();
+    await signIn('A');
+    await saveReflection('21:1', 'A note');
+    await addFavorite(ayah('21:2'));
+    await sync();
+    expect(screen().favorites).toEqual(['21:2']);
+
+    const signOutFrame = frames.length;
+    await signOut();
+    await signIn('B');
+    await sync();
+
+    expect(screen()).toEqual({ user: 'B', favorites: ['21:9'], reflections: ['B cloud note'] });
+    expect(await sortedFavorites()).toEqual(['21:9']);
+    for (const frame of frames.slice(signOutFrame)) {
+      expect(frame.favorites).not.toContain('21:2');
+      expect(frame.reflections).not.toContain('A note');
+    }
+    expect(cloud.B.uploadedFavorites).toEqual([]);
+    expect(cloud.B.uploadedReflections).toEqual([]);
+  });
+
+  async function guestWithData0AndAccountWithData1() {
+    cloudFavorite('A', '22:1');
+    cloudReflection('A', '22:2', 'A cloud note');
+    await launchApp();
+    await saveReflection('22:3', 'guest note');
+    await addFavorite(ayah('22:4'));
+  }
+
+  it('3. guest data0 → A → "Add to this account" → A has data1 + data0, uploaded, guest copy gone', async () => {
+    await guestWithData0AndAccountWithData1();
+    env.guestAnswer = 'add';
+    await signIn('A');
+
+    expect(env.guestPrompts).toBe(1);
+    expect(await sortedFavorites()).toEqual(['22:1', '22:4']);
+    expect(await sortedReflections()).toEqual(['A cloud note', 'guest note']);
+    expect(screen().favorites.sort()).toEqual(['22:1', '22:4']);
+    expect(cloud.A.favorites).toEqual(new Set(['22:1', '22:4']));
+    expect(decryptedUploads('A')).toEqual(['guest note']);
+    expect(env.storage.has(GUEST_FAVORITES_KEY)).toBe(false);
+    expect(env.storage.has(GUEST_REFLECTIONS_KEY)).toBe(false);
+  });
+
+  it('4/5. "Keep separate" → A has only data1; after sign-out the guest sees data0 again', async () => {
+    await guestWithData0AndAccountWithData1();
+    await signIn('A');
+
+    expect(env.guestPrompts).toBe(1);
+    expect(await sortedFavorites()).toEqual(['22:1']);
+    expect(await sortedReflections()).toEqual(['A cloud note']);
+    expect(screen()).toEqual({ user: 'A', favorites: ['22:1'], reflections: ['A cloud note'] });
+    expect(cloud.A.uploadedFavorites).toEqual([]);
+    expect(cloud.A.uploadedReflections).toEqual([]);
+
+    await signOut();
+    expect(screen()).toEqual({ user: null, favorites: ['22:4'], reflections: ['guest note'] });
+  });
+
+  it('6. data added to an account is not offered again; data kept separate is asked about at the next sign-in', async () => {
+    await guestWithData0AndAccountWithData1();
+    env.guestAnswer = 'add';
+    await signIn('A');
+    await signOut();
+    await signIn('A');
+    expect(env.guestPrompts).toBe(1);
+    await signOut();
+
+    await saveReflection('22:9', 'new guest note');
+    env.guestAnswer = 'keep-separate';
+    await signIn('B');
+    expect(env.guestPrompts).toBe(2);
+    await signOut();
+    await signIn('B');
+    expect(env.guestPrompts).toBe(3);
+    expect(cloud.B.uploadedReflections).toEqual([]);
+  });
+
+  it("8. A's sync finishing after B signed in never writes into B's data or shows on B's screen", async () => {
+    await launchApp();
+    await signIn('A');
+    cloudFavorite('A', '23:1'); // added on another of A's devices
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => {
+      if (new URL(url).pathname === '/api/sync/favorites/sync' && accountFor(init) === 'A') await gate;
+      return fakeBackend(url, init);
+    }));
+
+    let syncingA!: Promise<void>;
+    await act(async () => { syncingA = account.refreshSync(); });
+    await settle();
+    await signOut();
+    let signingInB!: Promise<void>;
+    await act(async () => { signingInB = account.signInWithGoogleIdToken('id-B'); });
+    await settle();
+    expect(account.user?.id).toBe('B');
+    const bFrame = frames.length;
+
+    release();
+    await act(async () => { await syncingA; await signingInB; });
+    await settle();
+
+    expect(await sortedFavorites()).toEqual([]);
+    expect(frames.slice(bFrame).some((frame) => frame.favorites.includes('23:1'))).toBe(false);
+    expect(cloud.B.uploadedFavorites).toEqual([]);
+    expect(env.keyRequests).toContain('B'); // B's own sync still ran
+  });
+
+  it("8b. a request of A's ending in 401 after B signed in is never retried with B's refreshed token", async () => {
+    await launchApp();
+    await signIn('A');
+    await addFavorite(ayah('24:1'));
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => {
+      const path = new URL(url).pathname;
+      if (path === '/api/sync/favorites' && init?.method === 'PUT' && accountFor(init) === 'A') {
+        await gate;
+        return json(null, 401); // A's session was revoked by its sign-out
+      }
+      return fakeBackend(url, init);
+    }));
+
+    let syncingA!: Promise<void>;
+    await act(async () => { syncingA = account.refreshSync(); });
+    await settle();
+    await signOut();
+    let signingInB!: Promise<void>;
+    await act(async () => { signingInB = account.signInWithGoogleIdToken('id-B'); });
+    await settle();
+    release();
+    await act(async () => { await syncingA; await signingInB; });
+    await settle();
+
+    expect(cloud.B.uploadedFavorites).not.toContain('24:1');
+    expect(cloud.B.favorites.has('24:1')).toBe(false);
+    expect(await sessionStorage.getSessionToken()).toBe('access-B');
+    expect(account.user?.id).toBe('B');
+  });
+
+  it('9. a sign-out still finishing (slow storage, slow revocation) never clears the B session that signed in meanwhile', async () => {
+    await launchApp();
+    await signIn('A');
+    let releaseLogout!: () => void;
+    const logoutGate = new Promise<void>((resolve) => { releaseLogout = resolve; });
+    vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => {
+      if (new URL(url).pathname === '/api/auth/logout') await logoutGate;
+      return fakeBackend(url, init);
+    }));
+
+    let signingOut!: Promise<void>;
+    await act(async () => { signingOut = account.signOut(); });
+    await settle();
+    expect(account.status).toBe('guest');
+    await signIn('B');
+    releaseLogout();
+    await act(async () => { await signingOut; });
+    await settle();
+
+    expect(account.user?.id).toBe('B');
+    expect(await sessionStorage.getSessionToken()).toBe('access-B');
+    expect(await sessionStorage.getRefreshToken()).toBe('refresh-B');
+  });
+
+  it("10. sign-out clears the session's keys, tokens and cached profile, and closes its open questions unanswered", async () => {
+    await launchApp();
+    await saveReflection('26:1', 'guest note');
+    env.guestAnswer = 'hold';
+    await act(async () => { void account.signInWithGoogleIdToken('id-A'); });
+    await settle();
+    expect(env.guestPrompts).toBe(1);
+    env.secure.set('quran-heals.reflection-master-key.v1', JSON.stringify({ userId: 'A', key: 'AAAA' }));
+
+    await signOut();
+
+    expect(env.guestSheetVisible).toBe(false);
+    expect(env.secure.size).toBe(0);
+    expect(await sessionStorage.getCachedUser()).toBeNull();
+    // The stale answer arriving now changes nothing.
+    await act(async () => { env.heldGuestChoice?.('add'); });
+    await settle();
+    expect(await sortedReflections()).toEqual(['guest note']);
+    expect(await sortedReflections('A')).toEqual([]);
+    expect(cloud.A.uploadedReflections).toEqual([]);
+  });
+
+  it("14. an account's own deletion stays deleted across sign-out/in; guest deletion markers kept separate never reach it", async () => {
+    await launchApp();
+    await addFavorite(ayah('25:2'));
+    await removeFavorite('25:2'); // guest deletion marker
+    await addFavorite(ayah('25:3'));
+
+    await signIn('A'); // kept separate
+    cloudFavorite('A', '25:2');
+    await addFavorite(ayah('25:1'));
+    await sync();
+    await removeFavorite('25:1');
+    await sync();
+    expect(cloud.A.favoriteTombstones.has('25:1')).toBe(true);
+
+    await signOut();
     await signIn('A');
     await sync();
 
-    expect(decryptedUploads('A')).toEqual(['legacy guest reflection']);
+    expect(await sortedFavorites()).toEqual(['25:2']);
+    expect(cloud.A.favorites.has('25:1')).toBe(false);
+    expect(cloud.A.favorites.has('25:2')).toBe(true);
+    expect(cloud.A.favoriteTombstones.has('25:2')).toBe(false);
+  });
+});
+
+describe('mergeGuestDataIntoAccount', () => {
+  it('moves nothing into an account whose session already ended', async () => {
+    const { mergeGuestDataIntoAccount } = await import('@/storage/localDataOwnership');
+    await saveReflection('27:1', 'guest note');
+    expect(await mergeGuestDataIntoAccount('A', () => false)).toBe(false);
+    expect(await sortedReflections()).toEqual(['guest note']);
+    expect(await sortedReflections('A')).toEqual([]);
   });
 });

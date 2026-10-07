@@ -5,19 +5,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
  *
  * Local data is partitioned by owner: one guest partition (the original,
  * pre-ownership storage keys) plus one partition per account that has
- * signed in on this device. Sync only ever reads and writes the partition
- * of the account it is syncing for, so one account's data can never be
- * uploaded to another account.
+ * signed in on this device, keyed by its stable user id. Sync only ever
+ * reads and writes the partition of the account it is syncing for, so one
+ * account's data can never be uploaded to another account.
  *
- * The ACTIVE partition is what the app shows and edits. It is the signed-in
- * account's partition, and it stays the last signed-in account's partition
- * after sign-out (sign-out never turns an account's data into guest data,
- * and never hides it from its owner's device). It returns to the guest
- * partition only after that account is deleted.
+ * The ACTIVE partition is what the app shows and edits: the signed-in
+ * account's partition while signed in, and the guest partition otherwise.
+ * Signing out switches back to the guest partition at once; the account's
+ * partition stays on the device (unsynced edits are never lost) but is
+ * never shown, edited or synced again until that same account signs in.
  *
- * Guest data (created before any account signed in on this device) may be
- * adopted by the FIRST account to sign in — the existing guest → account
- * migration. Data that already has an account owner never moves.
+ * Guest data only ever moves into an account when the user explicitly
+ * chooses "Add to this account" (see localDataOwnership.ts). Data whose
+ * owner cannot be proven — including everything stored before ownership
+ * existed — is guest data.
  */
 
 export const GUEST_REFLECTIONS_KEY = 'quran-heals:ayah-reflections:v1';
@@ -35,73 +36,47 @@ export function favoritesStorageKey(userId: string | null): string {
 export type LocalDataOwnerState = {
   /** Owner of the active partition; null = the guest partition. */
   activeUserId: string | null;
-  /** Whether the guest partition may be adopted by the next account that signs in. */
-  guestAdoptable: boolean;
+  /** Accounts that chose "Keep separate" for this device's guest data; not asked again on a restored session. */
+  keptSeparate: string[];
   /**
-   * Upgrade from a version without ownership, with data already in the
-   * guest partition: who it belongs to is decided by the first auth outcome
-   * (see localDataOwnership.ts). Never persisted.
+   * False from launch until the auth state is known, when the last owner
+   * was an account: that account may have signed out or expired meanwhile,
+   * so its data must not be shown yet. Never persisted.
    */
-  legacyUndecided: boolean;
-  /** For legacyUndecided only: the legacy reflections show that an account synced them (or could not be read). */
-  legacyHasAccountEvidence: boolean;
+  resolved: boolean;
 };
 
 let state: LocalDataOwnerState | null = null;
 let loading: Promise<LocalDataOwnerState> | null = null;
+let generation = 0;
+/** 'owner': a different owner's data is now active — drop what is shown. 'data': the same owner's data changed (a merge, a finished sync) — reload. */
+export type LocalDataChange = 'owner' | 'data';
+const listeners = new Set<(change: LocalDataChange) => void>();
 
-function parseStoredState(raw: string): Pick<LocalDataOwnerState, 'activeUserId' | 'guestAdoptable'> | null {
+function parseStoredState(raw: string): Omit<LocalDataOwnerState, 'resolved'> | null {
   try {
     const parsed = JSON.parse(raw) as unknown;
     if (!parsed || typeof parsed !== 'object') return null;
-    const { activeUserId, guestAdoptable } = parsed as Record<string, unknown>;
-    if ((activeUserId !== null && (typeof activeUserId !== 'string' || activeUserId.length === 0)) || typeof guestAdoptable !== 'boolean') {
-      return null;
-    }
-    return { activeUserId, guestAdoptable };
+    const { activeUserId, keptSeparate } = parsed as Record<string, unknown>;
+    if (activeUserId !== null && (typeof activeUserId !== 'string' || activeUserId.length === 0)) return null;
+    // Markers written before "Keep separate" existed have no list (their
+    // guestAdoptable flag no longer means anything: guest data is only ever
+    // merged on request).
+    const kept = Array.isArray(keptSeparate) ? keptSeparate.filter((id): id is string => typeof id === 'string' && id.length > 0) : [];
+    return { activeUserId, keptSeparate: kept };
   } catch {
     return null;
   }
 }
 
-/** True if any legacy reflection carries a syncState — only ever set by a signed-in sync — or if they cannot be read. */
-function legacyReflectionsShowAccountUse(raw: string | null): boolean {
-  if (raw === null) return false;
-  try {
-    const parsed = JSON.parse(raw) as unknown;
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return true;
-    return Object.values(parsed as Record<string, unknown>).some(
-      (entry) => !!entry && typeof entry === 'object' && (entry as Record<string, unknown>).syncState !== undefined,
-    );
-  } catch {
-    return true;
-  }
-}
-
 async function load(): Promise<LocalDataOwnerState> {
   const raw = await AsyncStorage.getItem(OWNER_STATE_KEY);
-  if (raw !== null) {
-    const stored = parseStoredState(raw);
-    // An unreadable marker: start from the guest partition and never adopt
-    // it — each account's own partition is still found by its key.
-    return stored
-      ? { ...stored, legacyUndecided: false, legacyHasAccountEvidence: false }
-      : { activeUserId: null, guestAdoptable: false, legacyUndecided: false, legacyHasAccountEvidence: false };
-  }
-
-  const [legacyReflections, legacyFavorites] = await Promise.all([
-    AsyncStorage.getItem(GUEST_REFLECTIONS_KEY),
-    AsyncStorage.getItem(GUEST_FAVORITES_KEY),
-  ]);
-  if (legacyReflections === null && legacyFavorites === null) {
-    return { activeUserId: null, guestAdoptable: true, legacyUndecided: false, legacyHasAccountEvidence: false };
-  }
-  return {
-    activeUserId: null,
-    guestAdoptable: false,
-    legacyUndecided: true,
-    legacyHasAccountEvidence: legacyReflectionsShowAccountUse(legacyReflections),
-  };
+  const stored = raw === null ? null : parseStoredState(raw);
+  // No marker (fresh install, or an upgrade from before ownership existed)
+  // or an unreadable one: the guest partition, whose data stays guest data.
+  // Each account's own partition is still found by its key.
+  if (!stored) return { activeUserId: null, keptSeparate: [], resolved: true };
+  return { ...stored, resolved: stored.activeUserId === null };
 }
 
 export async function getLocalDataOwnerState(): Promise<LocalDataOwnerState> {
@@ -122,16 +97,50 @@ export async function getActiveLocalOwner(): Promise<string | null> {
   return (await getLocalDataOwnerState()).activeUserId;
 }
 
+/** Changes whenever the active owner (or whether it is resolved) changes: work begun under an older value is stale. */
+export function getLocalDataGeneration(): number {
+  return generation;
+}
+
+/** Called after every owner change (screens drop what they show and reload) and every data change (they reload). Returns the unsubscribe function. */
+export function subscribeToLocalDataOwner(listener: (change: LocalDataChange) => void): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+/** The active owner's data was replaced in storage (not by a screen's own edit): screens showing it reload. */
+export function notifyLocalDataChanged(): void {
+  listeners.forEach((listener) => listener('data'));
+}
+
 /** In-memory switch: every storage operation that starts after this uses the new active partition. */
 export function setLocalDataOwnerState(next: LocalDataOwnerState): void {
+  const changed = state === null || state.activeUserId !== next.activeUserId || state.resolved !== next.resolved;
   state = next;
+  if (!changed) return;
+  generation += 1;
+  listeners.forEach((listener) => listener('owner'));
+}
+
+/**
+ * Sign-out's first step, synchronous so no render after it can still show
+ * the account's data: the guest partition becomes active in memory at once
+ * (localDataOwnership.ts's activateGuestLocalData then persists it). A
+ * no-op while the state has not been loaded — nothing can have been shown.
+ */
+export function hideAccountDataNow(): void {
+  if (state && (state.activeUserId !== null || !state.resolved)) {
+    setLocalDataOwnerState({ ...state, activeUserId: null, resolved: true });
+  }
 }
 
 export async function persistLocalDataOwnerState(): Promise<void> {
   const current = await getLocalDataOwnerState();
   await AsyncStorage.setItem(
     OWNER_STATE_KEY,
-    JSON.stringify({ activeUserId: current.activeUserId, guestAdoptable: current.guestAdoptable }),
+    JSON.stringify({ activeUserId: current.activeUserId, keptSeparate: current.keptSeparate }),
   );
 }
 
@@ -139,4 +148,5 @@ export async function persistLocalDataOwnerState(): Promise<void> {
 export function resetLocalDataOwnerForTests(): void {
   state = null;
   loading = null;
+  generation += 1;
 }

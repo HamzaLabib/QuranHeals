@@ -1,4 +1,5 @@
 import { fetchCurrentUser } from './authApi';
+import { recordSessionToken } from './authEpoch';
 import type { AuthUser } from './authTypes';
 import { clearCachedUser, clearRefreshToken, clearSessionToken, getCachedUser, getRefreshToken, getSessionToken } from './sessionStorage';
 import { refreshAccessToken } from './tokenManager';
@@ -28,6 +29,7 @@ export async function initializeSession(): Promise<InitializedSession> {
     token = await getSessionToken();
     hasRefreshToken = Boolean(await getRefreshToken());
     if (!token && !hasRefreshToken) return guest;
+    if (token) recordSessionToken(token);
 
     if (token) {
       const result = await fetchCurrentUser(token);

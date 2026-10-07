@@ -10,7 +10,18 @@ export type FullSyncOptions = {
   local: LocalPreferencesSource;
   applyPreferencesLocally: ApplyPreferences;
   promptForPassphrase: PassphrasePrompt;
+  /**
+   * False once the session this sync runs for has ended (sign-out, or
+   * another account signed in): the sync stops at the next step instead of
+   * caching keys or syncing further. Every step already only touches
+   * `ownerUserId`'s own data; this keeps a late sync from doing anything at
+   * all after its session is gone. Defaults to always current.
+   */
+  isCurrent?: () => boolean;
 };
+
+/** A sync that stopped because its session ended — not a failure. */
+export class StaleSyncError extends Error {}
 
 export type FullSyncResult = {
   favoritesSynced: boolean;
@@ -42,20 +53,28 @@ export type FullSyncResult = {
  */
 export async function runFullSync(sessionToken: string, options: FullSyncOptions): Promise<FullSyncResult> {
   const result: FullSyncResult = { favoritesSynced: false, preferencesSynced: false, reflectionsSynced: false };
-
-  await reconcilePreferencesOnSignIn(sessionToken, options.local, options.applyPreferencesLocally);
-  result.preferencesSynced = true;
+  const isCurrent = options.isCurrent ?? (() => true);
+  const stopIfStale = () => {
+    if (!isCurrent()) throw new StaleSyncError('The session this sync was for has ended.');
+  };
 
   try {
-    const masterKey = await ensureReflectionMasterKey(sessionToken, options.promptForPassphrase, options.ownerUserId);
+    stopIfStale();
+    await reconcilePreferencesOnSignIn(sessionToken, options.local, options.applyPreferencesLocally);
+    result.preferencesSynced = true;
 
+    stopIfStale();
+    const masterKey = await ensureReflectionMasterKey(sessionToken, options.promptForPassphrase, options.ownerUserId, isCurrent);
+
+    stopIfStale();
     await syncFavorites(sessionToken, options.ownerUserId);
     result.favoritesSynced = true;
 
+    stopIfStale();
     await syncReflections(sessionToken, masterKey, options.ownerUserId);
     result.reflectionsSynced = true;
   } catch (error) {
-    if (error instanceof SyncPassphraseCancelledError) {
+    if (error instanceof SyncPassphraseCancelledError || error instanceof StaleSyncError) {
       return result;
     }
     throw error;

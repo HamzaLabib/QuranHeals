@@ -42,6 +42,7 @@ vi.mock('@react-native-async-storage/async-storage', () => ({ default: {
   setItem: vi.fn(async (key: string, value: string) => { env.storage.set(key, value); }),
   removeItem: vi.fn(async (key: string) => { env.storage.delete(key); }),
 } }));
+vi.mock('@/components/GuestDataSheet', () => ({ GuestDataSheet: () => null }));
 vi.mock('@/components/SyncPassphraseSheet', () => ({ SyncPassphraseSheet: () => null }));
 // useAuth.tsx's deleteAccount calls this hook directly now (Phase B4's
 // Apple-reauth-on-deletion retry) — stubbed here since this file never
@@ -61,8 +62,8 @@ vi.mock('@/sync/syncKeyManager', () => {
 // because their real imports need native Expo modules.
 vi.mock('@/sync/favoritesSync', () => ({ syncFavorites: vi.fn() }));
 vi.mock('@/sync/reflectionsSync', () => ({ syncReflections: vi.fn() }));
-vi.mock('@/storage/ayahReflections', () => ({ clearAllReflections: vi.fn() }));
-vi.mock('@/storage/favorites', () => ({ clearAllFavorites: vi.fn() }));
+vi.mock('@/storage/ayahReflections', () => ({ clearAllReflections: vi.fn(), guestHasReflections: vi.fn(async () => false), adoptGuestReflections: vi.fn(async () => true) }));
+vi.mock('@/storage/favorites', () => ({ clearAllFavorites: vi.fn(), guestHasFavorites: vi.fn(async () => false), adoptGuestFavorites: vi.fn(async () => true) }));
 
 import { AuthProvider, useAuth, type AuthContextValue } from '@/auth/useAuth';
 import * as storage from '@/auth/sessionStorage';

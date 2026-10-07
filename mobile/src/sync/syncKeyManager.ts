@@ -98,11 +98,11 @@ async function readCachedMasterKey(ownerUserId: string): Promise<Uint8Array | nu
   }
 
   const legacyKey = decodeBase64(cached);
-  await cacheMasterKey(ownerUserId, legacyKey);
+  await cacheMasterKeyFor(ownerUserId, legacyKey);
   return legacyKey;
 }
 
-function cacheMasterKey(ownerUserId: string, masterKey: Uint8Array): Promise<void> {
+function cacheMasterKeyFor(ownerUserId: string, masterKey: Uint8Array): Promise<void> {
   return setCachedMasterKey(JSON.stringify({ userId: ownerUserId, key: encodeBase64(masterKey) }));
 }
 
@@ -119,7 +119,14 @@ export async function ensureReflectionMasterKey(
   sessionToken: string,
   promptForPassphrase: PassphrasePrompt,
   ownerUserId: string,
+  // False once this sync's session ended: its key is then never cached
+  // (sign-out has just cleared the cached key; it must stay cleared).
+  isCurrent: () => boolean = () => true,
 ): Promise<Uint8Array> {
+  const cacheMasterKey = async (owner: string, masterKey: Uint8Array) => {
+    if (!isCurrent()) throw new SyncPassphraseCancelledError('The session ended before the sync password step completed.');
+    await cacheMasterKeyFor(owner, masterKey);
+  };
   const cloudKey = await getCloudSyncKey(sessionToken);
   const cached = await readCachedMasterKey(ownerUserId);
   if (cached) {
@@ -142,7 +149,7 @@ export async function ensureReflectionMasterKey(
     } catch (error) {
       verifier.dispose();
       if (!(resetCompleted && error instanceof SyncPasswordResetError)) throw error;
-      return createMasterKey(sessionToken, promptForPassphrase, ownerUserId);
+      return createMasterKey(sessionToken, promptForPassphrase, ownerUserId, cacheMasterKey);
     }
     try {
       const masterKey = await verifier.unwrap(passphrase);
@@ -153,7 +160,7 @@ export async function ensureReflectionMasterKey(
     }
   }
 
-  return createMasterKey(sessionToken, promptForPassphrase, ownerUserId);
+  return createMasterKey(sessionToken, promptForPassphrase, ownerUserId, cacheMasterKey);
 }
 
 /**
@@ -172,6 +179,7 @@ async function createMasterKey(
   sessionToken: string,
   promptForPassphrase: PassphrasePrompt,
   ownerUserId: string,
+  cacheMasterKey: (owner: string, masterKey: Uint8Array) => Promise<void>,
 ): Promise<Uint8Array> {
   const passphrase = await promptForPassphrase('create');
   if (passwordLengthError(passphrase)) throw new Error('Invalid new sync password length.');

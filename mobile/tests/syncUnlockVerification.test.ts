@@ -30,7 +30,7 @@ const cloudKeyStore = vi.hoisted(() => ({ value: null as unknown }));
 vi.mock('@/sync/syncApi', () => ({ getCloudSyncKey: vi.fn(async () => cloudKeyStore.value) }));
 
 const crypto = await import('@/crypto/reflectionEncryption');
-const { createPassphraseVerifier, ensureReflectionMasterKey } = await import('@/sync/syncKeyManager');
+const { createPassphraseVerifier, ensureReflectionMasterKey, SyncPassphraseCancelledError } = await import('@/sync/syncKeyManager');
 
 const random = (n: number) => new Uint8Array(randomBytes(n));
 const ITERATIONS = 1000; // Fast tests; the iteration count is read from each wrapped key.
@@ -129,5 +129,19 @@ describe('KDF scheduling change', () => {
     const salt = random(crypto.SALT_LENGTH_BYTES);
     const derived = await crypto.derivePassphraseKey('a password', salt, ITERATIONS);
     expect(Buffer.from(derived).toString('hex')).toBe(pbkdf2Sync('a password', salt, ITERATIONS, 32, 'sha256').toString('hex'));
+  });
+});
+
+describe('an unlock that completes after its session ended', () => {
+  it('never caches the key: sign-out has just cleared it and it must stay cleared', async () => {
+    const { wrapped } = await account('shared password');
+    cloudKeyStore.value = wrapped;
+    let current = true;
+    const unlocking = ensureReflectionMasterKey('token', async () => {
+      current = false; // signed out while the password was being entered
+      return 'shared password';
+    }, 'user-1', () => current);
+    await expect(unlocking).rejects.toBeInstanceOf(SyncPassphraseCancelledError);
+    expect(cachedKeyStore.value).toBeNull();
   });
 });

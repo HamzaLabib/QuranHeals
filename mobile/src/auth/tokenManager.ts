@@ -1,5 +1,47 @@
 import { AuthApiError, refreshSession } from './authApi';
-import { clearRefreshToken, clearSessionToken, getRefreshToken, setRefreshToken, setSessionToken } from './sessionStorage';
+import { currentAuthEpoch, recordSessionToken } from './authEpoch';
+import {
+  clearCachedMasterKey,
+  clearCachedUser,
+  clearRefreshToken,
+  clearSessionToken,
+  getRefreshToken,
+  setRefreshToken,
+  setSessionToken,
+} from './sessionStorage';
+
+/**
+ * Every write of the persisted session (sign-in, token rotation, sign-out)
+ * runs one at a time, and only while the session it was made for is still
+ * current (see authEpoch.ts). So a late rotation or sign-out for Account A
+ * can never overwrite or clear Account B's tokens after B signed in.
+ */
+let sessionWrites: Promise<unknown> = Promise.resolve();
+export function writeForEpoch(ofEpoch: number, write: () => Promise<void>): Promise<boolean> {
+  const result = sessionWrites.then(async () => {
+    if (ofEpoch !== currentAuthEpoch()) return false;
+    await write();
+    return true;
+  });
+  sessionWrites = result.catch(() => undefined);
+  return result;
+}
+
+/** Persists a session's tokens, unless that session is no longer current. Refresh token first — see performRefresh. */
+export function persistSessionTokens(ofEpoch: number, token: string, refreshToken?: string): Promise<boolean> {
+  return writeForEpoch(ofEpoch, async () => {
+    recordSessionToken(token, ofEpoch);
+    if (refreshToken) await setRefreshToken(refreshToken);
+    await setSessionToken(token);
+  });
+}
+
+/** Removes the persisted session (tokens, cached profile, cached master key), unless a newer session has started since. */
+export function clearPersistedSession(ofEpoch: number): Promise<boolean> {
+  return writeForEpoch(ofEpoch, async () => {
+    await Promise.allSettled([clearSessionToken(), clearRefreshToken(), clearCachedMasterKey(), clearCachedUser()]);
+  });
+}
 
 /**
  * Single in-flight refresh at a time: several authenticated requests (e.g.
@@ -54,6 +96,9 @@ async function requestRotation(currentRefreshToken: string) {
 }
 
 async function performRefresh(): Promise<string | null> {
+  // The session this refresh is for: if a sign-out or another sign-in
+  // happens meanwhile, its result is discarded rather than persisted.
+  const ofEpoch = currentAuthEpoch();
   const currentRefreshToken = await getRefreshToken();
   if (!currentRefreshToken) return null;
 
@@ -62,10 +107,9 @@ async function performRefresh(): Promise<string | null> {
     // Refresh token first: if the app is killed between these two writes,
     // the device keeps the NEW refresh token (and an expired access token,
     // which simply refreshes again) rather than the superseded one.
-    await setRefreshToken(refreshToken);
-    await setSessionToken(token);
-    return token;
+    return (await persistSessionTokens(ofEpoch, token, refreshToken)) ? token : null;
   } catch (error) {
+    if (ofEpoch !== currentAuthEpoch()) return null;
     // Only a definitive rejection from the backend (invalid/expired/revoked
     // refresh token — always a 401 from POST /api/auth/refresh) should sign
     // the user out. A network failure reaching the backend at all must
@@ -73,20 +117,30 @@ async function performRefresh(): Promise<string | null> {
     // a temporary network error") — the caller just keeps failing until
     // connectivity returns, exactly like any other request would.
     if (error instanceof AuthApiError && error.statusCode === 401) {
-      await clearSessionToken();
-      await clearRefreshToken();
-      sessionExpiredHandler?.();
+      // Only the session that was actually rejected is signed out.
+      if (await writeForEpoch(ofEpoch, async () => {
+        await clearSessionToken();
+        await clearRefreshToken();
+      })) {
+        sessionExpiredHandler?.();
+      }
     }
     return null;
   }
 }
 
-/** Returns a fresh access token, or null if refresh isn't possible right now (no refresh token stored, offline, or the session was genuinely revoked). */
+/** Returns a fresh access token, or null if refresh isn't possible right now (no refresh token stored, offline, the session was genuinely revoked, or the session changed meanwhile). */
 export function refreshAccessToken(): Promise<string | null> {
   if (!inFlightRefresh) {
-    inFlightRefresh = performRefresh().finally(() => {
-      inFlightRefresh = null;
+    const refresh = performRefresh().finally(() => {
+      if (inFlightRefresh === refresh) inFlightRefresh = null;
     });
+    inFlightRefresh = refresh;
   }
   return inFlightRefresh;
+}
+
+/** A new session must never share a refresh that an earlier session started (see authEpoch.ts). Called on every sign-in/sign-out. */
+export function forgetInFlightRefresh(): void {
+  inFlightRefresh = null;
 }
