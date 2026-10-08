@@ -1,8 +1,10 @@
 name: Quran Heals CI
 
 on:
+  # Every branch push (main, release-hardening, any feature branch); tags are
+  # not matched by a branches filter, so tag pushes don't trigger a run.
   push:
-    branches: [main]
+    branches: ['**']
   pull_request:
     branches: [main]
 
