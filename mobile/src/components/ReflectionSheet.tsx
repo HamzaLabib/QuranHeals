@@ -25,6 +25,7 @@ import { useAppLocale } from '@/localization/useAppLocale';
 import { getReflection, REFLECTION_MAX_LENGTH, saveReflection } from '@/storage/ayahReflections';
 import { getLocalDataGeneration, subscribeToLocalDataOwner } from '@/storage/localDataOwner';
 import { getConflictVersionsFor, resolveConflictVersions, type ReflectionConflictVersion } from '@/storage/reflectionConflicts';
+import { notifyLocalChange } from '@/storage/localChanges';
 
 type ReflectionSheetProps = {
   visible: boolean;
@@ -125,6 +126,8 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
       // handled only means they are offered again, never that text is lost.
       const handled = handledVersionIds(otherVersions, adoptedVersionIds, saved?.text ?? '');
       if (handled.length > 0) await resolveConflictVersions(handled).catch(() => undefined);
+      // Saved locally: upload it now (signed in only — see storage/localChanges.ts).
+      notifyLocalChange();
       onClose();
     } catch {
       setSaveFailed(true);
@@ -145,6 +148,7 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
     setDeleteFailed(false);
     try {
       await saveReflection(verseKey, '');
+      notifyLocalChange();
       onClose();
     } catch {
       // Keep the sheet open and the typed text intact (never cleared here)

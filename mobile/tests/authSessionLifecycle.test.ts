@@ -360,7 +360,8 @@ describe('Provider wiring and foreground behavior', () => {
 
   it('runSyncAfterSignIn is single-flight per session through a ref, not React state alone', () => {
     expect(useAuthSource).toMatch(/const syncInFlightRef = useRef</);
-    expect(useAuthSource).toMatch(/if \(previous\.epoch === epoch\) return;/);
+    // Same session: never a second sync in parallel — at most a follow-up for a local change.
+    expect(useAuthSource).toMatch(/if \(previous\.epoch === epoch\) \{\s*(?:\/\/[^\n]*\n\s*)*if \(trigger === 'local-change'\) syncAgainForEpochRef\.current = epoch;\s*return;\s*\}/);
   });
 
   it('the AppState listener throttles the automatic foreground resync', () => {

@@ -231,7 +231,7 @@ export class MongooseSyncRepository implements SyncRepository {
       const doc = await UserPreferenceModel.findOneAndUpdate(
         { userId },
         { $set: { ...input, updatedAt: incomingUpdatedAt } },
-        { upsert: true, new: true, setDefaultsOnInsert: true, session },
+        { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true, session },
       ).lean();
 
       return toPreferencesDto(doc as never);
@@ -408,7 +408,7 @@ export class MongooseSyncRepository implements SyncRepository {
     const doc = await UserSyncKeyModel.findOneAndUpdate(
       { userId, ...expected },
       { $set: replacement },
-      { new: true, runValidators: true, writeConcern: { w: 'majority' } },
+      { returnDocument: 'after', runValidators: true, writeConcern: { w: 'majority' } },
     ).lean();
     return doc ? toSyncKeyDto(doc as never) : null;
   }

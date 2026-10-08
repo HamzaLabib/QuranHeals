@@ -183,6 +183,31 @@ describe('ReflectionSheet: save() failure handling (Phase B5)', () => {
   });
 });
 
+describe('ReflectionSheet: a saved or deleted reflection is uploaded right away', () => {
+  const blocks = {
+    save: source.match(/const save = async \(\) => \{[\s\S]*?\n {2}\};/)?.[0] ?? '',
+    delete: source.match(/const performDelete = async \(\) => \{[\s\S]*?\n {2}\};/)?.[0] ?? '',
+  };
+
+  it.each(['save', 'delete'] as const)('%s: signals the change only after the local write succeeded — never awaited, never on failure', (name) => {
+    const block = blocks[name];
+    const tryBlock = block.match(/try \{([\s\S]*?)\} catch/)?.[1] ?? '';
+    const catchBlock = block.match(/catch \{([\s\S]*?)\} finally/)?.[1] ?? '';
+    const write = tryBlock.indexOf('await saveReflection(');
+    const signal = tryBlock.indexOf('notifyLocalChange();');
+    expect(write).toBeGreaterThanOrEqual(0);
+    expect(signal).toBeGreaterThan(write);
+    expect(signal).toBeLessThan(tryBlock.indexOf('onClose();'));
+    expect(tryBlock).not.toMatch(/await notifyLocalChange/);
+    expect(catchBlock).not.toMatch(/notifyLocalChange/);
+  });
+
+  it('the signal is the content-free local-change event, not the sync engine', () => {
+    expect(source).toMatch(/import \{ notifyLocalChange \} from '@\/storage\/localChanges';/);
+    expect(source).not.toMatch(/notifyLocalChange\([^)]/); // carries nothing
+  });
+});
+
 describe('ReflectionSheet: Cancel/encryption/length-limit behavior is unchanged', () => {
   it('close() (Cancel) is unchanged', () => {
     expect(source).toMatch(/const close = \(\) => onClose\(\);/);

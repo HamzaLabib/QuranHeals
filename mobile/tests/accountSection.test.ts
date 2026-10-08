@@ -186,7 +186,7 @@ describe('useAuth: guest-first + no client-spoofable identity', () => {
   });
 
   it('syncs once on cold-start restore and again whenever the app returns to the foreground while signed in (Part H §33)', () => {
-    expect(useAuthSource).toMatch(/void runSyncAfterSignIn\(token\);/);
+    expect(useAuthSource).toMatch(/void runSyncAfterSignIn\(token, 'foreground'\);/);
     expect(useAuthSource).toMatch(/AppState\.addEventListener\('change'/);
     expect(useAuthSource).toMatch(/nextState !== 'active'\) return;/);
   });

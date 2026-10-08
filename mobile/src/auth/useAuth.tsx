@@ -8,6 +8,7 @@ import { GuestDataSheet, type GuestDataChoice } from '@/components/GuestDataShee
 import { SyncPassphraseSheet } from '@/components/SyncPassphraseSheet';
 import { pushPreferences, type LocalPreferencesSnapshot } from '@/sync/preferencesSync';
 import { hasUnsyncedLocalPreferences } from '@/sync/preferencesSyncState';
+import { subscribeToLocalChanges } from '@/storage/localChanges';
 import { runFullSync } from '@/sync/syncOrchestrator';
 import {
   SyncPassphraseCancelledError,
@@ -58,6 +59,9 @@ class SessionEndedError extends SyncPassphraseCancelledError {}
 // (refreshSync(), called directly by a screen) is never throttled — only
 // the passive AppState listener is.
 const FOREGROUND_RESYNC_THROTTLE_MS = 60_000;
+
+/** Why a sync started — for dev-only timing logs (devLog), and so a local change is never dropped while another sync runs. */
+type SyncTrigger = 'session' | 'foreground' | 'pull' | 'local-change';
 
 export type AuthContextValue = {
   status: AuthStatus;
@@ -134,6 +138,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // still finishing for an EARLIER session (see auth/authEpoch.ts) never
   // blocks the new session's sync: that one waits for it to stop instead.
   const syncInFlightRef = useRef<{ epoch: number; promise: Promise<void> } | null>(null);
+  // A local change saved while that sync was already running (possibly past
+  // its upload step): the epoch that owes exactly one more sync once it ends.
+  const syncAgainForEpochRef = useRef<number | null>(null);
   // A sign-out still clearing storage; a sign-in waits for it to finish.
   const pendingSignOutRef = useRef<Promise<void>>(Promise.resolve());
   // Throttles only the *automatic* AppState-triggered resync below — see
@@ -208,7 +215,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const runSyncAfterSignIn = useCallback(
-    async (token: string) => {
+    async (token: string, trigger: SyncTrigger = 'session') => {
       // The session this sync is for. Every step below stops as soon as it
       // is no longer current (sign-out, or another account signed in), and
       // only ever touches `ownerUserId`'s own data and server account.
@@ -216,13 +223,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const isCurrent = () => epoch === currentAuthEpoch();
       const previous = syncInFlightRef.current;
       if (previous) {
-        if (previous.epoch === epoch) return;
+        if (previous.epoch === epoch) {
+          // The running sync may already be past its upload: a local change
+          // gets one more sync after it (any number of changes meanwhile
+          // share that one), never a second sync in parallel.
+          if (trigger === 'local-change') syncAgainForEpochRef.current = epoch;
+          return;
+        }
         await previous.promise.catch(() => undefined);
         if (!isCurrent() || syncInFlightRef.current) return;
       }
 
-      const run = async () => {
-        lastForegroundSyncAtRef.current = Date.now();
+      const run = async (runTrigger: SyncTrigger) => {
+        const startedAt = Date.now();
+        devLog('sync', 'start', { trigger: runTrigger });
+        lastForegroundSyncAtRef.current = startedAt;
         // Always syncs with the freshest persisted access token, not
         // necessarily the one this call happened to be invoked with. A
         // silent 401-triggered refresh (sync/syncApi.ts's authedRequest ->
@@ -273,19 +288,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           });
           // Screens showing this account's data pick up what was downloaded.
           if (isCurrent() && (result.favoritesSynced || result.reflectionsSynced)) notifyLocalDataChanged();
-        } catch {
+          devLog('sync', 'done', { trigger: runTrigger, elapsedMs: Date.now() - startedAt, ...result });
+        } catch (error) {
           // Sync failures never undo a successful sign-in or block app
           // usage (Part H §33) — the user is signed in and can keep using
           // the app; sync can be retried later (e.g. next app foreground).
+          devLog('sync', 'failed', { trigger: runTrigger, elapsedMs: Date.now() - startedAt, kind: error instanceof Error ? error.name : 'unknown' });
         }
       };
 
-      const promise = run();
-      syncInFlightRef.current = { epoch, promise };
-      try {
-        await promise;
-      } finally {
-        if (syncInFlightRef.current?.promise === promise) syncInFlightRef.current = null;
+      let runTrigger = trigger;
+      for (;;) {
+        const promise = run(runTrigger);
+        syncInFlightRef.current = { epoch, promise };
+        try {
+          await promise;
+        } finally {
+          if (syncInFlightRef.current?.promise === promise) syncInFlightRef.current = null;
+        }
+        if (syncAgainForEpochRef.current !== epoch || !isCurrent() || syncInFlightRef.current) break;
+        syncAgainForEpochRef.current = null;
+        runTrigger = 'local-change';
       }
     },
     [promptForPassphrase, promptForGuestData, setLocale, setDisplayMode, waitForPreferenceHydration],
@@ -369,10 +392,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // pull-to-refresh (refreshSync(), below) is a separate call path and
       // is never throttled.
       if (Date.now() - lastForegroundSyncAtRef.current < FOREGROUND_RESYNC_THROTTLE_MS) return;
-      void runSyncAfterSignIn(token);
+      void runSyncAfterSignIn(token, 'foreground');
     });
     return () => subscription.remove();
   }, [runSyncAfterSignIn]);
+
+  // A reflection saved or deleted on this device is uploaded now, through
+  // the same single-flight sync — not left waiting for the next foreground
+  // or pull-to-refresh. Nothing happens for a guest (no session token).
+  // Other devices still see it only at their own next sync.
+  useEffect(() => subscribeToLocalChanges(() => {
+    const token = sessionTokenRef.current;
+    if (!token) return;
+    void runSyncAfterSignIn(token, 'local-change');
+  }), [runSyncAfterSignIn]);
 
   const handleSignInSuccess = useCallback(
     async (token: string, refreshToken: string | undefined, signedInUser: AuthUser) => {
@@ -490,7 +523,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshSync = useCallback(async () => {
     const token = sessionTokenRef.current;
     if (!token) return;
-    await runSyncAfterSignIn(token);
+    await runSyncAfterSignIn(token, 'pull');
   }, [runSyncAfterSignIn]);
 
   const promptForFreshProviderCredential = useFreshProviderCredential(user?.provider ?? null);

@@ -47,7 +47,7 @@ export async function withExistingUser<T>(
       const user = await UserModel.findOneAndUpdate(
         { _id: userId },
         { $set: { updatedAt: new Date() } },
-        { session, new: true },
+        { session, returnDocument: 'after' },
       );
       if (!user) {
         throw new AppError('Sign in required.', 401);

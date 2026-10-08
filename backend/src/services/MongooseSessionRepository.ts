@@ -35,7 +35,7 @@ export const mongooseRotationStore: RotationStore = {
           expiresAt: new Date(update.expiresAt),
         },
       },
-      { new: true },
+      { returnDocument: 'after' },
     ).lean<SessionEntity>();
     return doc ? doc.userId : null;
   },

@@ -72,7 +72,7 @@ describe('atomic sync password replacement', () => {
     expect(await repository.replaceSyncKey('user-1', oldKey, newKey)).toEqual(newKey);
     expect(update).toHaveBeenCalledExactlyOnceWith(
       { userId: 'user-1', ...oldKey }, { $set: newKey },
-      { new: true, runValidators: true, writeConcern: { w: 'majority' } },
+      { returnDocument: 'after', runValidators: true, writeConcern: { w: 'majority' } },
     );
     lean.mockResolvedValueOnce(null);
     expect(await repository.replaceSyncKey('user-1', oldKey, newKey)).toBeNull();

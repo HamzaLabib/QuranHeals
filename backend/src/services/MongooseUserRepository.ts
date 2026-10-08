@@ -36,7 +36,7 @@ export class MongooseUserRepository implements UserRepository {
 
     const doc = await UserModel.findOneAndUpdate({ provider, providerSubject }, update, {
       upsert: true,
-      new: true,
+      returnDocument: 'after',
       setDefaultsOnInsert: true,
     }).lean();
 
