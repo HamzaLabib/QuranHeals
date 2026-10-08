@@ -49,7 +49,7 @@ MONGODB_URI=<Atlas connection string for the production database user (see "Data
 MONGODB_DB_NAME=quranheals_prod
 MONGODB_ENFORCE_CREDENTIAL_SCOPE=true   # only after the credential migration below is complete
 TRUST_PROXY_HOPS=<verified hop count>   # default 1; see docs/backend-operations.md "Client IPs on Render"
-ENDPOINT_RATE_LIMITS=on                 # off only while verifying TRUST_PROXY_HOPS
+ENDPOINT_RATE_LIMITS=on                 # default off; set on only after TRUST_PROXY_HOPS is verified
 SESSION_JWT_SECRET=<real secret>      # already required in production by env.ts
 SENTRY_DSN=<project DSN>              # optional; error monitoring, see docs/backend-operations.md
 ```

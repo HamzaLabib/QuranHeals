@@ -21,12 +21,14 @@ const envSchema = z
     // proxy's bucket, too high lets clients spoof their IP. Verify on Render
     // with CLIENT_IP_DIAGNOSTICS (docs/backend-operations.md#rate-limits).
     TRUST_PROXY_HOPS: z.preprocess((value) => (value === '' ? undefined : value), z.coerce.number().int().min(0).max(10).default(1)),
-    // 'off' disables only the endpoint-specific limits (D7); the global
-    // per-IP limit always applies. For the verification step above.
-    ENDPOINT_RATE_LIMITS: z.preprocess((value) => (value === '' ? undefined : value), z.enum(['on', 'off']).default('on')),
-    // 'true' logs the forwarding chain of GET /api/health requests that carry
-    // `X-Quran-Heals-IP-Check: 1` (IP addresses only), to determine
-    // TRUST_PROXY_HOPS. Temporary; leave unset otherwise.
+    // Endpoint-specific limits (D7). OFF unless set to 'on', so deploying
+    // never enables them before TRUST_PROXY_HOPS has been verified; the
+    // global per-IP limit always applies regardless.
+    ENDPOINT_RATE_LIMITS: z.preprocess((value) => (value === '' ? undefined : value), z.enum(['on', 'off']).default('off')),
+    // 'true' logs a description of the forwarding chain for GET /api/health
+    // requests that carry `X-Quran-Heals-IP-Check: 1` — address kinds and
+    // keyed hashes only, never real IPs — to determine TRUST_PROXY_HOPS.
+    // Temporary; leave unset otherwise.
     CLIENT_IP_DIAGNOSTICS: z.preprocess((value) => (value === '' ? undefined : value), z.enum(['true', 'false']).optional()),
     CORS_ORIGIN: z.string().default('*'),
 

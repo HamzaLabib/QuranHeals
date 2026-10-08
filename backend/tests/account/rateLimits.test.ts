@@ -161,15 +161,17 @@ describe('client IP behind proxies (TRUST_PROXY_HOPS)', () => {
     await request(app).post('/api/issues').send(report).expect(429);
   });
 
-  it('the client-IP diagnostic logs only header-tagged health checks, and only addresses', async () => {
+  it('the client-IP diagnostic logs only header-tagged health checks, never a real address', async () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
     try {
       const { app } = buildAccountTestApp({ network: { clientIpDiagnostics: true, trustProxyHops: 2 } });
-      await request(app).get('/api/health').set('X-Forwarded-For', '203.0.113.5, 10.0.0.2').expect(200);
+      await request(app).get('/api/health').set('X-Forwarded-For', '192.0.2.1, 81.2.69.160, 10.0.0.2').expect(200);
       expect(log).not.toHaveBeenCalled();
-      await request(app).get('/api/health').set('X-Forwarded-For', '203.0.113.5, 10.0.0.2').set('X-Quran-Heals-IP-Check', '1').expect(200);
+      await request(app).get('/api/health').set('X-Forwarded-For', '192.0.2.1, 81.2.69.160, 10.0.0.2').set('X-Quran-Heals-IP-Check', '1').expect(200);
       expect(log).toHaveBeenCalledOnce();
-      expect(log.mock.calls[0][0]).toMatch(/x-forwarded-for="203\.0\.113\.5, 10\.0\.0\.2".*trustProxyHops=2 req\.ip=203\.0\.113\.5/);
+      const line = String(log.mock.calls[0][0]);
+      expect(line).toMatch(/assessment=correct trustProxyHops=2 suggestedTrustProxyHops=2 entries=3 chain=\[doc:192\.0\.2\.1, public#[0-9a-f]{8}, private#[0-9a-f]{8}\]/);
+      expect(line).not.toMatch(/81\.2\.69\.160|10\.0\.0\.2|127\.0\.0\.1/);
     } finally {
       log.mockRestore();
     }
@@ -184,5 +186,13 @@ describe('client IP behind proxies (TRUST_PROXY_HOPS)', () => {
     } finally {
       log.mockRestore();
     }
+  });
+});
+
+describe('endpoint limits are off unless explicitly enabled', () => {
+  it('with ENDPOINT_RATE_LIMITS unset, only the global limit applies (safe default until the proxy is verified)', async () => {
+    const { app } = buildAccountTestApp({ rateLimits: { issueReports: { windowMs: WINDOW, limit: 1 } }, network: { endpointRateLimits: undefined } });
+    await request(app).post('/api/issues').send(report).expect(201);
+    await request(app).post('/api/issues').send(report).expect(201);
   });
 });

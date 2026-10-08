@@ -79,26 +79,39 @@ Never logged: request bodies, headers, tokens, connection strings, reflection co
 
 The app signs a user out only on a `401` from refresh, never on a `429`. Tune the numbers in that file if real traffic shows false positives.
 
-### Client IPs on Render (verify before relying on per-IP limits)
+### Client IPs on Render (verify before enabling endpoint limits)
 
 Per-IP limits use `req.ip`, which Express derives from `X-Forwarded-For` using `TRUST_PROXY_HOPS` (default `1`, the value the app has always used). It must equal the real number of proxies in front of the app:
 
-- **too low**: `req.ip` is a Render proxy address, so many users share one bucket and the endpoint limits could throttle everyone at once (this already applied to the old global limit);
-- **too high**: `req.ip` comes from a part of the header the client controls, so limits can be evaded.
+- **too low**: `req.ip` is a Render proxy address, so many users share one bucket (this already applies to the long-standing global limit);
+- **too high**: `req.ip` comes from the part of the header the client controls, so anyone can pick their own IP and evade limits.
 
-Community reports suggest Render may add more than one hop and appends to (rather than replaces) a client-supplied `X-Forwarded-For`, but this is not confirmed. **Status: pending verification.** Safe procedure:
+Community reports suggest Render adds more than one hop and appends to (does not replace) a client-supplied `X-Forwarded-For`; this is not confirmed. **Endpoint limits are therefore off unless `ENDPOINT_RATE_LIMITS=on`** (the default is `off`, so deploying never enables them early). The global limit is unchanged.
 
-1. Deploy with `ENDPOINT_RATE_LIMITS=off` and `CLIENT_IP_DIAGNOSTICS=true` (the global limit stays as it always was).
-2. Find your own public IP (for example `curl https://api.ipify.org`), then send:
+The diagnostic (`CLIENT_IP_DIAGNOSTICS=true`) never logs a real address: each address appears only as its kind (`public`, `private`, `loopback`, `invalid`) plus an 8-character keyed hash that is random per process (not reversible, not comparable across restarts). Only RFC 5737 documentation addresses such as the marker `192.0.2.1` are shown as written. It logs only `GET /api/health` requests that carry `X-Quran-Heals-IP-Check: 1`.
+
+**Procedure** (changes Render environment variables; needs approval):
+
+1. In Render → Environment, set `CLIENT_IP_DIAGNOSTICS=true` and leave `ENDPOINT_RATE_LIMITS` unset (or `off`) and `TRUST_PROXY_HOPS` unset (`1`). Save, wait for the redeploy, and check `GET /api/health` returns 200.
+2. From a normal connection (no VPN or corporate proxy), run:
 
    ```text
    curl -s https://quran-heals-api.onrender.com/api/health -H "X-Quran-Heals-IP-Check: 1" -H "X-Forwarded-For: 192.0.2.1"
    ```
-3. In the Render logs, find the `[client-ip-check] x-forwarded-for="…"` line. The list reads `192.0.2.1` (your fake entry), then your real IP, then any proxies. Set `TRUST_PROXY_HOPS` to the number of entries from your real IP to the end of the list, inclusive (for example `192.0.2.1, <you>, <proxy>` → `2`).
-4. Redeploy with that value and repeat step 2: the logged `req.ip` must be your real IP, never `192.0.2.1` and never a proxy address.
-5. Set `CLIENT_IP_DIAGNOSTICS` back to unset (it logs IP addresses) and `ENDPOINT_RATE_LIMITS=on`.
+3. In Render → Logs, find the line starting `[client-ip-check]`, for example:
 
-Recheck after any Render networking change (custom domain, CDN, region move). Counters are in memory: a restart resets them, and running more than one instance would split them per instance (move to a shared store such as Redis first).
+   ```text
+   [client-ip-check] assessment=too-low (…) trustProxyHops=1 suggestedTrustProxyHops=3 entries=4 chain=[doc:192.0.2.1, public#1a2b3c4d, public#…, private#…] socket=private#… req.ip=private#…
+   ```
+
+   - `chain` must start with `doc:192.0.2.1` (your marker). If it does not, the proxy replaced the header instead of appending: stop and report back (the formula below would not apply).
+   - The entry right after the marker is the address Render saw connecting (you). `suggestedTrustProxyHops` is the number of entries from that one to the end.
+4. Set `TRUST_PROXY_HOPS` to `suggestedTrustProxyHops`, redeploy, and repeat step 2. The line must now say `assessment=correct`, and `req.ip` must have the same hash as the entry right after the marker.
+5. Spoofing check: repeat step 2 with `-H "X-Forwarded-For: 192.0.2.1, 198.51.100.7"`. `req.ip` must still be the hash right after the documentation entries, never `doc:198.51.100.7`. (`too-high` in any run means the hop count is too large.)
+6. Consistency check: repeat step 2 from a second network (for example phone data). `suggestedTrustProxyHops` must be the same, and `req.ip` must show a different `public#…` hash.
+7. Set `CLIENT_IP_DIAGNOSTICS` back to unset. Then set `ENDPOINT_RATE_LIMITS=on`, redeploy, and confirm normal use: sign in, refresh after 20+ minutes, sync, and submit one issue report, with no `429`.
+
+**Rollback:** set `ENDPOINT_RATE_LIMITS=off` (instant, no code change). Recheck after any Render networking change (custom domain, CDN, region move). Counters are in memory per instance: a restart resets them, and more than one instance would split them (move to a shared store such as Redis first).
 
 ## Which mappings the API serves
 

@@ -64,7 +64,9 @@ export function buildAccountTestApp<R extends IssueReportRepository = InMemoryIs
     // In-memory repositories, so the database is "up" for /api/health.
     databaseHealthCheck: async () => true,
     rateLimits: overrides.rateLimits,
-    network: overrides.network,
+    // Endpoint limits default to off in production config; the account suites
+    // exercise the app with them on unless a test says otherwise.
+    network: { endpointRateLimits: true, ...overrides.network },
   });
 
   return {

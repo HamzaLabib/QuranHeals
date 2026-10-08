@@ -10,6 +10,7 @@ import { env } from './config/env';
 import type { DatabaseHealthCheck } from './controllers/healthController';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFoundHandler';
+import { createDiagnosticKey, describeForwardingChain, formatChainReport } from './middleware/clientIpDiagnostics';
 import { createRateLimiters, type RateLimitName, type RateLimitPolicy } from './middleware/rateLimits';
 import type { AccountRouterDeps } from './routes';
 import { createApiRouter } from './routes';
@@ -83,12 +84,19 @@ export function createApp(options: AppOptions = {}) {
   app.use(express.json({ limit: '512kb' }));
   app.use(express.urlencoded({ extended: true, limit: '512kb' }));
   if (options.network?.clientIpDiagnostics ?? env.CLIENT_IP_DIAGNOSTICS === 'true') {
-    // Opt-in, header-gated: only requests that ask for it are logged, and only
-    // their address chain — to find the real proxy hop count on Render.
+    // Opt-in and header-gated: only requests that ask for it are logged, and
+    // never with a real address — kinds and per-process keyed hashes only
+    // (middleware/clientIpDiagnostics.ts). Finds the real proxy hop count.
+    const diagnosticKey = createDiagnosticKey();
     app.get('/api/health', (req, _res, next) => {
       if (req.get('x-quran-heals-ip-check') === '1') {
-        const forwardedFor = req.get('x-forwarded-for') ?? '';
-        console.log(`[client-ip-check] x-forwarded-for="${forwardedFor}" socket=${req.socket.remoteAddress ?? ''} trustProxyHops=${trustProxyHops} req.ip=${req.ip}`);
+        console.log(formatChainReport(describeForwardingChain({
+          forwardedFor: req.get('x-forwarded-for') ?? '',
+          socket: req.socket.remoteAddress ?? '',
+          reqIp: req.ip ?? '',
+          trustProxyHops,
+          key: diagnosticKey,
+        })));
       }
       next();
     });

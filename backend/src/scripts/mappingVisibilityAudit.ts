@@ -17,11 +17,15 @@
  */
 import { connectScriptDatabase, disconnectFromDatabase } from '../config/database';
 import { DatabaseConfigError } from '../config/databaseTarget';
+import { describeMongoFailure } from '../config/mongoFailure';
 import { AyahModel } from '../models/Ayah';
 import { EmotionModel } from '../models/Emotion';
 import { EmotionVerseMappingModel } from '../models/EmotionVerseMapping';
 
 type StatusCount = { _id: { emotionKey: string; status: string }; count: number };
+
+/** The operation in progress, reported if it fails (never its arguments or results). */
+let step = 'connect + credential check';
 
 async function main() {
   await connectScriptDatabase(
@@ -29,7 +33,9 @@ async function main() {
     { autoIndex: false, autoCreate: false, serverSelectionTimeoutMS: 10_000 },
   );
 
+  step = 'read emotions (find)';
   const activeEmotions = (await EmotionModel.find({ active: true }, { key: 1 }).lean<{ key: string }[]>()).map((emotion) => emotion.key).sort();
+  step = 'count mappings by status (aggregate $group)';
   const statusCounts = await EmotionVerseMappingModel.aggregate<StatusCount>([
     { $group: { _id: { emotionKey: '$emotionKey', status: '$status' }, count: { $sum: 1 } } },
   ]);
@@ -38,7 +44,9 @@ async function main() {
     byEmotion.set(_id.emotionKey, { ...byEmotion.get(_id.emotionKey), [_id.status]: count });
   }
 
+  step = 'read legacy ayahs (find)';
   const legacy = await AyahModel.find({}, { referenceKey: 1, emotions: 1 }).lean<{ referenceKey: string; emotions: string[] }[]>();
+  step = 'read approved mappings (find)';
   const approvedPairs = new Set(
     (await EmotionVerseMappingModel.find({ status: 'approved' }, { verseReferenceKey: 1, emotionKey: 1 }).lean<{ verseReferenceKey: string; emotionKey: string }[]>())
       .map((mapping) => `${mapping.verseReferenceKey}|${mapping.emotionKey}`),
@@ -64,8 +72,10 @@ async function main() {
 
 main()
   .catch((error: unknown) => {
-    // Driver errors can name the host; only our own config errors are printed.
-    console.error(`mapping:visibility-audit failed: ${error instanceof DatabaseConfigError ? error.message : 'connection or query error (details suppressed)'}`);
+    // Driver messages can name the host or user, so only our own config
+    // errors are printed verbatim; driver errors are reduced to the failing
+    // step, a failure kind and fixed identifiers (config/mongoFailure.ts).
+    console.error(`mapping:visibility-audit ${error instanceof DatabaseConfigError ? `failed: ${error.message}` : describeMongoFailure(step, error)}`);
     process.exitCode = 1;
   })
   .finally(() => disconnectFromDatabase());
