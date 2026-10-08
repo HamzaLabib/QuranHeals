@@ -63,6 +63,22 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
   const scrollRef = useRef<ScrollView>(null);
   const commentFieldYRef = useRef(0);
   const emailFieldYRef = useRef(0);
+  // Identifies the report being edited: a response for one that was closed
+  // meanwhile never changes the next one.
+  const reportIdRef = useRef(0);
+
+  // Each opening is a new report: empty form, nothing sent yet.
+  const [wasVisible, setWasVisible] = useState(visible);
+  if (visible !== wasVisible) {
+    setWasVisible(visible);
+    if (visible) {
+      setCategory('ayah_not_relevant');
+      setComment('');
+      setEmail('');
+      setIsSubmitting(false);
+      setResult(null);
+    }
+  }
 
   // Scrolls so the field starting at `fieldY` (captured via that field's
   // wrapper onLayout, in content-container coordinates) sits just below the
@@ -83,14 +99,17 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
   };
 
   const close = () => {
+    reportIdRef.current += 1;
     setComment('');
     setEmail('');
+    setIsSubmitting(false);
     setResult(null);
     onClose();
   };
 
   const submit = async () => {
     if (isSubmitting) return;
+    const reportId = reportIdRef.current;
     setIsSubmitting(true);
     setResult(null);
     try {
@@ -105,13 +124,16 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
         appLocale: locale,
         translationDisplayMode: preference.displayMode,
       });
-      setResult('success');
+      if (reportId === reportIdRef.current) setResult('success');
     } catch {
-      setResult('failure');
+      // The form stays as entered, so the user can simply try again.
+      if (reportId === reportIdRef.current) setResult('failure');
     } finally {
-      setIsSubmitting(false);
+      if (reportId === reportIdRef.current) setIsSubmitting(false);
     }
   };
+
+  const isSent = result === 'success';
 
   return (
    <Modal visible transparent animationType="slide" onRequestClose={close}>
@@ -130,6 +152,7 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
               {messages.issueReport.action}
             </Text>
 
+            {!isSent && <>
             <Text style={[styles.description, direction]}>
               {messages.issueReport.description}
             </Text>
@@ -202,9 +225,10 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
                 accessibilityLabel={messages.issueReport.emailLabel}
               />
             </View>
+            </>}
 
-            {result === 'success' && (
-              <Text style={[styles.successText, direction]}>
+            {isSent && (
+              <Text accessibilityLiveRegion="polite" style={[styles.successText, direction]}>
                 {messages.issueReport.successMessage}
               </Text>
             )}
@@ -215,6 +239,19 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
               </Text>
             )}
 
+            {isSent ? (
+              <View style={styles.actions}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={messages.issueReport.done}
+                  onPress={close}
+                  style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
+                  <Text style={styles.primaryButtonText}>
+                    {messages.issueReport.done}
+                  </Text>
+                </Pressable>
+              </View>
+            ) : (
             <View style={[styles.actions, isRtl && styles.actionsRtl]}>
               <Pressable
                 accessibilityRole="button"
@@ -244,6 +281,7 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
                 </Text>
               </Pressable>
             </View>
+            )}
           </ScrollView>
         </View>
       </SafeAreaView>
@@ -328,8 +366,9 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   },
   successText: {
     color: colors.accent,
-    fontSize: typography.caption,
+    fontSize: typography.body,
     fontWeight: '700',
+    lineHeight: 22,
   },
   failureText: {
     color: colors.danger,

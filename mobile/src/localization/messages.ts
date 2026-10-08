@@ -269,6 +269,7 @@ export type Messages = {
     emailLabel: string;
     submit: string;
     cancel: string;
+    done: string;
     successMessage: string;
     failureMessage: string;
   };
@@ -516,6 +517,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       emailLabel: 'Email for follow-up (optional)',
       submit: 'Submit',
       cancel: 'Cancel',
+      done: 'Done',
       successMessage: 'Thank you. Your report has been received.',
       failureMessage: "We couldn't send your report. Please try again.",
     },
@@ -765,6 +767,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       emailLabel: 'البريد الإلكتروني للمتابعة (اختياري)',
       submit: 'إرسال',
       cancel: 'إلغاء',
+      done: 'تم',
       successMessage: 'شكرًا لك. تم استلام بلاغك.',
       failureMessage: 'تعذّر إرسال البلاغ. يُرجى المحاولة مرة أخرى.',
     },
@@ -1031,6 +1034,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       emailLabel: 'البريد الإلكتروني للمتابعة (اختياري)',
       submit: 'إرسال',
       cancel: 'إلغاء',
+      done: 'تم',
       successMessage: 'شكرًا لك. تم استلام بلاغك.',
       failureMessage: 'تعذّر إرسال البلاغ. يُرجى المحاولة مرة أخرى.',
     },
