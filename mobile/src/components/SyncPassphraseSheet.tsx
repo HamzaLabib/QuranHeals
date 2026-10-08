@@ -71,7 +71,7 @@ type SyncPassphraseSheetProps = {
  * no-op below); only Keyboard.dismiss() happens on an outside tap.
  */
 export function SyncPassphraseSheet(props: SyncPassphraseSheetProps) {
-  return props.request ? <SyncPassphraseForm key={props.request.mode} {...props} request={props.request} /> : null;
+  return props.request ? <SyncPassphraseForm {...props} request={props.request} /> : null;
 }
 
 function SyncPassphraseForm({
@@ -99,6 +99,23 @@ function SyncPassphraseForm({
 
   const [confirmation, setConfirmation] = useState('');
   const [touched, setTouched] = useState(false);
+
+  // After a forgotten-password reset the unlock request is replaced by the
+  // 'create' one in the same render. The sheet stays the same native modal
+  // and only its content starts over: closing one modal and presenting
+  // another at once can fail on iOS — right after the Google sign-in sheet
+  // it left no sheet and an invisible layer blocking every tap.
+  const [shownMode, setShownMode] = useState(request.mode);
+  if (shownMode !== request.mode) {
+    setShownMode(request.mode);
+    setValue('');
+    setConfirmation('');
+    setTouched(false);
+    setView('password');
+    setResetPhase('idle');
+    setResetMessage(null);
+  }
+
   const { verified, checking } = useVerifiedSyncPassword(value, request.mode === 'unlock' ? request.verify : undefined);
 
   const isCreate = request.mode === 'create';
@@ -236,7 +253,7 @@ function SyncPassphraseForm({
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <SafeAreaView style={styles.safeArea}>
             <View style={styles.sheet}>
-              <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scrollContent}>
+              <ScrollView key={request.mode} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scrollContent}>
                 <Text style={[styles.title, direction]}>
                   {isCreate ? messages.syncPassphrase.createTitle : messages.syncPassphrase.unlockTitle}
                 </Text>

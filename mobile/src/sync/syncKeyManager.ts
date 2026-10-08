@@ -191,9 +191,19 @@ async function recoverOrCreateMasterKey(
 
   if (cloudKey) {
     let resetCompleted = false;
-    const reset: ResetEncryptedSync = async (credential) => {
-      await resetEncryptedReflectionSync(sessionToken, ownerUserId, credential);
-      resetCompleted = true;
+    // Destructive, so it runs at most once per unlock step: a repeated call
+    // (a second tap, a re-rendered sheet) gets the same outcome instead of
+    // resetting again. Only a failed attempt may be retried.
+    let resetRun: Promise<void> | null = null;
+    const reset: ResetEncryptedSync = (credential) => {
+      resetRun ??= resetEncryptedReflectionSync(sessionToken, ownerUserId, credential).then(
+        () => { resetCompleted = true; },
+        (error: unknown) => {
+          resetRun = null;
+          throw error;
+        },
+      );
+      return resetRun;
     };
     const verifier = createPassphraseVerifier(cloudKey);
     let passphrase: string;

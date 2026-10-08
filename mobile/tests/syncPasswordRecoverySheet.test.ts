@@ -1,4 +1,4 @@
-import { createElement } from 'react';
+import { createElement, useState } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MESSAGES } from '@/localization/messages';
@@ -13,6 +13,9 @@ const state = vi.hoisted(() => ({
   // Stands in for the fresh Apple/Google sign-in (auth/reauthentication.ts).
   authenticate: vi.fn(),
   hookProvider: undefined as string | null | undefined,
+  // Native modal presentations: every mount presents one, every unmount dismisses one.
+  modalMounts: 0,
+  modalUnmounts: 0,
 }));
 vi.mock('@/auth/reauthentication', () => {
   class ReauthenticationUnavailableError extends Error {}
@@ -26,13 +29,23 @@ vi.mock('@/auth/reauthentication', () => {
     },
   };
 });
-vi.mock('react-native', () => ({
+vi.mock('react-native', async () => {
+  const { createElement, useEffect } = await import('react');
+  function Modal(props: Record<string, unknown>) {
+    useEffect(() => {
+      state.modalMounts += 1;
+      return () => { state.modalUnmounts += 1; };
+    }, []);
+    return createElement('Modal', props);
+  }
+  return {
   useColorScheme: () => 'light',
   Keyboard: { dismiss: vi.fn() }, Platform: { OS: 'ios', select: (values: { ios: unknown }) => values.ios }, StyleSheet: { create: (value: unknown) => value },
-  Modal: 'Modal', KeyboardAvoidingView: 'KeyboardAvoidingView', Pressable: 'Pressable', ScrollView: 'ScrollView',
+  Modal, KeyboardAvoidingView: 'KeyboardAvoidingView', Pressable: 'Pressable', ScrollView: 'ScrollView',
   Text: 'Text', TextInput: 'TextInput', TouchableWithoutFeedback: 'TouchableWithoutFeedback', View: 'View',
   ActivityIndicator: 'ActivityIndicator',
-}));
+  };
+});
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView' }));
 vi.mock('@/localization/useAppLocale', () => ({ useAppLocale: () => ({ locale: state.locale, messages: MESSAGES[state.locale] }) }));
 
@@ -70,6 +83,8 @@ beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   state.locale = 'en';
   state.authenticate.mockReset().mockResolvedValue(FRESH_CREDENTIAL);
+  state.modalMounts = 0;
+  state.modalUnmounts = 0;
 });
 afterEach(async () => {
   if (root) await act(async () => root.unmount());
@@ -258,6 +273,95 @@ describe('fresh Apple/Google re-authentication before the reset', () => {
     await press(en.syncPassphrase.resetBack);
     await press(en.account.signOut);
     expect(props.onSignOut).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('after the reset, the same sheet continues into the new password', () => {
+  type Request = { mode: 'unlock' | 'create'; verify?: () => Promise<boolean>; reset?: () => Promise<void> } | null;
+  let setRequest: (request: Request) => void;
+  // Stands in for useAuth.tsx: the reset hands over to the 'create' request.
+  function Host({ initial, sheet }: { initial: Request; sheet: ReturnType<typeof handlers> }) {
+    const [request, set] = useState<Request>(initial);
+    setRequest = set;
+    return createElement(SyncPassphraseSheet, { ...sheet, request, onResetComplete: () => { sheet.onResetComplete(); set({ mode: 'create' }); } });
+  }
+  const unlock = (reset = vi.fn(async () => {})): Request => ({ mode: 'unlock', verify: vi.fn(async () => false), reset });
+
+  it.each(['apple', 'google'] as const)('%s: verified identity → reset → Set Password, without closing and reopening the native modal', async (provider) => {
+    const sheet = { ...handlers(), accountProvider: provider };
+    const reset = vi.fn(async () => {});
+    await act(async () => { root = create(createElement(Host, { initial: unlock(reset), sheet })); });
+    await press('Show: Password');
+    await press(en.syncPassphrase.forgotPassword);
+    await press(en.syncPassphrase.resetConfirm);
+
+    expect(state.authenticate).toHaveBeenCalledTimes(1);
+    expect(reset).toHaveBeenCalledTimes(1);
+    expect(sheet.onResetComplete).toHaveBeenCalledTimes(1);
+    // Set Password is showing, once, with empty fields and no leftover recovery state.
+    expect(root.root.findAllByType('Modal' as never)).toHaveLength(1);
+    expect(text()).toContain(en.syncPassphrase.createDescription);
+    expect(text()).not.toContain(en.syncPassphrase.resetTitle);
+    expect(button(en.syncPassphrase.createTitle)!.props.disabled).toBe(true);
+    const fields = root.root.findAllByType('TextInput' as never);
+    expect(fields).toHaveLength(2);
+    for (const field of fields) {
+      expect(field.props.value).toBe('');
+      expect(field.props.secureTextEntry).toBe(true);
+    }
+    // One native presentation for the whole flow: iOS can drop a modal
+    // presented while another is still being dismissed (after the Google
+    // sign-in sheet, this left an invisible layer blocking every tap).
+    expect(state.modalMounts).toBe(1);
+    expect(state.modalUnmounts).toBe(0);
+  });
+
+  it('a cancelled or failed sign-in stays on the confirmation, resets nothing, and never continues', async () => {
+    const sheet = handlers();
+    const reset = vi.fn(async () => {});
+    await act(async () => { root = create(createElement(Host, { initial: unlock(reset), sheet })); });
+    await press(en.syncPassphrase.forgotPassword);
+    state.authenticate.mockResolvedValueOnce(null);
+    await press(en.syncPassphrase.resetConfirm);
+    const { ReauthenticationFailedError } = await import('@/auth/reauthentication');
+    state.authenticate.mockRejectedValueOnce(new ReauthenticationFailedError('failed'));
+    await press(en.syncPassphrase.resetConfirm);
+
+    expect(reset).not.toHaveBeenCalled();
+    expect(sheet.onResetComplete).not.toHaveBeenCalled();
+    expect(text()).toContain(en.syncPassphrase.resetTitle);
+    // Never left busy: Reset and Back are usable again.
+    expect(button(en.syncPassphrase.resetConfirm)!.props.disabled).toBe(false);
+    expect(button(en.syncPassphrase.resetBack)!.props.disabled).toBe(false);
+  });
+
+  it('a second tap while the reset is running never runs it again', async () => {
+    const sheet = handlers();
+    let finish!: () => void;
+    const reset = vi.fn(() => new Promise<void>((resolve) => { finish = resolve; }));
+    await act(async () => { root = create(createElement(Host, { initial: unlock(reset), sheet })); });
+    await press(en.syncPassphrase.forgotPassword);
+    await act(async () => { void button(en.syncPassphrase.resetConfirm)!.props.onPress(); });
+    expect(text()).toContain(en.syncPassphrase.resetting);
+    expect(button(en.syncPassphrase.resetConfirm)!.props.disabled).toBe(true);
+    await act(async () => { void button(en.syncPassphrase.resetConfirm)!.props.onPress(); });
+    await act(async () => finish());
+
+    expect(state.authenticate).toHaveBeenCalledTimes(1);
+    expect(reset).toHaveBeenCalledTimes(1);
+    expect(sheet.onResetComplete).toHaveBeenCalledTimes(1);
+  });
+
+  it('a session that ends closes the sheet; the next account starts from a fresh password step', async () => {
+    const sheet = handlers();
+    await act(async () => { root = create(createElement(Host, { initial: unlock(), sheet })); });
+    await press(en.syncPassphrase.forgotPassword);
+    await act(async () => setRequest(null)); // sign-out / another account (useAuth's rejectOpenPrompts)
+    expect(root.root.findAllByType('Modal' as never)).toHaveLength(0);
+
+    await act(async () => setRequest(unlock()));
+    expect(text()).not.toContain(en.syncPassphrase.resetTitle);
+    expect(button(en.syncPassphrase.continueLabel)).toBeDefined();
   });
 });
 

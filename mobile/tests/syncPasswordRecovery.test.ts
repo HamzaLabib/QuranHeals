@@ -29,6 +29,8 @@ type SheetProps = {
 const env = vi.hoisted(() => ({
   device: { storage: new Map<string, string>(), secure: new Map<string, string>() } as Device,
   sheet: null as SheetProps | null,
+  /** Every request the sheet was rendered with, in order (null = sheet closed). */
+  shown: [] as (SheetProps['request'])[],
 }));
 
 vi.mock('react-native', () => ({
@@ -50,6 +52,7 @@ vi.mock('@/components/GuestDataSheet', () => ({ GuestDataSheet: () => null }));
 vi.mock('@/components/SyncPassphraseSheet', () => ({
   SyncPassphraseSheet: (props: SheetProps) => {
     env.sheet = props;
+    if (env.shown.at(-1) !== props.request) env.shown.push(props.request);
     return null;
   },
 }));
@@ -225,6 +228,7 @@ async function launchOn(device: Device) {
   if (root) await closeApp();
   env.device = device;
   env.sheet = null;
+  env.shown = [];
   resetLocalDataOwnerForTests();
   resetPreferencesSyncStateForTests();
   await act(async () => { root = create(createElement(AuthProvider, null, createElement(Probe))); });
@@ -427,7 +431,7 @@ describe('Forgot Password → reset encrypted reflection sync', { timeout: 60_00
     expect(cloud.A.reflections.size).toBe(0);
   });
 
-  it('J: running the reset twice is safe', async () => {
+  it('J: running the reset twice is safe — and reaches the backend only once', async () => {
     await accountWithCloudReflection('A', 'cloud-only reflection');
     await launchOn(newDevice());
     await signIn('A');
@@ -439,7 +443,7 @@ describe('Forgot Password → reset encrypted reflection sync', { timeout: 60_00
     });
     await settleUntil(() => prompt()?.mode === 'create', 'new password prompt');
 
-    expect(cloud.A.resets).toBe(2);
+    expect(cloud.A.resets).toBe(1);
     await submitPassword('new password');
     await settleUntil(() => !!cachedKey(), 'new key');
     expect(cloud.A.key).not.toBeNull();
@@ -718,5 +722,94 @@ describe('Set Password across syncs, sessions, accounts and restarts', { timeout
     await launchOn(device);
     await settleUntil(() => prompt() !== null, 'password prompt');
     expect(prompt()?.mode).toBe('unlock');
+  });
+});
+
+describe('Forgot Password hands over to Set Password without a restart', { timeout: 60_000 }, () => {
+  const keyReads = () => vi.mocked(fetch).mock.calls
+    .filter(([url, init]) => String(url).endsWith('/api/sync/key') && (init?.method ?? 'GET') === 'GET').length;
+
+  it('the unlock request is replaced by Set Password directly — the sheet is never closed in between', async () => {
+    await accountWithCloudReflection('A', 'cloud-only reflection');
+    await launchOn(newDevice());
+    await signIn('A');
+    const unlock = prompt();
+    await forgotPasswordReset('A');
+
+    const from = env.shown.indexOf(unlock);
+    expect(env.shown.slice(from).map((request) => request?.mode ?? null)).toEqual(['unlock', 'create']);
+    expect(cloud.A.resets).toBe(1);
+  });
+
+  it('returning to the foreground from the Google sign-in starts no second sync and keeps the recovery going', async () => {
+    const { AppState } = await import('react-native');
+    const { currentAuthEpoch } = await import('@/auth/authEpoch');
+    await accountWithCloudReflection('A', 'cloud-only reflection');
+    await launchOn(newDevice());
+    await signIn('A');
+    const unlock = prompt();
+    const epoch = currentAuthEpoch();
+    const reads = keyReads();
+
+    // The browser sign-in sends the app inactive/background, then active —
+    // long enough after the sync began that the foreground throttle allows a resync.
+    const onChange = vi.mocked(AppState.addEventListener).mock.calls.at(-1)![1] as (state: string) => void;
+    const later = Date.now() + 5 * 60_000;
+    const now = vi.spyOn(Date, 'now').mockReturnValue(later);
+    await act(async () => { onChange('inactive'); onChange('background'); onChange('active'); });
+    now.mockRestore();
+    await settle();
+
+    expect(prompt()).toBe(unlock); // same request, still open
+    expect(keyReads()).toBe(reads); // no second sync touched the key
+    await forgotPasswordReset('A');
+    // Same-account re-authentication is not a new session.
+    expect(currentAuthEpoch()).toBe(epoch);
+    expect(cloud.A.resets).toBe(1);
+    await submitPassword('new password');
+    await settleUntil(() => !!cachedKey(), 'new key');
+    expect(cloud.A.key).not.toBeNull();
+  });
+
+  it('a restart after the reset, before the new password is set, resumes at Set Password without resetting again', async () => {
+    await accountWithCloudReflection('A', 'cloud-only reflection');
+    const device = newDevice();
+    await launchOn(device);
+    await signIn('A');
+    await forgotPasswordReset('A');
+
+    await closeApp();
+    // A real force-close also ends the JS process: nothing of the old run
+    // (its waiting password step) survives into the relaunch.
+    const { beginAuthEpoch } = await import('@/auth/authEpoch');
+    beginAuthEpoch();
+    await launchOn(device);
+    await settleUntil(() => prompt() !== null, 'password prompt after restart');
+    expect(prompt()!.mode).toBe('create');
+    expect(cloud.A.resets).toBe(1);
+    await submitPassword('new password');
+    await settleUntil(() => !!cachedKey(), 'new key');
+    expect(cloud.A.resets).toBe(1);
+  });
+
+  it("Account 1's recovery never carries over to Account 2", async () => {
+    await accountWithCloudReflection('A', 'A private');
+    await closeApp();
+    await accountWithCloudReflection('B', 'B private');
+    const bKey = cloud.B.key;
+
+    await launchOn(newDevice());
+    await signIn('A');
+    await forgotPasswordReset('A');
+    const aCreate = prompt();
+    await act(async () => { env.sheet!.onSignOut(); });
+    await settleUntil(() => account.status === 'guest' && prompt() === null, 'signed out');
+
+    await signIn('B');
+    expect(prompt()).not.toBe(aCreate);
+    expect(prompt()!.mode).toBe('unlock'); // B's own key, never A's reset state
+    expect(cloud.B.key).toEqual(bKey);
+    expect(cloud.B.resets).toBe(0);
+    expect(cloud.A.resets).toBe(1);
   });
 });
