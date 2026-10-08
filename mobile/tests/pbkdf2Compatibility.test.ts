@@ -51,6 +51,12 @@ const PASSWORD_FIXTURES = [
   'lone surrogate \uD800 here', // TextEncoder maps it to U+FFFD on both paths
   ' leading and trailing spaces ',
   'x'.repeat(200),
+  // Boundaries of the 8–32 code point rule (utils/syncPasswordValidation.ts) and symbols.
+  `!@#$%^&*`,
+  'p@ss w0rd ~`\'"\\|<>',
+  '🌙'.repeat(32), // 32 code points, 64 UTF-16 units, 128 UTF-8 bytes
+  'كلمةسرّ١',
+  'Tab\tand\nnewline',
 ];
 
 afterEach(() => setNativePbkdf2ModuleForTesting(undefined));
@@ -136,6 +142,50 @@ describe('existing encrypted data stays readable', { timeout: 30_000 }, () => {
     const derived = await referenceDerive('ﬁle Ｐassword 🌙', Buffer.from(wrapped.salt, 'base64'), 5000);
     const unwrapped = xchacha20poly1305(derived, Buffer.from(wrapped.nonce, 'base64')).decrypt(Buffer.from(wrapped.wrappedKey, 'base64'));
     expect(hex(unwrapped)).toBe(hex(key));
+  });
+});
+
+describe('password length rule and the KDF', () => {
+  it('the boundary fixtures are exactly the allowed minimum and maximum lengths', async () => {
+    const { passwordLengthError } = await import('@/utils/syncPasswordValidation');
+    expect(passwordLengthError('!@#$%^&*')).toBeNull();
+    expect(passwordLengthError('🌙'.repeat(32))).toBeNull();
+    expect(passwordLengthError('🌙'.repeat(33))).toBe('tooLong');
+    expect(passwordLengthError('1234567')).toBe('tooShort');
+  });
+
+  it('passwords differing only in spaces or normalization derive different keys (version 2 uses exact input)', async () => {
+    const salt = random(16);
+    const keys = await Promise.all(['pass word', 'password', 'pass  word', 'ﬁle Ｐassword', 'file Password'].map(async (p) => hex(await pbkdf2Sha256(p, salt, 1000, 32))));
+    expect(new Set(keys).size).toBe(keys.length);
+  });
+});
+
+describe('per-key work factor (D8)', () => {
+  it('unwraps each key with its own stored iteration count, so a future default never affects existing keys', async () => {
+    const key = random(32);
+    const older = await crypto.wrapMasterKey(key, 'same password', random, 3000);
+    const newer = await crypto.wrapMasterKey(key, 'same password', random, 7000);
+    expect([older.kdfIterations, newer.kdfIterations]).toEqual([3000, 7000]);
+
+    for (const mode of ['native', 'js'] as const) {
+      const native = fakeNativePbkdf2();
+      setNativePbkdf2ModuleForTesting(mode === 'native' ? native : null);
+      expect(hex(await crypto.unwrapMasterKey(older, 'same password'))).toBe(hex(key));
+      expect(hex(await crypto.unwrapMasterKey(newer, 'same password'))).toBe(hex(key));
+      if (mode === 'native') expect(native.calls.slice(-2).map((call) => call.iterations)).toEqual([3000, 7000]);
+    }
+  });
+
+  it('a key whose stored iteration count was altered no longer unwraps (the count is part of what the password protects)', async () => {
+    const wrapped = await crypto.wrapMasterKey(random(32), 'a password', random, 3000);
+    await expect(crypto.unwrapMasterKey({ ...wrapped, kdfIterations: 3001 }, 'a password')).rejects.toThrow();
+  });
+
+  it('records exactly the iteration count it used', async () => {
+    const wrapped = await crypto.wrapMasterKey(random(32), 'a password', random, 4321);
+    const derived = await referenceDerive('a password', Buffer.from(wrapped.salt, 'base64'), 4321);
+    expect(() => xchacha20poly1305(derived, Buffer.from(wrapped.nonce, 'base64')).decrypt(Buffer.from(wrapped.wrappedKey, 'base64'))).not.toThrow();
   });
 });
 

@@ -1,7 +1,7 @@
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
 // app.json stays the source of truth for the app config. This file only adds
-// build-time guards on the backend URL and Google client IDs a build embeds,
+// build-time guards on the backend URL, Google client IDs and legal page URLs a build embeds,
 // so a bad preview/production EAS build fails before a binary exists (see
 // docs/release-builds.md), plus the Android Google sign-in redirect scheme.
 // Kept self-contained: Expo transpiles this file when it evaluates the
@@ -125,6 +125,49 @@ export function assertGoogleClientIdsForBuild(env: Env): void {
   }
 }
 
+export const LEGAL_URL_ENVS = ['EXPO_PUBLIC_PRIVACY_POLICY_URL', 'EXPO_PUBLIC_TERMS_URL', 'EXPO_PUBLIC_ACCOUNT_DELETION_URL'] as const;
+
+/** A public legal page: https, a public host, no embedded credentials. */
+export function checkLegalPageUrl(name: string, raw: string): ApiUrlCheck {
+  const value = raw.trim();
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return { ok: false, reason: `${name} is not a valid URL: "${value}".` };
+  }
+  if (url.protocol !== 'https:') return { ok: false, reason: `${name} must use https://, got "${value}".` };
+  if (isLocalOrPrivateHost(url.hostname) || !url.hostname.includes('.')) {
+    return { ok: false, reason: `${name} must be a public web address, got "${value}".` };
+  }
+  if (url.username || url.password) return { ok: false, reason: `${name} must not contain credentials.` };
+  return { ok: true, url: value };
+}
+
+/**
+ * Privacy Policy / Terms / account-deletion page URLs (src/constants/legalLinks.ts).
+ * On the EAS build worker, any that is set must be a valid public https URL;
+ * the production profile requires all three, because store review requires
+ * reachable privacy and account-deletion information. Other profiles may
+ * leave them unset: the app then hides those Settings rows. Enforced only on
+ * the worker for the same reason as assertApiUrlForBuild.
+ */
+export function assertLegalUrlsForBuild(env: Env): void {
+  if (env.EAS_BUILD !== 'true') return;
+  const required = env.EAS_BUILD_PROFILE === 'production';
+  for (const name of LEGAL_URL_ENVS) {
+    const value = env[name]?.trim();
+    if (!value) {
+      if (required) {
+        throw new Error(`Refusing to build Quran Heals (EAS build profile "production"): ${name} is not set. Host the reviewed page (docs/legal/README.md) and set its URL in the EAS production environment.`);
+      }
+      continue;
+    }
+    const result = checkLegalPageUrl(name, value);
+    if (!result.ok) throw new Error(`Refusing to build Quran Heals: ${result.reason}`);
+  }
+}
+
 /**
  * Google sign-in (expo-auth-session) redirects native builds to
  * `<applicationId>:/oauthredirect`. iOS registers the bundle identifier as a
@@ -144,5 +187,6 @@ export function withGoogleRedirectScheme(config: ExpoConfig): ExpoConfig {
 export default ({ config }: ConfigContext): ExpoConfig => {
   assertApiUrlForBuild(process.env);
   assertGoogleClientIdsForBuild(process.env);
+  assertLegalUrlsForBuild(process.env);
   return withGoogleRedirectScheme(config as ExpoConfig);
 };

@@ -14,10 +14,23 @@ const synced: string[] = [];
 const downloaded: { verseKey: string; text: string }[] = [];
 const tombstonesDownloaded: { verseKey: string; deletedAt: number }[] = [];
 
-vi.mock('@/storage/ayahReflections', () => ({
+const keptVersions = vi.hoisted(() => ({ items: [] as { verseKey: string; text: string; origin: string; supersededByDeletion?: boolean }[] }));
+vi.mock('@/storage/reflectionConflicts', () => ({
+  addConflictVersions: vi.fn(async (_owner: string, versions: { verseKey: string; text: string; origin: string }[]) => {
+    keptVersions.items.push(...versions);
+    return versions.length;
+  }),
+}));
+
+vi.mock('@/storage/ayahReflections', async (importOriginal) => ({
+  syncBaseOf: (await importOriginal<typeof import('@/storage/ayahReflections')>()).syncBaseOf,
   getAllReflections: vi.fn(async () => localReflections.items),
   getAllTombstones: vi.fn(async () => localTombstones.items),
   markReflectionSyncState: vi.fn(async (verseKey: string) => {
+    synced.push(verseKey);
+  }),
+  // Used when the server stored exactly what was uploaded (see reflectionsSync.ts).
+  markReflectionUploaded: vi.fn(async (verseKey: string) => {
     synced.push(verseKey);
   }),
   putReflectionFromSync: vi.fn(async (reflection: { verseKey: string; text: string }) => {
@@ -39,6 +52,7 @@ afterEach(() => {
   synced.length = 0;
   downloaded.length = 0;
   tombstonesDownloaded.length = 0;
+  keptVersions.items = [];
 });
 
 function mockFetch(handler: (init?: RequestInit) => unknown) {

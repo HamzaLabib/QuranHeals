@@ -18,6 +18,7 @@ import {
   type VerifyPassphrase,
 } from '@/sync/syncKeyManager';
 import { clearAllReflections } from '@/storage/ayahReflections';
+import { clearAllConflictVersions } from '@/storage/reflectionConflicts';
 import { clearAllFavorites } from '@/storage/favorites';
 import { hideAccountDataNow, notifyLocalDataChanged } from '@/storage/localDataOwner';
 import {
@@ -533,6 +534,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // untouched. Locale/translation-display preferences are left alone (an
     // app/device setting, not account data).
     await clearAllReflections(deletedUserId ?? undefined);
+    // Kept other versions (D5) are this account's reflections too.
+    if (deletedUserId) await clearAllConflictVersions(deletedUserId);
     await clearAllFavorites(deletedUserId ?? undefined);
     await endSession();
     if (deletedUserId) await releaseLocalDataAfterAccountDeletion(deletedUserId);

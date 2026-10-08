@@ -6,7 +6,7 @@ import { UserReflectionModel } from '../models/UserReflection';
 import { UserSyncKeyModel } from '../models/UserSyncKey';
 import { AppError } from '../errors/AppError';
 import type { TranslationDisplayMode } from '../types/accountDomain';
-import type { FavoriteDto, FavoriteSyncRecordDto, PreferencesDto, ReflectionSyncRecordDto, SyncKeyDto } from '../types/accountDto';
+import type { FavoriteDto, FavoriteSyncRecordDto, PreferencesDto, ReflectionConflictDto, ReflectionSyncRecordDto, SyncKeyDto } from '../types/accountDto';
 import type {
   IncomingFavoriteRecord,
   IncomingReflectionRecord,
@@ -241,6 +241,22 @@ export class MongooseSyncRepository implements SyncRepository {
   async listReflections(userId: string): Promise<ReflectionSyncRecordDto[]> {
     const docs = await UserReflectionModel.find({ userId }).lean();
     return docs.map((doc) => toReflectionDto(doc as never));
+  }
+
+  async listReflectionConflicts(userId: string): Promise<ReflectionConflictDto[]> {
+    const docs = await UserReflectionModel.find(
+      { userId, deleted: { $ne: true }, 'conflictVersions.0': { $exists: true } },
+      { verseKey: 1, conflictVersions: 1 },
+    ).lean<{ verseKey: string; conflictVersions: Array<{ ciphertext: string; nonce: string; encryptionVersion: number; createdAt: Date }> }[]>();
+    return docs.map((doc) => ({
+      verseKey: doc.verseKey,
+      conflictVersions: doc.conflictVersions.map((version) => ({
+        ciphertext: version.ciphertext,
+        nonce: version.nonce,
+        encryptionVersion: version.encryptionVersion,
+        createdAt: version.createdAt.toISOString(),
+      })),
+    }));
   }
 
   async putReflections(userId: string, records: IncomingReflectionRecord[]): Promise<PutReflectionsResult> {

@@ -177,6 +177,11 @@ export function getCloudReflections(sessionToken: string) {
   return authedRequest<ReflectionSyncRecord[]>(sessionToken, '/api/sync/reflections');
 }
 
+/** Encrypted versions the server preserved for exact-timestamp conflicts (read-only; see reflectionsSync.ts). */
+export function getCloudReflectionConflicts(sessionToken: string) {
+  return authedRequest<ReflectionConflict[]>(sessionToken, '/api/sync/reflections/conflicts');
+}
+
 export function putCloudReflections(sessionToken: string, reflections: ReflectionSyncRecord[]) {
   return authedRequest<{ saved: ReflectionSyncRecord[]; conflicts: ReflectionConflict[] }>(
     sessionToken,

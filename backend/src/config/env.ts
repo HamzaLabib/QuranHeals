@@ -10,7 +10,26 @@ const envSchema = z
     // Explicit database name; never inferred from the URI or MongoDB's
     // default `test`. Validated per NODE_ENV in config/databaseTarget.ts.
     MONGODB_DB_NAME: z.string().optional(),
+    // 'true' makes startup fail when the MongoDB user can reach more than
+    // its own database (config/credentialScope.ts); otherwise it only warns.
+    // Turn on once each environment has its own scoped database user.
+    MONGODB_ENFORCE_CREDENTIAL_SCOPE: z.preprocess((value) => (value === '' ? undefined : value), z.enum(['true', 'false']).optional()),
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+    // Proxy hops in front of the app (Express 'trust proxy'), which decides
+    // req.ip and therefore every per-IP rate limit. 1 = the long-standing
+    // value. Must equal the real hop count: too low makes users share a
+    // proxy's bucket, too high lets clients spoof their IP. Verify on Render
+    // with CLIENT_IP_DIAGNOSTICS (docs/backend-operations.md#rate-limits).
+    TRUST_PROXY_HOPS: z.preprocess((value) => (value === '' ? undefined : value), z.coerce.number().int().min(0).max(10).default(1)),
+    // Endpoint-specific limits (D7). OFF unless set to 'on', so deploying
+    // never enables them before TRUST_PROXY_HOPS has been verified; the
+    // global per-IP limit always applies regardless.
+    ENDPOINT_RATE_LIMITS: z.preprocess((value) => (value === '' ? undefined : value), z.enum(['on', 'off']).default('off')),
+    // 'true' logs a description of the forwarding chain for GET /api/health
+    // requests that carry `X-Quran-Heals-IP-Check: 1` — address kinds and
+    // keyed hashes only, never real IPs — to determine TRUST_PROXY_HOPS.
+    // Temporary; leave unset otherwise.
+    CLIENT_IP_DIAGNOSTICS: z.preprocess((value) => (value === '' ? undefined : value), z.enum(['true', 'false']).optional()),
     CORS_ORIGIN: z.string().default('*'),
 
     // Server-only secret used to sign/verify this backend's own session

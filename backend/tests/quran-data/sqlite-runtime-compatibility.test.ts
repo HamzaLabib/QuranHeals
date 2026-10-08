@@ -155,33 +155,32 @@ describe('verseKey is the canonical public identity on existing API routes', () 
     },
   );
 
-  it.each(['random', 'id'] as const)(
-    'falls back to the legacy Ayah collection, still keyed by verseKey, with verified surah metadata (not the legacy Ayah names)',
-    async (route) => {
-      vi.mocked(VerseTranslationModel.findOne).mockReturnValue(leanResult(null));
-      vi.mocked(EmotionVerseMappingModel.aggregate).mockResolvedValue([]);
-      vi.mocked(AyahModel.findOne).mockReturnValue(leanResult(legacy));
-      const app = createApp({ repository: new MongooseQuranRepository() });
-      const path = route === 'random' ? '/api/ayahs/random?emotion=sad' : `/api/ayahs/${legacy.referenceKey}`;
-      const response = await request(app).get(path).expect(200);
+  it('never falls back to the legacy Ayah collection for an emotion with no user-visible mapping (D11)', async () => {
+    vi.mocked(EmotionVerseMappingModel.aggregate).mockResolvedValue([]);
+    vi.mocked(AyahModel.findOne).mockReturnValue(leanResult(legacy));
+    const app = createApp({ repository: new MongooseQuranRepository() });
+    const response = await request(app).get('/api/ayahs/random?emotion=sad').expect(404);
 
-      expect(response.body).toEqual({
-        success: true,
-        data: {
-          ...legacySeed,
-          id: '2:153',
-          verseKey: '2:153',
-          arabicText: verifiedArabicFor('2:153'),
-          englishTranslation: verifiedTranslationFor('2:153'),
-          translationSource: VERIFIED_TRANSLATION_SOURCE,
-          surahNameArabic: verifiedSurah.nameArabic,
-          surahNameEnglish: verifiedSurah.nameEnglish,
-        },
-      });
-      const rows = findLocalVerse(response.body.data.verseKey);
-      expect(rows).toHaveLength(1);
-      expect(rows[0].surah).toBe(response.body.data.surahNumber);
-      expect(rows[0].ayah).toBe(response.body.data.ayahNumber);
-    },
-  );
+    expect(response.body.success).toBe(false);
+    expect(AyahModel.aggregate).not.toHaveBeenCalled();
+  });
+
+  it('serves a legacy-seeded verse by id through the foundation path (verified text, verseKey identity), never from the legacy document', async () => {
+    vi.mocked(VerseModel.findOne).mockReturnValue(leanResult(null));
+    vi.mocked(EmotionVerseMappingModel.find).mockReturnValue(leanResult([]));
+    vi.mocked(AyahModel.findOne).mockReturnValue(leanResult(legacy));
+    const app = createApp({ repository: new MongooseQuranRepository() });
+    const response = await request(app).get(`/api/ayahs/${legacy.referenceKey}`).expect(200);
+
+    expect(response.body.data).toMatchObject({
+      id: '2:153',
+      verseKey: '2:153',
+      arabicText: verifiedArabicFor('2:153'),
+      englishTranslation: verifiedTranslationFor('2:153'),
+      surahNameArabic: verifiedSurah.nameArabic,
+      surahNameEnglish: verifiedSurah.nameEnglish,
+      emotions: [],
+    });
+    expect(AyahModel.findOne).not.toHaveBeenCalled();
+  });
 });

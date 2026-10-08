@@ -105,6 +105,13 @@ export interface SyncRepository {
    * MongooseSyncRepository.putReflections.
    */
   putReflections(userId: string, records: IncomingReflectionRecord[]): Promise<PutReflectionsResult>;
+  /**
+   * Read-only: the ciphertext versions preserved by exact-timestamp
+   * conflicts, for active records that have any. Lets a client decrypt and
+   * offer them for recovery on the device; the server never decrypts and
+   * never removes them here.
+   */
+  listReflectionConflicts(userId: string): Promise<ReflectionConflictDto[]>;
 
   getSyncKey(userId: string): Promise<SyncKeyDto | null>;
   /** Create only: concurrent setup must never overwrite an existing key. */

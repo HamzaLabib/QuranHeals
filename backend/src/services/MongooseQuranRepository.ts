@@ -1,7 +1,8 @@
 import { Types } from 'mongoose';
 
+import type { AppEnvironment } from '../config/databaseTarget';
+import { env } from '../config/env';
 import { getCanonicalEmotion, resolveEmotionLocalization } from '../emotions/emotionCatalog';
-import { AyahModel } from '../models/Ayah';
 import { EmotionVerseMappingModel } from '../models/EmotionVerseMapping';
 import { EmotionModel } from '../models/Emotion';
 import { VerseModel } from '../models/Verse';
@@ -10,7 +11,6 @@ import { isValidVerseKey, parseVerseKey } from '../quran/referenceKeys';
 import { getSurahMetadata } from '../quran/surahMetadata';
 import { getVerifiedTranslationByVerseKey, VERIFIED_TRANSLATION_SOURCE } from '../quran/translationSource';
 import type {
-  AyahEntity,
   EmotionEntity,
   EmotionMappingStatus,
   EmotionVerseMappingEntity,
@@ -23,7 +23,17 @@ type MongoEntity<T> = T & {
   _id: Types.ObjectId;
 };
 
-const userVisibleMappingStatuses: EmotionMappingStatus[] = ['development', 'reviewed', 'approved'];
+/**
+ * Which mapping statuses may put an ayah in front of users. Production
+ * serves editorially approved mappings only. Development/test additionally
+ * show `development` and `reviewed` mappings so editors can preview work in
+ * progress against quranheals_dev. `draft` and `rejected` are never served
+ * anywhere (KEEP/REJECT/HOLD are review outcomes, not statuses — HOLD rows
+ * are never inserted, REJECT becomes `rejected`).
+ */
+export function userVisibleMappingStatuses(nodeEnv: AppEnvironment): readonly EmotionMappingStatus[] {
+  return nodeEnv === 'production' ? ['approved'] : ['development', 'reviewed', 'approved'];
+}
 
 function toEmotionDto(emotion: MongoEntity<EmotionEntity>): EmotionDto {
   const { names, descriptions } = resolveEmotionLocalization(emotion);
@@ -50,34 +60,13 @@ function toEmotionDto(emotion: MongoEntity<EmotionEntity>): EmotionDto {
   };
 }
 
-// The legacy `Ayah` collection is still its own, fully self-contained record
-// (own emotions array) — no Verse/verseKey coverage dependency has ever
-// applied to it. `id` moves to the stable verseKey so legacy and foundation
-// ayahs share the same public identity. Its own surahNameArabic/English
-// fields are legacy enrichment only (Phase 6A.7) — never authoritative; the
-// verified surah-names asset is the sole source of truth for names, exactly
-// like the foundation path below. Its own englishTranslation/translationSource
-// fields are likewise legacy enrichment only (Phase 6A.8B) — never
-// authoritative; the verified translations.sqlite asset is the sole source
-// of truth for translation text, exactly like Arabic text already was.
-function toAyahDto(ayah: MongoEntity<AyahEntity>): AyahDto {
-  const surah = getSurahMetadata(ayah.surahNumber);
-
-  return {
-    id: ayah.referenceKey,
-    verseKey: `${ayah.surahNumber}:${ayah.ayahNumber}`,
-    referenceKey: ayah.referenceKey,
-    surahNumber: ayah.surahNumber,
-    surahNameArabic: surah.nameArabic,
-    surahNameEnglish: surah.nameEnglish,
-    ayahNumber: ayah.ayahNumber,
-    arabicText: getVerifiedArabicByVerseKey(ayah.referenceKey),
-    englishTranslation: getVerifiedTranslationByVerseKey(ayah.referenceKey),
-    emotions: ayah.emotions,
-    quranTextSource: ayah.quranTextSource,
-    translationSource: VERIFIED_TRANSLATION_SOURCE,
-  };
-}
+// The legacy `Ayah` collection (the original MVP seed, with its own
+// `emotions` arrays) is no longer read here. Its emotion tags never went
+// through editorial review, so selecting from it would let unapproved
+// pairings bypass the mapping lifecycle; and every verse it holds resolves
+// through the foundation path below by verseKey anyway (verified SQLite
+// text), so lookups by id never needed it. The collection itself is kept
+// untouched in the database — see docs/backend-operations.md.
 
 /**
  * Composes an ayah from `verseKey` + verified SQLite Arabic + verified
@@ -143,6 +132,13 @@ function toFoundationAyahDto(
 }
 
 export class MongooseQuranRepository implements QuranRepository {
+  private readonly visibleStatuses: EmotionMappingStatus[];
+
+  /** `nodeEnv` defaults to this process's NODE_ENV; tests pass it explicitly. */
+  constructor(options: { nodeEnv?: AppEnvironment } = {}) {
+    this.visibleStatuses = [...userVisibleMappingStatuses(options.nodeEnv ?? env.NODE_ENV)];
+  }
+
   private async composeFoundationAyah(verseKey: string, requiredEmotionKey?: string) {
     let arabicText: string;
     let translationText: string;
@@ -158,7 +154,7 @@ export class MongooseQuranRepository implements QuranRepository {
       VerseModel.findOne({ referenceKey: verseKey }).lean<MongoEntity<VerseEntity>>(),
       EmotionVerseMappingModel.find({
         verseReferenceKey: verseKey,
-        status: { $in: userVisibleMappingStatuses },
+        status: { $in: this.visibleStatuses },
       }).lean<MongoEntity<EmotionVerseMappingEntity>[]>(),
     ]);
 
@@ -175,7 +171,7 @@ export class MongooseQuranRepository implements QuranRepository {
   private async findRandomFoundationAyahByEmotion(emotionKey: string, excludedVerseKeys: string[]) {
     const matchStage: Record<string, unknown> = {
       emotionKey,
-      status: { $in: userVisibleMappingStatuses },
+      status: { $in: this.visibleStatuses },
     };
 
     if (excludedVerseKeys.length > 0) {
@@ -204,7 +200,7 @@ export class MongooseQuranRepository implements QuranRepository {
       {
         $match: {
           emotionKey,
-          status: { $in: userVisibleMappingStatuses },
+          status: { $in: this.visibleStatuses },
         },
       },
       { $sample: { size: 1 } },
@@ -229,37 +225,9 @@ export class MongooseQuranRepository implements QuranRepository {
     return emotion ? toEmotionDto(emotion) : null;
   }
 
+  /** Only from the emotion's user-visible mappings; null (→ 404) when there are none — never the legacy collection. */
   async findRandomAyahByEmotion(emotionKey: string, excludedVerseKeys: string[] = []) {
-    const foundationAyah = await this.findRandomFoundationAyahByEmotion(emotionKey, excludedVerseKeys);
-
-    if (foundationAyah) {
-      return foundationAyah;
-    }
-
-    const matchStage =
-      excludedVerseKeys.length > 0
-        ? { emotions: emotionKey, referenceKey: { $nin: excludedVerseKeys } }
-        : { emotions: emotionKey };
-
-    const [ayah] = await AyahModel.aggregate<MongoEntity<AyahEntity>>([
-      { $match: matchStage },
-      { $sample: { size: 1 } },
-    ]);
-
-    if (ayah) {
-      return toAyahDto(ayah);
-    }
-
-    if (excludedVerseKeys.length === 0) {
-      return null;
-    }
-
-    const [fallbackAyah] = await AyahModel.aggregate<MongoEntity<AyahEntity>>([
-      { $match: { emotions: emotionKey } },
-      { $sample: { size: 1 } },
-    ]);
-
-    return fallbackAyah ? toAyahDto(fallbackAyah) : null;
+    return this.findRandomFoundationAyahByEmotion(emotionKey, excludedVerseKeys);
   }
 
   async findAyahById(verseKey: string) {
@@ -267,14 +235,6 @@ export class MongooseQuranRepository implements QuranRepository {
       return null;
     }
 
-    const foundationAyah = await this.composeFoundationAyah(verseKey);
-
-    if (foundationAyah) {
-      return foundationAyah;
-    }
-
-    const ayah = await AyahModel.findOne({ referenceKey: verseKey }).lean<MongoEntity<AyahEntity>>();
-
-    return ayah ? toAyahDto(ayah) : null;
+    return this.composeFoundationAyah(verseKey);
   }
 }

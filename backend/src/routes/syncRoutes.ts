@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, type RequestHandler } from 'express';
 
 import type { ReauthenticationDeps } from '../auth/providerReauthentication';
 import { createSyncController } from '../controllers/syncController';
@@ -10,6 +10,7 @@ export function createSyncRoutes(
   repository: SyncRepository,
   reauthentication: ReauthenticationDeps,
   requireAuth: ReturnType<typeof createRequireAuth>,
+  accountReauthLimiter: RequestHandler,
 ) {
   const router = Router();
   const controller = createSyncController(repository, reauthentication);
@@ -28,8 +29,9 @@ export function createSyncRoutes(
   router.put('/preferences', asyncHandler(controller.putPreferences));
 
   router.get('/reflections', asyncHandler(controller.getReflections));
+  router.get('/reflections/conflicts', asyncHandler(controller.getReflectionConflicts));
   router.put('/reflections', asyncHandler(controller.putReflections));
-  router.post('/reflections/reset', asyncHandler(controller.resetReflectionSync));
+  router.post('/reflections/reset', accountReauthLimiter, asyncHandler(controller.resetReflectionSync));
 
   router.get('/key', asyncHandler(controller.getSyncKey));
   router.put('/key', asyncHandler(controller.putSyncKey));

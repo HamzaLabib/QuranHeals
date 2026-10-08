@@ -1,6 +1,5 @@
 import cors from 'cors';
-import express from 'express';
-import rateLimit from 'express-rate-limit';
+import express, { type RequestHandler } from 'express';
 import helmet from 'helmet';
 
 import { HttpAppleRevocationClient, type AppleRevocationClient } from './auth/appleRevocationClient';
@@ -11,6 +10,8 @@ import { env } from './config/env';
 import type { DatabaseHealthCheck } from './controllers/healthController';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFoundHandler';
+import { createDiagnosticKey, describeForwardingChain, formatChainReport } from './middleware/clientIpDiagnostics';
+import { createRateLimiters, type RateLimitName, type RateLimitPolicy } from './middleware/rateLimits';
 import type { AccountRouterDeps } from './routes';
 import { createApiRouter } from './routes';
 import { MongooseAccountDeletionService } from './services/MongooseAccountDeletionService';
@@ -41,6 +42,10 @@ type AppOptions = {
   appleVerifier?: AppleTokenVerifier;
   /** Defaults to a real MongoDB ping; tests inject their own. */
   databaseHealthCheck?: DatabaseHealthCheck;
+  /** Tests only: override individual rate-limit policies (see middleware/rateLimits.ts). */
+  rateLimits?: Partial<Record<RateLimitName, RateLimitPolicy>>;
+  /** Tests only: override TRUST_PROXY_HOPS / ENDPOINT_RATE_LIMITS / CLIENT_IP_DIAGNOSTICS. */
+  network?: { trustProxyHops?: number; endpointRateLimits?: boolean; clientIpDiagnostics?: boolean };
 };
 
 function getCorsOrigin() {
@@ -53,7 +58,8 @@ function getCorsOrigin() {
 
 export function createApp(options: AppOptions = {}) {
   const app = express();
-  app.set('trust proxy', 1);
+  const trustProxyHops = options.network?.trustProxyHops ?? env.TRUST_PROXY_HOPS;
+  app.set('trust proxy', trustProxyHops);
   const repository = options.repository ?? new MongooseQuranRepository();
   const accountDeps: AccountRouterDeps = {
     userRepository: options.userRepository ?? new MongooseUserRepository(),
@@ -77,16 +83,39 @@ export function createApp(options: AppOptions = {}) {
   // the batch size itself. Still a small, firm bound against abuse.
   app.use(express.json({ limit: '512kb' }));
   app.use(express.urlencoded({ extended: true, limit: '512kb' }));
-  app.use(
-    rateLimit({
-      windowMs: 60_000,
-      limit: 120,
-      standardHeaders: true,
-      legacyHeaders: false,
-    }),
-  );
+  if (options.network?.clientIpDiagnostics ?? env.CLIENT_IP_DIAGNOSTICS === 'true') {
+    // Opt-in and header-gated: only requests that ask for it are logged, and
+    // never with a real address — kinds and per-process keyed hashes only
+    // (middleware/clientIpDiagnostics.ts). Finds the real proxy hop count.
+    const diagnosticKey = createDiagnosticKey();
+    app.get('/api/health', (req, _res, next) => {
+      if (req.get('x-quran-heals-ip-check') === '1') {
+        console.log(formatChainReport(describeForwardingChain({
+          forwardedFor: req.get('x-forwarded-for') ?? '',
+          socket: req.socket.remoteAddress ?? '',
+          reqIp: req.ip ?? '',
+          trustProxyHops,
+          key: diagnosticKey,
+        })));
+      }
+      next();
+    });
+  }
 
-  app.use('/api', createApiRouter(repository, accountDeps, options.databaseHealthCheck ?? pingDatabase));
+  const rateLimiters = createRateLimiters(options.rateLimits);
+  app.use(rateLimiters.global);
+  const endpointLimits = options.network?.endpointRateLimits ?? env.ENDPOINT_RATE_LIMITS === 'on';
+  const passThrough: RequestHandler = (_req, _res, next) => next();
+  if (endpointLimits) {
+    // Stricter per-IP limits for unauthenticated endpoints that write or verify
+    // provider tokens; the per-account limit is mounted inside the routers,
+    // after requireAuth.
+    app.post('/api/issues', rateLimiters.issueReports);
+    app.post(['/api/auth/google', '/api/auth/apple'], rateLimiters.signIn);
+    app.post(['/api/auth/refresh', '/api/auth/logout'], rateLimiters.sessionRefresh);
+  }
+
+  app.use('/api', createApiRouter(repository, accountDeps, options.databaseHealthCheck ?? pingDatabase, endpointLimits ? rateLimiters.accountReauth : passThrough));
   app.use(notFoundHandler);
   app.use(errorHandler);
 

@@ -1,3 +1,4 @@
+import * as Clipboard from 'expo-clipboard';
 import { Trash2 } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -23,6 +24,7 @@ import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { getReflection, REFLECTION_MAX_LENGTH, saveReflection } from '@/storage/ayahReflections';
 import { getLocalDataGeneration, subscribeToLocalDataOwner } from '@/storage/localDataOwner';
+import { getConflictVersionsFor, resolveConflictVersions, type ReflectionConflictVersion } from '@/storage/reflectionConflicts';
 
 type ReflectionSheetProps = {
   visible: boolean;
@@ -63,6 +65,11 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
   const [saveFailed, setSaveFailed] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteFailed, setDeleteFailed] = useState(false);
+  // Other versions sync kept for this ayah (D5). Using or adding one only
+  // changes the text box; it is marked handled once that text is saved.
+  const [otherVersions, setOtherVersions] = useState<ReflectionConflictVersion[]>([]);
+  const [adoptedVersionIds, setAdoptedVersionIds] = useState<string[]>([]);
+  const [copiedVersionId, setCopiedVersionId] = useState<string | null>(null);
   const scrollRef = useRef<ScrollView>(null);
   // The owner whose reflection this sheet edits. If it changes (sign-out,
   // account switch) the sheet closes unsaved: text loaded for one owner must
@@ -80,9 +87,11 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
     let cancelled = false;
     (async () => {
       const existing = await getReflection(verseKey).catch(() => null);
+      const versions = await getConflictVersionsFor(verseKey).catch(() => []);
       if (!cancelled) {
         setText(existing?.text ?? '');
         setHasExistingReflection(existing !== null);
+        setOtherVersions(versions);
         setIsLoading(false);
       }
     })();
@@ -109,7 +118,13 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
     setIsSaving(true);
     setSaveFailed(false);
     try {
-      await saveReflection(verseKey, text);
+      const saved = await saveReflection(verseKey, text);
+      // A version counts as handled only if its text is really in what was
+      // saved — using one version and then another, or editing the adopted
+      // text away, leaves the version to review. Failing to mark versions
+      // handled only means they are offered again, never that text is lost.
+      const handled = handledVersionIds(otherVersions, adoptedVersionIds, saved?.text ?? '');
+      if (handled.length > 0) await resolveConflictVersions(handled).catch(() => undefined);
       onClose();
     } catch {
       setSaveFailed(true);
@@ -153,6 +168,44 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
     );
   };
 
+  const visibleVersions = otherVersions.filter((version) => !adoptedVersionIds.includes(version.id));
+  const adoptVersion = (version: ReflectionConflictVersion, nextText: string) => {
+    setText(nextText);
+    setAdoptedVersionIds((ids) => [...ids, version.id]);
+  };
+  // "Keep both": appended below the current text. Offered only when the
+  // result fits, so saving never truncates either version.
+  const combinedText = (version: ReflectionConflictVersion) => (text.trim() ? `${text.trim()}\n\n${version.text}` : version.text);
+  const copyVersion = async (version: ReflectionConflictVersion) => {
+    try {
+      if (await Clipboard.setStringAsync(version.text)) setCopiedVersionId(version.id);
+    } catch {
+      // Best-effort, like copying an ayah.
+    }
+  };
+  const confirmDiscardVersion = (version: ReflectionConflictVersion) => {
+    Alert.alert(messages.reflection.discardOtherVersionTitle, messages.reflection.discardOtherVersionMessage, [
+      { text: messages.reflection.cancel, style: 'cancel' },
+      {
+        text: messages.reflection.discardOtherVersion,
+        style: 'destructive',
+        onPress: () => {
+          if (ownerGeneration.current !== getLocalDataGeneration()) return onClose();
+          void resolveConflictVersions([version.id]).then(
+            () => setOtherVersions((versions) => versions.filter((candidate) => candidate.id !== version.id)),
+            () => undefined,
+          );
+        },
+      },
+    ]);
+  };
+  const versionLabel = (version: ReflectionConflictVersion) =>
+    version.supersededByDeletion
+      ? messages.reflection.otherVersionDeletedElsewhere
+      : version.origin === 'this-device'
+        ? messages.reflection.otherVersionThisDevice
+        : messages.reflection.otherVersionOtherDevice;
+
   const note = status === 'signed-in' ? messages.reflection.syncedNote : messages.reflection.guestNote;
   const showDelete = !isLoading && hasExistingReflection;
 
@@ -175,6 +228,33 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
                 <Text style={[styles.prompt, direction]}>
                   {messages.reflection.prompt}
                 </Text>
+
+                {!isLoading && visibleVersions.length > 0 && (
+                  <View style={styles.otherVersions}>
+                    <Text style={[styles.otherVersionsTitle, direction]}>{messages.reflection.otherVersionsTitle}</Text>
+                    <Text style={[styles.otherVersionsHint, direction]}>{messages.reflection.otherVersionsHint}</Text>
+                    {visibleVersions.map((version) => {
+                      const combined = combinedText(version);
+                      const canAdd = combined.length <= REFLECTION_MAX_LENGTH;
+                      return (
+                        <View key={version.id} style={styles.otherVersion}>
+                          <Text style={[styles.otherVersionLabel, direction]}>{versionLabel(version)}</Text>
+                          <Text selectable style={[styles.otherVersionText, direction]}>{version.text}</Text>
+                          {!canAdd && <Text style={[styles.otherVersionsHint, direction]}>{messages.reflection.otherVersionTooLong}</Text>}
+                          <View style={[styles.otherVersionActions, isRtl && styles.actionsRtl]}>
+                            <VersionButton label={messages.reflection.useOtherVersion} onPress={() => adoptVersion(version, version.text)} />
+                            {canAdd && <VersionButton label={messages.reflection.addOtherVersion} onPress={() => adoptVersion(version, combined)} />}
+                            <VersionButton
+                              label={copiedVersionId === version.id ? messages.reflection.copiedOtherVersion : messages.reflection.copyOtherVersion}
+                              onPress={() => void copyVersion(version)}
+                            />
+                            <VersionButton label={messages.reflection.discardOtherVersion} onPress={() => confirmDiscardVersion(version)} destructive />
+                          </View>
+                        </View>
+                      );
+                    })}
+                  </View>
+                )}
 
                 {!isLoading && (
                   <TextInput
@@ -257,6 +337,24 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </Modal>
+  );
+}
+
+/** Adopted versions whose full text is contained in the saved reflection text. */
+export function handledVersionIds(versions: ReflectionConflictVersion[], adoptedIds: string[], savedText: string): string[] {
+  return versions.filter((version) => adoptedIds.includes(version.id) && savedText.includes(version.text.trim())).map((version) => version.id);
+}
+
+function VersionButton({ label, onPress, destructive }: { label: string; onPress: () => void; destructive?: boolean }) {
+  const styles = useThemedStyles(makeStyles);
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={onPress}
+      style={({ pressed }) => [styles.versionButton, destructive && styles.versionButtonDestructive, pressed && styles.pressed]}>
+      <Text style={[styles.versionButtonText, destructive && styles.versionButtonTextDestructive]}>{label}</Text>
+    </Pressable>
   );
 }
 
@@ -365,6 +463,67 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   },
   disabled: {
     opacity: 0.5,
+  },
+  otherVersions: {
+    backgroundColor: colors.accentSoft,
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    gap: spacing.sm,
+    padding: spacing.md,
+  },
+  otherVersionsTitle: {
+    color: colors.textPrimary,
+    fontSize: typography.body,
+    fontWeight: '800',
+  },
+  otherVersionsHint: {
+    color: colors.textSecondary,
+    fontSize: typography.small,
+    lineHeight: 17,
+  },
+  otherVersion: {
+    backgroundColor: colors.card,
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    gap: spacing.sm,
+    padding: spacing.md,
+  },
+  otherVersionLabel: {
+    color: colors.accent,
+    fontSize: typography.small,
+    fontWeight: '700',
+  },
+  otherVersionText: {
+    color: colors.textPrimary,
+    fontSize: typography.body,
+    lineHeight: 22,
+  },
+  otherVersionActions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  versionButton: {
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    justifyContent: 'center',
+    minHeight: 40,
+    paddingHorizontal: spacing.md,
+  },
+  versionButtonDestructive: {
+    borderColor: colors.dangerBorder,
+  },
+  versionButtonText: {
+    color: colors.textPrimary,
+    fontSize: typography.small,
+    fontWeight: '700',
+  },
+  versionButtonTextDestructive: {
+    color: colors.danger,
   },
   pressed: {
     opacity: 0.78,

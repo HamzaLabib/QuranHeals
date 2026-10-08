@@ -6,7 +6,7 @@ regress without updating this doc.
 
 | Data | Guest | Signed in (Apple or Google) |
 |---|---|---|
-| 29 emotions, Quran text, translations | Always available, from `quran.sqlite`/`translations.sqlite`/MongoDB — never affected by auth. | Same. |
+| 30 emotions, Quran text, translations | Always available, from `quran.sqlite`/`translations.sqlite`/MongoDB — never affected by auth. | Same. |
 | Reflections (خواطر) | Stored locally only (`mobile/src/storage/ayahReflections.ts`, AsyncStorage key `quran-heals:ayah-reflections:v1`). | Stored locally **and** synced across the user's signed-in devices, encrypted client-side before upload — see `docs/auth-and-sync/reflection-privacy.md`. |
 | Favorites | Stored locally only (`mobile/src/storage/favorites.ts`). | Synced across devices by stable `verseKey`, union merge — never deletes a favorite one device doesn't have (`mobile/src/sync/favoritesSync.ts`). |
 | Preferences (locale, translation display mode, translation ID) | Stored locally only. | Synced: first sign-in with no stored account preference uploads local; otherwise the existing account preference is applied to the new/reconnecting device (`mobile/src/sync/preferencesSync.ts`). |

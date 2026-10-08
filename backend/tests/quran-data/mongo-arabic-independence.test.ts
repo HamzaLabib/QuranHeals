@@ -273,15 +273,15 @@ describe('Legacy (Ayah) path never reads Mongo arabicText', () => {
     vi.spyOn(AyahModel, 'aggregate').mockResolvedValue([legacyAyah]);
   });
 
-  it('returns the verified Arabic for a random-by-emotion request via the legacy path', async () => {
+  it('never serves a legacy Ayah document for a random-by-emotion request (D11: no unreviewed fallback)', async () => {
     const app = createApp({ repository: new MongooseQuranRepository() });
-    const response = await request(app).get('/api/ayahs/random?emotion=sad').expect(200);
+    const response = await request(app).get('/api/ayahs/random?emotion=sad').expect(404);
 
-    expect(response.body.data.arabicText).toBe(verifiedArabicFor('2:153'));
-    expect(response.body.data.arabicText).not.toBe(WRONG_MONGO_ARABIC);
+    expect(JSON.stringify(response.body)).not.toContain(WRONG_MONGO_ARABIC);
+    expect(AyahModel.aggregate).not.toHaveBeenCalled();
   });
 
-  it('returns the verified Arabic for a by-verseKey request via the legacy path', async () => {
+  it('returns the verified Arabic for a by-verseKey request of a legacy-seeded verse', async () => {
     const app = createApp({ repository: new MongooseQuranRepository() });
     const response = await request(app).get('/api/ayahs/2:153').expect(200);
 

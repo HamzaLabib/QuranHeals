@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, type RequestHandler } from 'express';
 
 import type { AppleRevocationClient } from '../auth/appleRevocationClient';
 import type { AppleTokenVerifier } from '../auth/appleTokenVerifier';
@@ -31,7 +31,13 @@ export type AccountRouterDeps = {
   appleVerifier: AppleTokenVerifier;
 };
 
-export function createApiRouter(repository: QuranRepository, accountDeps: AccountRouterDeps, checkDatabase: DatabaseHealthCheck) {
+export function createApiRouter(
+  repository: QuranRepository,
+  accountDeps: AccountRouterDeps,
+  checkDatabase: DatabaseHealthCheck,
+  /** Per-account limit for provider-reauthenticated actions (middleware/rateLimits.ts); mounted after requireAuth. */
+  accountReauthLimiter: RequestHandler,
+) {
   const router = Router();
 
   // Built once per app and shared by every protected route group below, so
@@ -69,6 +75,7 @@ export function createApiRouter(repository: QuranRepository, accountDeps: Accoun
         appleVerifier: accountDeps.appleVerifier,
       },
       requireAuth,
+      accountReauthLimiter,
     ),
   );
   router.use('/issues', createIssueRoutes(accountDeps.issueReportRepository));
@@ -82,6 +89,7 @@ export function createApiRouter(repository: QuranRepository, accountDeps: Accoun
       googleVerifier: accountDeps.googleVerifier,
       appleVerifier: accountDeps.appleVerifier,
       requireAuth,
+      accountReauthLimiter,
     }),
   );
 

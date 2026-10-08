@@ -68,6 +68,11 @@ export function createSyncController(repository: SyncRepository, reauthenticatio
       res.json({ success: true, data: await repository.listReflections(userId(req)) });
     },
 
+    /** Encrypted versions preserved by exact-timestamp conflicts; decrypted only on the device. */
+    getReflectionConflicts: async (req: Request, res: Response) => {
+      res.json({ success: true, data: await repository.listReflectionConflicts(userId(req)) });
+    },
+
     putReflections: async (req: Request, res: Response) => {
       const parsed = putReflectionsSchema.safeParse(req.body);
       if (!parsed.success) throw new AppError('Invalid reflections payload.', 400);
