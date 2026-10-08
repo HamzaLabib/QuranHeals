@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import {
-  ActivityIndicator,
   Keyboard,
   KeyboardAvoidingView,
   Modal,
@@ -21,7 +20,7 @@ import {
   useFreshProviderCredential,
 } from '@/auth/reauthentication';
 import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
-import { usePalette, useThemedStyles } from '@/theme/useTheme';
+import { useThemedStyles } from '@/theme/useTheme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { SyncApiError } from '@/sync/syncApi';
@@ -85,7 +84,6 @@ function SyncPassphraseForm({
   accountProvider,
 }: SyncPassphraseSheetProps & { request: NonNullable<PassphraseRequestLike> }) {
   const styles = useThemedStyles(makeSyncPasswordStyles);
-  const colors = usePalette();
   const { locale, messages } = useAppLocale();
   const direction = getDirectionStyle(locale);
   const isRtl = isRtlLocale(locale);
@@ -282,11 +280,7 @@ function SyncPassphraseForm({
                     disabled={!canSubmit}
                     onPress={submit}
                     style={({ pressed }) => [styles.primaryButton, !canSubmit && styles.disabled, pressed && styles.pressed]}>
-                    {/* While the password is still being checked (the KDF takes a moment), Continue shows it is waiting rather than looking broken. */}
-                    <View style={[styles.buttonContent, isRtl && styles.actionsRtl]}>
-                      {checking && <ActivityIndicator size="small" color={colors.onPrimaryButton} />}
-                      <Text style={styles.primaryButtonText}>{submitLabel}</Text>
-                    </View>
+                    <Text style={styles.primaryButtonText}>{submitLabel}</Text>
                   </Pressable>
                 </View>
               </ScrollView>
@@ -386,11 +380,6 @@ export const makeSyncPasswordStyles = (colors: Palette) => StyleSheet.create({
   },
   disabled: {
     opacity: 0.5,
-  },
-  buttonContent: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: spacing.sm,
   },
   primaryButtonText: {
     color: colors.onPrimaryButton,

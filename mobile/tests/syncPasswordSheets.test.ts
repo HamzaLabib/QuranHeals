@@ -169,18 +169,46 @@ describe('unlock', () => {
     expect(button('Continue').props.disabled).toBe(true);
   });
 
-  it('shows a busy Continue while checking, without enabling it early', async () => {
+  it('keeps Continue disabled with its normal label and no spinner while checking', async () => {
     let finish!: (valid: boolean) => void;
-    await renderUnlock(vi.fn(() => new Promise<boolean>(resolve => { finish = resolve; })));
+    const verify = vi.fn(() => new Promise<boolean>(resolve => { finish = resolve; }));
+    const props = await renderUnlock(verify);
+    const label = () => JSON.stringify(button('Continue').findAllByType('Text' as never).map(node => node.props.children));
     expect(spinners()).toBe(0);
     await type('Password', 'correct');
-    expect(spinners()).toBe(1);
-    expect(button('Continue').props.accessibilityState).toEqual({ disabled: true, busy: true });
     await verifyPending();
+    expect(verify).toHaveBeenCalledOnce();
+    expect(verify).toHaveBeenCalledWith('correct');
+    expect(spinners()).toBe(0);
+    expect(label()).toBe('["Continue"]');
+    expect(JSON.stringify(root.toJSON())).not.toContain(MESSAGES.en.syncPassphrase.verifying);
     expect(button('Continue').props.disabled).toBe(true);
+    expect(button('Continue').props.accessibilityState).toEqual({ disabled: true, busy: true });
+    // A tap while the check is still running submits nothing.
+    await act(async () => button('Continue').props.onPress());
+    await act(async () => button('Continue').props.onPress());
+    expect(props.onSubmit).not.toHaveBeenCalled();
     await act(async () => finish(true));
     expect(spinners()).toBe(0);
+    expect(label()).toBe('["Continue"]');
     expect(button('Continue').props.accessibilityState).toEqual({ disabled: false, busy: false });
+    await act(async () => button('Continue').props.onPress());
+    await act(async () => button('Continue').props.onPress());
+    expect(props.onSubmit).toHaveBeenCalledOnce();
+    expect(props.onSubmit).toHaveBeenCalledWith('correct');
+  });
+
+  it('keeps Continue disabled with no spinner after a wrong password finishes checking', async () => {
+    let finish!: (valid: boolean) => void;
+    const props = await renderUnlock(vi.fn(() => new Promise<boolean>(resolve => { finish = resolve; })));
+    await type('Password', 'wrong'); await verifyPending();
+    expect(spinners()).toBe(0);
+    await act(async () => finish(false));
+    expect(spinners()).toBe(0);
+    expect(button('Continue').props.disabled).toBe(true);
+    expect(button('Continue').props.accessibilityState).toEqual({ disabled: true, busy: false });
+    await act(async () => button('Continue').props.onPress());
+    expect(props.onSubmit).not.toHaveBeenCalled();
   });
 });
 
