@@ -41,9 +41,16 @@ export const MASTER_KEY_LENGTH_BYTES = 32;
 export const NONCE_LENGTH_BYTES = 24; // XChaCha20's extended nonce.
 export const SALT_LENGTH_BYTES = 16;
 
-// OWASP's 2023 minimum recommendation for PBKDF2-HMAC-SHA256. Only paid
-// once per device per sign-in (to unwrap the master key), not per
-// reflection save, so this cost is acceptable.
+// Work factor for NEWLY wrapped keys (setup, password change). PBKDF2 here is
+// HMAC-SHA256. 210,000 is OWASP's former figure for PBKDF2-HMAC-SHA512, not
+// SHA256; OWASP's Password Storage Cheat Sheet currently recommends 600,000
+// for PBKDF2-HMAC-SHA256, so this is below current guidance. It matters
+// because the backend (or anyone holding its database) can brute-force the
+// wrapped key offline. Each wrapped key stores its own kdfIterations and
+// unwrap always uses that stored value, so raising this affects only keys
+// wrapped afterwards — see docs/auth-and-sync/reflection-privacy.md
+// ("Work factor") for the pending, device-benchmark-gated increase. Paid once
+// per device per unlock, never per reflection.
 export const DEFAULT_KDF_ITERATIONS = 210_000;
 
 /** Real randomness always comes from mobile/src/crypto/randomBytes.ts (expo-crypto); tests inject Node's crypto.randomBytes. Never a Math.random()-backed source. */

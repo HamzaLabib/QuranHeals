@@ -1,10 +1,19 @@
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+
 import { describe, expect, it } from 'vitest';
-import { compareExisting, corpusChecksum, loadCorpus, parseTextExport, validateCorpus, validateMappings } from '../../src/import/fullQuran';
+import { compareExisting, corpusChecksum, dataDirectory, loadCorpus, parseTextExport, validateCorpus, validateMappings } from '../../src/import/fullQuran';
 import { seedAyahs } from '../../src/seed/ayahs';
 import { seedEmotions } from '../../src/seed/emotions';
 import { buildFoundationSeedData } from '../../src/seed/foundation';
 import { sha256Utf8 } from '../../src/utils/checksum';
 
+// The two Tanzil files are gitignored third-party sources. Fail with the fix
+// instead of a bare ENOENT; the suite itself (and its pins) is unchanged.
+const missing = ['quran-data.xml', 'en.pickthall.txt'].filter((file) => !existsSync(resolve(dataDirectory, file)));
+if (missing.length > 0) {
+  throw new Error(`Missing pinned Tanzil source file(s) in backend/data/quran: ${missing.join(', ')}. Run \`npm run quran:restore-sources\` in backend/ (hash-verified; see backend/data/quran/README.md).`);
+}
 const source = loadCorpus();
 const seed = buildFoundationSeedData(seedAyahs);
 const snapshot = { verses: source.verses, versetranslations: source.translations, emotions: seedEmotions, emotionversemappings: seed.mappings };

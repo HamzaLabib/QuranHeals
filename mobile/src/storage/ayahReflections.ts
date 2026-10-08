@@ -31,6 +31,13 @@ export type AyahReflection = {
   updatedAt: number;
   /** Present only once a signed-in device has attempted to sync this reflection at least once. Absent for a purely local/guest reflection. */
   syncState?: SyncState;
+  /**
+   * For an unsynced edit: the timestamp of the synced version it was made
+   * on top of (see syncBaseOf). Lets sync tell a change made after seeing
+   * the cloud's version from one made concurrently with another device's.
+   * Absent for new reflections and for data from before this field existed.
+   */
+  baseUpdatedAt?: number;
 };
 
 /**
@@ -49,6 +56,8 @@ export type ReflectionTombstone = {
   verseKey: string;
   deletedAt: number;
   syncState?: SyncState;
+  /** See AyahReflection.baseUpdatedAt. */
+  baseUpdatedAt?: number;
 };
 
 type ReflectionEntry = AyahReflection | ReflectionTombstone;
@@ -173,11 +182,12 @@ export function saveReflection(verseKey: string, text: string, now: number = Dat
     const map = await readRawReflections(key);
     const trimmed = text.trim().slice(0, REFLECTION_MAX_LENGTH);
     const existing = map[verseKey];
+    const base = syncBaseOf(existing);
 
     if (trimmed.length === 0) {
       if (!existing || !isActiveReflection(existing)) return null;
 
-      const tombstone: ReflectionTombstone = { verseKey, deletedAt: now, syncState: 'pending' };
+      const tombstone: ReflectionTombstone = { verseKey, deletedAt: now, syncState: 'pending', ...(base !== undefined ? { baseUpdatedAt: base } : {}) };
       await AsyncStorage.setItem(key, JSON.stringify({ ...map, [verseKey]: tombstone }));
       return null;
     }
@@ -192,6 +202,7 @@ export function saveReflection(verseKey: string, text: string, now: number = Dat
       // so sync re-uploads this write, including a tombstone-superseding
       // recreation.
       syncState: existing ? 'pending' : undefined,
+      ...(base !== undefined ? { baseUpdatedAt: base } : {}),
     };
 
     await AsyncStorage.setItem(key, JSON.stringify({ ...map, [verseKey]: reflection }));
@@ -200,30 +211,73 @@ export function saveReflection(verseKey: string, text: string, now: number = Dat
 }
 
 /**
+ * Sync works from a snapshot read when it started. `expectedLocalTimestamp`
+ * is that snapshot's timestamp for the verseKey (null: no entry then); when
+ * given, a write only applies if the entry is still exactly that one, so a
+ * reflection the user saved or deleted while sync was running is never
+ * overwritten or mislabelled — the next sync handles it. Undefined skips the
+ * check.
+ */
+function stillAsSnapshotted(entry: ReflectionEntry | undefined, expectedLocalTimestamp: number | null | undefined): boolean {
+  if (expectedLocalTimestamp === undefined) return true;
+  return (entry ? entryTimestamp(entry) : null) === expectedLocalTimestamp;
+}
+
+/**
  * Marks a reflection OR tombstone's syncState after a sync attempt — used
  * only by mobile/src/sync/reflectionsSync.ts, never by the reflection UI
  * directly. A tombstone is never erased after a successful sync (only its
  * syncState changes) — see ReflectionTombstone's doc comment.
  */
-export function markReflectionSyncState(verseKey: string, syncState: SyncState, ownerUserId?: string | null): Promise<void> {
+export function markReflectionSyncState(
+  verseKey: string,
+  syncState: SyncState,
+  ownerUserId?: string | null,
+  expectedLocalTimestamp?: number | null,
+): Promise<void> {
+  return mutate(async () => {
+    const key = await storageKey(ownerUserId);
+    const map = await readRawReflections(key);
+    const existing = map[verseKey];
+    if (!existing || !stillAsSnapshotted(existing, expectedLocalTimestamp)) return;
+    await AsyncStorage.setItem(key, JSON.stringify({ ...map, [verseKey]: { ...existing, syncState } }));
+  });
+}
+
+/**
+ * After the server stored exactly the entry this device uploaded (its
+ * timestamp is `uploadedTimestamp`): marks it synced, or — if the user has
+ * changed it since — records the uploaded version as the base of that newer
+ * edit, since it was made on top of what is now the cloud's version. Used
+ * only by mobile/src/sync/reflectionsSync.ts.
+ */
+export function markReflectionUploaded(verseKey: string, uploadedTimestamp: number, ownerUserId?: string | null): Promise<void> {
   return mutate(async () => {
     const key = await storageKey(ownerUserId);
     const map = await readRawReflections(key);
     const existing = map[verseKey];
     if (!existing) return;
-    await AsyncStorage.setItem(key, JSON.stringify({ ...map, [verseKey]: { ...existing, syncState } }));
+    const next = entryTimestamp(existing) === uploadedTimestamp
+      ? { ...existing, syncState: 'synced' as const }
+      : existing.syncState === 'synced'
+        ? existing
+        : { ...existing, baseUpdatedAt: uploadedTimestamp };
+    if (next === existing) return;
+    await AsyncStorage.setItem(key, JSON.stringify({ ...map, [verseKey]: next }));
   });
 }
 
-/** Upserts a reflection downloaded (and decrypted) from the cloud, or created locally from a merge — used only by mobile/src/sync/reflectionsSync.ts. Overwrites any local tombstone for this verseKey, since the cloud's active record is newer (recreation). */
-export function putReflectionFromSync(reflection: AyahReflection, ownerUserId?: string | null): Promise<void> {
+/** Upserts a reflection downloaded (and decrypted) from the cloud, or created locally from a merge — used only by mobile/src/sync/reflectionsSync.ts. Overwrites any local tombstone for this verseKey, since the cloud's active record is newer (recreation). Resolves false when skipped (see stillAsSnapshotted). */
+export function putReflectionFromSync(reflection: AyahReflection, ownerUserId?: string | null, expectedLocalTimestamp?: number | null): Promise<boolean> {
   return mutate(async () => {
     const key = await storageKey(ownerUserId);
     const map = await readRawReflections(key);
+    if (!stillAsSnapshotted(map[reflection.verseKey], expectedLocalTimestamp)) return false;
     await AsyncStorage.setItem(
       key,
       JSON.stringify({ ...map, [reflection.verseKey]: { ...reflection, syncState: 'synced' as const } }),
     );
+    return true;
   });
 }
 
@@ -249,10 +303,12 @@ export function putTombstoneFromSync(
     deletedAt: number;
   },
   ownerUserId?: string | null,
-): Promise<void> {
+  expectedLocalTimestamp?: number | null,
+): Promise<boolean> {
   return mutate(async () => {
     const key = await storageKey(ownerUserId);
     const map = await readRawReflections(key);
+    if (!stillAsSnapshotted(map[tombstone.verseKey], expectedLocalTimestamp)) return false;
     const next: ReflectionTombstone = {
       verseKey: tombstone.verseKey,
       deletedAt: tombstone.deletedAt,
@@ -266,11 +322,25 @@ export function putTombstoneFromSync(
         [tombstone.verseKey]: next,
       }),
     );
+    return true;
   });
 }
 
 function entryTimestamp(entry: ReflectionEntry): number {
   return isActiveReflection(entry) ? entry.updatedAt : entry.deletedAt;
+}
+
+/**
+ * The cloud version a local entry is known to be based on: its own
+ * timestamp once synced (a synced entry equals the cloud's), otherwise the
+ * base recorded when it was edited. Undefined when unknown (a new
+ * reflection, guest data, or data from before bases were recorded) — sync
+ * then treats any different cloud version as concurrent and keeps both.
+ */
+export function syncBaseOf(entry: ReflectionEntry | undefined): number | undefined {
+  if (!entry) return undefined;
+  if (entry.syncState === 'synced') return entryTimestamp(entry);
+  return typeof entry.baseUpdatedAt === 'number' && Number.isFinite(entry.baseUpdatedAt) ? entry.baseUpdatedAt : undefined;
 }
 
 /**
@@ -329,7 +399,7 @@ export function markAllReflectionsPending(ownerUserId: string): Promise<void> {
     const next: ReflectionMap = {};
     for (const [verseKey, entry] of Object.entries(map)) {
       if (entry.syncState === 'synced') {
-        next[verseKey] = { ...entry, syncState: 'pending' };
+        next[verseKey] = { ...entry, syncState: 'pending', baseUpdatedAt: entryTimestamp(entry) };
         changed = true;
       } else {
         next[verseKey] = entry;

@@ -28,6 +28,7 @@ import type {
   FavoriteSyncRecordDto,
   IssueReportInput,
   PreferencesDto,
+  ReflectionConflictDto,
   ReflectionSyncRecordDto,
   SyncKeyDto,
   UserDto,
@@ -303,6 +304,12 @@ export class InMemorySyncRepository implements SyncRepository {
 
   async listReflections(userId: string): Promise<ReflectionSyncRecordDto[]> {
     return [...(this.reflectionsByUser.get(userId)?.values() ?? [])];
+  }
+
+  async listReflectionConflicts(userId: string): Promise<ReflectionConflictDto[]> {
+    return [...(this.reflectionsByUser.get(userId)?.values() ?? [])]
+      .filter((stored): stored is Extract<StoredReflection, { type: 'active' }> => stored.type === 'active' && stored.conflictVersions.length > 0)
+      .map((stored) => ({ verseKey: stored.verseKey, conflictVersions: stored.conflictVersions.map((version) => ({ ...version })) }));
   }
 
   async putReflections(userId: string, records: IncomingReflectionRecord[]): Promise<PutReflectionsResult> {

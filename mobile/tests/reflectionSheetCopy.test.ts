@@ -28,6 +28,9 @@ vi.mock('@/auth/useAuth', () => ({ useAuth: () => ({ status: state.status }) }))
 vi.mock('@/storage/ayahReflections', () => ({
   getReflection: state.getReflection, saveReflection: state.saveReflection, REFLECTION_MAX_LENGTH: 2000,
 }));
+// No other versions to review in these copy tests (see reflectionConflictRecovery.test.ts).
+vi.mock('@/storage/reflectionConflicts', () => ({ getConflictVersionsFor: async () => [], resolveConflictVersions: async () => undefined }));
+vi.mock('expo-clipboard', () => ({ setStringAsync: vi.fn() }));
 
 import { ReflectionSheet } from '@/components/ReflectionSheet';
 

@@ -157,17 +157,15 @@ describe('Legacy (Ayah) path never reads its own inline translation fields', () 
     vi.spyOn(AyahModel, 'aggregate').mockResolvedValue([legacyAyah]);
   });
 
-  it('returns the verified translation for a random-by-emotion request via the legacy path, not the wrong inline text', async () => {
+  it('never serves a legacy Ayah document for a random-by-emotion request (D11: no unreviewed fallback)', async () => {
     const app = createApp({ repository: new MongooseQuranRepository() });
-    const response = await request(app).get('/api/ayahs/random?emotion=sad').expect(200);
+    const response = await request(app).get('/api/ayahs/random?emotion=sad').expect(404);
 
-    expect(response.body.data.englishTranslation).toBe(getVerifiedTranslationByVerseKey('2:153'));
-    expect(response.body.data.englishTranslation).not.toBe(WRONG_MONGO_TRANSLATION);
-    expect(response.body.data.translationSource).toBe(VERIFIED_TRANSLATION_SOURCE);
-    expect(response.body.data.translationSource).not.toBe('WRONG_SOURCE');
+    expect(JSON.stringify(response.body)).not.toContain(WRONG_MONGO_TRANSLATION);
+    expect(AyahModel.aggregate).not.toHaveBeenCalled();
   });
 
-  it('returns the verified translation for a by-verseKey request via the legacy path, not the wrong inline text', async () => {
+  it('returns the verified translation for a by-verseKey request of a legacy-seeded verse, not the wrong inline text', async () => {
     const app = createApp({ repository: new MongooseQuranRepository() });
     const response = await request(app).get('/api/ayahs/2:153').expect(200);
 

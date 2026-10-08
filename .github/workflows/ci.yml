@@ -37,18 +37,12 @@ jobs:
       # Tanzil files kept out of git (see .gitignore and
       # backend/data/quran/README.md). tests/quran-data/full-quran.test.ts
       # loads them via loadCorpus(), which also enforces the SHA-256 pins in
-      # src/import/fullQuran.ts. The XML is restored from the tracked,
-      # byte-identical copy; the Pickthall export is fetched from the URL in
-      # retrieval.json. Both are hash-checked here so drift fails loudly.
+      # src/import/fullQuran.ts. The script copies the XML from the tracked,
+      # byte-identical copy, downloads the Pickthall export from the URL in
+      # retrieval.json, and refuses any file whose hash differs (same steps
+      # developers run locally). Node built-ins only, so it runs before npm ci.
       - name: Restore pinned Tanzil source files
-        run: |
-          cp ../tools/quran-verification/input/quran-data.xml data/quran/quran-data.xml
-          curl -fsSL --retry 3 --retry-all-errors --max-time 60 \
-            -o data/quran/en.pickthall.txt https://tanzil.net/trans/en.pickthall
-          sha256sum -c - <<'EOF'
-          8867c1d88191472adec9db694b3cd9f135b1a2ef580574d32cf888dcb22c5c7a  data/quran/quran-data.xml
-          4aabbfa9d96796f5a6b0217d2c39dce1a3084f772bf6f2650e37082a774e3cc7  data/quran/en.pickthall.txt
-          EOF
+        run: node scripts/restore-quran-sources.mjs
 
       - run: npm ci
       - run: npm run typecheck

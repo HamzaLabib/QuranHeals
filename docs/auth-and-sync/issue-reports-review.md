@@ -63,6 +63,12 @@ reflection text/ciphertext, device identifiers, IP addresses, auth tokens,
 encryption keys, or sync passphrases. See
 `backend/tests/account/issues.test.ts` for the tests that lock this in.
 
+## Abuse limits and retention
+
+- `POST /api/issues` is limited to 10 reports per hour per IP address (on top of the global limit); see `docs/backend-operations.md#rate-limits`.
+- Reports, including any email a user typed, are currently kept indefinitely. The privacy policy draft commits to a retention period that still has to be chosen and enforced (`docs/legal/README.md`, decision 4). Enforcing it with a TTL index deletes existing production documents, so it needs explicit approval first.
+- A user can ask for a report to be deleted; reports are not linked to accounts, so find it by the email or details they give.
+
 ## If you need to change review workflow later
 
 Anything beyond manual Atlas review (statuses beyond `new`, an admin

@@ -96,6 +96,8 @@ export type Messages = {
     statusPendingSync: string;
     statusSynced: string;
     openReflectionLabel: string;
+    otherVersionBadge: string;
+    recoveredBadge: string;
   };
   translation: {
     showTranslation: string;
@@ -120,6 +122,13 @@ export type Messages = {
     translationDisplayOnDemandHint: string;
     translationDisplayOffHint: string;
     quranArabicNote: string;
+    /** "Privacy & legal" section. Each row appears only when its public page URL is configured (constants/legalLinks.ts). */
+    legalSection: string;
+    privacyPolicy: string;
+    termsOfUse: string;
+    accountDeletionInfo: string;
+    /** Accessibility hint: the row opens a web page outside the app. */
+    opensInBrowser: string;
   };
   appearance: {
     sectionLabel: string;
@@ -178,6 +187,20 @@ export type Messages = {
     deleteConfirmConfirm: string;
     deleteError: string;
     saveError: string;
+    /** Other versions kept by sync when the same reflection changed on two devices (storage/reflectionConflicts.ts). */
+    otherVersionsTitle: string;
+    otherVersionsHint: string;
+    otherVersionThisDevice: string;
+    otherVersionOtherDevice: string;
+    otherVersionDeletedElsewhere: string;
+    useOtherVersion: string;
+    addOtherVersion: string;
+    copyOtherVersion: string;
+    copiedOtherVersion: string;
+    discardOtherVersion: string;
+    discardOtherVersionTitle: string;
+    discardOtherVersionMessage: string;
+    otherVersionTooLong: string;
   };
   /** Asked when signing in with favorites/reflections saved on this device as a guest (see GuestDataSheet.tsx). */
   guestData: {
@@ -333,6 +356,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       statusPendingSync: 'Pending sync',
       statusSynced: 'Synced',
       openReflectionLabel: 'Open reflection for',
+      otherVersionBadge: 'Another version to review',
+      recoveredBadge: 'No current reflection, but another version was kept. Tap to review',
     },
     translation: {
       showTranslation: 'Show translation',
@@ -357,6 +382,11 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       translationDisplayOnDemandHint: 'Arabic is shown first; tap to reveal the translation.',
       translationDisplayOffHint: 'Arabic only. The translation is never shown.',
       quranArabicNote: 'The Arabic Quran is always shown — this setting only affects the English translation.',
+      legalSection: 'Privacy & Legal',
+      privacyPolicy: 'Privacy Policy',
+      termsOfUse: 'Terms of Use',
+      accountDeletionInfo: 'How to delete your account',
+      opensInBrowser: 'Opens in your browser',
     },
     appearance: {
       sectionLabel: 'Appearance',
@@ -413,6 +443,19 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       deleteConfirmConfirm: 'Delete',
       deleteError: 'Your reflection could not be deleted. Please try again.',
       saveError: "Your reflection couldn't be saved. Please try again.",
+      otherVersionsTitle: 'Another version of this reflection',
+      otherVersionsHint: 'This reflection was changed on more than one device before they synced. Nothing was deleted: choose what to keep, then tap Save.',
+      otherVersionThisDevice: 'Written on this device',
+      otherVersionOtherDevice: 'From another device',
+      otherVersionDeletedElsewhere: 'Written on this device before it was deleted on another device',
+      useOtherVersion: 'Use this version',
+      addOtherVersion: 'Add to my text',
+      copyOtherVersion: 'Copy',
+      copiedOtherVersion: 'Copied',
+      discardOtherVersion: 'Discard',
+      discardOtherVersionTitle: 'Discard this version?',
+      discardOtherVersionMessage: 'This text will be removed from this device. This cannot be undone.',
+      otherVersionTooLong: 'Too long to add to your text. Copy it instead.',
     },
     guestData: {
       title: "Add your local data to this account?",
@@ -558,6 +601,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       statusPendingSync: 'بانتظار التحديث',
       statusSynced: 'تم التحديث',
       openReflectionLabel: 'فتح الخاطرة الخاصة بـ',
+      otherVersionBadge: 'توجد نسخة أخرى للمراجعة',
+      recoveredBadge: 'لا توجد خاطرة حالية، لكن احتُفظ بنسخة أخرى. اضغط للمراجعة',
     },
     translation: {
       showTranslation: 'إظهار الترجمة',
@@ -582,6 +627,11 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       translationDisplayOnDemandHint: 'يظهر النص العربي أولًا، ويمكنك إظهار الترجمة متى شئت.',
       translationDisplayOffHint: 'النص العربي فقط. لن تظهر الترجمة.',
       quranArabicNote: 'يظهر القرآن بالعربية دائمًا — هذا الإعداد يؤثر فقط على الترجمة الإنجليزية.',
+      legalSection: 'الخصوصية والشروط',
+      privacyPolicy: 'سياسة الخصوصية',
+      termsOfUse: 'شروط الاستخدام',
+      accountDeletionInfo: 'كيفية حذف حسابك',
+      opensInBrowser: 'تُفتح في المتصفح',
     },
     appearance: {
       sectionLabel: 'المظهر',
@@ -642,6 +692,19 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       deleteConfirmConfirm: 'حذف',
       deleteError: 'تعذّر حذف خاطرتك. يُرجى المحاولة مرة أخرى.',
       saveError: 'تعذّر حفظ خاطرتك. يُرجى المحاولة مرة أخرى.',
+      otherVersionsTitle: 'نسخة أخرى من هذه الخاطرة',
+      otherVersionsHint: 'عُدِّلت هذه الخاطرة على أكثر من جهاز قبل تحديثها بينها. لم يُحذف شيء: اختر ما تريد الاحتفاظ به، ثم اضغط حفظ.',
+      otherVersionThisDevice: 'كُتبت على هذا الجهاز',
+      otherVersionOtherDevice: 'من جهاز آخر',
+      otherVersionDeletedElsewhere: 'كُتبت على هذا الجهاز قبل حذفها على جهاز آخر',
+      useOtherVersion: 'استخدم هذه النسخة',
+      addOtherVersion: 'أضفها إلى نصّي',
+      copyOtherVersion: 'نسخ',
+      copiedOtherVersion: 'تم النسخ',
+      discardOtherVersion: 'تجاهل',
+      discardOtherVersionTitle: 'تجاهل هذه النسخة؟',
+      discardOtherVersionMessage: 'سيُزال هذا النص من هذا الجهاز، ولا يمكن التراجع عن ذلك.',
+      otherVersionTooLong: 'النص أطول من أن يُضاف إلى نصّك. انسخه بدلًا من ذلك.',
     },
     guestData: {
       title: "إضافة بياناتك المحلية إلى هذا الحساب؟",
@@ -797,6 +860,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       statusPendingSync: 'بانتظار التحديث',
       statusSynced: 'تم التحديث',
       openReflectionLabel: 'فتح الخاطرة الخاصة بـ',
+      otherVersionBadge: 'توجد نسخة أخرى للمراجعة',
+      recoveredBadge: 'لا توجد خاطرة حالية، لكن احتُفظ بنسخة أخرى. اضغط للمراجعة',
     },
     translation: {
       showTranslation: 'عرض الترجمة',
@@ -821,6 +886,11 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       translationDisplayOnDemandHint: 'يظهر النص العربي أولًا، ويمكنك إظهار الترجمة متى شئت.',
       translationDisplayOffHint: 'النص العربي فقط. لن تظهر الترجمة.',
       quranArabicNote: 'يظهر القرآن بالعربية دائمًا — هذا الإعداد يؤثر فقط على الترجمة الإنجليزية.',
+      legalSection: 'الخصوصية والشروط',
+      privacyPolicy: 'سياسة الخصوصية',
+      termsOfUse: 'شروط الاستخدام',
+      accountDeletionInfo: 'كيفية حذف حسابك',
+      opensInBrowser: 'تُفتح في المتصفح',
     },
     appearance: {
       sectionLabel: 'المظهر',
@@ -885,6 +955,19 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       deleteConfirmConfirm: 'حذف',
       deleteError: 'تعذّر حذف خاطرتك. يُرجى المحاولة مرة أخرى.',
       saveError: 'تعذّر حفظ خاطرتك. يُرجى المحاولة مرة أخرى.',
+      otherVersionsTitle: 'نسخة أخرى من هذه الخاطرة',
+      otherVersionsHint: 'عُدِّلت هذه الخاطرة على أكثر من جهاز قبل تحديثها بينها. لم يُحذف شيء: اختر ما تريد الاحتفاظ به، ثم اضغط حفظ.',
+      otherVersionThisDevice: 'كُتبت على هذا الجهاز',
+      otherVersionOtherDevice: 'من جهاز آخر',
+      otherVersionDeletedElsewhere: 'كُتبت على هذا الجهاز قبل حذفها على جهاز آخر',
+      useOtherVersion: 'استخدم هذه النسخة',
+      addOtherVersion: 'أضفها إلى نصّي',
+      copyOtherVersion: 'نسخ',
+      copiedOtherVersion: 'تم النسخ',
+      discardOtherVersion: 'تجاهل',
+      discardOtherVersionTitle: 'تجاهل هذه النسخة؟',
+      discardOtherVersionMessage: 'سيُزال هذا النص من هذا الجهاز، ولا يمكن التراجع عن ذلك.',
+      otherVersionTooLong: 'النص أطول من أن يُضاف إلى نصّك. انسخه بدلًا من ذلك.',
     },
     // Sync Password copy is a security-sensitive flow — intentionally
     // byte-identical to `ar`'s Standard Arabic (Part 9 of the mandatory

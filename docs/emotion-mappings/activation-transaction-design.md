@@ -143,6 +143,9 @@ several deliberately-broken cases).
 ## Explicitly out of scope for this document
 
 - No estimate of *when* activation happens — that is a separate decision.
+- > **Update (October 2026, D6):** done. `userVisibleMappingStatuses` is now
+  > environment-aware: production serves `approved` only; development/test keep
+  > `development`/`reviewed` for editorial preview. See `docs/backend-operations.md`.
 - **Approved-only API visibility is a separate immediate post-activation
   step.** `MongooseQuranRepository`'s `userVisibleMappingStatuses` is
   currently `['development', 'reviewed', 'approved']` — unchanged by this

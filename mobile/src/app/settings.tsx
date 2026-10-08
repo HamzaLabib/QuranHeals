@@ -1,11 +1,12 @@
 import { router } from 'expo-router';
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react-native';
+import { ArrowLeft, ArrowRight, Check, ExternalLink } from 'lucide-react-native';
 import { useCallback, useRef, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/useAuth';
 import { AccountSection } from '@/components/AccountSection';
+import { getLegalLinks } from '@/constants/legalLinks';
 import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { APP_LOCALES, APP_LOCALE_DISPLAY_NAMES, getDirectionStyle, isRtlLocale } from '@/localization/locales';
@@ -18,6 +19,8 @@ import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefres
 
 const TRANSLATION_DISPLAY_MODES: readonly TranslationDisplayMode[] = ['always', 'on-demand', 'off'];
 const APPEARANCE_MODES: readonly AppearanceMode[] = ['system', 'light', 'dark'];
+// Only links configured for this build (constants/legalLinks.ts); none → no section.
+const LEGAL_LINKS = getLegalLinks();
 
 export default function SettingsScreen() {
   const colors = usePalette();
@@ -149,6 +152,27 @@ export default function SettingsScreen() {
         </View>
 
         <AccountSection locale={locale} messages={messages} direction={direction} isRtl={isRtl} />
+
+        {LEGAL_LINKS.length > 0 && (
+          <View style={styles.section}>
+            <Text style={[styles.sectionLabel, direction]}>{messages.settings.legalSection}</Text>
+            <View style={styles.optionList}>
+              {LEGAL_LINKS.map(({ key, url }) => (
+                <LinkRow
+                  key={key}
+                  label={messages.settings[key]}
+                  hint={messages.settings.opensInBrowser}
+                  onPress={() => {
+                    Linking.openURL(url).catch(() => {
+                      // Best-effort external link, like AyahCard's "Read in Quran".
+                    });
+                  }}
+                  direction={direction}
+                />
+              ))}
+            </View>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -188,6 +212,34 @@ function OptionRow({ label, hint, selected, onPress, direction }: OptionRowProps
         {hint && <Text style={[styles.optionHint, direction]}>{hint}</Text>}
       </View>
       {selected && <Check size={20} color={colors.accent} strokeWidth={2.5} />}
+    </Pressable>
+  );
+}
+
+type LinkRowProps = {
+  label: string;
+  hint: string;
+  onPress: () => void;
+  direction: { writingDirection: 'ltr' | 'rtl'; textAlign: 'left' | 'right' };
+};
+
+/** Same row as OptionRow, for a link that leaves the app (external-link icon instead of a checkmark). */
+function LinkRow({ label, hint, onPress, direction }: LinkRowProps) {
+  const colors = usePalette();
+  const styles = useThemedStyles(makeStyles);
+  const isRtl = direction.writingDirection === 'rtl';
+
+  return (
+    <Pressable
+      accessibilityRole="link"
+      accessibilityLabel={label}
+      accessibilityHint={hint}
+      onPress={onPress}
+      style={({ pressed }) => [styles.optionRow, isRtl && styles.optionRowRtl, pressed && styles.pressed]}>
+      <View style={styles.optionTextWrap}>
+        <Text style={[styles.optionLabel, direction]}>{label}</Text>
+      </View>
+      <ExternalLink size={18} color={colors.icon} />
     </Pressable>
   );
 }

@@ -230,7 +230,8 @@ follow-up, not implemented here).
 
 **Public identity.** `AyahDto.id` is now the stable `verseKey`
 ("`surah:ayah`"), never a Mongo ObjectId — for both the foundation
-(`EmotionVerseMapping`) path and the legacy `Ayah` collection path. `GET
+(`EmotionVerseMapping`) path and the legacy `Ayah` collection path (the latter
+was removed in October 2026, D11: the API no longer reads `Ayah`). `GET
 /api/ayahs/:id` and the `random?...&exclude=` list now take/return verseKeys;
 `backend/src/validators/ayahValidators.ts` validates them against the same
 6,236-key canonical set (`isValidVerseKey`) instead of Mongo's ObjectId

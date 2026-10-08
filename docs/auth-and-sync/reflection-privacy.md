@@ -35,10 +35,15 @@ access:
   Authenticated encryption — tampering with ciphertext or the nonce fails
   decryption loudly (`decryptReflectionText` throws) rather than silently
   returning corrupted plaintext.
-- **Key derivation**: PBKDF2-HMAC-SHA256 via `@noble/hashes`, 210,000
-  iterations by default (`DEFAULT_KDF_ITERATIONS` in
-  `mobile/src/crypto/reflectionEncryption.ts`) — meets the 2023 OWASP
-  minimum recommendation for PBKDF2-HMAC-SHA256.
+- **Key derivation**: PBKDF2-HMAC-SHA256, 210,000 iterations for newly
+  wrapped keys (`DEFAULT_KDF_ITERATIONS` in
+  `mobile/src/crypto/reflectionEncryption.ts`), computed natively when the
+  app binary includes the PBKDF2 module and with `@noble/hashes` otherwise
+  (identical output; see `mobile/src/crypto/pbkdf2.ts`). This is **below**
+  OWASP's current recommendation of 600,000 iterations for
+  PBKDF2-HMAC-SHA256; an earlier version of this document wrongly said it
+  met it (210,000 was OWASP's former figure for PBKDF2-HMAC-SHA512). See
+  "Work factor" below.
 - **Randomness**: `expo-crypto`'s `getRandomBytes` (a CSPRNG), used for
   every nonce, salt, and the master key itself. Never `Math.random()`.
 - Both libraries are maintained, widely used (they underpin much of the
@@ -64,7 +69,36 @@ The master key itself is never uploaded. Instead:
    salt, and the iteration count (`UserSyncKey` model,
    `backend/src/models/UserSyncKey.ts`). None of these three values, alone
    or together, let the backend recover the master key — that requires the
-   passphrase, which the backend never has.
+   passphrase, which the backend never has. They do allow **offline
+   guessing**: anyone holding the database can try passwords against the
+   wrapped key without rate limits. The PBKDF2 work factor and the
+   password's strength are what make that expensive (see "Work factor").
+
+### Work factor
+
+- Each wrapped key stores its own `kdfIterations`, and unwrapping always
+  uses that stored value. Changing `DEFAULT_KDF_ITERATIONS` therefore
+  affects only keys wrapped afterwards (new setups and password changes);
+  every existing key keeps unlocking exactly as before. Tests:
+  `mobile/tests/pbkdf2Compatibility.test.ts` and
+  `mobile/tests/reflectionEncryption.test.ts`.
+- The backend accepts 1,000–10,000,000 iterations
+  (`backend/src/validators/syncValidators.ts`), so an increase needs no
+  backend or format change, and app versions already installed can unlock
+  keys created with a higher count (they read it from the key; only slower).
+- **Pending: raise new keys to 600,000.** Gated on real-device timing of the
+  native PBKDF2 path on iOS and Android (use the `[pbkdf2]` timing logs —
+  `EXPO_PUBLIC_KDF_TIMING=1` — on a preview build). Not done yet because it
+  roughly triples derivation time and, without the native module (Expo Go,
+  builds from before it), the JS fallback would take tens of seconds.
+  Before raising it, also consider how long older installed builds would take
+  to unlock a 600,000-iteration key created on a newer device.
+- **Never** automatic: existing keys are not silently re-wrapped with new
+  parameters. Users who want the stronger setting can change their sync
+  password once the default is raised (password change re-wraps the same
+  master key; reflections are untouched). An opt-in "re-secure with the same
+  password" action would need a small new flow, since password change
+  currently requires a different password.
 
 ## 4. How a second device gets access
 
@@ -132,10 +166,48 @@ timestamp, compared across devices (`backend/src/services/MongooseSyncRepository
 `putReflections`). If two devices produce genuinely different ciphertext at
 the *exact same* timestamp (an ambiguous tie), both versions are kept — the
 losing version is appended to `conflictVersions` on the stored record
-rather than discarded (Part D §29). There is no UI yet for surfacing a
-conflict to the user for manual resolution; the data is preserved, but
-resolving it today would require reading `conflictVersions` directly. This
-is a known, disclosed limitation.
+rather than discarded (Part D §29).
+
+Last-write-wins decides which text is *current* on every device. Since
+October 2026 (D5) the text that loses is no longer discarded:
+
+- **Concurrent edits are detected on the device.** Each unsynced local
+  edit records the synced version it was based on (`baseUpdatedAt` in
+  `mobile/src/storage/ayahReflections.ts`). If the cloud now holds a
+  different version, the two changes were made without seeing each other.
+  `mobile/src/sync/reflectionsSync.ts` then keeps the losing text locally
+  before anything is uploaded or overwritten: this device's unsynced text
+  when the other device's change wins (including a newer deletion), or the
+  other device's text when this device's newer edit or deletion replaces it.
+  Sequential edits (made after seeing the other version) are unaffected.
+- **Server-preserved tie versions** are fetched with
+  `GET /api/sync/reflections/conflicts` (read-only, ciphertext only, the
+  caller's own account) and decrypted on the device.
+- **Kept versions** live in the account's local partition
+  (`mobile/src/storage/reflectionConflicts.ts`): plaintext, like every local
+  reflection, never uploaded, removed on account deletion, and invisible to
+  other accounts on the device.
+- **The user decides.** My Reflections marks affected ayahs ("Another version
+  to review", or "No current reflection, but another version was kept" when only the kept version
+  remains). The reflection editor shows each version with *Use this
+  version*, *Add to my text* (keep both; offered only when the result fits
+  the 2,000-character limit), *Copy* and *Discard* (with confirmation).
+  Nothing is written until the user taps Save, and the chosen text then
+  syncs as an ordinary encrypted edit. A version is marked handled only if
+  its text is actually in the saved reflection; otherwise it stays to
+  review. Deleting a reflection does not delete its kept versions; only
+  *Discard* (or account deletion) removes them.
+- **Edits during a sync are safe.** Sync writes downloaded versions and
+  "synced" labels only if the local entry is still the one it read when it
+  started, so a reflection saved or deleted while a sync runs is never
+  overwritten; the next sync handles it.
+
+Limits: a kept version exists on the device that detected the conflict,
+not on every device. Server `conflictVersions` are never deleted by the
+server; a version handled on one device is not offered again on that device
+but may be offered once on another. The first sync after upgrading may
+offer an older version of a reflection that was edited but not yet synced
+before the upgrade, because such edits have no recorded base.
 
 ## 8. Deletion tombstones
 

@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, type RequestHandler } from 'express';
 
 import type { AppleRevocationClient } from '../auth/appleRevocationClient';
 import type { AppleTokenVerifier } from '../auth/appleTokenVerifier';
@@ -18,6 +18,7 @@ export function createAccountRoutes(deps: {
   googleVerifier: GoogleTokenVerifier;
   appleVerifier: AppleTokenVerifier;
   requireAuth: ReturnType<typeof createRequireAuth>;
+  accountReauthLimiter: RequestHandler;
 }) {
   const router = Router();
   const controller = createAccountController(deps);
@@ -25,7 +26,7 @@ export function createAccountRoutes(deps: {
   // No :userId param — the account to delete comes only from the verified
   // session (requireAuth). The body only ever carries a fresh provider
   // credential, after a 428. See accountController.deleteAccount.
-  router.delete('/', deps.requireAuth, asyncHandler(controller.deleteAccount));
+  router.delete('/', deps.requireAuth, deps.accountReauthLimiter, asyncHandler(controller.deleteAccount));
 
   return router;
 }

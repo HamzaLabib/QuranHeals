@@ -15,11 +15,13 @@ All 6,236 strings must match after reading them back from SQLite.
 comparison artifacts and the 2,498 remaining review cases are preserved. They do
 not authorize an automatic text change or a canonical-source switch.
 
-**Runtime Arabic now comes from local SQLite.** The backend selects the mapped
-verse and supplies translation/editorial metadata and compatible Mongo IDs. The
-mobile app resolves `verseKey → exact Arabic text` locally before rendering or
-sharing, including saved favorites. Existing MongoDB Arabic fields and saved
-snapshots remain for compatibility; no destructive migration was performed.
+**Runtime Arabic and translation come from local SQLite.** The backend selects
+a mapped verse by its stable `verseKey` (e.g. `2:286`) and serves Arabic and
+English from its own copies of the verified SQLite assets
+(`backend/assets/quran/`). The mobile app resolves `verseKey → exact Arabic
+text` locally before rendering or sharing, including saved favorites. Existing
+MongoDB Arabic/translation fields remain only as unread legacy data; no
+destructive migration was performed.
 
 See the [SQLite build instructions](tools/quran-import/README.md),
 [runtime migration report](docs/quran-architecture/runtime-architecture.md), and
@@ -127,15 +129,15 @@ Create a MongoDB Atlas cluster, create a database user, allow your development I
 The backend uses Mongoose models for:
 
 - `Emotion`: active emotion categories and presentation metadata
-- `Verse`: existing runtime Arabic text copy, reference metadata, source/version, and checksum; pending separation from the immutable SQLite source
-- `VerseTranslation`: translation text and translator/source/license metadata for a verse
-- `EmotionVerseMapping`: editorial emotion-to-verse metadata with review status and rationale
-- `Ayah`: legacy MVP collection, including another Arabic text copy, kept temporarily for compatibility and migration safety
+- `EmotionVerseMapping`: editorial emotion-to-verse pairs with review status, rationale and the reviewed "how this ayah connects" text. Production serves `approved` mappings only; development also previews `development`/`reviewed` ones (see [docs/backend-operations.md](docs/backend-operations.md#which-mappings-the-api-serves))
+- `Verse`: optional enrichment (historical `quranTextSource`); its Arabic text is not read
+- `VerseTranslation`: legacy translation rows; not read at runtime (English comes from `translations.sqlite`)
+- `Ayah`: the original 16-document MVP seed; **not read by the API** since October 2026, kept in place pending an approved archival decision (see [docs/backend-operations.md](docs/backend-operations.md#legacy-ayahs-collection))
+- Account and sync data: `User`, `Session`, `UserFavorite`, `UserPreference`, `UserReflection` (ciphertext only), `UserSyncKey`, `AppleCredential`, plus `IssueReport` (see [docs/legal/README.md](docs/legal/README.md) for the full data inventory)
 
-These existing Arabic copies remain unchanged for runtime compatibility. MongoDB
-is not the intended canonical owner of Quran Arabic. The
-[migration checklist](docs/quran-architecture/sqlite-integration.md) covers reference validation,
-API compatibility, favorites and recent history before a runtime switch.
+MongoDB is not the canonical owner of Quran Arabic or translation text. The
+[migration checklist](docs/quran-architecture/sqlite-integration.md) records how
+the runtime switch to SQLite was validated.
 
 ## Database Seeding
 
@@ -153,7 +155,7 @@ cd backend
 npm run migrate:foundation
 ```
 
-The foundation migration is idempotent for local/development use. It preserves the small MVP dataset as existing `Verse` records, Pickthall `VerseTranslation` records, and separate `EmotionVerseMapping` records. This historical MongoDB migration does not generate or import the new SQLite corpus. Current emotion mappings are marked `development` until real editorial or scholarly review occurs.
+The foundation migration is idempotent for local/development use. It preserves the small MVP dataset as existing `Verse` records, Pickthall `VerseTranslation` records, and separate `EmotionVerseMapping` records. This historical MongoDB migration does not generate or import the new SQLite corpus. The MVP seed's mappings are marked `development`; the reviewed mapping set (2,013 approved pairs across 30 emotions, `backend/data/emotion-candidates/consolidated/approved-mappings-current.json`) is activated separately with the `mapping:*` scripts (see [docs/emotion-mappings/](docs/emotion-mappings/)).
 
 To update emotion mapping metadata locally without editing Qur'an text:
 
@@ -190,9 +192,11 @@ Then open the project in Expo Go, an emulator, or the web runner.
 GET /api/health
 GET /api/emotions
 GET /api/ayahs/random?emotion=sad
-GET /api/ayahs/random?emotion=sad&exclude=ayahId1,ayahId2
-GET /api/ayahs/:id
+GET /api/ayahs/random?emotion=sad&exclude=2:286,94:5
+GET /api/ayahs/:verseKey
 ```
+
+Ayah identifiers are verse keys (`surah:ayah`), never MongoDB ObjectIds. Signed-in endpoints (`/api/auth/*`, `/api/sync/*`, `DELETE /api/account`) and `POST /api/issues` are described in [docs/auth-and-sync/](docs/auth-and-sync/); endpoint rate limits are in [docs/backend-operations.md](docs/backend-operations.md#rate-limits).
 
 Successful responses use:
 
@@ -218,6 +222,7 @@ Backend:
 
 ```bash
 cd backend
+npm run quran:restore-sources   # once per checkout: hash-verified Tanzil files for the full-corpus suite
 npm run typecheck
 npm test
 ```
@@ -228,6 +233,7 @@ Mobile:
 cd mobile
 npm run lint
 npm run typecheck
+npm test
 ```
 
 ## Qur'an Data Integrity Rules
@@ -246,7 +252,7 @@ For immutable Quran source, generator and complete SQLite equality checks, see
 - Checksums are SHA-256 over the exact stored UTF-8 text values.
 - Replace or expand seed data only from trusted verified sources.
 
-The current seed includes source metadata for Quran.com/Tanzil-style Arabic references and public-domain Pickthall translation metadata for development. Before App Store or Google Play release, perform a formal scholarly and licensing review of the full production dataset.
+Runtime sources: Arabic is Tanzil Uthmani 1.1 (`quran.sqlite`); English is Marmaduke Pickthall from Project Gutenberg eBook #16955 (`translations.sqlite`, `en.pickthall.gutenberg16955`), chosen over Tanzil's non-commercial translation export. The small MVP seed still carries its older source metadata for development only. Before App Store or Google Play release, perform a formal scholarly and licensing review of the production dataset.
 
 ## Current MVP Functionality
 

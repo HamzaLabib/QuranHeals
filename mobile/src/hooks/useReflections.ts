@@ -4,6 +4,7 @@ import { getVerseByKey } from '@/services/quran';
 import { parseVerseKey } from '@/services/quranReference';
 import { getAllReflections, type AyahReflection } from '@/storage/ayahReflections';
 import { getLocalDataGeneration, getLocalDataOwnerState, subscribeToLocalDataOwner } from '@/storage/localDataOwner';
+import { getConflictVersions, type ReflectionConflictVersion } from '@/storage/reflectionConflicts';
 
 export type ReflectionListItem = {
   reflection: AyahReflection;
@@ -17,18 +18,32 @@ export type ReflectionListItem = {
    * shown, never dropped from the list.
    */
   arabicText: string | null;
+  /** Other versions sync kept for this ayah, awaiting review in the editor (D5). */
+  otherVersionCount: number;
+  /**
+   * No current reflection exists (it was deleted, or replaced, elsewhere);
+   * the item stands for the kept version(s) so they stay reachable. Its
+   * `reflection` is built from the newest kept version and is never saved.
+   */
+  recoveredOnly: boolean;
 };
 
-async function resolveItem(reflection: AyahReflection): Promise<ReflectionListItem> {
+async function resolveItem(reflection: AyahReflection, otherVersionCount = 0, recoveredOnly = false): Promise<ReflectionListItem> {
   const { surah, ayah } = parseVerseKey(reflection.verseKey);
   try {
     const verse = await getVerseByKey(reflection.verseKey);
-    return { reflection, surahNumber: verse.surah, ayahNumber: verse.ayah, arabicText: verse.arabicText };
+    return { reflection, surahNumber: verse.surah, ayahNumber: verse.ayah, arabicText: verse.arabicText, otherVersionCount, recoveredOnly };
   } catch {
     // One ayah failing to resolve locally (rare: local DB unavailable) must
     // never drop this reflection or any other from the list.
-    return { reflection, surahNumber: surah, ayahNumber: ayah, arabicText: null };
+    return { reflection, surahNumber: surah, ayahNumber: ayah, arabicText: null, otherVersionCount, recoveredOnly };
   }
+}
+
+/** A list entry for an ayah whose only text is kept versions. */
+function recoveredReflection(versions: ReflectionConflictVersion[]): AyahReflection {
+  const newest = versions.reduce((a, b) => (b.versionUpdatedAt > a.versionUpdatedAt ? b : a));
+  return { verseKey: newest.verseKey, text: newest.text, createdAt: newest.versionUpdatedAt, updatedAt: newest.versionUpdatedAt };
 }
 
 function sortByUpdatedAtDesc(reflections: AyahReflection[]): AyahReflection[] {
@@ -43,8 +58,29 @@ function sortByUpdatedAtDesc(reflections: AyahReflection[]): AyahReflection[] {
  * useReflections() below, which is a thin state wrapper around this.
  */
 export async function loadReflectionListItems(ownerUserId?: string | null): Promise<ReflectionListItem[]> {
-  const reflections = sortByUpdatedAtDesc(await getAllReflections(ownerUserId));
-  return Promise.all(reflections.map(resolveItem));
+  const [reflections, versions] = await Promise.all([
+    getAllReflections(ownerUserId),
+    // Kept versions are a review aid; failing to read them never hides reflections.
+    getConflictVersions(ownerUserId).catch(() => [] as ReflectionConflictVersion[]),
+  ]);
+  const versionsByVerseKey = new Map<string, ReflectionConflictVersion[]>();
+  for (const version of versions) versionsByVerseKey.set(version.verseKey, [...(versionsByVerseKey.get(version.verseKey) ?? []), version]);
+
+  const current = new Set(reflections.map((reflection) => reflection.verseKey));
+  const recovered = [...versionsByVerseKey.entries()]
+    .filter(([verseKey]) => !current.has(verseKey))
+    .map(([, kept]) => ({ reflection: recoveredReflection(kept), count: kept.length }));
+
+  const entries = [
+    ...reflections.map((reflection) => ({ reflection, count: versionsByVerseKey.get(reflection.verseKey)?.length ?? 0, recoveredOnly: false })),
+    ...recovered.map((entry) => ({ ...entry, recoveredOnly: true })),
+  ];
+  const sorted = sortByUpdatedAtDesc(entries.map((entry) => entry.reflection));
+  const byReflection = new Map(entries.map((entry) => [entry.reflection, entry]));
+  return Promise.all(sorted.map((reflection) => {
+    const entry = byReflection.get(reflection)!;
+    return resolveItem(reflection, entry.count, entry.recoveredOnly);
+  }));
 }
 
 /**

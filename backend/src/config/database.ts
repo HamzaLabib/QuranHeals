@@ -1,5 +1,6 @@
 import mongoose, { type ConnectOptions } from 'mongoose';
 
+import { assessCredentialScope, credentialScopeProblems, ENFORCE_CREDENTIAL_SCOPE_ENV, type MongoPrivilege } from './credentialScope';
 import {
   assertScriptMayUseTarget,
   DatabaseConfigError,
@@ -15,7 +16,48 @@ export function getDatabaseTarget(): DatabaseTarget {
   return resolveDatabaseTarget({ nodeEnv: env.NODE_ENV, uri: env.MONGODB_URI, dbName: env.MONGODB_DB_NAME });
 }
 
-async function connectTo(target: DatabaseTarget, options: ConnectOptions): Promise<DatabaseTarget> {
+const CREDENTIAL_SCOPE_TIMEOUT_MS = 5000;
+
+/** Rejects if `promise` takes longer than `ms`, so a stalled check can never hang startup. */
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error('timed out')), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
+/**
+ * Least-privilege check of the connected credential (config/credentialScope.ts).
+ * A warning by default, so existing deployments keep running during the
+ * credential migration; fatal when MONGODB_ENFORCE_CREDENTIAL_SCOPE=true.
+ * Messages name databases only.
+ */
+async function checkCredentialScope(target: DatabaseTarget, readOnly: boolean): Promise<void> {
+  let problems: string[];
+  try {
+    // connectionStatus is permitted for every user on itself; it needs no
+    // extra role, so the least-privilege users can always run this check.
+    const status = (await withTimeout(
+      mongoose.connection.db!.command({ connectionStatus: 1, showPrivileges: true }),
+      CREDENTIAL_SCOPE_TIMEOUT_MS,
+    )) as { authInfo?: { authenticatedUsers?: unknown[]; authenticatedUserPrivileges?: MongoPrivilege[] } };
+    const privileges = status.authInfo?.authenticatedUserPrivileges ?? [];
+    problems = credentialScopeProblems(target, assessCredentialScope(target, privileges, status.authInfo?.authenticatedUsers), { readOnly });
+  } catch {
+    problems = ["the MongoDB user's privileges could not be verified"];
+  }
+  if (problems.length === 0) return;
+
+  const message = `MongoDB credential scope: ${problems.join('; ')}. See docs/backend-environments.md.`;
+  if (env.MONGODB_ENFORCE_CREDENTIAL_SCOPE === 'true') {
+    await mongoose.disconnect();
+    throw new DatabaseConfigError(`${message} (${ENFORCE_CREDENTIAL_SCOPE_ENV}=true)`);
+  }
+  console.warn(`WARNING ${message}`);
+}
+
+async function connectTo(target: DatabaseTarget, options: ConnectOptions, readOnly: boolean): Promise<DatabaseTarget> {
   mongoose.set('strictQuery', true);
   // dbName is always explicit, so MongoDB's implicit `test` default can never apply.
   await mongoose.connect(env.MONGODB_URI!, { ...options, dbName: target.databaseName });
@@ -24,12 +66,13 @@ async function connectTo(target: DatabaseTarget, options: ConnectOptions): Promi
     await mongoose.disconnect();
     throw new DatabaseConfigError(`Connected to database "${connected}" instead of "${target.databaseName}".`);
   }
+  await checkCredentialScope(target, readOnly);
   return target;
 }
 
 /** Server startup: validates the target before connecting, then confirms the connected database. */
 export async function connectToDatabase(options: ConnectOptions = {}): Promise<DatabaseTarget> {
-  return connectTo(getDatabaseTarget(), options);
+  return connectTo(getDatabaseTarget(), options, false);
 }
 
 /**
@@ -41,7 +84,7 @@ export async function connectScriptDatabase(access: ScriptAccess, options: Conne
   const target = getDatabaseTarget();
   assertScriptMayUseTarget(target, access, process.env);
   console.error(describeTarget(target, access));
-  return connectTo(target, options);
+  return connectTo(target, options, !access.writes);
 }
 
 export async function disconnectFromDatabase() {

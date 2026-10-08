@@ -1,4 +1,5 @@
 import { createApp } from '../../src/app';
+import type { RateLimitName, RateLimitPolicy } from '../../src/middleware/rateLimits';
 import type { IssueReportRepository } from '../../src/services/IssueReportRepository';
 import type { QuranRepository } from '../../src/services/QuranRepository';
 import {
@@ -30,7 +31,7 @@ class UnusedQuranRepository implements QuranRepository {
 }
 
 export function buildAccountTestApp<R extends IssueReportRepository = InMemoryIssueReportRepository>(
-  overrides: { issueReportRepository?: R } = {},
+  overrides: { issueReportRepository?: R; rateLimits?: Partial<Record<RateLimitName, RateLimitPolicy>>; network?: { trustProxyHops?: number; endpointRateLimits?: boolean; clientIpDiagnostics?: boolean } } = {},
 ) {
   const userRepository = new InMemoryUserRepository();
   const sessionRepository = new InMemorySessionRepository();
@@ -62,6 +63,8 @@ export function buildAccountTestApp<R extends IssueReportRepository = InMemoryIs
     appleVerifier: new StubAppleVerifier(appleTokens),
     // In-memory repositories, so the database is "up" for /api/health.
     databaseHealthCheck: async () => true,
+    rateLimits: overrides.rateLimits,
+    network: overrides.network,
   });
 
   return {

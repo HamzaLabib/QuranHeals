@@ -38,7 +38,7 @@ emotion's English display wording can change (e.g. `peaceful` → "At Peace")
 without touching a single mapping, favorite, or history entry — the key is
 the only thing anything else in the system depends on.
 
-Every one of the 29 emotions also carries `descriptions: { en, ar, 'ar-EG' }`
+Every emotion (30 as of October 2026) also carries `descriptions: { en, ar, 'ar-EG' }`
 in the same catalog. As of this document, **descriptions are data-ready but
 not yet rendered anywhere in the UI** — they exist so a future screen can use
 them without another backend/data migration.

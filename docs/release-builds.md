@@ -24,6 +24,8 @@ For plain local development, `npx expo start` with `mobile/.env` works as before
 
 Google sign-in uses `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`, `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID` and `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`, set per EAS environment the same way. A platform without its ID hides Google sign-in, and a malformed ID fails the build. See `docs/auth-and-sync/setup.md`.
 
+The Privacy Policy, Terms of Use and account-deletion pages use `EXPO_PUBLIC_PRIVACY_POLICY_URL`, `EXPO_PUBLIC_TERMS_URL` and `EXPO_PUBLIC_ACCOUNT_DELETION_URL`, set per EAS environment the same way. Each configured URL adds a row to Settings → Privacy & Legal; an unset one is hidden. Any configured URL must be a public `https://` address, and the **production** profile refuses to build until all three are set. See `docs/legal/README.md`.
+
 ## How the guard works
 
 - `eas.json` gives each profile `QURAN_HEALS_API_URL_POLICY`: `local` for development, `hosted` for preview and production.
@@ -52,3 +54,12 @@ Google sign-in uses `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`, `EXPO_PUBLIC_GOOGLE_ANDR
 - Adding or upgrading a native dependency (for example `expo-system-ui` or `expo-dev-client`), or changing native config in `app.json`, requires a **new native build**.
 - An EAS Update is only delivered to binaries with the same fingerprint, so a JS update that needs a newer native module never reaches an older binary that lacks it.
 - Binaries built before the fingerprint policy (runtime `1.0.0`) receive no further updates; testers must install a new build.
+
+### Pending native changes (October 2026)
+
+The next iOS and Android builds pick up native changes that an EAS Update cannot deliver; the fingerprint, and so the runtime version, changes:
+
+- `mobile/modules/quran-heals-pbkdf2`: local Expo module for native PBKDF2 (sync password unlock). Without it the app uses the JavaScript implementation (same keys, slower). See `docs/auth-and-sync/sync-password-improvements.md`.
+- Expo SDK 57 patch alignment (`expo`, `expo-updates`, `expo-sqlite`, `expo-splash-screen`, `expo-router`, `expo-auth-session`, `expo-linking`, `expo-asset`, `expo-constants`, `expo-file-system`), applied with `npx expo install --fix`.
+
+JavaScript-only changes in the same release (legal links in Settings, reflection conflict recovery, rate-limit handling) also work as an EAS Update to the new binaries. Installed preview builds keep working against the updated backend, but get none of this until they are reinstalled.

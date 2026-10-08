@@ -41,7 +41,8 @@ export function ReflectionListCard({ item, locale, messages, onPress }: Reflecti
   const wordCount = arabicText ? countArabicWords(arabicText) : 0;
   const arabicFontSize = computeCompactQuranFontSize(preferredSize, wordCount);
   const arabicLineHeight = computeQuranLineHeight(arabicFontSize);
-  const statusLabel = resolveReflectionSyncStatusLabel(reflection.syncState, messages);
+  const statusLabel = item.recoveredOnly ? '' : resolveReflectionSyncStatusLabel(reflection.syncState, messages);
+  const reviewLabel = item.recoveredOnly ? messages.reflections.recoveredBadge : item.otherVersionCount > 0 ? messages.reflections.otherVersionBadge : null;
   const editedDate = formatReflectionDate(reflection.updatedAt, locale);
 
   return (
@@ -64,6 +65,8 @@ export function ReflectionListCard({ item, locale, messages, onPress }: Reflecti
       ) : (
         <Text style={[styles.unresolvedNote, direction]}>{messages.reflections.referenceUnresolved}</Text>
       )}
+
+      {reviewLabel && <Text style={[styles.reviewBadge, direction]}>{reviewLabel}</Text>}
 
       <Text numberOfLines={3} style={[styles.reflectionText, direction]}>
         {reflection.text}
@@ -126,5 +129,10 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   editedDate: {
     color: colors.textMuted,
     fontSize: typography.small,
+  },
+  reviewBadge: {
+    color: colors.accent,
+    fontSize: typography.small,
+    fontWeight: '700',
   },
 });
