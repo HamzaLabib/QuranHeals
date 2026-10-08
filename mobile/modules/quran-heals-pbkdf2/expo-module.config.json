@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android"],
+  "apple": {
+    "modules": ["QuranHealsPbkdf2Module"]
+  },
+  "android": {
+    "modules": ["expo.modules.quranhealspbkdf2.QuranHealsPbkdf2Module"]
+  }
+}

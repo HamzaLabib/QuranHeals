@@ -1,14 +1,18 @@
 import { xchacha20poly1305 } from '@noble/ciphers/chacha.js';
 import { hmac } from '@noble/hashes/hmac.js';
-import { pbkdf2Async } from '@noble/hashes/pbkdf2.js';
 import { sha256 } from '@noble/hashes/sha2.js';
 
 import { decodeBase64, encodeBase64 } from './base64';
+import { pbkdf2Sha256 } from './pbkdf2';
+
+export { KDF_ASYNC_TICK_MS } from './pbkdf2';
 
 /**
  * Client-side authenticated encryption for خواطر (reflections) — see Part D.
  * Everything here is a maintained, audited primitive (@noble/ciphers'
- * XChaCha20-Poly1305 AEAD, @noble/hashes' PBKDF2-HMAC-SHA256), never
+ * XChaCha20-Poly1305 AEAD, PBKDF2-HMAC-SHA256 via ./pbkdf2.ts — the
+ * platform's native implementation when it passes an on-device known-answer
+ * test, else @noble/hashes, identical output either way), never
  * hand-rolled cryptography. This module never touches the network or
  * storage directly — see mobile/src/sync/reflectionsSync.ts and
  * mobile/src/sync/syncKeyManager.ts for how it's wired to sync.
@@ -41,11 +45,6 @@ export const SALT_LENGTH_BYTES = 16;
 // once per device per sign-in (to unwrap the master key), not per
 // reflection save, so this cost is acceptable.
 export const DEFAULT_KDF_ITERATIONS = 210_000;
-// How long PBKDF2 computes before yielding to the event loop. Scheduling only:
-// the derived key is identical for any value. noble's 10ms default yields via
-// setTimeout(0), which on React Native costs about a frame each time, so the
-// yields alone took longer than the KDF itself.
-export const KDF_ASYNC_TICK_MS = 50;
 
 /** Real randomness always comes from mobile/src/crypto/randomBytes.ts (expo-crypto); tests inject Node's crypto.randomBytes. Never a Math.random()-backed source. */
 export type RandomBytesFn = (length: number) => Uint8Array;
@@ -81,7 +80,9 @@ export async function derivePassphraseKey(
   salt: Uint8Array,
   iterations: number = DEFAULT_KDF_ITERATIONS,
 ): Promise<Uint8Array> {
-  return pbkdf2Async(sha256, passphrase, salt, { c: iterations, dkLen: MASTER_KEY_LENGTH_BYTES, asyncTick: KDF_ASYNC_TICK_MS });
+  // Native when it has passed its on-device known-answer test, else the JS
+  // implementation — identical bytes either way (see ./pbkdf2.ts).
+  return pbkdf2Sha256(passphrase, salt, iterations, MASTER_KEY_LENGTH_BYTES);
 }
 
 /** Encrypts one reflection's plaintext with the account's reflection master key. A fresh random nonce is generated for every call — nonces are never reused. */

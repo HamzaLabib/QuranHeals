@@ -30,6 +30,8 @@ const cloudKeyStore = vi.hoisted(() => ({ value: null as unknown }));
 vi.mock('@/sync/syncApi', () => ({ getCloudSyncKey: vi.fn(async () => cloudKeyStore.value) }));
 
 const crypto = await import('@/crypto/reflectionEncryption');
+const { setNativePbkdf2ModuleForTesting } = await import('@/crypto/pbkdf2');
+const { fakeNativePbkdf2 } = await import('./helpers/nativePbkdf2');
 const { createPassphraseVerifier, ensureReflectionMasterKey, SyncPassphraseCancelledError } = await import('@/sync/syncKeyManager');
 
 const random = (n: number) => new Uint8Array(randomBytes(n));
@@ -129,6 +131,38 @@ describe('KDF scheduling change', () => {
     const salt = random(crypto.SALT_LENGTH_BYTES);
     const derived = await crypto.derivePassphraseKey('a password', salt, ITERATIONS);
     expect(Buffer.from(derived).toString('hex')).toBe(pbkdf2Sync('a password', salt, ITERATIONS, 32, 'sha256').toString('hex'));
+  });
+});
+
+describe('with the native PBKDF2 module', () => {
+  afterEach(() => setNativePbkdf2ModuleForTesting(undefined));
+
+  it('unlocks a key wrapped by the JS implementation: wrong password rejected, right one verified, one native derivation per password', async () => {
+    const { masterKey, wrapped } = await account('shared password'); // wrapped before native is installed: JS
+    const reflection = crypto.encryptReflectionText('an existing reflection', masterKey, random);
+    cloudKeyStore.value = wrapped;
+    const native = fakeNativePbkdf2();
+    setNativePbkdf2ModuleForTesting(native);
+
+    const recovered = await ensureReflectionMasterKey('token', async (_mode, verify) => {
+      expect(await verify!('typo password')).toBe(false);
+      expect(await verify!('shared password')).toBe(true);
+      return 'shared password';
+    }, 'user-1');
+
+    expect(Array.from(recovered)).toEqual(Array.from(masterKey));
+    expect(crypto.decryptReflectionText(reflection, recovered)).toBe('an existing reflection');
+    expect(unwrapCalls.count).toBe(2);
+    expect(native.calls.filter((call) => call.iterations === ITERATIONS)).toHaveLength(2);
+  });
+
+  it('keeps unlocking legacy version-1 wrapped keys', async () => {
+    const masterKey = crypto.generateMasterKey(random);
+    const legacy = { ...(await crypto.wrapMasterKey(masterKey, 'ﬁle password'.normalize('NFKC'), random, ITERATIONS)), encryptionVersion: 1 };
+    setNativePbkdf2ModuleForTesting(fakeNativePbkdf2());
+    const verifier = createPassphraseVerifier(legacy);
+    expect(await verifier.verify('ﬁle password')).toBe(true);
+    expect(Array.from(await verifier.unwrap('ﬁle password'))).toEqual(Array.from(masterKey));
   });
 });
 

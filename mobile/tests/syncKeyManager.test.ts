@@ -115,6 +115,28 @@ describe('password change preserves envelope-encrypted reflections', { timeout: 
     expect(cloudKeyStore.value).toEqual(concurrent);
     expect(getCloudSyncKey).toHaveBeenCalled();
   });
+
+  it('with the native PBKDF2 module: setup and change stay readable by the JS implementation, reflections preserved', async () => {
+    const { setNativePbkdf2ModuleForTesting } = await import('@/crypto/pbkdf2');
+    const { fakeNativePbkdf2 } = await import('./helpers/nativePbkdf2');
+    try {
+      setNativePbkdf2ModuleForTesting(fakeNativePbkdf2());
+      const { reflection } = await setup();
+      setNativePbkdf2ModuleForTesting(null); // JS reads what native set up
+      expect(await verifySyncPassphrase(cloudKeyStore.value as WrappedMasterKey, 'old-password')).toBe(true);
+
+      setNativePbkdf2ModuleForTesting(fakeNativePbkdf2());
+      await changeSyncPassword('token', 'old-password', 'new-password');
+      const saved = cloudKeyStore.value as WrappedMasterKey;
+      expect(saved.kdfIterations).toBe(crypto.DEFAULT_KDF_ITERATIONS);
+      expect(saved.encryptionVersion).toBe(crypto.SYNC_KEY_VERSION);
+
+      setNativePbkdf2ModuleForTesting(null);
+      expect(crypto.decryptReflectionText(reflection, await crypto.unwrapMasterKey(saved, 'new-password'))).toBe('private reflection');
+    } finally {
+      setNativePbkdf2ModuleForTesting(undefined);
+    }
+  });
 });
 
 describe('ensureReflectionMasterKey', () => {
