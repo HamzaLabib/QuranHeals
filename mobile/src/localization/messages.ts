@@ -122,15 +122,13 @@ export type Messages = {
     translationDisplayOnDemandHint: string;
     translationDisplayOffHint: string;
     quranArabicNote: string;
-    /** "Legal & Privacy" section. A row opens its page only when its public URL is configured (constants/legalLinks.ts). */
+    /** "Legal & Privacy" section: the public legal pages in the app's language (constants/legalLinks.ts). */
     legalSection: string;
     privacyPolicy: string;
     termsOfUse: string;
     accountDeletionInfo: string;
     /** Accessibility hint: the row opens a web page outside the app. */
     opensInBrowser: string;
-    /** Shown on a legal row whose page URL is not configured for this build; the row is disabled. */
-    legalUnavailable: string;
   };
   appearance: {
     sectionLabel: string;
@@ -402,7 +400,6 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       termsOfUse: 'Terms of Service',
       accountDeletionInfo: 'Account & Data Deletion',
       opensInBrowser: 'Opens in your browser',
-      legalUnavailable: 'Not available yet',
     },
     appearance: {
       sectionLabel: 'Appearance',
@@ -651,12 +648,11 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       translationDisplayOnDemandHint: 'يظهر النص العربي أولًا، ويمكنك إظهار الترجمة متى شئت.',
       translationDisplayOffHint: 'النص العربي فقط. لن تظهر الترجمة.',
       quranArabicNote: 'يظهر القرآن بالعربية دائمًا — هذا الإعداد يؤثر فقط على الترجمة الإنجليزية.',
-      legalSection: 'الخصوصية والشروط',
+      legalSection: 'السياسات والشروط',
       privacyPolicy: 'سياسة الخصوصية',
-      termsOfUse: 'شروط الاستخدام',
+      termsOfUse: 'شروط الخدمة',
       accountDeletionInfo: 'حذف الحساب والبيانات',
       opensInBrowser: 'تُفتح في المتصفح',
-      legalUnavailable: 'غير متاح حاليًا',
     },
     appearance: {
       sectionLabel: 'المظهر',
@@ -919,12 +915,11 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       translationDisplayOnDemandHint: 'يظهر النص العربي أولًا، ويمكنك إظهار الترجمة متى شئت.',
       translationDisplayOffHint: 'النص العربي فقط. لن تظهر الترجمة.',
       quranArabicNote: 'يظهر القرآن بالعربية دائمًا — هذا الإعداد يؤثر فقط على الترجمة الإنجليزية.',
-      legalSection: 'الخصوصية والشروط',
+      legalSection: 'السياسات والشروط',
       privacyPolicy: 'سياسة الخصوصية',
-      termsOfUse: 'شروط الاستخدام',
+      termsOfUse: 'شروط الخدمة',
       accountDeletionInfo: 'حذف الحساب والبيانات',
       opensInBrowser: 'تُفتح في المتصفح',
-      legalUnavailable: 'غير متاح حاليًا',
     },
     appearance: {
       sectionLabel: 'المظهر',

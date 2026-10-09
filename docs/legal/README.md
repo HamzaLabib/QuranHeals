@@ -1,6 +1,6 @@
 # Legal documents (D3) — drafts, data inventory and publication steps
 
-Everything in this folder is a **draft that needs legal and product approval**. Nothing here is published, and the app links to nothing until you host reviewed pages and set their URLs.
+**Superseded.** These Markdown files are early drafts. The published legal pages are the website at `https://quranheals.github.io/legal/` (repository `quranheals/legal`), which the app links to from Settings (`mobile/src/constants/legalLinks.ts`). Do not use these drafts as the current text.
 
 | File | Purpose |
 |---|---|
@@ -52,12 +52,7 @@ Verified against the code in October 2026. Update the policy whenever this chang
 
 1. Complete and approve the drafts (legal and product review).
 2. **Host them as public web pages** reachable without signing in, for example on the project's website or a static host (GitHub Pages, Netlify, Cloudflare Pages). Use stable URLs such as `/privacy`, `/terms`, `/delete-account` (plus Arabic versions, or one page with a language switch). Convert the Markdown to HTML and remove the draft banner only from the approved, published copy.
-3. **Set the URLs per EAS environment** (preview and production) on expo.dev or with `eas env:create`:
-   - `EXPO_PUBLIC_PRIVACY_POLICY_URL`
-   - `EXPO_PUBLIC_TERMS_URL`
-   - `EXPO_PUBLIC_ACCOUNT_DELETION_URL`
-
-   They are public values inlined at build time, so a **new build or OTA update** is needed before they appear in the app (they are JavaScript-only, so an EAS Update to an existing build is enough). Production builds refuse to build until all three are set (`mobile/app.config.ts`).
+3. **App links:** the Settings rows open the published pages directly (`mobile/src/constants/legalLinks.ts`); no EAS environment variables are needed. A **new build or OTA update** is needed before a change to those links reaches users.
 4. **App Store Connect**: App Privacy → Privacy Policy URL; fill in the App Privacy "nutrition label" from the inventory above (data linked to the user: email address and user ID for account management; user content: encrypted reflections, favorites; not used for tracking). Apple also requires in-app account deletion (already implemented).
 5. **Google Play Console**: App content → Privacy policy URL; Data safety form from the inventory (data encrypted in transit; users can request deletion); Data deletion → the account-deletion page URL.
 6. Re-check the policy against the inventory whenever data collection changes (new SDKs, crash reporting, new fields).

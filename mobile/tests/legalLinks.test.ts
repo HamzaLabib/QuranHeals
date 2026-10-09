@@ -1,105 +1,82 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { assertLegalUrlsForBuild, checkLegalPageUrl, LEGAL_URL_ENVS } from '../app.config';
-import { getLegalLinks, sanitizeLegalUrl } from '@/constants/legalLinks';
+import { getLegalLinks, getLegalUrl, LEGAL_LINK_KEYS, LEGAL_SITE_BASE_URL } from '@/constants/legalLinks';
+import { APP_LOCALES } from '@/localization/locales';
 import { MESSAGES } from '@/localization/messages';
 
 /**
- * D3: Privacy Policy, Terms of Use and account-deletion information. The
- * reviewed pages are hosted outside the app; Settings links to them only when
- * a valid URL is configured for the build, so no build ever shows a link that
- * leads nowhere, and production builds cannot ship without them.
+ * Privacy Policy, Terms of Service and account-deletion information, on the
+ * public legal website. Settings opens them in the app's language, outside
+ * the app, whether or not anyone is signed in.
  */
 
-const VALID = {
-  privacyPolicy: 'https://quranheals.example.org/privacy',
-  termsOfUse: 'https://quranheals.example.org/terms',
-  accountDeletionInfo: 'https://quranheals.example.org/delete-account',
-};
+describe('legal page URLs', () => {
+  it('uses the published legal website', () => {
+    expect(LEGAL_SITE_BASE_URL).toBe('https://quranheals.github.io/legal/');
+  });
 
-describe('runtime legal links', () => {
-  it('returns configured links in display order', () => {
-    expect(getLegalLinks(VALID)).toEqual([
-      { key: 'privacyPolicy', url: VALID.privacyPolicy },
-      { key: 'termsOfUse', url: VALID.termsOfUse },
-      { key: 'accountDeletionInfo', url: VALID.accountDeletionInfo },
+  it('English: the confirmed English pages, in display order', () => {
+    expect(getLegalLinks('en')).toEqual([
+      { key: 'privacyPolicy', url: 'https://quranheals.github.io/legal/privacy/' },
+      { key: 'termsOfUse', url: 'https://quranheals.github.io/legal/terms/' },
+      { key: 'accountDeletionInfo', url: 'https://quranheals.github.io/legal/delete-account/' },
     ]);
   });
 
-  it('leaves out unset links, so no placeholder row appears', () => {
-    expect(getLegalLinks({})).toEqual([]);
-    expect(getLegalLinks({ privacyPolicy: VALID.privacyPolicy, termsOfUse: '  ' })).toEqual([{ key: 'privacyPolicy', url: VALID.privacyPolicy }]);
+  it.each(['ar', 'ar-EG'] as const)('%s: the confirmed Arabic pages', (locale) => {
+    expect(getLegalLinks(locale)).toEqual([
+      { key: 'privacyPolicy', url: 'https://quranheals.github.io/legal/ar/privacy/' },
+      { key: 'termsOfUse', url: 'https://quranheals.github.io/legal/ar/terms/' },
+      { key: 'accountDeletionInfo', url: 'https://quranheals.github.io/legal/ar/delete-account/' },
+    ]);
   });
 
-  it.each([
-    'http://quranheals.example.org/privacy',
-    'https://localhost/privacy',
-    'https://user:pass@quranheals.example.org/privacy',
-    'javascript:alert(1)',
-    'quranheals.example.org/privacy',
-    'https://quranheals.example.org/pri vacy',
-    'TODO',
-  ])('rejects %s', (url) => {
-    expect(sanitizeLegalUrl(url)).toBeNull();
+  it('every URL is https on the legal site and ends in a slash (the canonical form, no redirect)', () => {
+    for (const locale of APP_LOCALES) {
+      for (const key of LEGAL_LINK_KEYS) {
+        const url = getLegalUrl(key, locale);
+        expect(url.startsWith(LEGAL_SITE_BASE_URL)).toBe(true);
+        expect(url.endsWith('/')).toBe(true);
+        expect(url).not.toMatch(/\s|\/\/.*\/\//);
+      }
+    }
   });
 
-  it('trims surrounding whitespace from a valid URL', () => {
-    expect(sanitizeLegalUrl(`  ${VALID.privacyPolicy}\n`)).toBe(VALID.privacyPolicy);
-  });
-});
-
-describe('EAS build guard', () => {
-  const env = (profile: string, values: Partial<Record<(typeof LEGAL_URL_ENVS)[number], string>> = {}) => ({ EAS_BUILD: 'true', EAS_BUILD_PROFILE: profile, ...values });
-  const all = {
-    EXPO_PUBLIC_PRIVACY_POLICY_URL: VALID.privacyPolicy,
-    EXPO_PUBLIC_TERMS_URL: VALID.termsOfUse,
-    EXPO_PUBLIC_ACCOUNT_DELETION_URL: VALID.accountDeletionInfo,
-  };
-
-  it('requires all three URLs for the production profile', () => {
-    expect(() => assertLegalUrlsForBuild(env('production'))).toThrow(/EXPO_PUBLIC_PRIVACY_POLICY_URL is not set/);
-    expect(() => assertLegalUrlsForBuild(env('production', { ...all, EXPO_PUBLIC_TERMS_URL: '' }))).toThrow(/EXPO_PUBLIC_TERMS_URL is not set/);
-    expect(() => assertLegalUrlsForBuild(env('production', all))).not.toThrow();
-  });
-
-  it('lets preview and development builds leave them unset (the rows are hidden)', () => {
-    expect(() => assertLegalUrlsForBuild(env('preview'))).not.toThrow();
-    expect(() => assertLegalUrlsForBuild(env('development'))).not.toThrow();
-  });
-
-  it('fails any build whose configured URL is unsafe', () => {
-    expect(() => assertLegalUrlsForBuild(env('preview', { EXPO_PUBLIC_PRIVACY_POLICY_URL: 'http://quranheals.example.org/privacy' }))).toThrow(/https/);
-    expect(() => assertLegalUrlsForBuild(env('preview', { EXPO_PUBLIC_TERMS_URL: 'https://192.168.1.10/terms' }))).toThrow(/public web address/);
-  });
-
-  it('never runs outside the EAS build worker', () => {
-    expect(() => assertLegalUrlsForBuild({ EAS_BUILD_PROFILE: 'production' })).not.toThrow();
-  });
-
-  it('accepts a public https page', () => {
-    expect(checkLegalPageUrl('X', VALID.accountDeletionInfo)).toEqual({ ok: true, url: VALID.accountDeletionInfo });
+  // Ties the paths to the legal website's own files, when its repository is
+  // checked out next to this one: a renamed or missing page fails here.
+  const site = resolve(__dirname, '../../../quranhealslegal');
+  it.skipIf(!existsSync(site))('every linked page exists in the legal website source, in English and Arabic', () => {
+    for (const locale of APP_LOCALES) {
+      for (const key of LEGAL_LINK_KEYS) {
+        const page = getLegalUrl(key, locale).slice(LEGAL_SITE_BASE_URL.length);
+        const file = resolve(site, page, 'index.html');
+        expect(existsSync(file), file).toBe(true);
+        const html = readFileSync(file, 'utf-8');
+        expect(html).toMatch(locale === 'en' ? /<html lang="en" dir="ltr">/ : /<html lang="ar" dir="rtl">/);
+      }
+    }
   });
 });
 
 describe('Settings integration', () => {
   const source = readFileSync(resolve(__dirname, '../src/app/settings.tsx'), 'utf-8');
 
-  it('always lists all three rows, opening only URLs that passed getLegalLinks validation', () => {
-    expect(source).toMatch(/const LEGAL_LINKS = getLegalLinks\(\);/);
-    expect(source).toMatch(/LEGAL_LINK_KEYS\.map\(\(key\) =>/);
-    expect(source).toMatch(/const url = LEGAL_URLS\[key\];/);
-    // A row without a configured URL gets no onPress, so it is disabled and opens nothing.
-    expect(source).toMatch(/onPress=\{\s*url\s*\?[\s\S]*?: undefined\s*\}/);
-  });
-
-  it('labels rows from localized messages and opens the configured URL outside the app, without crashing on failure', () => {
-    expect(source).toMatch(/messages\.settings\.legalSection/);
+  it('builds the rows from the app language and opens each page outside the app, without crashing on failure', () => {
+    expect(source).toMatch(/getLegalLinks\(locale\)\.map\(\(\{ key, url \}\) =>/);
     expect(source).toMatch(/label=\{messages\.settings\[key\]\}/);
     expect(source).toMatch(/Linking\.openURL\(url\)\.catch\(/);
     expect(source).toMatch(/accessibilityRole="link"/);
+  });
+
+  it('the Legal section is outside the Account section, so it never depends on signing in', () => {
+    const legal = source.indexOf('title={messages.settings.legalSection}');
+    const account = source.indexOf('<AccountSection');
+    expect(legal).toBeGreaterThan(0);
+    expect(account).toBeGreaterThan(legal);
+    expect(source.slice(legal, account)).not.toMatch(/\bstatus\b|useAuth\(|isSignedIn/);
   });
 
   it('mirrors link rows for RTL like the other rows', () => {
@@ -109,20 +86,31 @@ describe('Settings integration', () => {
   it('keeps the existing in-app account deletion in the Account section untouched', () => {
     expect(source).toMatch(/<AccountSection locale=\{locale\} messages=\{messages\} direction=\{direction\} isRtl=\{isRtl\} \/>/);
   });
+
+  it('no build-time legal URL variables remain', () => {
+    const config = readFileSync(resolve(__dirname, '../app.config.ts'), 'utf-8');
+    expect(config).not.toMatch(/EXPO_PUBLIC_(PRIVACY_POLICY|TERMS|ACCOUNT_DELETION)_URL|assertLegalUrlsForBuild/);
+  });
 });
 
 describe('localized labels', () => {
   it.each(['en', 'ar', 'ar-EG'] as const)('every legal label is present and non-empty in %s', (locale) => {
     const settings = MESSAGES[locale].settings;
-    for (const key of ['legalSection', 'privacyPolicy', 'termsOfUse', 'accountDeletionInfo', 'opensInBrowser', 'legalUnavailable'] as const) {
+    for (const key of ['legalSection', 'privacyPolicy', 'termsOfUse', 'accountDeletionInfo', 'opensInBrowser'] as const) {
       expect(settings[key].trim().length, key).toBeGreaterThan(0);
     }
   });
 
-  it('the Arabic labels are Arabic and shared by both Arabic locales', () => {
-    expect(MESSAGES.ar.settings.privacyPolicy).toBe('سياسة الخصوصية');
-    expect(MESSAGES['ar-EG'].settings.privacyPolicy).toBe(MESSAGES.ar.settings.privacyPolicy);
-    expect(MESSAGES.ar.settings.termsOfUse).toMatch(/[؀-ۿ]/);
+  it('the labels match the titles on the legal website', () => {
+    expect(MESSAGES.en.settings).toMatchObject({ privacyPolicy: 'Privacy Policy', termsOfUse: 'Terms of Service', accountDeletionInfo: 'Account & Data Deletion' });
+    expect(MESSAGES.ar.settings).toMatchObject({ privacyPolicy: 'سياسة الخصوصية', termsOfUse: 'شروط الخدمة', accountDeletionInfo: 'حذف الحساب والبيانات' });
+  });
+
+  it('both Arabic locales share the Arabic labels', () => {
+    for (const key of ['legalSection', 'privacyPolicy', 'termsOfUse', 'accountDeletionInfo', 'opensInBrowser'] as const) {
+      expect(MESSAGES['ar-EG'].settings[key]).toBe(MESSAGES.ar.settings[key]);
+      expect(MESSAGES.ar.settings[key]).toMatch(/[؀-ۿ]/);
+    }
   });
 });
 

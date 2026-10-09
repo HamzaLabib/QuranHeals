@@ -15,6 +15,8 @@ import { MESSAGES } from '@/localization/messages';
 const state = vi.hoisted(() => ({
   status: 'guest' as 'loading' | 'guest' | 'signed-in',
   calls: [] as string[],
+  /** URLs passed to Linking.openURL. */
+  opened: [] as string[],
   /** The age declaration each backend sign-in call received (undefined = none sent). */
   declarations: [] as unknown[],
   /** When true, the faked Google prompt "returns" an ID token, as a real completed prompt does. */
@@ -28,6 +30,7 @@ vi.mock('react-native', () => ({
   Platform: { OS: 'ios', select: (values: { ios: unknown }) => values.ios },
   StyleSheet: { create: (value: unknown) => value },
   Pressable: 'Pressable', Text: 'Text', View: 'View',
+  Linking: { openURL: async (url: string) => { state.opened.push(url); } },
 }));
 vi.mock('lucide-react-native', () => ({ Check: () => null }));
 vi.mock('@react-native-async-storage/async-storage', () => ({
@@ -103,6 +106,7 @@ beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   state.status = 'guest';
   state.calls = [];
+  state.opened = [];
   state.declarations = [];
   state.googleReturnsToken = false;
   state.lastError = null;
@@ -323,6 +327,56 @@ describe('storage holds no age or date of birth', () => {
     expect(await hasConfirmedAccountAge()).toBe(false);
     storage.map.set(STORAGE_KEY, JSON.stringify({ policyVersion: AGE_CONFIRMATION_POLICY_VERSION }));
     expect(await hasConfirmedAccountAge()).toBe(false);
+  });
+});
+
+describe('Privacy Policy and Terms links at sign-in', () => {
+  const SITE = 'https://quranheals.github.io/legal/';
+  const legalRow = () => root!.root.find((node) => node.type === ('View' as never) && [node.props.style].flat().some((s: { flexWrap?: string } | false) => s && s.flexWrap === 'wrap'));
+
+  it('English: both links open the English pages; nothing about sign-in starts', async () => {
+    await renderAccount();
+    for (const label of [en.settings.privacyPolicy, en.settings.termsOfUse]) {
+      const link = byLabel(label)!;
+      expect(link.props.accessibilityRole).toBe('link');
+      expect(link.props.accessibilityHint).toBe(en.settings.opensInBrowser);
+      await press(label);
+    }
+    expect(state.opened).toEqual([`${SITE}privacy/`, `${SITE}terms/`]);
+    expect(state.calls).toEqual([]);
+    expect(panelShown()).toBe(false);
+    expect(storage.map.has(STORAGE_KEY)).toBe(false);
+  });
+
+  it.each(['ar', 'ar-EG'] as const)('%s: Arabic labels open the Arabic pages, laid out right to left', async (locale) => {
+    const settings = MESSAGES[locale].settings;
+    await renderAccount(locale);
+    await press(settings.privacyPolicy);
+    await press(settings.termsOfUse);
+    expect(state.opened).toEqual([`${SITE}ar/privacy/`, `${SITE}ar/terms/`]);
+    expect([legalRow().props.style].flat()).toContainEqual({ flexDirection: 'row-reverse' });
+  });
+
+  it('stays visible while the age confirmation is open, and opening a link neither confirms nor starts sign-in', async () => {
+    await renderAccount();
+    await press(en.account.signInWithApple);
+    expect(panelShown()).toBe(true);
+    await press(en.settings.privacyPolicy);
+    expect(state.opened).toEqual([`${SITE}privacy/`]);
+    expect(panelShown()).toBe(true);
+    expect(state.calls).toEqual([]);
+    expect(byLabel(en.ageConfirmation.continueButton)!.props.disabled).toBe(true);
+  });
+
+  it('is not shown to a signed-in user or while the session is being restored', async () => {
+    for (const status of ['signed-in', 'loading'] as const) {
+      state.status = status;
+      await renderAccount();
+      expect(byLabel(en.settings.privacyPolicy)).toBeUndefined();
+      expect(byLabel(en.settings.termsOfUse)).toBeUndefined();
+      await act(async () => root!.unmount());
+      root = undefined;
+    }
   });
 });
 

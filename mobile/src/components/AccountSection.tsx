@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import {
   accountAgeDeclaration,
@@ -10,6 +10,7 @@ import {
 import { AppleSignInCancelledError, isAppleSignInSupportedPlatform, requestAppleCredential } from '@/auth/appleAuth';
 import { extractGoogleIdToken, isGoogleAuthConfigured, useGoogleAuthRequest } from '@/auth/googleAuth';
 import { useAuth } from '@/auth/useAuth';
+import { getLegalUrl, type LegalLinkKey } from '@/constants/legalLinks';
 import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { AgeConfirmationPanel } from '@/components/AgeConfirmationPanel';
@@ -23,6 +24,9 @@ import { GoogleIcon } from './GoogleIcon';
 const BRAND_ICON_SIZE = 21;
 
 type SignInProvider = 'apple' | 'google';
+
+/** Shown under the sign-in options, where an account is created. */
+const SIGN_IN_LEGAL_LINKS: readonly LegalLinkKey[] = ['privacyPolicy', 'termsOfUse'];
 
 type Direction = { writingDirection: 'ltr' | 'rtl'; textAlign: 'left' | 'right' };
 
@@ -40,7 +44,7 @@ type AccountSectionProps = {
  * (Part B §10). A failed sign-in never blocks the rest of Settings or the
  * app.
  */
-export function AccountSection({ messages, direction, isRtl }: AccountSectionProps) {
+export function AccountSection({ locale, messages, direction, isRtl }: AccountSectionProps) {
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
   const { status, lastError, signInWithGoogleIdToken, signInWithAppleIdToken, signOut, deleteAccount } = useAuth();
@@ -200,6 +204,26 @@ export function AccountSection({ messages, direction, isRtl }: AccountSectionPro
             )}
             </>
             )}
+            {/* The same pages as Settings → Legal, in the app's language. Links only: signing in is unchanged. */}
+            <View style={[styles.legalLinks, isRtl && styles.legalLinksRtl]}>
+              {SIGN_IN_LEGAL_LINKS.map((key, index) => (
+                <View key={key} style={[styles.legalLinkItem, isRtl && styles.legalLinksRtl]}>
+                  {index > 0 && <Text style={styles.legalLinkSeparator}>·</Text>}
+                  <Pressable
+                    accessibilityRole="link"
+                    accessibilityLabel={messages.settings[key]}
+                    accessibilityHint={messages.settings.opensInBrowser}
+                    hitSlop={8}
+                    onPress={() => {
+                      Linking.openURL(getLegalUrl(key, locale)).catch(() => {
+                        // Best-effort external link, like Settings → Legal.
+                      });
+                    }}>
+                    <Text style={styles.legalLinkText}>{messages.settings[key]}</Text>
+                  </Pressable>
+                </View>
+              ))}
+            </View>
           </>
         )}
         {displayedError && <Text style={[styles.errorText, direction]}>{displayedError}</Text>}
@@ -275,6 +299,29 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     color: colors.textMuted,
     fontSize: typography.caption,
     lineHeight: 18,
+  },
+  legalLinks: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  legalLinksRtl: {
+    flexDirection: 'row-reverse',
+  },
+  legalLinkItem: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  legalLinkSeparator: {
+    color: colors.textMuted,
+    fontSize: typography.caption,
+  },
+  legalLinkText: {
+    color: colors.textSecondary,
+    fontSize: typography.caption,
+    lineHeight: 18,
+    textDecorationLine: 'underline',
   },
   button: {
     alignItems: 'center',

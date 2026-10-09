@@ -1,6 +1,6 @@
 import { createElement, type ReactNode } from 'react';
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer';
-import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { darkPalette, lightPalette } from '@/constants/theme';
 import { MESSAGES } from '@/localization/messages';
@@ -10,24 +10,8 @@ import { MESSAGES } from '@/localization/messages';
  * translation / appearance providers over an in-memory AsyncStorage, so a
  * selection is proven to go through the existing persisted preference
  * setters — not a parallel implementation.
- *
- * Legal URLs are read when settings.tsx is first imported, so this build is
- * configured before any import: Privacy Policy and Terms valid, the
- * account-deletion page missing — covering both an opening row and a
- * safely disabled one.
  */
-const legal = vi.hoisted(() => {
-  const urls = { privacy: 'https://quranheals.example.org/privacy', terms: 'https://quranheals.example.org/terms' };
-  const previous = {
-    EXPO_PUBLIC_PRIVACY_POLICY_URL: process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL,
-    EXPO_PUBLIC_TERMS_URL: process.env.EXPO_PUBLIC_TERMS_URL,
-    EXPO_PUBLIC_ACCOUNT_DELETION_URL: process.env.EXPO_PUBLIC_ACCOUNT_DELETION_URL,
-  };
-  process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL = urls.privacy;
-  process.env.EXPO_PUBLIC_TERMS_URL = urls.terms;
-  delete process.env.EXPO_PUBLIC_ACCOUNT_DELETION_URL;
-  return { urls, previous };
-});
+const LEGAL_SITE = 'https://quranheals.github.io/legal/';
 
 const state = vi.hoisted(() => ({
   scheme: 'light' as 'light' | 'dark',
@@ -102,12 +86,6 @@ afterEach(async () => {
   if (root) await act(async () => root!.unmount());
   root = undefined;
   vi.unstubAllGlobals();
-});
-afterAll(() => {
-  for (const [name, value] of Object.entries(legal.previous)) {
-    if (value === undefined) delete process.env[name];
-    else process.env[name] = value;
-  }
 });
 
 async function renderSettings() {
@@ -284,44 +262,43 @@ describe('Settings: Arabic labels', () => {
     expect(texts(header('المظهر'))).toEqual(['المظهر', 'وضع الليل']);
   });
 
-  it.each(['ar', 'ar-EG'] as const)('%s: Legal & Privacy is titled الخصوصية والشروط with the three approved rows', async (locale) => {
+  it.each(['ar', 'ar-EG'] as const)('%s: Legal & Privacy is titled السياسات والشروط and opens the Arabic pages', async (locale) => {
     state.storage.set(LOCALE_KEY, locale);
     await renderSettings();
-    expect(headers().map((node) => texts(node)[0])).toEqual(['لغة التطبيق', 'ترجمة القرآن', 'المظهر', 'الخصوصية والشروط']);
-    await pressHeader('الخصوصية والشروط');
-    expect(linkRows().map((node) => node.props.accessibilityLabel)).toEqual(['سياسة الخصوصية', 'شروط الاستخدام', 'حذف الحساب والبيانات']);
+    expect(headers().map((node) => texts(node)[0])).toEqual(['لغة التطبيق', 'ترجمة القرآن', 'المظهر', 'السياسات والشروط']);
+    await pressHeader('السياسات والشروط');
+    expect(linkRows().map((node) => node.props.accessibilityLabel)).toEqual(['سياسة الخصوصية', 'شروط الخدمة', 'حذف الحساب والبيانات']);
     for (const row of linkRows()) expect(resolveStyle(row)).toContainEqual({ flexDirection: 'row-reverse' });
     expect(linkRows()[0].findByType('ChevronLeft' as never)).toBeTruthy();
+    for (const row of linkRows()) await press(row);
+    expect(state.openedUrls).toEqual([`${LEGAL_SITE}ar/privacy/`, `${LEGAL_SITE}ar/terms/`, `${LEGAL_SITE}ar/delete-account/`]);
   });
 });
 
 describe('Settings: Legal & Privacy links', () => {
-  it('lists Privacy Policy, Terms of Service, and Account & Data Deletion as links', async () => {
+  it('lists Privacy Policy, Terms of Service and Account & Data Deletion as links', async () => {
     await renderSettings();
     await pressHeader('Legal & Privacy');
     expect(linkRows().map((node) => node.props.accessibilityLabel)).toEqual(['Privacy Policy', 'Terms of Service', 'Account & Data Deletion']);
-    expect(linkRows()[0].findByType('ChevronRight' as never)).toBeTruthy();
+    for (const row of linkRows()) expect(row.findByType('ChevronRight' as never)).toBeTruthy();
   });
 
-  it('opens each configured page in the browser', async () => {
+  it('opens each English page in the browser', async () => {
     await renderSettings();
     await pressHeader('Legal & Privacy');
-    await press(linkRows()[0]);
-    await press(linkRows()[1]);
-    expect(state.openedUrls).toEqual([legal.urls.privacy, legal.urls.terms]);
+    for (const row of linkRows()) await press(row);
+    expect(state.openedUrls).toEqual([`${LEGAL_SITE}privacy/`, `${LEGAL_SITE}terms/`, `${LEGAL_SITE}delete-account/`]);
     expect(linkRows()[0].props.accessibilityHint).toBe(en.settings.opensInBrowser);
   });
 
-  it('disables a row whose page URL is not configured, says so, and opens nothing', async () => {
+  it('every row is enabled: no row is disabled or shows an "unavailable" note', async () => {
     await renderSettings();
     await pressHeader('Legal & Privacy');
-    const deletionRow = linkRows()[2];
-    expect(deletionRow.props.disabled).toBe(true);
-    expect(deletionRow.props.onPress).toBeUndefined();
-    expect(deletionRow.props.accessibilityState).toEqual({ disabled: true });
-    expect(texts(deletionRow)).toEqual(['Account & Data Deletion', en.settings.legalUnavailable]);
-    expect(deletionRow.findAllByType('ChevronRight' as never)).toHaveLength(0);
-    expect(state.openedUrls).toEqual([]);
+    for (const row of linkRows()) {
+      expect(row.props.disabled).toBeFalsy();
+      expect(typeof row.props.onPress).toBe('function');
+      expect(texts(row)).toHaveLength(1);
+    }
   });
 
   it('a failed openURL does not crash the screen', async () => {

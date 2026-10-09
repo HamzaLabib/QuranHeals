@@ -1,38 +1,42 @@
+import type { AppLocale } from '@/localization/locales';
+
 /**
- * Public Privacy Policy, Terms of Use and account-deletion pages (D3).
- * Configured per build through EAS environment variables; the drafts live in
- * docs/legal/ and must be reviewed and hosted before these are set (see
- * docs/legal/README.md). A link that is unset or not a plain https:// URL is
- * left out, so Settings never opens a page that leads nowhere (its row is
- * shown disabled instead).
- * app.config.ts additionally fails an EAS build whose configured URL is
- * invalid, and requires all three for the production profile.
+ * Public legal website (GitHub Pages, repository quranheals/legal): Privacy
+ * Policy, Terms of Service and account-deletion information, in English,
+ * Canadian French and Arabic. Settings opens the page in the app's current
+ * language, outside the app.
+ *
+ * Every page path below was confirmed live (HTTP 200) on 2026-10-09; the
+ * trailing slashes match the site's canonical URLs (without one, GitHub
+ * Pages answers with a redirect). If the site moves, change
+ * LEGAL_SITE_BASE_URL here and in the site's own hreflang links.
  */
+export const LEGAL_SITE_BASE_URL = 'https://quranheals.github.io/legal/';
+
 export type LegalLinkKey = 'privacyPolicy' | 'termsOfUse' | 'accountDeletionInfo';
 
 /** Display order of the Legal & Privacy rows. */
 export const LEGAL_LINK_KEYS: readonly LegalLinkKey[] = ['privacyPolicy', 'termsOfUse', 'accountDeletionInfo'];
 
-// Plain https URL with a dotted host; no credentials, no whitespace. Kept to a
-// regex because React Native's URL implementation is incomplete.
-const PUBLIC_HTTPS_URL = /^https:\/\/[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+(:\d+)?([/?#][^\s]*)?$/;
+const PAGE_PATHS: Record<LegalLinkKey, string> = {
+  privacyPolicy: 'privacy/',
+  termsOfUse: 'terms/',
+  accountDeletionInfo: 'delete-account/',
+};
 
-export function sanitizeLegalUrl(raw: string | undefined): string | null {
-  const value = raw?.trim();
-  return value && PUBLIC_HTTPS_URL.test(value) ? value : null;
+// The site's language folders. There is no French app UI, so the French pages
+// (fr/) are reached through the site's own language switcher.
+const LANGUAGE_PATHS: Record<AppLocale, string> = {
+  en: '',
+  ar: 'ar/',
+  'ar-EG': 'ar/',
+};
+
+export function getLegalUrl(key: LegalLinkKey, locale: AppLocale): string {
+  return `${LEGAL_SITE_BASE_URL}${LANGUAGE_PATHS[locale]}${PAGE_PATHS[key]}`;
 }
 
-/** In display order. `env` exists for tests; the default reads the build-time values. */
-export function getLegalLinks(
-  env: Partial<Record<LegalLinkKey, string | undefined>> = {
-    // Must be literal process.env.EXPO_PUBLIC_* reads so Expo inlines them at build time.
-    privacyPolicy: process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL,
-    termsOfUse: process.env.EXPO_PUBLIC_TERMS_URL,
-    accountDeletionInfo: process.env.EXPO_PUBLIC_ACCOUNT_DELETION_URL,
-  },
-): { key: LegalLinkKey; url: string }[] {
-  return LEGAL_LINK_KEYS.flatMap((key) => {
-    const url = sanitizeLegalUrl(env[key]);
-    return url ? [{ key, url }] : [];
-  });
+/** In display order, for the given app language. */
+export function getLegalLinks(locale: AppLocale): { key: LegalLinkKey; url: string }[] {
+  return LEGAL_LINK_KEYS.map((key) => ({ key, url: getLegalUrl(key, locale) }));
 }

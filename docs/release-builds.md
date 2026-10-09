@@ -24,7 +24,7 @@ For plain local development, `npx expo start` with `mobile/.env` works as before
 
 Google sign-in uses `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`, `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID` and `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`, set per EAS environment the same way. A platform without its ID hides Google sign-in, and a malformed ID fails the build. See `docs/auth-and-sync/setup.md`.
 
-The Privacy Policy, Terms of Use and account-deletion pages use `EXPO_PUBLIC_PRIVACY_POLICY_URL`, `EXPO_PUBLIC_TERMS_URL` and `EXPO_PUBLIC_ACCOUNT_DELETION_URL`, set per EAS environment the same way. Each configured URL adds a row to Settings → Privacy & Legal; an unset one is hidden. Any configured URL must be a public `https://` address, and the **production** profile refuses to build until all three are set. See `docs/legal/README.md`.
+The Privacy Policy, Terms of Service and account-deletion pages are the public legal website, `https://quranheals.github.io/legal/` (English, with `ar/` for the Arabic app languages). Their URLs are in `mobile/src/constants/legalLinks.ts`, not in EAS environment variables.
 
 ## How the guard works
 

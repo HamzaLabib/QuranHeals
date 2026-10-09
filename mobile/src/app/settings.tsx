@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/useAuth';
 import { AccountSection } from '@/components/AccountSection';
 import { SettingsAccordion } from '@/components/SettingsAccordion';
-import { getLegalLinks, LEGAL_LINK_KEYS, type LegalLinkKey } from '@/constants/legalLinks';
+import { getLegalLinks } from '@/constants/legalLinks';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { APP_LOCALES, APP_LOCALE_DISPLAY_NAMES, getDirectionStyle, isRtlLocale } from '@/localization/locales';
@@ -20,10 +20,6 @@ import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefres
 
 const TRANSLATION_DISPLAY_MODES: readonly TranslationDisplayMode[] = ['always', 'on-demand', 'off'];
 const APPEARANCE_MODES: readonly AppearanceMode[] = ['system', 'light', 'dark'];
-// Only links configured for this build (constants/legalLinks.ts). All three
-// rows always show; a row without a valid URL is disabled and never opened.
-const LEGAL_LINKS = getLegalLinks();
-const LEGAL_URLS: Partial<Record<LegalLinkKey, string>> = Object.fromEntries(LEGAL_LINKS.map(({ key, url }) => [key, url]));
 
 /** The four collapsible sections; at most one is open at a time. Account and the Danger Zone are not part of this. */
 type SettingsSectionKey = 'language' | 'translation' | 'appearance' | 'legal';
@@ -194,26 +190,20 @@ export default function SettingsScreen() {
             onToggle={() => toggleSection('legal')}
             direction={direction}
             isRtl={isRtl}>
-            {LEGAL_LINK_KEYS.map((key) => {
-              const url = LEGAL_URLS[key];
-              return (
-                <LinkRow
-                  key={key}
-                  label={messages.settings[key]}
-                  hint={url ? messages.settings.opensInBrowser : messages.settings.legalUnavailable}
-                  onPress={
-                    url
-                      ? () => {
-                          Linking.openURL(url).catch(() => {
-                            // Best-effort external link, like AyahCard's "Read in Quran".
-                          });
-                        }
-                      : undefined
-                  }
-                  direction={direction}
-                />
-              );
-            })}
+            {/* The public legal pages in the app's language (constants/legalLinks.ts), opened in the browser. Available signed in or not. */}
+            {getLegalLinks(locale).map(({ key, url }) => (
+              <LinkRow
+                key={key}
+                label={messages.settings[key]}
+                hint={messages.settings.opensInBrowser}
+                onPress={() => {
+                  Linking.openURL(url).catch(() => {
+                    // Best-effort external link, like AyahCard's "Read in Quran".
+                  });
+                }}
+                direction={direction}
+              />
+            ))}
           </SettingsAccordion>
         </View>
 
@@ -264,8 +254,7 @@ function OptionRow({ label, hint, selected, onPress, direction }: OptionRowProps
 type LinkRowProps = {
   label: string;
   hint: string;
-  /** Unset when this build has no valid URL for the page: the row is disabled and shows `hint` instead of opening anything. */
-  onPress?: () => void;
+  onPress: () => void;
   direction: { writingDirection: 'ltr' | 'rtl'; textAlign: 'left' | 'right' };
 };
 
@@ -274,7 +263,6 @@ function LinkRow({ label, hint, onPress, direction }: LinkRowProps) {
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
   const isRtl = direction.writingDirection === 'rtl';
-  const disabled = !onPress;
   // "Forward" points toward the end of the reading direction.
   const ForwardIcon = isRtl ? ChevronLeft : ChevronRight;
 
@@ -283,15 +271,12 @@ function LinkRow({ label, hint, onPress, direction }: LinkRowProps) {
       accessibilityRole="link"
       accessibilityLabel={label}
       accessibilityHint={hint}
-      accessibilityState={{ disabled }}
-      disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [styles.optionRow, isRtl && styles.optionRowRtl, pressed && styles.pressed]}>
       <View style={styles.optionTextWrap}>
-        <Text style={[styles.optionLabel, disabled && styles.optionLabelDisabled, direction]}>{label}</Text>
-        {disabled && <Text style={[styles.optionHint, direction]}>{hint}</Text>}
+        <Text style={[styles.optionLabel, direction]}>{label}</Text>
       </View>
-      {!disabled && <ForwardIcon size={18} color={colors.textSecondary} />}
+      <ForwardIcon size={18} color={colors.textSecondary} />
     </Pressable>
   );
 }
@@ -371,9 +356,6 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.body,
     fontWeight: '700',
-  },
-  optionLabelDisabled: {
-    color: colors.textMuted,
   },
   optionHint: {
     color: colors.textSecondary,
