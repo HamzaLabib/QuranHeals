@@ -187,15 +187,30 @@ On the first working day of each month (see "Operator calendar"):
 - a last run that failed;
 - a run that started deleting and never recorded its result.
 
-**Scheduling (not activated).** The simplest option for this setup is Windows Task Scheduler on this computer, where the profiles already are. It needs no new service or cost.
-- **Recommended now:** a monthly task that runs only the read-only preflight and `status`, writes the output to a file in the admin folder, and treats exit code 6 as a failed task. Tick "Run task as soon as possible after a scheduled start is missed".
-- **Unattended deletion, later:** possible with `purge --apply --unattended --max-delete <n>`. That run never prompts, but it:
-  - deletes nothing if more than `<n>` reports are due;
-  - refuses to run after an interrupted run;
-  - keeps every other check above.
+**Scheduling (Windows Task Scheduler on the owner's computer): active since 2026-10-09 with `-MaxDelete 25`. The first deletion-enabled run is 2026-11-01 10:00.**
 
-  It would need `QURAN_HEALS_CONFIRM_PRODUCTION_WRITE=quranheals_prod` in `prod-retention.env`. Enable it only after several clean manual months, and with approval.
-- **Limitation:** the computer must be on. A missed month shows up in `status` and is caught up by the next run.
+| Task | Does | Runs as |
+|---|---|---|
+| `QuranHeals-IssueReport-Retention` | On the 1st of each month at 10:00, runs `backend/scripts/windows/issue-report-retention-task.ps1 -AdminDir <admin folder> -MaxDelete <n>`. That script runs `purge --apply --unattended --max-delete <n>` with `prod-retention.env`, then `status`. | Your account. "Run only when logged on" until it is re-registered with the S4U logon type ("run whether logged on or not, without storing a password"), which needs an elevated PowerShell. |
+| `QuranHeals-IssueReport-Retention-Alert` | At logon and daily at 11:00, shows a message box if `RETENTION-NEEDS-ATTENTION.txt` exists in the admin folder. Reads only that file. | Your account (interactive) |
+
+**What the wrapper adds** (every deletion safeguard stays in the retention script):
+- `QURAN_HEALS_SKIP_DOTENV=1` and `QURAN_HEALS_CONFIRM_PRODUCTION_WRITE=quranheals_prod`, for its own process only, never written to a profile;
+- a log per run in `<admin folder>\logs\retention-<UTC time>.log`, containing ids and counts only, removed after 400 days;
+- `RETENTION-NEEDS-ATTENTION.txt` on any non-zero exit, refusal or `status` warning, cleared by the next clean run;
+- a non-zero exit code for Task Scheduler's "Last Run Result".
+
+**Task settings:**
+- a second start while a run is active is ignored, and the script's own lock is a second layer;
+- a missed start runs as soon as the computer is available;
+- it runs on battery and only with a network connection;
+- each run is stopped after 30 minutes.
+
+**`-MaxDelete`:**
+- `0` can never delete: with anything due the run refuses and raises the alert, and with nothing due it records `issue-reports-checked`. It was tested this way on 2026-10-09 from Task Scheduler against production: 5 reports, 0 due, `LastTaskResult 0`, one `issue-reports-checked` audit entry, a second start ignored.
+- Production uses **25** (approved 2026-10-09). A month with more than 25 due deletes nothing, raises the alert, and is handled with an interactive run.
+
+**Limitation:** the computer must be on, and until S4U is set up you must be logged on. A missed month shows up in `status` and the alert, and is caught up by the next start.
 
 ### Recovery
 
