@@ -100,7 +100,7 @@ Never logged: request bodies, headers, tokens, connection strings, reflection co
 - **Duplicates:** every attempt for a report sends a byte-identical request: the same `Idempotency-Key: issue-report-notification/<report id>` and the same body, built only from stored report fields and configuration. Within Resend's 24-hour key window, a retry of an accepted send returns the original result and sends nothing new. Delivery is at least once and normally exactly once; exactly once is **not** guaranteed. Don't change `ISSUE_REPORT_EMAIL_FROM`/`_TO`, or deploy a change to the email format, while jobs are pending: their retries would get the payload-conflict 409 and fail.
 - **Restarts and concurrency:** jobs are claimed with one atomic MongoDB update and a 2-minute lease, so two workers (for example, old and new instance during a deploy) never hold the same job. Pending jobs are sent when the next process starts. A job interrupted mid-send is re-claimed after its lease expires, with the same request.
 - **Variables:** `ISSUE_REPORT_EMAIL` (`off` | `log` (development only) | `resend`), `RESEND_API_KEY`, `ISSUE_REPORT_EMAIL_FROM` and `ISSUE_REPORT_EMAIL_TO` (leave unset). If email is enabled but incomplete, startup stops with a message naming the variables, and Render keeps the previous deploy serving. Startup logs `Issue-report email: off|log|resend`.
-- **Status:** `npm run issue-reports:notifications` (read-only). It prints the count per state (`pending`, `sending`, `accepted`, `failed`), how overdue the oldest active job is, and the ID, attempts and error code of each failed job, never content. In production, run it with the read profile (`npx tsx --env-file=C:\QuranHealsAdmin\prod-read.env src/scripts/issueReportNotificationStatus.ts`); it refuses production without `QURAN_HEALS_SKIP_DOTENV=1`.
+- **Status:** `npm run issue-reports:notifications` (read-only). It prints the count per state (`pending`, `sending`, `accepted`, `failed`), how overdue the oldest active job is, and the ID, attempts and error code of each failed job, never content. In production, run it with the read profile (`npx tsx "--env-file=$admin\prod-read.env" src/scripts/issueReportNotificationStatus.ts`, with `$admin` set to the admin folder (`docs/data-retention.md`)); it refuses production without `QURAN_HEALS_SKIP_DOTENV=1`.
 - **Logs and alerts:** Render logs `[issue-report-email]` lines with report ID, attempt, error code and Resend ID only. A permanent failure is also reported to Sentry as `IssueReportNotificationError` with the code.
 - **Retention:** the outbox entry is part of the report, so the monthly `issue-reports:retention` purge removes it with the report.
 
@@ -160,10 +160,12 @@ Prerequisites: the development test passed; Resend's retention is recorded; the 
 
 The schedule, holds and operator calendar are in `docs/data-retention.md`:
 - weekly verification-case `prune`;
-- monthly `issue-reports:retention` and Gmail review;
+- monthly `issue-reports:retention` (`status`, `preflight`, `purge --apply`) and Gmail review;
 - yearly `audit-prune`.
 
-Email deletion requests are handled with `docs/account-deletion-requests.md`. Both tools run only from the owner's machine and are disabled for production in code.
+Email deletion requests are handled with `docs/account-deletion-requests.md`. Both tools run only from the owner's machine, never on Render.
+- **Account deletion tool:** disabled for production in code.
+- **Issue-report retention:** supports production behind its profile, least-privilege user and confirmation checks. It has not run in production yet; the setup is in `docs/data-retention.md`.
 
 ## Rate limits
 

@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { IssueReportModel } from '../../src/models/IssueReport';
 import { ISSUE_REPORT_RETENTION_MONTHS, issueReportDeadline } from '../../src/retention/retentionPolicy';
 import { assertStatusEnvironment } from '../../src/scripts/issueReportNotificationStatus';
-import { ISSUE_REPORT_RETENTION_PRODUCTION_ENABLED, runIssueReportRetention } from '../../src/scripts/issueReportRetention';
+import { ISSUE_REPORT_RETENTION_PRODUCTION_ENABLED } from '../../src/scripts/issueReportRetention';
 import { MongooseIssueReportNotificationStore } from '../../src/services/MongooseIssueReportNotificationStore';
 import { MongooseIssueReportRepository } from '../../src/services/MongooseIssueReportRepository';
 import { MongooseIssueReportRetentionStore } from '../../src/services/MongooseIssueReportRetentionStore';
@@ -134,10 +134,10 @@ describe('status command', () => {
 });
 
 describe('12-month retention is unchanged', () => {
-  it('still 12 calendar months from submission, and still disabled for production in code', () => {
+  it('still 12 calendar months from submission; production is enabled only behind the script safety checks', () => {
     expect(ISSUE_REPORT_RETENTION_MONTHS).toBe(12);
     expect(issueReportDeadline(new Date('2026-10-09T14:32:05.000Z')).toISOString()).toBe('2027-10-09T14:32:05.000Z');
-    expect(ISSUE_REPORT_RETENTION_PRODUCTION_ENABLED).toBe(false);
+    expect(ISSUE_REPORT_RETENTION_PRODUCTION_ENABLED).toBe(true);
   });
 
   it('the retention cleanup still reads only _id and createdAt — never notification state or content', async () => {
@@ -152,22 +152,15 @@ describe('12-month retention is unchanged', () => {
     expect(selected).toBe('_id createdAt');
   });
 
-  it('a due report is purged whatever its notification state (pending, failed or accepted): its job goes with it', async () => {
-    const rows = [
-      { id: 'a'.repeat(24), createdAt: '2025-01-01T00:00:00.000Z' },
-      { id: 'b'.repeat(24), createdAt: '2025-01-02T00:00:00.000Z' },
-    ];
-    const deleted: string[] = [];
-    const result = await runIssueReportRetention(
-      {
-        store: { countAll: async () => rows.length, findCandidates: async () => rows, deleteByIds: async (ids) => (deleted.push(...ids), ids.length) },
-        holds: { isHeld: () => false },
-        target: { environment: 'development', databaseName: 'quranheals_dev' },
-      },
-      { apply: true, now: NOW },
-      async () => true,
-    );
-    expect(result).toMatchObject({ due: 2, deleted: 2 });
-    expect(deleted).toEqual(rows.map((r) => r.id));
+  it('a due report is purged whatever its notification state: the delete filter is only _id + createdAt, so its embedded job goes with it', async () => {
+    let filter: Record<string, unknown> | undefined;
+    vi.spyOn(IssueReportModel, 'deleteMany').mockImplementation((async (f: Record<string, unknown>) => {
+      filter = f;
+      return { deletedCount: 1 };
+    }) as never);
+    const id = 'a'.repeat(24);
+    await new MongooseIssueReportRetentionStore().deleteByIds([id], NOW);
+    expect(filter).toEqual({ _id: { $in: [id] }, createdAt: { $lte: NOW } });
+    expect(JSON.stringify(filter)).not.toContain('notification');
   });
 });

@@ -11,7 +11,9 @@ import { assertOutsideRepository, FileLock, writeFileAtomic } from './localFiles
  * outside the repository for AUDIT_RETENTION_YEARS (3 years). Deliberately
  * has no field for an email, name, token, verification code, IP, device or
  * any content — only the case, the internal user id (meaningless once the
- * account is gone), the provider, outcomes and counts. Fields are an
+ * account is gone), the provider, outcomes and counts, and for the
+ * issue-report retention cleanup a run id and report ids (never a comment
+ * or an email). Fields are an
  * allowlist, so a future caller can never add a sensitive one by accident.
  *
  * Retention cleanup (`prune`) is the only operation that rewrites the file,
@@ -32,7 +34,10 @@ export type AuditResult =
   | 'issue-reports-deleted'
   | 'cases-pruned'
   | 'audit-entries-pruned'
-  | 'issue-reports-purged';
+  | 'issue-reports-purged'
+  | 'issue-reports-checked'
+  | 'issue-reports-purge-started'
+  | 'failed:issue-report-purge';
 
 export type AuditAction = 'delete-account' | 'delete-issue-reports' | 'prune-cases' | 'audit-prune' | 'issue-report-retention';
 
@@ -47,9 +52,13 @@ export type AuditEntry = {
   provider?: AuthProvider;
   appleRevocation?: AppleRevocationOutcome;
   deleted?: Record<string, number>;
+  /** Issue-report retention: one id per cleanup run, linking its started and finished entries. */
+  run?: string;
+  /** Issue-report retention: ids of the reports a run is about to delete (started) or could not delete (failed). Never content. */
+  reportIds?: string[];
 };
 
-const ALLOWED_KEYS: readonly (keyof AuditEntry)[] = ['case', 'at', 'environment', 'database', 'action', 'result', 'userId', 'provider', 'appleRevocation', 'deleted'];
+const ALLOWED_KEYS: readonly (keyof AuditEntry)[] = ['case', 'at', 'environment', 'database', 'action', 'result', 'userId', 'provider', 'appleRevocation', 'deleted', 'run', 'reportIds'];
 
 export type AuditPruneReport = {
   mode: 'dry-run' | 'apply';

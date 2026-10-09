@@ -7,7 +7,7 @@ Approved retention periods, how each one is enforced, and who does what. The leg
 | Data | Retention | Mechanism | Status |
 |---|---|---|---|
 | Account data (users, sessions, favorites, preferences, reflections, sync key, Apple token) | Until the account is deleted | In-app deletion, or the email procedure (`docs/account-deletion-requests.md`) | In-app: operational. Email procedure: development only. |
-| Issue reports (database) | 12 months from submission | `npm run issue-reports:retention`, run monthly | Implemented and tested in development. **Production disabled in code**; first production run needs approval. |
+| Issue reports (database) | 12 calendar months from submission | `npm run issue-reports:retention`, run monthly | Implemented, tested and rehearsed in development; production supported in code. **No production run yet:** it needs the retention user and profiles below, and approval. |
 | Issue-report notification emails (Gmail) | 12 months from submission, the same as the database copy | Manual Gmail procedure below (`QH/Issue-report`) | Built, **notifications off** (`ISSUE_REPORT_EMAIL=off`); not deployed. Manual once enabled. |
 | Issue-report notification emails (Resend's copy) | Provider retention: **not yet verified** | Provider-managed | **Verification pending** (see Issue-report notification emails below) |
 | Account-deletion email threads | 60 days after the request is completed | Manual Gmail procedure below | Manual. Not automated. |
@@ -52,7 +52,7 @@ Gmail threads under preservation get the Gmail label `QH/Hold`, plus a dated not
 | When | Task |
 |---|---|
 | Weekly | `prune` (cases): dry run, then `--apply` if anything is eligible |
-| Monthly (first working day) | `issue-reports:retention -- preflight`, then `purge --apply` (production only once enabled). Gmail review (below). Check holds that are due for review. |
+| Monthly (first working day) | `issue-reports:retention -- status`, `preflight`, then `purge --apply`, then `status` again (see Issue reports below). Gmail review (below). Check holds that are due for review. |
 | Yearly | `audit-prune` (dry run every year; entries first become eligible in October 2029) |
 | Before publishing the legal pages | Verify Sentry retention (below) |
 
@@ -92,29 +92,120 @@ npm run account:admin-delete -- audit-prune --audit-log <audit.jsonl> --holds <h
 
 ## Issue reports (database)
 
-Approved retention: 12 months from submission. This is enforced by `npm run issue-reports:retention`, **not a MongoDB TTL index**, because:
+**Rule:** a report is deleted once **12 calendar months** have passed since it was submitted (`createdAt`, UTC). A report becomes due exactly at that moment, never earlier. 29 February rolls forward to 1 March (see "Schedule").
 
-- a TTL index deletes every existing report past the period as soon as it is built, with no dry run;
-- it can't honour preservation holds;
-- removing or changing it is itself a production change.
+**Mechanism:** `npm run issue-reports:retention`, run monthly from the owner's computer. It is deliberately **not** a MongoDB TTL index, because a TTL index:
+- deletes every existing report past the period the moment it is built, with no dry run;
+- can't honour holds;
+- is itself a production change to remove or adjust.
 
-```powershell
-npm run issue-reports:retention -- preflight --holds <holds.json>
-npm run issue-reports:retention -- purge --holds <holds.json> --audit-log <audit.jsonl> --apply
-```
+**Production status:**
+- The code supports production (`ISSUE_REPORT_RETENTION_PRODUCTION_ENABLED = true`), but it still needs every check below.
+- **No production run has happened yet.** The first one needs the setup below and your approval.
+- Development rehearsal on 2026-10-09 against `quranheals_dev`: the due report was deleted with its notification entry, the held and not-yet-due reports were kept, no other collection was touched, and a repeat run deleted nothing.
 
 **What the script reads and deletes:**
 - It reads only `_id` and `createdAt`, never a comment or an email.
-- It deletes due reports by exact `_id`.
-- It never deletes held reports, or reports without a valid `createdAt`.
-- Apply asks you to type `DELETE <n>` and audits the count.
+- It deletes due reports by exact `_id`. The database delete itself also requires `createdAt` to be at least 365 days old, as a backstop.
+- The report's embedded email-notification entry is part of the same document, so it goes with it.
+- It never deletes held reports, or reports without a valid `createdAt`. It touches no other collection; the production user can't anyway.
 
-**Development result (2026-10-09, read-only preflight on `quranheals_dev`):** 2 reports, 0 due.
+### One-time setup (production)
 
-**Production status:**
-- Disabled in code (`ISSUE_REPORT_RETENTION_PRODUCTION_ENABLED = false`).
-- No production preflight has been run.
-- Enabling it needs approval and the production profiles described in `docs/account-deletion-requests.md`. Read-only preflight uses the read profile; purge uses the deletion profile (`find` + `remove` on `issuereports` is part of that role).
+1. **Admin folder:** outside the repository, with access for your Windows account, SYSTEM and Administrators only (NTFS permissions as in `docs/account-deletion-requests.md`). Current location (since 2026-10-09):
+   `C:\Users\hamzalabib\OneDrive - McGill University\Documents\Personal\My App\QuranHealsAdmin`
+   **This is inside the McGill OneDrive**, against the recommendation to keep it outside: files there sync to the organization's cloud, and deleted holds or audit lines can survive in OneDrive's version history and recycle bin. See "Admin folder location" in `docs/account-deletion-requests.md`.
+2. **Holds file:** create it once, empty, as UTF-8 **without** a byte-order mark: `[IO.File]::WriteAllText("$admin\holds.json", '{"formatVersion":1,"holds":{}}')`. Windows PowerShell's `Set-Content -Encoding utf8` adds a BOM, and the tool then refuses the file. The same applies to the `.env` profiles: in Notepad, save them as "UTF-8", not "UTF-8 with BOM". Every run requires this file to exist and be valid, so a mistyped path stops the run instead of meaning "no holds".
+3. **Retention database user** in Atlas (Database Access). It has its own role, separate from the account-deletion user, because the purge refuses any user that can do more than this:
+   - Custom role `quranheals-issue-report-retention`: actions `find` and `remove` on database `quranheals_prod`, collection `issuereports`. Nothing else: no other collection, no insert or update, no index or database-wide actions.
+   - User `quranheals-prod-retention` with only that role. Use a generated password, and restrict access to your IP in Network Access if possible.
+4. **Profiles** in the admin folder, each loaded with Node's `--env-file` (never `backend/.env`). In production the backend's config refuses to load without `SESSION_JWT_SECRET`. The admin scripts never sign or check session tokens, so use a **random local value**, never Render's real secret:
+
+   `prod-read.env` (already described for account deletion; read-only user):
+   ```text
+   NODE_ENV=production
+   MONGODB_DB_NAME=quranheals_prod
+   MONGODB_URI=<quranheals-prod-audit connection string>
+   MONGODB_ENFORCE_CREDENTIAL_SCOPE=true
+   QURAN_HEALS_SKIP_DOTENV=1
+   QURAN_HEALS_ADMIN_PROFILE=production-read
+   SESSION_JWT_SECRET=<any long random string from a password manager; never Render's real secret>
+   ```
+   `prod-retention.env` (deletes issue reports only):
+   ```text
+   NODE_ENV=production
+   MONGODB_DB_NAME=quranheals_prod
+   MONGODB_URI=<quranheals-prod-retention connection string>
+   MONGODB_ENFORCE_CREDENTIAL_SCOPE=true
+   QURAN_HEALS_SKIP_DOTENV=1
+   QURAN_HEALS_ADMIN_PROFILE=production-retention
+   SESSION_JWT_SECRET=<any long random string from a password manager; never Render's real secret>
+   ```
+5. **Audit log:** `audit.jsonl` in the admin folder, the same file as the deletion tool, kept for 3 years per entry.
+
+### Commands (from `backend/`)
+
+```powershell
+# The admin folder. Its path contains spaces: keep every argument below in double quotes.
+$admin = 'C:\Users\hamzalabib\OneDrive - McGill University\Documents\Personal\My App\QuranHealsAdmin'
+
+# 1. Read-only preflight: totals, cutoff, due / held / not-yet-due counts, and the due report ids
+npx tsx "--env-file=$admin\prod-read.env" src/scripts/issueReportRetention.ts preflight --holds "$admin\holds.json"
+
+# 2. Cleanup (interactive): type "DELETE <n> FROM quranheals_prod" when asked
+$env:QURAN_HEALS_CONFIRM_PRODUCTION_WRITE = 'quranheals_prod'
+npx tsx "--env-file=$admin\prod-retention.env" src/scripts/issueReportRetention.ts purge --holds "$admin\holds.json" --audit-log "$admin\audit.jsonl" --apply
+
+# 3. Status (no database): last run, days since the last success, failed or interrupted runs. Exit code 6 = needs attention.
+npx tsx src/scripts/issueReportRetention.ts status --audit-log "$admin\audit.jsonl"
+```
+
+**Every production run is refused unless all of these hold:**
+- the env profile is loaded (`QURAN_HEALS_SKIP_DOTENV=1`);
+- the admin profile matches the step (`production-read` to look, `production-retention` to delete);
+- the connected user passes the strict credential check;
+- for deleting: `QURAN_HEALS_CONFIRM_PRODUCTION_WRITE=quranheals_prod`, plus the typed confirmation naming both the count and the database.
+
+After the confirmation, holds and eligibility are read again; if anything changed, nothing is deleted. Only one deleting run can happen at a time, enforced by `audit.jsonl.retention-run.lock`.
+
+**Audit entries** (`action: issue-report-retention`; ids and counts only, never content):
+- `issue-reports-purge-started`: the run id and the ids about to be deleted;
+- `issue-reports-purged`: the count verified by re-reading the ids afterwards;
+- `failed:issue-report-purge`: what was and wasn't deleted;
+- `issue-reports-checked`: an `--apply` run with nothing due, so a quiet month is distinguishable from a missed run.
+
+### Monthly operation and monitoring
+
+On the first working day of each month (see "Operator calendar"):
+1. Run `status`, then the preflight, and check the due ids.
+2. Place holds for anything that must be kept.
+3. Run the cleanup.
+4. Run `status` again (it should say `"ok": true`), then do the Gmail review for `QH/Issue-report`.
+
+`status` flags:
+- no successful run in more than 35 days (a missed month);
+- a last run that failed;
+- a run that started deleting and never recorded its result.
+
+**Scheduling (not activated).** The simplest option for this setup is Windows Task Scheduler on this computer, where the profiles already are. It needs no new service or cost.
+- **Recommended now:** a monthly task that runs only the read-only preflight and `status`, writes the output to a file in the admin folder, and treats exit code 6 as a failed task. Tick "Run task as soon as possible after a scheduled start is missed".
+- **Unattended deletion, later:** possible with `purge --apply --unattended --max-delete <n>`. That run never prompts, but it:
+  - deletes nothing if more than `<n>` reports are due;
+  - refuses to run after an interrupted run;
+  - keeps every other check above.
+
+  It would need `QURAN_HEALS_CONFIRM_PRODUCTION_WRITE=quranheals_prod` in `prod-retention.env`. Enable it only after several clean manual months, and with approval.
+- **Limitation:** the computer must be on. A missed month shows up in `status` and is caught up by the next run.
+
+### Recovery
+
+- **A run stopped part-way** (crash, lost connection, closed terminal):
+  - `status` lists it under `interruptedRuns`, and its `issue-reports-purge-started` entry lists the ids it meant to delete.
+  - Run the preflight, then the cleanup again. It re-selects only reports that are still due, so it completes the earlier run, and its `issue-reports-purged` entry closes it.
+  - Unattended runs refuse until this has been done by hand.
+- **The lock file `audit.jsonl.retention-run.lock` exists:** check that no other run is active (Task Scheduler, another terminal). Then delete the `.lock` file and run again.
+- **`failed:issue-report-purge`:** the entry says how many were deleted and lists the ids still present. Fix the cause (credentials, network, permissions), then run again.
+- **Permission errors** ("not authorized", or the credential-scope refusal): check the `quranheals-prod-retention` role against step 3 of the setup. Never work around it with a broader user.
 
 **Unresolved reports:** if a report older than 12 months is still needed, for example for an open security or content issue, place an `issue-report` hold before the monthly purge. Otherwise it is deleted on schedule. Extract any non-personal technical detail you need into your own notes first.
 

@@ -26,12 +26,19 @@ Keep every admin file in one folder **outside OneDrive and outside every reposit
 These are documented commands only: run them yourself, and nothing configures them automatically.
 
 ```powershell
-$admin = 'C:\QuranHealsAdmin'
+$admin = 'C:\Users\hamzalabib\OneDrive - McGill University\Documents\Personal\My App\QuranHealsAdmin'   # current location; see "Admin folder location" below
 New-Item -ItemType Directory -Path $admin
-# Remove inherited access; grant only your own account and SYSTEM (needed by Windows itself).
-icacls $admin /inheritance:r /grant:r "${env:USERDOMAIN}\${env:USERNAME}:(OI)(CI)F" "SYSTEM:(OI)(CI)F"
-icacls $admin   # verify: only those two entries
+# Remove inherited access; grant only your own account, SYSTEM and Administrators (SIDs, so it works in any Windows language).
+icacls $admin /inheritance:r /grant:r "${env:USERDOMAIN}\${env:USERNAME}:(OI)(CI)F" "*S-1-5-18:(OI)(CI)F" "*S-1-5-32-544:(OI)(CI)F"
+icacls $admin   # verify: only those three entries
 ```
+
+**Admin folder location.** Since 2026-10-09 the folder is `C:\Users\hamzalabib\OneDrive - McGill University\Documents\Personal\My App\QuranHealsAdmin`, which is **inside the McGill OneDrive**, against the recommendation above. What that means:
+- the production connection strings in the `.env` profiles are uploaded to McGill's Microsoft 365 tenant, which is managed by the university;
+- holds, cases and audit lines that a cleanup removes can survive in OneDrive's version history and recycle bin, outside the approved retention periods;
+- the deletion tool prints a OneDrive warning for files there.
+
+To follow the recommendation: move the folder outside OneDrive (for example `C:\QuranHealsAdmin`), update `$admin`, empty the folder's OneDrive recycle bin, and rotate the passwords of the users whose connection strings were synced. The NTFS permissions travel with the folder only on the same drive; re-run the `icacls` lines after a move.
 
 | File | Contents | Sensitive because |
 |---|---|---|
@@ -56,6 +63,7 @@ MONGODB_URI=<quranheals-prod-audit connection string>
 MONGODB_ENFORCE_CREDENTIAL_SCOPE=true
 QURAN_HEALS_SKIP_DOTENV=1
 QURAN_HEALS_ADMIN_PROFILE=production-read
+SESSION_JWT_SECRET=<any long random string from a password manager; never Render's real secret>
 ```
 
 `prod-delete.env`, for `delete --apply` and `issue-reports --apply`:
@@ -67,6 +75,7 @@ MONGODB_URI=<quranheals-prod-deletion connection string>
 MONGODB_ENFORCE_CREDENTIAL_SCOPE=true
 QURAN_HEALS_SKIP_DOTENV=1
 QURAN_HEALS_ADMIN_PROFILE=production-delete
+SESSION_JWT_SECRET=<any long random string from a password manager; never Render's real secret>
 APPLE_TEAM_ID=...
 APPLE_KEY_ID=...
 APPLE_PRIVATE_KEY=...            # the .p8 contents, newlines as \n
@@ -77,7 +86,7 @@ APPLE_REFRESH_TOKEN_ENCRYPTION_KEY=...   # must equal Render's value
 Each run loads exactly one profile with Node's `--env-file`, from `backend/`:
 
 ```powershell
-npx tsx --env-file=C:\QuranHealsAdmin\prod-read.env src/scripts/adminDeleteAccount.ts lookup --provider google
+npx tsx "--env-file=$admin\prod-read.env" src/scripts/adminDeleteAccount.ts lookup --provider google
 ```
 
 For a write, you also type `$env:QURAN_HEALS_CONFIRM_PRODUCTION_WRITE = 'quranheals_prod'` in that session. It isn't secret. Never type a connection string at the prompt.
@@ -184,7 +193,7 @@ Rehearse the production two-user setup on `quranheals_dev` with two profiles. Th
 - Development profiles are refused against production, and production profiles against development.
 - With no profile, development keeps using the normal `quranheals-dev` user, as before.
 
-`C:\QuranHealsAdmin\dev-delete.env`:
+`$admin\dev-delete.env`:
 
 ```text
 NODE_ENV=development
@@ -197,7 +206,7 @@ QURAN_HEALS_ADMIN_PROFILE=development-delete
 **Check the role before using it** (development only):
 
 ```powershell
-npx tsx --env-file=C:\QuranHealsAdmin\dev-delete.env src/scripts/verifyDeletionRole.ts
+npx tsx "--env-file=$admin\dev-delete.env" src/scripts/verifyDeletionRole.ts
 ```
 
 It refuses anything but `quranheals_dev` with the `development-delete` profile, before connecting. Then it:

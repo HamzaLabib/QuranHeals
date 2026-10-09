@@ -146,13 +146,15 @@ describe('issue-report retention (12 months)', () => {
     const store: IssueReportRetentionStore = {
       countAll: async () => rows.length,
       findCandidates: async (cutoff) => rows.filter((r) => !r.createdAt || Date.parse(r.createdAt) <= cutoff.getTime()),
-      deleteByIds: async (ids) => {
+      deleteByIds: async (ids, notAfter) => {
+        let count = 0;
         for (const target of ids) {
-          const index = rows.findIndex((r) => r.id === target);
-          if (index >= 0) { rows.splice(index, 1); deletedIds.push(target); }
+          const index = rows.findIndex((r) => r.id === target && r.createdAt !== null && Date.parse(r.createdAt) <= notAfter.getTime());
+          if (index >= 0) { rows.splice(index, 1); deletedIds.push(target); count++; }
         }
-        return ids.length;
+        return count;
       },
+      existingIds: async (ids) => ids.filter((target) => rows.some((r) => r.id === target)),
     };
     return { store, rows, deletedIds };
   }
@@ -183,18 +185,23 @@ describe('issue-report retention (12 months)', () => {
     const result = await runIssueReportRetention({ store, holds, audit, target }, { apply: true, now }, async (n) => n === 1);
     expect(result).toMatchObject({ mode: 'apply', due: 1, held: 1, deleted: 1 });
     expect(deletedIds).toEqual([id(1)]);
-    expect(audit.entries()).toEqual([expect.objectContaining({ action: 'issue-report-retention', deleted: { IssueReport: 1 } })]);
+    expect(audit.entries()).toEqual([
+      expect.objectContaining({ action: 'issue-report-retention', result: 'issue-reports-purge-started', reportIds: [id(1)] }),
+      expect.objectContaining({ action: 'issue-report-retention', result: 'issue-reports-purged', deleted: { IssueReport: 1 } }),
+    ]);
 
     const again = await runIssueReportRetention({ store, holds, audit, target }, { apply: true, now }, async () => true);
     expect(again).toMatchObject({ due: 0, deleted: 0 });
+    expect(audit.entries().at(-1)).toMatchObject({ result: 'issue-reports-checked', deleted: { IssueReport: 0 } });
   });
 
-  it('the script requires holds, is disabled for production in code, and needs a deletion-only user to purge', () => {
+  it('the script requires holds, supports production only behind its safety checks, and needs a deletion-only user to purge', () => {
     expect(() => parseRetentionArgs(['preflight'])).toThrow(/--holds is required/);
     expect(() => parseRetentionArgs(['purge', '--holds', 'h.json'])).toThrow(/--audit-log is required/);
     const purge = parseRetentionArgs(['purge', '--holds', 'h.json', '--audit-log', 'a.jsonl', '--apply']);
-    expect(retentionScriptAccess(purge)).toMatchObject({ writes: true, productionSupported: false, enforceCredentialScope: true, deletionOnlyCollections: ['issuereports'] });
-    expect(() => assertRetentionEnvironment({ environment: 'production', databaseName: 'quranheals_prod' })).toThrow(/not enabled/);
+    expect(retentionScriptAccess(purge)).toMatchObject({ writes: true, productionSupported: true, enforceCredentialScope: true, deletionOnlyCollections: ['issuereports'] });
+    expect(retentionScriptAccess(purge, false)).toMatchObject({ productionSupported: false });
+    expect(() => assertRetentionEnvironment({ environment: 'production', databaseName: 'quranheals_prod' }, false)).toThrow(/not enabled/);
     expect(() => assertRetentionEnvironment({ environment: 'production', databaseName: 'quranheals_prod' }, true, {})).toThrow(/QURAN_HEALS_SKIP_DOTENV/);
     expect(() => assertRetentionEnvironment({ environment: 'development', databaseName: 'quranheals_dev' })).not.toThrow();
   });
