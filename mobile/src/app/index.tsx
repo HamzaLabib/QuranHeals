@@ -2,7 +2,7 @@ import { Link, router } from 'expo-router';
 import { BookOpen, Heart, NotebookPen, RefreshCw, Settings } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { EmotionCard } from '@/components/EmotionCard';
 import { StateView } from '@/components/StateView';
@@ -16,6 +16,7 @@ import { getCachedEmotions, setCachedEmotions } from '@/storage/emotionsCache';
 import type { Emotion } from '@/types/domain';
 import { devLog } from '@/utils/devLog';
 import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
+import { scrollBottomPadding } from '@/utils/safeAreaSpacing';
 
 // Backgrounded only briefly (e.g. a quick app switch) — not worth a full
 // revalidation on every foreground; see Part 4's "foreground refresh
@@ -28,6 +29,11 @@ export default function HomeScreen() {
   const { locale, messages } = useAppLocale();
   const direction = getDirectionStyle(locale);
   const isRtl = isRtlLocale(locale);
+  // The SafeAreaView below leaves out the bottom edge so the list can scroll
+  // behind Android's edge-to-edge navigation bar; the bottom inset is added
+  // to the scroll content instead (once), so the disclaimer always ends
+  // fully above the gesture bar / 3-button bar / home indicator.
+  const insets = useSafeAreaInsets();
   const [emotions, setEmotions] = useState<Emotion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -153,7 +159,7 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding(insets.bottom) }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -271,9 +277,9 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   scroll: {
     flex: 1,
   },
+  // paddingBottom is applied inline: the bottom safe-area inset + clearance (scrollBottomPadding).
   content: {
     gap: spacing.xl,
-    paddingBottom: spacing.xxl,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
   },
