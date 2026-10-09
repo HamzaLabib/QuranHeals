@@ -18,7 +18,7 @@ describe('Settings screen: app language selection', () => {
   });
 
   it('selecting a language calls setLocale, which (per useAppLocale.tsx) updates and persists the choice immediately', () => {
-    expect(source).toMatch(/onPress=\{\(\) => setLocale\(option\)\}/);
+    expect(source).toMatch(/onPress=\{\(\) => choose\(\(\) => setLocale\(option\)\)\}/);
   });
 
   it('marks the currently-active locale as selected for accessibility/visual state', () => {
@@ -32,7 +32,7 @@ describe('Settings screen: Quran translation display-mode selection', () => {
   });
 
   it('selecting a mode calls setDisplayMode, which persists via the shared QuranTranslationPreferenceProvider', () => {
-    expect(source).toMatch(/onPress=\{\(\) => setDisplayMode\(mode\)\}/);
+    expect(source).toMatch(/onPress=\{\(\) => choose\(\(\) => setDisplayMode\(mode\)\)\}/);
   });
 
   it('marks the currently-active display mode as selected', () => {

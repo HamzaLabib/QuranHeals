@@ -1,13 +1,14 @@
 import { router } from 'expo-router';
-import { ArrowLeft, ArrowRight, Check, ExternalLink } from 'lucide-react-native';
+import { ArrowLeft, ArrowRight, Check, ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useCallback, useRef, useState } from 'react';
-import { Linking, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { LayoutAnimation, Linking, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/useAuth';
 import { AccountSection } from '@/components/AccountSection';
-import { getLegalLinks } from '@/constants/legalLinks';
-import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
+import { SettingsAccordion } from '@/components/SettingsAccordion';
+import { getLegalLinks, LEGAL_LINK_KEYS, type LegalLinkKey } from '@/constants/legalLinks';
+import { radii, spacing, typography, type Palette } from '@/constants/theme';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { APP_LOCALES, APP_LOCALE_DISPLAY_NAMES, getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
@@ -19,8 +20,18 @@ import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefres
 
 const TRANSLATION_DISPLAY_MODES: readonly TranslationDisplayMode[] = ['always', 'on-demand', 'off'];
 const APPEARANCE_MODES: readonly AppearanceMode[] = ['system', 'light', 'dark'];
-// Only links configured for this build (constants/legalLinks.ts); none → no section.
+// Only links configured for this build (constants/legalLinks.ts). All three
+// rows always show; a row without a valid URL is disabled and never opened.
 const LEGAL_LINKS = getLegalLinks();
+const LEGAL_URLS: Partial<Record<LegalLinkKey, string>> = Object.fromEntries(LEGAL_LINKS.map(({ key, url }) => [key, url]));
+
+/** The four collapsible sections; at most one is open at a time. Account and the Danger Zone are not part of this. */
+type SettingsSectionKey = 'language' | 'translation' | 'appearance' | 'legal';
+
+/** Animates the next layout change: a section opening/closing and the cards below it moving. */
+function animateNextLayout() {
+  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+}
 
 export default function SettingsScreen() {
   const colors = usePalette();
@@ -39,6 +50,22 @@ export default function SettingsScreen() {
   // the `isRefreshing` state below.
   const refreshGuardRef = useRef<RefreshInFlightRef>({ current: false });
   const [isRefreshing, setIsRefreshing] = useState(false);
+  // Local UI state only: opening/closing a section never touches a
+  // preference, storage, or the network.
+  const [openSection, setOpenSection] = useState<SettingsSectionKey | null>(null);
+
+  const toggleSection = (section: SettingsSectionKey) => {
+    animateNextLayout();
+    setOpenSection((current) => (current === section ? null : section));
+  };
+
+  // Applies a choice through its existing preference setter (which updates
+  // and persists it immediately), then closes the section — no Save step.
+  const choose = (apply: () => void) => {
+    apply();
+    animateNextLayout();
+    setOpenSection(null);
+  };
 
   const onPullToRefresh = useCallback(async () => {
     await runGuardedRefresh(refreshGuardRef.current, async () => {
@@ -104,75 +131,93 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={[styles.sectionLabel, direction]}>{messages.settings.appLanguageSection}</Text>
-          <View style={styles.optionList}>
+        <View style={styles.accordionGroup}>
+          <SettingsAccordion
+            title={messages.settings.appLanguageSection}
+            summary={APP_LOCALE_DISPLAY_NAMES[locale]}
+            expanded={openSection === 'language'}
+            onToggle={() => toggleSection('language')}
+            direction={direction}
+            isRtl={isRtl}>
             {APP_LOCALES.map((option) => (
               <OptionRow
                 key={option}
                 label={APP_LOCALE_DISPLAY_NAMES[option]}
                 selected={option === locale}
-                onPress={() => setLocale(option)}
+                onPress={() => choose(() => setLocale(option))}
                 direction={getDirectionStyle(option)}
               />
             ))}
-          </View>
-        </View>
+          </SettingsAccordion>
 
-        <View style={styles.section}>
-          <Text style={[styles.sectionLabel, direction]}>{messages.settings.quranTranslationSection}</Text>
-          <View style={styles.optionList}>
+          <SettingsAccordion
+            title={messages.settings.quranTranslationSection}
+            summary={translationModeLabel[preference.displayMode]}
+            expanded={openSection === 'translation'}
+            onToggle={() => toggleSection('translation')}
+            direction={direction}
+            isRtl={isRtl}>
             {TRANSLATION_DISPLAY_MODES.map((mode) => (
               <OptionRow
                 key={mode}
                 label={translationModeLabel[mode]}
                 hint={translationModeHint[mode]}
                 selected={mode === preference.displayMode}
-                onPress={() => setDisplayMode(mode)}
+                onPress={() => choose(() => setDisplayMode(mode))}
                 direction={direction}
               />
             ))}
-          </View>
-          {/* <Text style={[styles.note, direction]}>{messages.settings.quranArabicNote}</Text> */}
-        </View>
+            {/* <Text style={[styles.note, direction]}>{messages.settings.quranArabicNote}</Text> */}
+          </SettingsAccordion>
 
-        <View style={styles.section}>
-          <Text style={[styles.sectionLabel, direction]}>{messages.appearance.sectionLabel}</Text>
-          <View style={styles.optionList}>
+          <SettingsAccordion
+            title={messages.appearance.sectionLabel}
+            summary={appearanceModeLabel[mode]}
+            expanded={openSection === 'appearance'}
+            onToggle={() => toggleSection('appearance')}
+            direction={direction}
+            isRtl={isRtl}>
             {APPEARANCE_MODES.map((option) => (
               <OptionRow
                 key={option}
                 label={appearanceModeLabel[option]}
                 selected={option === mode}
-                onPress={() => setMode(option)}
+                onPress={() => choose(() => setMode(option))}
                 direction={direction}
               />
             ))}
-          </View>
-        </View>
+          </SettingsAccordion>
 
-        <AccountSection locale={locale} messages={messages} direction={direction} isRtl={isRtl} />
-
-        {LEGAL_LINKS.length > 0 && (
-          <View style={styles.section}>
-            <Text style={[styles.sectionLabel, direction]}>{messages.settings.legalSection}</Text>
-            <View style={styles.optionList}>
-              {LEGAL_LINKS.map(({ key, url }) => (
+          <SettingsAccordion
+            title={messages.settings.legalSection}
+            expanded={openSection === 'legal'}
+            onToggle={() => toggleSection('legal')}
+            direction={direction}
+            isRtl={isRtl}>
+            {LEGAL_LINK_KEYS.map((key) => {
+              const url = LEGAL_URLS[key];
+              return (
                 <LinkRow
                   key={key}
                   label={messages.settings[key]}
-                  hint={messages.settings.opensInBrowser}
-                  onPress={() => {
-                    Linking.openURL(url).catch(() => {
-                      // Best-effort external link, like AyahCard's "Read in Quran".
-                    });
-                  }}
+                  hint={url ? messages.settings.opensInBrowser : messages.settings.legalUnavailable}
+                  onPress={
+                    url
+                      ? () => {
+                          Linking.openURL(url).catch(() => {
+                            // Best-effort external link, like AyahCard's "Read in Quran".
+                          });
+                        }
+                      : undefined
+                  }
                   direction={direction}
                 />
-              ))}
-            </View>
-          </View>
-        )}
+              );
+            })}
+          </SettingsAccordion>
+        </View>
+
+        <AccountSection locale={locale} messages={messages} direction={direction} isRtl={isRtl} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -219,27 +264,34 @@ function OptionRow({ label, hint, selected, onPress, direction }: OptionRowProps
 type LinkRowProps = {
   label: string;
   hint: string;
-  onPress: () => void;
+  /** Unset when this build has no valid URL for the page: the row is disabled and shows `hint` instead of opening anything. */
+  onPress?: () => void;
   direction: { writingDirection: 'ltr' | 'rtl'; textAlign: 'left' | 'right' };
 };
 
-/** Same row as OptionRow, for a link that leaves the app (external-link icon instead of a checkmark). */
+/** Same row as OptionRow, for a page that opens outside the app (a forward chevron instead of a checkmark). */
 function LinkRow({ label, hint, onPress, direction }: LinkRowProps) {
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
   const isRtl = direction.writingDirection === 'rtl';
+  const disabled = !onPress;
+  // "Forward" points toward the end of the reading direction.
+  const ForwardIcon = isRtl ? ChevronLeft : ChevronRight;
 
   return (
     <Pressable
       accessibilityRole="link"
       accessibilityLabel={label}
       accessibilityHint={hint}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [styles.optionRow, isRtl && styles.optionRowRtl, pressed && styles.pressed]}>
       <View style={styles.optionTextWrap}>
-        <Text style={[styles.optionLabel, direction]}>{label}</Text>
+        <Text style={[styles.optionLabel, disabled && styles.optionLabelDisabled, direction]}>{label}</Text>
+        {disabled && <Text style={[styles.optionHint, direction]}>{hint}</Text>}
       </View>
-      <ExternalLink size={18} color={colors.icon} />
+      {!disabled && <ForwardIcon size={18} color={colors.textSecondary} />}
     </Pressable>
   );
 }
@@ -291,23 +343,8 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     fontSize: typography.caption,
     lineHeight: 18,
   },
-  section: {
+  accordionGroup: {
     gap: spacing.sm,
-  },
-  sectionLabel: {
-    color: colors.accent,
-    fontSize: typography.small,
-    fontWeight: '700',
-    letterSpacing: 0,
-    textTransform: 'uppercase',
-  },
-  optionList: {
-    backgroundColor: colors.card,
-    borderColor: colors.border,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    overflow: 'hidden',
-    ...shadows.soft,
   },
   optionRow: {
     alignItems: 'center',
@@ -334,6 +371,9 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.body,
     fontWeight: '700',
+  },
+  optionLabelDisabled: {
+    color: colors.textMuted,
   },
   optionHint: {
     color: colors.textSecondary,

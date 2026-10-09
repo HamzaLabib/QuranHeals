@@ -370,7 +370,7 @@ describe('Settings screen: Appearance selection (source-scan, matching the App L
   });
 
   it('selecting an option calls setMode, which (per useAppearancePreference.tsx) updates and persists the choice immediately', () => {
-    expect(source).toMatch(/onPress=\{\(\) => setMode\(option\)\}/);
+    expect(source).toMatch(/onPress=\{\(\) => choose\(\(\) => setMode\(option\)\)\}/);
   });
 
   it('marks the currently-active mode as selected for accessibility/visual state', () => {
@@ -390,25 +390,34 @@ describe('Settings screen: Appearance selection (source-scan, matching the App L
 });
 
 describe('Appearance labels are localized correctly in every app locale', () => {
-  it('en: System / Light / Dark', async () => {
+  it('en: Auto / Light / Dark', async () => {
     const { MESSAGES } = await import('@/localization/messages');
-    expect(MESSAGES.en.appearance).toMatchObject({ system: 'System', light: 'Light', dark: 'Dark' });
+    expect(MESSAGES.en.appearance).toMatchObject({ system: 'Auto', light: 'Light', dark: 'Dark' });
   });
 
-  it('ar (Standard Arabic): تلقائي / فاتح / الوضع الليلي', async () => {
+  it('ar (Standard Arabic): تلقائي / وضع النهار / وضع الليل', async () => {
     const { MESSAGES } = await import('@/localization/messages');
-    expect(MESSAGES.ar.appearance).toMatchObject({ system: 'تلقائي', light: 'فاتح', dark: 'الوضع الليلي' });
+    expect(MESSAGES.ar.appearance).toMatchObject({ system: 'تلقائي', light: 'وضع النهار', dark: 'وضع الليل' });
   });
 
-  it('ar-EG (Egyptian Arabic): تلقائي / فاتح / الوضع الليلي', async () => {
+  it('ar-EG (Egyptian Arabic): تلقائي / وضع النهار / وضع الليل', async () => {
     const { MESSAGES } = await import('@/localization/messages');
-    expect(MESSAGES['ar-EG'].appearance).toMatchObject({ system: 'تلقائي', light: 'فاتح', dark: 'الوضع الليلي' });
+    expect(MESSAGES['ar-EG'].appearance).toMatchObject({ system: 'تلقائي', light: 'وضع النهار', dark: 'وضع الليل' });
   });
 
-  it('Dark never uses a banned literal "dark theme" phrasing in Arabic — only الوضع الليلي', async () => {
+  it('never uses the superseded Arabic labels فاتح / داكن / الوضع النهاري / الوضع الليلي', async () => {
     const { MESSAGES } = await import('@/localization/messages');
     for (const locale of ['ar', 'ar-EG'] as const) {
-      expect(MESSAGES[locale].appearance.dark).toBe('الوضع الليلي');
+      for (const label of Object.values(MESSAGES[locale].appearance)) {
+        expect(['فاتح', 'داكن', 'الوضع النهاري', 'الوضع الليلي']).not.toContain(label);
+      }
+    }
+  });
+
+  it('Dark never uses a banned literal "dark theme" phrasing in Arabic — only وضع الليل', async () => {
+    const { MESSAGES } = await import('@/localization/messages');
+    for (const locale of ['ar', 'ar-EG'] as const) {
+      expect(MESSAGES[locale].appearance.dark).toBe('وضع الليل');
       expect(MESSAGES[locale].appearance.dark).not.toBe('الوضع الداكن');
       expect(MESSAGES[locale].appearance.dark).not.toBe('المظهر الداكن');
       expect(MESSAGES[locale].appearance.dark).not.toBe('السمة الداكنة');

@@ -122,13 +122,15 @@ export type Messages = {
     translationDisplayOnDemandHint: string;
     translationDisplayOffHint: string;
     quranArabicNote: string;
-    /** "Privacy & legal" section. Each row appears only when its public page URL is configured (constants/legalLinks.ts). */
+    /** "Legal & Privacy" section. A row opens its page only when its public URL is configured (constants/legalLinks.ts). */
     legalSection: string;
     privacyPolicy: string;
     termsOfUse: string;
     accountDeletionInfo: string;
     /** Accessibility hint: the row opens a web page outside the app. */
     opensInBrowser: string;
+    /** Shown on a legal row whose page URL is not configured for this build; the row is disabled. */
+    legalUnavailable: string;
   };
   appearance: {
     sectionLabel: string;
@@ -374,7 +376,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       title: 'Settings',
       subtitle: 'App language and Quran translation preferences.',
       openSettings: 'Open settings',
-      appLanguageSection: 'App Language',
+      appLanguageSection: 'Languages',
       quranTranslationSection: 'Quran Translation',
       translationDisplayAlways: 'Always',
       translationDisplayOnDemand: 'On demand',
@@ -383,15 +385,16 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       translationDisplayOnDemandHint: 'Arabic is shown first; tap to reveal the translation.',
       translationDisplayOffHint: 'Arabic only. The translation is never shown.',
       quranArabicNote: 'The Arabic Quran is always shown — this setting only affects the English translation.',
-      legalSection: 'Privacy & Legal',
+      legalSection: 'Legal & Privacy',
       privacyPolicy: 'Privacy Policy',
-      termsOfUse: 'Terms of Use',
-      accountDeletionInfo: 'How to delete your account',
+      termsOfUse: 'Terms of Service',
+      accountDeletionInfo: 'Account & Data Deletion',
       opensInBrowser: 'Opens in your browser',
+      legalUnavailable: 'Not available yet',
     },
     appearance: {
       sectionLabel: 'Appearance',
-      system: 'System',
+      system: 'Auto',
       light: 'Light',
       dark: 'Dark',
     },
@@ -632,14 +635,15 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       legalSection: 'الخصوصية والشروط',
       privacyPolicy: 'سياسة الخصوصية',
       termsOfUse: 'شروط الاستخدام',
-      accountDeletionInfo: 'كيفية حذف حسابك',
+      accountDeletionInfo: 'حذف الحساب والبيانات',
       opensInBrowser: 'تُفتح في المتصفح',
+      legalUnavailable: 'غير متاح حاليًا',
     },
     appearance: {
       sectionLabel: 'المظهر',
       system: 'تلقائي',
-      light: 'فاتح',
-      dark: 'الوضع الليلي',
+      light: 'وضع النهار',
+      dark: 'وضع الليل',
     },
     auth: {
       syncPrompt: 'سجّل الدخول لتجد محتواك المحفوظ على أجهزتك الأخرى',
@@ -892,14 +896,15 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       legalSection: 'الخصوصية والشروط',
       privacyPolicy: 'سياسة الخصوصية',
       termsOfUse: 'شروط الاستخدام',
-      accountDeletionInfo: 'كيفية حذف حسابك',
+      accountDeletionInfo: 'حذف الحساب والبيانات',
       opensInBrowser: 'تُفتح في المتصفح',
+      legalUnavailable: 'غير متاح حاليًا',
     },
     appearance: {
       sectionLabel: 'المظهر',
       system: 'تلقائي',
-      light: 'فاتح',
-      dark: 'الوضع الليلي',
+      light: 'وضع النهار',
+      dark: 'وضع الليل',
     },
     // ar-EG general UI uses the same Standard Arabic as `ar` for everything
     // outside the three approved Egyptian exceptions (home heading/subtitle,

@@ -3,11 +3,15 @@
  * Configured per build through EAS environment variables; the drafts live in
  * docs/legal/ and must be reviewed and hosted before these are set (see
  * docs/legal/README.md). A link that is unset or not a plain https:// URL is
- * left out, so Settings never shows a row that leads nowhere.
+ * left out, so Settings never opens a page that leads nowhere (its row is
+ * shown disabled instead).
  * app.config.ts additionally fails an EAS build whose configured URL is
  * invalid, and requires all three for the production profile.
  */
 export type LegalLinkKey = 'privacyPolicy' | 'termsOfUse' | 'accountDeletionInfo';
+
+/** Display order of the Legal & Privacy rows. */
+export const LEGAL_LINK_KEYS: readonly LegalLinkKey[] = ['privacyPolicy', 'termsOfUse', 'accountDeletionInfo'];
 
 // Plain https URL with a dotted host; no credentials, no whitespace. Kept to a
 // regex because React Native's URL implementation is incomplete.
@@ -27,8 +31,7 @@ export function getLegalLinks(
     accountDeletionInfo: process.env.EXPO_PUBLIC_ACCOUNT_DELETION_URL,
   },
 ): { key: LegalLinkKey; url: string }[] {
-  const order: LegalLinkKey[] = ['privacyPolicy', 'termsOfUse', 'accountDeletionInfo'];
-  return order.flatMap((key) => {
+  return LEGAL_LINK_KEYS.flatMap((key) => {
     const url = sanitizeLegalUrl(env[key]);
     return url ? [{ key, url }] : [];
   });

@@ -262,7 +262,7 @@ describe('system UI wiring', () => {
 });
 
 describe('Arabic naming for dark mode', () => {
-  it('never uses non-approved Arabic names for the dark appearance; any mention uses الوضع الليلي', () => {
+  it('never uses non-approved Arabic names for the dark appearance; any mention uses وضع الليل', () => {
     const messages = read('src/localization/messages.ts');
     for (const banned of ['الوضع الداكن', 'المظهر الداكن', 'السمة الداكنة']) expect(messages).not.toContain(banned);
   });

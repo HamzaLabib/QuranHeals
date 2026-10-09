@@ -87,10 +87,12 @@ describe('EAS build guard', () => {
 describe('Settings integration', () => {
   const source = readFileSync(resolve(__dirname, '../src/app/settings.tsx'), 'utf-8');
 
-  it('renders the section only when at least one link is configured, one row per configured link', () => {
+  it('always lists all three rows, opening only URLs that passed getLegalLinks validation', () => {
     expect(source).toMatch(/const LEGAL_LINKS = getLegalLinks\(\);/);
-    expect(source).toMatch(/\{LEGAL_LINKS\.length > 0 && \(/);
-    expect(source).toMatch(/LEGAL_LINKS\.map\(\(\{ key, url \}\) =>/);
+    expect(source).toMatch(/LEGAL_LINK_KEYS\.map\(\(key\) =>/);
+    expect(source).toMatch(/const url = LEGAL_URLS\[key\];/);
+    // A row without a configured URL gets no onPress, so it is disabled and opens nothing.
+    expect(source).toMatch(/onPress=\{\s*url\s*\?[\s\S]*?: undefined\s*\}/);
   });
 
   it('labels rows from localized messages and opens the configured URL outside the app, without crashing on failure', () => {
@@ -112,7 +114,7 @@ describe('Settings integration', () => {
 describe('localized labels', () => {
   it.each(['en', 'ar', 'ar-EG'] as const)('every legal label is present and non-empty in %s', (locale) => {
     const settings = MESSAGES[locale].settings;
-    for (const key of ['legalSection', 'privacyPolicy', 'termsOfUse', 'accountDeletionInfo', 'opensInBrowser'] as const) {
+    for (const key of ['legalSection', 'privacyPolicy', 'termsOfUse', 'accountDeletionInfo', 'opensInBrowser', 'legalUnavailable'] as const) {
       expect(settings[key].trim().length, key).toBeGreaterThan(0);
     }
   });
