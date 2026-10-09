@@ -24,6 +24,8 @@ export type AccountRouterDeps = {
   sessionRepository: SessionRepository;
   syncRepository: SyncRepository;
   issueReportRepository: IssueReportRepository;
+  /** Called after each saved issue report (wakes the email notifier); optional. */
+  onIssueReportSaved?: () => void;
   accountDeletionService: AccountDeletionService;
   appleCredentialRepository: AppleCredentialRepository;
   appleRevocationClient: AppleRevocationClient;
@@ -78,7 +80,7 @@ export function createApiRouter(
       accountReauthLimiter,
     ),
   );
-  router.use('/issues', createIssueRoutes(accountDeps.issueReportRepository));
+  router.use('/issues', createIssueRoutes(accountDeps.issueReportRepository, accountDeps.onIssueReportSaved));
   router.use(
     '/account',
     createAccountRoutes({

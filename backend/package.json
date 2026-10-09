@@ -27,7 +27,8 @@
     "connections:apply": "tsx src/scripts/applyAyahConnections.ts",
     "account:admin-delete": "tsx src/scripts/adminDeleteAccount.ts",
     "account:verify-deletion-role": "tsx src/scripts/verifyDeletionRole.ts",
-    "issue-reports:retention": "tsx src/scripts/issueReportRetention.ts"
+    "issue-reports:retention": "tsx src/scripts/issueReportRetention.ts",
+    "issue-reports:notifications": "tsx src/scripts/issueReportNotificationStatus.ts"
   },
   "dependencies": {
     "@sentry/node": "11.4.0",

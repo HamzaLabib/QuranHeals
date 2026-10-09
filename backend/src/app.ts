@@ -35,6 +35,8 @@ type AppOptions = {
   sessionRepository?: SessionRepository;
   syncRepository?: SyncRepository;
   issueReportRepository?: IssueReportRepository;
+  /** Called after each saved issue report; server.ts passes the email notifier's nudge. */
+  onIssueReportSaved?: () => void;
   accountDeletionService?: AccountDeletionService;
   appleCredentialRepository?: AppleCredentialRepository;
   appleRevocationClient?: AppleRevocationClient;
@@ -66,6 +68,7 @@ export function createApp(options: AppOptions = {}) {
     sessionRepository: options.sessionRepository ?? new MongooseSessionRepository(),
     syncRepository: options.syncRepository ?? new MongooseSyncRepository(),
     issueReportRepository: options.issueReportRepository ?? new MongooseIssueReportRepository(),
+    onIssueReportSaved: options.onIssueReportSaved,
     accountDeletionService: options.accountDeletionService ?? new MongooseAccountDeletionService(),
     appleCredentialRepository: options.appleCredentialRepository ?? new MongooseAppleCredentialRepository(),
     appleRevocationClient: options.appleRevocationClient ?? new HttpAppleRevocationClient(),

@@ -197,5 +197,35 @@ export type IssueReportEntity = {
   appVersion?: string;
   platform?: string;
   status: IssueReportStatus;
+  /** Email-notification outbox state (notifications/issueReportNotifier.ts). Absent on reports saved while notifications were off. */
+  notification?: IssueReportNotificationState;
   createdAt?: Date;
+};
+
+/**
+ * `accepted` means the email provider accepted the email for delivery — NOT
+ * that it reached the inbox (see notifications/emailProvider.ts).
+ */
+export const ISSUE_REPORT_NOTIFICATION_STATES = ['pending', 'sending', 'accepted', 'failed'] as const;
+export type IssueReportNotificationStateName = (typeof ISSUE_REPORT_NOTIFICATION_STATES)[number];
+
+/**
+ * Delivery metadata only — never a copy of the report's content. Lives on
+ * the report itself, so it is written atomically with it and removed with it
+ * by the 12-month retention purge.
+ */
+export type IssueReportNotificationState = {
+  state: IssueReportNotificationStateName;
+  /** Delivery attempts started so far. */
+  attempts: number;
+  /** pending: earliest next attempt; sending: when the current claim's lease expires. Unset once accepted or failed. */
+  nextAttemptAt?: Date;
+  /** Random per-claim token: only the worker holding the current claim can record its outcome. */
+  claimToken?: string;
+  /** Short error code of the last failed attempt (e.g. `http_503`, `timeout`) — never a provider response body. */
+  lastError?: string;
+  acceptedAt?: Date;
+  /** The provider's id for the accepted email (Resend dashboard lookup: delivered, bounced, ...). Not a content field. */
+  providerMessageId?: string;
+  failedAt?: Date;
 };

@@ -91,6 +91,16 @@ const envSchema = z
     SENTRY_ENVIRONMENT: z.string().optional(),
     SENTRY_RELEASE: z.string().optional(),
     RENDER_GIT_COMMIT: z.string().optional(),
+
+    // Issue-report email notifications (config/issueReportEmailConfig.ts).
+    // OFF unless set: `off` saves reports exactly as before (no job, no
+    // email); `log` (development only) queues and processes jobs without
+    // sending; `resend` sends through Resend. RESEND_API_KEY is a server-only
+    // secret, never logged or sent to any client.
+    ISSUE_REPORT_EMAIL: z.preprocess((value) => (value === '' ? undefined : value), z.enum(['off', 'log', 'resend']).default('off')),
+    RESEND_API_KEY: z.string().optional(),
+    ISSUE_REPORT_EMAIL_FROM: z.string().optional(),
+    ISSUE_REPORT_EMAIL_TO: z.string().optional(),
   })
   .transform((value) => ({
     ...value,

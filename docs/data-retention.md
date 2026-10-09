@@ -8,7 +8,8 @@ Approved retention periods, how each one is enforced, and who does what. The leg
 |---|---|---|---|
 | Account data (users, sessions, favorites, preferences, reflections, sync key, Apple token) | Until the account is deleted | In-app deletion, or the email procedure (`docs/account-deletion-requests.md`) | In-app: operational. Email procedure: development only. |
 | Issue reports (database) | 12 months from submission | `npm run issue-reports:retention`, run monthly | Implemented and tested in development. **Production disabled in code**; first production run needs approval. |
-| Issue-report email copies (future feature) | 12 months from submission, the same as the database copy | Manual Gmail procedure below | Not built yet |
+| Issue-report notification emails (Gmail) | 12 months from submission, the same as the database copy | Manual Gmail procedure below (`QH/Issue-report`) | Built, **notifications off** (`ISSUE_REPORT_EMAIL=off`); not deployed. Manual once enabled. |
+| Issue-report notification emails (Resend's copy) | Provider retention: **not yet verified** | Provider-managed | **Verification pending** (see Issue-report notification emails below) |
 | Account-deletion email threads | 60 days after the request is completed | Manual Gmail procedure below | Manual. Not automated. |
 | Other support conversations | 12 months after the last interaction | Manual Gmail procedure below | Manual. Not automated. |
 | Verification cases: pending, expired, superseded, locked, or verified but never completed | 30 days after the code expired | `account:admin-delete -- prune`, run weekly | Implemented and tested (local file) |
@@ -117,7 +118,36 @@ npm run issue-reports:retention -- purge --holds <holds.json> --audit-log <audit
 
 **Unresolved reports:** if a report older than 12 months is still needed, for example for an open security or content issue, place an `issue-report` hold before the monthly purge. Otherwise it is deleted on schedule. Extract any non-personal technical detail you need into your own notes first.
 
-**Emailed copies (future feature):** once each report is also emailed to quranheals.support@gmail.com, the email copy follows the **same** 12 months. Label it `QH/Issue-report` and delete it in the monthly Gmail review once it is 12 months old. A report deleted on a user's request must be deleted from Gmail as well. The emails must not contain reflections, tokens or passwords; the report form never collects them.
+**Notification jobs:** when issue-report email is enabled, each report carries a small `notification` entry (delivery state, attempt count, timestamps, error code, Resend email id; no content). It is part of the report document, so the purge above removes it with the report, and it needs no cleanup of its own. A report deleted before its email went out is never emailed.
+
+## Issue-report notification emails
+
+**Status:** built and tested locally; **off** until `ISSUE_REPORT_EMAIL=resend` is set on Render (needs approval). Operations: `docs/backend-operations.md`.
+
+**What each email contains:** report ID, category, submission time (UTC), platform, app version, verse, emotion, app language, translation mode and the description, when present. The reporter's contact email is **never** included, only whether one was given. There are no reflections, tokens, passwords, keys, IPs or device IDs: reports don't hold them.
+
+**Identifying them:** sender `Quran Heals <onboarding@resend.dev>`. The subject is `Quran Heals — New Issue Report [<report id>]`. The report ID makes every subject unique, so Gmail never groups two reports into one thread. Each email ends with `Retention: delete this email on or after <date>`.
+
+**Retention:** 12 months from submission, the same as the database copy. The email arrives at, or a few hours after, submission (failed sends are retried for up to about 14 hours). Deleting by received date therefore never deletes early.
+
+**Gmail filter (set up once):** see "Gmail filter" in `docs/backend-operations.md`. It applies `QH/Issue-report` and stops these emails going to Spam.
+
+**Monthly review (manual), with the other Gmail steps below:**
+
+1. Search `label:QH/Issue-report -label:QH/Hold before:YYYY/MM/DD`. Use **12 months before today, minus one day**: Gmail's `before:` uses your Gmail time zone, not UTC.
+2. Spot-check the `delete on or after` line in a few results, then select all results and delete them. Each message is its own thread, so nothing newer is deleted with it.
+3. Empty the Trash (the "Empty the Trash" step of the Gmail review below).
+
+**Holds:** when an `issue-report` hold is placed (above), also label that report's email `QH/Hold`: search `subject:"<report id>"`. When the hold is released or expires, remove `QH/Hold`. The email is then deleted in the next monthly review if it is due.
+
+**Deletion on request:** `account:admin-delete -- issue-reports` deletes database reports by the reporter's email, and prints a count only. The notification emails don't contain that address, so **find the report IDs first**, before the database deletion:
+
+1. Use a read-only connection (Atlas Data Explorer with the read-only user, or `mongosh` with the read profile). Query `issuereports` with filter `{ "email": "<verified address>" }` and projection `{ "_id": 1 }`. Note the IDs in your private records only for this request.
+2. Run the `issue-reports` deletion as described in `docs/account-deletion-requests.md`.
+3. In Gmail, search `subject:"<report id>"` for each ID, delete those emails and empty the Trash.
+4. If a report was never emailed (notifications were off when it was saved), there is nothing to delete in Gmail.
+
+**Resend's copy:** Resend keeps sent-email content and logs for a provider-defined period (its pricing page lists 30 days on the free plan; **not verified**). Verify this in the Resend dashboard before enabling, and record it in the table above. No application mechanism deletes it.
 
 ## Support Gmail (quranheals.support@gmail.com)
 
@@ -129,7 +159,7 @@ Gmail is outside the backend. **Nothing in the application deletes Gmail message
 |---|---|---|
 | `QH/Deletion` | Every account-deletion request thread. The case ID (`DEL-YYYYMMDD-NN`) goes in the subject of every reply you send. | Starts when the request is **completed**: deletion done and confirmed, or the request closed (withdrawn, verification impossible, or no reply 30 days after the final notice). Delete the thread 60 days after that. |
 | `QH/Support` | All other conversations | 12 months after the last message in the thread, from either side. A new message restarts the clock. |
-| `QH/Issue-report` | Future emailed report copies | 12 months after submission |
+| `QH/Issue-report` | Issue-report notification emails (applied by the Gmail filter) | 12 months after submission. Each message is its own thread. |
 | `QH/Hold` | Threads under a preservation hold | Until the hold's review date |
 | `QH/Open` | Unresolved threads | Never deleted while open; reassessed monthly |
 
@@ -137,9 +167,10 @@ Gmail is outside the backend. **Nothing in the application deletes Gmail message
 
 1. **Deletion threads:** search `label:QH/Deletion -label:QH/Hold -label:QH/Open`. For each thread, look up the case's completion date in your private records. Delete the thread if 60 days have passed.
 2. **Support threads:** search `label:QH/Support -label:QH/Hold -label:QH/Open before:<date 12 months ago>`. Gmail returns a thread if **any** message matches, so open each thread and check the date of its **last** message before deleting it.
-3. **Sent copies:** the verification-code email is part of the deletion thread, so it is deleted with it. Check `in:sent` for strays.
-4. **Empty the Trash** after deleting (Gmail → Trash → "Empty Trash now"). Otherwise Gmail keeps deleted messages in the Trash for 30 days.
-5. **Holds:** threads with `QH/Hold` past their review date are reassessed.
+3. **Issue-report notifications:** the steps under "Issue-report notification emails" above.
+4. **Sent copies:** the verification-code email is part of the deletion thread, so it is deleted with it. Check `in:sent` for strays.
+5. **Empty the Trash** after deleting (Gmail → Trash → "Empty Trash now"). Otherwise Gmail keeps deleted messages in the Trash for 30 days.
+6. **Holds:** threads with `QH/Hold` past their review date are reassessed.
 
 **Limitations to disclose honestly:** deleting from Gmail and emptying the Trash removes the messages from the mailbox. Google may keep residual copies in its own systems for a limited time under Google's policies; we don't control that period.
 

@@ -88,6 +88,74 @@ Never logged: request bodies, headers, tokens, connection strings, reflection co
 
 **Retention:** Render keeps service logs for 7 days (Hobby workspace, US West). This is provider-managed; there is no application cleanup.
 
+## Issue-report email notifications
+
+**Status: built, OFF.** Nothing is sent until `ISSUE_REPORT_EMAIL=resend` is set on Render (needs approval). Decided setup: Resend, sender `Quran Heals <onboarding@resend.dev>` (Resend's testing domain), recipient `quranheals.support@gmail.com`. Retention of the emails: `docs/data-retention.md`.
+
+- **Flow:** `POST /api/issues` saves the report with a `notification` outbox entry in the same insert (`state: pending`). A worker inside the API process (`backend/src/notifications/issueReportNotifier.ts`) claims due jobs atomically and sends a plain-text email to `ISSUE_REPORT_EMAIL_TO` (default `quranheals.support@gmail.com`). It then records `accepted` or `failed`. The HTTP response doesn't depend on email: it is the same `201` whether the provider is up or not.
+- **Accepted is not delivered:** `accepted` (and the log line `accepted by resend ... id=<Resend id>`) means Resend accepted the email for delivery. It does **not** prove the email reached the inbox. Delivery, bounces and suppression show only in the Resend dashboard (Emails → search the id) or in Gmail itself.
+- **Retries:** at most 8 attempts, spaced 1 min, 5 min, 15 min, 1 h, 2 h, 4 h and 6 h (about 13.5 h in total). After that the job is `failed`.
+  - **Retried:** timeouts, network errors, 408, 5xx, and these Resend errors: 409 `concurrent_idempotent_requests` (the same send is still in progress), 409 `resource_locked`, 429 `rate_limit_exceeded` and 429 `daily_quota_exceeded` (resets 00:00 UTC).
+  - **Failed at once:** 409 `invalid_idempotent_request` (same key, different payload within 24 h; an earlier attempt may already have been accepted, so check the Resend dashboard), 429 `monthly_quota_exceeded`, and every other 4xx. That includes **403 `validation_error`**, which is what the `resend.dev` sender gets for any recipient other than the Resend account's own email address.
+- **Duplicates:** every attempt for a report sends a byte-identical request: the same `Idempotency-Key: issue-report-notification/<report id>` and the same body, built only from stored report fields and configuration. Within Resend's 24-hour key window, a retry of an accepted send returns the original result and sends nothing new. Delivery is at least once and normally exactly once; exactly once is **not** guaranteed. Don't change `ISSUE_REPORT_EMAIL_FROM`/`_TO`, or deploy a change to the email format, while jobs are pending: their retries would get the payload-conflict 409 and fail.
+- **Restarts and concurrency:** jobs are claimed with one atomic MongoDB update and a 2-minute lease, so two workers (for example, old and new instance during a deploy) never hold the same job. Pending jobs are sent when the next process starts. A job interrupted mid-send is re-claimed after its lease expires, with the same request.
+- **Variables:** `ISSUE_REPORT_EMAIL` (`off` | `log` (development only) | `resend`), `RESEND_API_KEY`, `ISSUE_REPORT_EMAIL_FROM` and `ISSUE_REPORT_EMAIL_TO` (leave unset). If email is enabled but incomplete, startup stops with a message naming the variables, and Render keeps the previous deploy serving. Startup logs `Issue-report email: off|log|resend`.
+- **Status:** `npm run issue-reports:notifications` (read-only). It prints the count per state (`pending`, `sending`, `accepted`, `failed`), how overdue the oldest active job is, and the ID, attempts and error code of each failed job, never content. In production, run it with the read profile (`npx tsx --env-file=C:\QuranHealsAdmin\prod-read.env src/scripts/issueReportNotificationStatus.ts`); it refuses production without `QURAN_HEALS_SKIP_DOTENV=1`.
+- **Logs and alerts:** Render logs `[issue-report-email]` lines with report ID, attempt, error code and Resend ID only. A permanent failure is also reported to Sentry as `IssueReportNotificationError` with the code.
+- **Retention:** the outbox entry is part of the report, so the monthly `issue-reports:retention` purge removes it with the report.
+
+### Resend account and API key (once; needs approval)
+
+1. Sign up at resend.com **with quranheals.support@gmail.com**. The account email must be exactly the recipient, because `onboarding@resend.dev` can only deliver to the account's own address. Turn on two-factor authentication. Don't add a domain, and stay on the Free plan.
+2. Check the data retention for the Free plan (Settings / Billing) and record it in `docs/data-retention.md`.
+3. API Keys → Create two keys, both with **Sending access** (not Full access): `quran-heals-dev` and `quran-heals-prod`. Either one can then be revoked without touching the other.
+4. A key is shown once. Paste it straight into its destination: the PowerShell session for development (below) and the Render environment for production. Never put it in the repository, a `.env` file inside OneDrive, a chat, an `EXPO_PUBLIC_` variable or the mobile app.
+5. **Rotation:** create a new key, update its destination, then delete the old key in Resend.
+
+### Gmail filter (once; needs approval)
+
+1. In Gmail's search options, enter **From** `onboarding@resend.dev` and **Subject** `New Issue Report`, then choose **Create filter**.
+2. Tick **Apply the label** → new label `QH/Issue-report` (nested under `QH`) and **Never send it to Spam**. Leave Skip the inbox, Delete and Forward unticked.
+3. The first test email is the check: it must arrive in the inbox, labelled, and not in Spam.
+
+### Development live test (needs approval; sends one real email)
+
+From `backend/`, in a new PowerShell session (the key lives in this session only; dotenv never overrides a variable that is already set):
+
+```powershell
+$env:MONGODB_DB_NAME = 'quranheals_dev'
+$env:ISSUE_REPORT_EMAIL = 'resend'
+$env:ISSUE_REPORT_EMAIL_FROM = 'Quran Heals <onboarding@resend.dev>'
+$env:RESEND_API_KEY = Read-Host 'Resend dev key'      # paste; not saved anywhere
+npm run dev
+```
+
+1. Startup must show `Issue-report email: resend` and `database=quranheals_dev`.
+2. In a second terminal, run `curl.exe -s -X POST http://localhost:4000/api/issues -H "Content-Type: application/json" -d '{\"category\":\"other\",\"comment\":\"DEV TEST - please ignore\",\"platform\":\"ios\",\"appVersion\":\"0.0.0-dev\"}'`. Expect `{"success":true,"data":null}`.
+3. The server log shows `accepted by resend report=<id> attempt=1 id=<Resend id>`, and `npm run issue-reports:notifications` shows `accepted: 1`.
+4. Resend dashboard → Emails: the email shows **Delivered**. In Gmail: it arrived, is labelled `QH/Issue-report`, isn't in Spam, and contains the expected fields and no contact email.
+5. Stop the server and close the session (the key goes with it). Delete the test email in Gmail and empty the Trash. The dev report stays in `quranheals_dev` under normal dev retention.
+
+### Production activation (needs approval)
+
+Prerequisites: the development test passed; Resend's retention is recorded; the Gmail filter exists; the code is committed and deployed through the normal approval.
+
+1. Deploy with `ISSUE_REPORT_EMAIL` unset. Logs show `Issue-report email: off` and `GET /api/health` is 200. The first start builds one small partial index on `issuereports` (`notification.nextAttemptAt`).
+2. Render → Environment: add `RESEND_API_KEY` (prod key), `ISSUE_REPORT_EMAIL_FROM=Quran Heals <onboarding@resend.dev>`, then `ISSUE_REPORT_EMAIL=resend`. Leave `ISSUE_REPORT_EMAIL_TO` unset. Save, which redeploys.
+3. Logs show `Issue-report email: resend`. If startup reports `Issue-report email is misconfigured: ...`, the previous deploy keeps serving; fix the named variable.
+4. Submit one report from the production app (Settings → Report an Issue) with the comment `PROD TEST - please ignore`.
+5. Confirm all of:
+   - Render logs show the `accepted by resend` line;
+   - Resend shows the email as **Delivered**;
+   - it is in Gmail, labelled `QH/Issue-report`;
+   - the read-profile status shows `accepted` ≥ 1 and `failed: 0`.
+6. Ongoing:
+   - Sentry alert on `IssueReportNotificationError`;
+   - status command in the monthly review (`failed` should be 0, `oldestActiveOverdueMinutes` small);
+   - Resend dashboard for bounces;
+   - the Free plan's 100 emails/day and 3,000/month.
+7. **Rollback:** set `ISSUE_REPORT_EMAIL=off`. Reports keep saving, and jobs already queued stay `pending` until email is turned back on.
+
 ## Data retention and deletion operations
 
 The schedule, holds and operator calendar are in `docs/data-retention.md`:
