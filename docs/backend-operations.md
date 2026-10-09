@@ -160,12 +160,12 @@ Prerequisites: the development test passed; Resend's retention is recorded; the 
 
 The schedule, holds and operator calendar are in `docs/data-retention.md`:
 - weekly verification-case `prune`;
-- monthly `issue-reports:retention` (`status`, `preflight`, `purge --apply`) and Gmail review;
+- monthly issue-report retention: the Render Cron Job `quran-heals-retention` runs it on the 1st; the owner checks `status --store mongo` and does the Gmail review;
 - yearly `audit-prune`.
 
-Email deletion requests are handled with `docs/account-deletion-requests.md`. Both tools run only from the owner's machine, never on Render.
-- **Account deletion tool:** disabled for production in code.
-- **Issue-report retention:** supports production behind its profile, least-privilege user and confirmation checks. It has not run in production yet; the setup is in `docs/data-retention.md`.
+Email deletion requests are handled with `docs/account-deletion-requests.md`.
+- **Account deletion tool:** runs only from the owner's machine; disabled for production in code.
+- **Issue-report retention:** runs on Render as the cron job `quran-heals-retention` (`purge --store mongo --apply --unattended --max-delete 25`, `0 15 1 * *`), with the restricted retention user. Holds, audit and lock live in `quranheals_prod`. Setup, monitoring and recovery are in `docs/data-retention.md`.
 
 ## Rate limits
 

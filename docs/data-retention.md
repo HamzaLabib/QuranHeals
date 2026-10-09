@@ -7,7 +7,7 @@ Approved retention periods, how each one is enforced, and who does what. The leg
 | Data | Retention | Mechanism | Status |
 |---|---|---|---|
 | Account data (users, sessions, favorites, preferences, reflections, sync key, Apple token) | Until the account is deleted | In-app deletion, or the email procedure (`docs/account-deletion-requests.md`) | In-app: operational. Email procedure: development only. |
-| Issue reports (database) | 12 calendar months from submission | `npm run issue-reports:retention`, run monthly | Implemented, tested and rehearsed in development; production supported in code. **No production run yet:** it needs the retention user and profiles below, and approval. |
+| Issue reports (database) | 12 calendar months from submission | Render Cron Job `quran-heals-retention`, monthly (`issue-reports:retention purge --store mongo`) | **Operational in production** (Render Cron, since October 2026). Holds, audit history and lock in `quranheals_prod`. |
 | Issue-report notification emails (Gmail) | 12 months from submission, the same as the database copy | Manual Gmail procedure below (`QH/Issue-report`) | Built, **notifications off** (`ISSUE_REPORT_EMAIL=off`); not deployed. Manual once enabled. |
 | Issue-report notification emails (Resend's copy) | Provider retention: **not yet verified** | Provider-managed | **Verification pending** (see Issue-report notification emails below) |
 | Account-deletion email threads | 60 days after the request is completed | Manual Gmail procedure below | Manual. Not automated. |
@@ -52,11 +52,11 @@ Gmail threads under preservation get the Gmail label `QH/Hold`, plus a dated not
 | When | Task |
 |---|---|
 | Weekly | `prune` (cases): dry run, then `--apply` if anything is eligible |
-| Monthly (first working day) | `issue-reports:retention -- status`, `preflight`, then `purge --apply`, then `status` again (see Issue reports below). Gmail review (below). Check holds that are due for review. |
+| Monthly (first working day) | Check the Render retention run on the 1st succeeded, then `status --store mongo` and `preflight --store mongo` (see Issue reports below). Gmail review (below). Check holds that are due for review. |
 | Yearly | `audit-prune` (dry run every year; entries first become eligible in October 2029) |
 | Before publishing the legal pages | Verify Sentry retention (below) |
 
-A local scheduled task (Windows Task Scheduler) could remind you, or run the dry runs. It is **not configured** and needs separate approval. Any `--apply` must stay interactive.
+Issue-report retention runs on Render (Render Cron Job; see Issue reports below). The other cleanups have no schedule; any `--apply` among them stays interactive.
 
 ## Verification cases: `prune`
 
@@ -94,182 +94,71 @@ npm run account:admin-delete -- audit-prune --audit-log <audit.jsonl> --holds <h
 
 **Rule:** a report is deleted once **12 calendar months** have passed since it was submitted (`createdAt`, UTC). A report becomes due exactly at that moment, never earlier. 29 February rolls forward to 1 March (see "Schedule").
 
-**Mechanism:** `npm run issue-reports:retention`, run monthly from the owner's computer. It is deliberately **not** a MongoDB TTL index, because a TTL index:
+**Mechanism:** the Render Cron Job `quran-heals-retention` runs `issue-reports:retention` once a month in database-backed mode (`--store mongo`). It is deliberately **not** a MongoDB TTL index on the reports, because a TTL index:
 - deletes every existing report past the period the moment it is built, with no dry run;
 - can't honour holds;
 - is itself a production change to remove or adjust.
 
-**Production status:**
-- The code supports production (`ISSUE_REPORT_RETENTION_PRODUCTION_ENABLED = true`), but it still needs every check below.
-- **No production run has happened yet.** The first one needs the setup below and your approval.
-- Development rehearsal on 2026-10-09 against `quranheals_dev`: the due report was deleted with its notification entry, the held and not-yet-due reports were kept, no other collection was touched, and a repeat run deleted nothing.
+**Production status:** active on Render since the cut-over (October 2026). Before go-live, production `verify` passed with the restricted retention user: 5 reports, 0 due, 0 held, exact role, holds marker, audit, lock and fenced transaction all ok. The former Windows Task Scheduler setup is retired (see the end of this section).
 
-**What the script reads and deletes:**
-- It reads only `_id` and `createdAt`, never a comment or an email.
+**What the run reads and deletes:**
+- It reads only `_id` and `createdAt` of reports, never a comment or an email.
 - It deletes due reports by exact `_id`. The database delete itself also requires `createdAt` to be at least 365 days old, as a backstop.
 - The report's embedded email-notification entry is part of the same document, so it goes with it.
-- It never deletes held reports, or reports without a valid `createdAt`. It touches no other collection; the production user can't anyway.
+- It never deletes held reports, or reports without a valid `createdAt`. It touches no other report data; the retention user can't anyway.
 
-### One-time setup (production)
+### How the cloud run works
 
-1. **Admin folder:** outside the repository, with access for your Windows account, SYSTEM and Administrators only (NTFS permissions as in `docs/account-deletion-requests.md`). Current location (since 2026-10-09):
-   `C:\Users\hamzalabib\OneDrive - McGill University\Documents\Personal\My App\QuranHealsAdmin`
-   **This is inside the McGill OneDrive**, against the recommendation to keep it outside: files there sync to the organization's cloud, and deleted holds or audit lines can survive in OneDrive's version history and recycle bin. See "Admin folder location" in `docs/account-deletion-requests.md`.
-2. **Holds file:** create it once, empty, as UTF-8 **without** a byte-order mark: `[IO.File]::WriteAllText("$admin\holds.json", '{"formatVersion":1,"holds":{}}')`. Windows PowerShell's `Set-Content -Encoding utf8` adds a BOM, and the tool then refuses the file. The same applies to the `.env` profiles: in Notepad, save them as "UTF-8", not "UTF-8 with BOM". Every run requires this file to exist and be valid, so a mistyped path stops the run instead of meaning "no holds".
-3. **Retention database user** in Atlas (Database Access). It has its own role, separate from the account-deletion user, because the purge refuses any user that can do more than this:
-   - Custom role `quranheals-issue-report-retention`: actions `find` and `remove` on database `quranheals_prod`, collection `issuereports`. Nothing else: no other collection, no insert or update, no index or database-wide actions.
-   - User `quranheals-prod-retention` with only that role. Use a generated password, and restrict access to your IP in Network Access if possible.
-4. **Profiles** in the admin folder, each loaded with Node's `--env-file` (never `backend/.env`). In production the backend's config refuses to load without `SESSION_JWT_SECRET`. The admin scripts never sign or check session tokens, so use a **random local value**, never Render's real secret:
-
-   `prod-read.env` (already described for account deletion; read-only user):
-   ```text
-   NODE_ENV=production
-   MONGODB_DB_NAME=quranheals_prod
-   MONGODB_URI=<quranheals-prod-audit connection string>
-   MONGODB_ENFORCE_CREDENTIAL_SCOPE=true
-   QURAN_HEALS_SKIP_DOTENV=1
-   QURAN_HEALS_ADMIN_PROFILE=production-read
-   SESSION_JWT_SECRET=<any long random string from a password manager; never Render's real secret>
-   ```
-   `prod-retention.env` (deletes issue reports only):
-   ```text
-   NODE_ENV=production
-   MONGODB_DB_NAME=quranheals_prod
-   MONGODB_URI=<quranheals-prod-retention connection string>
-   MONGODB_ENFORCE_CREDENTIAL_SCOPE=true
-   QURAN_HEALS_SKIP_DOTENV=1
-   QURAN_HEALS_ADMIN_PROFILE=production-retention
-   SESSION_JWT_SECRET=<any long random string from a password manager; never Render's real secret>
-   ```
-5. **Audit log:** `audit.jsonl` in the admin folder, the same file as the deletion tool, kept for 3 years per entry.
-
-### Commands (from `backend/`)
-
-```powershell
-# The admin folder. Its path contains spaces: keep every argument below in double quotes.
-$admin = 'C:\Users\hamzalabib\OneDrive - McGill University\Documents\Personal\My App\QuranHealsAdmin'
-
-# 1. Read-only preflight: totals, cutoff, due / held / not-yet-due counts, and the due report ids
-npx tsx "--env-file=$admin\prod-read.env" src/scripts/issueReportRetention.ts preflight --holds "$admin\holds.json"
-
-# 2. Cleanup (interactive): type "DELETE <n> FROM quranheals_prod" when asked
-$env:QURAN_HEALS_CONFIRM_PRODUCTION_WRITE = 'quranheals_prod'
-npx tsx "--env-file=$admin\prod-retention.env" src/scripts/issueReportRetention.ts purge --holds "$admin\holds.json" --audit-log "$admin\audit.jsonl" --apply
-
-# 3. Status (no database): last run, days since the last success, failed or interrupted runs. Exit code 6 = needs attention.
-npx tsx src/scripts/issueReportRetention.ts status --audit-log "$admin\audit.jsonl"
-```
-
-**Every production run is refused unless all of these hold:**
-- the env profile is loaded (`QURAN_HEALS_SKIP_DOTENV=1`);
-- the admin profile matches the step (`production-read` to look, `production-retention` to delete);
-- the connected user passes the strict credential check;
-- for deleting: `QURAN_HEALS_CONFIRM_PRODUCTION_WRITE=quranheals_prod`, plus the typed confirmation naming both the count and the database.
-
-After the confirmation, holds and eligibility are read again; if anything changed, nothing is deleted. Only one deleting run can happen at a time, enforced by `audit.jsonl.retention-run.lock`.
-
-**Audit entries** (`action: issue-report-retention`; ids and counts only, never content):
-- `issue-reports-purge-started`: the run id and the ids about to be deleted;
-- `issue-reports-purged`: the count verified by re-reading the ids afterwards;
-- `failed:issue-report-purge`: what was and wasn't deleted;
-- `issue-reports-checked`: an `--apply` run with nothing due, so a quiet month is distinguishable from a missed run.
-
-### Monthly operation and monitoring
-
-On the first working day of each month (see "Operator calendar"):
-1. Run `status`, then the preflight, and check the due ids.
-2. Place holds for anything that must be kept.
-3. Run the cleanup.
-4. Run `status` again (it should say `"ok": true`), then do the Gmail review for `QH/Issue-report`.
-
-`status` flags:
-- no successful run in more than 35 days (a missed month);
-- a last run that failed;
-- a run that started deleting and never recorded its result.
-
-**Scheduling (Windows Task Scheduler on the owner's computer): active since 2026-10-09 with `-MaxDelete 25`. The first deletion-enabled run is 2026-11-01 10:00.**
-
-| Task | Does | Runs as |
-|---|---|---|
-| `QuranHeals-IssueReport-Retention` | On the 1st of each month at 10:00, runs `backend/scripts/windows/issue-report-retention-task.ps1 -AdminDir <admin folder> -MaxDelete <n>`. That script runs `purge --apply --unattended --max-delete <n>` with `prod-retention.env`, then `status`. | Your account. "Run only when logged on" until it is re-registered with the S4U logon type ("run whether logged on or not, without storing a password"), which needs an elevated PowerShell. |
-| `QuranHeals-IssueReport-Retention-Alert` | At logon and daily at 11:00, shows a message box if `RETENTION-NEEDS-ATTENTION.txt` exists in the admin folder. Reads only that file. | Your account (interactive) |
-
-**What the wrapper adds** (every deletion safeguard stays in the retention script):
-- `QURAN_HEALS_SKIP_DOTENV=1` and `QURAN_HEALS_CONFIRM_PRODUCTION_WRITE=quranheals_prod`, for its own process only, never written to a profile;
-- a log per run in `<admin folder>\logs\retention-<UTC time>.log`, containing ids and counts only, removed after 400 days;
-- `RETENTION-NEEDS-ATTENTION.txt` on any non-zero exit, refusal or `status` warning, cleared by the next clean run;
-- a non-zero exit code for Task Scheduler's "Last Run Result".
-
-**Task settings:**
-- a second start while a run is active is ignored, and the script's own lock is a second layer;
-- a missed start runs as soon as the computer is available;
-- it runs on battery and only with a network connection;
-- each run is stopped after 30 minutes.
-
-**`-MaxDelete`:**
-- `0` can never delete: with anything due the run refuses and raises the alert, and with nothing due it records `issue-reports-checked`. It was tested this way on 2026-10-09 from Task Scheduler against production: 5 reports, 0 due, `LastTaskResult 0`, one `issue-reports-checked` audit entry, a second start ignored.
-- Production uses **25** (approved 2026-10-09). A month with more than 25 due deletes nothing, raises the alert, and is handled with an interactive run.
-
-**Limitation:** the computer must be on, and until S4U is set up you must be logged on. A missed month shows up in `status` and the alert, and is caught up by the next start.
-
-### Cloud run (Render Cron Job): `--store mongo`
-
-**Status:** implemented and rehearsed on `quranheals_dev` (2026-10-09). **Not set up in production yet**: Atlas changes, the Render cron job and the cut-over each need approval. Until cut-over, the Windows task above stays the only scheduler that deletes.
-
-A Render cron job has no persistent disk, so in `--store mongo` mode holds, audit history and the run lock live in three collections of `quranheals_prod`. Every safeguard above still applies:
-- the 12-calendar-month rule and the 365-day backstop;
-- the re-check before deleting;
-- the `--max-delete` limit;
-- the refusal after an interrupted run;
-- the strict credential check.
+A Render cron job has no persistent disk, so holds, audit history and the run lock live in three collections of `quranheals_prod`:
 
 | Collection | Holds | Retention job may | Expiry |
 |---|---|---|---|
 | `retentionholds` | issue-report holds, plus the format marker `{_id: "meta", formatVersion: 1}` | `find` only. It can never place or lift a hold. | none; holds are released explicitly |
-| `retentionaudit` | run history (`issue-reports-checked` / `purge-started` / `purged` / `failed:…`), ids and counts only | `find`, `insert`. Append-only: it can't edit its own history. | `expiresAt` = 3 calendar years after the entry (leap days rolled forward), removed by a TTL index |
+| `retentionaudit` | run history (`issue-reports-checked` / `purge-started` / `purged` / `failed:…` / `verified`), ids and counts only | `find`, `insert`. Append-only: it can't edit its own history. | `expiresAt` = 3 calendar years after the entry (leap days rolled forward), removed by the TTL index `expiresAt_ttl` |
 | `retentionlocks` | one lease document `issue-report-retention`; lease times use the database server's clock | `find`, `insert`, `update`, `remove` | 15-minute lease. The deletion itself runs in a transaction that first re-checks and extends the lease. |
+
+**Safeguards on every run:**
+- the 12-calendar-month rule and the 365-day backstop;
+- holds are loaded before classifying and re-read before deleting; if anything changed, nothing is deleted;
+- at most **25** deletions per run (`--max-delete 25`). Above that, the run deletes nothing and fails, and the cleanup is then done interactively;
+- the strict exact-role check on the database user (config/credentialScope.ts);
+- unattended runs refuse after an unfinished earlier run.
 
 **Failing safe.** Nothing is deleted when any of these is true:
 - the holds marker is missing, or any hold is malformed;
 - holds or audit can't be read;
 - the "started" audit entry can't be written;
 - another run holds a live lock;
-- this run's lease was lost (checked inside the deletion's own transaction, so a stalled worker can never commit a deletion after another run took over).
+- this run's lease was lost (checked inside the deletion's own transaction);
 - an earlier run is unfinished (unattended runs only).
 
-Two runners can never both delete: a deletion commits only in the same transaction as a successful lease check on the lock document. A takeover makes that check fail, or the two writes conflict and one transaction aborts. Tested against the real cluster on dev (stale worker fenced; 0 of 15 takeover races committed twice). The deletion is also limited to exact due ids with the age backstop.
+Two runners (the cron job, a manual run, any computer) can never both delete. A deletion commits only in the same transaction as a successful lease check on the lock document; a takeover makes that check fail, or the two writes conflict and one transaction aborts. This was tested against the real cluster on dev: a stale worker was fenced, and 0 of 15 takeover races committed twice.
 
-**Holds** (holds-admin user, `production-holds` profile; listing uses `production-read`):
-```powershell
-npx tsx "--env-file=$admin\prod-holds.env" src/scripts/issueReportHolds.ts init          # once
-npx tsx "--env-file=$admin\prod-holds.env" src/scripts/issueReportHolds.ts place --ref <report id> --reason dispute --review-by 2027-01-15
-npx tsx "--env-file=$admin\prod-holds.env" src/scripts/issueReportHolds.ts release --ref <report id>
-npx tsx "--env-file=$admin\prod-read.env"  src/scripts/issueReportHolds.ts list
-```
-Writing commands also need `$env:QURAN_HEALS_CONFIRM_PRODUCTION_WRITE = 'quranheals_prod'`. The same rules as file holds apply: a listed reason, a valid report id, and a review date at most 365 days away.
+**Audit entries** (`action: issue-report-retention`; ids and counts only, never content):
+- `issue-reports-purge-started`: the run id and the ids about to be deleted;
+- `issue-reports-purged`: the count verified by re-reading the ids afterwards;
+- `failed:issue-report-purge`: what was and wasn't deleted;
+- `issue-reports-checked`: a run with nothing due, so a quiet month is distinguishable from a missed run;
+- `issue-reports-verified`: a `verify` check. It never counts as a cleanup run.
 
-**Checks from your computer** (read-only profile):
-```powershell
-npx tsx "--env-file=$admin\prod-read.env" src/scripts/issueReportRetention.ts preflight --store mongo   # due/held counts, holds, TTL index, lock, history
-npx tsx "--env-file=$admin\prod-read.env" src/scripts/issueReportRetention.ts status --store mongo      # exit 6 = needs attention
-```
-
-**Render Cron Job** (`quran-heals-retention`, separate from the API service):
+### Render Cron Job (primary scheduler)
 
 | Setting | Value |
 |---|---|
+| Service | `quran-heals-retention` (separate from the API service) |
 | Repository / branch / root | this repository, `main`, `backend` |
 | Build command | `npm ci --include=dev && npm run build` |
 | Command | `node dist/scripts/issueReportRetention.js purge --store mongo --apply --unattended --max-delete 25` |
-| Schedule | `0 15 1 * *`: the 1st of each month at 15:00 UTC, which is 10:00 Montreal time in winter (EST) and 11:00 in summer (EDT) |
+| Schedule | `0 15 1 * *`: the 1st of each month at 15:00 UTC (10:00 Montreal time in winter, 11:00 in summer) |
 | Instance / cost | Starter. Billed per second, with a $1/month minimum per cron job. |
-| Notifications | Render → workspace / service notifications: email on failed runs |
+| Notifications | Render email on failed runs |
 
 Environment variables. The connection string is for **`quranheals-prod-retention`** only, never the API's `quranheals-prod` user:
 
 | Name | Value |
 |---|---|
 | `NODE_ENV` | `production` |
+| `NODE_VERSION` | `24.21.0` (matches `.nvmrc` and CI) |
 | `MONGODB_URI` | the retention user's connection string (secret) |
 | `MONGODB_DB_NAME` | `quranheals_prod` |
 | `MONGODB_ENFORCE_CREDENTIAL_SCOPE` | `true` |
@@ -279,41 +168,112 @@ Environment variables. The connection string is for **`quranheals-prod-retention
 | `SENTRY_DSN`, `RETENTION_CRON_MONITOR_SLUG` | optional but recommended. With both set, the scheduled run checks in with Sentry Crons (slug e.g. `quranheals-issue-report-retention`), and Sentry raises an issue when a run is **missed**, fails or runs over 30 minutes. The free plan includes 1 monitor. Create a Sentry alert rule on the tag `monitor.slug`. |
 | `SESSION_JWT_SECRET` | a random value, unused by the job and not the API's secret (the config refuses production without one) |
 
-**Non-destructive check (before go-live, and any time):** `node dist/scripts/issueReportRetention.js verify --store mongo --max-delete 25`, run as the retention user (Render: temporarily set it as the job's command and "Trigger Run", or run it locally with `prod-retention.env`). Without deleting anything, it:
-- passes the strict exact-role check;
-- loads holds (marker required) and reads the audit history;
-- counts what is due;
-- takes the lock, runs the fenced transaction with no ids, and releases it;
-- appends one `issue-reports-verified` audit entry.
-
-`verify` entries never count as cleanup runs, so they can't hide a missed month. It exits **0** when the scheduled run would succeed, **6** when it would refuse (more than `--max-delete` due, or an unfinished earlier run), and **1** if any check fails.
-
-**Exit codes of the scheduled run, and how they reach you:**
+**Exit codes of the scheduled run:**
 - `0`: ok.
 - `1`: refused. For example: more than 25 due, lock held, interrupted run, holds unavailable.
 - `5`: deletion failed.
 - `6`: ran, but the previous successful run was more than 35 days earlier (a missed month).
 
 **How each kind of problem reaches you:**
-- **A failed or refused run:** any non-zero exit is a failed Render run, which sends Render's failure email, and it is also an `error` check-in in Sentry.
+- **A failed or refused run:** any non-zero exit is a failed Render run, which sends Render's failure email, and it is also an `error` check-in in Sentry if configured.
 - **A run that never happens at all** (job suspended, deleted, or not triggered): only Sentry Crons can see it, as a **missed check-in** two hours after the scheduled time.
 - **A missed month,** caught at the next successful run: exit 6 and a `status --store mongo` warning.
 
-**Lock recovery:** a crashed run's lock expires after 15 minutes and the next run takes it over. To clear it sooner, delete the `issue-report-retention` document in `retentionlocks` from the Atlas UI after confirming no run is active.
+**Non-destructive check (any time):** `node dist/scripts/issueReportRetention.js verify --store mongo --max-delete 25`, run as the retention user. On Render, set it temporarily as the job's command and use "Trigger Run"; locally, use `prod-retention.env` (below). Without deleting anything, it:
+- passes the strict exact-role check;
+- loads holds (marker required) and reads the audit history;
+- counts what is due;
+- takes the lock, runs the fenced transaction with no ids, and releases it;
+- appends one `issue-reports-verified` entry.
+
+It exits **0** when the scheduled run would succeed, **6** when it would refuse, and **1** if any check fails.
+
+### Administration from the owner's computer
+
+**Admin folder** (outside the repository; access for your Windows account, SYSTEM and Administrators only):
+`C:\Users\hamzalabib\OneDrive - McGill University\Documents\Personal\My App\QuranHealsAdmin`
+**This is inside the McGill OneDrive**, against the recommendation to keep it outside: files there sync to the organization's cloud. See "Admin folder location" in `docs/account-deletion-requests.md`.
+
+**Database users** (see `docs/backend-environments.md`):
+- `quranheals-prod-audit`: read-only, profile `production-read`;
+- `quranheals-prod-retention`: the job's exact role, profile `production-retention`;
+- `quranheals-prod-holds`: `find`, `insert`, `update`, `remove` on `retentionholds` only, profile `production-holds`.
+
+**Profiles,** each loaded with Node's `--env-file` (never `backend/.env`). Save them as UTF-8 without a byte-order mark:
+- `prod-read.env`
+- `prod-retention.env`
+- `prod-holds.env`
+
+Each sets:
+```text
+NODE_ENV=production
+MONGODB_DB_NAME=quranheals_prod
+MONGODB_URI=<that user's connection string>
+MONGODB_ENFORCE_CREDENTIAL_SCOPE=true
+QURAN_HEALS_SKIP_DOTENV=1
+QURAN_HEALS_ADMIN_PROFILE=<production-read | production-retention | production-holds>
+SESSION_JWT_SECRET=<any long random string; never Render's real secret>
+```
+In production the backend's config refuses to load without `SESSION_JWT_SECRET`; the admin scripts never sign or check session tokens.
+
+**Commands (from `backend/`):**
+```powershell
+# The admin folder. Its path contains spaces: keep every argument below in double quotes.
+$admin = 'C:\Users\hamzalabib\OneDrive - McGill University\Documents\Personal\My App\QuranHealsAdmin'
+
+# Read-only: due / held counts and due ids, holds, TTL index, lock state, run history
+npx tsx "--env-file=$admin\prod-read.env" src/scripts/issueReportRetention.ts preflight --store mongo
+# Read-only: run history. Exit 6 = needs attention (missed, failed or interrupted run)
+npx tsx "--env-file=$admin\prod-read.env" src/scripts/issueReportRetention.ts status --store mongo
+
+# Holds (holds-admin user; writing commands need the production write confirmation)
+$env:QURAN_HEALS_CONFIRM_PRODUCTION_WRITE = 'quranheals_prod'
+npx tsx "--env-file=$admin\prod-holds.env" src/scripts/issueReportHolds.ts place --ref <report id> --reason dispute --review-by 2027-01-15
+npx tsx "--env-file=$admin\prod-holds.env" src/scripts/issueReportHolds.ts release --ref <report id>
+npx tsx "--env-file=$admin\prod-read.env"  src/scripts/issueReportHolds.ts list
+
+# Non-destructive check as the retention user
+npx tsx "--env-file=$admin\prod-retention.env" src/scripts/issueReportRetention.ts verify --store mongo --max-delete 25
+
+# Manual (interactive) cleanup, e.g. when more than 25 are due or after an interrupted run:
+# type "DELETE <n> FROM quranheals_prod" when asked. It shares the cron job's holds, audit and lock.
+npx tsx "--env-file=$admin\prod-retention.env" src/scripts/issueReportRetention.ts purge --store mongo --apply
+```
+Holds follow the same rules everywhere: a listed reason (`legal-obligation`, `dispute` or `security-investigation`), a valid report id, and a review date at most 365 days away. `issueReportHolds.ts init` created the format marker once (2026-10-09); it is idempotent.
+
+### Monthly checks (owner)
+
+On the first working day of each month (see "Operator calendar"):
+1. Check that the Render run on the 1st succeeded (Render → `quran-heals-retention` → Runs; Sentry Crons if configured).
+2. Run `status --store mongo`; it should say `"ok": true`.
+3. Run `preflight --store mongo` and review anything coming due soon. Place holds before the next run for anything that must be kept.
+4. Do the Gmail review for `QH/Issue-report`.
 
 ### Recovery
 
-- **A run stopped part-way** (crash, lost connection, closed terminal):
-  - `status` lists it under `interruptedRuns`, and its `issue-reports-purge-started` entry lists the ids it meant to delete.
-  - Run the preflight, then the cleanup again. It re-selects only reports that are still due, so it completes the earlier run, and its `issue-reports-purged` entry closes it.
-  - Unattended runs refuse until this has been done by hand.
-- **The lock file `audit.jsonl.retention-run.lock` exists:** check that no other run is active (Task Scheduler, another terminal). Then delete the `.lock` file and run again.
+- **A run stopped part-way** (crash, lost connection, container stopped):
+  - `status --store mongo` lists it under `interruptedRuns`, and its `issue-reports-purge-started` entry lists the ids it meant to delete.
+  - Run `preflight --store mongo`, then the manual cleanup above. It re-selects only reports that are still due, so it completes the earlier run, and its `issue-reports-purged` entry closes it.
+  - Until then, the scheduled (unattended) run refuses.
+- **The lock is held:** a crashed run's lease expires after 15 minutes and the next run takes it over. To clear it sooner, confirm no run is active (Render Runs page, no manual run), then delete the `issue-report-retention` document in `retentionlocks` from the Atlas UI.
+- **More than 25 due:** the run deletes nothing and fails. Review the preflight, place any holds, then run the manual cleanup.
 - **`failed:issue-report-purge`:** the entry says how many were deleted and lists the ids still present. Fix the cause (credentials, network, permissions), then run again.
-- **Permission errors** ("not authorized", or the credential-scope refusal): check the `quranheals-prod-retention` role against step 3 of the setup. Never work around it with a broader user.
+- **Permission errors** ("not authorized", or the credential-scope refusal): check the users' roles against `docs/backend-environments.md`. Never work around it with a broader user.
+- **Holds unavailable** (missing marker or malformed hold): nothing is deleted. Fix the entry with the holds command or the Atlas UI. Run `issueReportHolds.ts init` only if the marker is genuinely missing.
 
-**Unresolved reports:** if a report older than 12 months is still needed, for example for an open security or content issue, place an `issue-report` hold before the monthly purge. Otherwise it is deleted on schedule. Extract any non-personal technical detail you need into your own notes first.
+**Unresolved reports:** if a report older than 12 months is still needed, for example for an open security or content issue, place an `issue-report` hold before the monthly run. Otherwise it is deleted on schedule. Extract any non-personal technical detail you need into your own notes first.
 
-**Notification jobs:** when issue-report email is enabled, each report carries a small `notification` entry (delivery state, attempt count, timestamps, error code, Resend email id; no content). It is part of the report document, so the purge above removes it with the report, and it needs no cleanup of its own. A report deleted before its email went out is never emailed.
+**Notification jobs:** when issue-report email is enabled, each report carries a small `notification` entry (delivery state, attempt count, timestamps, error code, Resend email id; no content). It is part of the report document, so the cleanup removes it with the report, and it needs no cleanup of its own. A report deleted before its email went out is never emailed.
+
+### Retired: Windows Task Scheduler and the local file mode
+
+- **Windows scheduler retired.** From 2026-10-09 until the Render cut-over, two Windows scheduled tasks (`QuranHeals-IssueReport-Retention` and `QuranHeals-IssueReport-Retention-Alert`) ran the cleanup from the owner's computer. Both are **disabled**, and their wrapper scripts (`backend/scripts/windows/`) have been removed from the repository. The Render Cron Job is the only scheduler; never re-enable a local schedule alongside it.
+- **Local history kept.** The admin folder keeps `holds.json`, `audit.jsonl` (two `issue-reports-checked` test entries from 2026-10-09, 0 deleted) and `logs\` as history. They are no longer read by production runs.
+- **File mode is development-only.** The file mode of the script (`--holds <file> --audit-log <file>`, the default when `--store` is omitted) still exists for development and tests. It is **not** used in production:
+  - the production retention user's role now includes the three retention collections, and file mode refuses it;
+  - `holds.json` is no longer the authoritative holds list.
+
+  Always use `--store mongo` against `quranheals_prod`.
 
 ## Issue-report notification emails
 
