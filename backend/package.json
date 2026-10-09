@@ -24,7 +24,8 @@
     "validate:quran": "tsx src/scripts/fullQuran.ts validate",
     "import:quran": "tsx src/scripts/fullQuran.ts import",
     "mapping:deactivate": "tsx src/scripts/deactivateEmotionMapping.ts",
-    "connections:apply": "tsx src/scripts/applyAyahConnections.ts"
+    "connections:apply": "tsx src/scripts/applyAyahConnections.ts",
+    "account:admin-delete": "tsx src/scripts/adminDeleteAccount.ts"
   },
   "dependencies": {
     "@sentry/node": "11.4.0",

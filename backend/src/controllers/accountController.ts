@@ -8,6 +8,7 @@ import { AppError } from '../errors/AppError';
 import type { AuthenticatedRequest } from '../middleware/requireAuth';
 import type { AccountDeletionService } from '../services/AccountDeletionService';
 import type { AppleCredentialRepository } from '../services/AppleCredentialRepository';
+import { DELETION_FAILED_MESSAGE, revokeAppleThenDelete } from '../services/revokeAppleThenDelete';
 import type { UserRepository } from '../services/UserRepository';
 import { appleReauthForDeletionSchema, googleReauthForDeletionSchema } from '../validators/accountValidators';
 
@@ -22,7 +23,6 @@ type AccountControllerDeps = {
 
 const APPLE_REAUTH_REQUIRED_MESSAGE = 'Apple re-authentication is required to delete this account.';
 const GOOGLE_REAUTH_REQUIRED_MESSAGE = 'Google re-authentication is required to delete this account.';
-const DELETION_FAILED_MESSAGE = 'Account deletion could not be completed. Please try again.';
 
 export function createAccountController({
   accountDeletionService,
@@ -92,6 +92,7 @@ export function createAccountController({
         );
       }
 
+      let appleRefreshToken: string | null = null;
       if (identity?.provider === 'apple') {
         let refreshToken = await appleCredentialRepository.get(userId);
 
@@ -120,14 +121,11 @@ export function createAccountController({
           refreshToken = exchanged.refreshToken;
         }
 
-        try {
-          await appleRevocationClient.revokeRefreshToken(refreshToken);
-        } catch {
-          throw new AppError(DELETION_FAILED_MESSAGE, 502);
-        }
+        appleRefreshToken = refreshToken;
       }
 
-      await accountDeletionService.deleteAccount(userId);
+      // Revoke Apple (if any) first, then delete — the shared ordering rule.
+      await revokeAppleThenDelete({ appleRevocationClient, accountDeletionService }, userId, appleRefreshToken);
       res.json({ success: true, data: null });
     },
   };
