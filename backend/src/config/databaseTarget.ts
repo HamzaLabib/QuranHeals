@@ -97,6 +97,25 @@ export type ScriptAccess = {
   writes: boolean;
   /** Only scripts explicitly built for production may target it at all. */
   productionSupported?: boolean;
+  /**
+   * Treat any credential-scope problem as fatal for this run, regardless of
+   * MONGODB_ENFORCE_CREDENTIAL_SCOPE (the admin deletion tool always does).
+   */
+  enforceCredentialScope?: boolean;
+  /**
+   * In production, a writing run that must use a deletion-only user: find
+   * and remove on exactly these collections, nothing else that writes
+   * (see credentialScope.ts deletionScopeProblems).
+   */
+  deletionOnlyCollections?: readonly string[];
+  /**
+   * Apply the read-only and deletion-only checks in EVERY environment, not
+   * only production, and make any problem fatal. Set by the explicit
+   * development rehearsal profiles (development-read / development-delete),
+   * so a restricted development user is checked exactly like production.
+   * Production always applies these checks, with or without this flag.
+   */
+  strictCredentialScope?: boolean;
 };
 
 /** Must equal the production database name to allow a production write. */

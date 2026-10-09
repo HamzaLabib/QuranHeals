@@ -1,7 +1,17 @@
 import dotenv from 'dotenv';
 import { z } from 'zod';
 
-dotenv.config();
+/**
+ * Whether to load backend/.env. A production admin profile (an env file
+ * loaded with Node's --env-file, see docs/account-deletion-requests.md)
+ * sets QURAN_HEALS_SKIP_DOTENV=1, so the development .env can never fill in
+ * a value the profile left out.
+ */
+export function shouldLoadDotenv(environment: Record<string, string | undefined>): boolean {
+  return environment.QURAN_HEALS_SKIP_DOTENV !== '1';
+}
+
+if (shouldLoadDotenv(process.env)) dotenv.config();
 
 const envSchema = z
   .object({

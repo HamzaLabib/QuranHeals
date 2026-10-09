@@ -76,6 +76,8 @@ To review them:
 - Delete the matching issues.
 - Record only the review date and the number deleted.
 
+**Retention:** data is stored in the US region, on a Business trial plan. The event retention period is **not verified yet**; check it before publishing the legal pages (`docs/data-retention.md`).
+
 ## Logging
 
 Render logs contain:
@@ -83,6 +85,17 @@ Render logs contain:
 - for unexpected errors: error name, scrubbed message and top stack frames only.
 
 Never logged: request bodies, headers, tokens, connection strings, reflection content.
+
+**Retention:** Render keeps service logs for 7 days (Hobby workspace, US West). This is provider-managed; there is no application cleanup.
+
+## Data retention and deletion operations
+
+The schedule, holds and operator calendar are in `docs/data-retention.md`:
+- weekly verification-case `prune`;
+- monthly `issue-reports:retention` and Gmail review;
+- yearly `audit-prune`.
+
+Email deletion requests are handled with `docs/account-deletion-requests.md`. Both tools run only from the owner's machine and are disabled for production in code.
 
 ## Rate limits
 

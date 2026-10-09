@@ -64,7 +64,8 @@ The name checks above stop the **app** from choosing the wrong database. Each en
 |---|---|---|
 | `quranheals-dev` | `readWrite` on `quranheals_dev` only | local `npm run dev`, all development scripts |
 | `quranheals-prod` | `readWrite` on `quranheals_prod` only | Render production backend; production scripts only when explicitly authorized |
-| `quranheals-prod-audit` | `read` on `quranheals_prod` only | read-only checks such as `npm run mapping:visibility-audit`, only when explicitly authorized |
+| `quranheals-prod-audit` | `read` on `quranheals_prod` only | read-only checks such as `npm run mapping:visibility-audit`, only when explicitly authorized; the email-deletion lookups and dry runs (`prod-read.env` profile) |
+| `quranheals-prod-deletion` (**not created yet**; needs approval) | Custom role: `find` + `remove` on `users`, `sessions`, `userfavorites`, `userpreferences`, `userreflections`, `usersynckeys`, `applecredentials`, `issuereports` in `quranheals_prod`. No insert, update, index or collection actions. | `account:admin-delete ... --apply` and `issue-reports:retention purge --apply`, from the `prod-delete.env` profile on the owner's machine. The tool refuses any broader user. See `docs/account-deletion-requests.md`. |
 
 No user gets `readWriteAnyDatabase`, `readAnyDatabase`, `atlasAdmin` or any other all-database role. Keep personal Atlas UI access (organization/project roles) separate from these application users.
 

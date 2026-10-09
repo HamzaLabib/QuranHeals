@@ -1,6 +1,6 @@
 import mongoose, { type ConnectOptions } from 'mongoose';
 
-import { assessCredentialScope, credentialScopeProblems, ENFORCE_CREDENTIAL_SCOPE_ENV, type MongoPrivilege } from './credentialScope';
+import { assessCredentialScope, credentialScopeProblems, deletionScopeProblems, ENFORCE_CREDENTIAL_SCOPE_ENV, type MongoPrivilege } from './credentialScope';
 import {
   assertScriptMayUseTarget,
   DatabaseConfigError,
@@ -33,7 +33,9 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
  * credential migration; fatal when MONGODB_ENFORCE_CREDENTIAL_SCOPE=true.
  * Messages name databases only.
  */
-async function checkCredentialScope(target: DatabaseTarget, readOnly: boolean): Promise<void> {
+type ScopeCheck = { readOnly: boolean; enforce?: boolean; strict?: boolean; deletionOnlyCollections?: readonly string[] };
+
+async function checkCredentialScope(target: DatabaseTarget, check: ScopeCheck): Promise<void> {
   let problems: string[];
   try {
     // connectionStatus is permitted for every user on itself; it needs no
@@ -42,22 +44,29 @@ async function checkCredentialScope(target: DatabaseTarget, readOnly: boolean): 
       mongoose.connection.db!.command({ connectionStatus: 1, showPrivileges: true }),
       CREDENTIAL_SCOPE_TIMEOUT_MS,
     )) as { authInfo?: { authenticatedUsers?: unknown[]; authenticatedUserPrivileges?: MongoPrivilege[] } };
-    const privileges = status.authInfo?.authenticatedUserPrivileges ?? [];
-    problems = credentialScopeProblems(target, assessCredentialScope(target, privileges, status.authInfo?.authenticatedUsers), { readOnly });
+    // Passed through as reported (possibly missing): strict checks must fail closed rather than assume an empty list.
+    const privileges = status.authInfo?.authenticatedUserPrivileges;
+    problems = credentialScopeProblems(target, assessCredentialScope(target, privileges, status.authInfo?.authenticatedUsers), { readOnly: check.readOnly, strict: check.strict });
+    // Deletion-only users exist in production, and in development only under
+    // the strict development-delete rehearsal profile; ordinary development
+    // runs use the normal development user.
+    if (check.deletionOnlyCollections && (target.environment === 'production' || check.strict)) {
+      problems.push(...deletionScopeProblems(target, privileges, check.deletionOnlyCollections));
+    }
   } catch {
     problems = ["the MongoDB user's privileges could not be verified"];
   }
   if (problems.length === 0) return;
 
   const message = `MongoDB credential scope: ${problems.join('; ')}. See docs/backend-environments.md.`;
-  if (env.MONGODB_ENFORCE_CREDENTIAL_SCOPE === 'true') {
+  if (env.MONGODB_ENFORCE_CREDENTIAL_SCOPE === 'true' || check.enforce || check.strict) {
     await mongoose.disconnect();
     throw new DatabaseConfigError(`${message} (${ENFORCE_CREDENTIAL_SCOPE_ENV}=true)`);
   }
   console.warn(`WARNING ${message}`);
 }
 
-async function connectTo(target: DatabaseTarget, options: ConnectOptions, readOnly: boolean): Promise<DatabaseTarget> {
+async function connectTo(target: DatabaseTarget, options: ConnectOptions, check: ScopeCheck): Promise<DatabaseTarget> {
   mongoose.set('strictQuery', true);
   // dbName is always explicit, so MongoDB's implicit `test` default can never apply.
   await mongoose.connect(env.MONGODB_URI!, { ...options, dbName: target.databaseName });
@@ -66,13 +75,13 @@ async function connectTo(target: DatabaseTarget, options: ConnectOptions, readOn
     await mongoose.disconnect();
     throw new DatabaseConfigError(`Connected to database "${connected}" instead of "${target.databaseName}".`);
   }
-  await checkCredentialScope(target, readOnly);
+  await checkCredentialScope(target, check);
   return target;
 }
 
 /** Server startup: validates the target before connecting, then confirms the connected database. */
 export async function connectToDatabase(options: ConnectOptions = {}): Promise<DatabaseTarget> {
-  return connectTo(getDatabaseTarget(), options, false);
+  return connectTo(getDatabaseTarget(), options, { readOnly: false });
 }
 
 /**
@@ -84,7 +93,12 @@ export async function connectScriptDatabase(access: ScriptAccess, options: Conne
   const target = getDatabaseTarget();
   assertScriptMayUseTarget(target, access, process.env);
   console.error(describeTarget(target, access));
-  return connectTo(target, options, !access.writes);
+  return connectTo(target, options, {
+    readOnly: !access.writes,
+    enforce: access.enforceCredentialScope,
+    strict: access.strictCredentialScope,
+    deletionOnlyCollections: access.writes ? access.deletionOnlyCollections : undefined,
+  });
 }
 
 export async function disconnectFromDatabase() {

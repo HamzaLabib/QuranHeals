@@ -1,8 +1,10 @@
+import { EventEmitter } from 'node:events';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type { AdminAccount, AdminAccountStore, RecordCounts } from '../../src/admin/adminAccountDeletion';
+import type { TerminalIO } from '../../src/admin/prompt';
 import type { AuthProvider } from '../../src/types/accountDomain';
 
 export const ALICE_ID = 'aaaaaaaaaaaaaaaaaaaaaaaa';
@@ -92,3 +94,38 @@ export class FakeDeletionService {
 export function tempDir(): string {
   return mkdtempSync(join(tmpdir(), 'qh-admin-delete-'));
 }
+
+/**
+ * A scripted terminal: each `resume()` (one per prompt) delivers the next
+ * scripted keystrokes. `written` captures everything echoed or printed.
+ */
+export class FakeTerminal {
+  written = '';
+  readonly rawModes: boolean[] = [];
+  readonly input: TerminalIO['input'];
+  readonly output: TerminalIO['output'];
+
+  constructor(keystrokes: string[], options: { tty?: boolean; outputTty?: boolean } = {}) {
+    const tty = options.tty ?? true;
+    const emitter = new EventEmitter();
+    const queue = [...keystrokes];
+    this.input = Object.assign(emitter, {
+      isTTY: tty,
+      setRawMode: tty ? (mode: boolean) => { this.rawModes.push(mode); } : undefined,
+      resume: () => {
+        const next = queue.shift();
+        if (next !== undefined) setImmediate(() => emitter.emit('data', Buffer.from(next, 'utf8')));
+        else setImmediate(() => emitter.emit('end'));
+      },
+      pause: () => undefined,
+    }) as unknown as TerminalIO['input'];
+    this.output = { isTTY: options.outputTty ?? tty, write: (text: string) => { this.written += text; return true; } };
+  }
+
+  get io(): TerminalIO {
+    return { input: this.input, output: this.output };
+  }
+}
+
+/** One typed line, ended with Enter. */
+export const typed = (text: string) => `${text}\r`;
