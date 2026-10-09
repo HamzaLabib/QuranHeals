@@ -67,7 +67,7 @@ function Probe() {
 }
 
 function tree(strict = false) {
-  const provider = createElement(AuthProvider, { children: createElement(Probe) });
+  const provider = createElement(AuthProvider, null, createElement(Probe));
   return strict ? createElement(StrictMode, null, provider) : provider;
 }
 

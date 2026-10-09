@@ -81,7 +81,7 @@ const devices: Record<string, Map<string, string>> = {};
 const USER = 'user-1';
 const VERSE = '2:286';
 
-function useDevice(name: string) {
+function switchToDevice(name: string) {
   devices[name] ??= new Map();
   env.storage = devices[name];
 }
@@ -112,19 +112,19 @@ afterEach(() => vi.unstubAllGlobals());
 
 const masterKey = generateMasterKey(getRandomBytes);
 const sync = (device: string, key = masterKey) => {
-  useDevice(device);
+  switchToDevice(device);
   return syncReflections('token', key, USER);
 };
 const save = (device: string, text: string, at: number) => {
-  useDevice(device);
+  switchToDevice(device);
   return reflections.saveReflection(VERSE, text, at);
 };
 const current = async (device: string) => {
-  useDevice(device);
+  switchToDevice(device);
   return (await reflections.getReflection(VERSE))?.text ?? null;
 };
 const kept = async (device: string) => {
-  useDevice(device);
+  switchToDevice(device);
   return conflicts.getConflictVersionsFor(VERSE);
 };
 /** v1 created on A at t=1000 and synced to both devices. */
@@ -276,7 +276,7 @@ describe('interruptions and restarts', () => {
     await save('A', 'A offline edit', 3000);
     await save('B', 'B edit', 4000);
     await sync('B');
-    useDevice('A');
+    switchToDevice('A');
     await Promise.all([syncReflections('token', masterKey, USER), syncReflections('token', masterKey, USER)]);
     expect((await kept('A')).map((version) => version.text)).toEqual(['A offline edit']);
   });
@@ -338,7 +338,7 @@ describe('account isolation', () => {
     await save('B', 'B edit', 4000);
     await sync('B');
     await sync('A');
-    useDevice('A');
+    switchToDevice('A');
 
     owner.setLocalDataOwnerState({ activeUserId: 'user-2', keptSeparate: [], resolved: true });
     expect(await conflicts.getConflictVersions()).toEqual([]);
@@ -353,7 +353,7 @@ describe('account isolation', () => {
     await save('A', 'A offline edit', 3000);
     await save('B', 'B edit', 4000);
     await sync('B');
-    useDevice('A');
+    switchToDevice('A');
     const running = syncReflections('token', masterKey, USER);
     owner.setLocalDataOwnerState({ activeUserId: 'user-2', keptSeparate: [], resolved: true });
     await running;
@@ -369,7 +369,7 @@ describe('account isolation', () => {
     await save('B', 'B edit', 4000);
     await sync('B');
     await sync('A');
-    useDevice('A');
+    switchToDevice('A');
     await conflicts.clearAllConflictVersions(USER);
     expect(await conflicts.getConflictVersions(USER)).toEqual([]);
   });
@@ -382,7 +382,7 @@ describe('recovery interface', () => {
     await save('B', '', 4000);
     await sync('B');
     await sync('A');
-    useDevice('A');
+    switchToDevice('A');
     expect(await loadReflectionListItems(USER)).toEqual([
       expect.objectContaining({ recoveredOnly: true, otherVersionCount: 1, reflection: expect.objectContaining({ verseKey: VERSE, text: 'A offline edit' }) }),
     ]);
@@ -420,7 +420,7 @@ describe('edits made while a sync is running', () => {
     await save('B', 'B edit', 4000);
     await sync('B');
     // A uploads something else, so it re-reads the cloud before downloading.
-    useDevice('A');
+    switchToDevice('A');
     await reflections.saveReflection('1:1', 'another ayah', 4500);
     env.getCount = 0;
     env.beforeGet = async (count) => {
@@ -430,7 +430,7 @@ describe('edits made while a sync is running', () => {
     env.beforeGet = null;
 
     expect(await current('A')).toBe('typed during sync');
-    useDevice('A');
+    switchToDevice('A');
     expect((await reflections.getReflection(VERSE))?.syncState).toBe('pending');
 
     // The next sync treats it as concurrent with B's edit: A's newer text
@@ -451,7 +451,7 @@ describe('edits made while a sync is running', () => {
       await reflections.saveReflection(VERSE, 'second edit', 3000);
     };
     await sync('A');
-    useDevice('A');
+    switchToDevice('A');
     expect(await reflections.getReflection(VERSE)).toEqual(expect.objectContaining({ text: 'second edit', syncState: 'pending' }));
 
     await sync('A');
@@ -464,7 +464,7 @@ describe('edits made while a sync is running', () => {
     await sharedStart();
     await save('B', 'B edit', 4000);
     await sync('B');
-    useDevice('A');
+    switchToDevice('A');
     await reflections.saveReflection('1:1', 'another ayah', 4500);
     env.getCount = 0;
     env.beforeGet = async (count) => {
@@ -482,7 +482,7 @@ describe('sign-out during a sync', () => {
     await save('A', 'A offline edit', 3000);
     await save('B', 'B edit', 4000);
     await sync('B');
-    useDevice('A');
+    switchToDevice('A');
     env.getCount = 0;
     env.beforeGet = async (count) => {
       if (count === 1) owner.setLocalDataOwnerState({ activeUserId: null, keptSeparate: [], resolved: true });
@@ -523,7 +523,7 @@ describe('deleting a reflection that has kept versions', () => {
     await sync('A');
     expect(await current('A')).toBeNull();
     expect((await kept('A')).map((version) => version.text)).toEqual(['A offline edit']);
-    useDevice('A');
+    switchToDevice('A');
     expect(await loadReflectionListItems(USER)).toEqual([expect.objectContaining({ recoveredOnly: true })]);
   });
 });
