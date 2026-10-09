@@ -57,6 +57,25 @@ Expected 4xx responses and malformed or oversized request bodies are not reporte
 
 If Sentry is down or unreachable, events are dropped. Requests are unaffected, and shutdown waits at most 2s to flush.
 
+**Database errors are never sent with their messages** (`backend/src/monitoring/errorSanitizer.ts`):
+- **What gets replaced:** MongoDB, Mongoose and BSON errors (and any of them in a `cause` chain) have their message replaced by a summary built only from fixed identifiers:
+  - class name, code and `codeName`;
+  - index and field **names**;
+  - schema path and model name.
+- **Why:** duplicate-key values (provider subjects, emails), cast values (user ids) and rejected validator input never leave the process.
+- **Other errors:** their messages are scrubbed with patterns for identifier keys (`"sub":…`, `userId=…`), Apple and Google subjects, ObjectIds, emails and tokens.
+- **Fail closed:** if scrubbing fails, the event is dropped.
+- **Server logs** (`describeError`, stack frames only) use the same summaries.
+- **Tests:** `backend/tests/monitoring/sensitiveIdentifiers.test.ts`.
+
+**Events stored before this change was deployed are not altered by it.**
+
+To review them:
+- In Sentry → Issues, filter on `error.type:MongoServerError`, `CastError`, `ValidationError` and `MongoBulkWriteError` across the retention window.
+- Triage from the issue title and type only. Never open or copy the event data.
+- Delete the matching issues.
+- Record only the review date and the number deleted.
+
 ## Logging
 
 Render logs contain:

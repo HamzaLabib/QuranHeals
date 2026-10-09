@@ -3,6 +3,7 @@ import { ZodError } from 'zod';
 
 import { env } from '../config/env';
 import { AppError } from '../errors/AppError';
+import { safeStackFrames } from '../monitoring/errorSanitizer';
 import { describeError, reportError } from '../monitoring/monitoring';
 
 /** express.json()/urlencoded() failures: malformed or oversized bodies. They carry the raw body, so they're never logged or reported. */
@@ -41,7 +42,7 @@ export const errorHandler: ErrorRequestHandler = (error, req, res, _next) => {
   // Name + scrubbed message + stack only — never the whole error object,
   // which may carry request data.
   if (env.NODE_ENV !== 'test') {
-    console.error('Unhandled request error:', describeError(error), error instanceof Error ? error.stack?.split('\n').slice(1, 6).join('\n') : '');
+    console.error('Unhandled request error:', describeError(error), safeStackFrames(error));
   }
   reportError(error, context);
 
