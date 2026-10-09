@@ -8,7 +8,7 @@ const fresh = (idToken: string) => ({ provider: 'google', idToken });
 
 async function signInAndSync(app: ReturnType<typeof buildAccountTestApp>['app'], googleTokens: Map<string, { providerSubject: string }>, idToken: string, providerSubject: string) {
   googleTokens.set(idToken, { providerSubject });
-  const signIn = await request(app).post('/api/auth/google').send({ idToken });
+  const signIn = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken });
   const { token, refreshToken, user } = signIn.body.data as { token: string; refreshToken: string; user: { id: string } };
 
   await request(app).put('/api/sync/favorites').set('Authorization', `Bearer ${token}`).send({ verseKeys: ['1:1', '2:2'] });
@@ -79,8 +79,8 @@ describe('DELETE /api/account', () => {
     const { app, googleTokens } = buildAccountTestApp();
     googleTokens.set('device-a', { providerSubject: 'sub-multi' });
     googleTokens.set('device-b', { providerSubject: 'sub-multi' });
-    const deviceA = await request(app).post('/api/auth/google').send({ idToken: 'device-a' });
-    const deviceB = await request(app).post('/api/auth/google').send({ idToken: 'device-b' });
+    const deviceA = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'device-a' });
+    const deviceB = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'device-b' });
 
     await request(app)
       .delete('/api/account')
@@ -111,7 +111,7 @@ describe('DELETE /api/account', () => {
     // account with none of the old data, rather than reusing the deleted
     // one's records.
     googleTokens.set('token-again', { providerSubject: 'sub-data' });
-    const again = await request(app).post('/api/auth/google').send({ idToken: 'token-again' });
+    const again = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'token-again' });
     const newToken = again.body.data.token as string;
 
     const favorites = await request(app).get('/api/sync/favorites').set('Authorization', `Bearer ${newToken}`);

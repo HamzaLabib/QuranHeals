@@ -18,7 +18,7 @@ type App = ReturnType<typeof buildAccountTestApp>;
 
 async function signIn({ app, googleTokens }: App, idToken: string, subject: string) {
   googleTokens.set(idToken, { providerSubject: subject });
-  const res = await request(app).post('/api/auth/google').send({ idToken });
+  const res = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken });
   // A fresh Google ID token for the same identity, as the reset now requires.
   googleTokens.set(`reauth-${subject}`, { providerSubject: subject });
   const credential = { provider: 'google', idToken: `reauth-${subject}` };

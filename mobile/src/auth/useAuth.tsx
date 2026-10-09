@@ -34,6 +34,7 @@ import {
 } from '@/storage/localDataOwnership';
 import { deleteAccountRequest, SyncApiError } from '@/sync/syncApi';
 import { devLog } from '@/utils/devLog';
+import type { AccountAgeDeclaration } from './ageConfirmation';
 import { logoutSession, signInWithAppleIdToken, signInWithGoogleIdToken, AuthApiError } from './authApi';
 import { beginAuthEpoch, currentAuthEpoch } from './authEpoch';
 import { initializeSession, type InitializedSession } from './initializeSession';
@@ -67,8 +68,8 @@ export type AuthContextValue = {
   status: AuthStatus;
   user: AuthUser | null;
   lastError: string | null;
-  signInWithGoogleIdToken: (idToken: string) => Promise<void>;
-  signInWithAppleIdToken: (idToken: string, authorizationCode?: string | null) => Promise<void>;
+  signInWithGoogleIdToken: (idToken: string, ageDeclaration?: AccountAgeDeclaration) => Promise<void>;
+  signInWithAppleIdToken: (idToken: string, authorizationCode?: string | null, ageDeclaration?: AccountAgeDeclaration) => Promise<void>;
   signOut: () => Promise<void>;
   clearLastError: () => void;
   /** Re-runs the same favorites/preferences/reflections sync as sign-in/foreground (runFullSync) — a no-op for a guest. The one function pull-to-refresh screens call; never a separate sync implementation. */
@@ -443,9 +444,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const signInWithGoogle = useCallback(
-    async (idToken: string) => {
+    async (idToken: string, ageDeclaration?: AccountAgeDeclaration) => {
       try {
-        const { token, refreshToken, user: signedInUser } = await signInWithGoogleIdToken(idToken);
+        const { token, refreshToken, user: signedInUser } = await signInWithGoogleIdToken(idToken, ageDeclaration);
         await handleSignInSuccess(token, refreshToken, signedInUser);
       } catch (error) {
         setLastError(
@@ -459,9 +460,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const signInWithApple = useCallback(
-    async (idToken: string, authorizationCode?: string | null) => {
+    async (idToken: string, authorizationCode?: string | null, ageDeclaration?: AccountAgeDeclaration) => {
       try {
-        const { token, refreshToken, user: signedInUser } = await signInWithAppleIdToken(idToken, authorizationCode);
+        const { token, refreshToken, user: signedInUser } = await signInWithAppleIdToken(idToken, authorizationCode, ageDeclaration);
         await handleSignInSuccess(token, refreshToken, signedInUser);
       } catch (error) {
         setLastError(

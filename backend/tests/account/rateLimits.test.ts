@@ -63,10 +63,10 @@ describe('sign-in and session refresh', () => {
   it('Google and Apple sign-in share one per-IP budget', async () => {
     const { app, googleTokens } = buildAccountTestApp({ rateLimits: { signIn: { windowMs: WINDOW, limit: 2 } } });
     googleTokens.set('valid', { providerSubject: 'sub-1' });
-    await request(app).post('/api/auth/google').send({ idToken: 'valid' }).expect(200);
-    await request(app).post('/api/auth/apple').send({ idToken: 'bad' }).expect(401);
+    await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'valid' }).expect(200);
+    await request(app).post('/api/auth/apple').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'bad' }).expect(401);
 
-    const limited = await request(app).post('/api/auth/google').send({ idToken: 'valid' });
+    const limited = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'valid' });
     expect(limited.status).toBe(429);
     expect(limited.body.message).toBe(RATE_LIMITED_MESSAGE);
   });
@@ -74,8 +74,8 @@ describe('sign-in and session refresh', () => {
   it('exhausting sign-in never blocks session refresh, the authenticated API or guest browsing', async () => {
     const { app, googleTokens } = buildAccountTestApp({ rateLimits: { signIn: { windowMs: WINDOW, limit: 1 } } });
     googleTokens.set('valid', { providerSubject: 'sub-1' });
-    const { token, refreshToken } = (await request(app).post('/api/auth/google').send({ idToken: 'valid' }).expect(200)).body.data;
-    await request(app).post('/api/auth/google').send({ idToken: 'valid' }).expect(429);
+    const { token, refreshToken } = (await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'valid' }).expect(200)).body.data;
+    await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'valid' }).expect(429);
 
     await request(app).post('/api/auth/refresh').send({ refreshToken }).expect(200);
     await request(app).get('/api/auth/session').set('Authorization', `Bearer ${token}`).expect(200);
@@ -89,7 +89,7 @@ describe('sign-in and session refresh', () => {
     await request(app).post('/api/auth/logout').send({ refreshToken: 'not-a-token' });
 
     await request(app).post('/api/auth/refresh').send({ refreshToken: 'not-a-token' }).expect(429);
-    await request(app).post('/api/auth/google').send({ idToken: 'valid' }).expect(200);
+    await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'valid' }).expect(200);
   });
 
   it('a refresh token from another IP is unaffected (households/carrier NAT get separate budgets per address)', async () => {
@@ -103,7 +103,7 @@ describe('sign-in and session refresh', () => {
 describe('provider-reauthenticated account actions (per account)', () => {
   async function signIn(app: ReturnType<typeof buildAccountTestApp>['app'], googleTokens: Map<string, { providerSubject: string }>, idToken: string) {
     googleTokens.set(idToken, { providerSubject: `sub-${idToken}` });
-    return (await request(app).post('/api/auth/google').send({ idToken }).expect(200)).body.data.token as string;
+    return (await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken }).expect(200)).body.data.token as string;
   }
 
   it('limits account deletion attempts per account, not per IP', async () => {

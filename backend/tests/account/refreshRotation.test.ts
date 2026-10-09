@@ -92,7 +92,7 @@ describe('Test B — lost response recovery', () => {
   it('works end to end through POST /api/auth/refresh: the client is not signed out and receives a usable access + refresh token', async () => {
     const { app, googleTokens } = buildAccountTestApp();
     googleTokens.set('token', { providerSubject: 'sub-lost-response' });
-    const signIn = await request(app).post('/api/auth/google').send({ idToken: 'token' });
+    const signIn = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'token' });
     const heldByClient = signIn.body.data.refreshToken;
 
     const lostResponse = await request(app).post('/api/auth/refresh').send({ refreshToken: heldByClient });

@@ -8,7 +8,7 @@ type Built = ReturnType<typeof buildAccountTestApp>;
 
 async function googleAccountWithData(built: Built, providerSubject: string) {
   built.googleTokens.set(`signin-${providerSubject}`, { providerSubject });
-  const signIn = await request(built.app).post('/api/auth/google').send({ idToken: `signin-${providerSubject}` });
+  const signIn = await request(built.app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: `signin-${providerSubject}` });
   const token = signIn.body.data.token as string;
   await request(built.app).put('/api/sync/favorites').set('Authorization', `Bearer ${token}`).send({ verseKeys: ['1:1'] });
   return { token, userId: signIn.body.data.user.id as string };

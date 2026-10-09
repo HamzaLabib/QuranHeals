@@ -6,7 +6,7 @@ import { buildAccountTestApp } from './testApp';
 
 async function signIn(app: ReturnType<typeof buildAccountTestApp>['app'], googleTokens: Map<string, { providerSubject: string }>, token: string, sub: string) {
   googleTokens.set(token, { providerSubject: sub });
-  const res = await request(app).post('/api/auth/google').send({ idToken: token });
+  const res = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: token });
   return res.body.data.token as string;
 }
 

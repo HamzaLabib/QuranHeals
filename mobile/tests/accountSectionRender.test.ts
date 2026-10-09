@@ -51,6 +51,11 @@ vi.mock('@/components/ChangeSyncPasswordSheet', async () => {
   const { createElement: h } = await import('react');
   return { ChangeSyncPasswordSheet: (props: object) => h('ChangeSyncPasswordSheet', props) };
 });
+// The age-confirmation panel (AccountSection's sign-in gate) imports these.
+vi.mock('lucide-react-native', () => ({ Check: () => null }));
+vi.mock('@react-native-async-storage/async-storage', () => ({
+  default: { getItem: async () => null, setItem: async () => undefined },
+}));
 vi.mock('@/components/AppleIcon', () => ({ AppleIcon: () => null }));
 vi.mock('@/components/GoogleIcon', () => ({ GoogleIcon: () => null }));
 

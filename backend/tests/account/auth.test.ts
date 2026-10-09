@@ -9,7 +9,7 @@ describe('POST /api/auth/google', () => {
     const { app, googleTokens } = buildAccountTestApp();
     googleTokens.set('valid-google-token', { providerSubject: 'google-sub-1', email: 'a@example.com', emailVerified: true });
 
-    const res = await request(app).post('/api/auth/google').send({ idToken: 'valid-google-token' });
+    const res = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'valid-google-token' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -21,7 +21,7 @@ describe('POST /api/auth/google', () => {
   it('rejects an unverifiable Google token and never issues a session', async () => {
     const { app } = buildAccountTestApp();
 
-    const res = await request(app).post('/api/auth/google').send({ idToken: 'not-a-real-token' });
+    const res = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'not-a-real-token' });
 
     expect(res.status).toBe(401);
     expect(res.body.success).toBe(false);
@@ -34,7 +34,7 @@ describe('POST /api/auth/google', () => {
 
     const res = await request(app)
       .post('/api/auth/google')
-      .send({ idToken: 'valid-google-token', userId: 'attacker-controlled-id', id: 'also-attacker-controlled' });
+      .send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'valid-google-token', userId: 'attacker-controlled-id', id: 'also-attacker-controlled' });
 
     expect(res.status).toBe(200);
     expect(res.body.data.user.id).not.toBe('attacker-controlled-id');
@@ -50,7 +50,7 @@ describe('POST /api/auth/apple', () => {
       emailVerified: true,
     });
 
-    const res = await request(app).post('/api/auth/apple').send({ idToken: 'valid-apple-token' });
+    const res = await request(app).post('/api/auth/apple').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'valid-apple-token' });
 
     expect(res.status).toBe(200);
     expect(res.body.data.user).toMatchObject({ provider: 'apple', email: 'abc123@privaterelay.appleid.com' });
@@ -59,7 +59,7 @@ describe('POST /api/auth/apple', () => {
   it('rejects an unverifiable Apple token and leaves guest usage unaffected (no session issued)', async () => {
     const { app } = buildAccountTestApp();
 
-    const res = await request(app).post('/api/auth/apple').send({ idToken: 'garbage' });
+    const res = await request(app).post('/api/auth/apple').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'garbage' });
 
     expect(res.status).toBe(401);
     expect(res.body.success).toBe(false);
@@ -70,8 +70,8 @@ describe('POST /api/auth/apple', () => {
     googleTokens.set('g-token', { providerSubject: 'g-sub', email: 'same@example.com' });
     appleTokens.set('a-token', { providerSubject: 'a-sub', email: 'same@example.com' });
 
-    const googleRes = await request(app).post('/api/auth/google').send({ idToken: 'g-token' });
-    const appleRes = await request(app).post('/api/auth/apple').send({ idToken: 'a-token' });
+    const googleRes = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'g-token' });
+    const appleRes = await request(app).post('/api/auth/apple').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'a-token' });
 
     expect(googleRes.body.data.user.id).not.toBe(appleRes.body.data.user.id);
   });
@@ -93,7 +93,7 @@ describe('GET /api/auth/session and session-protected routes', () => {
   it('an arbitrary client-chosen userId cannot spoof another account on a sync route', async () => {
     const { app, googleTokens } = buildAccountTestApp();
     googleTokens.set('victim-token', { providerSubject: 'victim-sub' });
-    const signIn = await request(app).post('/api/auth/google').send({ idToken: 'victim-token' });
+    const signIn = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'victim-token' });
     const victimId = signIn.body.data.user.id;
 
     // No token at all, just a body claiming to be the victim.
@@ -104,7 +104,7 @@ describe('GET /api/auth/session and session-protected routes', () => {
   it('accepts a valid session token and resolves it back to the correct account', async () => {
     const { app, googleTokens } = buildAccountTestApp();
     googleTokens.set('valid-token', { providerSubject: 'sub-x' });
-    const signIn = await request(app).post('/api/auth/google').send({ idToken: 'valid-token' });
+    const signIn = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'valid-token' });
     const { token, user } = signIn.body.data;
 
     const res = await request(app).get('/api/auth/session').set('Authorization', `Bearer ${token}`);
@@ -117,7 +117,7 @@ describe('GET /api/auth/session and session-protected routes', () => {
 describe('Guest usage is never blocked by auth failures', () => {
   it('a failed sign-in does not prevent using the Quran/emotion API as a guest', async () => {
     const { app } = buildAccountTestApp();
-    await request(app).post('/api/auth/google').send({ idToken: 'bad' });
+    await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'bad' });
 
     const health = await request(app).get('/api/health');
     expect(health.status).toBe(200);

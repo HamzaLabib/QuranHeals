@@ -87,6 +87,20 @@ describe('find-and-modify calls return the updated document without the deprecat
     expect(user).toEqual({ id: userId, provider: 'google', email: undefined, createdAt: '2026-01-01T00:00:00.000Z' });
   });
 
+  it('sign-in without an age declaration: same lookup, but never an upsert (a missing account stays missing)', async () => {
+    const repository = new MongooseUserRepository();
+    const user = await repository.findExistingByProviderIdentity({ provider: 'google', providerSubject: 'sub-1' } as never);
+    const [call] = captured;
+    asksForUpdatedDocument(call.options);
+    expect(call.options).not.toHaveProperty('upsert');
+    expect(call.options).not.toHaveProperty('setDefaultsOnInsert');
+    expect(call.filter).toEqual({ provider: 'google', providerSubject: 'sub-1' });
+    expect(user).toEqual({ id: userId, provider: 'google', email: undefined, createdAt: '2026-01-01T00:00:00.000Z' });
+
+    vi.mocked(UserModel.findOneAndUpdate).mockImplementation((() => fakeQuery(null)) as never);
+    expect(await repository.findExistingByProviderIdentity({ provider: 'google', providerSubject: 'absent' } as never)).toBeNull();
+  });
+
   it('refresh-token rotation: still one conditional update; a match returns its user, no match returns null', async () => {
     const sessionId = new mongoose.Types.ObjectId().toString();
     const update = { refreshTokenHash: 'h2', previousRefreshTokenHash: 'h1', rotatedAt: 1, expiresAt: 2 };

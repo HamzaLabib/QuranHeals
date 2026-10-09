@@ -22,7 +22,7 @@ type Built = ReturnType<typeof buildAccountTestApp>;
 
 async function signIn(built: Built, idToken: string, providerSubject: string) {
   built.googleTokens.set(idToken, { providerSubject });
-  const res = await request(built.app).post('/api/auth/google').send({ idToken });
+  const res = await request(built.app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken });
   const { token, refreshToken, user } = res.body.data as { token: string; refreshToken: string; user: { id: string } };
   return { token, refreshToken, userId: user.id };
 }

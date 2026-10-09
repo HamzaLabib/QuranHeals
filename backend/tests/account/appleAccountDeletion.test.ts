@@ -15,13 +15,13 @@ type Built = ReturnType<typeof buildAccountTestApp>;
 
 async function signInApple(built: Built, idToken: string, providerSubject: string, authorizationCode?: string) {
   built.appleTokens.set(idToken, { providerSubject });
-  const res = await request(built.app).post('/api/auth/apple').send({ idToken, ...(authorizationCode ? { authorizationCode } : {}) });
+  const res = await request(built.app).post('/api/auth/apple').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken, ...(authorizationCode ? { authorizationCode } : {}) });
   return { token: res.body.data.token as string, userId: res.body.data.user.id as string, res };
 }
 
 async function signInGoogle(built: Built, idToken: string, providerSubject: string) {
   built.googleTokens.set(idToken, { providerSubject });
-  const res = await request(built.app).post('/api/auth/google').send({ idToken });
+  const res = await request(built.app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken });
   return { token: res.body.data.token as string, userId: res.body.data.user.id as string };
 }
 

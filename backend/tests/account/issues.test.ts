@@ -31,7 +31,7 @@ describe('POST /api/issues', () => {
   it('accepts a valid report from a signed-in caller without requiring account linkage or attaching extra account data', async () => {
     const { app, googleTokens, issueReportRepository } = buildAccountTestApp();
     googleTokens.set('tok', { providerSubject: 'sub' });
-    const signIn = await request(app).post('/api/auth/google').send({ idToken: 'tok' });
+    const signIn = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'tok' });
     const token = signIn.body.data.token;
 
     const res = await request(app).post('/api/issues').set('Authorization', `Bearer ${token}`).send(baseReport);

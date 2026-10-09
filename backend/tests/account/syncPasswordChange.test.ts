@@ -10,7 +10,7 @@ const newKey = { ...oldKey, wrappedKey: 'new-ciphertext', nonce: 'new-nonce', sa
 async function setup() {
   const context = buildAccountTestApp();
   context.googleTokens.set('google-token', { providerSubject: 'user-1' });
-  const login = await request(context.app).post('/api/auth/google').send({ idToken: 'google-token' });
+  const login = await request(context.app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'google-token' });
   const token = login.body.data.token as string;
   await request(context.app).put('/api/sync/key').set('Authorization', `Bearer ${token}`).send(oldKey);
   return { ...context, token };
@@ -58,7 +58,7 @@ describe('atomic sync password replacement', () => {
   it('cannot replace another account key using a caller-supplied user ID', async () => {
     const { app, token, googleTokens } = await setup();
     googleTokens.set('other-token', { providerSubject: 'user-2' });
-    const login = await request(app).post('/api/auth/google').send({ idToken: 'other-token' });
+    const login = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'other-token' });
     const otherToken = login.body.data.token as string;
     expect((await request(app).patch('/api/sync/key').set('Authorization', `Bearer ${otherToken}`)
       .send({ expected: oldKey, replacement: newKey })).status).toBe(409);

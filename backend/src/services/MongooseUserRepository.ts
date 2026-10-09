@@ -19,6 +19,16 @@ function toUserDto(doc: {
 
 export class MongooseUserRepository implements UserRepository {
   async findOrCreateByProviderIdentity(identity: VerifiedProviderIdentity): Promise<UserDto> {
+    return toUserDto((await this.upsertByProviderIdentity(identity, true)) as never);
+  }
+
+  async findExistingByProviderIdentity(identity: VerifiedProviderIdentity): Promise<UserDto | null> {
+    const doc = await this.upsertByProviderIdentity(identity, false);
+    return doc ? toUserDto(doc as never) : null;
+  }
+
+  /** One atomic findOneAndUpdate; with upsert false a missing account stays missing (null). */
+  private upsertByProviderIdentity(identity: VerifiedProviderIdentity, upsert: boolean) {
     const { provider, providerSubject, email, emailVerified } = identity;
 
     const update: Record<string, unknown> = {
@@ -34,13 +44,11 @@ export class MongooseUserRepository implements UserRepository {
       (update.$set as Record<string, unknown>).emailVerified = emailVerified ?? false;
     }
 
-    const doc = await UserModel.findOneAndUpdate({ provider, providerSubject }, update, {
-      upsert: true,
-      returnDocument: 'after',
-      setDefaultsOnInsert: true,
-    }).lean();
-
-    return toUserDto(doc as never);
+    return UserModel.findOneAndUpdate(
+      { provider, providerSubject },
+      update,
+      upsert ? { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true } : { returnDocument: 'after' },
+    ).lean();
   }
 
   async findById(userId: string): Promise<UserDto | null> {

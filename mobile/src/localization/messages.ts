@@ -158,6 +158,18 @@ export type Messages = {
     deleteAccountAction: string;
     deleteAccountActionDescription: string;
   };
+  /**
+   * Self-declared account-age confirmation shown before Apple/Google sign-in
+   * (auth/ageConfirmation.ts). Approved wording — en and ar exactly as
+   * approved; ar-EG uses the same approved Arabic.
+   */
+  ageConfirmation: {
+    title: string;
+    description: string;
+    checkbox: string;
+    continueButton: string;
+    cancel: string;
+  };
   /** The permanent account-deletion confirmation sheet — GitHub-style typed confirmation, never auto-submits. */
   deleteAccount: {
     title: string;
@@ -417,6 +429,13 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       deleteAccountAction: 'Delete Account',
       deleteAccountActionDescription: 'Permanently delete your Quran Heals account and all synced data.',
     },
+    ageConfirmation: {
+      title: 'Before you continue',
+      description: 'To create a Quran Heals account, you must be at least 16 years old and meet the minimum age required in your country.',
+      checkbox: 'I confirm that I meet the minimum age requirement.',
+      continueButton: 'Continue',
+      cancel: 'Cancel',
+    },
     deleteAccount: {
       title: 'Delete your account?',
       description:
@@ -663,6 +682,13 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       dangerZoneTitle: 'منطقة الخطر',
       deleteAccountAction: 'حذف الحساب',
       deleteAccountActionDescription: 'حذف حساب Quran Heals وجميع بياناته نهائيًا.',
+    },
+    ageConfirmation: {
+      title: 'قبل المتابعة',
+      description: 'لإنشاء حساب في قرآن يشفي، يجب ألا يقل عمرك عن ١٦ عامًا، مع مراعاة الحد الأدنى للسن في بلدك.',
+      checkbox: 'أؤكد أن عمري يسمح لي بإنشاء حساب.',
+      continueButton: 'متابعة',
+      cancel: 'إلغاء',
     },
     // Account-deletion confirmation copy is a security/destructive-action
     // flow — intentionally byte-identical Standard Arabic in `ar` and
@@ -928,6 +954,13 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       dangerZoneTitle: 'منطقة الخطر',
       deleteAccountAction: 'حذف الحساب',
       deleteAccountActionDescription: 'حذف حساب Quran Heals وجميع بياناته نهائيًا.',
+    },
+    ageConfirmation: {
+      title: 'قبل المتابعة',
+      description: 'لإنشاء حساب في قرآن يشفي، يجب ألا يقل عمرك عن ١٦ عامًا، مع مراعاة الحد الأدنى للسن في بلدك.',
+      checkbox: 'أؤكد أن عمري يسمح لي بإنشاء حساب.',
+      continueButton: 'متابعة',
+      cancel: 'إلغاء',
     },
     // Account-deletion confirmation copy is a security/destructive-action
     // flow — intentionally byte-identical Standard Arabic in `ar` and

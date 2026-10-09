@@ -37,7 +37,7 @@ function registerToken(built: Built, provider: Provider, idToken: string, identi
 /** Signs in with `provider`/`subject` and gives the account a sync key, a reflection, a favorite and preferences. */
 async function accountWithSyncData(built: Built, provider: Provider, subject: string) {
   registerToken(built, provider, `signin-${subject}`, { providerSubject: subject });
-  const signIn = await request(built.app).post(`/api/auth/${provider}`).send({ idToken: `signin-${subject}` });
+  const signIn = await request(built.app).post(`/api/auth/${provider}`).send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: `signin-${subject}` });
   const token = signIn.body.data.token as string;
   const auth = { Authorization: `Bearer ${token}` };
   await request(built.app).put('/api/sync/key').set(auth).send({

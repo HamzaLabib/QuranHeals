@@ -13,8 +13,8 @@ describe('Multi-device sessions', () => {
     googleTokens.set('device-a-token', { providerSubject: 'same-sub' });
     googleTokens.set('device-b-token', { providerSubject: 'same-sub' });
 
-    const deviceA = await request(app).post('/api/auth/google').send({ idToken: 'device-a-token' });
-    const deviceB = await request(app).post('/api/auth/google').send({ idToken: 'device-b-token' });
+    const deviceA = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'device-a-token' });
+    const deviceB = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'device-b-token' });
 
     expect(deviceA.body.data.user.id).toBe(deviceB.body.data.user.id);
     expect(deviceA.body.data.refreshToken).not.toBe(deviceB.body.data.refreshToken);
@@ -30,8 +30,8 @@ describe('Multi-device sessions', () => {
     googleTokens.set('a-token', { providerSubject: 'same-sub' });
     googleTokens.set('b-token', { providerSubject: 'same-sub' });
 
-    const deviceA = await request(app).post('/api/auth/google').send({ idToken: 'a-token' });
-    const deviceB = await request(app).post('/api/auth/google').send({ idToken: 'b-token' });
+    const deviceA = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'a-token' });
+    const deviceB = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'b-token' });
 
     const refreshedA = await request(app)
       .post('/api/auth/refresh')
@@ -59,7 +59,7 @@ describe('Multi-device sessions', () => {
   it('rotation issues an access token that resolves to the correct user', async () => {
     const { app, googleTokens } = buildAccountTestApp();
     googleTokens.set('token', { providerSubject: 'sub-rotate' });
-    const signIn = await request(app).post('/api/auth/google').send({ idToken: 'token' });
+    const signIn = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'token' });
 
     const refreshed = await request(app).post('/api/auth/refresh').send({ refreshToken: signIn.body.data.refreshToken });
     expect(verifySessionToken(refreshed.body.data.token).userId).toBe(signIn.body.data.user.id);
@@ -72,7 +72,7 @@ describe('Multi-device sessions', () => {
   it('rejects an already-rotated (reused) refresh token after the retry window and revokes that session entirely', async () => {
     const { app, googleTokens } = buildAccountTestApp();
     googleTokens.set('token', { providerSubject: 'sub-reuse' });
-    const signIn = await request(app).post('/api/auth/google').send({ idToken: 'token' });
+    const signIn = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'token' });
     const originalRefreshToken = signIn.body.data.refreshToken;
 
     const firstRefresh = await request(app).post('/api/auth/refresh').send({ refreshToken: originalRefreshToken });
@@ -100,7 +100,7 @@ describe('Multi-device sessions', () => {
   it('rejects a superseded token once its successor has itself been used, even inside the retry window, and revokes the session', async () => {
     const { app, googleTokens } = buildAccountTestApp();
     googleTokens.set('token', { providerSubject: 'sub-reuse-2' });
-    const signIn = await request(app).post('/api/auth/google').send({ idToken: 'token' });
+    const signIn = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'token' });
     const originalRefreshToken = signIn.body.data.refreshToken;
 
     const firstRefresh = await request(app).post('/api/auth/refresh').send({ refreshToken: originalRefreshToken });
@@ -127,8 +127,8 @@ describe('Multi-device sessions', () => {
     googleTokens.set('a-token', { providerSubject: 'same-sub' });
     googleTokens.set('b-token', { providerSubject: 'same-sub' });
 
-    const deviceA = await request(app).post('/api/auth/google').send({ idToken: 'a-token' });
-    const deviceB = await request(app).post('/api/auth/google').send({ idToken: 'b-token' });
+    const deviceA = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'a-token' });
+    const deviceB = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'b-token' });
 
     const logoutA = await request(app).post('/api/auth/logout').send({ refreshToken: deviceA.body.data.refreshToken });
     expect(logoutA.status).toBe(200);
@@ -150,10 +150,10 @@ describe('Multi-device sessions', () => {
     const { app, googleTokens } = buildAccountTestApp();
     googleTokens.set('token', { providerSubject: 'sub-relogin' });
 
-    const first = await request(app).post('/api/auth/google').send({ idToken: 'token' });
+    const first = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'token' });
     await request(app).post('/api/auth/logout').send({ refreshToken: first.body.data.refreshToken });
 
-    const second = await request(app).post('/api/auth/google').send({ idToken: 'token' });
+    const second = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'token' });
     const session = await request(app).get('/api/auth/session').set('Authorization', `Bearer ${second.body.data.token}`);
     expect(session.status).toBe(200);
     expect(session.body.data.id).toBe(first.body.data.user.id);
@@ -169,7 +169,7 @@ describe('Multi-device sessions', () => {
   it('rejects an old-format access token with no session id, even when correctly signed for an existing user', async () => {
     const { app, googleTokens } = buildAccountTestApp();
     googleTokens.set('token', { providerSubject: 'sub-legacy' });
-    const signIn = await request(app).post('/api/auth/google').send({ idToken: 'token' });
+    const signIn = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'token' });
 
     // The pre-multi-device 180-day format: { userId } only, no sid. Logout
     // could never revoke it, so it is no longer accepted anywhere.
@@ -187,7 +187,7 @@ describe('Multi-device sessions', () => {
   it.each([['empty sid', ''], ['non-string sid', 123], ['malformed ObjectId sid', 'not-an-object-id']])('rejects an access token with a %s safely (401, no crash)', async (_label, sid) => {
     const { app, googleTokens } = buildAccountTestApp();
     googleTokens.set('token', { providerSubject: 'sub-malformed' });
-    const signIn = await request(app).post('/api/auth/google').send({ idToken: 'token' });
+    const signIn = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'token' });
     const forged = jwt.sign({ userId: signIn.body.data.user.id, sid }, env.SESSION_JWT_SECRET, { expiresIn: '20m' });
     const res = await request(app).get('/api/auth/session').set('Authorization', `Bearer ${forged}`);
     expect(res.status).toBe(401);
@@ -196,7 +196,7 @@ describe('Multi-device sessions', () => {
   it('account sync (favorites) keeps working after refreshing the access token', async () => {
     const { app, googleTokens } = buildAccountTestApp();
     googleTokens.set('token', { providerSubject: 'sub-sync' });
-    const signIn = await request(app).post('/api/auth/google').send({ idToken: 'token' });
+    const signIn = await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: 'token' });
 
     const refreshed = await request(app).post('/api/auth/refresh').send({ refreshToken: signIn.body.data.refreshToken });
     const newToken = refreshed.body.data.token;

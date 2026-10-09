@@ -1,5 +1,6 @@
 import { apiBaseUrl } from '@/services/apiBase';
 import { fetchWithTimeout } from '@/services/fetchWithTimeout';
+import type { AccountAgeDeclaration } from './ageConfirmation';
 import type { AuthUser } from './authTypes';
 
 export class AuthApiError extends Error {
@@ -51,8 +52,15 @@ async function postJson<T>(path: string, body: unknown, fallbackMessage: string)
 
 const SIGN_IN_FAILED_MESSAGE = "We couldn't sign you in. You can try again or continue without an account.";
 
-export function signInWithGoogleIdToken(idToken: string): Promise<SignInResponse> {
-  return postJson('/api/auth/google', { idToken }, SIGN_IN_FAILED_MESSAGE);
+// `ageDeclaration` is present only when the user confirmed the account-age
+// policy before this sign-in (components/AccountSection.tsx). The backend
+// needs it to create a NEW account; an existing account signs in without it.
+function withAgeDeclaration(ageDeclaration?: AccountAgeDeclaration) {
+  return ageDeclaration ? { accountAgeConfirmation: { policyVersion: ageDeclaration.policyVersion } } : {};
+}
+
+export function signInWithGoogleIdToken(idToken: string, ageDeclaration?: AccountAgeDeclaration): Promise<SignInResponse> {
+  return postJson('/api/auth/google', { idToken, ...withAgeDeclaration(ageDeclaration) }, SIGN_IN_FAILED_MESSAGE);
 }
 
 /**
@@ -62,8 +70,16 @@ export function signInWithGoogleIdToken(idToken: string): Promise<SignInResponse
  * B4). A failed/absent exchange never affects whether sign-in itself
  * succeeds.
  */
-export function signInWithAppleIdToken(idToken: string, authorizationCode?: string | null): Promise<SignInResponse> {
-  return postJson('/api/auth/apple', { idToken, ...(authorizationCode ? { authorizationCode } : {}) }, SIGN_IN_FAILED_MESSAGE);
+export function signInWithAppleIdToken(
+  idToken: string,
+  authorizationCode?: string | null,
+  ageDeclaration?: AccountAgeDeclaration,
+): Promise<SignInResponse> {
+  return postJson(
+    '/api/auth/apple',
+    { idToken, ...(authorizationCode ? { authorizationCode } : {}), ...withAgeDeclaration(ageDeclaration) },
+    SIGN_IN_FAILED_MESSAGE,
+  );
 }
 
 /** Rotates this device's refresh token and returns a new access token — see auth/tokenManager.ts, the only caller. Never affects any other device's session. */

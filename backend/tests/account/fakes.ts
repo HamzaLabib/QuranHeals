@@ -57,6 +57,16 @@ export class InMemoryUserRepository implements UserRepository {
     return user;
   }
 
+  async findExistingByProviderIdentity(identity: VerifiedProviderIdentity): Promise<UserDto | null> {
+    if (!this.usersByKey.has(`${identity.provider}:${identity.providerSubject}`)) return null;
+    return this.findOrCreateByProviderIdentity(identity);
+  }
+
+  /** Test-only: how many accounts exist — proves a rejected sign-up created none. */
+  get size(): number {
+    return this.usersByKey.size;
+  }
+
   async findById(userId: string): Promise<UserDto | null> {
     return [...this.usersByKey.values()].find((user) => user.id === userId) ?? null;
   }
@@ -144,6 +154,11 @@ export class InMemorySessionRepository implements SessionRepository {
 
   rotateSession(refreshToken: string): Promise<IssuedSession & { userId: string }> {
     return rotateRefreshToken(this.rotationStore, refreshToken);
+  }
+
+  /** Test-only: how many sessions were ever issued (revoked ones included). */
+  get sessionCount(): number {
+    return this.sessionsById.size;
   }
 
   /** Test-only: inspect stored session state (hashes only — never raw tokens). */

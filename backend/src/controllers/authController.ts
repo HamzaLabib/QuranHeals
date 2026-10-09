@@ -8,9 +8,15 @@ import { AppError } from '../errors/AppError';
 import type { AuthenticatedRequest } from '../middleware/requireAuth';
 import type { AppleCredentialRepository } from '../services/AppleCredentialRepository';
 import type { SessionRepository } from '../services/SessionRepository';
-import type { UserRepository } from '../services/UserRepository';
+import type { UserRepository, VerifiedProviderIdentity } from '../services/UserRepository';
 import type { UserDto } from '../types/accountDto';
-import { appleSignInSchema, googleSignInSchema, logoutSchema, refreshSessionSchema } from '../validators/authValidators';
+import {
+  appleSignInSchema,
+  googleSignInSchema,
+  hasCurrentAgeDeclaration,
+  logoutSchema,
+  refreshSessionSchema,
+} from '../validators/authValidators';
 
 /**
  * Sign-in's optional Apple credential capture gets a short budget: it must
@@ -19,6 +25,15 @@ import { appleSignInSchema, googleSignInSchema, logoutSchema, refreshSessionSche
  * the full timeout if this one is skipped.
  */
 export const APPLE_SIGN_IN_CAPTURE_TIMEOUT_MS = 2_500;
+
+/**
+ * Returned when a verified identity has no account yet and the request
+ * carries no current account-age declaration — typically an app build
+ * from before the 16+ confirmation. Nothing is created and no session is
+ * issued. Older builds show this message as-is, so it tells them what to do.
+ */
+export const ACCOUNT_AGE_CONFIRMATION_REQUIRED_MESSAGE =
+  'To create a Quran Heals account, please update the app to the latest version and confirm that you meet the minimum age requirement.';
 
 type AuthControllerDeps = {
   userRepository: UserRepository;
@@ -45,6 +60,24 @@ export function createAuthController({
     res.json({ success: true, data: { token: signAccessToken(user.id, sessionId), refreshToken, user } });
   }
 
+  /**
+   * New accounts require a current account-age self-declaration; existing
+   * accounts never do (so older builds and already-confirmed devices keep
+   * working). Without one, this only ever looks up — it never inserts — and
+   * a missing account is refused before any session or Apple credential
+   * is created. The declaration itself is not stored.
+   */
+  async function resolveAccount(identity: VerifiedProviderIdentity, declaration: { policyVersion: number } | undefined) {
+    if (hasCurrentAgeDeclaration(declaration)) {
+      return userRepository.findOrCreateByProviderIdentity(identity);
+    }
+    const existing = await userRepository.findExistingByProviderIdentity(identity);
+    if (!existing) {
+      throw new AppError(ACCOUNT_AGE_CONFIRMATION_REQUIRED_MESSAGE, 403);
+    }
+    return existing;
+  }
+
   return {
     signInWithGoogle: async (req: Request, res: Response) => {
       const parsed = googleSignInSchema.safeParse(req.body);
@@ -56,12 +89,10 @@ export function createAuthController({
       // carries nothing else that could influence which account this
       // resolves to. See Part B §7.
       const identity = await googleVerifier.verifyIdToken(parsed.data.idToken);
-      const user = await userRepository.findOrCreateByProviderIdentity({
-        provider: 'google',
-        providerSubject: identity.providerSubject,
-        email: identity.email,
-        emailVerified: identity.emailVerified,
-      });
+      const user = await resolveAccount(
+        { provider: 'google', providerSubject: identity.providerSubject, email: identity.email, emailVerified: identity.emailVerified },
+        parsed.data.accountAgeConfirmation,
+      );
 
       await respondWithNewSession(res, user);
     },
@@ -73,12 +104,10 @@ export function createAuthController({
       }
 
       const identity = await appleVerifier.verifyIdToken(parsed.data.idToken);
-      const user = await userRepository.findOrCreateByProviderIdentity({
-        provider: 'apple',
-        providerSubject: identity.providerSubject,
-        email: identity.email,
-        emailVerified: identity.emailVerified,
-      });
+      const user = await resolveAccount(
+        { provider: 'apple', providerSubject: identity.providerSubject, email: identity.email, emailVerified: identity.emailVerified },
+        parsed.data.accountAgeConfirmation,
+      );
 
       // Best-effort: captures a revocation credential now, while a fresh
       // authorization code happens to be available, so a later account

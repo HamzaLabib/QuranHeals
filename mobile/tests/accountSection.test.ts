@@ -86,8 +86,11 @@ describe('Account section: Apple/Google brand icons', () => {
 
   it('both provider buttons keep the existing minHeight (>=44 touch target), radius, and press handlers exactly', () => {
     expect(accountSectionSource).toMatch(/button: \{[\s\S]*?minHeight: 48,[\s\S]*?\},/);
-    expect(accountSectionSource).toMatch(/onPress=\{\(\) => void onApplePress\(\)\}/);
-    expect(accountSectionSource).toMatch(/onPress=\{\(\) => \{\s*setAccountDeletedMessage\(false\);\s*void promptGoogleAsync\(\);\s*\}\}/,);
+    // Both buttons now go through the account-age gate (requestSignIn); once
+    // confirmed, launchSignIn starts exactly the same provider flows as before.
+    expect(accountSectionSource).toMatch(/onPress=\{\(\) => requestSignIn\('apple'\)\}/);
+    expect(accountSectionSource).toMatch(/onPress=\{\(\) => requestSignIn\('google'\)\}/);
+    expect(accountSectionSource).toMatch(/if \(provider === 'apple'\) \{\s*void onApplePress\(\);\s*\} else \{\s*setAccountDeletedMessage\(false\);\s*void promptGoogleAsync\(\);\s*\}/);
     expect(accountSectionSource).toMatch(/disabled=\{!googleRequest\}/);
   });
 
@@ -126,7 +129,7 @@ describe('Account section: Apple sign-in captures a revocation credential (Phase
     expect(accountSectionSource).toMatch(/requestAppleCredential/);
     expect(accountSectionSource).not.toMatch(/requestAppleIdentityToken/);
     expect(onApplePressBlock).toMatch(/const \{ identityToken, authorizationCode \} = await requestAppleCredential\(\);/);
-    expect(onApplePressBlock).toMatch(/signInWithAppleIdToken\(identityToken, authorizationCode\)/);
+    expect(onApplePressBlock).toMatch(/signInWithAppleIdToken\(identityToken, authorizationCode, ageDeclarationRef\.current\)/);
   });
 });
 

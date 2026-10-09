@@ -12,7 +12,7 @@ import { buildAccountTestApp } from './testApp';
 
 async function signIn(app: ReturnType<typeof buildAccountTestApp>['app'], googleTokens: Map<string, { providerSubject: string }>, token: string) {
   googleTokens.set(token, { providerSubject: `sub-${token}` });
-  return (await request(app).post('/api/auth/google').send({ idToken: token })).body.data.token as string;
+  return (await request(app).post('/api/auth/google').send({ accountAgeConfirmation: { policyVersion: 1 }, idToken: token })).body.data.token as string;
 }
 
 const active = (ciphertext: string, nonce: string, updatedAt = '2026-01-01T00:00:00.000Z') => ({
