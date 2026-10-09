@@ -200,3 +200,53 @@ export function deletionScopeProblems(target: DatabaseTarget, privileges: MongoP
   if (missing.length > 0) problems.add(`the deletion user lacks find/remove on: ${missing.join(', ')}`);
   return [...problems];
 }
+
+/** Per collection of the target database: the exact actions a restricted user must hold there. */
+export type ExactPrivileges = Readonly<Record<string, readonly string[]>>;
+
+/**
+ * Problems with a credential that must hold EXACTLY `required` on `target`:
+ * every listed action on every listed collection, and nothing else — no
+ * other collection, no extra action, nothing database-wide, cluster-wide or
+ * on another database. Same allowlist principle as deletionScopeProblems,
+ * for users whose role spans a few collections with different actions (the
+ * issue-report retention job and the retention holds admin).
+ */
+export function exactScopeProblems(target: DatabaseTarget, privileges: MongoPrivilege[] | undefined, required: ExactPrivileges): string[] {
+  if (!Array.isArray(privileges)) return ['MongoDB did not report the user\'s privileges, so its role cannot be confirmed'];
+
+  const problems = new Set<string>();
+  const granted = new Map<string, Set<string>>();
+  const quoted = (actions: string[]) => actions.map((action) => `"${action}"`).join(', ');
+
+  for (const entry of privileges as unknown[]) {
+    if (!isRecognizedPrivilege(entry)) {
+      problems.add('a privilege entry has an unrecognized shape, so the user\'s role cannot be confirmed');
+      continue;
+    }
+    const { resource, actions } = entry;
+    if (actions.length === 0) continue;
+    if (resource.cluster) problems.add(`the user has cluster-wide actions (${quoted(actions)}); it should have none`);
+    else if (resource.anyResource || resource.db === '') problems.add(`the user has actions on every database (${quoted(actions)}); it should only reach "${target.databaseName}"`);
+    else if (resource.db !== target.databaseName) problems.add(`the user has actions on "${resource.db}" (${quoted(actions)}); it should only reach "${target.databaseName}"`);
+    else if (!resource.collection) problems.add(`the user has database-wide actions on "${target.databaseName}" (${quoted(actions)}); it should only have its listed collection actions`);
+    else if (!(resource.collection in required)) problems.add(`the user has actions on "${resource.collection}" (${quoted(actions)}), which it never needs`);
+    else {
+      const allowed = new Set(required[resource.collection]);
+      for (const action of actions) {
+        if (!allowed.has(action)) problems.add(`the user has "${action}" on "${resource.collection}"; only ${quoted([...allowed])} are allowed there`);
+        else {
+          const set = granted.get(resource.collection) ?? new Set<string>();
+          set.add(action);
+          granted.set(resource.collection, set);
+        }
+      }
+    }
+  }
+
+  for (const [collection, actions] of Object.entries(required)) {
+    const missing = actions.filter((action) => !granted.get(collection)?.has(action));
+    if (missing.length > 0) problems.add(`the user lacks ${quoted(missing)} on "${collection}"`);
+  }
+  return [...problems];
+}

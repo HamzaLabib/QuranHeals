@@ -37,7 +37,8 @@ export type AuditResult =
   | 'issue-reports-purged'
   | 'issue-reports-checked'
   | 'issue-reports-purge-started'
-  | 'failed:issue-report-purge';
+  | 'failed:issue-report-purge'
+  | 'issue-reports-verified';
 
 export type AuditAction = 'delete-account' | 'delete-issue-reports' | 'prune-cases' | 'audit-prune' | 'issue-report-retention';
 

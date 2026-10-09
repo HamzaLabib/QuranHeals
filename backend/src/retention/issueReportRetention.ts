@@ -71,8 +71,9 @@ export type RetentionRunHistory = {
  * for MAX_DAYS_BETWEEN_RETENTION_RUNS days), failed, or was interrupted.
  */
 export function retentionRunHistory(entries: RetentionAuditEntry[], now: Date): RetentionRunHistory {
+  // `verify` entries prove permissions only: they are never a cleanup run, so they can't hide a missed or failed month.
   const runs = entries
-    .filter((entry) => entry.action === 'issue-report-retention' && parseTimestamp(entry.at))
+    .filter((entry) => entry.action === 'issue-report-retention' && entry.result !== 'issue-reports-verified' && parseTimestamp(entry.at))
     .sort((a, b) => parseTimestamp(a.at)!.getTime() - parseTimestamp(b.at)!.getTime());
   const finished = new Set(runs.filter((entry) => entry.run && entry.result !== 'issue-reports-purge-started').map((entry) => entry.run));
   const interruptedRuns = runs

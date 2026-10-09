@@ -109,6 +109,13 @@ export type ScriptAccess = {
    */
   deletionOnlyCollections?: readonly string[];
   /**
+   * In production (or with strictCredentialScope), a writing run whose user
+   * must hold EXACTLY these actions per collection and nothing else (see
+   * credentialScope.ts exactScopeProblems). Used instead of
+   * deletionOnlyCollections by users whose role spans several collections.
+   */
+  exactPrivileges?: Readonly<Record<string, readonly string[]>>;
+  /**
    * Apply the read-only and deletion-only checks in EVERY environment, not
    * only production, and make any problem fatal. Set by the explicit
    * development rehearsal profiles (development-read / development-delete),

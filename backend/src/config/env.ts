@@ -101,6 +101,10 @@ const envSchema = z
     RESEND_API_KEY: z.string().optional(),
     ISSUE_REPORT_EMAIL_FROM: z.string().optional(),
     ISSUE_REPORT_EMAIL_TO: z.string().optional(),
+
+    // Sentry Crons monitor slug for the scheduled issue-report retention run (Render Cron Job only).
+    // With SENTRY_DSN set, the run checks in; Sentry alerts when a scheduled run is missed or fails.
+    RETENTION_CRON_MONITOR_SLUG: z.string().optional(),
   })
   .transform((value) => ({
     ...value,

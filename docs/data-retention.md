@@ -212,6 +212,95 @@ On the first working day of each month (see "Operator calendar"):
 
 **Limitation:** the computer must be on, and until S4U is set up you must be logged on. A missed month shows up in `status` and the alert, and is caught up by the next start.
 
+### Cloud run (Render Cron Job): `--store mongo`
+
+**Status:** implemented and rehearsed on `quranheals_dev` (2026-10-09). **Not set up in production yet**: Atlas changes, the Render cron job and the cut-over each need approval. Until cut-over, the Windows task above stays the only scheduler that deletes.
+
+A Render cron job has no persistent disk, so in `--store mongo` mode holds, audit history and the run lock live in three collections of `quranheals_prod`. Every safeguard above still applies:
+- the 12-calendar-month rule and the 365-day backstop;
+- the re-check before deleting;
+- the `--max-delete` limit;
+- the refusal after an interrupted run;
+- the strict credential check.
+
+| Collection | Holds | Retention job may | Expiry |
+|---|---|---|---|
+| `retentionholds` | issue-report holds, plus the format marker `{_id: "meta", formatVersion: 1}` | `find` only. It can never place or lift a hold. | none; holds are released explicitly |
+| `retentionaudit` | run history (`issue-reports-checked` / `purge-started` / `purged` / `failed:…`), ids and counts only | `find`, `insert`. Append-only: it can't edit its own history. | `expiresAt` = 3 calendar years after the entry (leap days rolled forward), removed by a TTL index |
+| `retentionlocks` | one lease document `issue-report-retention`; lease times use the database server's clock | `find`, `insert`, `update`, `remove` | 15-minute lease. The deletion itself runs in a transaction that first re-checks and extends the lease. |
+
+**Failing safe.** Nothing is deleted when any of these is true:
+- the holds marker is missing, or any hold is malformed;
+- holds or audit can't be read;
+- the "started" audit entry can't be written;
+- another run holds a live lock;
+- this run's lease was lost (checked inside the deletion's own transaction, so a stalled worker can never commit a deletion after another run took over).
+- an earlier run is unfinished (unattended runs only).
+
+Two runners can never both delete: a deletion commits only in the same transaction as a successful lease check on the lock document. A takeover makes that check fail, or the two writes conflict and one transaction aborts. Tested against the real cluster on dev (stale worker fenced; 0 of 15 takeover races committed twice). The deletion is also limited to exact due ids with the age backstop.
+
+**Holds** (holds-admin user, `production-holds` profile; listing uses `production-read`):
+```powershell
+npx tsx "--env-file=$admin\prod-holds.env" src/scripts/issueReportHolds.ts init          # once
+npx tsx "--env-file=$admin\prod-holds.env" src/scripts/issueReportHolds.ts place --ref <report id> --reason dispute --review-by 2027-01-15
+npx tsx "--env-file=$admin\prod-holds.env" src/scripts/issueReportHolds.ts release --ref <report id>
+npx tsx "--env-file=$admin\prod-read.env"  src/scripts/issueReportHolds.ts list
+```
+Writing commands also need `$env:QURAN_HEALS_CONFIRM_PRODUCTION_WRITE = 'quranheals_prod'`. The same rules as file holds apply: a listed reason, a valid report id, and a review date at most 365 days away.
+
+**Checks from your computer** (read-only profile):
+```powershell
+npx tsx "--env-file=$admin\prod-read.env" src/scripts/issueReportRetention.ts preflight --store mongo   # due/held counts, holds, TTL index, lock, history
+npx tsx "--env-file=$admin\prod-read.env" src/scripts/issueReportRetention.ts status --store mongo      # exit 6 = needs attention
+```
+
+**Render Cron Job** (`quran-heals-retention`, separate from the API service):
+
+| Setting | Value |
+|---|---|
+| Repository / branch / root | this repository, `main`, `backend` |
+| Build command | `npm ci --include=dev && npm run build` |
+| Command | `node dist/scripts/issueReportRetention.js purge --store mongo --apply --unattended --max-delete 25` |
+| Schedule | `0 15 1 * *`: the 1st of each month at 15:00 UTC, which is 10:00 Montreal time in winter (EST) and 11:00 in summer (EDT) |
+| Instance / cost | Starter. Billed per second, with a $1/month minimum per cron job. |
+| Notifications | Render → workspace / service notifications: email on failed runs |
+
+Environment variables. The connection string is for **`quranheals-prod-retention`** only, never the API's `quranheals-prod` user:
+
+| Name | Value |
+|---|---|
+| `NODE_ENV` | `production` |
+| `MONGODB_URI` | the retention user's connection string (secret) |
+| `MONGODB_DB_NAME` | `quranheals_prod` |
+| `MONGODB_ENFORCE_CREDENTIAL_SCOPE` | `true` |
+| `QURAN_HEALS_SKIP_DOTENV` | `1` |
+| `QURAN_HEALS_ADMIN_PROFILE` | `production-retention` |
+| `QURAN_HEALS_CONFIRM_PRODUCTION_WRITE` | `quranheals_prod` |
+| `SENTRY_DSN`, `RETENTION_CRON_MONITOR_SLUG` | optional but recommended. With both set, the scheduled run checks in with Sentry Crons (slug e.g. `quranheals-issue-report-retention`), and Sentry raises an issue when a run is **missed**, fails or runs over 30 minutes. The free plan includes 1 monitor. Create a Sentry alert rule on the tag `monitor.slug`. |
+| `SESSION_JWT_SECRET` | a random value, unused by the job and not the API's secret (the config refuses production without one) |
+
+**Non-destructive check (before go-live, and any time):** `node dist/scripts/issueReportRetention.js verify --store mongo --max-delete 25`, run as the retention user (Render: temporarily set it as the job's command and "Trigger Run", or run it locally with `prod-retention.env`). Without deleting anything, it:
+- passes the strict exact-role check;
+- loads holds (marker required) and reads the audit history;
+- counts what is due;
+- takes the lock, runs the fenced transaction with no ids, and releases it;
+- appends one `issue-reports-verified` audit entry.
+
+`verify` entries never count as cleanup runs, so they can't hide a missed month. It exits **0** when the scheduled run would succeed, **6** when it would refuse (more than `--max-delete` due, or an unfinished earlier run), and **1** if any check fails.
+
+**Exit codes of the scheduled run, and how they reach you:**
+- `0`: ok.
+- `1`: refused. For example: more than 25 due, lock held, interrupted run, holds unavailable.
+- `5`: deletion failed.
+- `6`: ran, but the previous successful run was more than 35 days earlier (a missed month).
+
+**How each kind of problem reaches you:**
+- **A failed or refused run:** any non-zero exit is a failed Render run, which sends Render's failure email, and it is also an `error` check-in in Sentry.
+- **A run that never happens at all** (job suspended, deleted, or not triggered): only Sentry Crons can see it, as a **missed check-in** two hours after the scheduled time.
+- **A missed month,** caught at the next successful run: exit 6 and a `status --store mongo` warning.
+
+**Lock recovery:** a crashed run's lock expires after 15 minutes and the next run takes it over. To clear it sooner, delete the `issue-report-retention` document in `retentionlocks` from the Atlas UI after confirming no run is active.
+
 ### Recovery
 
 - **A run stopped part-way** (crash, lost connection, closed terminal):

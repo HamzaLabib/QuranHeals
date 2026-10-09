@@ -57,6 +57,20 @@ function assertRef(kind: HoldKind, ref: string): void {
   if (!ok) throw new HoldError(kind === 'deletion-case' ? 'A deletion-case hold needs a case ID like DEL-YYYYMMDD-NN.' : 'An issue-report hold needs a 24-character report id.');
 }
 
+/**
+ * The rules every hold must meet, wherever it is stored (this file, or the
+ * retentionholds collection): a listed reason, a valid reference, and a
+ * review date in the future at most MAX_HOLD_DAYS away.
+ */
+export function assertValidHold(input: { kind: HoldKind; ref: string; reason: HoldReason; reviewBy: Date }, now: Date): void {
+  assertRef(input.kind, input.ref);
+  if (!HOLD_REASONS.includes(input.reason)) throw new HoldError(`The reason must be one of: ${HOLD_REASONS.join(', ')}.`);
+  if (!Number.isFinite(input.reviewBy.getTime()) || input.reviewBy.getTime() <= now.getTime()) throw new HoldError('The review date must be in the future.');
+  if (input.reviewBy.getTime() > addDays(now, MAX_HOLD_DAYS).getTime()) {
+    throw new HoldError(`A hold may last at most ${MAX_HOLD_DAYS} days; renew it at its review date if it is still needed.`);
+  }
+}
+
 /** A read-only view used by cleanups: is this record under an active hold at `now`? */
 export interface HoldChecker {
   isHeld(kind: HoldKind, ref: string, now: Date): boolean;
@@ -87,11 +101,7 @@ export class PreservationHoldStore implements HoldChecker {
 
   /** Places (or renews) a hold. `reviewBy` must be in the future and at most MAX_HOLD_DAYS away. */
   place(input: { kind: HoldKind; ref: string; reason: HoldReason; reviewBy: Date }, now: Date): PreservationHold {
-    assertRef(input.kind, input.ref);
-    if (input.reviewBy.getTime() <= now.getTime()) throw new HoldError('The review date must be in the future.');
-    if (input.reviewBy.getTime() > addDays(now, MAX_HOLD_DAYS).getTime()) {
-      throw new HoldError(`A hold may last at most ${MAX_HOLD_DAYS} days; renew it at its review date if it is still needed.`);
-    }
+    assertValidHold(input, now);
     return this.lock.run(() => {
       const file = this.read();
       const hold: PreservationHold = { kind: input.kind, ref: input.ref, reason: input.reason, placedAt: now.toISOString(), reviewBy: input.reviewBy.toISOString() };

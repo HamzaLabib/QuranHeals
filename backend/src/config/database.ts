@@ -1,6 +1,6 @@
 import mongoose, { type ConnectOptions } from 'mongoose';
 
-import { assessCredentialScope, credentialScopeProblems, deletionScopeProblems, ENFORCE_CREDENTIAL_SCOPE_ENV, type MongoPrivilege } from './credentialScope';
+import { assessCredentialScope, credentialScopeProblems, deletionScopeProblems, ENFORCE_CREDENTIAL_SCOPE_ENV, exactScopeProblems, type ExactPrivileges, type MongoPrivilege } from './credentialScope';
 import {
   assertScriptMayUseTarget,
   DatabaseConfigError,
@@ -33,7 +33,13 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
  * credential migration; fatal when MONGODB_ENFORCE_CREDENTIAL_SCOPE=true.
  * Messages name databases only.
  */
-type ScopeCheck = { readOnly: boolean; enforce?: boolean; strict?: boolean; deletionOnlyCollections?: readonly string[] };
+type ScopeCheck = {
+  readOnly: boolean;
+  enforce?: boolean;
+  strict?: boolean;
+  deletionOnlyCollections?: readonly string[];
+  exactPrivileges?: ExactPrivileges;
+};
 
 async function checkCredentialScope(target: DatabaseTarget, check: ScopeCheck): Promise<void> {
   let problems: string[];
@@ -52,6 +58,9 @@ async function checkCredentialScope(target: DatabaseTarget, check: ScopeCheck): 
     // runs use the normal development user.
     if (check.deletionOnlyCollections && (target.environment === 'production' || check.strict)) {
       problems.push(...deletionScopeProblems(target, privileges, check.deletionOnlyCollections));
+    }
+    if (check.exactPrivileges && (target.environment === 'production' || check.strict)) {
+      problems.push(...exactScopeProblems(target, privileges, check.exactPrivileges));
     }
   } catch {
     problems = ["the MongoDB user's privileges could not be verified"];
@@ -98,6 +107,7 @@ export async function connectScriptDatabase(access: ScriptAccess, options: Conne
     enforce: access.enforceCredentialScope,
     strict: access.strictCredentialScope,
     deletionOnlyCollections: access.writes ? access.deletionOnlyCollections : undefined,
+    exactPrivileges: access.writes ? access.exactPrivileges : undefined,
   });
 }
 

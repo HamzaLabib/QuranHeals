@@ -229,3 +229,40 @@ export function describeError(error: unknown): string {
   if (error instanceof Error) return `${error.name}: ${scrubString(error.message)}`;
   return scrubString(String(error));
 }
+
+export type CronSchedule = { crontab: string; checkinMarginMinutes: number; maxRuntimeMinutes: number };
+
+/**
+ * Sentry Crons check-ins for a scheduled job (the issue-report retention
+ * Render Cron Job): `in_progress` now, then `ok` or `error` from finish().
+ * Sentry upserts the monitor from `schedule` and raises an issue when a
+ * check-in is MISSED (the job never ran), fails, or exceeds its runtime —
+ * the one failure a job cannot report about itself. No-op when monitoring
+ * is disabled; never throws. Sends only the slug and status, no job data.
+ */
+export function cronCheckIn(monitorSlug: string, schedule: CronSchedule): { finish(ok: boolean): void } {
+  if (!enabled) return { finish: () => undefined };
+  let checkInId: string | undefined;
+  try {
+    checkInId = Sentry.captureCheckIn(
+      { monitorSlug, status: 'in_progress' },
+      {
+        schedule: { type: 'crontab', value: schedule.crontab },
+        checkinMargin: schedule.checkinMarginMinutes,
+        maxRuntime: schedule.maxRuntimeMinutes,
+        timezone: 'Etc/UTC',
+      },
+    );
+  } catch {
+    checkInId = undefined;
+  }
+  return {
+    finish: (ok) => {
+      try {
+        if (checkInId) Sentry.captureCheckIn({ checkInId, monitorSlug, status: ok ? 'ok' : 'error' });
+      } catch {
+        // Monitoring must never affect the job.
+      }
+    },
+  };
+}
