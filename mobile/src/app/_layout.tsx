@@ -1,4 +1,5 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { useEffect } from 'react';
@@ -6,10 +7,10 @@ import * as WebBrowser from 'expo-web-browser';
 
 import { AuthProvider } from '@/auth/useAuth';
 import { navigationColorsFor, paletteFor, statusBarStyleFor } from '@/constants/theme';
-import { AppLocaleProvider } from '@/localization/useAppLocale';
+import { AppLocaleProvider, useAppLocale } from '@/localization/useAppLocale';
 import { QuranFontSizePreferenceProvider } from '@/localization/useQuranFontSizePreference';
 import { QuranTranslationPreferenceProvider } from '@/localization/useQuranTranslationPreference';
-import { AppearancePreferenceProvider } from '@/theme/useAppearancePreference';
+import { AppearancePreferenceProvider, useAppearancePreference } from '@/theme/useAppearancePreference';
 import { useThemeName } from '@/theme/useTheme';
 import { devLog } from '@/utils/devLog';
 
@@ -17,6 +18,31 @@ import { devLog } from '@/utils/devLog';
 // expo-auth-session) correctly closes the in-app browser and returns
 // control to the app — see docs/auth-setup.md.
 WebBrowser.maybeCompleteAuthSession();
+
+// Keep the native splash (app.json → expo-splash-screen plugin) up until the
+// saved Appearance and language preferences have loaded, so the first screen
+// never shows in the default Light/English and then flips. Calling this
+// stops Expo Router from auto-hiding on navigation ready; hideSplash() below
+// is the only place it is hidden.
+SplashScreen.preventAutoHideAsync().catch(() => undefined);
+// fade is iOS-only; Android always fades, for `duration` ms.
+SplashScreen.setOptions({ duration: 300, fade: true });
+
+/**
+ * Upper bound, not a delay: both preference loads are local storage reads
+ * that resolve (falling back to defaults) even when storage fails, so this
+ * only fires if storage hangs — the app then shows on its defaults rather
+ * than staying on the splash.
+ */
+const SPLASH_MAX_WAIT_MS = 3000;
+
+let splashHidden = false;
+function hideSplash(reason: string) {
+  if (splashHidden) return;
+  splashHidden = true;
+  devLog('app', 'splash hidden', { reason });
+  SplashScreen.hideAsync().catch(() => undefined);
+}
 
 devLog('app', 'startup');
 
@@ -62,6 +88,21 @@ function ThemedRoot() {
     // navigation and sheet transitions never flash white in dark mode.
     SystemUI.setBackgroundColorAsync(background).catch(() => undefined);
   }, [background]);
+
+  // Auth/session restore is deliberately not awaited: it can hit the network
+  // and the home screen doesn't depend on it.
+  const { isReady: isAppearanceReady } = useAppearancePreference();
+  const { isReady: isLocaleReady } = useAppLocale();
+  const startupReady = isAppearanceReady && isLocaleReady;
+
+  useEffect(() => {
+    if (startupReady) {
+      hideSplash('ready');
+      return;
+    }
+    const timeout = setTimeout(() => hideSplash('timeout'), SPLASH_MAX_WAIT_MS);
+    return () => clearTimeout(timeout);
+  }, [startupReady]);
 
   return (
     <ThemeProvider value={navigationThemes[theme]}>

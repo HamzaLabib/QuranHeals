@@ -248,12 +248,18 @@ describe('system UI wiring', () => {
     expect(layout).not.toMatch(/#F7F2EA/);
   });
 
-  it('app.json follows the device appearance and has a dark splash on the night background', () => {
+  it('app.json follows the device appearance; the splash is always the logo on the light background', () => {
     const config = JSON.parse(read('app.json')).expo;
     expect(config.userInterfaceStyle).toBe('automatic');
     const splash = config.plugins.find((p: unknown) => Array.isArray(p) && p[0] === 'expo-splash-screen')[1];
     expect(splash.backgroundColor).toBe(lightPalette.background);
-    expect(splash.dark.backgroundColor).toBe(darkPalette.background);
+    // No dark variant: the native splash can only follow the OS appearance,
+    // while the app defaults to Light whatever the OS is, so a dark splash
+    // would flash dark → light for most dark-OS users. splash-logo.png is the
+    // appicon.png artwork with its opaque beige background made transparent
+    // (and the canvas cropped square around the logo), so no square shows.
+    expect(splash.dark).toBeUndefined();
+    expect(splash.image).toBe('./assets/images/splash-logo.png');
   });
 
   it('expo-system-ui is installed (required for userInterfaceStyle "automatic" on Android)', () => {

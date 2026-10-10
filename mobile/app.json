@@ -48,12 +48,9 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#F7F2EA",
-          "image": "./assets/images/appicon.png",
-          "imageWidth": 76,
-          "dark": {
-            "backgroundColor": "#1C1A17",
-            "image": "./assets/images/appicon.png"
-          }
+          "image": "./assets/images/splash-logo.png",
+          "imageWidth": 180,
+          "resizeMode": "contain"
         }
       ],
       "expo-secure-store",

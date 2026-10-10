@@ -209,6 +209,17 @@ describe('No startup provider/screen gates rendering on its own async state (reg
     expect(source).not.toMatch(/await[^;]*;\s*return/);
     expect(source).toMatch(/<Stack/);
   });
+
+  it('_layout.tsx owns the native splash: prevented once, hidden from one guarded place, with a max-wait fallback', () => {
+    const source = read('src/app/_layout.tsx');
+    expect(source.match(/SplashScreen\.preventAutoHideAsync\(/g)).toHaveLength(1);
+    expect(source.match(/SplashScreen\.hideAsync\(/g)).toHaveLength(1);
+    expect(source).toMatch(/if \(splashHidden\) return;/);
+    // A hung preference load must not leave the app stuck on the splash.
+    expect(source).toMatch(/setTimeout\(\(\) => hideSplash\('timeout'\), SPLASH_MAX_WAIT_MS\)/);
+    // Auth/session restore can hit the network — never gate the splash on it.
+    expect(source).not.toMatch(/useAuth\(/);
+  });
 });
 
 describe('Startup loading state always terminates (regression)', () => {
