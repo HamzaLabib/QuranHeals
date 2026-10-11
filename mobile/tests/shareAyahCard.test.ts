@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 /** The shareable image card's content and its fit measurement (mocked React Native host components). */
 
+vi.mock('lucide-react-native', () => ({ Leaf: 'Leaf', PenLine: 'PenLine' }));
 vi.mock('react-native', () => ({
   Platform: { OS: 'ios', select: (values: { ios: unknown }) => values.ios },
   Text: 'Text',
@@ -120,5 +121,39 @@ describe('reflection invitation', () => {
       expect(english.parent!.props.onPress).toBeUndefined();
       await act(async () => root.unmount());
     }
+  });
+});
+
+describe('pen icon and leaf divider', () => {
+  it.each(['sage', 'cream', 'dark'] as const)('%s, every format: a thin pen beside the invitation and a leaf divider under the reference, in the reference colours, never interactive', async (theme) => {
+    for (const format of ['story', 'post', 'square'] as const) {
+      await render(onePage, { theme, format });
+      const colors = SHARE_CARD_THEMES[theme];
+
+      const pen = root.root.findByType('PenLine' as never);
+      expect(pen.props).toMatchObject({ color: colors.reference, strokeWidth: 1.5 });
+      const english = texts().find((node) => node.props.children === REFLECTION_INVITATION.en)!;
+      expect(pen.parent).toBe(english.parent); // same row as the invitation
+      expect(pen.props.size).toBeLessThanOrEqual(styleOf(english).fontSize as number);
+
+      const ornament = root.root.find((node) => node.props.testID === 'share-card-ornament');
+      expect(ornament.props.accessibilityElementsHidden).toBe(true);
+      expect(ornament.findByType('Leaf' as never).props).toMatchObject({ color: colors.divider, strokeWidth: 1.5 });
+      expect(ornament.findAllByType('View' as never).filter((node) => node !== ornament)).toHaveLength(2); // the two hairlines
+      // Directly after the reference line, inside the measured content block (above the footer invitation).
+      const reference = texts().find((node) => node.props.children === REFERENCE)!;
+      const siblings = reference.parent!.children as unknown[];
+      expect(siblings.indexOf(ornament)).toBe(siblings.indexOf(reference) + 1);
+
+      for (const node of [pen, ornament, pen.parent!]) expect(node.props.onPress).toBeUndefined();
+      await act(async () => root.unmount());
+    }
+  });
+
+  it('the Quran text stays the largest element; no wordmark above the ayah', async () => {
+    await render(onePage);
+    const quran = texts().find((node) => node.props.children === ARABIC)!;
+    expect(root.root.findByType('PenLine' as never).props.size).toBeLessThan(styleOf(quran).fontSize as number);
+    expect(strings().indexOf('QURAN HEALS')).toBeGreaterThan(strings().indexOf(ARABIC));
   });
 });

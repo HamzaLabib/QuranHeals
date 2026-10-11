@@ -132,6 +132,8 @@ export type Messages = {
     multipleUnavailable: string;
     copyLink: string;
     linkCopied: string;
+    /** Shown after Share image / Share all cards, which copy the link automatically. */
+    linkAutoCopied: string;
     copyLinkFailed: string;
     /** Why the link is separate from the image, and where to use it. */
     linkHint: string;
@@ -444,8 +446,9 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       multipleUnavailable: "This version of the app can't share several images at once. Save all cards, then share them together from Photos.",
       copyLink: 'Copy ayah link',
       linkCopied: 'Ayah link copied.',
+      linkAutoCopied: 'Ayah link copied — paste it into a Story Link sticker or a message.',
       copyLinkFailed: "The link couldn't be copied. Please try again.",
-      linkHint: "Images can't hold a clickable link. To let people open this ayah, add the copied link with your image — for example, in an Instagram Link sticker.",
+      linkHint: 'The ayah link is copied automatically when you share. Paste it into your Story’s Link sticker.',
       preparing: 'Preparing image…',
       saved: 'Saved to your photos.',
       savedAll: 'All cards saved to your photos.',
@@ -735,8 +738,9 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       multipleUnavailable: 'لا يدعم هذا الإصدار من التطبيق مشاركة عدة صور معًا. احفظ كل البطاقات، ثم شاركها معًا من الصور.',
       copyLink: 'نسخ رابط الآية',
       linkCopied: 'تم نسخ رابط الآية.',
+      linkAutoCopied: 'تم نسخ رابط الآية. ألصقه في ملصق الرابط في قصتك أو في رسالة.',
       copyLinkFailed: 'تعذّر نسخ الرابط. يرجى إعادة المحاولة.',
-      linkHint: 'لا يمكن أن تحتوي الصورة على رابط قابل للنقر. ليتمكن الآخرون من فتح هذه الآية، أضف الرابط المنسوخ مع صورتك، مثلًا في ملصق الرابط على إنستغرام.',
+      linkHint: 'عند مشاركة الصورة، يُنسخ رابط الآية تلقائيًا. ألصقه في الرابط في قصتك ليتمكن الآخرون من فتحها.',
       preparing: 'جارٍ تجهيز الصورة…',
       saved: 'تم الحفظ في الصور.',
       savedAll: 'تم حفظ كل البطاقات في الصور.',
@@ -1040,8 +1044,9 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       multipleUnavailable: 'النسخة دي من التطبيق مش بتقدر تشارك كذا صورة مع بعض. احفظ كل البطاقات، وبعدين شاركهم مع بعض من الصور.',
       copyLink: 'انسخ رابط الآية',
       linkCopied: 'رابط الآية اتنسخ.',
+      linkAutoCopied: 'رابط الآية اتنسخ. الصقه في الرابط في الستوري أو في رسالة.',
       copyLinkFailed: 'متقدرناش ننسخ الرابط. جرّب تاني.',
-      linkHint: 'الصورة مينفعش يبقى فيها لينك تدوس عليه. عشان الناس تفتح الآية دي، حط اللينك اللي نسخته مع صورتك، زي ستيكر اللينك في إنستجرام.',
+      linkHint: 'لما تشارك الصورة، رابط الآية بيتنسخ تلقائيًا. الصقه في الرابط في الستوري عشان الناس يقدروا يفتحوها.',
       preparing: 'بنجهّز الصورة…',
       saved: 'اتحفظت في الصور.',
       savedAll: 'كل البطاقات اتحفظت في الصور.',

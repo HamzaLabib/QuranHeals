@@ -74,6 +74,11 @@ export const SHARE_CARD_METRICS = {
   referenceGap: 44,
   referenceFontSize: 30,
   referenceLineHeight: 42,
+  /** Leaf ornament under the reference: gap above, total height, hairline length each side. */
+  ornamentGap: 30,
+  ornamentHeight: 26,
+  ornamentLineWidth: 130,
+  ornamentLineThickness: 2,
   footerGap: 40,
   invitationFontSize: 26,
   invitationLineHeight: 38,
@@ -276,7 +281,7 @@ function blockHeight(
   parts: { arabic: Unit[] | null; arabicSize: number; translation: Unit[] | null; translationSize: number; paged: boolean },
 ): number {
   const m = SHARE_CARD_METRICS;
-  let height = m.referenceGap + m.referenceLineHeight;
+  let height = m.referenceGap + m.referenceLineHeight + m.ornamentGap + m.ornamentHeight;
   if (parts.paged) height += m.pageIndicatorHeight + m.pageIndicatorGap;
   if (parts.arabic) {
     height += countLines(parts.arabic, parts.arabicSize, sizing.contentWidth, sizing.scale) * arabicLineHeight(parts.arabicSize);

@@ -431,3 +431,72 @@ describe('the same card from every flow', () => {
     expect(sheetSource).not.toMatch(/emotionKey|AyahConnection|connectionText|useReflections|ayahReflections|useAuth/);
   });
 });
+
+describe('sharing copies the ayah link automatically', () => {
+  it('Share image copies the exact link before the share sheet opens, then confirms it quietly', async () => {
+    const order: string[] = [];
+    state.clipboard.mockImplementation(async () => { order.push('copy'); return true; });
+    state.share.mockImplementation(async () => { order.push('share'); return 'shared'; });
+    await render(ayahFor('94:5'));
+    await exportCardsFit();
+    await press(button(copy().share));
+    expect(state.clipboard).toHaveBeenCalledWith('https://quran-heals-api.onrender.com/ayah/94/5');
+    expect(order).toEqual(['copy', 'share']);
+    expect(text()).toContain(copy().linkAutoCopied);
+    expect(text()).not.toContain(copy().shareFailed);
+  });
+
+  it('Share all cards copies the link too, and still shares every card', async () => {
+    await render(ayahFor('2:282', { englishTranslation: 'O ye who believe! When ye contract a debt for a fixed term, record it in writing. '.repeat(16).trim() }));
+    await exportCardsFit();
+    const count = exportCards().length;
+    await press(button(`${copy().shareAllCards} (${count})`));
+    expect(state.clipboard).toHaveBeenCalledWith('https://quran-heals-api.onrender.com/ayah/2/282');
+    expect(state.share.mock.calls[0][0]).toHaveLength(count);
+    expect(text()).toContain(copy().linkAutoCopied);
+  });
+
+  it('a clipboard failure never blocks sharing and claims nothing', async () => {
+    state.clipboard.mockRejectedValueOnce(new Error('denied'));
+    await render(ayahFor('94:5'));
+    await exportCardsFit();
+    await press(button(copy().share));
+    expect(state.share).toHaveBeenCalledTimes(1);
+    expect(text()).not.toContain(copy().linkAutoCopied);
+    expect(text()).not.toContain(copy().shareFailed);
+  });
+
+  it('Save does not touch the clipboard; the separate Copy ayah link button still works', async () => {
+    await render(ayahFor('94:5'));
+    await exportCardsFit();
+    await press(button(copy().saveImage));
+    expect(state.clipboard).not.toHaveBeenCalled();
+    await press(button(copy().copyLink));
+    expect(state.clipboard).toHaveBeenCalledTimes(1);
+    expect(text()).toContain(copy().linkCopied);
+  });
+
+  it('an unavailable share still leaves the link copied but reports the problem', async () => {
+    state.share.mockResolvedValueOnce('unavailable');
+    await render(ayahFor('94:5'));
+    await exportCardsFit();
+    await press(button(copy().share));
+    expect(state.clipboard).toHaveBeenCalledTimes(1);
+    expect(text()).toContain(copy().shareUnavailable);
+  });
+});
+
+describe('Share Studio helper text', () => {
+  it.each([
+    ['en', 'The ayah link is copied automatically when you share. Paste it into your Story’s Link sticker.'],
+    ['ar', 'عند مشاركة الصورة، يُنسخ رابط الآية تلقائيًا. ألصقه في الرابط في قصتك ليتمكن الآخرون من فتحها.'],
+    ['ar-EG', 'لما تشارك الصورة، رابط الآية بيتنسخ تلقائيًا. الصقه في الرابط في الستوري عشان الناس يقدروا يفتحوها.'],
+  ] as const)('%s: shows the refined wording beside the link actions', async (locale, wording) => {
+    state.locale = locale;
+    await render(ayahFor('94:5'));
+    expect(MESSAGES[locale].share.linkHint).toBe(wording);
+    const hint = root.root.findAllByType('Text' as never).find((node) => node.props.children === wording)!;
+    expect(hint).toBeDefined();
+    expect(hint.parent!.findAllByType('Pressable' as never).map((node) => node.props.accessibilityLabel)).toContain(MESSAGES[locale].share.copyLink);
+  });
+});

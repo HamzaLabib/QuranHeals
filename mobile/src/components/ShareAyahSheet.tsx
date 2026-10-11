@@ -197,6 +197,9 @@ export function ShareAyahSheet({ visible, ayah, onClose }: ShareAyahSheetProps) 
       if (action === 'share') {
         sharedUris.current = uris;
         uris = [];
+        // The image can't carry a link, so the ayah's link goes on the
+        // clipboard first, ready for a Story Link sticker or a message.
+        if (await copyLinkQuietly()) setStatus({ tone: 'info', text: copy.linkAutoCopied });
         const result = await shareCardImages(sharedUris.current, copy.title);
         if (result === 'unavailable') setStatus({ tone: 'error', text: copy.shareUnavailable });
         if (result === 'multiple-unavailable') setStatus({ tone: 'error', text: copy.multipleUnavailable });
@@ -234,16 +237,22 @@ export function ShareAyahSheet({ visible, ayah, onClose }: ShareAyahSheetProps) 
   const shareLabel = isMultiCard ? `${copy.shareAllCards} (${pages.length})` : copy.share;
   // Only the Quran reference — never who shared it or why.
   const ayahLink = buildAyahLink(ayah.surahNumber, ayah.ayahNumber);
-  const copyLink = async () => {
-    if (!ayahLink) return;
+  /** Copies the exact ayah link; never throws. */
+  const copyLinkQuietly = async (): Promise<boolean> => {
+    if (!ayahLink) return false;
     try {
-      if (!(await Clipboard.setStringAsync(ayahLink))) throw new Error('Clipboard refused');
-      setLinkCopied(true);
-      setStatus({ tone: 'info', text: copy.linkCopied });
+      const copied = await Clipboard.setStringAsync(ayahLink);
+      setLinkCopied(copied);
+      return copied;
     } catch {
       setLinkCopied(false);
-      setStatus({ tone: 'error', text: copy.copyLinkFailed });
+      return false;
     }
+  };
+  const copyLink = async () => {
+    setStatus(await copyLinkQuietly()
+      ? { tone: 'info', text: copy.linkCopied }
+      : { tone: 'error', text: copy.copyLinkFailed });
   };
   const PreviousIcon = isRtl ? ChevronRight : ChevronLeft;
   const NextIcon = isRtl ? ChevronLeft : ChevronRight;

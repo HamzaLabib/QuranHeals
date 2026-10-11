@@ -1,3 +1,4 @@
+import { Leaf, PenLine } from 'lucide-react-native';
 import { useRef, type Ref } from 'react';
 import { Text, View, type LayoutChangeEvent } from 'react-native';
 
@@ -171,6 +172,25 @@ export function ShareAyahCard({ page, format, theme, width, reference, translati
             }}>
             {reference}
           </Text>
+
+          {/* Decorative only: a hairline, a small leaf, a hairline. */}
+          <View
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            testID="share-card-ornament"
+            style={{
+              alignItems: 'center',
+              flexDirection: 'row',
+              gap: 14 * s,
+              height: M.ornamentHeight * s,
+              justifyContent: 'center',
+              marginTop: M.ornamentGap * s,
+              opacity: 0.75,
+            }}>
+            <View style={{ backgroundColor: colors.divider, height: Math.max(1, M.ornamentLineThickness * s), width: M.ornamentLineWidth * s }} />
+            <Leaf size={M.ornamentHeight * s} color={colors.divider} strokeWidth={1.5} />
+            <View style={{ backgroundColor: colors.divider, height: Math.max(1, M.ornamentLineThickness * s), width: M.ornamentLineWidth * s }} />
+          </View>
         </View>
       </View>
 
@@ -194,6 +214,7 @@ export function ShareAyahCard({ page, format, theme, width, reference, translati
             justifyContent: 'center',
             marginBottom: (M.invitationGap - M.footerInnerGap) * s,
           }}>
+          <PenLine size={M.invitationFontSize * s} color={colors.reference} strokeWidth={1.5} />
           <Text allowFontScaling={false} style={[invitationStyle(colors.reference, s), { writingDirection: 'ltr' }]}>
             {REFLECTION_INVITATION.en}
           </Text>
