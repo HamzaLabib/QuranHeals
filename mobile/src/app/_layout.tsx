@@ -46,6 +46,11 @@ function hideSplash(reason: string) {
 
 devLog('app', 'startup');
 
+// An ayah link opened on a cold start lands on /ayah/<surah>/<ayah> with Home
+// beneath it, so the screen's back button returns to Home. Normal launches
+// already start at Home.
+export const unstable_settings = { initialRouteName: 'index' };
+
 const navigationThemes = {
   light: { ...DefaultTheme, colors: { ...DefaultTheme.colors, ...navigationColorsFor('light') } },
   dark: { ...DarkTheme, colors: { ...DarkTheme.colors, ...navigationColorsFor('dark') } },

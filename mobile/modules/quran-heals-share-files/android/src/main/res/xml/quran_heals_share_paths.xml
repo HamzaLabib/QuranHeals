@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- react-native-view-shot writes captures to the app's internal or external cache. -->
+<paths>
+  <cache-path name="quran_heals_cache" path="." />
+  <external-cache-path name="quran_heals_external_cache" path="." />
+</paths>

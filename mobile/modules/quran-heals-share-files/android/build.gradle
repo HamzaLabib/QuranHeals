@@ -1,0 +1,20 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'com.quranheals.sharefiles'
+version = '1.0.0'
+
+android {
+  namespace "expo.modules.quranhealssharefiles"
+  defaultConfig {
+    versionCode 1
+    versionName "1.0.0"
+  }
+}
+
+dependencies {
+  // androidx.core (FileProvider) comes with React Native, as in expo-sharing.
+  implementation 'com.facebook.react:react-android'
+}

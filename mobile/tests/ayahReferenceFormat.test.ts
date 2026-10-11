@@ -113,16 +113,19 @@ describe('AyahCard: renders the shared formatter with an explicit LTR order, imm
 describe('Every other place an ayah reference is built also uses the shared formatter (no duplicated formatting logic)', () => {
   const ayahExperienceSource = readFileSync(resolve(__dirname, '../src/components/AyahExperience.tsx'), 'utf-8');
   const favoritesSource = readFileSync(resolve(__dirname, '../src/app/favorites.tsx'), 'utf-8');
+  const shareSheetSource = readFileSync(resolve(__dirname, '../src/components/ShareAyahSheet.tsx'), 'utf-8');
 
-  it('AyahExperience\'s share text uses formatAyahReference (covers emotion mode, general mode, and "Another ayah" results — all render through this one component)', () => {
-    expect(ayahExperienceSource).toMatch(/from '@\/utils\/ayahReference'/);
-    expect(ayahExperienceSource).toMatch(/formatAyahReference\(ayah\.surahNumber, ayah\.ayahNumber\)/);
-    expect(ayahExperienceSource).not.toMatch(/\$\{ayah\.surahNameEnglish\} \$\{ayah\.surahNumber\}/);
+  it('the shared ayah image card\'s reference uses formatAyahReference (the one share path for emotion mode, general mode, "Another ayah" results and Favorites)', () => {
+    expect(shareSheetSource).toMatch(/from '@\/utils\/ayahReference'/);
+    expect(shareSheetSource).toMatch(/formatAyahReference\(ayah\.surahNumber, ayah\.ayahNumber\)/);
+    expect(shareSheetSource).not.toMatch(/\$\{ayah\.surahNameEnglish\} \$\{ayah\.surahNumber\}/);
   });
 
-  it('Favorites\' share text uses formatAyahReference too', () => {
-    expect(favoritesSource).toMatch(/from '@\/utils\/ayahReference'/);
-    expect(favoritesSource).toMatch(/formatAyahReference\(favorite\.surahNumber, favorite\.ayahNumber\)/);
-    expect(favoritesSource).not.toMatch(/\$\{favorite\.surahNameEnglish\} \$\{favorite\.surahNumber\}/);
+  it('AyahExperience and Favorites build no share text of their own — both open ShareAyahSheet', () => {
+    for (const source of [ayahExperienceSource, favoritesSource]) {
+      expect(source).toMatch(/<ShareAyahSheet /);
+      expect(source).not.toMatch(/Share\.share\(/);
+      expect(source).not.toMatch(/surahNameEnglish/);
+    }
   });
 });

@@ -1,4 +1,5 @@
 import { createApp } from './app';
+import { readAppLinksConfig } from './appLinks/appLinks';
 import { assertAuthConfig } from './config/authConfig';
 import { connectToDatabase } from './config/database';
 import { env } from './config/env';
@@ -26,6 +27,11 @@ async function startServer() {
   // stops startup (messages name variables only).
   const issueReportEmail = resolveIssueReportEmailConfig(env, { production: env.NODE_ENV === 'production' });
   console.log(`Issue-report email: ${issueReportEmail.mode}`);
+
+  // Optional; a malformed value is left out (never served) and named here.
+  const appLinks = readAppLinksConfig(env);
+  for (const problem of appLinks.problems) console.warn(`Ayah links: ${problem}`);
+  console.log(`Ayah links: iOS ${appLinks.config.appleTeamId ? 'verified' : 'not configured'}, Android ${appLinks.config.androidSha256Fingerprints.length > 0 ? 'verified' : 'not configured'}, App Store ${appLinks.config.appStoreUrl ? 'set' : 'not set'}, Google Play ${appLinks.config.playStoreUrl ? 'set' : 'not set'}`);
 
   // Validates NODE_ENV + MONGODB_URI + MONGODB_DB_NAME first (see
   // config/databaseTarget.ts): a production process never starts against

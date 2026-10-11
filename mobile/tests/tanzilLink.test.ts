@@ -305,8 +305,9 @@ describe('Save and Share are icon-only, with accessibility labels preserved and 
     expect(iconOnlyButtonStyleBlock).toMatch(/width:\s*48/);
   });
 
-  it('share behavior itself is unchanged — still calls the existing shareAyah handler wired to Share.share', () => {
+  it('the Share button still calls shareAyah, which now opens the Share Ayah image sheet', () => {
     expect(ayahExperienceSource).toMatch(/onPress=\{shareAyah\}/);
-    expect(ayahExperienceSource).toMatch(/await Share\.share\(/);
+    expect(ayahExperienceSource).toMatch(/setIsShareVisible\(true\)/);
+    expect(ayahExperienceSource).not.toMatch(/Share\.share\(/);
   });
 });

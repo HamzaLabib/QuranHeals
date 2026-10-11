@@ -1,0 +1,22 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application>
+    <!-- Own provider (not expo-sharing's) so this module never depends on another library's authority. -->
+    <provider
+      android:name=".QuranHealsShareFileProvider"
+      android:authorities="${applicationId}.QuranHealsShareFileProvider"
+      android:exported="false"
+      android:grantUriPermissions="true">
+      <meta-data
+        android:name="android.support.FILE_PROVIDER_PATHS"
+        android:resource="@xml/quran_heals_share_paths" />
+    </provider>
+  </application>
+
+  <queries>
+    <!-- Lets the module grant read access to every app that can receive several images (API 30+). -->
+    <intent>
+      <action android:name="android.intent.action.SEND_MULTIPLE" />
+      <data android:mimeType="image/*" />
+    </intent>
+  </queries>
+</manifest>

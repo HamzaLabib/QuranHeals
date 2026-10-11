@@ -1,11 +1,12 @@
 import { router } from 'expo-router';
 import { ArrowLeft, ArrowRight, Heart, Share2, Trash2 } from 'lucide-react-native';
 import { useCallback, useRef, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/useAuth';
 import { AyahCard } from '@/components/AyahCard';
+import { ShareAyahSheet } from '@/components/ShareAyahSheet';
 import { StateView } from '@/components/StateView';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
@@ -14,31 +15,26 @@ import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import type { Messages } from '@/localization/messages';
 import type { FavoriteAyah } from '@/types/domain';
-import { formatAyahReference } from '@/utils/ayahReference';
 import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
 
 type FavoriteActionsProps = {
   favorite: FavoriteAyah;
+  onShare: (favorite: FavoriteAyah) => void;
   onRemove: (id: string) => void;
   messages: Messages;
   isRtl: boolean;
 };
 
-function FavoriteActions({ favorite, onRemove, messages, isRtl }: FavoriteActionsProps) {
+function FavoriteActions({ favorite, onShare, onRemove, messages, isRtl }: FavoriteActionsProps) {
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
-  const shareFavorite = useCallback(async () => {
-    await Share.share({
-      message: `${favorite.arabicText}\n\n${favorite.englishTranslation}\n\n${formatAyahReference(favorite.surahNumber, favorite.ayahNumber)}\n\n${favorite.quranTextSource}\n\nQuran Heals`,
-    });
-  }, [favorite]);
 
   return (
     <View style={[styles.cardActions, isRtl && styles.cardActionsRtl]}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={messages.favorites.shareSaved}
-        onPress={shareFavorite}
+        onPress={() => onShare(favorite)}
         style={({ pressed }) => [styles.smallButton, pressed && styles.pressed]}>
         <Share2 size={17} color={colors.icon} />
         <Text style={styles.smallButtonText}>{messages.favorites.share}</Text>
@@ -70,6 +66,7 @@ export default function FavoritesScreen() {
   // why a ref is required here).
   const refreshGuardRef = useRef<RefreshInFlightRef>({ current: false });
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [sharedFavorite, setSharedFavorite] = useState<FavoriteAyah | null>(null);
 
   const onPullToRefresh = useCallback(async () => {
     await runGuardedRefresh(refreshGuardRef.current, async () => {
@@ -141,10 +138,12 @@ export default function FavoritesScreen() {
           favorites.map((favorite) => (
             <View key={favorite.id} style={styles.favoriteItem}>
               <AyahCard ayah={favorite} compact />
-              <FavoriteActions favorite={favorite} onRemove={removeFavorite} messages={messages} isRtl={isRtl} />
+              <FavoriteActions favorite={favorite} onRemove={removeFavorite} onShare={setSharedFavorite} messages={messages} isRtl={isRtl} />
             </View>
           ))}
       </ScrollView>
+
+      <ShareAyahSheet visible={sharedFavorite !== null} ayah={sharedFavorite} onClose={() => setSharedFavorite(null)} />
     </SafeAreaView>
   );
 }

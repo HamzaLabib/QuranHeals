@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { ArrowLeft, ArrowRight, RefreshCw, Share2 } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/useAuth';
@@ -14,7 +14,6 @@ import { withRetry } from '@/services/retry';
 import { buildExhaustionRetryExclusions, getExcludedVerseKeys, GENERAL_QURAN_HISTORY_KEY, recordShownAyah } from '@/storage/recentAyahHistory';
 import type { Ayah, AyahConnection, LocalizedText } from '@/types/domain';
 import { resolveConnectionText, splitAyahConnection } from '@/utils/ayahConnection';
-import { formatAyahReference } from '@/utils/ayahReference';
 import { resolveLocalizedEmotionName } from '@/utils/emotionLabel';
 import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
 import { AyahCard } from './AyahCard';
@@ -22,6 +21,7 @@ import { AyahConnectionAccordion } from './AyahConnectionAccordion';
 import { FavoriteButton } from './FavoriteButton';
 import { ReflectionSheet } from './ReflectionSheet';
 import { ReportIssueSheet } from './ReportIssueSheet';
+import { ShareAyahSheet } from './ShareAyahSheet';
 import { StateView } from './StateView';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
@@ -35,14 +35,22 @@ import { usePalette, useThemedStyles } from '@/theme/useTheme';
  *    all. This is intentionally NOT a 30th emotion: there is no emotionKey,
  *    no Emotion document, no mapping, anywhere in this mode.
  *
- * Callers (app/ayah/[emotion].tsx, app/ayah/general.tsx) only parse route
- * params and hand this component a `source`; every behavioral difference
- * between the two flows (selection, recent-history namespace, "Another
- * ayah" scope, the issue report's emotionKey) is decided from `source.mode`
- * here, never from any localized text (Part 6 of the general-Quran-flow
- * spec).
+ *  - `{ mode: 'verse' }`: a shared ayah link (app/ayah/[surah]/[ayah].tsx).
+ *    The general flow, except that the first ayah shown is exactly the
+ *    linked one; "Another ayah" then continues as the general flow. A null
+ *    `verseKey` is a link to an ayah that doesn't exist.
+ *
+ * Callers (app/ayah/[emotion].tsx, app/ayah/general.tsx,
+ * app/ayah/[surah]/[ayah].tsx) only parse route params and hand this
+ * component a `source`; every behavioral difference between the flows
+ * (selection, recent-history namespace, "Another ayah" scope, the issue
+ * report's emotionKey) is decided from `source.mode` here, never from any
+ * localized text (Part 6 of the general-Quran-flow spec).
  */
-export type AyahSource = { mode: 'emotion'; emotionKey: string; names?: LocalizedText } | { mode: 'general' };
+export type AyahSource =
+  | { mode: 'emotion'; emotionKey: string; names?: LocalizedText }
+  | { mode: 'general' }
+  | { mode: 'verse'; verseKey: string | null };
 
 type AyahExperienceProps = {
   source: AyahSource;
@@ -68,6 +76,7 @@ export function AyahExperience({ source }: AyahExperienceProps) {
   const { refreshSync } = useAuth();
   const [isReflectionVisible, setIsReflectionVisible] = useState(false);
   const [isReportVisible, setIsReportVisible] = useState(false);
+  const [isShareVisible, setIsShareVisible] = useState(false);
   // Guards against a rapid double-tap firing two overlapping loadAyah() runs:
   // without this, both could read the same not-yet-updated recent-history
   // snapshot and independently be free to land on the same ayah.
@@ -82,6 +91,9 @@ export function AyahExperience({ source }: AyahExperienceProps) {
   // resolveGeneralVerseKey's own doc comment for why that keeps "Another
   // ayah" a genuinely fresh selection.
   const pendingGeneralVerseKeyRef = useRef<string | null>(null);
+  // Verse mode: the linked ayah already handed to the general flow above, so
+  // it is shown once per link (a new link while open is shown too).
+  const linkedVerseKeyRef = useRef<string | null>(null);
 
   // Locale-aware display only. In emotion mode the stable route key
   // (emotionKey) is never altered by this — it still goes to the
@@ -110,12 +122,25 @@ export function AyahExperience({ source }: AyahExperienceProps) {
       setIsLoading(false);
       return;
     }
+    if (source.mode === 'verse' && !source.verseKey) {
+      setErrorMessage(messages.ayah.invalidLink);
+      setIsLoading(false);
+      return;
+    }
 
     if (isLoadingRef.current) return;
     isLoadingRef.current = true;
     setIsLoading(true);
     setErrorMessage(null);
     setHistoryMessage(null);
+
+    if (source.mode === 'verse' && linkedVerseKeyRef.current !== source.verseKey) {
+      linkedVerseKeyRef.current = source.verseKey;
+      pendingGeneralVerseKeyRef.current = source.verseKey;
+    }
+    // The linked ayah itself is never swapped for another, even if it is in
+    // recent history (see the exhaustion fallback below).
+    const isLinkedLoad = source.mode === 'verse' && pendingGeneralVerseKeyRef.current === source.verseKey;
 
     try {
       let excludedVerseKeys: string[] = [];
@@ -166,7 +191,7 @@ export function AyahExperience({ source }: AyahExperienceProps) {
       // Exhaustion fallback: see buildExhaustionRetryExclusions — at most
       // one bounded follow-up request, never a loop. In general mode the
       // 6,236-ayah pool makes this exceedingly unlikely to ever trigger.
-      const retryExcludedVerseKeys = buildExhaustionRetryExclusions(excludedVerseKeys, nextAyah.verseKey);
+      const retryExcludedVerseKeys = isLinkedLoad ? null : buildExhaustionRetryExclusions(excludedVerseKeys, nextAyah.verseKey);
       if (retryExcludedVerseKeys) {
         try {
           nextAyah = await fetchAyah(retryExcludedVerseKeys);
@@ -202,6 +227,18 @@ export function AyahExperience({ source }: AyahExperienceProps) {
 
     return () => clearTimeout(timeoutId);
   }, [loadAyah]);
+
+  // Verse mode: a different link that arrived while the previous ayah was
+  // still loading (the in-flight guard skipped it) is loaded once that ends.
+  const pendingLinkedVerseKey = source.mode === 'verse' ? source.verseKey : null;
+  useEffect(() => {
+    if (isLoading || !pendingLinkedVerseKey || linkedVerseKeyRef.current === pendingLinkedVerseKey) return;
+    const timeoutId = setTimeout(() => {
+      // Re-checked here: the regular load above may have handled it meanwhile.
+      if (linkedVerseKeyRef.current !== pendingLinkedVerseKey) void loadAyah();
+    }, 0);
+    return () => clearTimeout(timeoutId);
+  }, [isLoading, pendingLinkedVerseKey, loadAyah]);
 
   // Guards a rapid repeated pull gesture the same way Home/Favorites do —
   // see pullToRefresh.ts's doc comment for why this needs a ref, not just
@@ -249,14 +286,11 @@ export function AyahExperience({ source }: AyahExperienceProps) {
     });
   }, [ayah, isLoading, errorMessage, loadAyah, refreshSync, refreshFavorites]);
 
-  const shareAyah = useCallback(async () => {
-    if (!ayah) {
-      return;
-    }
-
-    await Share.share({
-      message: `${ayah.arabicText}\n\n${ayah.englishTranslation}\n\n${formatAyahReference(ayah.surahNumber, ayah.ayahNumber)}\n\n${ayah.quranTextSource}\n\nQuran Heals`,
-    });
+  // Opens Share Ayah. The sheet receives only the ayah — never the emotion
+  // or its connection text — so a shared card is identical in emotion and
+  // general mode.
+  const shareAyah = useCallback(() => {
+    if (ayah) setIsShareVisible(true);
   }, [ayah]);
 
   return (
@@ -364,6 +398,7 @@ export function AyahExperience({ source }: AyahExperienceProps) {
         verseKey={ayah?.verseKey ?? null}
         onClose={() => setIsReflectionVisible(false)}
       />
+      <ShareAyahSheet visible={isShareVisible} ayah={ayah} onClose={() => setIsShareVisible(false)} />
       <ReportIssueSheet
         visible={isReportVisible}
         onClose={() => setIsReportVisible(false)}

@@ -102,6 +102,16 @@ const envSchema = z
     ISSUE_REPORT_EMAIL_FROM: z.string().optional(),
     ISSUE_REPORT_EMAIL_TO: z.string().optional(),
 
+    // Smart ayah links (appLinks/appLinks.ts). All optional and public
+    // identifiers, not secrets. The iOS association file reuses APPLE_TEAM_ID.
+    // Comma-separated SHA-256 signing-certificate fingerprints (EAS upload key
+    // and, once on Google Play, the Play App Signing key).
+    ANDROID_APP_LINK_SHA256_FINGERPRINTS: z.string().optional(),
+    // Store pages, set only once the listings exist; until then links show
+    // an "Open in Quran Heals" page instead of redirecting.
+    APP_STORE_URL: z.string().optional(),
+    PLAY_STORE_URL: z.string().optional(),
+
     // Sentry Crons monitor slug for the scheduled issue-report retention run (Render Cron Job only).
     // With SENTRY_DSN set, the run checks in; Sentry alerts when a scheduled run is missed or fails.
     RETENTION_CRON_MONITOR_SLUG: z.string().optional(),

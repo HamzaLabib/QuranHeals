@@ -2,6 +2,7 @@ import cors from 'cors';
 import express, { type RequestHandler } from 'express';
 import helmet from 'helmet';
 
+import { createAppLinksRouter, readAppLinksConfig, type AppLinksConfig } from './appLinks/appLinks';
 import { HttpAppleRevocationClient, type AppleRevocationClient } from './auth/appleRevocationClient';
 import { AppleJwksVerifier, type AppleTokenVerifier } from './auth/appleTokenVerifier';
 import { GoogleAuthLibraryVerifier, type GoogleTokenVerifier } from './auth/googleTokenVerifier';
@@ -46,6 +47,8 @@ type AppOptions = {
   databaseHealthCheck?: DatabaseHealthCheck;
   /** Tests only: override individual rate-limit policies (see middleware/rateLimits.ts). */
   rateLimits?: Partial<Record<RateLimitName, RateLimitPolicy>>;
+  /** Smart ayah links; defaults to the validated environment (see appLinks/appLinks.ts). */
+  appLinks?: AppLinksConfig;
   /** Tests only: override TRUST_PROXY_HOPS / ENDPOINT_RATE_LIMITS / CLIENT_IP_DIAGNOSTICS. */
   network?: { trustProxyHops?: number; endpointRateLimits?: boolean; clientIpDiagnostics?: boolean };
 };
@@ -118,6 +121,9 @@ export function createApp(options: AppOptions = {}) {
     app.post(['/api/auth/refresh', '/api/auth/logout'], rateLimiters.sessionRefresh);
   }
 
+  // Public, outside /api: the OS verification files and /ayah/<s>/<a> links.
+  // Behind helmet and the global per-IP limit like everything else.
+  app.use(createAppLinksRouter(options.appLinks ?? readAppLinksConfig(env).config));
   app.use('/api', createApiRouter(repository, accountDeps, options.databaseHealthCheck ?? pingDatabase, endpointLimits ? rateLimiters.accountReauth : passThrough));
   app.use(notFoundHandler);
   app.use(errorHandler);

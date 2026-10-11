@@ -53,6 +53,8 @@ export type Messages = {
     readInQuran: string;
     /** Accessibility label for the copy-ayah-text icon on AyahCard — the visible control is icon-only. */
     copyAyah: string;
+    /** A shared ayah link that points to no real ayah. */
+    invalidLink: string;
   };
   favorites: {
     title: string;
@@ -102,6 +104,47 @@ export type Messages = {
   translation: {
     showTranslation: string;
     hideTranslation: string;
+  };
+  /** The Share Ayah sheet (ShareAyahSheet). The image card itself is not localized — see ShareAyahCard. */
+  share: {
+    title: string;
+    close: string;
+    preview: string;
+    /** Accessibility prefix for the "2 / 3" card counter. */
+    card: string;
+    previousCard: string;
+    nextCard: string;
+    longAyahNote: string;
+    format: string;
+    formatStory: string;
+    formatPost: string;
+    formatSquare: string;
+    background: string;
+    themeSage: string;
+    themeCream: string;
+    themeDark: string;
+    showTranslation: string;
+    share: string;
+    shareAllCards: string;
+    saveImage: string;
+    saveAllImages: string;
+    /** Several cards, but this binary can only share one file at a time. */
+    multipleUnavailable: string;
+    copyLink: string;
+    linkCopied: string;
+    copyLinkFailed: string;
+    /** Why the link is separate from the image, and where to use it. */
+    linkHint: string;
+    preparing: string;
+    saved: string;
+    savedAll: string;
+    saveDenied: string;
+    saveBlocked: string;
+    openSettings: string;
+    shareUnavailable: string;
+    shareFailed: string;
+    saveFailed: string;
+    cannotFit: string;
   };
   quranFontSize: {
     decreaseLabel: string;
@@ -331,6 +374,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       connectionHeading: 'How this ayah connects',
       readInQuran: 'Read in Quran',
       copyAyah: 'Copy ayah',
+      invalidLink: "This ayah link isn't valid. Please check the link and try again.",
     },
     favorites: {
       title: 'Saved Ayahs',
@@ -375,6 +419,43 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     translation: {
       showTranslation: 'Show translation',
       hideTranslation: 'Hide translation',
+    },
+    share: {
+      title: 'Share Ayah',
+      close: 'Close',
+      preview: 'Ayah card preview',
+      card: 'Card',
+      previousCard: 'Previous card',
+      nextCard: 'Next card',
+      longAyahNote: 'This ayah continues across several cards, in order. Share and Save always include every card, so the ayah stays complete.',
+      format: 'Format',
+      formatStory: 'Story',
+      formatPost: 'Post',
+      formatSquare: 'Square',
+      background: 'Background',
+      themeSage: 'Sage',
+      themeCream: 'Cream',
+      themeDark: 'Dark',
+      showTranslation: 'Show translation',
+      share: 'Share image',
+      shareAllCards: 'Share all cards',
+      saveImage: 'Save image',
+      saveAllImages: 'Save all cards',
+      multipleUnavailable: "This version of the app can't share several images at once. Save all cards, then share them together from Photos.",
+      copyLink: 'Copy ayah link',
+      linkCopied: 'Ayah link copied.',
+      copyLinkFailed: "The link couldn't be copied. Please try again.",
+      linkHint: "Images can't hold a clickable link. To let people open this ayah, add the copied link with your image — for example, in an Instagram Link sticker.",
+      preparing: 'Preparing image…',
+      saved: 'Saved to your photos.',
+      savedAll: 'All cards saved to your photos.',
+      saveDenied: 'Quran Heals needs permission to add the image to your photos.',
+      saveBlocked: 'Photo access is turned off for Quran Heals. You can allow it in Settings.',
+      openSettings: 'Open Settings',
+      shareUnavailable: "Sharing isn't available on this device.",
+      shareFailed: "The image couldn't be shared. Please try again.",
+      saveFailed: "The image couldn't be saved. Please try again.",
+      cannotFit: "This card couldn't be prepared. Please try another format.",
     },
     quranFontSize: {
       decreaseLabel: 'Decrease Quran text size',
@@ -584,6 +665,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       connectionHeading: 'كيف ترتبط هذه الآية بشعورك',
       readInQuran: 'اقرأ الآية في المصحف',
       copyAyah: 'نسخ الآية',
+      invalidLink: 'رابط الآية غير صالح. يرجى التحقق من الرابط وإعادة المحاولة.',
     },
     favorites: {
       title: 'الآيات المحفوظة',
@@ -628,6 +710,43 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     translation: {
       showTranslation: 'إظهار الترجمة',
       hideTranslation: 'إخفاء الترجمة',
+    },
+    share: {
+      title: 'مشاركة الآية',
+      close: 'إغلاق',
+      preview: 'معاينة بطاقة الآية',
+      card: 'البطاقة',
+      previousCard: 'البطاقة السابقة',
+      nextCard: 'البطاقة التالية',
+      longAyahNote: 'تمتد هذه الآية على عدة بطاقات بالترتيب. تشمل المشاركة والحفظ جميع البطاقات دائمًا لتبقى الآية كاملة.',
+      format: 'المقاس',
+      formatStory: 'قصة',
+      formatPost: 'منشور',
+      formatSquare: 'مربع',
+      background: 'الخلفية',
+      themeSage: 'زيتوني',
+      themeCream: 'كريمي',
+      themeDark: 'ليلي',
+      showTranslation: 'إظهار الترجمة',
+      share: 'مشاركة الصورة',
+      shareAllCards: 'مشاركة كل البطاقات',
+      saveImage: 'حفظ الصورة',
+      saveAllImages: 'حفظ كل البطاقات',
+      multipleUnavailable: 'لا يدعم هذا الإصدار من التطبيق مشاركة عدة صور معًا. احفظ كل البطاقات، ثم شاركها معًا من الصور.',
+      copyLink: 'نسخ رابط الآية',
+      linkCopied: 'تم نسخ رابط الآية.',
+      copyLinkFailed: 'تعذّر نسخ الرابط. يرجى إعادة المحاولة.',
+      linkHint: 'لا يمكن أن تحتوي الصورة على رابط قابل للنقر. ليتمكن الآخرون من فتح هذه الآية، أضف الرابط المنسوخ مع صورتك، مثلًا في ملصق الرابط على إنستغرام.',
+      preparing: 'جارٍ تجهيز الصورة…',
+      saved: 'تم الحفظ في الصور.',
+      savedAll: 'تم حفظ كل البطاقات في الصور.',
+      saveDenied: 'يحتاج Quran Heals إلى إذن لإضافة الصورة إلى الصور.',
+      saveBlocked: 'الوصول إلى الصور متوقف لتطبيق Quran Heals. يمكنك السماح به من الإعدادات.',
+      openSettings: 'فتح الإعدادات',
+      shareUnavailable: 'المشاركة غير متاحة على هذا الجهاز.',
+      shareFailed: 'تعذّرت مشاركة الصورة. يرجى إعادة المحاولة.',
+      saveFailed: 'تعذّر حفظ الصورة. يرجى إعادة المحاولة.',
+      cannotFit: 'تعذّر تجهيز هذه البطاقة. يرجى تجربة مقاس آخر.',
     },
     quranFontSize: {
       decreaseLabel: 'تصغير حجم نص القرآن',
@@ -847,6 +966,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       connectionHeading: 'كيف ترتبط هذه الآية بشعورك',
       readInQuran: 'اقرأ الآية في المصحف',
       copyAyah: 'نسخ الآية',
+      invalidLink: 'رابط الآية ده مش صالح. اتأكد من الرابط وجرّب تاني.',
     },
     // Loading/error/retry/empty-state wording is Standard Arabic, same as
     // `ar` — see the doc comment on `ayah` above.
@@ -895,6 +1015,43 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     translation: {
       showTranslation: 'عرض الترجمة',
       hideTranslation: 'إخفاء الترجمة',
+    },
+    share: {
+      title: 'مشاركة الآية',
+      close: 'إغلاق',
+      preview: 'معاينة بطاقة الآية',
+      card: 'البطاقة',
+      previousCard: 'البطاقة اللي قبلها',
+      nextCard: 'البطاقة اللي بعدها',
+      longAyahNote: 'الآية دي بتكمل على كذا بطاقة بالترتيب. المشاركة والحفظ دايمًا بيشملوا كل البطاقات عشان الآية تفضل كاملة.',
+      format: 'المقاس',
+      formatStory: 'ستوري',
+      formatPost: 'بوست',
+      formatSquare: 'مربع',
+      background: 'الخلفية',
+      themeSage: 'زيتوني',
+      themeCream: 'كريمي',
+      themeDark: 'ليلي',
+      showTranslation: 'عرض الترجمة',
+      share: 'شارك الصورة',
+      shareAllCards: 'شارك كل البطاقات',
+      saveImage: 'احفظ الصورة',
+      saveAllImages: 'احفظ كل البطاقات',
+      multipleUnavailable: 'النسخة دي من التطبيق مش بتقدر تشارك كذا صورة مع بعض. احفظ كل البطاقات، وبعدين شاركهم مع بعض من الصور.',
+      copyLink: 'انسخ رابط الآية',
+      linkCopied: 'رابط الآية اتنسخ.',
+      copyLinkFailed: 'متقدرناش ننسخ الرابط. جرّب تاني.',
+      linkHint: 'الصورة مينفعش يبقى فيها لينك تدوس عليه. عشان الناس تفتح الآية دي، حط اللينك اللي نسخته مع صورتك، زي ستيكر اللينك في إنستجرام.',
+      preparing: 'بنجهّز الصورة…',
+      saved: 'اتحفظت في الصور.',
+      savedAll: 'كل البطاقات اتحفظت في الصور.',
+      saveDenied: 'Quran Heals محتاج إذن عشان يضيف الصورة للصور.',
+      saveBlocked: 'الوصول للصور مقفول لـ Quran Heals. تقدر تسمح بيه من الإعدادات.',
+      openSettings: 'افتح الإعدادات',
+      shareUnavailable: 'المشاركة مش متاحة على الجهاز ده.',
+      shareFailed: 'متقدرناش نشارك الصورة. جرّب تاني.',
+      saveFailed: 'متقدرناش نحفظ الصورة. جرّب تاني.',
+      cannotFit: 'متقدرناش نجهّز البطاقة دي. جرّب مقاس تاني.',
     },
     quranFontSize: {
       decreaseLabel: 'تصغير حجم نص القرآن',
