@@ -112,6 +112,20 @@ const envSchema = z
     APP_STORE_URL: z.string().optional(),
     PLAY_STORE_URL: z.string().optional(),
 
+    // Quran Foundation Content API (quranFoundation/qfContentClient.ts), for
+    // the QPC V1 Mushaf layout prototype. Server-only secrets: never logged,
+    // never sent to the app. Unset = the endpoint answers 503.
+    // QF_ENV: 'prelive' (default) or 'production' — never mix their credentials.
+    QF_ENV: z.preprocess((value) => (value === '' ? undefined : value), z.enum(['prelive', 'production']).optional()),
+    QF_CLIENT_ID: z.string().optional(),
+    QF_CLIENT_SECRET: z.string().optional(),
+    // Offline QPC V1 Mushaf (mushaf/offline/): the backend keeps Quran
+    // Foundation's mushafs:2 Content Sync copy and relays it to the app.
+    // Off unless 'true' (and QF_* credentials are set). MUSHAF_SYNC_DIR: where
+    // the copy lives (default backend/data/mushaf-sync, git-ignored).
+    MUSHAF_SYNC_ENABLED: z.preprocess((value) => (value === '' ? undefined : value), z.enum(['true', 'false']).optional()),
+    MUSHAF_SYNC_DIR: z.string().optional(),
+
     // Sentry Crons monitor slug for the scheduled issue-report retention run (Render Cron Job only).
     // With SENTRY_DSN set, the run checks in; Sentry alerts when a scheduled run is missed or fails.
     RETENTION_CRON_MONITOR_SLUG: z.string().optional(),

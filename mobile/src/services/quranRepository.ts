@@ -23,6 +23,8 @@ export interface QuranRepository {
    * selecting from the full pool rather than failing.
    */
   getRandomVerseKey(excludedVerseKeys?: string[]): Promise<string>;
+  /** All 6,236 verses in canonical order (surah, ayah), exact and unmodified — e.g. to validate a Mushaf layout. */
+  getAllVerses(): Promise<QuranVerse[]>;
 }
 
 // The raw connection stays private. No mutation methods are exposed to callers.
@@ -103,7 +105,19 @@ export function createQuranRepository(open: () => Promise<QuranConnection>): Qur
     return rows[0].verse_key;
   }
 
-  return { getVerseByKey, getVerse: (surah, ayah) => getVerseByKey(verseKeyFromNumbers(surah, ayah)), getRandomVerseKey };
+  async function getAllVerses(): Promise<QuranVerse[]> {
+    const db = await connection();
+    let rows: VerseRow[];
+    try {
+      rows = await db.getAllAsync<VerseRow>('SELECT surah, ayah, verse_key, arabic_text FROM verses ORDER BY surah, ayah');
+    } catch {
+      throw new QuranDataError('The local Quran could not be read. Please try again.');
+    }
+    if (rows.length !== 6236) throw new QuranDataError('The local Quran could not be verified.', 'integrity');
+    return rows.map((row) => ({ surah: row.surah, ayah: row.ayah, verseKey: row.verse_key, arabicText: row.arabic_text }));
+  }
+
+  return { getVerseByKey, getVerse: (surah, ayah) => getVerseByKey(verseKeyFromNumbers(surah, ayah)), getRandomVerseKey, getAllVerses };
 }
 
 export async function composeLocalAyah<T extends Ayah>(ayah: T, repository: QuranRepository): Promise<T & { verseKey: string }> {

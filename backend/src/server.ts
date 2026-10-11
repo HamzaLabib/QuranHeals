@@ -1,5 +1,7 @@
 import { createApp } from './app';
 import { readAppLinksConfig } from './appLinks/appLinks';
+import { createDefaultMushafSync, resolveMushafSyncDir } from './mushaf/offline/setup';
+import { readQfCredentials } from './quranFoundation/qfContentClient';
 import { assertAuthConfig } from './config/authConfig';
 import { connectToDatabase } from './config/database';
 import { env } from './config/env';
@@ -31,6 +33,9 @@ async function startServer() {
   // Optional; a malformed value is left out (never served) and named here.
   const appLinks = readAppLinksConfig(env);
   for (const problem of appLinks.problems) console.warn(`Ayah links: ${problem}`);
+  const quranFoundation = readQfCredentials(env);
+  for (const problem of quranFoundation.problems) console.warn(`Quran Foundation: ${problem}`);
+  console.log(`Quran Foundation content: ${quranFoundation.credentials ? `configured (${quranFoundation.credentials.environment})` : 'not configured'}`);
   console.log(`Ayah links: iOS ${appLinks.config.appleTeamId ? 'verified' : 'not configured'}, Android ${appLinks.config.androidSha256Fingerprints.length > 0 ? 'verified' : 'not configured'}, App Store ${appLinks.config.appStoreUrl ? 'set' : 'not set'}, Google Play ${appLinks.config.playStoreUrl ? 'set' : 'not set'}`);
 
   // Validates NODE_ENV + MONGODB_URI + MONGODB_DB_NAME first (see
@@ -48,6 +53,13 @@ async function startServer() {
     console.log(`Quran Heals API listening on port ${env.PORT}`);
     // Also delivers anything left pending by a previous process.
     notifier?.start();
+    // Offline QPC V1 Mushaf: keep the mushafs:2 Content Sync copy current (opt-in).
+    if (env.MUSHAF_SYNC_ENABLED === 'true' && quranFoundation.credentials) {
+      createDefaultMushafSync(quranFoundation.credentials, resolveMushafSyncDir(env)).start();
+      console.log('Offline Mushaf sync: enabled (at least daily)');
+    } else {
+      console.log(`Offline Mushaf sync: ${env.MUSHAF_SYNC_ENABLED === 'true' ? 'needs Quran Foundation credentials' : 'off'}`);
+    }
   });
 }
 

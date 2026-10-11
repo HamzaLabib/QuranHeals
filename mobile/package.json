@@ -3,6 +3,7 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "dependencies": {
+    "@expo-google-fonts/amiri": "^0.4.1",
     "@noble/ciphers": "^2.4.0",
     "@noble/hashes": "^2.4.0",
     "@react-native-async-storage/async-storage": "2.2.0",
@@ -15,6 +16,7 @@
     "expo-crypto": "~57.0.3",
     "expo-dev-client": "~57.0.19",
     "expo-file-system": "~57.0.6",
+    "expo-font": "~57.0.4",
     "expo-linking": "~57.0.12",
     "expo-media-library": "~57.0.5",
     "expo-router": "~57.0.25",
@@ -54,11 +56,19 @@
     "uuid": "^11.1.1"
   },
   "scripts": {
+    "fonts:restore": "node scripts/restore-mushaf-fonts.mjs",
+    "postinstall": "node scripts/restore-mushaf-fonts.mjs --soft",
+    "eas-build-pre-install": "node scripts/restore-mushaf-fonts.mjs",
+    "pretest": "node scripts/restore-mushaf-fonts.mjs",
     "test": "vitest run",
     "verify:quran": "node ../tools/quran-import/generate-sqlite.mjs --verify",
+    "prestart": "node scripts/restore-mushaf-fonts.mjs",
     "start": "expo start",
+    "preandroid": "node scripts/restore-mushaf-fonts.mjs",
     "android": "expo start --android",
+    "preios": "node scripts/restore-mushaf-fonts.mjs",
     "ios": "expo start --ios",
+    "preweb": "node scripts/restore-mushaf-fonts.mjs",
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit"

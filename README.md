@@ -88,6 +88,8 @@ cd mobile
 npm install
 ```
 
+`npm install` also restores the QCF V1 Mushaf page font, which is kept out of git under Quran Foundation's font terms. It's downloaded from Quran Foundation's public CDN and checked against the hash in `mobile/assets/mushaf/qpc-v1/fonts.lock.json`. Offline, it only warns: run `npm run fonts:restore` later. `npm test` and `npm start` restore it first. See `docs/mushaf.md`.
+
 ## Environment Variables
 
 Backend environment lives in `backend/.env`.

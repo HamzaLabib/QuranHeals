@@ -66,6 +66,16 @@ jobs:
           cache: npm
           cache-dependency-path: mobile/package-lock.json
 
+      # The QCF V1 page-61 font (King Fahd Complex, via Quran Foundation's
+      # public CDN) is kept out of this public repository: its terms allow it
+      # only inside the app. The script downloads it from the official CDN (no
+      # credentials) and refuses anything that doesn't match the size and
+      # SHA-256 pinned in assets/mushaf/qpc-v1/fonts.lock.json. Node
+      # built-ins only, so it runs before npm ci (whose postinstall would
+      # otherwise only warn).
+      - name: Restore pinned QCF V1 font
+        run: node scripts/restore-mushaf-fonts.mjs
+
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint

@@ -101,6 +101,17 @@ function ThemedRoot() {
   const startupReady = isAppearanceReady && isLocaleReady;
 
   useEffect(() => {
+    // Offline Mushaf (Quran Foundation Content Sync, relayed by our backend):
+    // when it is installed and the device is online, check for an update at
+    // least daily. Deferred so it never competes with startup; offline or
+    // failed checks change nothing, and the installed copy stays readable.
+    const timer = setTimeout(() => {
+      void import('@/mushaf/offline').then(({ offlineMushaf }) => offlineMushaf.checkForUpdate()).catch(() => undefined);
+    }, 15_000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
     if (startupReady) {
       hideSplash('ready');
       return;

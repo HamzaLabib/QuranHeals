@@ -20,6 +20,7 @@
     "mapping:rollback-activation": "tsx src/scripts/rollbackEmotionMappingActivation.ts",
     "mapping:consolidate-current": "tsx src/scripts/consolidateCurrentMappings.ts",
     "mapping:visibility-audit": "tsx src/scripts/mappingVisibilityAudit.ts",
+    "mushaf:sync": "tsx src/scripts/mushafSync.ts",
     "validate:quran:source": "tsx src/scripts/fullQuran.ts source",
     "validate:quran": "tsx src/scripts/fullQuran.ts validate",
     "import:quran": "tsx src/scripts/fullQuran.ts import",

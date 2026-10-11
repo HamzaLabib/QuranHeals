@@ -1,0 +1,13 @@
+{
+  "description": "QCF V1 page fonts the app bundles, restored (not committed) by mobile/scripts/restore-mushaf-fonts.mjs from Quran Foundation's documented public CDN. Quran Foundation's Mushaf font terms allow them only as an integrated part of the app, never as a standalone download, so the .ttf files are git-ignored. Each must match its size and SHA-256 or nothing is written. © King Fahd Glorious Qur'an Printing Complex.",
+  "fonts": [
+    {
+      "page": 61,
+      "file": "p61.ttf",
+      "family": "QCF_P061",
+      "url": "https://verses.quran.foundation/fonts/quran/hafs/v1/ttf/p61.ttf",
+      "bytes": 155996,
+      "sha256": "34d6a665c9ac4e36539d389571f897ec8622fa795d40359f266a77b2451fc486"
+    }
+  ]
+}

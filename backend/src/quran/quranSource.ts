@@ -86,6 +86,13 @@ function open(): DatabaseSync {
   return db;
 }
 
+/** All 6,236 verses in canonical order (surah, ayah), exact and unmodified; read-only. */
+export function getAllVerifiedVerses(): { surah: number; ayah: number; verseKey: string; arabicText: string }[] {
+  const rows = open().prepare('SELECT surah, ayah, verse_key, arabic_text FROM verses ORDER BY surah, ayah').all() as VerseRow[];
+  if (rows.length !== expectedRowCount) throw new QuranSourceError('The verified Quran database failed structural verification.');
+  return rows.map((row) => ({ surah: row.surah, ayah: row.ayah, verseKey: row.verse_key, arabicText: row.arabic_text }));
+}
+
 /** Looks up the exact, unmodified Arabic text for a verse key. No normalization, trimming, or rewriting. */
 export function getVerifiedArabicByVerseKey(verseKey: string): string {
   if (!isValidVerseKey(verseKey)) {

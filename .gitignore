@@ -29,6 +29,22 @@ coverage/
 .cache/
 tools/quran-import/staging/
 
+# QCF V1 page fonts (King Fahd Complex, from Quran Foundation's CDN). Their
+# terms allow them only inside the app, never as a standalone download, and
+# this repository is public: restored at install/build/test time by
+# mobile/scripts/restore-mushaf-fonts.mjs (pinned in fonts.lock.json, which
+# stays tracked). Downloaded page fonts live on devices only.
+mobile/assets/mushaf/**/*.ttf
+mobile/assets/mushaf/**/*.otf
+mobile/assets/mushaf/**/*.woff
+mobile/assets/mushaf/**/*.woff2
+*.ttf.partial
+*.ttf.part
+
+# Quran Foundation Content Sync copy (mushafs:2): QF content, kept on the
+# backend and relayed to the app under the Content Sync terms; never committed.
+backend/data/mushaf-sync/
+
 # MongoDB pre-write snapshot backups (documented as git-ignored in
 # backend/src/utils/backupPaths.ts but not previously excluded here)
 backend/backups/

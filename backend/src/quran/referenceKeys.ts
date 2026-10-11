@@ -63,6 +63,14 @@ function buildVerseKeySet(): Set<string> {
   return keys;
 }
 
+let cachedSurahCounts: readonly number[] | undefined;
+
+/** Ayahs per surah (114 entries, 6,236 in all), from the integrity-pinned surah-counts.json. */
+export function getSurahAyahCounts(): readonly number[] {
+  cachedSurahCounts ??= Object.freeze(loadSurahCounts());
+  return cachedSurahCounts;
+}
+
 let cachedVerseKeySet: Set<string> | undefined;
 
 /** The full set of 6,236 valid "surah:ayah" Quran reference keys. */

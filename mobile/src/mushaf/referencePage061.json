@@ -1,0 +1,10 @@
+{
+  "description": "Page 61 of the 1405 AH Madani Mushaf as printed in Reference Design.jpg: the first word of each of the 15 lines as [ayah, word number in the verified Tanzil text, pause marks not counted], and the line each ayah marker sits on. Our own transcription of the reference print, not Quran Foundation data.",
+  "page": 61,
+  "lineStarts": [
+    ["3:84", 1], ["3:84", 11], ["3:84", 17], ["3:84", 26], ["3:85", 5],
+    ["3:86", 1], ["3:86", 9], ["3:86", 18], ["3:87", 7], ["3:88", 5],
+    ["3:89", 5], ["3:90", 3], ["3:90", 12], ["3:91", 6], ["3:91", 15]
+  ],
+  "markerLines": { "3:84": 4, "3:85": 5, "3:86": 8, "3:87": 9, "3:88": 10, "3:89": 11, "3:90": 13, "3:91": 15 }
+}

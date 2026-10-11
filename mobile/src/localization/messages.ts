@@ -148,6 +148,61 @@ export type Messages = {
     saveFailed: string;
     cannotFit: string;
   };
+  /** The /mushaf prototype (phase 1). Printed-page furniture (juz' title, page number) is not localized. */
+  mushaf: {
+    title: string;
+    prototypeNote: string;
+    tapHint: string;
+    pageLabel: string;
+    selectedAyah: string;
+    clearSelection: string;
+    readingStops: string;
+    stopNameLabel: string;
+    saveStop: string;
+    stopSaved: string;
+    stopNameInvalid: string;
+    tooManyStops: string;
+    stopSaveFailed: string;
+    noStops: string;
+    page: string;
+    removeStop: string;
+    renameStop: string;
+    saveName: string;
+    cancelRename: string;
+    stopRenamed: string;
+    stopNameTaken: string;
+    offlineTitle: string;
+    offlineIntro: string;
+    offlineDownload: string;
+    offlineResume: string;
+    offlineCancel: string;
+    offlineDownloading: string;
+    offlineVerifying: string;
+    offlineReady: string;
+    offlineUpdatedFrom: string;
+    offlineCheckUpdate: string;
+    offlineUpToDate: string;
+    offlineUpdated: string;
+    offlineRemove: string;
+    offlineCancelled: string;
+    offlineErrorOffline: string;
+    offlineErrorUnavailable: string;
+    offlineErrorStorage: string;
+    offlineErrorIntegrity: string;
+    offlineErrorGeneric: string;
+    offlineFonts: string;
+    offlineFontsCount: string;
+    offlineComplete: string;
+    renderer: string;
+    rendererQpc: string;
+    rendererSvg: string;
+    qpcLoading: string;
+    qpcUnavailable: string;
+    qpcCredit: string;
+    artworkCredit: string;
+    pageLoadError: string;
+  };
+
   quranFontSize: {
     decreaseLabel: string;
     increaseLabel: string;
@@ -460,6 +515,59 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       saveFailed: "The image couldn't be saved. Please try again.",
       cannotFit: "This card couldn't be prepared. Please try another format.",
     },
+    mushaf: {
+      title: 'Mushaf',
+      prototypeNote: 'Preview — page 61 only.',
+      tapHint: 'Tap an ayah to select it.',
+      pageLabel: 'Mushaf page',
+      selectedAyah: 'Selected ayah',
+      clearSelection: 'Clear selection',
+      readingStops: 'Reading stops',
+      stopNameLabel: 'Name (for example: Ramadan, Mum)',
+      saveStop: 'Save stop on this page',
+      stopSaved: 'Reading stop saved.',
+      stopNameInvalid: 'Enter a name of up to 40 characters.',
+      tooManyStops: 'You have too many reading stops to add another. Remove one first.',
+      stopSaveFailed: "The reading stop couldn't be saved. Please try again.",
+      noStops: 'No reading stops yet.',
+      page: 'Page',
+      removeStop: 'Remove',
+      renameStop: 'Rename',
+      saveName: 'Save name',
+      cancelRename: 'Cancel',
+      stopRenamed: 'Name updated.',
+      stopNameTaken: 'Another reading stop already uses this name.',
+      offlineTitle: "Offline Mushaf",
+      offlineIntro: "Download the layout of all 604 pages to read without an internet connection. Page fonts are downloaded separately later.",
+      offlineDownload: "Download for offline reading",
+      offlineResume: "Continue download",
+      offlineCancel: "Cancel",
+      offlineDownloading: "Downloading",
+      offlineVerifying: "Checking the download",
+      offlineReady: "Available offline",
+      offlineUpdatedFrom: "Last updated from Quran Foundation",
+      offlineCheckUpdate: "Check for updates",
+      offlineUpToDate: "The offline Mushaf is up to date.",
+      offlineUpdated: "The offline Mushaf was updated.",
+      offlineRemove: "Remove offline copy",
+      offlineCancelled: "Download paused. It will continue where it stopped.",
+      offlineErrorOffline: "You're offline. What was downloaded is kept; try again when you're connected.",
+      offlineErrorUnavailable: "The offline Mushaf isn't available right now. Please try again later.",
+      offlineErrorStorage: "There is not enough free storage on this device.",
+      offlineErrorIntegrity: "The download couldn't be verified, so nothing was changed. Please try again.",
+      offlineErrorGeneric: "The offline Mushaf couldn't be saved. Please try again.",
+      offlineFonts: "Downloading page fonts",
+      offlineFontsCount: "Page fonts",
+      offlineComplete: "The complete Mushaf is ready for offline reading",
+      renderer: "Script",
+      rendererQpc: "1405 Mushaf (QPC V1)",
+      rendererSvg: "Quran SVG (newer print)",
+      qpcLoading: "Loading the 1405 page…",
+      qpcUnavailable: "The 1405 page isn't available right now, so the Quran SVG page is shown.",
+      qpcCredit: "1405 Mushaf font and layout: Quran Foundation · QCF V1 font © King Fahd Glorious Qur’an Printing Complex.",
+      artworkCredit: 'Mushaf page: King Fahd Glorious Qur’an Printing Complex.',
+      pageLoadError: "This page couldn't be displayed.",
+    },
     quranFontSize: {
       decreaseLabel: 'Decrease Quran text size',
       increaseLabel: 'Increase Quran text size',
@@ -751,6 +859,59 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       shareFailed: 'تعذّرت مشاركة الصورة. يرجى إعادة المحاولة.',
       saveFailed: 'تعذّر حفظ الصورة. يرجى إعادة المحاولة.',
       cannotFit: 'تعذّر تجهيز هذه البطاقة. يرجى تجربة مقاس آخر.',
+    },
+    mushaf: {
+      title: 'المصحف',
+      prototypeNote: 'نسخة تجريبية — الصفحة ٦١ فقط.',
+      tapHint: 'اضغط على آية لتحديدها.',
+      pageLabel: 'صفحة المصحف',
+      selectedAyah: 'الآية المحددة',
+      clearSelection: 'إلغاء التحديد',
+      readingStops: 'مواضع التوقف',
+      stopNameLabel: 'الاسم (مثل: رمضان، أمي)',
+      saveStop: 'حفظ موضع التوقف في هذه الصفحة',
+      stopSaved: 'تم حفظ موضع التوقف.',
+      stopNameInvalid: 'أدخل اسمًا لا يزيد على ٤٠ حرفًا.',
+      tooManyStops: 'لا يمكن إضافة موضع توقف آخر لكثرة المواضع المحفوظة. احذف واحدًا أولًا.',
+      stopSaveFailed: 'تعذّر حفظ موضع التوقف. يرجى إعادة المحاولة.',
+      noStops: 'لا توجد مواضع توقف بعد.',
+      page: 'صفحة',
+      removeStop: 'حذف',
+      renameStop: 'تعديل الاسم',
+      saveName: 'حفظ الاسم',
+      cancelRename: 'إلغاء',
+      stopRenamed: 'تم تحديث الاسم.',
+      stopNameTaken: 'هذا الاسم مستخدم لموضع توقف آخر.',
+      offlineTitle: "المصحف دون اتصال",
+      offlineIntro: "نزّل تخطيط صفحات المصحف الـ٦٠٤ كلها للقراءة دون اتصال بالإنترنت. تُنزَّل خطوط الصفحات لاحقًا بشكل منفصل.",
+      offlineDownload: "التنزيل للقراءة دون اتصال",
+      offlineResume: "متابعة التنزيل",
+      offlineCancel: "إلغاء",
+      offlineDownloading: "جارٍ التنزيل",
+      offlineVerifying: "جارٍ التحقق من التنزيل",
+      offlineReady: "متاح دون اتصال",
+      offlineUpdatedFrom: "آخر تحديث من Quran Foundation",
+      offlineCheckUpdate: "التحقق من التحديثات",
+      offlineUpToDate: "المصحف دون اتصال محدَّث.",
+      offlineUpdated: "تم تحديث المصحف دون اتصال.",
+      offlineRemove: "حذف النسخة دون اتصال",
+      offlineCancelled: "تم إيقاف التنزيل مؤقتًا، وسيُستأنف من حيث توقف.",
+      offlineErrorOffline: "لا يوجد اتصال. ما تم تنزيله محفوظ؛ حاول مرة أخرى عند الاتصال.",
+      offlineErrorUnavailable: "المصحف دون اتصال غير متاح حاليًا. يُرجى المحاولة لاحقًا.",
+      offlineErrorStorage: "لا توجد مساحة تخزين كافية على هذا الجهاز.",
+      offlineErrorIntegrity: "تعذّر التحقق من التنزيل، لذلك لم يتغير شيء. يُرجى المحاولة مرة أخرى.",
+      offlineErrorGeneric: "تعذّر حفظ المصحف دون اتصال. يُرجى المحاولة مرة أخرى.",
+      offlineFonts: "جارٍ تنزيل خطوط الصفحات",
+      offlineFontsCount: "خطوط الصفحات",
+      offlineComplete: "المصحف كاملًا جاهز للقراءة دون اتصال",
+      renderer: "الخط",
+      rendererQpc: "مصحف ١٤٠٥ (QPC V1)",
+      rendererSvg: "Quran SVG (الطبعة الأحدث)",
+      qpcLoading: "جارٍ تحميل صفحة مصحف ١٤٠٥…",
+      qpcUnavailable: "صفحة مصحف ١٤٠٥ غير متاحة الآن، لذا تُعرض صفحة Quran SVG.",
+      qpcCredit: "خط مصحف ١٤٠٥ وتخطيطه: Quran Foundation · خط QCF V1 © مجمع الملك فهد لطباعة المصحف الشريف.",
+      artworkCredit: 'صفحة المصحف: مجمع الملك فهد لطباعة المصحف الشريف.',
+      pageLoadError: 'تعذّر عرض هذه الصفحة.',
     },
     quranFontSize: {
       decreaseLabel: 'تصغير حجم نص القرآن',
@@ -1057,6 +1218,59 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       shareFailed: 'متقدرناش نشارك الصورة. جرّب تاني.',
       saveFailed: 'متقدرناش نحفظ الصورة. جرّب تاني.',
       cannotFit: 'متقدرناش نجهّز البطاقة دي. جرّب مقاس تاني.',
+    },
+    mushaf: {
+      title: 'المصحف',
+      prototypeNote: 'نسخة تجريبية — الصفحة ٦١ بس.',
+      tapHint: 'دوس على آية عشان تختارها.',
+      pageLabel: 'صفحة المصحف',
+      selectedAyah: 'الآية اللي اخترتها',
+      clearSelection: 'الغي الاختيار',
+      readingStops: 'أماكن الوقوف',
+      stopNameLabel: 'الاسم (زي: رمضان، ماما)',
+      saveStop: 'احفظ مكان الوقوف في الصفحة دي',
+      stopSaved: 'مكان الوقوف اتحفظ.',
+      stopNameInvalid: 'اكتب اسم مش أكتر من ٤٠ حرف.',
+      tooManyStops: 'عندك أماكن وقوف كتير، ومينفعش تضيف تاني. امسح واحد الأول.',
+      stopSaveFailed: 'متقدرناش نحفظ مكان الوقوف. جرّب تاني.',
+      noStops: 'مفيش أماكن وقوف لسه.',
+      page: 'صفحة',
+      removeStop: 'امسح',
+      renameStop: 'غيّر الاسم',
+      saveName: 'احفظ الاسم',
+      cancelRename: 'إلغاء',
+      stopRenamed: 'الاسم اتغيّر.',
+      stopNameTaken: 'الاسم ده مستخدم لمكان وقوف تاني.',
+      offlineTitle: "المصحف من غير نت",
+      offlineIntro: "نزّل شكل صفحات المصحف الـ٦٠٤ كلها عشان تقرا من غير نت. خطوط الصفحات هتتنزّل بعدين لوحدها.",
+      offlineDownload: "نزّله للقراية من غير نت",
+      offlineResume: "كمّل التنزيل",
+      offlineCancel: "إلغاء",
+      offlineDownloading: "بيتنزّل",
+      offlineVerifying: "بنتأكد من التنزيل",
+      offlineReady: "متاح من غير نت",
+      offlineUpdatedFrom: "آخر تحديث من Quran Foundation",
+      offlineCheckUpdate: "شوف لو فيه تحديث",
+      offlineUpToDate: "المصحف اللي من غير نت محدّث.",
+      offlineUpdated: "المصحف اللي من غير نت اتحدّث.",
+      offlineRemove: "امسح النسخة اللي من غير نت",
+      offlineCancelled: "التنزيل وقف، وهيكمّل من مكان ما وقف.",
+      offlineErrorOffline: "مفيش نت. اللي اتنزّل محفوظ؛ جرّب تاني لما النت يرجع.",
+      offlineErrorUnavailable: "المصحف اللي من غير نت مش متاح دلوقتي. جرّب تاني بعدين.",
+      offlineErrorStorage: "مفيش مساحة كفاية على الجهاز.",
+      offlineErrorIntegrity: "ماقدرناش نتأكد من التنزيل، فمفيش حاجة اتغيرت. جرّب تاني.",
+      offlineErrorGeneric: "ماقدرناش نحفظ المصحف اللي من غير نت. جرّب تاني.",
+      offlineFonts: "بيتنزّل خطوط الصفحات",
+      offlineFontsCount: "خطوط الصفحات",
+      offlineComplete: "المصحف كله جاهز تقراه من غير نت",
+      renderer: "الخط",
+      rendererQpc: "مصحف ١٤٠٥ (QPC V1)",
+      rendererSvg: "Quran SVG (الطبعة الأحدث)",
+      qpcLoading: "بنحمّل صفحة مصحف ١٤٠٥…",
+      qpcUnavailable: "صفحة مصحف ١٤٠٥ مش متاحة دلوقتي، فبنعرض صفحة Quran SVG.",
+      qpcCredit: "خط مصحف ١٤٠٥ وتخطيطه: Quran Foundation · خط QCF V1 © مجمع الملك فهد لطباعة المصحف الشريف.",
+      artworkCredit: 'صفحة المصحف: مجمع الملك فهد لطباعة المصحف الشريف.',
+      pageLoadError: 'متقدرناش نعرض الصفحة دي.',
     },
     quranFontSize: {
       decreaseLabel: 'تصغير حجم نص القرآن',

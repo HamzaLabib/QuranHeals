@@ -1,0 +1,188 @@
+import { describe, expect, it } from 'vitest';
+
+import { MUSHAF_PAPER } from '@/constants/mushafTheme';
+import {
+  MUSHAF_APPEARANCE_APPROVED,
+  MUSHAF_APPEARANCE_DEFAULT,
+  MUSHAF_APPEARANCE_PHASE_1C,
+  MUSHAF_BACKGROUND_ORIGINAL,
+  MUSHAF_BACKGROUND_WARM,
+  MUSHAF_BACKGROUNDS,
+  MUSHAF_INKS,
+  MUSHAF_MARKER_STYLES,
+  resolveMushafAppearance,
+} from '@/mushaf/appearance';
+import { cssBaseline, getAyahMarker, markerOverlayBox, QCF_V1_METRICS } from '@/mushaf/ayahMarkers';
+import { AYAH_MARKERS_061 } from '@/mushaf/generated/ayahMarkers061';
+import { HAFS_KFQC_PAGE_061 } from '@/mushaf/generated/hafsKfqcPage061';
+import { parseMushafPage } from '@/mushaf/mushafPage';
+import { REFERENCE_COLORS } from '@/mushaf/pageGeometry';
+
+/** Reversible page appearance (backgrounds, medallions, ink) and the Quran SVG medallion artwork used by QPC V1. */
+
+const relativeLuminance = (hex: string) => {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+
+describe('background presets', () => {
+  it('Original Cream is exactly the phase-1C page background, unchanged', () => {
+    // The one opaque fill the page has always had: REFERENCE_COLORS.paper.
+    expect(MUSHAF_BACKGROUND_ORIGINAL).toEqual({ id: 'original', label: 'Original Cream', paper: '#F9F5DA' });
+    expect(MUSHAF_BACKGROUND_ORIGINAL.paper).toBe(REFERENCE_COLORS.paper);
+    expect(MUSHAF_BACKGROUND_ORIGINAL.paper).toBe(MUSHAF_PAPER.paper);
+    expect(MUSHAF_BACKGROUNDS.original).toBe(MUSHAF_BACKGROUND_ORIGINAL);
+  });
+
+  it('the approved design is the default: Warm Cream, traditional medallions, original ink', () => {
+    expect(MUSHAF_APPEARANCE_APPROVED).toEqual({ background: 'warm', markers: 'traditional', ink: 'original' });
+    expect(MUSHAF_APPEARANCE_DEFAULT).toBe(MUSHAF_APPEARANCE_APPROVED);
+    expect(resolveMushafAppearance()).toEqual({ ...MUSHAF_APPEARANCE_APPROVED, border: 'original' });
+  });
+
+  it('the phase-1C page stays restorable by name: Original Cream and the font`s marker glyphs', () => {
+    expect(MUSHAF_APPEARANCE_PHASE_1C).toEqual({ background: 'original', markers: 'qpc-glyph', ink: 'original' });
+    expect(resolveMushafAppearance({ background: 'original', markers: 'qpc-glyph' })).toEqual({ ...MUSHAF_APPEARANCE_PHASE_1C, border: 'original' });
+  });
+
+  it('Warm Cream is a separate option, a little darker and warmer, never yellow', () => {
+    expect(MUSHAF_BACKGROUND_WARM.paper).toBe('#F9EFD2');
+    expect(MUSHAF_BACKGROUND_WARM.paper).not.toBe(MUSHAF_BACKGROUND_ORIGINAL.paper);
+    const [original, warm] = [MUSHAF_BACKGROUND_ORIGINAL.paper, MUSHAF_BACKGROUND_WARM.paper].map(relativeLuminance);
+    expect(warm).toBeLessThan(original);
+    expect(warm / original).toBeGreaterThan(0.95); // slightly, not much
+    // Warmer: less blue relative to red than the original.
+    const blueToRed = (hex: string) => parseInt(hex.slice(5, 7), 16) / parseInt(hex.slice(1, 3), 16);
+    expect(blueToRed(MUSHAF_BACKGROUND_WARM.paper)).toBeLessThan(blueToRed(MUSHAF_BACKGROUND_ORIGINAL.paper));
+    expect(blueToRed(MUSHAF_BACKGROUND_WARM.paper)).toBeGreaterThan(0.8);
+  });
+
+  it('a preview can name a preset in the route; anything unknown falls back to the default', () => {
+    expect(resolveMushafAppearance({ background: 'original', markers: 'quran-svg' })).toEqual({ background: 'original', markers: 'quran-svg', ink: 'original', border: 'original' });
+    expect(resolveMushafAppearance({ background: ['original', 'warm'], markers: 'qpc-glyph' })).toMatchObject({ background: 'original', markers: 'qpc-glyph' });
+    expect(resolveMushafAppearance({ background: 'neon', markers: 'toString', ink: '#000', border: 'x' })).toEqual({ ...MUSHAF_APPEARANCE_DEFAULT, border: 'original' });
+  });
+});
+
+describe('medallion styles and ink', () => {
+  it('keeps the phase-1C marker glyph and ink as presets of their own', () => {
+    expect(MUSHAF_MARKER_STYLES['qpc-glyph'].colors).toBeNull();
+    expect(MUSHAF_PAPER.marker).toBe('#3E7D57');
+    expect(MUSHAF_INKS.original.color).toBe('#231F20');
+    expect(MUSHAF_INKS.original.color).toBe(MUSHAF_PAPER.ink);
+  });
+
+  it('the Quran SVG style matches that page: green ornament (as tintAyahMarkers), its black number', () => {
+    expect(MUSHAF_MARKER_STYLES['quran-svg'].colors).toMatchObject({ caps: '#3E7D57', sides: '#3E7D57', number: '#231F20', capFill: null, sideFill: null, innerFill: null });
+  });
+
+  it('the traditional style darkens the caps against lighter green sides, with a light centre and a dark number', () => {
+    const colors = MUSHAF_MARKER_STYLES.traditional.colors;
+    expect(relativeLuminance(colors.caps)).toBeLessThan(relativeLuminance(colors.sides));
+    expect(relativeLuminance(colors.capFill)).toBeLessThan(relativeLuminance(colors.sideFill));
+    expect(relativeLuminance(colors.innerFill)).toBeGreaterThan(0.85);
+    expect(relativeLuminance(colors.number)).toBeLessThan(0.03);
+  });
+});
+
+describe('medallion artwork (from the bundled Quran SVG page)', () => {
+  const page = parseMushafPage(HAFS_KFQC_PAGE_061);
+
+  it('is copied verbatim from the hash-pinned page SVG', () => {
+    expect(AYAH_MARKERS_061.svgSha256).toBe(HAFS_KFQC_PAGE_061.source.svgSha256);
+    expect(HAFS_KFQC_PAGE_061.svg).toContain(`<path d="${AYAH_MARKERS_061.ornamentPath}"`);
+    for (const marker of AYAH_MARKERS_061.markers) expect(HAFS_KFQC_PAGE_061.svg).toContain(`<path d="${marker.numberPath}"`);
+    expect(HAFS_KFQC_PAGE_061.svg.split(`<path d="${AYAH_MARKERS_061.ornamentPath}"`)).toHaveLength(9); // one ornament per ayah
+  });
+
+  it('has exactly one medallion per ayah, in reading order, each inside its own ayah on the page', () => {
+    expect(AYAH_MARKERS_061.markers.map((marker) => marker.verseKey)).toEqual(page.ayahs.map((ayah) => ayah.verseKey));
+    for (const marker of AYAH_MARKERS_061.markers) {
+      const ayah = page.ayahs.find((candidate) => candidate.verseKey === marker.verseKey)!;
+      const box = marker.ornamentBox;
+      const centre = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+      expect(ayah.rects.some((r) => centre.x >= r.x && centre.x <= r.x + r.width && centre.y >= r.y && centre.y <= r.y + r.height)).toBe(true);
+      // Its number sits inside its ornament.
+      const n = marker.numberBox;
+      expect(n.x).toBeGreaterThan(box.x);
+      expect(n.y).toBeGreaterThan(box.y);
+      expect(n.x + n.width).toBeLessThan(box.x + box.width);
+      expect(n.y + n.height).toBeLessThan(box.y + box.height);
+    }
+  });
+
+  it('every number is a different drawing (84 … 91), and lookups fall back to null off this page', () => {
+    expect(new Set(AYAH_MARKERS_061.markers.map((marker) => marker.numberPath)).size).toBe(8);
+    expect(getAyahMarker(61, '3:84')?.ornamentPath).toBe(AYAH_MARKERS_061.ornamentPath);
+    expect(getAyahMarker(61, '3:92')).toBeNull();
+    expect(getAyahMarker(62, '3:93')).toBeNull();
+  });
+});
+
+describe('medallion placement over the QCF V1 marker glyph', () => {
+  // The phone layout measured in the browser: 20.598 px glyphs, 1.3 line height, a 25.67 px marker advance.
+  const fontSize = 20.598;
+  const lineHeight = fontSize * 1.3;
+  const marker = getAyahMarker(61, '3:84')!;
+
+  it('the web baseline follows CSS (Chrome measured 19 px, snapped from 19.25)', () => {
+    expect(cssBaseline(fontSize, lineHeight)).toBeCloseTo(19.25, 1);
+  });
+
+  it('centres the medallion on the glyph`s own ink, inside its advance and its line, in the artwork`s proportions', () => {
+    const baseline = cssBaseline(fontSize, lineHeight);
+    const box = markerOverlayBox(marker, fontSize, baseline, 25.67);
+    const { unitsPerEm, markerInk } = QCF_V1_METRICS;
+    const inkCentre = baseline - ((markerInk.yMax + markerInk.yMin) / 2) * (fontSize / unitsPerEm);
+    expect(box.y + box.height / 2).toBeCloseTo(inkCentre);
+    expect(box.x + box.width / 2).toBeCloseTo(25.67 / 2);
+    expect(box.x).toBeGreaterThan(0);
+    expect(box.x + box.width).toBeLessThan(25.67); // never wider than the glyph: no overlap with neighbouring words
+    // Inside its line: the 1.3-em line box is centred in the 15-line pitch (31.77 px here).
+    const pitch = 31.77;
+    const lineTop = (pitch - lineHeight) / 2;
+    expect(lineTop + box.y).toBeGreaterThan(0);
+    expect(lineTop + box.y + box.height).toBeLessThan(pitch);
+    expect(box.width / box.height).toBeCloseTo(marker.ornamentBox.width / marker.ornamentBox.height);
+    // ≈ 0.82 of the pitch tall, as the printed medallions (≈ 42 px at a 52 px pitch).
+    expect(box.height / pitch).toBeCloseTo(0.82, 1);
+  });
+});
+
+describe('Dark Mode (Warm Midnight Olive)', () => {
+  it('has the approved palette, and keeps the border, medallions and light furniture exactly', async () => {
+    const { MUSHAF_APPEARANCE_DARK, MUSHAF_BACKGROUND_MIDNIGHT_OLIVE, MUSHAF_BORDER_STYLES, MUSHAF_PAGE_FURNITURE } = await import('@/mushaf/appearance');
+    const { BORDER_INKS } = await import('@/mushaf/borderPattern');
+    expect(MUSHAF_BACKGROUND_MIDNIGHT_OLIVE.paper).toBe('#222820');
+    expect(MUSHAF_INKS.midnight.color).toBe('#F1E9D6');
+    expect(MUSHAF_APPEARANCE_DARK).toEqual({ background: 'midnight', markers: 'traditional', ink: 'midnight', border: 'original' });
+    // The approved border, untouched: the same object as the Light page's.
+    expect(MUSHAF_BORDER_STYLES.original.inks).toBe(BORDER_INKS);
+    // Medallion numbers stay dark on cream.
+    expect(MUSHAF_MARKER_STYLES.traditional.colors).toMatchObject({ number: '#231F20', innerFill: '#FBF7E4' });
+    // The light papers keep phase 1C's heads and highlight exactly.
+    for (const id of ['original', 'warm'] as const) {
+      expect(MUSHAF_PAGE_FURNITURE[id]).toEqual({ header: MUSHAF_PAPER.header, highlight: MUSHAF_PAPER.highlight, highlightOpacity: MUSHAF_PAPER.highlightOpacity });
+    }
+    // The gold and sage border is a separate, reversible option.
+    expect(MUSHAF_BORDER_STYLES.midnight.inks).toMatchObject({ rule: '#A99A70', green: '#8EA68A' });
+  });
+
+  it('follows the app theme; Light stays the default; a preview can force either', async () => {
+    const { MUSHAF_APPEARANCE_DARK } = await import('@/mushaf/appearance');
+    expect(resolveMushafAppearance({}, 'light')).toEqual({ ...MUSHAF_APPEARANCE_APPROVED, border: 'original' });
+    expect(resolveMushafAppearance({}, 'dark')).toEqual(MUSHAF_APPEARANCE_DARK);
+    expect(resolveMushafAppearance({ scheme: 'dark' }, 'light')).toEqual(MUSHAF_APPEARANCE_DARK);
+    expect(resolveMushafAppearance({ scheme: 'light' }, 'dark').background).toBe('warm');
+    expect(resolveMushafAppearance({ border: 'midnight' }, 'dark').border).toBe('midnight');
+  });
+
+  it('the Quran SVG page`s ink is recoloured by fill value only — every path is unchanged', async () => {
+    const { tintAyahMarkers, tintSvgInk } = await import('@/mushaf/mushafPage');
+    const tinted = tintSvgInk(tintAyahMarkers(HAFS_KFQC_PAGE_061.svg, '#3E7D57'), '#F1E9D6');
+    expect(tinted).not.toContain('fill="#231f20"');
+    expect(tinted.match(/fill="#3E7D57"/g)).toHaveLength(8);
+    const paths = (svg: string) => [...svg.matchAll(/ d="([^"]+)"/g)].map((m) => m[1]);
+    expect(paths(tinted)).toEqual(paths(HAFS_KFQC_PAGE_061.svg));
+  });
+});
