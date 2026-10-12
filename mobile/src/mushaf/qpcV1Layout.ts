@@ -3,7 +3,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiBaseUrl } from '@/services/apiBase';
 import { fetchWithTimeout } from '@/services/fetchWithTimeout';
 import { isExistingAyah } from '@/utils/ayahLink';
+import { mushafWordCount } from './offline/dataset';
 import referencePage061 from './referencePage061.json';
+
 
 /**
  * QPC V1 (1405 AH Madani Mushaf) page layout, as served by our backend
@@ -115,14 +117,17 @@ export type TanzilCheck = { ok: boolean; problems: string[] };
  * Before rendering: the page must hold exactly the expected ayahs, and each
  * ayah exactly as many words as the verified Tanzil text, plus its marker.
  */
-export function checkAgainstTanzil(layout: QpcV1PageLayout, expectedVerseKeys: readonly string[], tanzilText: Readonly<Record<string, string>>): TanzilCheck {
+export function checkAgainstTanzil(layout: QpcV1PageLayout, expectedVerseKeys: readonly string[], tanzilText: Readonly<Record<string, string>>, basmalaText?: string): TanzilCheck {
   const problems: string[] = [];
   if (layout.verseKeys.join() !== expectedVerseKeys.join()) problems.push(`Ayahs ${layout.verseKeys.join(', ')} ≠ expected ${expectedVerseKeys.join(', ')}`);
   const words = layout.lines.flatMap((line) => line.words);
   for (const verseKey of expectedVerseKeys) {
     const own = words.filter((word) => word.verseKey === verseKey);
     const wordCount = own.filter((word) => word.kind === 'word').length;
-    const expected = tanzilText[verseKey] === undefined ? Number.NaN : tanzilWordCount(tanzilText[verseKey]);
+    // With Tanzil's Basmala (1:1): the offline validator's rule — Tanzil opens ayah 1 of 112 Surahs with the
+    // Basmala, which the Mushaf prints on its own line, and a few word pairs are one word in the Mushaf.
+    const text = tanzilText[verseKey];
+    const expected = text === undefined ? Number.NaN : basmalaText === undefined ? tanzilWordCount(text) : mushafWordCount(verseKey, text, basmalaText);
     if (wordCount !== expected) problems.push(`${verseKey}: ${wordCount} words, Tanzil has ${expected}`);
     if (own.filter((word) => word.kind === 'end').length !== 1 || own[own.length - 1]?.kind !== 'end') problems.push(`${verseKey}: ayah marker missing or misplaced`);
   }
@@ -160,7 +165,11 @@ export function describeLineBreaks(layout: QpcV1PageLayout) {
 // ---------------------------------------------------------------------------
 // Interaction
 
-export type WordBox = { x: number; width: number; verseKey: string };
+/**
+ * A rendered word on its line (from onLayout): its advance box, its ayah, and how far its drawn ink reaches past the
+ * box on the left and right (points; QPC V1 glyphs draw outside their advance; for an ayah-end marker, its medallion).
+ */
+export type WordBox = { x: number; width: number; verseKey: string; inkLeft?: number; inkRight?: number };
 
 /**
  * The ayah under a tap at `x` on one line (boxes from the rendered words).
@@ -186,11 +195,49 @@ export function ayahAtLineX(boxes: readonly WordBox[], x: number): string | null
   return null;
 }
 
-/** One highlight span per line covering the selected ayah's words on it, gaps between them included. */
-export function highlightSpan(boxes: readonly WordBox[], verseKey: string): { x: number; width: number } | null {
-  const own = boxes.filter((box) => box.verseKey === verseKey);
-  if (own.length === 0) return null;
-  const x = Math.min(...own.map((box) => box.x));
-  const end = Math.max(...own.map((box) => box.x + box.width));
-  return { x, width: end - x };
+/**
+ * The selection highlight on one line: the selected ayah's words there, the gaps between them, and its ink. Each end
+ * reaches halfway into the gap to a neighbouring ayah's word (never into that word's box), and as far as the ink of
+ * its own end word (or medallion) when that goes further. At a line's edge it reaches half the line's word gap, or
+ * the end word's ink if that goes further, but not more than `sideRoom` outside the line (the text area's margin).
+ */
+export function selectionSpan(boxes: readonly WordBox[], verseKey: string, sideRoom = 0): { x: number; width: number } | null {
+  const sorted = [...boxes].sort((a, b) => a.x - b.x);
+  const firstOwn = sorted.findIndex((box) => box.verseKey === verseKey);
+  if (firstOwn < 0) return null;
+  let lastOwn = firstOwn;
+  for (let index = firstOwn; index < sorted.length; index += 1) if (sorted[index].verseKey === verseKey) lastOwn = index;
+  const right = (box: WordBox) => box.x + box.width;
+  let gaps = 0;
+  for (let index = 1; index < sorted.length; index += 1) gaps += Math.max(0, sorted[index].x - right(sorted[index - 1]));
+  const halfGap = sorted.length > 1 ? gaps / (sorted.length - 1) / 2 : 0;
+  const lo = sorted[firstOwn];
+  const hi = sorted[lastOwn];
+  const inkLeft = lo.x - (lo.inkLeft ?? 0);
+  const inkRight = right(hi) + (hi.inkRight ?? 0);
+  const before = sorted[firstOwn - 1];
+  const after = sorted[lastOwn + 1];
+  const left = before
+    ? Math.max(right(before), Math.min(inkLeft, (right(before) + lo.x) / 2))
+    : Math.max(sorted[0].x - sideRoom, Math.min(inkLeft, lo.x - halfGap));
+  const end = after
+    ? Math.min(after.x, Math.max(inkRight, (right(hi) + after.x) / 2))
+    : Math.min(right(sorted[sorted.length - 1]) + sideRoom, Math.max(inkRight, right(hi) + halfGap));
+  return { x: left, width: end - left };
+}
+
+/**
+ * The line a tap belongs to: of the lines next to the touched row, the one whose drawn line (its centre `centreOf`)
+ * is nearest the tap — the same geometry the highlight is drawn with, so a tap on a word selects that word's line
+ * even where the platform draws the line lower than its row.
+ */
+export function lineAtY(touchedLine: number, y: number, lines: readonly number[], centreOf: (line: number) => number): number {
+  let best = touchedLine;
+  let distance = Number.POSITIVE_INFINITY;
+  for (const line of lines) {
+    if (Math.abs(line - touchedLine) > 1) continue;
+    const d = Math.abs(y - centreOf(line));
+    if (d < distance) { best = line; distance = d; }
+  }
+  return best;
 }

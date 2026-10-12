@@ -74,3 +74,20 @@ describe('page furniture and scaling', () => {
     expect(() => computePageLayout(Number.NaN)).toThrow();
   });
 });
+
+describe('text position: the printed layout, one lift for every page', () => {
+  // The only vertical offset is MUSHAF_TEXT_LIFT_PT, applied once where the text area is drawn (MushafPageView); the
+  // layout itself stays the printed one (no per-page shift, no other lift, no device baseline correction).
+  it('the layout depends only on the width and the frame; the lift is a single constant', async () => {
+    const geometry = await import('@/mushaf/pageGeometry');
+    expect(geometry.MUSHAF_TEXT_LIFT_PT).toBe(4);
+    expect('normalTextShift' in geometry).toBe(false);
+    expect('NORMAL_TEXT_LIFT_PT' in geometry).toBe(false);
+    expect(computePageLayout.length).toBeLessThanOrEqual(2);
+    for (const [width, tiles] of [[317, 29], [387, 29], [434, 29], [387, 33], [406, 35]] as const) {
+      const layout = computePageLayout(width, tiles);
+      expect(layout.text.y - layout.inner.y).toBeCloseTo((width * 10) / 593, 9);
+      expect(layout.text.height).toBeCloseTo(layout.inner.height - (2 * width * 10) / 593, 9);
+    }
+  });
+});

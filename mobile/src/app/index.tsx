@@ -264,6 +264,20 @@ export default function HomeScreen() {
         </Pressable>
 
         <Text style={[styles.disclaimer, direction]}>{messages.home.disclaimer}</Text>
+
+        {/* Quran sources: Tanzil requires its name and a link, Quran Foundation a credit within the app (constants/quranSources.ts). */}
+        <View testID="home-sources" style={styles.sources}>
+          <Text style={[styles.sourcesCredit, direction]}>{messages.home.sourcesCredit}</Text>
+          <Link href="/credits" asChild>
+            <Pressable
+              accessibilityRole="link"
+              accessibilityLabel={messages.home.sourcesLink}
+              hitSlop={8}
+              style={({ pressed }) => [styles.sourcesLink, isRtl && styles.sourcesLinkRtl, pressed && styles.pressed]}>
+              <Text style={styles.sourcesLinkText}>{messages.home.sourcesLink}</Text>
+            </Pressable>
+          </Link>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -389,5 +403,32 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     fontSize: typography.caption,
     lineHeight: 19,
     paddingHorizontal: spacing.xs,
+  },
+  sources: {
+    borderTopColor: colors.divider,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    gap: spacing.xs,
+    marginTop: -spacing.sm,
+    paddingHorizontal: spacing.xs,
+    paddingTop: spacing.md,
+  },
+  sourcesCredit: {
+    color: colors.textMuted,
+    fontSize: typography.small,
+    lineHeight: 16,
+  },
+  sourcesLink: {
+    alignSelf: 'flex-start',
+    minHeight: 32,
+    justifyContent: 'center',
+  },
+  sourcesLinkRtl: {
+    alignSelf: 'flex-end',
+  },
+  sourcesLinkText: {
+    color: colors.accent,
+    fontSize: typography.small,
+    fontWeight: '700',
+    textDecorationLine: 'underline',
   },
 });

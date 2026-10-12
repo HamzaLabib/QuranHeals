@@ -18,6 +18,10 @@ export type Messages = {
     errorTitle: string;
     retry: string;
     disclaimer: string;
+    /** The small Quran-sources line at the bottom of Home (credits required by Tanzil and Quran Foundation). */
+    sourcesCredit: string;
+    /** Opens /credits. */
+    sourcesLink: string;
     openFavorites: string;
     openReflections: string;
   };
@@ -193,16 +197,78 @@ export type Messages = {
     offlineFonts: string;
     offlineFontsCount: string;
     offlineComplete: string;
+    previousPage: string;
+    nextPage: string;
+    searchPage: string;
+    pageNumberPlaceholder: string;
+    goToPage: string;
+    pageOutOfRange: string;
+    /** The reading-stop (ورد) list's title; also the selector's label when no stop is active. */
+    /** The reader's top-right Expand / Collapse buttons (icon-only; spoken labels). */
+    enterFullScreen: string;
+    exitFullScreen: string;
+    wirdChoose: string;
+    /** Spoken before the active stop's name. */
+    wirdSelectorLabel: string;
+    wirdSelectorHint: string;
+    /** The selector when no stops exist: opens the save field. */
+    wirdAdd: string;
+    wirdNew: string;
+    wirdClose: string;
+    searchTitle: string;
+    searchByPage: string;
+    searchBySurah: string;
+    surahSearchPlaceholder: string;
+    surahNoResults: string;
+    /** The visible Go button of the page-number search. */
+    goAction: string;
+    /** Before a page number in lists: "Page 50". */
+    pageShort: string;
+    saveStopAction: string;
+    confirmStop: string;
+    pageNotDownloaded: string;
+    pageUnavailable: string;
     renderer: string;
     rendererQpc: string;
     rendererSvg: string;
     qpcLoading: string;
     qpcUnavailable: string;
-    qpcCredit: string;
-    artworkCredit: string;
     pageLoadError: string;
   };
 
+  /**
+   * /credits: the full acknowledgments for the Quran text and the Mushaf,
+   * with the official sites and terms (see docs/mushaf.md, "Authorization
+   * and terms"). Source names stay as their owners publish them.
+   */
+  khatmDua: {
+    /** Always Arabic: the screen's name. */
+    title: string;
+    subtitle: string;
+    /** Shown above the du'a: what it is, and what it is not. */
+    note: string;
+    /** Opened by URL before a verified text is approved. */
+    unavailable: string;
+    smaller: string;
+    larger: string;
+    /** The link on page 604. */
+    open: string;
+    back: string;
+    sourceLabel: string;
+  };
+  credits: {
+    title: string;
+    intro: string;
+    tanzilName: string;
+    tanzilWork: string;
+    quranFoundationName: string;
+    quranFoundationWork: string;
+    kingFahdName: string;
+    kingFahdWork: string;
+    website: string;
+    license: string;
+    terms: string;
+  };
   quranFontSize: {
     decreaseLabel: string;
     increaseLabel: string;
@@ -405,6 +471,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       errorTitle: 'Unable to connect',
       retry: 'Try Again',
       disclaimer: 'Quran Heals offers spiritual reflection and is not a substitute for professional care.',
+      sourcesCredit: 'Quran text: Tanzil (Uthmani 1.1) · Mushaf layout and QPC V1 fonts: Quran Foundation · Mushaf typography and artwork: King Fahd Glorious Qur’an Printing Complex.',
+      sourcesLink: 'Quran Sources & Credits',
       openFavorites: 'Open saved ayahs',
       openReflections: 'Open My Reflections',
     },
@@ -518,7 +586,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     mushaf: {
       title: 'Mushaf',
       prototypeNote: 'Preview — page 61 only.',
-      tapHint: 'Tap an ayah to select it.',
+      tapHint: 'Tap an ayah to select it. Pinch to zoom; double-tap to return to the full page.',
       pageLabel: 'Mushaf page',
       selectedAyah: 'Selected ayah',
       clearSelection: 'Clear selection',
@@ -559,14 +627,61 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       offlineFonts: "Downloading page fonts",
       offlineFontsCount: "Page fonts",
       offlineComplete: "The complete Mushaf is ready for offline reading",
+      previousPage: "Previous page",
+      nextPage: "Next page",
+      searchPage: 'Search: a page or a Surah',
+      pageNumberPlaceholder: "Page number (1–604)",
+      goToPage: "Go to page",
+      pageOutOfRange: "Enter a page from 1 to 604.",
+      enterFullScreen: 'Full-screen reading',
+      exitFullScreen: 'Exit full-screen reading',
+      wirdChoose: 'Choose a reading stop',
+      wirdSelectorLabel: 'Active reading stop',
+      wirdSelectorHint: 'Shows your reading stops to switch between them.',
+      wirdAdd: 'Add a reading stop',
+      wirdNew: 'New reading stop on this page',
+      wirdClose: 'Close',
+      searchTitle: 'Go to',
+      searchByPage: 'Page Number',
+      searchBySurah: 'Surah Name',
+      surahSearchPlaceholder: 'Search the 114 Surahs',
+      surahNoResults: 'No Surah matches that name.',
+      goAction: 'Go',
+      pageShort: 'Page',
+      saveStopAction: "Save a reading stop on this page",
+      confirmStop: "Save stop",
+      pageNotDownloaded: "This page is part of the offline Mushaf. Download it to read every page.",
+      pageUnavailable: "This page can't be shown right now. Please try again.",
       renderer: "Script",
       rendererQpc: "1405 Mushaf (QPC V1)",
       rendererSvg: "Quran SVG (newer print)",
       qpcLoading: "Loading the 1405 page…",
       qpcUnavailable: "The 1405 page isn't available right now, so the Quran SVG page is shown.",
-      qpcCredit: "1405 Mushaf font and layout: Quran Foundation · QCF V1 font © King Fahd Glorious Qur’an Printing Complex.",
-      artworkCredit: 'Mushaf page: King Fahd Glorious Qur’an Printing Complex.',
       pageLoadError: "This page couldn't be displayed.",
+    },
+    khatmDua: {
+      title: 'دعاء ختم القرآن',
+      subtitle: 'Supplication on completing the Quran',
+      note: 'A traditional supplication, as printed at the end of many Mushafs. It is not part of the Quran and is not a supplication prescribed by the Prophet ﷺ; saying it is optional. Reading it does not record a completed khatma.',
+      unavailable: 'This supplication is not available yet.',
+      smaller: 'Smaller text',
+      larger: 'Larger text',
+      open: 'دعاء ختم القرآن',
+      back: 'Back to page 604',
+      sourceLabel: 'Source',
+    },
+    credits: {
+      title: 'Quran Sources & Credits',
+      intro: 'Quran Heals shows the Quran from these sources, with gratitude. The Quran text is shown exactly as published, without any change.',
+      tanzilName: 'Tanzil Project',
+      tanzilWork: 'Quran text: Uthmani 1.1, used verbatim. Licensed under the Creative Commons Attribution 3.0 licence.',
+      quranFoundationName: 'Quran Foundation',
+      quranFoundationWork: 'Mushaf page layout and the QPC V1 page fonts (1405 AH Madinah Mushaf), used under Quran Foundation’s developer terms.',
+      kingFahdName: 'King Fahd Glorious Qur’an Printing Complex',
+      kingFahdWork: 'Original Mushaf typography and artwork: the 1405 AH Madinah Mushaf. QCF V1 fonts © King Fahd Glorious Qur’an Printing Complex. All rights reserved.',
+      website: 'Website',
+      license: 'Licence',
+      terms: 'Terms of use',
     },
     quranFontSize: {
       decreaseLabel: 'Decrease Quran text size',
@@ -750,6 +865,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       errorTitle: 'تعذّر الاتصال',
       retry: 'أعد المحاولة',
       disclaimer: 'تطبيق Quran Heals يقدّم تأملًا روحيًا، وليس بديلًا عن الرعاية المتخصصة.',
+      sourcesCredit: 'نص القرآن: مشروع تنزيل (الرسم العثماني ١٫١) · تخطيط المصحف وخطوط QPC V1: Quran Foundation · خط المصحف وزخارفه: مجمع الملك فهد لطباعة المصحف الشريف.',
+      sourcesLink: 'مصادر القرآن وحقوق النشر',
       openFavorites: 'فتح الآيات المحفوظة',
       openReflections: 'فتح خواطري',
     },
@@ -863,7 +980,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     mushaf: {
       title: 'المصحف',
       prototypeNote: 'نسخة تجريبية — الصفحة ٦١ فقط.',
-      tapHint: 'اضغط على آية لتحديدها.',
+      tapHint: 'اضغط على آية لتحديدها. باعد بين إصبعين للتكبير، واضغط مرتين للعودة إلى الصفحة كاملة.',
       pageLabel: 'صفحة المصحف',
       selectedAyah: 'الآية المحددة',
       clearSelection: 'إلغاء التحديد',
@@ -904,14 +1021,61 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       offlineFonts: "جارٍ تنزيل خطوط الصفحات",
       offlineFontsCount: "خطوط الصفحات",
       offlineComplete: "المصحف كاملًا جاهز للقراءة دون اتصال",
+      previousPage: "الصفحة السابقة",
+      nextPage: "الصفحة التالية",
+      searchPage: 'البحث: صفحة أو سورة',
+      pageNumberPlaceholder: "رقم الصفحة (١–٦٠٤)",
+      goToPage: "انتقال إلى الصفحة",
+      pageOutOfRange: "أدخل رقم صفحة من ١ إلى ٦٠٤.",
+      enterFullScreen: 'القراءة بملء الشاشة',
+      exitFullScreen: 'الخروج من ملء الشاشة',
+      wirdChoose: 'اختر الورد',
+      wirdSelectorLabel: 'الورد الحالي',
+      wirdSelectorHint: 'يعرض أورادك للتنقل بينها.',
+      wirdAdd: 'أضف وردًا',
+      wirdNew: 'ورد جديد في هذه الصفحة',
+      wirdClose: 'إغلاق',
+      searchTitle: 'انتقل إلى',
+      searchByPage: 'رقم الصفحة',
+      searchBySurah: 'اسم السورة',
+      surahSearchPlaceholder: 'ابحث في السور الـ١١٤',
+      surahNoResults: 'لا توجد سورة بهذا الاسم.',
+      goAction: 'انتقال',
+      pageShort: 'صفحة',
+      saveStopAction: "حفظ موضع توقف في هذه الصفحة",
+      confirmStop: "حفظ موضع التوقف",
+      pageNotDownloaded: "هذه الصفحة جزء من المصحف دون اتصال. نزّله لقراءة كل الصفحات.",
+      pageUnavailable: "تعذّر عرض هذه الصفحة الآن. يُرجى المحاولة مرة أخرى.",
       renderer: "الخط",
       rendererQpc: "مصحف ١٤٠٥ (QPC V1)",
       rendererSvg: "Quran SVG (الطبعة الأحدث)",
       qpcLoading: "جارٍ تحميل صفحة مصحف ١٤٠٥…",
       qpcUnavailable: "صفحة مصحف ١٤٠٥ غير متاحة الآن، لذا تُعرض صفحة Quran SVG.",
-      qpcCredit: "خط مصحف ١٤٠٥ وتخطيطه: Quran Foundation · خط QCF V1 © مجمع الملك فهد لطباعة المصحف الشريف.",
-      artworkCredit: 'صفحة المصحف: مجمع الملك فهد لطباعة المصحف الشريف.',
       pageLoadError: 'تعذّر عرض هذه الصفحة.',
+    },
+    khatmDua: {
+      title: 'دعاء ختم القرآن',
+      subtitle: 'دعاء يُقرأ بعد ختم القرآن الكريم',
+      note: 'دعاء متداول كما يُطبع في آخر كثير من المصاحف، وليس من القرآن الكريم، ولا هو دعاء ثابت عن النبي ﷺ، وقراءته اختيارية. وقراءته لا تسجّل ختمة مكتملة.',
+      unavailable: 'هذا الدعاء غير متاح بعد.',
+      smaller: 'تصغير الخط',
+      larger: 'تكبير الخط',
+      open: 'دعاء ختم القرآن',
+      back: 'العودة إلى الصفحة ٦٠٤',
+      sourceLabel: 'المصدر',
+    },
+    credits: {
+      title: 'مصادر القرآن وحقوق النشر',
+      intro: 'يعرض Quran Heals القرآن الكريم من هذه المصادر، مع الشكر والتقدير. ويُعرض نص القرآن كما نُشر تمامًا، دون أي تغيير.',
+      tanzilName: 'مشروع تنزيل (Tanzil)',
+      tanzilWork: 'نص القرآن: الرسم العثماني، الإصدار ١٫١، دون أي تغيير. مرخّص بموجب رخصة المشاع الإبداعي «نَسب المُصنَّف» ٣٫٠.',
+      quranFoundationName: 'Quran Foundation',
+      quranFoundationWork: 'تخطيط صفحات المصحف وخطوط صفحات QPC V1 (مصحف المدينة ١٤٠٥هـ)، وفق شروط المطوّرين لدى Quran Foundation.',
+      kingFahdName: 'مجمع الملك فهد لطباعة المصحف الشريف',
+      kingFahdWork: 'الخط الأصلي للمصحف وزخارفه: مصحف المدينة ١٤٠٥هـ. خطوط QCF V1 © مجمع الملك فهد لطباعة المصحف الشريف. جميع الحقوق محفوظة.',
+      website: 'الموقع',
+      license: 'الرخصة',
+      terms: 'شروط الاستخدام',
     },
     quranFontSize: {
       decreaseLabel: 'تصغير حجم نص القرآن',
@@ -1099,6 +1263,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       errorTitle: 'مش قادرين نتصل',
       retry: 'جرّب تاني',
       disclaimer: 'تطبيق Quran Heals يقدّم تأملًا روحيًا، وليس بديلًا عن الرعاية المتخصصة.',
+      sourcesCredit: 'نص القرآن: مشروع تنزيل (الرسم العثماني ١٫١) · تخطيط المصحف وخطوط QPC V1: Quran Foundation · خط المصحف وزخارفه: مجمع الملك فهد لطباعة المصحف الشريف.',
+      sourcesLink: 'مصادر القرآن وحقوق النشر',
       openFavorites: 'افتح الآيات المحفوظة',
       openReflections: 'فتح خواطري',
     },
@@ -1222,7 +1388,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     mushaf: {
       title: 'المصحف',
       prototypeNote: 'نسخة تجريبية — الصفحة ٦١ بس.',
-      tapHint: 'دوس على آية عشان تختارها.',
+      tapHint: 'دوس على آية عشان تختارها. بعّد صباعين عن بعض عشان تكبّر، ودوس مرتين عشان ترجع للصفحة كلها.',
       pageLabel: 'صفحة المصحف',
       selectedAyah: 'الآية اللي اخترتها',
       clearSelection: 'الغي الاختيار',
@@ -1263,14 +1429,61 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       offlineFonts: "بيتنزّل خطوط الصفحات",
       offlineFontsCount: "خطوط الصفحات",
       offlineComplete: "المصحف كله جاهز تقراه من غير نت",
+      previousPage: "الصفحة اللي قبل",
+      nextPage: "الصفحة اللي بعد",
+      searchPage: 'دوّر على صفحة أو سورة',
+      pageNumberPlaceholder: "رقم الصفحة (١–٦٠٤)",
+      goToPage: "روح للصفحة",
+      pageOutOfRange: "اكتب رقم صفحة من ١ لـ ٦٠٤.",
+      enterFullScreen: 'اقرأ بملء الشاشة',
+      exitFullScreen: 'اخرج من ملء الشاشة',
+      wirdChoose: 'اختار الورد',
+      wirdSelectorLabel: 'الورد الحالي',
+      wirdSelectorHint: 'بيعرض أورادك عشان تنقل بينهم.',
+      wirdAdd: 'ضيف ورد',
+      wirdNew: 'ورد جديد في الصفحة دي',
+      wirdClose: 'اقفل',
+      searchTitle: 'روح لـ',
+      searchByPage: 'رقم الصفحة',
+      searchBySurah: 'اسم السورة',
+      surahSearchPlaceholder: 'دوّر في الـ١١٤ سورة',
+      surahNoResults: 'مفيش سورة بالاسم ده.',
+      goAction: 'روح',
+      pageShort: 'صفحة',
+      saveStopAction: "احفظ مكان وقوف في الصفحة دي",
+      confirmStop: "احفظ مكان الوقوف",
+      pageNotDownloaded: "الصفحة دي جزء من المصحف اللي من غير نت. نزّله عشان تقرا كل الصفحات.",
+      pageUnavailable: "مش قادرين نعرض الصفحة دي دلوقتي. جرّب تاني.",
       renderer: "الخط",
       rendererQpc: "مصحف ١٤٠٥ (QPC V1)",
       rendererSvg: "Quran SVG (الطبعة الأحدث)",
       qpcLoading: "بنحمّل صفحة مصحف ١٤٠٥…",
       qpcUnavailable: "صفحة مصحف ١٤٠٥ مش متاحة دلوقتي، فبنعرض صفحة Quran SVG.",
-      qpcCredit: "خط مصحف ١٤٠٥ وتخطيطه: Quran Foundation · خط QCF V1 © مجمع الملك فهد لطباعة المصحف الشريف.",
-      artworkCredit: 'صفحة المصحف: مجمع الملك فهد لطباعة المصحف الشريف.',
       pageLoadError: 'متقدرناش نعرض الصفحة دي.',
+    },
+    khatmDua: {
+      title: 'دعاء ختم القرآن',
+      subtitle: 'دعاء بيتقري بعد ختم القرآن الكريم',
+      note: 'دعاء متداول زي ما بيتطبع في آخر مصاحف كتير، ومش من القرآن الكريم، ولا هو دعاء ثابت عن النبي ﷺ، وقرايته اختيارية. وقرايته مش بتسجّل ختمة مكتملة.',
+      unavailable: 'الدعاء ده مش متاح لسه.',
+      smaller: 'تصغير الخط',
+      larger: 'تكبير الخط',
+      open: 'دعاء ختم القرآن',
+      back: 'الرجوع للصفحة ٦٠٤',
+      sourceLabel: 'المصدر',
+    },
+    credits: {
+      title: 'مصادر القرآن وحقوق النشر',
+      intro: 'Quran Heals بيعرض القرآن الكريم من المصادر دي، مع كل الشكر والتقدير. ونص القرآن بيظهر زي ما اتنشر بالظبط، من غير أي تغيير.',
+      tanzilName: 'مشروع تنزيل (Tanzil)',
+      tanzilWork: 'نص القرآن: الرسم العثماني، الإصدار ١٫١، من غير أي تغيير. مرخّص بموجب رخصة المشاع الإبداعي «نَسب المُصنَّف» ٣٫٠.',
+      quranFoundationName: 'Quran Foundation',
+      quranFoundationWork: 'تخطيط صفحات المصحف وخطوط صفحات QPC V1 (مصحف المدينة ١٤٠٥هـ)، حسب شروط المطوّرين بتاعة Quran Foundation.',
+      kingFahdName: 'مجمع الملك فهد لطباعة المصحف الشريف',
+      kingFahdWork: 'الخط الأصلي للمصحف وزخارفه: مصحف المدينة ١٤٠٥هـ. خطوط QCF V1 © مجمع الملك فهد لطباعة المصحف الشريف. جميع الحقوق محفوظة.',
+      website: 'الموقع',
+      license: 'الرخصة',
+      terms: 'شروط الاستخدام',
     },
     quranFontSize: {
       decreaseLabel: 'تصغير حجم نص القرآن',

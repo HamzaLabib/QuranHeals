@@ -39,14 +39,19 @@ describe('Home screen bottom safe area (source-scan)', () => {
     expect(contentStyle).not.toMatch(/paddingBottom/);
   });
 
-  it('keeps the disclaimer last, directly below "A Message from the Quran", inside the scroll view', () => {
+  it('keeps the disclaimer directly below "A Message from the Quran", followed only by the Quran sources footer, inside the scroll view', () => {
     const actionIndex = indexSource.indexOf("router.push('/ayah/general')");
     const disclaimerIndex = indexSource.indexOf('messages.home.disclaimer');
+    const footerIndex = indexSource.indexOf('testID="home-sources"');
     const scrollEnd = indexSource.indexOf('</ScrollView>');
     expect(actionIndex).toBeGreaterThan(-1);
     expect(disclaimerIndex).toBeGreaterThan(actionIndex);
-    expect(scrollEnd).toBeGreaterThan(disclaimerIndex);
-    expect(indexSource.slice(disclaimerIndex, scrollEnd)).not.toMatch(/<(View|Pressable|Text)\b/);
+    expect(footerIndex).toBeGreaterThan(disclaimerIndex);
+    expect(scrollEnd).toBeGreaterThan(footerIndex);
+    // Between the disclaimer and the footer: only the footer's own opening tag.
+    const between = indexSource.slice(disclaimerIndex, footerIndex);
+    expect(between.match(/<(View|Pressable|Text)\b/g)).toEqual(['<View']);
+    expect(between).toMatch(/<View $/);
   });
 
   it('keeps the disclaimer text styling and RTL direction unchanged', () => {

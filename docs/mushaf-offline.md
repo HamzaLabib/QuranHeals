@@ -7,7 +7,7 @@ This phase is the data infrastructure only: the backend keeps the Content Sync c
 **Basis.** Quran Foundation's Content Sync resource **`mushafs:2`** (QCF V1, King Fahd Complex 1405 AH print), used under the Developer Terms and the relay arrangement confirmed with Quran Foundation:
 - Content Sync is the only path to an offline copy.
 - A copy kept on the backend or a device syncs at least every 7 days when connectivity permits, and stays usable during outages.
-- Quran Foundation is credited (`attribution` in the manifest; the credit under the page).
+- Quran Foundation is credited (`attribution` in the manifest; the sources line on Home and `/credits`).
 
 Ordinary page-layout API responses are never stored offline: that path still keeps a page for at most 7 days. No QCF V2 data is used.
 

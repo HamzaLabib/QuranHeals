@@ -1,0 +1,5212 @@
+{
+ "pages": 604,
+ "wordOccurrences": 77429,
+ "glyphs": 88444,
+ "basmalaGlyphs": 4,
+ "configurations": 104,
+ "androidMatchesIphoneBaseline": true,
+ "iphoneDropUnits": [
+  770.0,
+  1051.5
+ ],
+ "constants": {
+  "R_em": 2.4,
+  "RV_em": 0.5,
+  "margin_em": {
+   "normal": 0.25,
+   "fullScreen": 0.0
+  },
+  "liftPt": 4.0,
+  "snapPx": 1.5,
+  "antialiasPx": 1.0
+ },
+ "androidMetrics": {
+  "typoPages": [
+   1,
+   565
+  ],
+  "otherMetricsPages": {
+   "237": [
+    2327,
+    1331
+   ]
+  }
+ },
+ "worstEm": {
+  "left": [
+   0.2452,
+   "p11 l2 2:70:14"
+  ],
+  "right": [
+   0.3946,
+   "p343 l8 23:24:8"
+  ],
+  "top": [
+   -1.2402,
+   "p322 l15 21:10:6"
+  ],
+  "bottom": [
+   -0.6724,
+   "p466 l7 39:71:18"
+  ]
+ },
+ "multiGlyphWords": {
+  "count": 4579,
+  "overflowChangeEm_visualVsLeftToRight": [
+   -0.8848,
+   -0.3267,
+   0.1611
+  ]
+ },
+ "minimumPx": {
+  "left": [
+   3.69,
+   "Small Android 320x640 | cutout 52, 3-button | normal | 1.5x: p11 l2 2:70:14"
+  ],
+  "right": [
+   6.92,
+   "Small Android 320x640 | cutout 52, 3-button | normal | 1.5x: p343 l8 23:24:8"
+  ],
+  "top": [
+   10.6,
+   "Small Android 320x640 | status 24, gesture | fullScreen | 1.5x: p323 l15 21:24:20"
+  ],
+  "bottom": [
+   10.9,
+   "Small Android 320x640 | status 24, gesture | fullScreen | 1.5x: p466 l7 39:71:18"
+  ],
+  "frameTop": [
+   2.8,
+   "Small Android 320x640 | cutout 52, 3-button | normal | 1.5x: p604"
+  ],
+  "frameBottom": [
+   -6.39,
+   "Large Android 432x960 | status 24, gesture | normal | 3.333x: p560"
+  ],
+  "frameLeft": [
+   -0.53,
+   "Small Android 320x640 | cutout 52, 3-button | normal | 1.5x: p556"
+  ],
+  "frameRight": [
+   8.53,
+   "Small Android 320x640 | cutout 52, 3-button | normal | 1.5x: p319"
+  ]
+ },
+ "failureCount": 460,
+ "failuresByConfiguration": {
+  "Galaxy A-class 384x854 | cutout 36, gesture | normal | 2.5x | page 378": {
+   "frameBottom": [
+    5,
+    26,
+    142,
+    202,
+    381,
+    459,
+    467,
+    553,
+    556,
+    560
+   ]
+  },
+  "Galaxy A-class 384x854 | cutout 36, gesture | normal | 2.8125x | page 378": {
+   "frameBottom": [
+    5,
+    26,
+    142,
+    202,
+    381,
+    459,
+    553,
+    556,
+    560
+   ]
+  },
+  "Galaxy A-class 384x854 | cutout 52, 3-button | normal | 2.5x | page 378": {
+   "frameBottom": [
+    5,
+    26,
+    142,
+    202,
+    381,
+    459,
+    467,
+    553,
+    556,
+    560
+   ]
+  },
+  "Galaxy A-class 384x854 | cutout 52, 3-button | normal | 2.8125x | page 378": {
+   "frameBottom": [
+    5,
+    26,
+    142,
+    202,
+    381,
+    459,
+    553,
+    556,
+    560
+   ]
+  },
+  "Galaxy A-class 384x854 | status 24, 3-button | normal | 2.5x | page 378": {
+   "frameBottom": [
+    5,
+    26,
+    142,
+    202,
+    381,
+    459,
+    467,
+    553,
+    556,
+    560
+   ]
+  },
+  "Galaxy A-class 384x854 | status 24, 3-button | normal | 2.8125x | page 378": {
+   "frameBottom": [
+    5,
+    26,
+    142,
+    202,
+    381,
+    459,
+    553,
+    556,
+    560
+   ]
+  },
+  "Galaxy A-class 384x854 | status 24, gesture | normal | 2.5x | page 378": {
+   "frameBottom": [
+    5,
+    26,
+    142,
+    202,
+    381,
+    459,
+    467,
+    553,
+    556,
+    560
+   ]
+  },
+  "Galaxy A-class 384x854 | status 24, gesture | normal | 2.8125x | page 378": {
+   "frameBottom": [
+    5,
+    26,
+    142,
+    202,
+    381,
+    459,
+    553,
+    556,
+    560
+   ]
+  },
+  "Galaxy S-class 360x780 | cutout 36, gesture | fullScreen | 2x | page 354": {
+   "frameLeft": [
+    556
+   ]
+  },
+  "Galaxy S-class 360x780 | cutout 36, gesture | normal | 2.8125x | page 354": {
+   "frameBottom": [
+    142,
+    202,
+    381,
+    459,
+    553,
+    556,
+    560
+   ]
+  },
+  "Galaxy S-class 360x780 | cutout 36, gesture | normal | 2x | page 354": {
+   "frameBottom": [
+    5,
+    142,
+    202,
+    381,
+    459,
+    553,
+    556,
+    560
+   ],
+   "frameLeft": [
+    556
+   ]
+  },
+  "Galaxy S-class 360x780 | cutout 36, gesture | normal | 3x | page 354": {
+   "frameBottom": [
+    142,
+    202,
+    381,
+    459,
+    553,
+    556,
+    560
+   ]
+  },
+  "Galaxy S-class 360x780 | cutout 52, 3-button | fullScreen | 2x | page 354": {
+   "frameLeft": [
+    556
+   ]
+  },
+  "Galaxy S-class 360x780 | cutout 52, 3-button | normal | 2.8125x | page 338": {
+   "frameBottom": [
+    459,
+    553,
+    560
+   ]
+  },
+  "Galaxy S-class 360x780 | cutout 52, 3-button | normal | 2x | page 338": {
+   "frameBottom": [
+    142,
+    202,
+    381,
+    459,
+    553,
+    556,
+    560
+   ],
+   "frameLeft": [
+    556
+   ]
+  },
+  "Galaxy S-class 360x780 | cutout 52, 3-button | normal | 3x | page 338": {
+   "frameBottom": [
+    459,
+    553,
+    560
+   ]
+  },
+  "Galaxy S-class 360x780 | status 24, 3-button | fullScreen | 2x | page 354": {
+   "frameLeft": [
+    556
+   ]
+  },
+  "Galaxy S-class 360x780 | status 24, 3-button | normal | 2.8125x | page 354": {
+   "frameBottom": [
+    142,
+    202,
+    381,
+    459,
+    553,
+    556,
+    560
+   ]
+  },
+  "Galaxy S-class 360x780 | status 24, 3-button | normal | 2x | page 354": {
+   "frameBottom": [
+    5,
+    142,
+    202,
+    381,
+    459,
+    553,
+    556,
+    560
+   ],
+   "frameLeft": [
+    556
+   ]
+  },
+  "Galaxy S-class 360x780 | status 24, 3-button | normal | 3x | page 354": {
+   "frameBottom": [
+    142,
+    202,
+    381,
+    459,
+    553,
+    556,
+    560
+   ]
+  },
+  "Galaxy S-class 360x780 | status 24, gesture | fullScreen | 2x | page 354": {
+   "frameLeft": [
+    556
+   ]
+  },
+  "Galaxy S-class 360x780 | status 24, gesture | normal | 2.8125x | page 354": {
+   "frameBottom": [
+    142,
+    202,
+    381,
+    459,
+    553,
+    556,
+    560
+   ]
+  },
+  "Galaxy S-class 360x780 | status 24, gesture | normal | 2x | page 354": {
+   "frameBottom": [
+    5,
+    142,
+    202,
+    381,
+    459,
+    553,
+    556,
+    560
+   ],
+   "frameLeft": [
+    556
+   ]
+  },
+  "Galaxy S-class 360x780 | status 24, gesture | normal | 3x | page 354": {
+   "frameBottom": [
+    142,
+    202,
+    381,
+    459,
+    553,
+    556,
+    560
+   ]
+  },
+  "Large Android 432x960 | cutout 36, gesture | normal | 2.5x | page 426": {
+   "frameBottom": [
+    5,
+    26,
+    65,
+    142,
+    202,
+    381,
+    459,
+    467,
+    550,
+    553,
+    556,
+    560
+   ]
+  },
+  "Large Android 432x960 | cutout 36, gesture | normal | 3.333x | page 426": {
+   "frameBottom": [
+    5,
+    26,
+    65,
+    142,
+    202,
+    381,
+    459,
+    467,
+    550,
+    553,
+    556,
+    560
+   ]
+  },
+  "Large Android 432x960 | cutout 52, 3-button | normal | 2.5x | page 426": {
+   "frameBottom": [
+    5,
+    26,
+    65,
+    142,
+    202,
+    381,
+    459,
+    467,
+    550,
+    553,
+    556,
+    560
+   ]
+  },
+  "Large Android 432x960 | cutout 52, 3-button | normal | 3.333x | page 426": {
+   "frameBottom": [
+    5,
+    26,
+    65,
+    142,
+    202,
+    381,
+    459,
+    467,
+    550,
+    553,
+    556,
+    560
+   ]
+  },
+  "Large Android 432x960 | status 24, 3-button | normal | 2.5x | page 426": {
+   "frameBottom": [
+    5,
+    26,
+    65,
+    142,
+    202,
+    381,
+    459,
+    467,
+    550,
+    553,
+    556,
+    560
+   ]
+  },
+  "Large Android 432x960 | status 24, 3-button | normal | 3.333x | page 426": {
+   "frameBottom": [
+    5,
+    26,
+    65,
+    142,
+    202,
+    381,
+    459,
+    467,
+    550,
+    553,
+    556,
+    560
+   ]
+  },
+  "Large Android 432x960 | status 24, gesture | normal | 2.5x | page 426": {
+   "frameBottom": [
+    5,
+    26,
+    65,
+    142,
+    202,
+    381,
+    459,
+    467,
+    550,
+    553,
+    556,
+    560
+   ]
+  },
+  "Large Android 432x960 | status 24, gesture | normal | 3.333x | page 426": {
+   "frameBottom": [
+    5,
+    26,
+    65,
+    142,
+    202,
+    381,
+    459,
+    467,
+    550,
+    553,
+    556,
+    560
+   ]
+  },
+  "Pixel 412x915 | cutout 36, gesture | normal | 2.625x | page 406": {
+   "frameBottom": [
+    5,
+    26,
+    65,
+    142,
+    202,
+    381,
+    459,
+    467,
+    550,
+    553,
+    556,
+    560
+   ]
+  },
+  "Pixel 412x915 | cutout 36, gesture | normal | 3.5x | page 406": {
+   "frameBottom": [
+    5,
+    26,
+    142,
+    202,
+    381,
+    459,
+    467,
+    550,
+    553,
+    556,
+    560
+   ]
+  },
+  "Pixel 412x915 | cutout 52, 3-button | normal | 2.625x | page 406": {
+   "frameBottom": [
+    5,
+    26,
+    65,
+    142,
+    202,
+    381,
+    459,
+    467,
+    550,
+    553,
+    556,
+    560
+   ]
+  },
+  "Pixel 412x915 | cutout 52, 3-button | normal | 3.5x | page 406": {
+   "frameBottom": [
+    5,
+    26,
+    142,
+    202,
+    381,
+    459,
+    467,
+    550,
+    553,
+    556,
+    560
+   ]
+  },
+  "Pixel 412x915 | status 24, 3-button | normal | 2.625x | page 406": {
+   "frameBottom": [
+    5,
+    26,
+    65,
+    142,
+    202,
+    381,
+    459,
+    467,
+    550,
+    553,
+    556,
+    560
+   ]
+  },
+  "Pixel 412x915 | status 24, 3-button | normal | 3.5x | page 406": {
+   "frameBottom": [
+    5,
+    26,
+    142,
+    202,
+    381,
+    459,
+    467,
+    550,
+    553,
+    556,
+    560
+   ]
+  },
+  "Pixel 412x915 | status 24, gesture | normal | 2.625x | page 406": {
+   "frameBottom": [
+    5,
+    26,
+    65,
+    142,
+    202,
+    381,
+    459,
+    467,
+    550,
+    553,
+    556,
+    560
+   ]
+  },
+  "Pixel 412x915 | status 24, gesture | normal | 3.5x | page 406": {
+   "frameBottom": [
+    5,
+    26,
+    142,
+    202,
+    381,
+    459,
+    467,
+    550,
+    553,
+    556,
+    560
+   ]
+  },
+  "Pixel-class 393x852 | cutout 36, gesture | normal | 2.75x | page 387": {
+   "frameBottom": [
+    5,
+    26,
+    142,
+    202,
+    381,
+    459,
+    467,
+    553,
+    556,
+    560
+   ]
+  },
+  "Pixel-class 393x852 | cutout 36, gesture | normal | 3x | page 387": {
+   "frameBottom": [
+    5,
+    26,
+    142,
+    202,
+    381,
+    459,
+    467,
+    553,
+    556,
+    560
+   ]
+  },
+  "Pixel-class 393x852 | cutout 52, 3-button | normal | 2.75x | page 382": {
+   "frameBottom": [
+    5,
+    26,
+    142,
+    202,
+    381,
+    459,
+    467,
+    553,
+    556,
+    560
+   ]
+  },
+  "Pixel-class 393x852 | cutout 52, 3-button | normal | 3x | page 382": {
+   "frameBottom": [
+    5,
+    26,
+    142,
+    202,
+    381,
+    459,
+    553,
+    556,
+    560
+   ]
+  },
+  "Pixel-class 393x852 | status 24, 3-button | normal | 2.75x | page 387": {
+   "frameBottom": [
+    5,
+    26,
+    142,
+    202,
+    381,
+    459,
+    467,
+    553,
+    556,
+    560
+   ]
+  },
+  "Pixel-class 393x852 | status 24, 3-button | normal | 3x | page 387": {
+   "frameBottom": [
+    5,
+    26,
+    142,
+    202,
+    381,
+    459,
+    467,
+    553,
+    556,
+    560
+   ]
+  },
+  "Pixel-class 393x852 | status 24, gesture | normal | 2.75x | page 387": {
+   "frameBottom": [
+    5,
+    26,
+    142,
+    202,
+    381,
+    459,
+    467,
+    553,
+    556,
+    560
+   ]
+  },
+  "Pixel-class 393x852 | status 24, gesture | normal | 3x | page 387": {
+   "frameBottom": [
+    5,
+    26,
+    142,
+    202,
+    381,
+    459,
+    467,
+    553,
+    556,
+    560
+   ]
+  },
+  "Small Android 320x640 | cutout 36, gesture | fullScreen | 1.5x | page 314": {
+   "frameLeft": [
+    556
+   ]
+  },
+  "Small Android 320x640 | cutout 36, gesture | fullScreen | 2x | page 314": {
+   "frameLeft": [
+    556
+   ]
+  },
+  "Small Android 320x640 | cutout 36, gesture | normal | 1.5x | page 275": {
+   "frameBottom": [
+    560
+   ],
+   "frameLeft": [
+    556
+   ]
+  },
+  "Small Android 320x640 | cutout 36, gesture | normal | 2x | page 275": {
+   "frameBottom": [
+    560
+   ],
+   "frameLeft": [
+    556
+   ]
+  },
+  "Small Android 320x640 | cutout 52, 3-button | fullScreen | 1.5x | page 310": {
+   "frameBottom": [
+    459,
+    553,
+    560
+   ],
+   "frameLeft": [
+    556
+   ]
+  },
+  "Small Android 320x640 | cutout 52, 3-button | fullScreen | 2x | page 310": {
+   "frameBottom": [
+    553,
+    560
+   ],
+   "frameLeft": [
+    556
+   ]
+  },
+  "Small Android 320x640 | cutout 52, 3-button | normal | 1.5x | page 251": {
+   "frameLeft": [
+    556
+   ]
+  },
+  "Small Android 320x640 | cutout 52, 3-button | normal | 2x | page 251": {
+   "frameLeft": [
+    556
+   ]
+  },
+  "Small Android 320x640 | status 24, 3-button | fullScreen | 1.5x | page 314": {
+   "frameBottom": [
+    560
+   ],
+   "frameLeft": [
+    556
+   ]
+  },
+  "Small Android 320x640 | status 24, 3-button | fullScreen | 2x | page 314": {
+   "frameBottom": [
+    560
+   ],
+   "frameLeft": [
+    556
+   ]
+  },
+  "Small Android 320x640 | status 24, 3-button | normal | 1.5x | page 268": {
+   "frameBottom": [
+    560
+   ],
+   "frameLeft": [
+    556
+   ]
+  },
+  "Small Android 320x640 | status 24, 3-button | normal | 2x | page 268": {
+   "frameBottom": [
+    560
+   ],
+   "frameLeft": [
+    556
+   ]
+  },
+  "Small Android 320x640 | status 24, gesture | fullScreen | 1.5x | page 314": {
+   "frameLeft": [
+    556
+   ]
+  },
+  "Small Android 320x640 | status 24, gesture | fullScreen | 2x | page 314": {
+   "frameLeft": [
+    556
+   ]
+  },
+  "Small Android 320x640 | status 24, gesture | normal | 1.5x | page 283": {
+   "frameBottom": [
+    553,
+    560
+   ],
+   "frameLeft": [
+    556
+   ]
+  },
+  "Small Android 320x640 | status 24, gesture | normal | 2x | page 283": {
+   "frameBottom": [
+    560
+   ],
+   "frameLeft": [
+    556
+   ]
+  }
+ },
+ "configurationsDetail": [
+  {
+   "screen": "Small Android 320x640",
+   "bars": "status 24, gesture",
+   "density": 2,
+   "mode": "normal",
+   "pageWidth": 283,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     6.3,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     11.16,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     21.47,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     21.99,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     5.73,
+     "p604"
+    ],
+    "frameBottom": [
+     -0.46,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.3,
+     "p556"
+    ],
+    "frameRight": [
+     13.33,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Small Android 320x640",
+   "bars": "status 24, gesture",
+   "density": 2,
+   "mode": "fullScreen",
+   "pageWidth": 314,
+   "tilesDown": 31,
+   "minPx": {
+    "left": [
+     7.15,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     12.55,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     16.04,
+     "p322 l15 21:10:6"
+    ],
+    "bottom": [
+     15.37,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     9.44,
+     "p604"
+    ],
+    "frameBottom": [
+     0.81,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.22,
+     "p556"
+    ],
+    "frameRight": [
+     14.9,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Small Android 320x640",
+   "bars": "status 24, gesture",
+   "density": 1.5,
+   "mode": "normal",
+   "pageWidth": 283,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     4.35,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     8.0,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     16.22,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     16.37,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     4.05,
+     "p604"
+    ],
+    "frameBottom": [
+     -0.6,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.47,
+     "p556"
+    ],
+    "frameRight": [
+     9.75,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Small Android 320x640",
+   "bars": "status 24, gesture",
+   "density": 1.5,
+   "mode": "fullScreen",
+   "pageWidth": 314,
+   "tilesDown": 31,
+   "minPx": {
+    "left": [
+     4.99,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     9.04,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     10.6,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     10.9,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     6.83,
+     "p604"
+    ],
+    "frameBottom": [
+     0.36,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.41,
+     "p556"
+    ],
+    "frameRight": [
+     10.93,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Small Android 320x640",
+   "bars": "status 24, 3-button",
+   "density": 2,
+   "mode": "normal",
+   "pageWidth": 268,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     5.88,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     10.49,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     20.26,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     20.86,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     4.95,
+     "p604"
+    ],
+    "frameBottom": [
+     -0.07,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.33,
+     "p556"
+    ],
+    "frameRight": [
+     12.57,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Small Android 320x640",
+   "bars": "status 24, 3-button",
+   "density": 2,
+   "mode": "fullScreen",
+   "pageWidth": 314,
+   "tilesDown": 30,
+   "minPx": {
+    "left": [
+     7.15,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     12.55,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     16.04,
+     "p322 l15 21:10:6"
+    ],
+    "bottom": [
+     15.37,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     8.39,
+     "p604"
+    ],
+    "frameBottom": [
+     -0.23,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.22,
+     "p556"
+    ],
+    "frameRight": [
+     14.9,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Small Android 320x640",
+   "bars": "status 24, 3-button",
+   "density": 1.5,
+   "mode": "normal",
+   "pageWidth": 268,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     4.04,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     7.49,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     14.82,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     15.27,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     3.46,
+     "p604"
+    ],
+    "frameBottom": [
+     -0.3,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.5,
+     "p556"
+    ],
+    "frameRight": [
+     9.18,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Small Android 320x640",
+   "bars": "status 24, 3-button",
+   "density": 1.5,
+   "mode": "fullScreen",
+   "pageWidth": 314,
+   "tilesDown": 30,
+   "minPx": {
+    "left": [
+     4.99,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     9.04,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     10.6,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     10.9,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     6.05,
+     "p604"
+    ],
+    "frameBottom": [
+     -0.43,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.41,
+     "p556"
+    ],
+    "frameRight": [
+     10.93,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Small Android 320x640",
+   "bars": "cutout 36, gesture",
+   "density": 2,
+   "mode": "normal",
+   "pageWidth": 275,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     6.07,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     10.81,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     20.89,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     20.92,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     5.32,
+     "p604"
+    ],
+    "frameBottom": [
+     -0.25,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.32,
+     "p556"
+    ],
+    "frameRight": [
+     12.93,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Small Android 320x640",
+   "bars": "cutout 36, gesture",
+   "density": 2,
+   "mode": "fullScreen",
+   "pageWidth": 314,
+   "tilesDown": 31,
+   "minPx": {
+    "left": [
+     7.15,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     12.55,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     16.04,
+     "p322 l15 21:10:6"
+    ],
+    "bottom": [
+     15.37,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     9.44,
+     "p604"
+    ],
+    "frameBottom": [
+     0.81,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.22,
+     "p556"
+    ],
+    "frameRight": [
+     14.9,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Small Android 320x640",
+   "bars": "cutout 36, gesture",
+   "density": 1.5,
+   "mode": "normal",
+   "pageWidth": 275,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     4.18,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     7.73,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     14.54,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     15.31,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     3.74,
+     "p604"
+    ],
+    "frameBottom": [
+     -0.44,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.49,
+     "p556"
+    ],
+    "frameRight": [
+     9.45,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Small Android 320x640",
+   "bars": "cutout 36, gesture",
+   "density": 1.5,
+   "mode": "fullScreen",
+   "pageWidth": 314,
+   "tilesDown": 31,
+   "minPx": {
+    "left": [
+     4.99,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     9.04,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     10.6,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     10.9,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     6.83,
+     "p604"
+    ],
+    "frameBottom": [
+     0.36,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.41,
+     "p556"
+    ],
+    "frameRight": [
+     10.93,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Small Android 320x640",
+   "bars": "cutout 52, 3-button",
+   "density": 2,
+   "mode": "normal",
+   "pageWidth": 251,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     5.41,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     9.73,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     19.17,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     19.51,
+     "p419 l1 33:7:9"
+    ],
+    "frameTop": [
+     4.07,
+     "p604"
+    ],
+    "frameBottom": [
+     0.38,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.38,
+     "p556"
+    ],
+    "frameRight": [
+     11.71,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Small Android 320x640",
+   "bars": "cutout 52, 3-button",
+   "density": 2,
+   "mode": "fullScreen",
+   "pageWidth": 310,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     7.04,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     12.37,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     15.62,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     15.45,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     7.14,
+     "p604"
+    ],
+    "frameBottom": [
+     -1.18,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.23,
+     "p556"
+    ],
+    "frameRight": [
+     14.7,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Small Android 320x640",
+   "bars": "cutout 52, 3-button",
+   "density": 1.5,
+   "mode": "normal",
+   "pageWidth": 251,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     3.69,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     6.92,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     14.5,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     14.15,
+     "p338 l6 22:51:8"
+    ],
+    "frameTop": [
+     2.8,
+     "p604"
+    ],
+    "frameBottom": [
+     0.04,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.53,
+     "p556"
+    ],
+    "frameRight": [
+     8.53,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Small Android 320x640",
+   "bars": "cutout 52, 3-button",
+   "density": 1.5,
+   "mode": "fullScreen",
+   "pageWidth": 310,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     4.9,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     8.9,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     11.84,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     10.96,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     5.1,
+     "p604"
+    ],
+    "frameBottom": [
+     -1.13,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.42,
+     "p556"
+    ],
+    "frameRight": [
+     10.78,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "status 24, gesture",
+   "density": 3,
+   "mode": "normal",
+   "pageWidth": 354,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     13.13,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.26,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     42.29,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     43.17,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     14.65,
+     "p604"
+    ],
+    "frameBottom": [
+     -3.0,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.89,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "status 24, gesture",
+   "density": 3,
+   "mode": "fullScreen",
+   "pageWidth": 354,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     13.13,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.26,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.88,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     28.14,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     25.27,
+     "p604"
+    ],
+    "frameBottom": [
+     7.62,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.89,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "status 24, gesture",
+   "density": 2.8125,
+   "mode": "normal",
+   "pageWidth": 354,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     12.21,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     20.77,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     39.05,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     39.88,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     13.67,
+     "p604"
+    ],
+    "frameBottom": [
+     -2.88,
+     "p560"
+    ],
+    "frameLeft": [
+     0.24,
+     "p556"
+    ],
+    "frameRight": [
+     24.21,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "status 24, gesture",
+   "density": 2.8125,
+   "mode": "fullScreen",
+   "pageWidth": 354,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     12.21,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     20.77,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     25.54,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     25.78,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     23.62,
+     "p604"
+    ],
+    "frameBottom": [
+     7.08,
+     "p560"
+    ],
+    "frameLeft": [
+     0.24,
+     "p556"
+    ],
+    "frameRight": [
+     24.21,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "status 24, gesture",
+   "density": 2,
+   "mode": "normal",
+   "pageWidth": 354,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     8.25,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     14.34,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.69,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     27.61,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     9.43,
+     "p604"
+    ],
+    "frameBottom": [
+     -2.34,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.12,
+     "p556"
+    ],
+    "frameRight": [
+     16.93,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "status 24, gesture",
+   "density": 2,
+   "mode": "fullScreen",
+   "pageWidth": 354,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     8.25,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     14.34,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     18.08,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     17.59,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     16.51,
+     "p604"
+    ],
+    "frameBottom": [
+     4.74,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.12,
+     "p556"
+    ],
+    "frameRight": [
+     16.93,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "status 24, 3-button",
+   "density": 3,
+   "mode": "normal",
+   "pageWidth": 354,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     13.13,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.26,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     42.29,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     43.17,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     14.65,
+     "p604"
+    ],
+    "frameBottom": [
+     -3.0,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.89,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "status 24, 3-button",
+   "density": 3,
+   "mode": "fullScreen",
+   "pageWidth": 354,
+   "tilesDown": 34,
+   "minPx": {
+    "left": [
+     13.13,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.26,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.88,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     28.14,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     23.5,
+     "p604"
+    ],
+    "frameBottom": [
+     5.85,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.89,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "status 24, 3-button",
+   "density": 2.8125,
+   "mode": "normal",
+   "pageWidth": 354,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     12.21,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     20.77,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     39.05,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     39.88,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     13.67,
+     "p604"
+    ],
+    "frameBottom": [
+     -2.88,
+     "p560"
+    ],
+    "frameLeft": [
+     0.24,
+     "p556"
+    ],
+    "frameRight": [
+     24.21,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "status 24, 3-button",
+   "density": 2.8125,
+   "mode": "fullScreen",
+   "pageWidth": 354,
+   "tilesDown": 34,
+   "minPx": {
+    "left": [
+     12.21,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     20.77,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     25.54,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     25.78,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     21.97,
+     "p604"
+    ],
+    "frameBottom": [
+     5.42,
+     "p560"
+    ],
+    "frameLeft": [
+     0.24,
+     "p556"
+    ],
+    "frameRight": [
+     24.21,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "status 24, 3-button",
+   "density": 2,
+   "mode": "normal",
+   "pageWidth": 354,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     8.25,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     14.34,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.69,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     27.61,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     9.43,
+     "p604"
+    ],
+    "frameBottom": [
+     -2.34,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.12,
+     "p556"
+    ],
+    "frameRight": [
+     16.93,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "status 24, 3-button",
+   "density": 2,
+   "mode": "fullScreen",
+   "pageWidth": 354,
+   "tilesDown": 34,
+   "minPx": {
+    "left": [
+     8.25,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     14.34,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     18.08,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     17.59,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     15.33,
+     "p604"
+    ],
+    "frameBottom": [
+     3.56,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.12,
+     "p556"
+    ],
+    "frameRight": [
+     16.93,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "cutout 36, gesture",
+   "density": 3,
+   "mode": "normal",
+   "pageWidth": 354,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     13.13,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.26,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     42.29,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     43.17,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     14.65,
+     "p604"
+    ],
+    "frameBottom": [
+     -3.0,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.89,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "cutout 36, gesture",
+   "density": 3,
+   "mode": "fullScreen",
+   "pageWidth": 354,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     13.13,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.26,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.88,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     28.14,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     25.27,
+     "p604"
+    ],
+    "frameBottom": [
+     7.62,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.89,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "cutout 36, gesture",
+   "density": 2.8125,
+   "mode": "normal",
+   "pageWidth": 354,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     12.21,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     20.77,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     39.05,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     39.88,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     13.67,
+     "p604"
+    ],
+    "frameBottom": [
+     -2.88,
+     "p560"
+    ],
+    "frameLeft": [
+     0.24,
+     "p556"
+    ],
+    "frameRight": [
+     24.21,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "cutout 36, gesture",
+   "density": 2.8125,
+   "mode": "fullScreen",
+   "pageWidth": 354,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     12.21,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     20.77,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     25.54,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     25.78,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     23.62,
+     "p604"
+    ],
+    "frameBottom": [
+     7.08,
+     "p560"
+    ],
+    "frameLeft": [
+     0.24,
+     "p556"
+    ],
+    "frameRight": [
+     24.21,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "cutout 36, gesture",
+   "density": 2,
+   "mode": "normal",
+   "pageWidth": 354,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     8.25,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     14.34,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.69,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     27.61,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     9.43,
+     "p604"
+    ],
+    "frameBottom": [
+     -2.34,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.12,
+     "p556"
+    ],
+    "frameRight": [
+     16.93,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "cutout 36, gesture",
+   "density": 2,
+   "mode": "fullScreen",
+   "pageWidth": 354,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     8.25,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     14.34,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     18.08,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     17.59,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     16.51,
+     "p604"
+    ],
+    "frameBottom": [
+     4.74,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.12,
+     "p556"
+    ],
+    "frameRight": [
+     16.93,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "cutout 52, 3-button",
+   "density": 3,
+   "mode": "normal",
+   "pageWidth": 338,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     12.47,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     21.19,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     39.57,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     40.96,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     13.4,
+     "p604"
+    ],
+    "frameBottom": [
+     -2.37,
+     "p560"
+    ],
+    "frameLeft": [
+     0.26,
+     "p556"
+    ],
+    "frameRight": [
+     24.68,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "cutout 52, 3-button",
+   "density": 3,
+   "mode": "fullScreen",
+   "pageWidth": 354,
+   "tilesDown": 32,
+   "minPx": {
+    "left": [
+     13.13,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.26,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.88,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     28.14,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     19.96,
+     "p604"
+    ],
+    "frameBottom": [
+     2.31,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.89,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "cutout 52, 3-button",
+   "density": 2.8125,
+   "mode": "normal",
+   "pageWidth": 338,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     11.59,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     19.77,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     37.25,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     38.68,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     12.5,
+     "p604"
+    ],
+    "frameBottom": [
+     -2.28,
+     "p560"
+    ],
+    "frameLeft": [
+     0.18,
+     "p556"
+    ],
+    "frameRight": [
+     23.07,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "cutout 52, 3-button",
+   "density": 2.8125,
+   "mode": "fullScreen",
+   "pageWidth": 354,
+   "tilesDown": 32,
+   "minPx": {
+    "left": [
+     12.21,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     20.77,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     25.54,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     25.78,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     18.65,
+     "p604"
+    ],
+    "frameBottom": [
+     2.1,
+     "p560"
+    ],
+    "frameLeft": [
+     0.24,
+     "p556"
+    ],
+    "frameRight": [
+     24.21,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "cutout 52, 3-button",
+   "density": 2,
+   "mode": "normal",
+   "pageWidth": 338,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     7.81,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     13.62,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     26.54,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     26.47,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     8.6,
+     "p604"
+    ],
+    "frameBottom": [
+     -1.91,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.16,
+     "p556"
+    ],
+    "frameRight": [
+     16.12,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy S-class 360x780",
+   "bars": "cutout 52, 3-button",
+   "density": 2,
+   "mode": "fullScreen",
+   "pageWidth": 354,
+   "tilesDown": 32,
+   "minPx": {
+    "left": [
+     8.25,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     14.34,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     18.08,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     17.59,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     12.97,
+     "p604"
+    ],
+    "frameBottom": [
+     1.2,
+     "p560"
+    ],
+    "frameLeft": [
+     -0.12,
+     "p556"
+    ],
+    "frameRight": [
+     16.93,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy A-class 384x854",
+   "bars": "status 24, gesture",
+   "density": 2.8125,
+   "mode": "normal",
+   "pageWidth": 378,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     13.14,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.29,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     42.26,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     43.17,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     15.43,
+     "p604"
+    ],
+    "frameBottom": [
+     -3.77,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.92,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy A-class 384x854",
+   "bars": "status 24, gesture",
+   "density": 2.8125,
+   "mode": "fullScreen",
+   "pageWidth": 378,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     13.14,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.29,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.83,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     28.13,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     26.06,
+     "p604"
+    ],
+    "frameBottom": [
+     6.86,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.92,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy A-class 384x854",
+   "bars": "status 24, gesture",
+   "density": 2.5,
+   "mode": "normal",
+   "pageWidth": 378,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     11.51,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     19.64,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     37.4,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     37.65,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     13.6,
+     "p604"
+    ],
+    "frameBottom": [
+     -3.46,
+     "p560"
+    ],
+    "frameLeft": [
+     0.17,
+     "p556"
+    ],
+    "frameRight": [
+     22.93,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy A-class 384x854",
+   "bars": "status 24, gesture",
+   "density": 2.5,
+   "mode": "fullScreen",
+   "pageWidth": 378,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     11.51,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     19.64,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     24.57,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     24.28,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     23.05,
+     "p604"
+    ],
+    "frameBottom": [
+     5.99,
+     "p560"
+    ],
+    "frameLeft": [
+     0.17,
+     "p556"
+    ],
+    "frameRight": [
+     22.93,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy A-class 384x854",
+   "bars": "status 24, 3-button",
+   "density": 2.8125,
+   "mode": "normal",
+   "pageWidth": 378,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     13.14,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.29,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     42.26,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     43.17,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     15.43,
+     "p604"
+    ],
+    "frameBottom": [
+     -3.77,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.92,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy A-class 384x854",
+   "bars": "status 24, 3-button",
+   "density": 2.8125,
+   "mode": "fullScreen",
+   "pageWidth": 378,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     13.14,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.29,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.83,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     28.13,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     26.06,
+     "p604"
+    ],
+    "frameBottom": [
+     6.86,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.92,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy A-class 384x854",
+   "bars": "status 24, 3-button",
+   "density": 2.5,
+   "mode": "normal",
+   "pageWidth": 378,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     11.51,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     19.64,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     37.4,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     37.65,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     13.6,
+     "p604"
+    ],
+    "frameBottom": [
+     -3.46,
+     "p560"
+    ],
+    "frameLeft": [
+     0.17,
+     "p556"
+    ],
+    "frameRight": [
+     22.93,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy A-class 384x854",
+   "bars": "status 24, 3-button",
+   "density": 2.5,
+   "mode": "fullScreen",
+   "pageWidth": 378,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     11.51,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     19.64,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     24.57,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     24.28,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     23.05,
+     "p604"
+    ],
+    "frameBottom": [
+     5.99,
+     "p560"
+    ],
+    "frameLeft": [
+     0.17,
+     "p556"
+    ],
+    "frameRight": [
+     22.93,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy A-class 384x854",
+   "bars": "cutout 36, gesture",
+   "density": 2.8125,
+   "mode": "normal",
+   "pageWidth": 378,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     13.14,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.29,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     42.26,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     43.17,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     15.43,
+     "p604"
+    ],
+    "frameBottom": [
+     -3.77,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.92,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy A-class 384x854",
+   "bars": "cutout 36, gesture",
+   "density": 2.8125,
+   "mode": "fullScreen",
+   "pageWidth": 378,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     13.14,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.29,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.83,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     28.13,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     26.06,
+     "p604"
+    ],
+    "frameBottom": [
+     6.86,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.92,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy A-class 384x854",
+   "bars": "cutout 36, gesture",
+   "density": 2.5,
+   "mode": "normal",
+   "pageWidth": 378,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     11.51,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     19.64,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     37.4,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     37.65,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     13.6,
+     "p604"
+    ],
+    "frameBottom": [
+     -3.46,
+     "p560"
+    ],
+    "frameLeft": [
+     0.17,
+     "p556"
+    ],
+    "frameRight": [
+     22.93,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy A-class 384x854",
+   "bars": "cutout 36, gesture",
+   "density": 2.5,
+   "mode": "fullScreen",
+   "pageWidth": 378,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     11.51,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     19.64,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     24.57,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     24.28,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     23.05,
+     "p604"
+    ],
+    "frameBottom": [
+     5.99,
+     "p560"
+    ],
+    "frameLeft": [
+     0.17,
+     "p556"
+    ],
+    "frameRight": [
+     22.93,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy A-class 384x854",
+   "bars": "cutout 52, 3-button",
+   "density": 2.8125,
+   "mode": "normal",
+   "pageWidth": 378,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     13.14,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.29,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     42.26,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     43.17,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     15.43,
+     "p604"
+    ],
+    "frameBottom": [
+     -3.77,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.92,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy A-class 384x854",
+   "bars": "cutout 52, 3-button",
+   "density": 2.8125,
+   "mode": "fullScreen",
+   "pageWidth": 378,
+   "tilesDown": 34,
+   "minPx": {
+    "left": [
+     13.14,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.29,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.83,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     28.13,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     24.28,
+     "p604"
+    ],
+    "frameBottom": [
+     5.09,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.92,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy A-class 384x854",
+   "bars": "cutout 52, 3-button",
+   "density": 2.5,
+   "mode": "normal",
+   "pageWidth": 378,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     11.51,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     19.64,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     37.4,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     37.65,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     13.6,
+     "p604"
+    ],
+    "frameBottom": [
+     -3.46,
+     "p560"
+    ],
+    "frameLeft": [
+     0.17,
+     "p556"
+    ],
+    "frameRight": [
+     22.93,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Galaxy A-class 384x854",
+   "bars": "cutout 52, 3-button",
+   "density": 2.5,
+   "mode": "fullScreen",
+   "pageWidth": 378,
+   "tilesDown": 34,
+   "minPx": {
+    "left": [
+     11.51,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     19.64,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     24.57,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     24.28,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     21.48,
+     "p604"
+    ],
+    "frameBottom": [
+     4.41,
+     "p560"
+    ],
+    "frameLeft": [
+     0.17,
+     "p556"
+    ],
+    "frameRight": [
+     22.93,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel-class 393x852",
+   "bars": "status 24, gesture",
+   "density": 2.75,
+   "mode": "normal",
+   "pageWidth": 387,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     13.16,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.31,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     42.23,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     43.18,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     15.7,
+     "p604"
+    ],
+    "frameBottom": [
+     -4.03,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.95,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel-class 393x852",
+   "bars": "status 24, gesture",
+   "density": 2.75,
+   "mode": "fullScreen",
+   "pageWidth": 387,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     13.16,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.31,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.79,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     28.11,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     26.35,
+     "p604"
+    ],
+    "frameBottom": [
+     6.61,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.95,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel-class 393x852",
+   "bars": "status 24, gesture",
+   "density": 3,
+   "mode": "normal",
+   "pageWidth": 387,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     14.49,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     24.47,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     45.66,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     47.6,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     17.22,
+     "p604"
+    ],
+    "frameBottom": [
+     -4.31,
+     "p560"
+    ],
+    "frameLeft": [
+     0.44,
+     "p556"
+    ],
+    "frameRight": [
+     28.4,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel-class 393x852",
+   "bars": "status 24, gesture",
+   "density": 3,
+   "mode": "fullScreen",
+   "pageWidth": 387,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     14.49,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     24.47,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     29.9,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     31.17,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     28.83,
+     "p604"
+    ],
+    "frameBottom": [
+     7.3,
+     "p560"
+    ],
+    "frameLeft": [
+     0.44,
+     "p556"
+    ],
+    "frameRight": [
+     28.4,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel-class 393x852",
+   "bars": "status 24, 3-button",
+   "density": 2.75,
+   "mode": "normal",
+   "pageWidth": 387,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     13.16,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.31,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     42.23,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     43.18,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     15.7,
+     "p604"
+    ],
+    "frameBottom": [
+     -4.03,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.95,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel-class 393x852",
+   "bars": "status 24, 3-button",
+   "density": 2.75,
+   "mode": "fullScreen",
+   "pageWidth": 387,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     13.16,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.31,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.79,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     28.11,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     26.35,
+     "p604"
+    ],
+    "frameBottom": [
+     6.61,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.95,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel-class 393x852",
+   "bars": "status 24, 3-button",
+   "density": 3,
+   "mode": "normal",
+   "pageWidth": 387,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     14.49,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     24.47,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     45.66,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     47.6,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     17.22,
+     "p604"
+    ],
+    "frameBottom": [
+     -4.31,
+     "p560"
+    ],
+    "frameLeft": [
+     0.44,
+     "p556"
+    ],
+    "frameRight": [
+     28.4,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel-class 393x852",
+   "bars": "status 24, 3-button",
+   "density": 3,
+   "mode": "fullScreen",
+   "pageWidth": 387,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     14.49,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     24.47,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     29.9,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     31.17,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     28.83,
+     "p604"
+    ],
+    "frameBottom": [
+     7.3,
+     "p560"
+    ],
+    "frameLeft": [
+     0.44,
+     "p556"
+    ],
+    "frameRight": [
+     28.4,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel-class 393x852",
+   "bars": "cutout 36, gesture",
+   "density": 2.75,
+   "mode": "normal",
+   "pageWidth": 387,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     13.16,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.31,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     42.23,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     43.18,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     15.7,
+     "p604"
+    ],
+    "frameBottom": [
+     -4.03,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.95,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel-class 393x852",
+   "bars": "cutout 36, gesture",
+   "density": 2.75,
+   "mode": "fullScreen",
+   "pageWidth": 387,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     13.16,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.31,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.79,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     28.11,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     26.35,
+     "p604"
+    ],
+    "frameBottom": [
+     6.61,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.95,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel-class 393x852",
+   "bars": "cutout 36, gesture",
+   "density": 3,
+   "mode": "normal",
+   "pageWidth": 387,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     14.49,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     24.47,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     45.66,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     47.6,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     17.22,
+     "p604"
+    ],
+    "frameBottom": [
+     -4.31,
+     "p560"
+    ],
+    "frameLeft": [
+     0.44,
+     "p556"
+    ],
+    "frameRight": [
+     28.4,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel-class 393x852",
+   "bars": "cutout 36, gesture",
+   "density": 3,
+   "mode": "fullScreen",
+   "pageWidth": 387,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     14.49,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     24.47,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     29.9,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     31.17,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     28.83,
+     "p604"
+    ],
+    "frameBottom": [
+     7.3,
+     "p560"
+    ],
+    "frameLeft": [
+     0.44,
+     "p556"
+    ],
+    "frameRight": [
+     28.4,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel-class 393x852",
+   "bars": "cutout 52, 3-button",
+   "density": 2.75,
+   "mode": "normal",
+   "pageWidth": 382,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     12.97,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.0,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     41.6,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     43.12,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     15.35,
+     "p604"
+    ],
+    "frameBottom": [
+     -3.85,
+     "p560"
+    ],
+    "frameLeft": [
+     0.31,
+     "p556"
+    ],
+    "frameRight": [
+     25.6,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel-class 393x852",
+   "bars": "cutout 52, 3-button",
+   "density": 2.75,
+   "mode": "fullScreen",
+   "pageWidth": 387,
+   "tilesDown": 33,
+   "minPx": {
+    "left": [
+     13.16,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.31,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.79,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     28.11,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     22.8,
+     "p604"
+    ],
+    "frameBottom": [
+     3.06,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.95,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel-class 393x852",
+   "bars": "cutout 52, 3-button",
+   "density": 3,
+   "mode": "normal",
+   "pageWidth": 382,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     14.28,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     24.14,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     46.06,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     46.54,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     16.83,
+     "p604"
+    ],
+    "frameBottom": [
+     -4.11,
+     "p560"
+    ],
+    "frameLeft": [
+     0.42,
+     "p556"
+    ],
+    "frameRight": [
+     28.02,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel-class 393x852",
+   "bars": "cutout 52, 3-button",
+   "density": 3,
+   "mode": "fullScreen",
+   "pageWidth": 387,
+   "tilesDown": 33,
+   "minPx": {
+    "left": [
+     14.49,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     24.47,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     29.9,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     31.17,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     24.96,
+     "p604"
+    ],
+    "frameBottom": [
+     3.43,
+     "p560"
+    ],
+    "frameLeft": [
+     0.44,
+     "p556"
+    ],
+    "frameRight": [
+     28.4,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel 412x915",
+   "bars": "status 24, gesture",
+   "density": 2.625,
+   "mode": "normal",
+   "pageWidth": 406,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     13.18,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.34,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     42.19,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     43.18,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     16.24,
+     "p604"
+    ],
+    "frameBottom": [
+     -4.55,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.99,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel 412x915",
+   "bars": "status 24, gesture",
+   "density": 2.625,
+   "mode": "fullScreen",
+   "pageWidth": 406,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     13.18,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.34,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.73,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     28.1,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     26.9,
+     "p604"
+    ],
+    "frameBottom": [
+     6.1,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.99,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel 412x915",
+   "bars": "status 24, gesture",
+   "density": 3.5,
+   "mode": "normal",
+   "pageWidth": 406,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     18.07,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     30.29,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     56.75,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     58.75,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     21.99,
+     "p604"
+    ],
+    "frameBottom": [
+     -5.74,
+     "p560"
+    ],
+    "frameLeft": [
+     0.77,
+     "p556"
+    ],
+    "frameRight": [
+     34.98,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel 412x915",
+   "bars": "status 24, gesture",
+   "density": 3.5,
+   "mode": "fullScreen",
+   "pageWidth": 406,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     18.07,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     30.29,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     37.47,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     38.63,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     36.2,
+     "p604"
+    ],
+    "frameBottom": [
+     8.47,
+     "p560"
+    ],
+    "frameLeft": [
+     0.77,
+     "p556"
+    ],
+    "frameRight": [
+     34.98,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel 412x915",
+   "bars": "status 24, 3-button",
+   "density": 2.625,
+   "mode": "normal",
+   "pageWidth": 406,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     13.18,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.34,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     42.19,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     43.18,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     16.24,
+     "p604"
+    ],
+    "frameBottom": [
+     -4.55,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.99,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel 412x915",
+   "bars": "status 24, 3-button",
+   "density": 2.625,
+   "mode": "fullScreen",
+   "pageWidth": 406,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     13.18,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.34,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.73,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     28.1,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     26.9,
+     "p604"
+    ],
+    "frameBottom": [
+     6.1,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.99,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel 412x915",
+   "bars": "status 24, 3-button",
+   "density": 3.5,
+   "mode": "normal",
+   "pageWidth": 406,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     18.07,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     30.29,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     56.75,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     58.75,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     21.99,
+     "p604"
+    ],
+    "frameBottom": [
+     -5.74,
+     "p560"
+    ],
+    "frameLeft": [
+     0.77,
+     "p556"
+    ],
+    "frameRight": [
+     34.98,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel 412x915",
+   "bars": "status 24, 3-button",
+   "density": 3.5,
+   "mode": "fullScreen",
+   "pageWidth": 406,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     18.07,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     30.29,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     37.47,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     38.63,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     36.2,
+     "p604"
+    ],
+    "frameBottom": [
+     8.47,
+     "p560"
+    ],
+    "frameLeft": [
+     0.77,
+     "p556"
+    ],
+    "frameRight": [
+     34.98,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel 412x915",
+   "bars": "cutout 36, gesture",
+   "density": 2.625,
+   "mode": "normal",
+   "pageWidth": 406,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     13.18,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.34,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     42.19,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     43.18,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     16.24,
+     "p604"
+    ],
+    "frameBottom": [
+     -4.55,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.99,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel 412x915",
+   "bars": "cutout 36, gesture",
+   "density": 2.625,
+   "mode": "fullScreen",
+   "pageWidth": 406,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     13.18,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.34,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.73,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     28.1,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     26.9,
+     "p604"
+    ],
+    "frameBottom": [
+     6.1,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.99,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel 412x915",
+   "bars": "cutout 36, gesture",
+   "density": 3.5,
+   "mode": "normal",
+   "pageWidth": 406,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     18.07,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     30.29,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     56.75,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     58.75,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     21.99,
+     "p604"
+    ],
+    "frameBottom": [
+     -5.74,
+     "p560"
+    ],
+    "frameLeft": [
+     0.77,
+     "p556"
+    ],
+    "frameRight": [
+     34.98,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel 412x915",
+   "bars": "cutout 36, gesture",
+   "density": 3.5,
+   "mode": "fullScreen",
+   "pageWidth": 406,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     18.07,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     30.29,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     37.47,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     38.63,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     36.2,
+     "p604"
+    ],
+    "frameBottom": [
+     8.47,
+     "p560"
+    ],
+    "frameLeft": [
+     0.77,
+     "p556"
+    ],
+    "frameRight": [
+     34.98,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel 412x915",
+   "bars": "cutout 52, 3-button",
+   "density": 2.625,
+   "mode": "normal",
+   "pageWidth": 406,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     13.18,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.34,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     42.19,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     43.18,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     16.24,
+     "p604"
+    ],
+    "frameBottom": [
+     -4.55,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.99,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel 412x915",
+   "bars": "cutout 52, 3-button",
+   "density": 2.625,
+   "mode": "fullScreen",
+   "pageWidth": 406,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     13.18,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.34,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.73,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     28.1,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     26.9,
+     "p604"
+    ],
+    "frameBottom": [
+     6.1,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.99,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel 412x915",
+   "bars": "cutout 52, 3-button",
+   "density": 3.5,
+   "mode": "normal",
+   "pageWidth": 406,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     18.07,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     30.29,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     56.75,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     58.75,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     21.99,
+     "p604"
+    ],
+    "frameBottom": [
+     -5.74,
+     "p560"
+    ],
+    "frameLeft": [
+     0.77,
+     "p556"
+    ],
+    "frameRight": [
+     34.98,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Pixel 412x915",
+   "bars": "cutout 52, 3-button",
+   "density": 3.5,
+   "mode": "fullScreen",
+   "pageWidth": 406,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     18.07,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     30.29,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     37.47,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     38.63,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     36.2,
+     "p604"
+    ],
+    "frameBottom": [
+     8.47,
+     "p560"
+    ],
+    "frameLeft": [
+     0.77,
+     "p556"
+    ],
+    "frameRight": [
+     34.98,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Large Android 432x960",
+   "bars": "status 24, gesture",
+   "density": 2.5,
+   "mode": "normal",
+   "pageWidth": 426,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     13.17,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.33,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     42.21,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     43.18,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     16.72,
+     "p604"
+    ],
+    "frameBottom": [
+     -5.04,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.97,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Large Android 432x960",
+   "bars": "status 24, gesture",
+   "density": 2.5,
+   "mode": "fullScreen",
+   "pageWidth": 426,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     13.17,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.33,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.76,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     28.11,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     27.37,
+     "p604"
+    ],
+    "frameBottom": [
+     5.61,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.97,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Large Android 432x960",
+   "bars": "status 24, gesture",
+   "density": 3.333,
+   "mode": "normal",
+   "pageWidth": 426,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     18.05,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     30.27,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     56.79,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     58.74,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     22.63,
+     "p604"
+    ],
+    "frameBottom": [
+     -6.39,
+     "p560"
+    ],
+    "frameLeft": [
+     0.77,
+     "p556"
+    ],
+    "frameRight": [
+     34.96,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Large Android 432x960",
+   "bars": "status 24, gesture",
+   "density": 3.333,
+   "mode": "fullScreen",
+   "pageWidth": 426,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     18.05,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     30.27,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     37.51,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     38.64,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     36.83,
+     "p604"
+    ],
+    "frameBottom": [
+     7.81,
+     "p560"
+    ],
+    "frameLeft": [
+     0.77,
+     "p556"
+    ],
+    "frameRight": [
+     34.96,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Large Android 432x960",
+   "bars": "status 24, 3-button",
+   "density": 2.5,
+   "mode": "normal",
+   "pageWidth": 426,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     13.17,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.33,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     42.21,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     43.18,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     16.72,
+     "p604"
+    ],
+    "frameBottom": [
+     -5.04,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.97,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Large Android 432x960",
+   "bars": "status 24, 3-button",
+   "density": 2.5,
+   "mode": "fullScreen",
+   "pageWidth": 426,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     13.17,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.33,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.76,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     28.11,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     27.37,
+     "p604"
+    ],
+    "frameBottom": [
+     5.61,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.97,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Large Android 432x960",
+   "bars": "status 24, 3-button",
+   "density": 3.333,
+   "mode": "normal",
+   "pageWidth": 426,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     18.05,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     30.27,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     56.79,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     58.74,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     22.63,
+     "p604"
+    ],
+    "frameBottom": [
+     -6.39,
+     "p560"
+    ],
+    "frameLeft": [
+     0.77,
+     "p556"
+    ],
+    "frameRight": [
+     34.96,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Large Android 432x960",
+   "bars": "status 24, 3-button",
+   "density": 3.333,
+   "mode": "fullScreen",
+   "pageWidth": 426,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     18.05,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     30.27,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     37.51,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     38.64,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     36.83,
+     "p604"
+    ],
+    "frameBottom": [
+     7.81,
+     "p560"
+    ],
+    "frameLeft": [
+     0.77,
+     "p556"
+    ],
+    "frameRight": [
+     34.96,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Large Android 432x960",
+   "bars": "cutout 36, gesture",
+   "density": 2.5,
+   "mode": "normal",
+   "pageWidth": 426,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     13.17,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.33,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     42.21,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     43.18,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     16.72,
+     "p604"
+    ],
+    "frameBottom": [
+     -5.04,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.97,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Large Android 432x960",
+   "bars": "cutout 36, gesture",
+   "density": 2.5,
+   "mode": "fullScreen",
+   "pageWidth": 426,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     13.17,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.33,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.76,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     28.11,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     27.37,
+     "p604"
+    ],
+    "frameBottom": [
+     5.61,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.97,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Large Android 432x960",
+   "bars": "cutout 36, gesture",
+   "density": 3.333,
+   "mode": "normal",
+   "pageWidth": 426,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     18.05,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     30.27,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     56.79,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     58.74,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     22.63,
+     "p604"
+    ],
+    "frameBottom": [
+     -6.39,
+     "p560"
+    ],
+    "frameLeft": [
+     0.77,
+     "p556"
+    ],
+    "frameRight": [
+     34.96,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Large Android 432x960",
+   "bars": "cutout 36, gesture",
+   "density": 3.333,
+   "mode": "fullScreen",
+   "pageWidth": 426,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     18.05,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     30.27,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     37.51,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     38.64,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     36.83,
+     "p604"
+    ],
+    "frameBottom": [
+     7.81,
+     "p560"
+    ],
+    "frameLeft": [
+     0.77,
+     "p556"
+    ],
+    "frameRight": [
+     34.96,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Large Android 432x960",
+   "bars": "cutout 52, 3-button",
+   "density": 2.5,
+   "mode": "normal",
+   "pageWidth": 426,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     13.17,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.33,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     42.21,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     43.18,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     16.72,
+     "p604"
+    ],
+    "frameBottom": [
+     -5.04,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.97,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Large Android 432x960",
+   "bars": "cutout 52, 3-button",
+   "density": 2.5,
+   "mode": "fullScreen",
+   "pageWidth": 426,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     13.17,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     22.33,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     27.76,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     28.11,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     27.37,
+     "p604"
+    ],
+    "frameBottom": [
+     5.61,
+     "p560"
+    ],
+    "frameLeft": [
+     0.32,
+     "p556"
+    ],
+    "frameRight": [
+     25.97,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Large Android 432x960",
+   "bars": "cutout 52, 3-button",
+   "density": 3.333,
+   "mode": "normal",
+   "pageWidth": 426,
+   "tilesDown": 29,
+   "minPx": {
+    "left": [
+     18.05,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     30.27,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     56.79,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     58.74,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     22.63,
+     "p604"
+    ],
+    "frameBottom": [
+     -6.39,
+     "p560"
+    ],
+    "frameLeft": [
+     0.77,
+     "p556"
+    ],
+    "frameRight": [
+     34.96,
+     "p319"
+    ]
+   }
+  },
+  {
+   "screen": "Large Android 432x960",
+   "bars": "cutout 52, 3-button",
+   "density": 3.333,
+   "mode": "fullScreen",
+   "pageWidth": 426,
+   "tilesDown": 35,
+   "minPx": {
+    "left": [
+     18.05,
+     "p11 l2 2:70:14"
+    ],
+    "right": [
+     30.27,
+     "p343 l8 23:24:8"
+    ],
+    "top": [
+     37.51,
+     "p323 l15 21:24:20"
+    ],
+    "bottom": [
+     38.64,
+     "p466 l7 39:71:18"
+    ],
+    "frameTop": [
+     36.83,
+     "p604"
+    ],
+    "frameBottom": [
+     7.81,
+     "p560"
+    ],
+    "frameLeft": [
+     0.77,
+     "p556"
+    ],
+    "frameRight": [
+     34.96,
+     "p319"
+    ]
+   }
+  }
+ ]
+}

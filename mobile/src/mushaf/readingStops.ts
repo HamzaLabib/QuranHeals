@@ -14,6 +14,11 @@ import { MUSHAF_PAGE_COUNT } from './mushafPage';
  * new page. Renaming changes only that stop's name, and is refused if
  * another stop already uses the new name, so a rename never merges or
  * overwrites someone else's place.
+ *
+ * One stop can be the active one (the reader's ورد selector): only its id is
+ * stored, separately. Choosing a stop never changes any stop's page — a page
+ * is saved only when the reader explicitly saves one. Stops have no reading
+ * progress or Khatma count yet.
  */
 export type ReadingStop = {
   id: string;
@@ -25,6 +30,8 @@ export type ReadingStop = {
 
 /** Unchanged from phase 1; stops saved then with an ayah are read as page-only. */
 export const READING_STOPS_STORAGE_KEY = 'quran-heals:mushaf-reading-stops:v1';
+/** The id of the active stop (the ورد being read), or nothing. */
+export const ACTIVE_READING_STOP_STORAGE_KEY = 'quran-heals:mushaf-active-reading-stop:v1';
 export const READING_STOP_NAME_MAX_LENGTH = 40;
 /**
  * Not a product limit — a storage safeguard so a runaway loop or corrupted
@@ -126,7 +133,29 @@ export async function renameReadingStop(id: string, newName: string): Promise<Re
 export async function removeReadingStop(id: string): Promise<ReadingStop[]> {
   const next = (await loadReadingStops()).filter((stop) => stop.id !== id);
   await persist(next);
+  if ((await loadActiveReadingStopId()) === id) await setActiveReadingStopId(null);
   return next;
+}
+
+/** The active stop's id as stored; it may name a stop that no longer exists (see activeReadingStop). Never throws. */
+export async function loadActiveReadingStopId(): Promise<string | null> {
+  try {
+    const id = await AsyncStorage.getItem(ACTIVE_READING_STOP_STORAGE_KEY);
+    return id && id.length <= 100 ? id : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Makes a stop the active one (null: none). Changes no stop. */
+export async function setActiveReadingStopId(id: string | null): Promise<void> {
+  if (id === null) await AsyncStorage.removeItem(ACTIVE_READING_STOP_STORAGE_KEY);
+  else await AsyncStorage.setItem(ACTIVE_READING_STOP_STORAGE_KEY, id);
+}
+
+/** The active stop among `stops`, or null when none is set or it was removed. */
+export function activeReadingStop(stops: readonly ReadingStop[], activeId: string | null): ReadingStop | null {
+  return (activeId && stops.find((stop) => stop.id === activeId)) || null;
 }
 
 function defaultId(): string {

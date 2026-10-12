@@ -1,62 +1,180 @@
+import * as Font from 'expo-font';
 import { useFonts } from 'expo-font';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft, ArrowRight, BookmarkPlus, Pencil, PenLine, Trash2, X } from 'lucide-react-native';
+import { ArrowLeft, Maximize, Minimize } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { BackHandler, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { MushafControlPanel, MUSHAF_PANEL_HEIGHT, MUSHAF_PANEL_MARGIN, type MushafPopup } from '@/components/MushafControlPanel';
 import { MushafPageView } from '@/components/MushafPageView';
+import { MushafSearchSheet } from '@/components/MushafSearchSheet';
 import { MushafSvgText } from '@/components/MushafSvgText';
+import { MushafWirdSelector, WIRD_PILL_HEIGHT } from '@/components/MushafWirdSelector';
+import { MushafZoomView, type MushafZoomHandle } from '@/components/MushafZoomView';
 import { QpcV1PageText } from '@/components/QpcV1PageText';
 import { ReflectionSheet } from '@/components/ReflectionSheet';
-import { MUSHAF_PAPER } from '@/constants/mushafTheme';
+import { MUSHAF_PANEL_COLORS, MUSHAF_PAPER } from '@/constants/mushafTheme';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { MUSHAF_BACKGROUNDS, MUSHAF_BORDER_STYLES, MUSHAF_INKS, MUSHAF_PAGE_FURNITURE, resolveMushafAppearance } from '@/mushaf/appearance';
+import { QCF_V1_NORMAL_BOX_MARGIN_EM } from '@/mushaf/ayahMarkers';
 import { HAFS_KFQC_PAGE_061 } from '@/mushaf/generated/hafsKfqcPage061';
-import { parseMushafPage, tintAyahMarkers, tintSvgInk } from '@/mushaf/mushafPage';
+import { KHATM_DUA } from '@/mushaf/khatmDua';
 import { MUSHAF_HEADER_FONT_FAMILY, MUSHAF_HEADER_FONTS } from '@/mushaf/headerFonts';
-import { QPC_V1_FONTS } from '@/mushaf/qpcV1Fonts';
+import { MUSHAF_PAGE_COUNT, parseMushafPage, tintAyahMarkers, tintSvgInk, toArabicIndicDigits } from '@/mushaf/mushafPage';
 import { offlineMushaf, OfflineMushafError, type DownloadProgress, type OfflineStatus } from '@/mushaf/offline';
+import { readRelayPageForDev } from '@/mushaf/offline/devRelayPage';
+import { qcfFontUrl } from '@/mushaf/offline/fonts';
+import { hizbLabelsForPage } from '@/mushaf/hizbQuarters';
+import { BORDER_TILES_DOWN, computePageLayout } from '@/mushaf/pageGeometry';
+import { QPC_V1_FONTS } from '@/mushaf/qpcV1Fonts';
 import { checkAgainstTanzil, loadQpcV1PageLayout, type QpcV1PageLayout } from '@/mushaf/qpcV1Layout';
 import {
+  activeReadingStop,
+  loadActiveReadingStopId,
   loadReadingStops,
-  READING_STOP_NAME_MAX_LENGTH,
   ReadingStopError,
-  removeReadingStop,
-  renameReadingStop,
   saveReadingStop,
+  setActiveReadingStopId,
   type ReadingStop,
 } from '@/mushaf/readingStops';
+import { BASMALA_FONT_PAGE, surahOpeningSlots } from '@/mushaf/surahOpenings';
 import { getVerseByKey } from '@/services/quran';
-import { usePalette, useThemedStyles, useThemeName } from '@/theme/useTheme';
+import { useThemedStyles, useThemeName } from '@/theme/useTheme';
 import { devLog } from '@/utils/devLog';
-import { formatAyahReference } from '@/utils/ayahReference';
+import { goBackOrHome } from '@/utils/goBackOrHome';
 
 /**
- * Mushaf prototype, page 61 only: ayah selection, the existing Add
- * Reflection sheet, and named page-based reading stops. Isolated: nothing
- * links here yet (open it as /mushaf). No 604-page navigation, Khatma or
- * statistics.
+ * The Mushaf reader (/mushaf): a plain Back arrow in a slim row under the
+ * status bar, then the printed QPC V1 page as large as the screen allows,
+ * with one floating, icon-only action bar at the bottom (previous page,
+ * reflection, search, save a reading stop, next page). Swiping the page
+ * turns it too, in step with the arrows; pinching zooms it (MushafZoomView).
+ * The active reading stop (ورد) sits between the page and the bar
+ * (MushafWirdSelector); search opens a sheet for a page number or a Surah
+ * (MushafSearchSheet). The sources are credited on Home and in /credits.
  *
- * Two interchangeable renderers inside the same measured page:
- *  - QPC V1 (default): the 1405 AH Madani print's QCF V1 page font (bundled
- *    for this page) and its line layout from our backend (Quran Foundation
- *    Content API). Used only once the font is loaded and the layout has
- *    passed the check against the verified Tanzil text.
- *  - Quran SVG (fallback, and selectable): quran-ws/quran-svg v1.1.1.
+ * Navigating (arrows, swipes, search) only shows a page: no stop is ever
+ * saved or moved except by the bookmark's explicit save.
+ *
+ * Full-screen reading (the top-right Expand / Collapse icon): only the page
+ * and the Collapse icon stay; the Back arrow, the bar and the ورد pill hide,
+ * and the whole page is refitted into the space they used (fitMushafPage)
+ * and centred in it: never zoomed to fill, never cropped. The
+ * page, the selected ayah and the active ورد are kept; zoom, swipes and ayah
+ * taps work as in Normal Mode. Leaving it: the Collapse icon (at any zoom), a
+ * swipe down at 1×, or Android's Back. Not remembered across restarts: the
+ * reader always opens in Normal Mode.
+ *
+ * The whole screen is the page's own paper colour (the appearance preset's
+ * `paper`), so the page has no visible edge against it.
+ *
+ * Taller (Mobile-Optimized; approved for full-screen reading on all 604
+ * pages, in every build): in full screen, the same page with a taller frame —
+ * more of the same border tiles down its sides — and the lines spaced evenly
+ * further apart, filling the height the device has to spare, up to
+ * TALLER_MAX_LINE_SPACING (none to spare: the Traditional page). Normal Mode
+ * is always Traditional. It is automatic: there is no layout choice or
+ * setting.
+ *
+ * Pages: every page comes from the offline Mushaf when it is installed (its
+ * layout and page font); page 61 also works online (our backend's layout and
+ * the bundled font), with the Quran SVG page as its fallback. A page is drawn
+ * only after its layout passes the check against the verified Tanzil text.
+ * A page that isn't downloaded shows the offline download instead.
+ *
+ * Not linked from the rest of the app yet (open it as /mushaf, or
+ * /mushaf?page=N). Khatma and statistics are out of scope.
  */
 
-type Renderer = 'qpc-v1' | 'svg';
-type QpcState =
+const DEFAULT_PAGE = 61;
+/** Page height ÷ width (headers, frame and page number), from the measured geometry. */
+const PAGE_ASPECT = computePageLayout(1000).page.height / 1000;
+/**
+ * Just enough to keep the frame and the running heads off the screen's edge
+ * (curved edges included). On phones the width is what limits the page's size.
+ */
+const SIDE_MARGIN = 3;
+/** The slim row for the Back arrow, under the status bar (its touch target reaches 44 pt upward). */
+export const BACK_BAR_HEIGHT = 36;
+/** Between the bottom of the page and the floating bar. */
+const PAGE_PANEL_GAP = 4;
+/** Kept free under the page for the ورد pill: on phones the page is narrower than it could be tall, so this costs nothing there. */
+export const WIRD_ROW_HEIGHT = 32;
+/** Two taps this close together are a double-tap, which resets the zoom rather than selecting. */
+const DOUBLE_TAP_MS = 350;
+
+/** Full screen: between the bottom of the page and the bottom safe area (home indicator, navigation bar). */
+const FULL_SCREEN_BOTTOM_GAP = 4;
+/**
+ * Taller: the most the line spacing may grow over the printed page's (1.25 = 25% more), whatever the
+ * screen's height, so very tall phones (and, later, tablets) don't open large gaps between the lines.
+ * Approved reference: page 61 on a 393-pt iPhone, about 15% more. Height beyond this is left as paper
+ * around the centred page.
+ */
+export const TALLER_MAX_LINE_SPACING = 1.25;
+const PRINTED_LINE_PITCH = computePageLayout(1000).linePitch;
+/** The tallest Taller frame, in tiles (the printed page has 29): the last one within TALLER_MAX_LINE_SPACING. */
+export const TALLER_MAX_TILES_DOWN = (() => {
+  let tiles = BORDER_TILES_DOWN;
+  while (computePageLayout(1000, tiles + 1).linePitch / PRINTED_LINE_PITCH <= TALLER_MAX_LINE_SPACING) tiles += 1;
+  return tiles;
+})();
+/** A swipe down starting this close under the top safe area is left to the system (Notification Centre, status bar). */
+const SWIPE_DOWN_TOP_GUARD = 24;
+/** Development builds only (?source=online, the relay page reader). */
+const isDevBuild = () => typeof __DEV__ !== 'undefined' && __DEV__;
+
+/**
+ * The largest page that fits the reading area, in its own proportions (never
+ * cropped or stretched). Normal Mode leaves at least the ورد row free under
+ * it, and the zoom viewport is the whole area above the bar. Full screen
+ * has no bar or ورد row: the page and the viewport reach down to the
+ * bottom safe area. `taller` (full-screen reading): at that width, the
+ * tallest whole-tile frame that fits, up to TALLER_MAX_TILES_DOWN; computed
+ * from the actual space, so any phone (or, later, tablet) gets its own.
+ */
+export function fitMushafPage(area: { width: number; height: number }, bottomInset: number, fullScreen = false, taller = false) {
+  const viewportHeight = Math.max(0, area.height - (fullScreen ? FULL_SCREEN_BOTTOM_GAP + bottomInset : PAGE_PANEL_GAP + MUSHAF_PANEL_HEIGHT + MUSHAF_PANEL_MARGIN + bottomInset));
+  const available = viewportHeight - (fullScreen ? 0 : WIRD_ROW_HEIGHT);
+  const width = Math.floor(Math.max(0, Math.min(area.width - SIDE_MARGIN * 2, available / PAGE_ASPECT)));
+  // Taller: at that same width, the tallest whole-tile frame that still fits.
+  let tilesDown = BORDER_TILES_DOWN;
+  while (taller && width > 0 && tilesDown < TALLER_MAX_TILES_DOWN && pageHeightFor(width, tilesDown + 1) <= available) tilesDown += 1;
+  return {
+    viewport: { width: Math.max(0, area.width), height: viewportHeight },
+    page: { width, height: width > 0 ? pageHeightFor(width, tilesDown) : 0 },
+    tilesDown,
+  };
+}
+
+/** The page's height at `width` with a `tilesDown`-tile frame (proportional to the width). */
+function pageHeightFor(width: number, tilesDown: number) {
+  return (computePageLayout(1000, tilesDown).page.height / 1000) * width;
+}
+
+type PageState =
   | { status: 'loading' }
-  | { status: 'ready'; layout: QpcV1PageLayout }
+  | { status: 'qpc'; layout: QpcV1PageLayout; source: 'offline' | 'api'; basmalaFont: string | null }
+  | { status: 'svg' }
+  | { status: 'missing' }
   | { status: 'unavailable' };
 
-// Parsed and validated once; the page is bundled, never fetched.
-const PAGE_SOURCE = HAFS_KFQC_PAGE_061;
-let pageCache: { page: ReturnType<typeof parseMushafPage>; svg: string } | null | undefined;
+// Page 61's Quran SVG fallback: parsed and validated once; bundled, never fetched.
+let svgCache: { page: ReturnType<typeof parseMushafPage>; svg: string } | null | undefined;
+function svgPage61() {
+  if (svgCache === undefined) {
+    try {
+      svgCache = { page: parseMushafPage(HAFS_KFQC_PAGE_061), svg: tintAyahMarkers(HAFS_KFQC_PAGE_061.svg, MUSHAF_PAPER.marker) };
+    } catch {
+      svgCache = null;
+    }
+  }
+  return svgCache;
+}
 /** The SVG page with its ink recoloured for a dark page (cached per colour). */
 const inkedSvgCache = new Map<string, string>();
 function inkedSvg(svg: string, ink: string) {
@@ -68,348 +186,439 @@ function inkedSvg(svg: string, ink: string) {
   return tinted;
 }
 
-function loadPage() {
-  if (pageCache === undefined) {
-    try {
-      pageCache = { page: parseMushafPage(PAGE_SOURCE), svg: tintAyahMarkers(PAGE_SOURCE.svg, MUSHAF_PAPER.marker) };
-    } catch {
-      pageCache = null;
-    }
+/** Western or Arabic-Indic digits → a page number, or null. */
+export function parsePageNumber(input: string): number | null {
+  const western = input.trim().replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660)).replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0));
+  if (!/^\d{1,3}$/.test(western)) return null;
+  const page = Number(western);
+  return page >= 1 && page <= MUSHAF_PAGE_COUNT ? page : null;
+}
+
+/** Registers a page's QCF V1 font: the bundled one for page 61, a verified offline file, or Quran Foundation's CDN. */
+async function ensurePageFont(page: number, family: string): Promise<boolean> {
+  if (Font.isLoaded(family)) return true;
+  const stored = await offlineMushaf.pageFont(page).catch(() => null);
+  if (stored === 'bundled') return false; // registered by useFonts below
+  try {
+    await Font.loadAsync({ [family]: stored ? stored.uri : qcfFontUrl(page) });
+    return true;
+  } catch {
+    return false;
   }
-  return pageCache;
 }
 
 export default function MushafScreen() {
-  const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
+  const insets = useSafeAreaInsets();
   const { locale, messages } = useAppLocale();
   const copy = messages.mushaf;
-  const direction = getDirectionStyle(locale);
-  const isRtl = isRtlLocale(locale);
-  const BackIcon = isRtl ? ArrowRight : ArrowLeft;
-  // Paper, medallions and ink: the defaults in mushaf/appearance.ts, or a
-  // preset named in the URL for previews (?background=warm&markers=traditional).
-  // The page follows the app's Appearance preference (System, Light or Dark; Light by default).
-  const appearance = resolveMushafAppearance(useLocalSearchParams(), useThemeName());
+  const rtl = isRtlLocale(locale);
+  const formatNumber = (n: number) => (rtl ? toArabicIndicDigits(n) : String(n));
+  const params = useLocalSearchParams();
+  const theme = useThemeName();
+  // Paper, medallions, ink and border follow the app's Appearance setting
+  // (mushaf/appearance.ts); the URL can preview a preset (?scheme=dark).
+  const appearance = resolveMushafAppearance(params, theme);
+  const dark = appearance.background === 'midnight';
   const furniture = MUSHAF_PAGE_FURNITURE[appearance.background];
   const ink = MUSHAF_INKS[appearance.ink].color;
   const highlight = { color: furniture.highlight, opacity: furniture.highlightOpacity };
-  // Measured, not the window size: right on tablets, split screen and web.
-  const [availableWidth, setAvailableWidth] = useState(0);
-  const loaded = loadPage();
+
+  const requestedPage = parsePageNumber(String(Array.isArray(params.page) ? params.page[0] : params.page ?? ''));
+  const initialPage = requestedPage ?? DEFAULT_PAGE;
+  const [page, setPage] = useState(initialPage);
+  // What was loaded, for which page: any other page is still loading.
+  const [loaded, setLoaded] = useState<{ page: number; reload: number; state: PageState } | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const [fontsLoaded, fontError] = useFonts(QPC_V1_FONTS);
   // Separate, so the heads' font can never hold back or disable the Quran text.
   const [headerFontLoaded] = useFonts(MUSHAF_HEADER_FONTS);
-  const [renderer, setRenderer] = useState<Renderer>('qpc-v1');
-  const [qpc, setQpc] = useState<QpcState>({ status: 'loading' });
-
   const [selectedVerseKey, setSelectedVerseKey] = useState<string | null>(null);
   const [isReflectionVisible, setIsReflectionVisible] = useState(false);
+  const [popup, setPopup] = useState<MushafPopup>(null);
+  // Measured, not the window size: right on tablets, split screen and web.
+  const [area, setArea] = useState({ width: 0, height: 0 });
+  // The selection before the latest tap, so a double-tap (zoom reset) can put it back.
+  const lastTap = useRef<{ before: string | null; at: number; ignoreUntil: number }>({ before: null, at: 0, ignoreUntil: 0 });
+  const [zoomed, setZoomed] = useState(false);
+  // Development builds only: read any page straight from the relay (?source=online), to check it without installing.
+  const onlineInDev = isDevBuild() && params.source === 'online';
+  const zoomView = useRef<MushafZoomHandle>(null);
+  // Full-screen reading: off whenever the reader opens.
+  const [fullScreen, setFullScreen] = useState(false);
+  // Reading stops (ورد): the list and the active one, as stored on the device.
   const [stops, setStops] = useState<ReadingStop[]>([]);
-  const [stopName, setStopName] = useState('');
-  const [stopStatus, setStopStatus] = useState<{ tone: 'info' | 'error'; text: string } | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-  // Inline rename of one stop at a time.
-  const [editing, setEditing] = useState<{ id: string; name: string } | null>(null);
+  const [activeStopId, setActiveStopId] = useState<string | null>(null);
+  const [isWirdOpen, setIsWirdOpen] = useState(false);
+  const activeStop = activeReadingStop(stops, activeStopId);
+  // Set once the reader moves: the active stop's page then no longer replaces the opening page.
+  const hasNavigated = useRef(false);
 
+  // On opening: the stops and the active one. Without ?page=, the active stop's saved page opens.
   useEffect(() => {
     let cancelled = false;
-    void loadReadingStops().then((loadedStops) => {
-      if (!cancelled) setStops(loadedStops);
-    });
+    void (async () => {
+      const [list, id] = await Promise.all([loadReadingStops(), loadActiveReadingStopId()]);
+      if (cancelled) return;
+      setStops(list);
+      setActiveStopId(id);
+      const active = activeReadingStop(list, id);
+      if (active && requestedPage === null && !hasNavigated.current) setPage(active.page);
+    })();
     return () => {
       cancelled = true;
     };
+    // Only on opening: later changes come from this screen's own actions.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // The 1405 layout: from the offline Mushaf when it is installed (no network
-  // needed), otherwise fetched (or a still-valid cached copy); either way
-  // checked against the verified Tanzil text before it may be drawn.
+  // The page's layout and font, checked against the verified Tanzil text before it may be drawn.
   useEffect(() => {
-    if (!loaded) return;
     let cancelled = false;
     const startedAt = Date.now();
+    const setContent = (state: PageState) => setLoaded({ page, reload: reloadKey, state });
     void (async () => {
       try {
-        const offline = await offlineMushaf.readPage(loaded.page.page).catch(() => null);
-        const layout = offline ?? await loadQpcV1PageLayout(loaded.page.page);
-        const expected = loaded.page.ayahs.map((ayah) => ayah.verseKey);
+        const offline = await offlineMushaf.readPage(page).catch(() => null);
+        // Online: page 61 from the page API; in development builds with ?source=online, any page straight from the relay.
+        const devRelay = !offline && onlineInDev && page !== DEFAULT_PAGE
+          ? await readRelayPageForDev(page).catch(() => null)
+          : null;
+        const layout = offline ?? devRelay ?? (page === DEFAULT_PAGE ? await loadQpcV1PageLayout(page).catch(() => null) : null);
+        if (!layout) {
+          if (!cancelled) setContent(page === DEFAULT_PAGE ? { status: 'svg' } : { status: 'missing' });
+          return;
+        }
         const tanzil: Record<string, string> = {};
-        for (const verseKey of expected) tanzil[verseKey] = (await getVerseByKey(verseKey)).arabicText;
-        const check = checkAgainstTanzil(layout, expected, tanzil);
-        devLog('mushaf', 'qpc-v1 layout', { source: offline ? 'offline' : 'api', ms: Date.now() - startedAt, ok: check.ok, problems: check.problems });
-        if (!cancelled) setQpc(check.ok ? { status: 'ready', layout } : { status: 'unavailable' });
+        for (const verseKey of layout.verseKeys) tanzil[verseKey] = (await getVerseByKey(verseKey)).arabicText;
+        const basmala = (await getVerseByKey('1:1')).arabicText;
+        const check = checkAgainstTanzil(layout, layout.verseKeys, tanzil, basmala);
+        const fontReady = page === DEFAULT_PAGE ? true : await ensurePageFont(page, layout.fontFamily);
+        devLog('mushaf', 'page', { page, source: offline ? 'offline' : 'api', ms: Date.now() - startedAt, ok: check.ok, fontReady, problems: check.problems });
+        if (cancelled) return;
+        // A Basmala line is drawn in page 1's font; without it the line stays empty (never another font).
+        const needsBasmala = surahOpeningSlots(layout).some((slot) => slot.kind === 'basmala');
+        const basmalaFont = needsBasmala && (await ensurePageFont(BASMALA_FONT_PAGE, 'QCF_P001')) ? 'QCF_P001' : null;
+        if (cancelled) return;
+        if (check.ok && fontReady) setContent({ status: 'qpc', layout, source: offline ? 'offline' : 'api', basmalaFont });
+        else setContent(page === DEFAULT_PAGE ? { status: 'svg' } : { status: 'unavailable' });
       } catch {
-        if (!cancelled) setQpc({ status: 'unavailable' });
+        if (!cancelled) setContent(page === DEFAULT_PAGE ? { status: 'svg' } : { status: 'unavailable' });
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [loaded]);
+  }, [page, reloadKey, onlineInDev]);
 
-  const goBack = () => {
-    if (router.canGoBack()) router.back();
-    else router.replace('/');
+  /** Shows a page — and only that: nothing is saved (search, stops and links all use it). */
+  const goTo = useCallback((next: number) => {
+    if (next < 1 || next > MUSHAF_PAGE_COUNT) return;
+    hasNavigated.current = true;
+    setPage(next);
+    setSelectedVerseKey(null);
+    setPopup(null);
+    setZoomed(false); // a new page opens at 1×
+  }, []);
+  /** One page back (-1) or forward (+1); the arrows and swipes share it. */
+  const turn = useCallback((delta: -1 | 1) => {
+    hasNavigated.current = true;
+    setPage((current) => Math.min(MUSHAF_PAGE_COUNT, Math.max(1, current + delta)));
+    setSelectedVerseKey(null);
+    setPopup(null);
+    setZoomed(false);
+  }, []);
+  // Left arrow = next page, right arrow = previous; a finger swipe left to right = next, right to left = previous
+  // (the same in every language; swipes at 1× only — mushaf/pageZoom.ts swipeTurn).
+
+  /** A tap on an ayah selects it; a tap on the selected ayah clears the selection. */
+  const selectVerse = (verseKey: string) => {
+    const now = Date.now();
+    // A tap of a double-tap that arrives after the double-tap itself (the web's click comes late).
+    if (now < lastTap.current.ignoreUntil) return;
+    if (now - lastTap.current.at > DOUBLE_TAP_MS) lastTap.current.before = selectedVerseKey;
+    lastTap.current.at = now;
+    setSelectedVerseKey(verseKey === selectedVerseKey ? null : verseKey);
+  };
+  /** A double-tap resets the zoom; its two taps leave the selection as it was. */
+  const onDoubleTap = () => {
+    const now = Date.now();
+    if (now - lastTap.current.at <= DOUBLE_TAP_MS * 2) setSelectedVerseKey(lastTap.current.before);
+    lastTap.current.ignoreUntil = now + DOUBLE_TAP_MS;
   };
 
-  const saveStop = useCallback(async () => {
-    if (!loaded || isSaving) return;
-    setIsSaving(true);
+  const onGoToPage = (input: string) => {
+    const target = parsePageNumber(input);
+    if (target === null) return copy.pageOutOfRange;
+    goTo(target);
+    return null;
+  };
+  const onSaveStop = async (name: string) => {
     try {
-      // The whole page — never the selected ayah.
-      setStops(await saveReadingStop({ name: stopName, page: loaded.page.page }));
-      setStopName('');
-      setStopStatus({ tone: 'info', text: copy.stopSaved });
+      // The whole page — never the selected ayah. The stop just saved is the one being read.
+      const next = await saveReadingStop({ name, page });
+      setStops(next);
+      setActiveStopId(next[0].id);
+      await setActiveReadingStopId(next[0].id).catch(() => undefined);
+      return { tone: 'info' as const, text: copy.stopSaved };
     } catch (error) {
       const kind = error instanceof ReadingStopError ? error.kind : null;
-      setStopStatus({
-        tone: 'error',
-        text: kind === 'invalid_name' ? copy.stopNameInvalid : kind === 'too_many' ? copy.tooManyStops : copy.stopSaveFailed,
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  }, [loaded, isSaving, stopName, copy]);
-
-  const removeStop = async (id: string) => {
-    try {
-      setStops(await removeReadingStop(id));
-    } catch {
-      setStopStatus({ tone: 'error', text: copy.stopSaveFailed });
+      return { tone: 'error' as const, text: kind === 'invalid_name' ? copy.stopNameInvalid : kind === 'too_many' ? copy.tooManyStops : copy.stopSaveFailed };
     }
   };
 
-  const saveRename = async () => {
-    if (!editing) return;
-    try {
-      setStops(await renameReadingStop(editing.id, editing.name));
-      setEditing(null);
-      setStopStatus({ tone: 'info', text: copy.stopRenamed });
-    } catch (error) {
-      const kind = error instanceof ReadingStopError ? error.kind : null;
-      setStopStatus({
-        tone: 'error',
-        text: kind === 'invalid_name' ? copy.stopNameInvalid : kind === 'name_taken' ? copy.stopNameTaken : copy.stopSaveFailed,
-      });
-    }
+  /**
+   * Normal ⇄ full-screen reading. The page is refitted, so the zoom first
+   * returns to 1×; the page, the selection and the active ورد stay as they are.
+   */
+  const switchReadingMode = useCallback((next: boolean) => {
+    zoomView.current?.reset();
+    setPopup(null);
+    setIsWirdOpen(false);
+    setFullScreen(next);
+  }, []);
+  // Android Back in full screen returns to Normal Mode; the next Back navigates as usual.
+  useEffect(() => {
+    if (!fullScreen) return undefined;
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      switchReadingMode(false);
+      return true;
+    });
+    return () => subscription.remove();
+  }, [fullScreen, switchReadingMode]);
+
+  /** Opens the ورد list, re-read from storage so renamed or removed stops show as they are now. */
+  const openWird = async () => {
+    setPopup(null);
+    const [list, id] = await Promise.all([loadReadingStops(), loadActiveReadingStopId()]);
+    setStops(list);
+    setActiveStopId(id);
+    setIsWirdOpen(true);
+  };
+  /** Switching ورد: that stop becomes the active one and its saved page opens. No stop's page changes. */
+  const selectStop = (stop: ReadingStop) => {
+    setIsWirdOpen(false);
+    setActiveStopId(stop.id);
+    void setActiveReadingStopId(stop.id).catch(() => undefined);
+    goTo(stop.page);
+  };
+  /** The existing way to create a stop: the bookmark's name field. */
+  const addStop = () => {
+    setIsWirdOpen(false);
+    setPopup('save');
   };
 
-  const pageWidth = Math.min(availableWidth, 520);
-  const showQpc = renderer === 'qpc-v1' && fontsLoaded && !fontError && qpc.status === 'ready';
+  const content: PageState = loaded && loaded.page === page && loaded.reload === reloadKey ? loaded.state : { status: 'loading' };
+  const svg = svgPage61();
+  const showQpc = content.status === 'qpc' && (content.layout.page !== DEFAULT_PAGE || (fontsLoaded && !fontError));
+  // Automatic, on every page: Taller in full screen wherever the whole page fits (fitMushafPage falls back to
+  // Traditional otherwise); Normal Mode is always Traditional. It needs the QPC lines (the Quran SVG page keeps
+  // its own fixed line positions). There is no layout choice anywhere.
+  const taller = fullScreen && showQpc;
+  // The largest page that fits between the Back row and the floating bar, never cropped.
+  const fit = fitMushafPage(area, insets.bottom, fullScreen, taller);
+  const { width: pageWidth, height: pageHeight } = fit.page;
+  const showSvg = page === DEFAULT_PAGE && svg && (content.status === 'svg' || (content.status === 'qpc' && !showQpc));
+  const firstAyah = showQpc && content.status === 'qpc'
+    ? (() => { const [surah, ayah] = content.layout.verseKeys[0].split(':').map(Number); return { surah, ayah }; })()
+    : svg?.page.ayahs[0];
+  const pageLabel = `${copy.pageLabel} ${page}`;
 
+  const drawn = pageWidth > 0 && (showQpc || showSvg) && firstAyah;
+  const iconColor = (dark ? MUSHAF_PANEL_COLORS.dark : MUSHAF_PANEL_COLORS.light).icon;
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <View style={[styles.header, isRtl && styles.rowRtl]}>
+    <GestureHandlerRootView style={[styles.reader, { backgroundColor: MUSHAF_BACKGROUNDS[appearance.background].paper, paddingTop: insets.top }]}>
+      {/*
+        Plain icons, no circle, background, border or label, fixed left and right in every language
+        (like the bar's order): Back on the left (Normal Mode only), Expand / Collapse on the right (always).
+      */}
+      <View testID="mushaf-back-bar" style={styles.backBar}>
+        {fullScreen ? <View /> : (
           <Pressable
+            testID="mushaf-back"
             accessibilityRole="button"
             accessibilityLabel={messages.ayah.goBack}
-            onPress={goBack}
-            style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
-            <BackIcon size={22} color={colors.icon} />
+            onPress={goBackOrHome}
+            hitSlop={{ top: 44 - BACK_BAR_HEIGHT, bottom: 0, left: 0, right: 0 }}
+            style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}>
+            <ArrowLeft size={24} color={iconColor} />
           </Pressable>
-          <View style={styles.headerText}>
-            <Text style={[styles.title, direction]}>{copy.title}</Text>
-            <Text style={[styles.subtitle, direction]}>{copy.prototypeNote}</Text>
-          </View>
-        </View>
-
-        {!loaded ? (
-          <Text style={[styles.errorText, direction]}>{copy.pageLoadError}</Text>
-        ) : (
-          <>
-            <Text style={[styles.hint, direction]}>{copy.tapHint}</Text>
-            <Text style={[styles.label, direction]}>{copy.renderer}</Text>
-            <View style={[styles.segmented, isRtl && styles.rowRtl]}>
-              {(['qpc-v1', 'svg'] as const).map((option) => (
-                <Pressable
-                  key={option}
-                  accessibilityRole="button"
-                  accessibilityLabel={option === 'qpc-v1' ? copy.rendererQpc : copy.rendererSvg}
-                  accessibilityState={{ selected: renderer === option }}
-                  onPress={() => setRenderer(option)}
-                  style={({ pressed }) => [styles.segment, renderer === option && styles.segmentSelected, pressed && styles.pressed]}>
-                  <Text style={[styles.segmentText, renderer === option && styles.segmentTextSelected]}>
-                    {option === 'qpc-v1' ? copy.rendererQpc : copy.rendererSvg}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-            {renderer === 'qpc-v1' && !showQpc && (
-              <Text accessibilityLiveRegion="polite" style={[styles.muted, direction]}>
-                {qpc.status === 'unavailable' || fontError ? copy.qpcUnavailable : copy.qpcLoading}
-              </Text>
-            )}
-            <View testID="mushaf-page-area" onLayout={(event) => setAvailableWidth(Math.floor(event.nativeEvent.layout.width))}>
-              {pageWidth > 0 && (
-                <MushafPageView
-                  pageNumber={loaded.page.page}
-                  firstAyah={loaded.page.ayahs[0]}
-                  width={pageWidth}
-                  headerFontFamily={headerFontLoaded ? MUSHAF_HEADER_FONT_FAMILY : undefined}
-                  paperColor={MUSHAF_BACKGROUNDS[appearance.background].paper}
-                  headerColor={furniture.header}
-                  borderInks={MUSHAF_BORDER_STYLES[appearance.border ?? 'original'].inks}
-                  renderText={(area) => (showQpc && qpc.status === 'ready' ? (
-                    <QpcV1PageText
-                      key={`qpc-${area.width}`}
-                      layout={qpc.layout}
-                      width={area.width}
-                      height={area.height}
-                      selectedVerseKey={selectedVerseKey}
-                      onSelectVerse={setSelectedVerseKey}
-                      accessibilityLabel={`${copy.pageLabel} ${loaded.page.page}`}
-                      accessibilityHint={copy.tapHint}
-                      markerStyle={appearance.markers}
-                      ink={ink}
-                      highlight={highlight}
-                    />
-                  ) : (
-                    <MushafSvgText
-                      page={loaded.page}
-                      svg={ink === MUSHAF_INKS.original.color ? loaded.svg : inkedSvg(loaded.svg, ink)}
-                      highlight={highlight}
-                      area={area}
-                      selectedVerseKey={selectedVerseKey}
-                      onSelectVerse={setSelectedVerseKey}
-                      accessibilityLabel={`${copy.pageLabel} ${loaded.page.page}`}
-                      accessibilityHint={copy.tapHint}
-                    />
-                  ))}
-                />
-              )}
-            </View>
-            <Text style={styles.credit}>{showQpc ? copy.qpcCredit : copy.artworkCredit}</Text>
-
-            {selectedVerseKey && (
-              <View style={styles.panel} accessibilityLiveRegion="polite">
-                <View style={[styles.panelHeader, isRtl && styles.rowRtl]}>
-                  <View style={styles.panelTitle}>
-                    <Text style={[styles.label, direction]}>{copy.selectedAyah}</Text>
-                    <Text style={styles.reference}>{formatAyahReference(...(selectedVerseKey.split(':').map(Number) as [number, number]))}</Text>
-                  </View>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={copy.clearSelection}
-                    onPress={() => setSelectedVerseKey(null)}
-                    hitSlop={8}
-                    style={({ pressed }) => [styles.smallIconButton, pressed && styles.pressed]}>
-                    <X size={18} color={colors.icon} />
-                  </Pressable>
-                </View>
-                {/* The existing Add Reflection action and sheet, for exactly this ayah. */}
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={messages.reflection.writeAction}
-                  onPress={() => setIsReflectionVisible(true)}
-                  style={({ pressed }) => [styles.primaryButton, isRtl && styles.rowRtl, pressed && styles.pressed]}>
-                  <PenLine size={18} color={colors.onPrimaryButton} />
-                  <Text style={styles.primaryButtonText}>{messages.reflection.writeAction}</Text>
-                </Pressable>
-              </View>
-            )}
-
-            <View style={styles.panel}>
-              <Text style={[styles.label, direction]}>{copy.readingStops}</Text>
-              <TextInput
-                value={stopName}
-                onChangeText={setStopName}
-                maxLength={READING_STOP_NAME_MAX_LENGTH}
-                placeholder={copy.stopNameLabel}
-                placeholderTextColor={colors.placeholder}
-                accessibilityLabel={copy.stopNameLabel}
-                returnKeyType="done"
-                onSubmitEditing={() => void saveStop()}
-                style={[styles.input, direction]}
-              />
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={copy.saveStop}
-                accessibilityState={{ disabled: isSaving }}
-                disabled={isSaving}
-                onPress={() => void saveStop()}
-                style={({ pressed }) => [styles.secondaryButton, isRtl && styles.rowRtl, isSaving && styles.disabled, pressed && styles.pressed]}>
-                <BookmarkPlus size={18} color={colors.textPrimary} />
-                <Text style={styles.secondaryButtonText}>{copy.saveStop}</Text>
-              </Pressable>
-              {stopStatus && (
-                <Text
-                  accessibilityLiveRegion="polite"
-                  style={[styles.status, direction, stopStatus.tone === 'error' && styles.statusError]}>
-                  {stopStatus.text}
-                </Text>
-              )}
-
-              {stops.length === 0 ? (
-                <Text style={[styles.muted, direction]}>{copy.noStops}</Text>
-              ) : (
-                stops.map((stop) => editing?.id === stop.id ? (
-                  <View key={stop.id} style={styles.renameRow}>
-                    <TextInput
-                      value={editing.name}
-                      onChangeText={(name) => setEditing({ id: stop.id, name })}
-                      maxLength={READING_STOP_NAME_MAX_LENGTH}
-                      autoFocus
-                      accessibilityLabel={`${copy.renameStop}: ${stop.name}`}
-                      returnKeyType="done"
-                      onSubmitEditing={() => void saveRename()}
-                      style={[styles.input, direction]}
-                    />
-                    <View style={[styles.renameActions, isRtl && styles.rowRtl]}>
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel={copy.saveName}
-                        onPress={() => void saveRename()}
-                        style={({ pressed }) => [styles.secondaryButton, styles.flex, pressed && styles.pressed]}>
-                        <Text style={styles.secondaryButtonText}>{copy.saveName}</Text>
-                      </Pressable>
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel={copy.cancelRename}
-                        onPress={() => setEditing(null)}
-                        style={({ pressed }) => [styles.secondaryButton, styles.flex, pressed && styles.pressed]}>
-                        <Text style={styles.secondaryButtonText}>{copy.cancelRename}</Text>
-                      </Pressable>
-                    </View>
-                  </View>
-                ) : (
-                  <View key={stop.id} style={[styles.stopRow, isRtl && styles.rowRtl]}>
-                    <View style={styles.stopText}>
-                      <Text style={[styles.stopName, direction]}>{stop.name}</Text>
-                      <Text style={[styles.muted, direction]}>{`${copy.page} ${stop.page}`}</Text>
-                    </View>
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel={`${copy.renameStop}: ${stop.name}`}
-                      onPress={() => { setEditing({ id: stop.id, name: stop.name }); setStopStatus(null); }}
-                      hitSlop={8}
-                      style={({ pressed }) => [styles.smallIconButton, pressed && styles.pressed]}>
-                      <Pencil size={17} color={colors.icon} />
-                    </Pressable>
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel={`${copy.removeStop}: ${stop.name}`}
-                      onPress={() => void removeStop(stop.id)}
-                      hitSlop={8}
-                      style={({ pressed }) => [styles.smallIconButton, pressed && styles.pressed]}>
-                      <Trash2 size={17} color={colors.danger} />
-                    </Pressable>
-                  </View>
-                ))
-              )}
-            </View>
-            <OfflineMushafPanel />
-          </>
         )}
-      </ScrollView>
+        <Pressable
+          testID="mushaf-fullscreen-toggle"
+          accessibilityRole="button"
+          accessibilityLabel={fullScreen ? copy.exitFullScreen : copy.enterFullScreen}
+          accessibilityState={{ expanded: fullScreen }}
+          onPress={() => switchReadingMode(!fullScreen)}
+          hitSlop={{ top: 44 - BACK_BAR_HEIGHT, bottom: 0, left: 0, right: 0 }}
+          style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}>
+          {fullScreen ? <Minimize size={22} color={iconColor} /> : <Maximize size={22} color={iconColor} />}
+        </Pressable>
+      </View>
+
+      <View
+        testID="mushaf-page-area"
+        style={styles.pageArea}
+        onLayout={(event) => setArea({ width: Math.floor(event.nativeEvent.layout.width), height: Math.floor(event.nativeEvent.layout.height) })}>
+        {pageWidth > 0 && (
+          <MushafZoomView ref={zoomView} key={page} viewport={fit.viewport} page={fit.page} centered={fullScreen} zoomable={Boolean(drawn)} onSwipe={turn}
+            onSwipeDown={fullScreen && !isReflectionVisible ? () => switchReadingMode(false) : undefined}
+            swipeDownFromY={insets.top + SWIPE_DOWN_TOP_GUARD}
+            onDoubleTap={onDoubleTap}
+            onZoomChange={setZoomed}>
+            {drawn ? (
+              <MushafPageView
+                pageNumber={page}
+                firstAyah={firstAyah}
+                width={pageWidth}
+                tilesDown={fit.tilesDown === BORDER_TILES_DOWN ? undefined : fit.tilesDown}
+                hizbLabels={fullScreen ? undefined : hizbLabelsForPage(page)}
+                headerFontFamily={headerFontLoaded ? MUSHAF_HEADER_FONT_FAMILY : undefined}
+                paperColor={MUSHAF_BACKGROUNDS[appearance.background].paper}
+                headerColor={furniture.header}
+                borderInks={MUSHAF_BORDER_STYLES[appearance.border ?? 'original'].inks}
+                renderText={(textArea, { printedLinePitch }) => (showQpc && content.status === 'qpc' ? (
+                  <QpcV1PageText
+                    key={`qpc-${page}-${textArea.width}`}
+                    layout={content.layout}
+                    width={textArea.width}
+                    height={textArea.height}
+                    selectedVerseKey={selectedVerseKey}
+                    onSelectVerse={selectVerse}
+                    accessibilityLabel={pageLabel}
+                    accessibilityHint={copy.tapHint}
+                    markerStyle={appearance.markers}
+                    printedPitch={printedLinePitch}
+                    boxMarginEm={fullScreen ? 0 : QCF_V1_NORMAL_BOX_MARGIN_EM}
+                    basmalaFontFamily={content.basmalaFont}
+                    headingFontFamily={headerFontLoaded ? MUSHAF_HEADER_FONT_FAMILY : undefined}
+                    headingColor={furniture.header}
+                    ink={ink}
+                    highlight={highlight}
+                  />
+                ) : (
+                  <MushafSvgText
+                    page={svg!.page}
+                    svg={ink === MUSHAF_INKS.original.color ? svg!.svg : inkedSvg(svg!.svg, ink)}
+                    highlight={highlight}
+                    area={textArea}
+                    selectedVerseKey={selectedVerseKey}
+                    onSelectVerse={selectVerse}
+                    accessibilityLabel={pageLabel}
+                    accessibilityHint={copy.tapHint}
+                  />
+                ))}
+              />
+            ) : content.status === 'missing' || content.status === 'unavailable' ? (
+              <View testID="mushaf-page-missing" style={[styles.missingPage, { width: pageWidth, height: pageHeight, backgroundColor: MUSHAF_BACKGROUNDS[appearance.background].paper }]}>
+                <Text style={[styles.missingNumber, { color: furniture.header }]}>{String(page)}</Text>
+                <Text style={[styles.missingText, { color: furniture.header }]}>
+                  {content.status === 'missing' ? copy.pageNotDownloaded : copy.pageUnavailable}
+                </Text>
+                <OfflineMushafPanel onChange={() => setReloadKey((key) => key + 1)} />
+              </View>
+            ) : (
+              <View style={{ height: pageHeight }} accessibilityLabel={copy.qpcLoading} />
+            )}
+          </MushafZoomView>
+        )}
+        {pageWidth > 0 && !fullScreen && (
+          <View
+            testID="mushaf-wird-row"
+            pointerEvents={zoomed ? 'none' : 'box-none'}
+            style={[styles.wirdRow, { top: pageHeight, height: fit.viewport.height - pageHeight, opacity: zoomed ? 0 : 1 }]}>
+            <MushafWirdSelector
+              labels={{
+                choose: copy.wirdChoose,
+                selectorLabel: copy.wirdSelectorLabel,
+                selectorHint: copy.wirdSelectorHint,
+                add: copy.wirdAdd,
+                addNew: copy.wirdNew,
+                close: copy.wirdClose,
+                page: copy.pageShort,
+              }}
+              dark={dark}
+              rtl={rtl}
+              formatNumber={formatNumber}
+              stops={stops}
+              active={activeStop}
+              open={isWirdOpen}
+              onOpen={() => void openWird()}
+              onClose={() => setIsWirdOpen(false)}
+              onSelect={selectStop}
+              onAdd={addStop}
+              anchorBottom={insets.bottom + MUSHAF_PANEL_MARGIN + MUSHAF_PANEL_HEIGHT + PAGE_PANEL_GAP + (fit.viewport.height - pageHeight + WIRD_PILL_HEIGHT) / 2}
+            />
+            {/* After the last page: the optional دعاء ختم القرآن (its own screen, not a page 605), once a verified text is approved. */}
+            {page === MUSHAF_PAGE_COUNT && KHATM_DUA && (
+              <Pressable
+                testID="mushaf-khatm-dua"
+                accessibilityRole="button"
+                accessibilityLabel={messages.khatmDua.open}
+                onPress={() => router.push('/khatm-dua')}
+                hitSlop={8}
+                style={({ pressed }) => [styles.duaLink, rtl ? { left: spacing.md } : { right: spacing.md }, pressed && styles.pressed]}>
+                <Text style={[styles.duaLinkText, { color: iconColor }]}>{messages.khatmDua.open}</Text>
+              </Pressable>
+            )}
+          </View>
+        )}
+      </View>
+
+      {!fullScreen && (
+      <MushafControlPanel
+        dark={dark}
+        bottomInset={insets.bottom}
+        labels={{
+          previousPage: copy.previousPage,
+          nextPage: copy.nextPage,
+          reflect: messages.reflection.writeAction,
+          searchPage: copy.searchPage,
+          saveStop: copy.saveStopAction,
+          stopName: copy.stopNameLabel,
+          confirmStop: copy.confirmStop,
+        }}
+        canGoPrevious={page > 1}
+        canGoNext={page < MUSHAF_PAGE_COUNT}
+        onPrevious={() => turn(-1)}
+        onNext={() => turn(1)}
+        reflectionEnabled={selectedVerseKey !== null}
+        onReflect={() => setIsReflectionVisible(true)}
+        popup={popup}
+        onPopup={setPopup}
+        defaultStopName={activeStop?.name}
+        onSaveStop={onSaveStop}
+      />
+      )}
+
+      <MushafSearchSheet
+        visible={popup === 'search'}
+        labels={{
+          title: copy.searchTitle,
+          close: copy.wirdClose,
+          byPage: copy.searchByPage,
+          bySurah: copy.searchBySurah,
+          pageNumber: copy.pageNumberPlaceholder,
+          go: copy.goAction,
+          goToPage: copy.goToPage,
+          surahSearch: copy.surahSearchPlaceholder,
+          noResults: copy.surahNoResults,
+          page: copy.pageShort,
+        }}
+        dark={dark}
+        rtl={rtl}
+        formatNumber={formatNumber}
+        onClose={() => setPopup(null)}
+        onGoToPage={onGoToPage}
+        onSelectSurah={(surah) => goTo(surah.startPage)}
+      />
 
       <ReflectionSheet
         visible={isReflectionVisible}
         verseKey={selectedVerseKey}
         onClose={() => setIsReflectionVisible(false)}
       />
-    </SafeAreaView>
+    </GestureHandlerRootView>
   );
 }
 
@@ -418,7 +627,7 @@ export default function MushafScreen() {
  * fonts yet), with progress, cancel (a later download continues where it
  * stopped), update check and removal. See mushaf/offline/offlineMushaf.ts.
  */
-function OfflineMushafPanel() {
+function OfflineMushafPanel({ onChange }: { onChange?: () => void } = {}) {
   const styles = useThemedStyles(makeStyles);
   const { locale, messages } = useAppLocale();
   const copy = messages.mushaf;
@@ -459,6 +668,7 @@ function OfflineMushafPanel() {
       controller.current = null;
       setProgress(null);
       void refresh();
+      onChange?.();
     }
   };
 
@@ -549,6 +759,62 @@ function OfflineMushafPanel() {
 }
 
 const makeStyles = (colors: Palette) => StyleSheet.create({
+  // Full-screen reader: the page starts right under the status bar.
+  reader: {
+    backgroundColor: colors.background,
+    flex: 1,
+  },
+  backBar: {
+    alignItems: 'center',
+    // Back on the left, Expand / Collapse on the right, whatever the app language
+    // (native only mirrors rows under RTL layout; react-native-web has no `direction` style).
+    ...(Platform.OS === 'web' ? {} : { direction: 'ltr' as const }),
+    flexDirection: 'row',
+    height: BACK_BAR_HEIGHT,
+    justifyContent: 'space-between',
+    paddingHorizontal: 2,
+  },
+  backButton: {
+    alignItems: 'center',
+    height: BACK_BAR_HEIGHT,
+    justifyContent: 'center',
+    width: 44,
+  },
+  pageArea: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  duaLink: {
+    position: 'absolute',
+  },
+  duaLinkText: {
+    fontSize: typography.body,
+    fontWeight: '600',
+    writingDirection: 'rtl',
+  },
+  wirdRow: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    left: 0,
+    position: 'absolute',
+    right: 0,
+  },
+  missingPage: {
+    alignItems: 'center',
+    borderRadius: radii.md,
+    gap: spacing.md,
+    justifyContent: 'center',
+    padding: spacing.lg,
+  },
+  missingNumber: {
+    fontSize: 28,
+    fontWeight: '600',
+  },
+  missingText: {
+    fontSize: typography.body,
+    lineHeight: typography.body * 1.4,
+    textAlign: 'center',
+  },
   safeArea: {
     backgroundColor: colors.background,
     flex: 1,
@@ -596,11 +862,6 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   hint: {
     color: colors.textSecondary,
     fontSize: typography.caption,
-  },
-  credit: {
-    color: colors.textMuted,
-    fontSize: 11,
-    textAlign: 'center',
   },
   errorText: {
     color: colors.danger,

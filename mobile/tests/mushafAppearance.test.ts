@@ -12,7 +12,7 @@ import {
   MUSHAF_MARKER_STYLES,
   resolveMushafAppearance,
 } from '@/mushaf/appearance';
-import { cssBaseline, getAyahMarker, markerOverlayBox, QCF_V1_METRICS } from '@/mushaf/ayahMarkers';
+import { cssBaseline, getAyahMarker, markerOverlayBox, QCF_V1_LINE_BOX_EM, QCF_V1_METRICS } from '@/mushaf/ayahMarkers';
 import { AYAH_MARKERS_061 } from '@/mushaf/generated/ayahMarkers061';
 import { HAFS_KFQC_PAGE_061 } from '@/mushaf/generated/hafsKfqcPage061';
 import { parseMushafPage } from '@/mushaf/mushafPage';
@@ -111,34 +111,57 @@ describe('medallion artwork (from the bundled Quran SVG page)', () => {
     }
   });
 
-  it('every number is a different drawing (84 … 91), and lookups fall back to null off this page', () => {
+  it('every number is a different drawing (84 … 91); every page now draws this same ornament', () => {
     expect(new Set(AYAH_MARKERS_061.markers.map((marker) => marker.numberPath)).size).toBe(8);
     expect(getAyahMarker(61, '3:84')?.ornamentPath).toBe(AYAH_MARKERS_061.ornamentPath);
+    // An ayah whose marker is on another page has none here.
     expect(getAyahMarker(61, '3:92')).toBeNull();
-    expect(getAyahMarker(62, '3:93')).toBeNull();
+    // Every other page has the same medallion (it was null off page 61 until 2026-10-12: the plain font glyph).
+    expect(getAyahMarker(62, '3:93')?.ornamentPath).toBe(AYAH_MARKERS_061.ornamentPath);
+  });
+
+  it('page 61 through the all-pages artwork: its own frame, and each number within a hair of its own tracing', () => {
+    for (const reference of AYAH_MARKERS_061.markers) {
+      const marker = getAyahMarker(61, reference.verseKey)!;
+      expect(marker.ornamentTransform).toBe(AYAH_MARKERS_061.markers[0].ornamentTransform);
+      expect(marker.ornamentBox).toEqual(AYAH_MARKERS_061.markers[0].ornamentBox);
+      // Placed relative to the shared frame: compare against the reference number's offset in its own ornament.
+      const dx = reference.ornamentBox.x - AYAH_MARKERS_061.markers[0].ornamentBox.x;
+      const dy = reference.ornamentBox.y - AYAH_MARKERS_061.markers[0].ornamentBox.y;
+      const scale = marker.ornamentBox.width;
+      expect(Math.abs(marker.numberBox.x + marker.numberBox.width / 2 - (reference.numberBox.x - dx + reference.numberBox.width / 2)) / scale).toBeLessThan(0.02);
+      expect(Math.abs(marker.numberBox.y + marker.numberBox.height / 2 - (reference.numberBox.y - dy + reference.numberBox.height / 2)) / scale).toBeLessThan(0.02);
+      expect(Math.abs(marker.numberBox.width - reference.numberBox.width) / scale).toBeLessThan(0.05);
+      expect(Math.abs(marker.numberBox.height - reference.numberBox.height) / scale).toBeLessThan(0.02);
+    }
   });
 });
 
 describe('medallion placement over the QCF V1 marker glyph', () => {
-  // The phone layout measured in the browser: 20.598 px glyphs, 1.3 line height, a 25.67 px marker advance.
+  // The phone layout measured in the browser: 20.598 px glyphs, a 25.67 px marker advance. Each glyph's
+  // box is the font's whole line (QCF_V1_LINE_BOX_EM; it was 1.3 em until it was found to clip marks).
   const fontSize = 20.598;
-  const lineHeight = fontSize * 1.3;
+  const lineHeight = fontSize * QCF_V1_LINE_BOX_EM;
   const marker = getAyahMarker(61, '3:84')!;
 
-  it('the web baseline follows CSS (Chrome measured 19 px, snapped from 19.25)', () => {
-    expect(cssBaseline(fontSize, lineHeight)).toBeCloseTo(19.25, 1);
+  it('the web baseline follows CSS: the font`s ascent below the box top (Chrome measured 19 px in the former 1.3-em box, the same place on the line)', () => {
+    expect(cssBaseline(fontSize, lineHeight)).toBeCloseTo((QCF_V1_METRICS.ascent / QCF_V1_METRICS.unitsPerEm) * fontSize);
+    // The same height above the line's centre as in the former 1.3-em box, where Chrome measured 19 px (snapped from 19.25).
+    expect(cssBaseline(fontSize, lineHeight) - lineHeight / 2).toBeCloseTo(19.25 - (fontSize * 1.3) / 2, 1);
   });
 
   it('centres the medallion on the glyph`s own ink, inside its advance and its line, in the artwork`s proportions', () => {
     const baseline = cssBaseline(fontSize, lineHeight);
-    const box = markerOverlayBox(marker, fontSize, baseline, 25.67);
+    const box = markerOverlayBox(marker, fontSize, baseline);
     const { unitsPerEm, markerInk } = QCF_V1_METRICS;
+    expect(marker.ink).toEqual({ xMin: markerInk.xMin, xMax: markerInk.xMax, yMin: markerInk.yMin, yMax: markerInk.yMax });
     const inkCentre = baseline - ((markerInk.yMax + markerInk.yMin) / 2) * (fontSize / unitsPerEm);
     expect(box.y + box.height / 2).toBeCloseTo(inkCentre);
-    expect(box.x + box.width / 2).toBeCloseTo(25.67 / 2);
+    expect(box.x + box.width / 2).toBeCloseTo(((markerInk.xMin + markerInk.xMax) / 2) * (fontSize / unitsPerEm));
+    expect(Math.abs(box.x + box.width / 2 - 25.67 / 2)).toBeLessThan(0.05); // the ring is centred in its advance
     expect(box.x).toBeGreaterThan(0);
     expect(box.x + box.width).toBeLessThan(25.67); // never wider than the glyph: no overlap with neighbouring words
-    // Inside its line: the 1.3-em line box is centred in the 15-line pitch (31.77 px here).
+    // Inside its line: the glyph box is centred in the 15-line pitch (31.77 px here).
     const pitch = 31.77;
     const lineTop = (pitch - lineHeight) / 2;
     expect(lineTop + box.y).toBeGreaterThan(0);

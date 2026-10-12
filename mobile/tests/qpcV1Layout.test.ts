@@ -21,13 +21,14 @@ const {
   ayahAtLineX,
   checkAgainstTanzil,
   describeLineBreaks,
-  highlightSpan,
+  lineAtY,
   loadQpcV1PageLayout,
   parseQpcV1PageLayout,
   QPC_V1_MAX_KEEP_MS,
   qpcV1CacheKey,
   QpcV1LayoutError,
   REFERENCE_PAGE_61,
+  selectionSpan,
   tanzilWordCount,
 } = await import('@/mushaf/qpcV1Layout');
 
@@ -137,9 +138,54 @@ describe('taps and highlights on a line', () => {
     expect(ayahAtLineX([], 100)).toBeNull();
   });
 
-  it('the highlight spans the selected ayah`s words on the line, gaps between them included', () => {
-    expect(highlightSpan(boxes, '3:84')).toEqual({ x: 220, width: 120 });
-    expect(highlightSpan(boxes, '3:85')).toEqual({ x: 60, width: 140 });
-    expect(highlightSpan(boxes, '3:86')).toBeNull();
+  // Word gaps 30, 20, 10, 20: half the mean gap is 10 (the padding at a line's edge).
+  it('the highlight spans the ayah`s words and gaps, halfway into the gap to the next ayah, half a word gap at the line edges', () => {
+    expect(selectionSpan(boxes, '3:84')).toEqual({ x: 210, width: 130 }); // 210 = halfway between 3:85 (200) and the marker (220); line edge: no room
+    expect(selectionSpan(boxes, '3:84', 16)).toEqual({ x: 210, width: 140 }); // + half a word gap past the line's edge
+    expect(selectionSpan(boxes, '3:85', 16)).toEqual({ x: 50, width: 160 });
+    expect(selectionSpan(boxes, '3:86')).toBeNull();
+  });
+
+  it('the span covers its end words` ink, but never reaches into a neighbouring ayah`s word', () => {
+    const inked = boxes.map((box) => (box.x === 220 ? { ...box, inkLeft: 15 } : box.x === 300 ? { ...box, inkRight: 25 } : box));
+    expect(selectionSpan(inked, '3:84', 16)).toEqual({ x: 205, width: 151 }); // medallion ink to 205 (past the midpoint); 300+40+16 at most
+    const far = boxes.map((box) => (box.x === 220 ? { ...box, inkLeft: 40 } : box));
+    expect(selectionSpan(far, '3:84')!.x).toBe(200); // stops at 3:85's word
+    const neighbour = boxes.map((box) => (box.x === 150 ? { ...box, inkRight: 30 } : box));
+    expect(selectionSpan(neighbour, '3:85')!.x + selectionSpan(neighbour, '3:85')!.width).toBe(220); // its own ink, up to the marker
+  });
+
+  it('a tap belongs to the line drawn nearest it (rows of 40, drawn 12 lower)', () => {
+    const centre = (line: number) => (line - 1) * 40 + 20 + 12;
+    expect(lineAtY(2, 40 + 2, [1, 2, 3], centre)).toBe(1); // top of row 2: line 1's words are drawn there
+    expect(lineAtY(2, 40 + 30, [1, 2, 3], centre)).toBe(2);
+    expect(lineAtY(2, 40 + 2, [2, 3], centre)).toBe(2); // no line 1 (a heading row above)
+    expect(lineAtY(5, 0, [1, 2, 3, 4, 5], centre)).toBe(4); // only the neighbouring lines
+  });
+});
+
+describe('Surah openings pass the Tanzil check (Tanzil puts the Basmala in ayah 1; the Mushaf prints it on its own line)', () => {
+  const text = (key: string) => (db.prepare('SELECT arabic_text AS t FROM verses WHERE verse_key = ?').get(key) as { t: string }).t;
+  const basmala = text('1:1');
+  const layoutFor = (verseKey: string, words: number) => ({
+    page: 2, edition: 'qpc-v1' as const, fontFamily: 'QCF_P002', fetchedAt: '', keepUntil: '',
+    verseKeys: [verseKey],
+    lines: [{ line: 10, words: [...Array.from({ length: words }, (_, i) => ({ verseKey, position: i + 1, kind: 'word' as const, glyph: 'x' })), { verseKey, position: words + 1, kind: 'end' as const, glyph: 'e' }] }],
+  });
+
+  it('2:1 (الٓمٓ): one word in the Mushaf, five in Tanzil with its Basmala — accepted with the Basmala rule, refused without it', () => {
+    expect(tanzilWordCount(text('2:1'))).toBe(5);
+    expect(checkAgainstTanzil(layoutFor('2:1', 1), ['2:1'], { '2:1': text('2:1') }, basmala)).toEqual({ ok: true, problems: [] });
+    expect(checkAgainstTanzil(layoutFor('2:1', 1), ['2:1'], { '2:1': text('2:1') }).ok).toBe(false); // the old count (pages with an opening failed on devices)
+  });
+
+  it('the Basmala is not subtracted where it is not a prefix: 1:1 itself and Surah 9 keep their own count', () => {
+    expect(checkAgainstTanzil(layoutFor('1:1', 4), ['1:1'], { '1:1': basmala }, basmala).ok).toBe(true);
+    const words91 = tanzilWordCount(text('9:1'));
+    expect(checkAgainstTanzil(layoutFor('9:1', words91), ['9:1'], { '9:1': text('9:1') }, basmala).ok).toBe(true);
+  });
+
+  it('a wrong word count is still refused on an opening', () => {
+    expect(checkAgainstTanzil(layoutFor('2:1', 2), ['2:1'], { '2:1': text('2:1') }, basmala).ok).toBe(false);
   });
 });

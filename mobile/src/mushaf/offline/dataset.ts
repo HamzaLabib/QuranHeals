@@ -112,6 +112,12 @@ export const JOINED_WORDS: Readonly<Record<string, readonly [string, string]>> =
  * print sets it on its own line; matched exactly against 1:1, or with the
  * shadda of بِّسْمِ as in 95:1 and 97:1), less one for a documented joined pair.
  */
+/** expectedMushafWords for one ayah's Tanzil text, given Tanzil's Basmala (1:1) — what the reader's page check uses. */
+export function mushafWordCount(verseKey: string, arabicText: string, basmalaText: string): number {
+  const [surah, ayah] = verseKey.split(':').map(Number);
+  return expectedMushafWords({ surah, ayah, verseKey, arabicText }, tokens(basmalaText));
+}
+
 export function expectedMushafWords(verse: QuranVerse, basmala: readonly string[]): number {
   const own = tokens(verse.arabicText);
   const variants = [basmala, [basmala[0].slice(0, 1) + SHADDA + basmala[0].slice(1), ...basmala.slice(1)]];

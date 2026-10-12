@@ -8,6 +8,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { AuthProvider } from '@/auth/useAuth';
 import { navigationColorsFor, paletteFor, statusBarStyleFor } from '@/constants/theme';
 import { AppLocaleProvider, useAppLocale } from '@/localization/useAppLocale';
+import { MUSHAF_SCREEN_OPTIONS } from '@/mushaf/screenOptions';
 import { QuranFontSizePreferenceProvider } from '@/localization/useQuranFontSizePreference';
 import { QuranTranslationPreferenceProvider } from '@/localization/useQuranTranslationPreference';
 import { AppearancePreferenceProvider, useAppearancePreference } from '@/theme/useAppearancePreference';
@@ -129,8 +130,9 @@ function ThemedRoot() {
           contentStyle: {
             backgroundColor: background,
           },
-        }}
-      />
+        }}>
+        <Stack.Screen name="mushaf" options={MUSHAF_SCREEN_OPTIONS} />
+      </Stack>
     </ThemeProvider>
   );
 }

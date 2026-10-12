@@ -11,10 +11,15 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
       if (storage.failWrites) throw new Error('disk full');
       storage.map.set(key, value);
     }),
+    removeItem: vi.fn(async (key: string) => { storage.map.delete(key); }),
   },
 }));
 
 const {
+  ACTIVE_READING_STOP_STORAGE_KEY,
+  activeReadingStop,
+  loadActiveReadingStopId,
+  setActiveReadingStopId,
   loadReadingStops,
   MAX_READING_STOPS,
   normalizeReadingStopName,
@@ -161,5 +166,43 @@ describe('reading stored data', () => {
     expect(normalizeReadingStopName('  Ramadan \n  2026 ')).toBe('Ramadan 2026');
     expect(normalizeReadingStopName('Mum\u0000')).toBe('Mum');
     expect(normalizeReadingStopName(42)).toBeNull();
+  });
+});
+
+describe('the active stop (the reader`s ورد selector)', () => {
+  it('is stored as an id on its own key, survives a restart, and can be cleared', async () => {
+    const [fajr] = await saveReadingStop({ name: 'Fajr', page: 61 }, options);
+    expect(await loadActiveReadingStopId()).toBeNull();
+    await setActiveReadingStopId(fajr.id);
+    expect(storage.map.get(ACTIVE_READING_STOP_STORAGE_KEY)).toBe(fajr.id);
+    expect(await loadActiveReadingStopId()).toBe(fajr.id);
+    await setActiveReadingStopId(null);
+    expect(await loadActiveReadingStopId()).toBeNull();
+  });
+
+  it('choosing a stop changes no stop: every name and page stays as saved', async () => {
+    await saveReadingStop({ name: 'Fajr', page: 61 }, options);
+    const stops = await saveReadingStop({ name: 'Tadabbur', page: 125 }, options);
+    const before = storage.map.get(READING_STOPS_STORAGE_KEY);
+    for (const stop of stops) await setActiveReadingStopId(stop.id);
+    expect(storage.map.get(READING_STOPS_STORAGE_KEY)).toBe(before);
+  });
+
+  it('resolves to the stop itself, or null when unset or removed; removing the active stop clears it', async () => {
+    const stops = await saveReadingStop({ name: 'Fajr', page: 61 }, options);
+    expect(activeReadingStop(stops, stops[0].id)).toEqual(stops[0]);
+    expect(activeReadingStop(stops, null)).toBeNull();
+    expect(activeReadingStop(stops, 'missing')).toBeNull();
+    await setActiveReadingStopId(stops[0].id);
+    await removeReadingStop(stops[0].id);
+    expect(await loadActiveReadingStopId()).toBeNull();
+  });
+
+  it('removing another stop leaves the active one alone', async () => {
+    await saveReadingStop({ name: 'Fajr', page: 61 }, options);
+    const stops = await saveReadingStop({ name: 'Isha', page: 300 }, options);
+    await setActiveReadingStopId(stops[0].id);
+    await removeReadingStop(stops[1].id);
+    expect(await loadActiveReadingStopId()).toBe(stops[0].id);
   });
 });

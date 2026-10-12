@@ -4,8 +4,16 @@ import Svg, { Path } from 'react-native-svg';
 import { BORDER_INK_ORDER, BORDER_INKS, buildBorderPattern, type BorderInk } from '@/mushaf/borderPattern';
 import { BORDER_TILES_ACROSS, BORDER_TILES_DOWN } from '@/mushaf/pageGeometry';
 
-// Static: built once, scaled by the viewBox (one unit = one tile).
-const PATTERN = buildBorderPattern(BORDER_TILES_ACROSS, BORDER_TILES_DOWN);
+// Built once per frame height, scaled by the viewBox (one unit = one tile, always square).
+const PATTERNS = new Map<number, ReturnType<typeof buildBorderPattern>>();
+function patternFor(down: number) {
+  let pattern = PATTERNS.get(down);
+  if (!pattern) {
+    pattern = buildBorderPattern(BORDER_TILES_ACROSS, down);
+    PATTERNS.set(down, pattern);
+  }
+  return pattern;
+}
 const EVEN_ODD = new Set(['rule', 'cream']);
 
 type MushafBorderProps = {
@@ -13,6 +21,8 @@ type MushafBorderProps = {
   height: number;
   /** The border's colours (mushaf/appearance.ts MUSHAF_BORDER_STYLES); the approved ones by default. Pattern and geometry never change. */
   inks?: Readonly<Record<BorderInk, string>>;
+  /** Tiles down each side: the printed 29, or more in the Mobile-Optimized experiment (the same tiles, repeated). */
+  down?: number;
 };
 
 /**
@@ -21,7 +31,8 @@ type MushafBorderProps = {
  * decorative: MushafPageView wraps it in a view that takes no touches and
  * is hidden from accessibility.
  */
-export const MushafBorder = memo(function MushafBorder({ width, height, inks = BORDER_INKS }: MushafBorderProps) {
+export const MushafBorder = memo(function MushafBorder({ width, height, inks = BORDER_INKS, down = BORDER_TILES_DOWN }: MushafBorderProps) {
+  const PATTERN = patternFor(down);
   return (
     <Svg
       testID="mushaf-frame"

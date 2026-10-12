@@ -70,16 +70,44 @@ export type PageLayout = {
   pageNumberFontSize: number;
 };
 
-/** Lays out a printed page `width` points wide (the frame spans the full width). */
-export function computePageLayout(width: number): PageLayout {
+/** The margin between the text area and the frame's inner edge, left and right, for a text area `textWidth` wide. */
+export function textSideInset(textWidth: number): number {
+  const g = PAGE_GEOMETRY;
+  return (textWidth / (1 - 2 * g.tile - 2 * g.textInsetX)) * g.textInsetX;
+}
+
+/**
+ * TEMPORARY visual adjustment (2026-10-12), pending verification on real devices: the whole Quran text area — every
+ * line, Surah heading, Basmala, medallion, highlight and tap target (all are inside it), pages 1–2 included — is
+ * drawn this many points higher than the printed layout's text area, on every page, in Normal and Full-Screen.
+ * A fixed screen distance, not scaled with the page; the frame, page size, letter size and spacing are unchanged.
+ *
+ * Why: the iPhone draws QPC V1 glyphs about 8.4 pt below the layout's baseline (screenshots of pages 5, 61, 466), and
+ * the device-measured correction did not take effect there. This is not that fix. It is the only vertical offset in
+ * effect: no per-page shift, no other lift, no device baseline correction. Applied once, in MushafPageView. To revert,
+ * set it to 0.
+ */
+export const MUSHAF_TEXT_LIFT_PT = 4;
+
+/**
+ * Lays out a printed page `width` points wide (the frame spans the full width).
+ *
+ * `tilesDown` is the frame's height in border tiles: 29 for the printed page
+ * (the default, always used outside the Mobile-Optimized experiment). A
+ * taller frame repeats the same square tiles further down its sides — never
+ * stretched — and gives the 15 lines more space between them; the glyphs
+ * keep the size the page width gives them.
+ */
+export function computePageLayout(width: number, tilesDown: number = BORDER_TILES_DOWN): PageLayout {
   if (!Number.isFinite(width) || width <= 0) throw new Error('Page width must be positive');
+  if (!Number.isInteger(tilesDown) || tilesDown < BORDER_TILES_DOWN) throw new Error('A frame is at least the printed 29 tiles tall, in whole tiles');
   const g = PAGE_GEOMETRY;
   const tile = width * g.tile;
   const rule = Math.max(1, width * g.rule);
   const headerFontSize = width * g.headerFontSize;
   const headerHeight = headerFontSize * 1.6;
   const header: Box = { x: 0, y: 0, width, height: headerHeight };
-  const frame: Box = { x: 0, y: headerHeight + width * g.headerGap, width, height: width * FRAME_ASPECT };
+  const frame: Box = { x: 0, y: headerHeight + width * g.headerGap, width, height: (width * tilesDown) / BORDER_TILES_ACROSS };
   const inner: Box = {
     x: frame.x + tile,
     y: frame.y + tile,

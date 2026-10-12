@@ -20,10 +20,11 @@ beforeEach(() => {
 });
 afterEach(() => vi.unstubAllGlobals());
 
+// Compares the whole bundled Quran database byte for byte: about 5 s when the full suite runs in parallel, so a longer limit.
 it('native adapter sends exact bundled bytes to the private in-memory connection', async () => {
   await native.openBundledQuran();
   expect(deserialize).toHaveBeenCalledWith(original, { useNewConnection: true });
-});
+}, 20_000);
 
 it('native adapter rejects a truncated asset before opening SQLite', async () => {
   fixture.bytes = original.subarray(1);

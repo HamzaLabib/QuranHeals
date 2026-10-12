@@ -66,7 +66,7 @@ Limits that still apply:
 - **Serving from our own backend is fine:** "Serving QF Content from a Developer-controlled backend within the Application's end-user experience is not, by itself, redistribution."
 
 **Fonts: allowed separately, indefinitely.**
-- "A Developer may cache or bundle font files and Mushaf images obtained through QF APIs or documented CDN URLs … distributed only as an integrated part of the Application … may not be offered separately to others", with credit to Quran Foundation (already shown under the page).
+- "A Developer may cache or bundle font files and Mushaf images obtained through QF APIs or documented CDN URLs … distributed only as an integrated part of the Application … may not be offered separately to others", with credit to Quran Foundation (on Home and in the app's Quran Sources & Credits page).
 - The font guide adds that fonts can be corrected, so caches need a refresh or invalidation strategy, and says not to load all 604 fonts upfront. A user-chosen one-time download is not "loading upfront", but loading should still be per visible page.
 
 **Still outstanding:** written confirmation from the King Fahd Glorious Qur'an Printing Complex for the QCF V1 fonts (their copyright). This predates this plan.
