@@ -69,3 +69,23 @@ describe.skipIf(!snapshot)('Hizb starts against the QCF V1 (1405 AH) layout (loc
     expect(wrong).toEqual([]);
   });
 });
+
+describe('Hizb labels in Normal and Full-Screen (Taller): the same 240 pages, in the same header', () => {
+  it('every page width and frame height (29–35 tiles): the header is the same, the frame below it; 240 labelled pages, 364 without', async () => {
+    const { computePageLayout } = await import('@/mushaf/pageGeometry');
+    const labelled = Array.from({ length: 604 }, (_, i) => i + 1).filter((page) => hizbLabelsForPage(page).length > 0);
+    expect(labelled).toHaveLength(240);
+    expect(labelled).toEqual(HIZB_QUARTER_STARTS.map(([, , page]) => page));
+    expect(hizbLabelsForPage(264)).toEqual([hizbQuarterLabel(106)]); // 15:49, kept
+    for (const width of [251, 268, 310, 314, 338, 354, 387, 396, 406, 426, 434]) {
+      const normal = computePageLayout(width, 29);
+      for (let tiles = 29; tiles <= 35; tiles++) {
+        const taller = computePageLayout(width, tiles);
+        // The label lives in the header row (MushafPageView): the same box in every frame; the frame starts below it.
+        expect(taller.header).toEqual(normal.header);
+        expect(taller.headerFontSize).toBe(normal.headerFontSize);
+        expect(taller.frame.y).toBeGreaterThan(taller.header.y + taller.header.height);
+      }
+    }
+  });
+});

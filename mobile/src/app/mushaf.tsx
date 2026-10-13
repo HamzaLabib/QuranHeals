@@ -472,7 +472,7 @@ export default function MushafScreen() {
                 firstAyah={firstAyah}
                 width={pageWidth}
                 tilesDown={fit.tilesDown === BORDER_TILES_DOWN ? undefined : fit.tilesDown}
-                hizbLabels={fullScreen ? undefined : hizbLabelsForPage(page)}
+                hizbLabels={hizbLabelsForPage(page)}
                 openingOrnament={showQpc && page <= 2}
                 headerFontFamily={headerFontLoaded ? MUSHAF_HEADER_FONT_FAMILY : undefined}
                 paperColor={MUSHAF_BACKGROUNDS[appearance.background].paper}

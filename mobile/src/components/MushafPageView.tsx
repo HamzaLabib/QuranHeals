@@ -27,7 +27,7 @@ type MushafPageViewProps = {
   renderText: (textArea: Box, info: { printedLinePitch: number }) => ReactNode;
   /** The frame's height in tiles: the printed 29 by default; more only in the Mobile-Optimized experiment. */
   tilesDown?: number;
-  /** Normal Mode: the Hizb / quarter-Hizb starting on this page (hizbLabelsForPage), centred in the header. */
+  /** The Hizb / quarter-Hizb starting on this page (hizbLabelsForPage), centred in the header, in Normal and Full-Screen. */
   hizbLabels?: readonly string[];
   /** Pages 1–2 in the QPC V1 fonts: the ornamental circle and corner ornaments inside the frame (OpeningPageOrnament). */
   openingOrnament?: boolean;

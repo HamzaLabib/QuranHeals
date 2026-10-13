@@ -873,7 +873,7 @@ describe('Taller full screen: every page, every build; Normal Mode always Tradit
     }
   });
 
-  it('Hizb label: centred in the header between the Surah and the juz`, only on a start page, only in Normal Mode', async () => {
+  it('Hizb label: centred in the header between the Surah and the juz`, only on a start page, the same in Normal and Full-Screen', async () => {
     const hizbLabel = () => root.root.findAllByProps({ testID: 'mushaf-hizb-label' }).filter((node) => String(node.type) === 'Text');
     for (const [n, expected] of [[5, 'ربع الحزب الأول'], [11, 'الحزب الثاني'], [6, null]] as const) {
       setDev(true);
@@ -883,6 +883,9 @@ describe('Taller full screen: every page, every build; Normal Mode always Tradit
       await render({ width: 393, height: 852 - 59 - BACK_BAR_HEIGHT });
       if (expected === null) {
         expect(hizbLabel(), `page ${n}`).toHaveLength(0); // no start on this page: no label at all
+        await fullScreenOn();
+        expect(hizbLabel(), `page ${n} full screen`).toHaveLength(0); // nor in Full-Screen
+        await fullScreenOn();
       } else {
         const [label] = hizbLabel();
         expect(label.props.children).toBe(expected);
@@ -896,8 +899,17 @@ describe('Taller full screen: every page, every build; Normal Mode always Tradit
         expect(texts.map((child) => child.props.testID ?? null)).toEqual([null, 'mushaf-hizb-label', null]);
         expect(String(texts[0].props.children)).toMatch(/^سورة /);
         expect(String(texts[2].props.children)).toMatch(/^الجزء /);
+        // Full-Screen (Taller): the same label, in the same header row, between the same two heads.
         await fullScreenOn();
-        expect(hizbLabel(), `page ${n} full screen`).toHaveLength(0); // Full-Screen unchanged
+        expect(frameTiles(), `page ${n} full screen is Taller`).toBeGreaterThan(29);
+        const full = hizbLabel();
+        expect(full, `page ${n} full screen`).toHaveLength(1);
+        expect(full[0].props.children).toBe(expected);
+        expect(styleOf(full[0])).toMatchObject({ flex: 1, textAlign: 'center' });
+        expect(full[0].props.numberOfLines).toBe(1);
+        const fullRow = full[0].parent!;
+        expect(styleOf(fullRow).alignItems).toBe('baseline');
+        expect((fullRow.children as ReactTestInstance[]).filter((child) => typeof child !== 'string').map((child) => child.props.testID ?? null)).toEqual([null, 'mushaf-hizb-label', null]);
         await fullScreenOn();
         expect(hizbLabel()).toHaveLength(1);
       }
