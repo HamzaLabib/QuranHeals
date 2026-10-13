@@ -11,9 +11,11 @@ import { resolveEmotionDisplayName } from '@/utils/emotionLabel';
 type EmotionCardProps = {
   emotion: Emotion;
   onPress: () => void;
+  /** Home's four cards: the same card, slightly shorter. The full list (/emotions) uses the original size. */
+  compact?: boolean;
 };
 
-export function EmotionCard({ emotion, onPress }: EmotionCardProps) {
+export function EmotionCard({ emotion, onPress, compact = false }: EmotionCardProps) {
   const { locale } = useAppLocale();
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
@@ -33,7 +35,7 @@ export function EmotionCard({ emotion, onPress }: EmotionCardProps) {
       accessibilityRole="button"
       accessibilityLabel={displayName}
       onPress={onPress}
-      style={({ pressed }) => [styles.card, alignEnd && styles.cardRtl, pressed && styles.pressed]}>
+      style={({ pressed }) => [styles.card, compact && styles.cardCompact, alignEnd && styles.cardRtl, pressed && styles.pressed]}>
       <View style={styles.iconWrap}>
         <Icon color={colors.accent} size={22} strokeWidth={2} />
       </View>
@@ -57,6 +59,10 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     minHeight: 144,
     padding: spacing.md,
     ...shadows.soft,
+  },
+  cardCompact: {
+    gap: spacing.sm,
+    minHeight: 112,
   },
   cardRtl: {
     alignItems: 'flex-end',

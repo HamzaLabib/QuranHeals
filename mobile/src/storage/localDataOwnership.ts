@@ -1,3 +1,5 @@
+import { adoptGuestReadingData, guestHasReadingData } from '@/mushaf/khatmas';
+
 import { adoptGuestReflections, guestHasReflections } from './ayahReflections';
 import { adoptGuestFavorites, guestHasFavorites } from './favorites';
 import { getLocalDataOwnerState, notifyLocalDataChanged, persistLocalDataOwnerState, setLocalDataOwnerState } from './localDataOwner';
@@ -73,7 +75,7 @@ export function guestDataAwaitsDecision(userId: string): Promise<boolean> {
   return serialized(async () => {
     const current = await getLocalDataOwnerState();
     if (current.keptSeparate.includes(userId)) return false;
-    return (await guestHasReflections()) || (await guestHasFavorites());
+    return (await guestHasReflections()) || (await guestHasFavorites()) || (await guestHasReadingData());
   });
 }
 
@@ -111,8 +113,10 @@ export function mergeGuestDataIntoAccount(userId: string, isCurrent: () => boole
     if (!isCurrent()) return false;
     const reflectionsMoved = await adoptGuestReflections(userId);
     const favoritesMoved = await adoptGuestFavorites(userId);
+    // Reading stops (أورادي) and completed Khatmas: device-local, never synced, but owned the same way.
+    const readingMoved = await adoptGuestReadingData(userId);
     notifyLocalDataChanged();
-    return reflectionsMoved && favoritesMoved;
+    return reflectionsMoved && favoritesMoved && readingMoved;
   });
 }
 

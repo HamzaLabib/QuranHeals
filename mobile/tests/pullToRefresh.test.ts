@@ -133,7 +133,7 @@ function makePullToRefreshHarness(run: () => Promise<void>) {
 
 describe('Home pull-to-refresh: reuses loadEmotions, no duplicate fetch path', () => {
   it('awaits loadEmotions and always stops the spinner, even on failure', async () => {
-    // loadEmotions (src/app/index.tsx) never throws — it catches every
+    // loadEmotions (src/app/(tabs)/index.tsx) never throws — it catches every
     // failure internally so the screen can keep showing good data — so this
     // only needs to prove the finally still runs given that
     // resolved-without-throwing contract.
@@ -398,8 +398,8 @@ describe('Settings pull-to-refresh: reuses refreshSync only, no duplicate prefer
 
 describe('Screen wiring (source-scan): each screen is actually connected to the guarded refresh helper', () => {
   const favoritesSource = readFileSync(resolve(__dirname, '../src/app/favorites.tsx'), 'utf-8');
-  const homeSource = readFileSync(resolve(__dirname, '../src/app/index.tsx'), 'utf-8');
-  const reflectionsSource = readFileSync(resolve(__dirname, '../src/app/reflections.tsx'), 'utf-8');
+  const homeSource = readFileSync(resolve(__dirname, '../src/app/(tabs)/index.tsx'), 'utf-8');
+  const reflectionsSource = readFileSync(resolve(__dirname, '../src/app/(tabs)/reflections.tsx'), 'utf-8');
   const settingsSource = readFileSync(resolve(__dirname, '../src/app/settings.tsx'), 'utf-8');
   const ayahExperienceSource = readFileSync(resolve(__dirname, '../src/components/AyahExperience.tsx'), 'utf-8');
 

@@ -1,9 +1,10 @@
 import { Link, router } from 'expo-router';
-import { BookOpen, Heart, NotebookPen, RefreshCw, Settings } from 'lucide-react-native';
+import { BookOpen, ChevronLeft, ChevronRight, Heart, RefreshCw, Settings } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ContinueReadingCard } from '@/components/ContinueReadingCard';
 import { EmotionCard } from '@/components/EmotionCard';
 import { StateView } from '@/components/StateView';
 import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
@@ -13,6 +14,8 @@ import { useAppLocale } from '@/localization/useAppLocale';
 import { getApiErrorMessage, getEmotions } from '@/services/api';
 import { withRetry } from '@/services/retry';
 import { getCachedEmotions, setCachedEmotions } from '@/storage/emotionsCache';
+import { subscribeToLocalDataOwner } from '@/storage/localDataOwner';
+import { loadRecentEmotionKeys, pickHomeEmotions, recordEmotionUse } from '@/storage/recentEmotions';
 import type { Emotion } from '@/types/domain';
 import { devLog } from '@/utils/devLog';
 import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
@@ -23,6 +26,16 @@ import { scrollBottomPadding } from '@/utils/safeAreaSpacing';
 // throttling."
 const FOREGROUND_REVALIDATE_AFTER_MS = 60_000;
 
+/**
+ * Home (the first tab), in the approved order:
+ *  1. متابعة التلاوة / Continue Reciting (ContinueReadingCard): the Mushaf at
+ *     the ورد's saved page, and أورادي وختماتي.
+ *  2. Four emotions: the most recently chosen distinct ones (most recent
+ *     first), filled from the catalog's own order (storage/recentEmotions.ts),
+ *     slightly shorter cards; "View All" opens every emotion (/emotions).
+ *  3. رسالة من القرآن / A Message from the Quran, unchanged.
+ * The spiritual disclaimer is on the emotion list (/emotions), under every emotion.
+ */
 export default function HomeScreen() {
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
@@ -31,7 +44,7 @@ export default function HomeScreen() {
   const isRtl = isRtlLocale(locale);
   // The SafeAreaView below leaves out the bottom edge so the list can scroll
   // behind Android's edge-to-edge navigation bar; the bottom inset is added
-  // to the scroll content instead (once), so the disclaimer always ends
+  // to the scroll content instead (once), so the sources footer always ends
   // fully above the gesture bar / 3-button bar / home indicator.
   const insets = useSafeAreaInsets();
   const [emotions, setEmotions] = useState<Emotion[]>([]);
@@ -50,6 +63,24 @@ export default function HomeScreen() {
   useEffect(() => {
     emotionsRef.current = emotions;
   }, [emotions]);
+
+  // The active owner's recently chosen emotions (each account its own; the guest its own).
+  const [recentKeys, setRecentKeys] = useState<string[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    const reload = () => {
+      void loadRecentEmotionKeys().then((keys) => {
+        if (!cancelled) setRecentKeys(keys);
+      });
+    };
+    reload();
+    const unsubscribe = subscribeToLocalDataOwner(reload);
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
+  }, []);
+  const homeEmotions = pickHomeEmotions(emotions, recentKeys);
 
   useEffect(() => {
     if (!isLoading) {
@@ -175,6 +206,7 @@ export default function HomeScreen() {
             <Text style={[styles.wordmark, direction]}>{messages.appName}</Text>
             <Text style={[styles.subtitle, direction]}>{messages.home.subtitle}</Text>
           </View>
+          {/* Favorites and Settings. Reflections and أورادي وختماتي are bottom tabs (app/(tabs)/_layout.tsx). */}
           <View style={[styles.headerActions, isRtl && styles.headerActionsRtl]}>
             <Link href="/favorites" asChild>
               <Pressable
@@ -182,14 +214,6 @@ export default function HomeScreen() {
                 accessibilityLabel={messages.home.openFavorites}
                 style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
                 <Heart size={20} color={colors.icon} strokeWidth={2} />
-              </Pressable>
-            </Link>
-            <Link href="/reflections" asChild>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={messages.home.openReflections}
-                style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
-                <NotebookPen size={20} color={colors.icon} strokeWidth={2} />
               </Pressable>
             </Link>
             <Link href="/settings" asChild>
@@ -202,6 +226,8 @@ export default function HomeScreen() {
             </Link>
           </View>
         </View>
+
+        <ContinueReadingCard />
 
         <View style={styles.prompt}>
           <Text style={[styles.eyebrow, direction]}>{messages.home.eyebrow}</Text>
@@ -227,24 +253,41 @@ export default function HomeScreen() {
         )}
 
         {!isLoading && !errorMessage && (
-          <View style={[styles.grid, isRtl && styles.gridRtl]}>
-            {emotions.map((emotion) => (
+          <View testID="home-emotions" style={[styles.grid, isRtl && styles.gridRtl]}>
+            {homeEmotions.map((emotion) => (
               <EmotionCard
                 key={emotion.key}
                 emotion={emotion}
-                onPress={() =>
+                compact
+                onPress={() => {
+                  // Remembered for Home's four cards; never blocks or changes the emotion's own flow.
+                  setRecentKeys((keys) => [emotion.key, ...keys.filter((k) => k !== emotion.key)]);
+                  void recordEmotionUse(emotion.key);
                   router.push({
                     pathname: '/ayah/[emotion]',
                     params: { emotion: emotion.key, namesJson: JSON.stringify(emotion.names) },
-                  })
-                }
+                  });
+                }}
               />
             ))}
           </View>
         )}
 
+        {!isLoading && !errorMessage && emotions.length > 0 && (
+          <Pressable
+            testID="home-view-all"
+            accessibilityRole="button"
+            accessibilityLabel={messages.emotionsAll.viewAll}
+            onPress={() => router.push('/emotions')}
+            hitSlop={8}
+            style={({ pressed }) => [styles.viewAll, isRtl && styles.viewAllRtl, pressed && styles.pressed]}>
+            <Text style={styles.viewAllText}>{messages.emotionsAll.viewAll}</Text>
+            {isRtl ? <ChevronLeft size={18} color={colors.accent} /> : <ChevronRight size={18} color={colors.accent} />}
+          </Pressable>
+        )}
+
         {/*
-          Completely separate from the 29 emotion cards above — visually
+          Completely separate from the emotion cards above — visually
           distinct (a single full-width action, not a grid tile) and
           logically distinct (no emotionKey, no mapping; see
           AyahExperience's `source.mode === 'general'`). Never shown inside
@@ -262,8 +305,6 @@ export default function HomeScreen() {
             {messages.generalQuran.action}
           </Text>
         </Pressable>
-
-        <Text style={[styles.disclaimer, direction]}>{messages.home.disclaimer}</Text>
 
         {/* Quran sources: Tanzil requires its name and a link, Quran Foundation a credit within the app (constants/quranSources.ts). */}
         <View testID="home-sources" style={styles.sources}>
@@ -379,6 +420,23 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   gridRtl: {
     flexDirection: 'row-reverse',
   },
+  viewAll: {
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+    flexDirection: 'row',
+    gap: 2,
+    marginTop: -spacing.md,
+    minHeight: 40,
+  },
+  viewAllRtl: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row-reverse',
+  },
+  viewAllText: {
+    color: colors.accent,
+    fontSize: typography.body,
+    fontWeight: '700',
+  },
   generalQuranAction: {
     alignItems: 'center',
     backgroundColor: colors.surface,
@@ -398,17 +456,10 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     fontSize: typography.bodyLarge,
     fontWeight: '700',
   },
-  disclaimer: {
-    color: colors.textMuted,
-    fontSize: typography.caption,
-    lineHeight: 19,
-    paddingHorizontal: spacing.xs,
-  },
   sources: {
     borderTopColor: colors.divider,
     borderTopWidth: StyleSheet.hairlineWidth,
     gap: spacing.xs,
-    marginTop: -spacing.sm,
     paddingHorizontal: spacing.xs,
     paddingTop: spacing.md,
   },

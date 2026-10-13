@@ -1,6 +1,8 @@
 # Mushaf prototype (`/mushaf`, page 61)
 
-An isolated prototype, not linked from the app yet. One page (61, Aal-i-Imraan 3:84–3:91) with two interchangeable renderers inside the same measured page frame:
+**Integrated (2026-10-13):** the reader is now the app's **Mushaf tab** (`app/(tabs)/mushaf.tsx`; see `docs/khatma.md` for the tabs, أورادي وختماتي and Khatmas). The tab bar is hidden on the Mushaf tab in both Normal Mode and full screen (`MUSHAF_TAB_OPTIONS`), so the reader keeps the whole screen and the page its approved size and geometry, unchanged. A tab bar under the reader had made the Normal Mode page up to 11.7% narrower on small iPhones (iPhone 15: 387 to 354 pt). The Back arrow returns to the tab shown before (`backBehavior="history"`, Home first); the bar returns on every other tab. The page design is unchanged. The historical notes below describe how it was built.
+
+Originally an isolated prototype. One page (61, Aal-i-Imraan 3:84–3:91) with two interchangeable renderers inside the same measured page frame:
 
 | Renderer | Text | Source | Status |
 |---|---|---|---|
@@ -89,7 +91,7 @@ The complete offline Mushaf (all 604 pages, Quran Foundation Content Sync `musha
   - **The list:** tapping the pill lists every stop with its page, the active one checked. The list scrolls, stays on screen, and closes on a choice, a tap outside or Back. A last row opens the bookmark's name field for a new stop. With no stops, the pill itself opens that field.
   - **Switching:** choosing a stop makes it active and opens its saved page. **No stop's page changes**: a page is saved only by the bookmark's explicit save, so each stop keeps its own page.
   - **Persistence:** the active stop's id is stored on the device (`quran-heals:mushaf-active-reading-stop:v1`, `readingStops.ts`). On opening without `?page=`, the reader opens the active stop's page. A stop saved with the bookmark becomes the active one, and removing the active stop clears it. The list re-reads the stops each time it opens.
-  - **Not implemented yet:** stops have only a name and a page. There is no per-stop reading progress or Khatma count, so switching cannot change either. These belong to the planned أورادي وختماتي screen.
+  - **Progress and Khatmas (2026-10-13):** each stop's saved page is its progress, and its cycles and completed Khatmas are kept beside it (`mushaf/khatmas.ts`, `docs/khatma.md`). A bookmark save that takes the active ورد from an earlier page to 604 offers «ما شاء الله، أتممت ختم القرآن» (إتمام الختمة / ليس الآن); showing page 604 never does. The list's last row opens أورادي وختماتي.
 - **Search** (`MushafSearchSheet`): one keyboard-aware sheet, the same pattern as the app's other sheets, with two modes:
   - **Page Number:** a numeric field accepting 1–604 in Western or Arabic-Indic digits, and a Go button. A wrong number is explained and the sheet stays open.
   - **Surah Name:** a search field over the 114 Surahs in Quran order, each with its number, Arabic and English name, and first page. The list is virtualised and stays scrollable and tappable with the keyboard open.

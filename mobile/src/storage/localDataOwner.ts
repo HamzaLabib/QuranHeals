@@ -25,12 +25,17 @@ export const GUEST_REFLECTIONS_KEY = 'quran-heals:ayah-reflections:v1';
 export const GUEST_FAVORITES_KEY = 'quran-heals:favorites';
 const OWNER_STATE_KEY = 'quran-heals:local-data-owner:v1';
 
+/** `guestKey` itself for the guest partition; `<guestKey>:account:<userId>` for an account's. */
+export function ownerStorageKey(guestKey: string, userId: string | null): string {
+  return userId === null ? guestKey : `${guestKey}:account:${userId}`;
+}
+
 export function reflectionsStorageKey(userId: string | null): string {
-  return userId === null ? GUEST_REFLECTIONS_KEY : `${GUEST_REFLECTIONS_KEY}:account:${userId}`;
+  return ownerStorageKey(GUEST_REFLECTIONS_KEY, userId);
 }
 
 export function favoritesStorageKey(userId: string | null): string {
-  return userId === null ? GUEST_FAVORITES_KEY : `${GUEST_FAVORITES_KEY}:account:${userId}`;
+  return ownerStorageKey(GUEST_FAVORITES_KEY, userId);
 }
 
 export type LocalDataOwnerState = {

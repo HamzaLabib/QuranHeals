@@ -176,12 +176,12 @@ describe('App still loads when Appearance storage fails (regression)', () => {
 
 describe('No startup provider/screen gates rendering on its own async state (regression)', () => {
   it('Home (index.tsx) never imports useAuth — public emotion/ayah content never waits on session restoration', () => {
-    const source = read('src/app/index.tsx');
+    const source = read('src/app/(tabs)/index.tsx');
     expect(source).not.toMatch(/useAuth/);
   });
 
   it('Home (index.tsx) never imports useAppearancePreference — data loading never waits on the theme preference', () => {
-    const source = read('src/app/index.tsx');
+    const source = read('src/app/(tabs)/index.tsx');
     expect(source).not.toMatch(/useAppearancePreference/);
   });
 
@@ -224,7 +224,7 @@ describe('No startup provider/screen gates rendering on its own async state (reg
 
 describe('Startup loading state always terminates (regression)', () => {
   it("Home's loadEmotions clears isLoading in an unconditional finally (every async branch completes)", () => {
-    const source = read('src/app/index.tsx');
+    const source = read('src/app/(tabs)/index.tsx');
     const finallyBlock = source.match(/\} finally \{[\s\S]*?\}\s*\},/)?.[0] ?? '';
     expect(finallyBlock).toMatch(/setIsLoading\(false\);/);
     // Not nested inside another conditional within the finally block.
@@ -326,10 +326,10 @@ describe('Dev-only startup diagnostics exist for every stage named in the invest
     ['src/app/_layout.tsx', /devLog\('app', 'startup'\)/],
     ['src/theme/useAppearancePreference.tsx', /devLog\('appearance', 'preference resolved'/],
     ['src/auth/useAuth.tsx', /devLog\('auth', 'session init complete'/],
-    ['src/app/index.tsx', /devLog\('emotions', 'load start'/],
-    ['src/app/index.tsx', /devLog\('emotions', 'load result'/],
+    ['src/app/(tabs)/index.tsx', /devLog\('emotions', 'load start'/],
+    ['src/app/(tabs)/index.tsx', /devLog\('emotions', 'load result'/],
     ['src/services/quranRepository.ts', /devLog\('quran', 'sqlite init complete'/],
-    ['src/app/index.tsx', /devLog\('home', 'render readiness'/],
+    ['src/app/(tabs)/index.tsx', /devLog\('home', 'render readiness'/],
   ])('%s contains %s', (file, pattern) => {
     expect(read(file)).toMatch(pattern);
   });

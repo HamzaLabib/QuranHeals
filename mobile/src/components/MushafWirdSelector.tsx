@@ -1,4 +1,4 @@
-import { Check, ChevronDown, Plus } from 'lucide-react-native';
+import { BookMarked, Check, ChevronDown, Plus } from 'lucide-react-native';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 import { MUSHAF_PANEL_COLORS } from '@/constants/mushafTheme';
@@ -12,6 +12,8 @@ type Labels = {
   addNew: string;
   close: string;
   page: string;
+  /** أورادي وختماتي: the page that manages every ورد. */
+  manage: string;
 };
 
 type MushafWirdSelectorProps = {
@@ -28,6 +30,8 @@ type MushafWirdSelectorProps = {
   onSelect: (stop: ReadingStop) => void;
   /** The existing way to create a stop: the bookmark's name field. */
   onAdd: () => void;
+  /** Opens أورادي وختماتي. */
+  onManage: () => void;
   /** Distance from the screen's bottom edge to the pill's top, so the list opens just above it. */
   anchorBottom: number;
 };
@@ -43,7 +47,8 @@ export const WIRD_PILL_HEIGHT = 26;
  * offers the bookmark's existing name field instead.
  *
  * Choosing a stop changes no stop: it only becomes the active one and the
- * reader opens its saved page (mushaf.tsx).
+ * reader opens its saved page (mushaf.tsx). The last row opens أورادي
+ * وختماتي, where every ورد is created, renamed, deleted and followed.
  */
 export function MushafWirdSelector(props: MushafWirdSelectorProps) {
   const { labels, dark, rtl, stops, active, formatNumber } = props;
@@ -110,6 +115,15 @@ export function MushafWirdSelector(props: MushafWirdSelectorProps) {
             style={({ pressed }) => [styles.item, row, pressed && styles.pressed]}>
             <View style={styles.check}><Plus size={16} color={theme.accent} /></View>
             <Text numberOfLines={1} style={[styles.name, { color: theme.accent, textAlign: rtl ? 'right' : 'left' }]}>{labels.addNew}</Text>
+          </Pressable>
+          <Pressable
+            testID="mushaf-wird-manage"
+            accessibilityRole="button"
+            accessibilityLabel={labels.manage}
+            onPress={props.onManage}
+            style={({ pressed }) => [styles.item, row, pressed && styles.pressed]}>
+            <View style={styles.check}><BookMarked size={16} color={theme.accent} /></View>
+            <Text numberOfLines={1} style={[styles.name, { color: theme.accent, textAlign: rtl ? 'right' : 'left', writingDirection: rtl ? 'rtl' : 'ltr' }]}>{labels.manage}</Text>
           </Pressable>
         </View>
       </Modal>

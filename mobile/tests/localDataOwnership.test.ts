@@ -881,3 +881,17 @@ describe('mergeGuestDataIntoAccount', () => {
     expect(await sortedReflections('A')).toEqual([]);
   });
 });
+
+describe('reading stops (أورادي) and Khatmas follow the same ownership', () => {
+  it('a guest with only reading data is asked; "Add to this account" moves it; the guest copy is gone', async () => {
+    const { guestDataAwaitsDecision, mergeGuestDataIntoAccount } = await import('@/storage/localDataOwnership');
+    const { saveWirdPage, loadReadingData } = await import('@/mushaf/khatmas');
+    const { READING_STOPS_STORAGE_KEY } = await import('@/mushaf/readingStops');
+    await saveWirdPage({ name: 'ورد الفجر', page: 120 });
+    expect(await guestDataAwaitsDecision('A')).toBe(true);
+    expect(await mergeGuestDataIntoAccount('A')).toBe(true);
+    expect((await loadReadingData('A')).wirds.map((w) => [w.stop.name, w.stop.page])).toEqual([['ورد الفجر', 120]]);
+    expect(env.storage.has(READING_STOPS_STORAGE_KEY)).toBe(false);
+    expect(await guestDataAwaitsDecision('B')).toBe(false);
+  });
+});

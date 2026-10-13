@@ -12,7 +12,7 @@ import { describe, expect, it } from 'vitest';
 // elsewhere in this repository — this reads the actual screen source and
 // asserts the exact identifier flows, rather than re-deriving the key by
 // pattern and hoping it matches.
-const INDEX_SCREEN_PATH = resolve(__dirname, '../src/app/index.tsx');
+const INDEX_SCREEN_PATH = resolve(__dirname, '../src/app/(tabs)/index.tsx');
 const AYAH_SCREEN_PATH = resolve(__dirname, '../src/app/ayah/[emotion].tsx');
 // The actual emotionKey → API/history plumbing now lives in the shared
 // AyahExperience component (extracted by the general-Quran-flow follow-up

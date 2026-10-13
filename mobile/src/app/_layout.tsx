@@ -50,7 +50,7 @@ devLog('app', 'startup');
 // An ayah link opened on a cold start lands on /ayah/<surah>/<ayah> with Home
 // beneath it, so the screen's back button returns to Home. Normal launches
 // already start at Home.
-export const unstable_settings = { initialRouteName: 'index' };
+export const unstable_settings = { initialRouteName: '(tabs)' };
 
 const navigationThemes = {
   light: { ...DefaultTheme, colors: { ...DefaultTheme.colors, ...navigationColorsFor('light') } },
@@ -131,7 +131,8 @@ function ThemedRoot() {
             backgroundColor: background,
           },
         }}>
-        <Stack.Screen name="mushaf" options={MUSHAF_SCREEN_OPTIONS} />
+        {/* The four tabs (Home, Mushaf, Favorites, Reflections). The Mushaf reader lives here, so the stack's swipe-back stays off for it. */}
+        <Stack.Screen name="(tabs)" options={MUSHAF_SCREEN_OPTIONS} />
       </Stack>
     </ThemeProvider>
   );

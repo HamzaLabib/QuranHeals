@@ -18,6 +18,8 @@ const state = vi.hoisted(() => ({
   locale: 'en' as 'en' | 'ar' | 'ar-EG',
   canGoBack: true,
   setItem: vi.fn(),
+  /** The route's params: none, or ?wird= (opened for a ورد from أورادي وختماتي). */
+  params: {} as Record<string, string>,
 }));
 vi.mock('react-native', () => ({
   Platform: { OS: 'ios', select: (values: { ios: unknown }) => values.ios },
@@ -27,7 +29,7 @@ vi.mock('react-native', () => ({
 vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem: vi.fn(), setItem: state.setItem, removeItem: vi.fn() } }));
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView', useSafeAreaInsets: () => ({ top: 47, bottom: 34, left: 0, right: 0 }) }));
 vi.mock('lucide-react-native', () => ({ ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', AArrowDown: 'AArrowDown', AArrowUp: 'AArrowUp' }));
-vi.mock('expo-router', () => ({ router: { back: vi.fn(), replace: vi.fn(), canGoBack: () => state.canGoBack } }));
+vi.mock('expo-router', () => ({ router: { back: vi.fn(), replace: vi.fn(), canGoBack: () => state.canGoBack }, useLocalSearchParams: () => state.params }));
 vi.mock('@/theme/useTheme', async () => {
   const { lightPalette } = await import('@/constants/theme');
   return { usePalette: () => lightPalette, useThemedStyles: (factory: (colors: unknown) => unknown) => factory(lightPalette) };

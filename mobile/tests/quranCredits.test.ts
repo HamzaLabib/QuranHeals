@@ -124,7 +124,7 @@ describe('Quran Sources & Credits page', () => {
 });
 
 describe('Home footer', () => {
-  const home = readFileSync(resolve(__dirname, '../src/app/index.tsx'), 'utf-8').split(String.fromCharCode(13)).join('');
+  const home = readFileSync(resolve(__dirname, '../src/app/(tabs)/index.tsx'), 'utf-8').split(String.fromCharCode(13)).join('');
 
   it('every language has the short credit and the link text', () => {
     for (const locale of APP_LOCALES) {
@@ -137,12 +137,12 @@ describe('Home footer', () => {
     expect(MESSAGES['ar-EG'].home.sourcesLink).toBe('مصادر القرآن وحقوق النشر');
   });
 
-  it('is the last thing on Home, under the disclaimer, and links to /credits as an accessible link', () => {
-    const disclaimer = home.indexOf('messages.home.disclaimer');
+  it('is the last thing on Home, under "A Message from the Quran" (the disclaimer moved to /emotions), and links to /credits as an accessible link', () => {
+    const general = home.indexOf("router.push('/ayah/general')");
     const footer = home.indexOf('testID="home-sources"');
     const scrollEnd = home.indexOf('</ScrollView>');
-    expect(disclaimer).toBeGreaterThan(-1);
-    expect(footer).toBeGreaterThan(disclaimer);
+    expect(general).toBeGreaterThan(-1);
+    expect(footer).toBeGreaterThan(general);
     expect(scrollEnd).toBeGreaterThan(footer);
     const block = home.slice(footer, scrollEnd);
     expect(block).toMatch(/<Link href="\/credits" asChild>/);
@@ -153,7 +153,7 @@ describe('Home footer', () => {
   });
 
   it('the Mushaf reader no longer prints the credit under the page', () => {
-    const reader = readFileSync(resolve(__dirname, '../src/app/mushaf.tsx'), 'utf-8');
+    const reader = readFileSync(resolve(__dirname, '../src/app/(tabs)/mushaf.tsx'), 'utf-8');
     expect(reader).not.toMatch(/qpcCredit|artworkCredit|styles\.credit/);
   });
 });

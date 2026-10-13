@@ -53,7 +53,7 @@ describe('Settings screen: no hardcoded interface strings', () => {
 });
 
 describe('Navigation entry point to Settings', () => {
-  const INDEX_SCREEN_PATH = resolve(__dirname, '../src/app/index.tsx');
+  const INDEX_SCREEN_PATH = resolve(__dirname, '../src/app/(tabs)/index.tsx');
   const indexSource = readFileSync(INDEX_SCREEN_PATH, 'utf-8');
 
   it('the home screen exposes a clear nav entry to /settings', () => {

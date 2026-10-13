@@ -84,7 +84,7 @@ describe('Home: a hung getEmotions() request is bounded, releasing the in-flight
     });
     vi.stubGlobal('fetch', hungThenRecoveredFetch);
 
-    // Mirrors Home's own isFetchingRef guard (src/app/index.tsx) — the
+    // Mirrors Home's own isFetchingRef guard (src/app/(tabs)/index.tsx) — the
     // real loadEmotions() can't be imported/rendered here (no RN renderer),
     // but the guard shape and the getEmotions()/withRetry() calls inside it
     // are the real, unmocked production functions.

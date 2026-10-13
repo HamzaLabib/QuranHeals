@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { BOTTOM_NAV_CLEARANCE, scrollBottomPadding } from '@/utils/safeAreaSpacing';
 
 // Carriage returns removed so the style checks don't depend on the file's line endings.
-const indexSource = readFileSync(resolve(__dirname, '../src/app/index.tsx'), 'utf-8').split(String.fromCharCode(13)).join('');
+const indexSource = readFileSync(resolve(__dirname, '../src/app/(tabs)/index.tsx'), 'utf-8').split(String.fromCharCode(13)).join('');
 
 describe('scrollBottomPadding: space between the last item and the system navigation area', () => {
   it('adds a comfortable 24 px clearance on top of the bottom inset', () => {
@@ -39,23 +39,25 @@ describe('Home screen bottom safe area (source-scan)', () => {
     expect(contentStyle).not.toMatch(/paddingBottom/);
   });
 
-  it('keeps the disclaimer directly below "A Message from the Quran", followed only by the Quran sources footer, inside the scroll view', () => {
+  it('"A Message from the Quran" is followed only by the Quran sources footer, inside the scroll view; the disclaimer is no longer on Home', () => {
     const actionIndex = indexSource.indexOf("router.push('/ayah/general')");
-    const disclaimerIndex = indexSource.indexOf('messages.home.disclaimer');
     const footerIndex = indexSource.indexOf('testID="home-sources"');
     const scrollEnd = indexSource.indexOf('</ScrollView>');
     expect(actionIndex).toBeGreaterThan(-1);
-    expect(disclaimerIndex).toBeGreaterThan(actionIndex);
-    expect(footerIndex).toBeGreaterThan(disclaimerIndex);
+    expect(footerIndex).toBeGreaterThan(actionIndex);
     expect(scrollEnd).toBeGreaterThan(footerIndex);
-    // Between the disclaimer and the footer: only the footer's own opening tag.
-    const between = indexSource.slice(disclaimerIndex, footerIndex);
+    // Between the action's end and the footer: only the footer's own opening tag.
+    const between = indexSource.slice(indexSource.indexOf('</Pressable>', actionIndex), footerIndex);
     expect(between.match(/<(View|Pressable|Text)\b/g)).toEqual(['<View']);
-    expect(between).toMatch(/<View $/);
+    expect(indexSource).not.toMatch(/messages\.home\.disclaimer|disclaimer: \{/);
   });
 
-  it('keeps the disclaimer text styling and RTL direction unchanged', () => {
-    expect(indexSource).toMatch(/<Text style=\{\[styles\.disclaimer, direction\]\}>\{messages\.home\.disclaimer\}<\/Text>/);
-    expect(indexSource).toMatch(/disclaimer: \{\n    color: colors\.textMuted,\n    fontSize: typography\.caption,\n    lineHeight: 19,\n    paddingHorizontal: spacing\.xs,\n  \},/);
+  it('the disclaimer moved to the emotion list (/emotions) with its text styling and RTL direction unchanged, after the cards', () => {
+    const emotionsSource = readFileSync(resolve(__dirname, '../src/app/emotions.tsx'), 'utf-8').split(String.fromCharCode(13)).join('');
+    expect(emotionsSource).toMatch(/<Text testID="emotions-disclaimer" style=\{\[styles\.disclaimer, direction\]\}>\{messages\.home\.disclaimer\}<\/Text>/);
+    expect(emotionsSource).toMatch(/disclaimer: \{\n    color: colors\.textMuted,\n    fontSize: typography\.caption,\n    lineHeight: 19,\n    paddingHorizontal: spacing\.xs,\n  \},/);
+    expect(emotionsSource.indexOf('emotions-disclaimer')).toBeGreaterThan(emotionsSource.indexOf('testID="emotions-grid"'));
+    expect(emotionsSource.indexOf('</ScrollView>')).toBeGreaterThan(emotionsSource.indexOf('emotions-disclaimer'));
+    expect(emotionsSource).toMatch(/paddingBottom: scrollBottomPadding\(insets\.bottom\)/);
   });
 });

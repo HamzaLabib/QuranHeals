@@ -178,11 +178,11 @@ describe('reflections localization (messages.ts)', () => {
     }
   });
 
-  it('adds home.openReflections without disturbing the existing home.openFavorites label', () => {
-    expect(MESSAGES.en.home.openReflections).toBe('Open My Reflections');
-    expect(MESSAGES.en.home.openFavorites).toBe('Open saved ayahs');
-    expect(MESSAGES.ar.home.openReflections).toBe('فتح خواطري');
-    expect(MESSAGES['ar-EG'].home.openReflections).toBe('فتح خواطري');
+  it('Reflections is reached through its bottom tab, labelled خواطري in Arabic', () => {
+    expect(MESSAGES.en.tabs.reflections).toBe('Reflections');
+    expect(MESSAGES.ar.tabs.reflections).toBe('خواطري');
+    expect(MESSAGES['ar-EG'].tabs.reflections).toBe('خواطري');
+    expect(MESSAGES.ar.tabs.myReading).toBe('أورادي وختماتي');
   });
 
   it('the reflection editor keeps its own title and Save action', () => {
@@ -191,34 +191,27 @@ describe('reflections localization (messages.ts)', () => {
   });
 });
 
-describe('index.tsx: My Reflections header action (source-scan)', () => {
-  const homeSource = readFileSync(resolve(__dirname, '../src/app/index.tsx'), 'utf-8');
+describe('index.tsx: the Home header (source-scan)', () => {
+  const homeSource = readFileSync(resolve(__dirname, '../src/app/(tabs)/index.tsx'), 'utf-8');
+  const tabsLayout = readFileSync(resolve(__dirname, '../src/app/(tabs)/_layout.tsx'), 'utf-8');
 
-  it('routes a NotebookPen icon to /reflections, beside Settings and Favorites', () => {
-    expect(homeSource).toMatch(/NotebookPen/);
-    expect(homeSource).toMatch(/<Link href="\/reflections" asChild>/);
-    expect(homeSource).toMatch(/<NotebookPen size=\{20\} color=\{colors\.icon\} strokeWidth=\{2\} \/>/);
-  });
-
-  it('gives the new action a localized accessibility label, never a hardcoded string', () => {
-    expect(homeSource).toMatch(/accessibilityLabel=\{messages\.home\.openReflections\}/);
-  });
-
-  it('keeps Settings, Favorites, and Reflections inside the same RTL-aware headerActions row', () => {
+  it('exactly two shortcuts, Favorites then Settings, side by side in the RTL-aware headerActions row; no Reflections (it is a tab)', () => {
     const actionsBlock = homeSource.match(/<View style=\{\[styles\.headerActions,[\s\S]*?\n {8}<\/View>/)?.[0] ?? '';
-    expect(actionsBlock).toContain('/settings');
-    expect(actionsBlock).toContain('/favorites');
-    expect(actionsBlock).toContain('/reflections');
+    expect(actionsBlock.match(/<Link href=/g)).toHaveLength(2);
+    expect(actionsBlock.indexOf('<Link href="/favorites" asChild>')).toBeGreaterThan(-1);
+    expect(actionsBlock.indexOf('<Link href="/settings" asChild>')).toBeGreaterThan(actionsBlock.indexOf('<Link href="/favorites" asChild>'));
+    expect(actionsBlock).toMatch(/accessibilityLabel=\{messages\.home\.openFavorites\}/);
+    expect(actionsBlock).toMatch(/accessibilityLabel=\{messages\.settings\.openSettings\}/);
+    expect(actionsBlock).toMatch(/<Heart size=\{20\} color=\{colors\.icon\} strokeWidth=\{2\} \/>/);
+    expect(actionsBlock).not.toContain('/reflections');
+    expect(homeSource).not.toMatch(/NotebookPen/);
+    expect(homeSource).toMatch(/headerActionsRtl/);
   });
 
-  it('orders the header actions Saved -> Reflections -> Settings, so Settings renders last (the outside screen corner in both LTR and the RTL-mirrored row)', () => {
-    const actionsBlock = homeSource.match(/<View style=\{\[styles\.headerActions,[\s\S]*?\n {8}<\/View>/)?.[0] ?? '';
-    const favoritesIndex = actionsBlock.indexOf('/favorites');
-    const reflectionsIndex = actionsBlock.indexOf('/reflections');
-    const settingsIndex = actionsBlock.indexOf('/settings');
-    expect(favoritesIndex).toBeGreaterThanOrEqual(0);
-    expect(reflectionsIndex).toBeGreaterThan(favoritesIndex);
-    expect(settingsIndex).toBeGreaterThan(reflectionsIndex);
+  it('Reflections and أورادي وختماتي are tabs; Favorites is a screen above the tabs, not a tab', () => {
+    expect(tabsLayout).toMatch(/<Tabs\.Screen name="reflections" \/>/);
+    expect(tabsLayout).toMatch(/<Tabs\.Screen name="my-reading" \/>/);
+    expect(tabsLayout).not.toMatch(/name="favorites"/);
   });
 
   it('guards the title block with flexShrink so three icon buttons can never overflow/clip it on narrow screens', () => {
@@ -233,7 +226,7 @@ describe('index.tsx: My Reflections header action (source-scan)', () => {
 });
 
 describe('reflections.tsx and useReflections.ts: offline, guest-friendly, single editor (source-scan)', () => {
-  const screenSource = readFileSync(resolve(__dirname, '../src/app/reflections.tsx'), 'utf-8');
+  const screenSource = readFileSync(resolve(__dirname, '../src/app/(tabs)/reflections.tsx'), 'utf-8');
   const hookSource = readFileSync(resolve(__dirname, '../src/hooks/useReflections.ts'), 'utf-8');
   const cardSource = readFileSync(resolve(__dirname, '../src/components/ReflectionListCard.tsx'), 'utf-8');
 

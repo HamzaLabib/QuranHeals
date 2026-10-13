@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-const indexSource = readFileSync(resolve(__dirname, '../src/app/index.tsx'), 'utf-8');
+const indexSource = readFileSync(resolve(__dirname, '../src/app/(tabs)/index.tsx'), 'utf-8');
 const ayahExperienceSource = readFileSync(resolve(__dirname, '../src/components/AyahExperience.tsx'), 'utf-8');
 const syncApiSource = readFileSync(resolve(__dirname, '../src/sync/syncApi.ts'), 'utf-8');
 

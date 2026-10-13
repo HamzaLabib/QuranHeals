@@ -22,8 +22,8 @@ export type Messages = {
     sourcesCredit: string;
     /** Opens /credits. */
     sourcesLink: string;
+    /** Home header: the Favorites screen (Reflections and أورادي وختماتي are tabs). */
     openFavorites: string;
-    openReflections: string;
   };
   /**
    * The general Quran flow's single home-screen action — completely
@@ -255,6 +255,99 @@ export type Messages = {
     open: string;
     back: string;
     sourceLabel: string;
+    /** Opened for a ورد whose completion awaits confirmation (?wird=): a separate, explicit action. */
+    confirmFor: string;
+    confirm: string;
+  };
+  /** The four bottom tabs (app/(tabs)/_layout.tsx). */
+  tabs: {
+    home: string;
+    mushaf: string;
+    myReading: string;
+    reflections: string;
+  };
+  /** Home's first section. Placeholders: {page}, {total}, {name}. */
+  continueReading: {
+    title: string;
+    mushaf: string;
+    myReading: string;
+    pageOf: string;
+    activeWird: string;
+    lastSaved: string;
+    firstTitle: string;
+    firstBody: string;
+  };
+  /** Home's "View All" and the page of every emotion (/emotions). */
+  emotionsAll: {
+    viewAll: string;
+    title: string;
+    back: string;
+  };
+  /** أورادي وختماتي (/my-reading). Placeholders: {page}, {total}, {percent}, {count}, {name}, {year}. */
+  myReading: {
+    title: string;
+    back: string;
+    statsTotal: string;
+    statsRamadan: string;
+    statsNonRamadan: string;
+    wirdsTitle: string;
+    newWird: string;
+    emptyTitle: string;
+    emptyBody: string;
+    pageOf: string;
+    /** The saved position as a percent of the Mushaf: a position, never a count of pages read. */
+    percent: string;
+    /** The progress bar's spoken name. */
+    positionLabel: string;
+    /** Under the statistics: where the data lives, and what position and Khatma mean. */
+    footnote: string;
+    khatmaCount: string;
+    active: string;
+    continue: string;
+    rename: string;
+    delete: string;
+    pendingTitle: string;
+    confirm: string;
+    unconfirmedTitle: string;
+    unconfirmedBody: string;
+    recordUnconfirmed: string;
+    unconfirmedConfirmTitle: string;
+    unconfirmedConfirmBody: string;
+    duaEntry: string;
+    duaEntryBody: string;
+    historyTitle: string;
+    historyEmpty: string;
+    ramadanTag: string;
+    nonRamadanTag: string;
+    removeKhatma: string;
+    removeTitle: string;
+    removeBody: string;
+    remove: string;
+    cancel: string;
+    deleteTitle: string;
+    deleteBody: string;
+    createTitle: string;
+    renameTitle: string;
+    nameLabel: string;
+    startPageLabel: string;
+    save: string;
+    create: string;
+    nameInvalid: string;
+    nameTaken: string;
+    pageInvalid: string;
+    saveFailed: string;
+    loadFailed: string;
+  };
+  /** Completing a Khatma (the reader's prompt and /khatma-complete). */
+  khatma: {
+    reachedTitle: string;
+    confirm: string;
+    notNow: string;
+    completeTitle: string;
+    completeBody: string;
+    readDua: string;
+    backToKhatmas: string;
+    failed: string;
   };
   credits: {
     title: string;
@@ -476,7 +569,6 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       sourcesCredit: 'Quran text: Tanzil (Uthmani 1.1) · Mushaf layout and QPC V1 fonts: Quran Foundation · Mushaf typography and artwork: King Fahd Glorious Qur’an Printing Complex.',
       sourcesLink: 'Quran Sources & Credits',
       openFavorites: 'Open saved ayahs',
-      openReflections: 'Open My Reflections',
     },
     generalQuran: {
       action: 'A Message from the Quran',
@@ -669,8 +761,92 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       smaller: 'Smaller text',
       larger: 'Larger text',
       open: 'دعاء ختم القرآن',
-      back: 'Back to page 604',
+      back: 'Back',
       sourceLabel: 'Source',
+      confirmFor: '“{name}” has reached page 604. When you have completed your recitation, confirm the Khatma. Reading this supplication does not record it.',
+      confirm: 'Confirm Khatma completion',
+    },
+    tabs: {
+      home: 'Home',
+      mushaf: 'Mushaf',
+      myReading: 'Recitations & Khatmas',
+      reflections: 'Reflections',
+    },
+    continueReading: {
+      title: 'Continue Reciting',
+      mushaf: 'Mushaf',
+      myReading: 'My Recitations & Khatmas',
+      pageOf: 'Page {page} of {total}',
+      activeWird: 'Current Wird',
+      lastSaved: 'Last saved Wird',
+      firstTitle: 'Begin your recitation',
+      firstBody: 'Open the Mushaf at its first page, and save a Wird to keep your place.',
+    },
+    emotionsAll: {
+      viewAll: 'View All',
+      title: 'All emotions',
+      back: 'Back',
+    },
+    myReading: {
+      title: 'My Recitations & Khatmas',
+      back: 'Back',
+      statsTotal: 'All-time Khatmas',
+      statsRamadan: 'Ramadan Khatmas',
+      statsNonRamadan: 'Non-Ramadan Khatmas',
+      wirdsTitle: 'My Wirds',
+      newWird: 'New Wird',
+      emptyTitle: 'No Wird yet',
+      emptyBody: 'Create a Wird to keep your place in the Mushaf. Each Wird keeps its own page, progress and Khatmas.',
+      pageOf: 'Page {page} of {total}',
+      percent: 'Position {percent}%',
+      positionLabel: 'Saved position in the Mushaf',
+      footnote: 'Your Wirds and Khatmas are saved on this device only. A Wird’s position is the page you last saved, not a count of pages recited; a Khatma is counted only when you confirm it.',
+      khatmaCount: 'Khatmas: {count}',
+      active: 'Current',
+      continue: 'Continue reciting',
+      rename: 'Rename',
+      delete: 'Delete',
+      pendingTitle: 'This Wird has reached page 604.',
+      confirm: 'Confirm Khatma completion',
+      unconfirmedTitle: 'Saved at page 604',
+      unconfirmedBody: 'This Wird was saved at page 604 without a recorded recitation cycle (saved before Khatmas were tracked, or created on page 604). Nothing has been counted.',
+      recordUnconfirmed: 'I completed a Khatma with this Wird',
+      unconfirmedConfirmTitle: 'Record a completed Khatma?',
+      unconfirmedConfirmBody: 'Only if you have read the whole Quran with “{name}”. It will be counted once, and the Wird will start again from page 1.',
+      duaEntry: 'دعاء ختم القرآن',
+      duaEntryBody: 'Supplication on completing the Quran (optional)',
+      historyTitle: 'Completed Khatmas',
+      historyEmpty: 'Completed Khatmas will appear here.',
+      ramadanTag: 'Ramadan {year} AH',
+      nonRamadanTag: 'Outside Ramadan',
+      removeKhatma: 'Remove',
+      removeTitle: 'Remove this Khatma?',
+      removeBody: 'Use this only to correct a mistake. Counts are recalculated. If “{name}” has not been saved since this Khatma, it returns to page 604 with the completion awaiting confirmation; otherwise its current page is kept.',
+      remove: 'Remove',
+      cancel: 'Cancel',
+      deleteTitle: 'Delete “{name}”?',
+      deleteBody: 'Its saved page is removed. Its completed Khatmas stay in your history and totals.',
+      createTitle: 'New Wird',
+      renameTitle: 'Rename Wird',
+      nameLabel: 'Name',
+      startPageLabel: 'Starting page (1–604)',
+      save: 'Save',
+      create: 'Create',
+      nameInvalid: 'Enter a name of up to 40 characters.',
+      nameTaken: 'Another Wird already has this name.',
+      pageInvalid: 'Enter a page from 1 to 604.',
+      saveFailed: 'This could not be saved. Please try again.',
+      loadFailed: 'Your Wirds could not be loaded.',
+    },
+    khatma: {
+      reachedTitle: 'Masha’Allah, you have completed the Quran',
+      confirm: 'Complete the Khatma',
+      notNow: 'Not now',
+      completeTitle: 'May Allah accept your Khatma',
+      completeBody: 'We ask Allah to make the Quran a light for your heart and an intercessor for you.',
+      readDua: 'Read the Khatma Du’a',
+      backToKhatmas: 'Back to My Recitations & Khatmas',
+      failed: 'The Khatma could not be recorded. Please try again.',
     },
     credits: {
       title: 'Quran Sources & Credits',
@@ -790,7 +966,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     guestData: {
       title: "Add your local data to this account?",
-      body: "You have favorites or reflections saved on this device. Would you like to add them to this account and sync them across your devices?",
+      body: "You have favorites, reflections, or Wirds and Khatmas saved on this device. Would you like to add them to this account? Favorites and reflections then sync across your devices; Wirds and Khatmas stay on this device.",
       add: "Add to this account",
       keepSeparate: "Keep separate",
     },
@@ -872,7 +1048,6 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       sourcesCredit: 'نص القرآن: مشروع تنزيل (الرسم العثماني ١٫١) · تخطيط المصحف وخطوط QPC V1: Quran Foundation · خط المصحف وزخارفه: مجمع الملك فهد لطباعة المصحف الشريف.',
       sourcesLink: 'مصادر القرآن وحقوق النشر',
       openFavorites: 'فتح الآيات المحفوظة',
-      openReflections: 'فتح خواطري',
     },
     generalQuran: {
       action: 'رسالة من القرآن',
@@ -1065,8 +1240,92 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       smaller: 'تصغير الخط',
       larger: 'تكبير الخط',
       open: 'دعاء ختم القرآن',
-      back: 'العودة إلى الصفحة ٦٠٤',
+      back: 'رجوع',
       sourceLabel: 'المصدر',
+      confirmFor: 'بلغ «{name}» الصفحة ٦٠٤. إذا أتممت القراءة فأكّد إتمام الختمة. قراءة هذا الدعاء لا تسجّل الختمة.',
+      confirm: 'تأكيد إتمام الختمة',
+    },
+    tabs: {
+      home: 'الرئيسية',
+      mushaf: 'المصحف',
+      myReading: 'أورادي وختماتي',
+      reflections: 'خواطري',
+    },
+    continueReading: {
+      title: 'متابعة التلاوة',
+      mushaf: 'المصحف',
+      myReading: 'أورادي وختماتي',
+      pageOf: 'صفحة {page} من {total}',
+      activeWird: 'الورد الحالي',
+      lastSaved: 'آخر ورد محفوظ',
+      firstTitle: 'ابدأ قراءتك',
+      firstBody: 'افتح المصحف من صفحته الأولى، واحفظ وردًا لتحتفظ بموضعك.',
+    },
+    emotionsAll: {
+      viewAll: 'عرض الكل',
+      title: 'كل المشاعر',
+      back: 'رجوع',
+    },
+    myReading: {
+      title: 'أورادي وختماتي',
+      back: 'رجوع',
+      statsTotal: 'إجمالي الختمات',
+      statsRamadan: 'ختمات رمضان',
+      statsNonRamadan: 'ختمات خارج رمضان',
+      wirdsTitle: 'أورادي',
+      newWird: 'ورد جديد',
+      emptyTitle: 'لا توجد أوراد بعد',
+      emptyBody: 'أنشئ وردًا لتحتفظ بموضعك في المصحف. لكل ورد صفحته وتقدّمه وختماته.',
+      pageOf: 'صفحة {page} من {total}',
+      percent: 'الموضع {percent}٪',
+      positionLabel: 'الموضع المحفوظ في المصحف',
+      footnote: 'تُحفظ أورادك وختماتك على هذا الجهاز فقط. موضع الورد هو آخر صفحة حفظتها، وليس عدد الصفحات التي تلوتها، ولا تُحتسب الختمة إلا بتأكيدك.',
+      khatmaCount: 'الختمات: {count}',
+      active: 'الحالي',
+      continue: 'متابعة التلاوة',
+      rename: 'إعادة التسمية',
+      delete: 'حذف',
+      pendingTitle: 'بلغ هذا الورد الصفحة ٦٠٤.',
+      confirm: 'تأكيد إتمام الختمة',
+      unconfirmedTitle: 'محفوظ عند الصفحة ٦٠٤',
+      unconfirmedBody: 'حُفظ هذا الورد عند الصفحة ٦٠٤ دون دورة قراءة مسجّلة (قبل بدء تسجيل الختمات، أو أُنشئ على الصفحة ٦٠٤). لم يُحتسب شيء.',
+      recordUnconfirmed: 'أتممت ختمة بهذا الورد',
+      unconfirmedConfirmTitle: 'تسجيل ختمة مكتملة؟',
+      unconfirmedConfirmBody: 'فقط إذا قرأت القرآن كاملًا بورد «{name}». ستُحتسب مرة واحدة، ويبدأ الورد من جديد من الصفحة ١.',
+      duaEntry: 'دعاء ختم القرآن',
+      duaEntryBody: 'دعاء يُقرأ بعد ختم القرآن الكريم (اختياري)',
+      historyTitle: 'الختمات المكتملة',
+      historyEmpty: 'ستظهر هنا ختماتك المكتملة.',
+      ramadanTag: 'رمضان {year} هـ',
+      nonRamadanTag: 'خارج رمضان',
+      removeKhatma: 'إزالة',
+      removeTitle: 'إزالة هذه الختمة؟',
+      removeBody: 'استخدم هذا لتصحيح خطأ فقط. يُعاد حساب الأعداد. إذا لم يُحفظ «{name}» منذ هذه الختمة فإنه يعود إلى الصفحة ٦٠٤ بانتظار تأكيد الختمة، وإلا فتبقى صفحته الحالية كما هي.',
+      remove: 'إزالة',
+      cancel: 'إلغاء',
+      deleteTitle: 'حذف «{name}»؟',
+      deleteBody: 'تُحذف صفحته المحفوظة، وتبقى ختماته المكتملة في سجلك وإجمالياتك.',
+      createTitle: 'ورد جديد',
+      renameTitle: 'إعادة تسمية الورد',
+      nameLabel: 'الاسم',
+      startPageLabel: 'صفحة البداية (١–٦٠٤)',
+      save: 'حفظ',
+      create: 'إنشاء',
+      nameInvalid: 'اكتب اسمًا لا يزيد على ٤٠ حرفًا.',
+      nameTaken: 'يوجد ورد آخر بهذا الاسم.',
+      pageInvalid: 'اكتب رقم صفحة من ١ إلى ٦٠٤.',
+      saveFailed: 'تعذّر الحفظ. يُرجى المحاولة مرة أخرى.',
+      loadFailed: 'تعذّر تحميل أورادك.',
+    },
+    khatma: {
+      reachedTitle: 'ما شاء الله، أتممت ختم القرآن',
+      confirm: 'إتمام الختمة',
+      notNow: 'ليس الآن',
+      completeTitle: 'تقبل الله ختمتك',
+      completeBody: 'نسأل الله أن يجعل القرآن نورًا لقلبك وشفيعًا لك',
+      readDua: 'قراءة دعاء ختم القرآن',
+      backToKhatmas: 'العودة إلى ختماتي',
+      failed: 'تعذّر تسجيل الختمة. يُرجى المحاولة مرة أخرى.',
     },
     credits: {
       title: 'مصادر القرآن وحقوق النشر',
@@ -1190,7 +1449,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     guestData: {
       title: "إضافة البيانات المحفوظة على هذا الجهاز إلى هذا الحساب؟",
-      body: "لديك مفضلة أو خواطر محفوظة على هذا الجهاز. هل تريد إضافتها إلى هذا الحساب ومشاركتها عبر أجهزتك؟",
+      body: "لديك مفضلة أو خواطر أو أوراد وختمات محفوظة على هذا الجهاز. هل تريد إضافتها إلى هذا الحساب؟ تُشارَك المفضلة والخواطر عبر أجهزتك، وتبقى الأوراد والختمات على هذا الجهاز.",
       add: "إضافة إلى هذا الحساب",
       keepSeparate: "إبقاؤها منفصلة",
     },
@@ -1272,7 +1531,6 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       sourcesCredit: 'نص القرآن: مشروع تنزيل (الرسم العثماني ١٫١) · تخطيط المصحف وخطوط QPC V1: Quran Foundation · خط المصحف وزخارفه: مجمع الملك فهد لطباعة المصحف الشريف.',
       sourcesLink: 'مصادر القرآن وحقوق النشر',
       openFavorites: 'افتح الآيات المحفوظة',
-      openReflections: 'فتح خواطري',
     },
     // Standard Arabic, same as `ar` — general UI (Part J §47), not one of
     // the three approved Egyptian exceptions.
@@ -1475,8 +1733,93 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       smaller: 'تصغير الخط',
       larger: 'تكبير الخط',
       open: 'دعاء ختم القرآن',
-      back: 'الرجوع للصفحة ٦٠٤',
+      back: 'رجوع',
       sourceLabel: 'المصدر',
+      confirmFor: '«{name}» وصل للصفحة ٦٠٤. لو خلّصت القراية أكّد إتمام الختمة. قراية الدعاء ده مش بتسجّل الختمة.',
+      confirm: 'تأكيد إتمام الختمة',
+    },
+    // Navigation and the Khatma flow keep the approved Standard Arabic wording (as generalQuran does).
+    tabs: {
+      home: 'الرئيسية',
+      mushaf: 'المصحف',
+      myReading: 'أورادي وختماتي',
+      reflections: 'خواطري',
+    },
+    continueReading: {
+      title: 'متابعة التلاوة',
+      mushaf: 'المصحف',
+      myReading: 'أورادي وختماتي',
+      pageOf: 'صفحة {page} من {total}',
+      activeWird: 'الورد الحالي',
+      lastSaved: 'آخر ورد محفوظ',
+      firstTitle: 'ابدأ قرايتك',
+      firstBody: 'افتح المصحف من أول صفحة، واحفظ ورد عشان تفضل فاكر مكانك.',
+    },
+    emotionsAll: {
+      viewAll: 'عرض الكل',
+      title: 'كل المشاعر',
+      back: 'رجوع',
+    },
+    myReading: {
+      title: 'أورادي وختماتي',
+      back: 'رجوع',
+      statsTotal: 'إجمالي الختمات',
+      statsRamadan: 'ختمات رمضان',
+      statsNonRamadan: 'ختمات خارج رمضان',
+      wirdsTitle: 'أورادي',
+      newWird: 'ورد جديد',
+      emptyTitle: 'مفيش أوراد لسه',
+      emptyBody: 'اعمل ورد عشان تحفظ مكانك في المصحف. كل ورد ليه صفحته وتقدّمه وختماته.',
+      pageOf: 'صفحة {page} من {total}',
+      percent: 'الموضع {percent}٪',
+      positionLabel: 'الموضع المحفوظ في المصحف',
+      footnote: 'أورادك وختماتك محفوظة على الجهاز ده بس. موضع الورد هو آخر صفحة حفظتها، مش عدد الصفحات اللي تلوتها، والختمة مابتتحسبش غير لما تأكدها.',
+      khatmaCount: 'الختمات: {count}',
+      active: 'الحالي',
+      continue: 'كمّل التلاوة',
+      rename: 'غيّر الاسم',
+      delete: 'امسح',
+      pendingTitle: 'الورد ده وصل للصفحة ٦٠٤.',
+      confirm: 'تأكيد إتمام الختمة',
+      unconfirmedTitle: 'محفوظ عند الصفحة ٦٠٤',
+      unconfirmedBody: 'الورد ده اتحفظ عند الصفحة ٦٠٤ من غير دورة قراية متسجّلة (قبل ما تسجيل الختمات يبدأ، أو اتعمل على الصفحة ٦٠٤). ماتحسبش حاجة.',
+      recordUnconfirmed: 'ختمت ختمة بالورد ده',
+      unconfirmedConfirmTitle: 'تسجّل ختمة مكتملة؟',
+      unconfirmedConfirmBody: 'بس لو قريت القرآن كله بورد «{name}». هتتحسب مرة واحدة، والورد هيبدأ من جديد من الصفحة ١.',
+      duaEntry: 'دعاء ختم القرآن',
+      duaEntryBody: 'دعاء بيتقري بعد ختم القرآن الكريم (اختياري)',
+      historyTitle: 'الختمات المكتملة',
+      historyEmpty: 'ختماتك المكتملة هتظهر هنا.',
+      ramadanTag: 'رمضان {year} هـ',
+      nonRamadanTag: 'برّه رمضان',
+      removeKhatma: 'شيل',
+      removeTitle: 'تشيل الختمة دي؟',
+      removeBody: 'استخدم ده بس لتصليح غلطة. الأعداد هتتحسب من جديد. لو «{name}» ماتحفظش من ساعة الختمة دي هيرجع للصفحة ٦٠٤ مستني تأكيد الختمة، وإلا صفحته الحالية هتفضل زي ما هي.',
+      remove: 'شيل',
+      cancel: 'إلغاء',
+      deleteTitle: 'تمسح «{name}»؟',
+      deleteBody: 'صفحته المحفوظة هتتمسح، وختماته المكتملة هتفضل في سجلك وإجمالياتك.',
+      createTitle: 'ورد جديد',
+      renameTitle: 'غيّر اسم الورد',
+      nameLabel: 'الاسم',
+      startPageLabel: 'صفحة البداية (١–٦٠٤)',
+      save: 'احفظ',
+      create: 'اعمل',
+      nameInvalid: 'اكتب اسم لحد ٤٠ حرف.',
+      nameTaken: 'فيه ورد تاني بنفس الاسم.',
+      pageInvalid: 'اكتب رقم صفحة من ١ لـ ٦٠٤.',
+      saveFailed: 'ماعرفناش نحفظ. جرّب تاني.',
+      loadFailed: 'ماعرفناش نحمّل أورادك.',
+    },
+    khatma: {
+      reachedTitle: 'ما شاء الله، أتممت ختم القرآن',
+      confirm: 'إتمام الختمة',
+      notNow: 'ليس الآن',
+      completeTitle: 'تقبل الله ختمتك',
+      completeBody: 'نسأل الله أن يجعل القرآن نورًا لقلبك وشفيعًا لك',
+      readDua: 'قراءة دعاء ختم القرآن',
+      backToKhatmas: 'العودة إلى ختماتي',
+      failed: 'ماعرفناش نسجّل الختمة. جرّب تاني.',
     },
     credits: {
       title: 'مصادر القرآن وحقوق النشر',
@@ -1607,7 +1950,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     // sync-password phase), never Egyptian colloquial.
     guestData: {
       title: "إضافة البيانات المحفوظة على هذا الجهاز إلى هذا الحساب؟",
-      body: "لديك مفضلة أو خواطر محفوظة على هذا الجهاز. هل تريد إضافتها إلى هذا الحساب ومشاركتها عبر أجهزتك؟",
+      body: "لديك مفضلة أو خواطر أو أوراد وختمات محفوظة على هذا الجهاز. هل تريد إضافتها إلى هذا الحساب؟ تُشارَك المفضلة والخواطر عبر أجهزتك، وتبقى الأوراد والختمات على هذا الجهاز.",
       add: "إضافة إلى هذا الحساب",
       keepSeparate: "إبقاؤها منفصلة",
     },

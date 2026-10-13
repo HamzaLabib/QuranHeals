@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 import { MESSAGES } from '@/localization/messages';
 
-const indexSource = readFileSync(resolve(__dirname, '../src/app/index.tsx'), 'utf-8');
+const indexSource = readFileSync(resolve(__dirname, '../src/app/(tabs)/index.tsx'), 'utf-8');
 
 describe('Home screen: "A Message from the Quran" general action (source-scan)', () => {
   it('renders one action wired to messages.generalQuran.action — no separate heading key', () => {

@@ -7,6 +7,7 @@ import { BackHandler, Platform, Pressable, StyleSheet, Text, View } from 'react-
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { KhatmaReachedSheet } from '@/components/KhatmaReachedSheet';
 import { MushafControlPanel, MUSHAF_PANEL_HEIGHT, MUSHAF_PANEL_MARGIN, type MushafPopup } from '@/components/MushafControlPanel';
 import { MushafPageView } from '@/components/MushafPageView';
 import { MushafSearchSheet } from '@/components/MushafSearchSheet';
@@ -32,15 +33,18 @@ import { hizbLabelsForPage } from '@/mushaf/hizbQuarters';
 import { BORDER_TILES_DOWN, computePageLayout } from '@/mushaf/pageGeometry';
 import { QPC_V1_FONTS } from '@/mushaf/qpcV1Fonts';
 import { checkAgainstTanzil, loadQpcV1PageLayout, type QpcV1PageLayout } from '@/mushaf/qpcV1Layout';
+import { confirmKhatma, saveWirdPage } from '@/mushaf/khatmas';
+import { parsePageNumber } from '@/mushaf/pageNumber';
 import {
   activeReadingStop,
   loadActiveReadingStopId,
   loadReadingStops,
   ReadingStopError,
-  saveReadingStop,
   setActiveReadingStopId,
+  subscribeToReadingData,
   type ReadingStop,
 } from '@/mushaf/readingStops';
+import { subscribeToLocalDataOwner } from '@/storage/localDataOwner';
 import { BASMALA_FONT_PAGE, surahOpeningSlots } from '@/mushaf/surahOpenings';
 import { getVerseByKey } from '@/services/quran';
 import { useThemedStyles, useThemeName } from '@/theme/useTheme';
@@ -86,11 +90,23 @@ import { goBackOrHome } from '@/utils/goBackOrHome';
  * only after its layout passes the check against the verified Tanzil text.
  * A page that isn't downloaded shows the offline download instead.
  *
- * Not linked from the rest of the app yet (open it as /mushaf, or
- * /mushaf?page=N). Khatma and statistics are out of scope.
+ * The Mushaf tab (app/(tabs)/_layout.tsx): it stays mounted while other
+ * tabs show, so returning shows the same page and active ورد. The tab bar is
+ * hidden on this tab in both modes (declared in the tabs layout), so the
+ * reader has the whole screen and the page keeps its approved size; Back
+ * returns to the tab it came from (Home when opened directly). /mushaf?page=N&at=<time> (Home, أورادي
+ * وختماتي) opens page N even when the reader is already open.
+ *
+ * Khatma (mushaf/khatmas.ts): saving the active ورد from an earlier page to
+ * page 604 offers «ما شاء الله، أتممت ختم القرآن» with إتمام الختمة / ليس الآن.
+ * Nothing is counted unless confirmed; declined, it stays pending in
+ * أورادي وختماتي. Showing page 604 never offers or counts anything.
  */
 
+/** Page 61: bundled (its font, its online layout and the Quran SVG fallback), so it is drawn even before the offline download. */
 const DEFAULT_PAGE = 61;
+/** Where a reader with no saved position starts: the first page of the Mushaf. */
+const FIRST_PAGE = 1;
 /** Page height ÷ width (headers, frame and page number), from the measured geometry. */
 const PAGE_ASPECT = computePageLayout(1000).page.height / 1000;
 /**
@@ -186,13 +202,8 @@ function inkedSvg(svg: string, ink: string) {
   return tinted;
 }
 
-/** Western or Arabic-Indic digits → a page number, or null. */
-export function parsePageNumber(input: string): number | null {
-  const western = input.trim().replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660)).replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0));
-  if (!/^\d{1,3}$/.test(western)) return null;
-  const page = Number(western);
-  return page >= 1 && page <= MUSHAF_PAGE_COUNT ? page : null;
-}
+/** Western or Arabic-Indic digits → a page number, or null (shared with أورادي وختماتي). */
+export { parsePageNumber };
 
 /** Registers a page's QCF V1 font: the bundled one for page 61, a verified offline file, or Quran Foundation's CDN. */
 async function ensurePageFont(page: number, family: string): Promise<boolean> {
@@ -225,7 +236,8 @@ export default function MushafScreen() {
   const highlight = { color: furniture.highlight, opacity: furniture.highlightOpacity };
 
   const requestedPage = parsePageNumber(String(Array.isArray(params.page) ? params.page[0] : params.page ?? ''));
-  const initialPage = requestedPage ?? DEFAULT_PAGE;
+  // No ?page=: page 1 until the saved ورد (if any) is read from storage just below.
+  const initialPage = requestedPage ?? FIRST_PAGE;
   const [page, setPage] = useState(initialPage);
   // What was loaded, for which page: any other page is still loading.
   const [loaded, setLoaded] = useState<{ page: number; reload: number; state: PageState } | null>(null);
@@ -253,22 +265,35 @@ export default function MushafScreen() {
   const activeStop = activeReadingStop(stops, activeStopId);
   // Set once the reader moves: the active stop's page then no longer replaces the opening page.
   const hasNavigated = useRef(false);
+  const initialRequest = useRef(`${String(params.page ?? '')}|${String(params.at ?? '')}`);
+  // «ما شاء الله، أتممت ختم القرآن»: after a save took this ورد's cycle to page 604.
+  const [reached, setReached] = useState<{ stopId: string; cycleId: string; name: string } | null>(null);
+  const [isConfirming, setIsConfirming] = useState(false);
+  const confirmingRef = useRef(false);
+  const [confirmFailed, setConfirmFailed] = useState(false);
 
   // On opening: the stops and the active one. Without ?page=, the active stop's saved page opens.
+  // Afterwards the list follows every change to reading data (أورادي وختماتي, Home) and the account, without moving the page.
   useEffect(() => {
     let cancelled = false;
-    void (async () => {
+    const reload = async (opening: boolean) => {
       const [list, id] = await Promise.all([loadReadingStops(), loadActiveReadingStopId()]);
       if (cancelled) return;
       setStops(list);
       setActiveStopId(id);
-      const active = activeReadingStop(list, id);
-      if (active && requestedPage === null && !hasNavigated.current) setPage(active.page);
-    })();
+      // The saved position: the active ورد's page, else the most recently saved ورد's (as Home's متابعة التلاوة); none: page 1.
+      const saved = activeReadingStop(list, id) ?? list[0] ?? null;
+      if (opening && saved && requestedPage === null && !hasNavigated.current) setPage(saved.page);
+    };
+    void reload(true);
+    const unsubscribeData = subscribeToReadingData(() => void reload(false));
+    const unsubscribeOwner = subscribeToLocalDataOwner(() => void reload(false));
     return () => {
       cancelled = true;
+      unsubscribeData();
+      unsubscribeOwner();
     };
-    // Only on opening: later changes come from this screen's own actions.
+    // Only on opening: later changes arrive through the subscriptions.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -331,6 +356,24 @@ export default function MushafScreen() {
   // Left arrow = next page, right arrow = previous; a finger swipe left to right = next, right to left = previous
   // (the same in every language; swipes at 1× only — mushaf/pageZoom.ts swipeTurn).
 
+  // A later /mushaf?page=N&at=… (Home's Continue Reciting, أورادي وختماتي) while the reader is already open:
+  // applied while rendering (React's "adjust state when a prop changes"), once per request.
+  const requestToken = `${String(params.page ?? '')}|${String(params.at ?? '')}`;
+  const [handledRequest, setHandledRequest] = useState(requestToken);
+  if (handledRequest !== requestToken) {
+    setHandledRequest(requestToken);
+    if (requestedPage !== null) {
+      setPage(requestedPage);
+      setSelectedVerseKey(null);
+      setPopup(null);
+      setZoomed(false);
+    }
+  }
+  // Such a page is a navigation: the active ورد's saved page no longer replaces it on opening.
+  useEffect(() => {
+    if (handledRequest !== initialRequest.current) hasNavigated.current = true;
+  }, [handledRequest]);
+
   /** A tap on an ayah selects it; a tap on the selected ayah clears the selection. */
   const selectVerse = (verseKey: string) => {
     const now = Date.now();
@@ -355,11 +398,15 @@ export default function MushafScreen() {
   };
   const onSaveStop = async (name: string) => {
     try {
-      // The whole page — never the selected ayah. The stop just saved is the one being read.
-      const next = await saveReadingStop({ name, page });
-      setStops(next);
-      setActiveStopId(next[0].id);
-      await setActiveReadingStopId(next[0].id).catch(() => undefined);
+      // The whole page — never the selected ayah. The stop just saved is the one being read (saveWirdPage makes it active).
+      const result = await saveWirdPage({ name, page });
+      setStops(result.stops);
+      setActiveStopId(result.stop.id);
+      // Only a save that took this ورد from an earlier page to 604 offers the Khatma; showing 604 never does.
+      if (result.reachedEnd) {
+        setConfirmFailed(false);
+        setReached({ stopId: result.stop.id, cycleId: result.cycleId, name: result.stop.name });
+      }
       return { tone: 'info' as const, text: copy.stopSaved };
     } catch (error) {
       const kind = error instanceof ReadingStopError ? error.kind : null;
@@ -407,6 +454,30 @@ export default function MushafScreen() {
     setIsWirdOpen(false);
     setPopup('save');
   };
+  /** أورادي وختماتي: create, rename, delete and follow every ورد. */
+  const manageWirds = () => {
+    setIsWirdOpen(false);
+    router.navigate('/my-reading');
+  };
+
+  /** إتمام الختمة: records this cycle once (a repeated tap finds it already recorded), then the completion screen. */
+  const onConfirmKhatma = async () => {
+    // A ref, not only state: a second tap in the same frame sees it at once (state updates after the render).
+    if (!reached || confirmingRef.current) return;
+    confirmingRef.current = true;
+    setIsConfirming(true);
+    setConfirmFailed(false);
+    try {
+      const { record } = await confirmKhatma(reached.stopId, reached.cycleId);
+      setReached(null);
+      router.push({ pathname: '/khatma-complete', params: { id: record.id } });
+    } catch {
+      setConfirmFailed(true);
+    } finally {
+      confirmingRef.current = false;
+      setIsConfirming(false);
+    }
+  };
 
   const content: PageState = loaded && loaded.page === page && loaded.reload === reloadKey ? loaded.state : { status: 'loading' };
   const svg = svgPage61();
@@ -415,7 +486,7 @@ export default function MushafScreen() {
   // Traditional otherwise); Normal Mode is always Traditional. It needs the QPC lines (the Quran SVG page keeps
   // its own fixed line positions). There is no layout choice anywhere.
   const taller = fullScreen && showQpc;
-  // The largest page that fits between the Back row and the floating bar, never cropped.
+  // The largest page that fits between the Back row and the floating bar, never cropped. No tab bar on this tab.
   const fit = fitMushafPage(area, insets.bottom, fullScreen, taller);
   const { width: pageWidth, height: pageHeight } = fit.page;
   const showSvg = page === DEFAULT_PAGE && svg && (content.status === 'svg' || (content.status === 'qpc' && !showQpc));
@@ -537,6 +608,7 @@ export default function MushafScreen() {
                 addNew: copy.wirdNew,
                 close: copy.wirdClose,
                 page: copy.pageShort,
+                manage: messages.myReading.title,
               }}
               dark={dark}
               rtl={rtl}
@@ -548,6 +620,7 @@ export default function MushafScreen() {
               onClose={() => setIsWirdOpen(false)}
               onSelect={selectStop}
               onAdd={addStop}
+              onManage={manageWirds}
               anchorBottom={insets.bottom + MUSHAF_PANEL_MARGIN + MUSHAF_PANEL_HEIGHT + PAGE_PANEL_GAP + (fit.viewport.height - pageHeight + WIRD_PILL_HEIGHT) / 2}
             />
             {/* After the last page: the optional دعاء ختم القرآن (its own screen, not a page 605), once a verified text is approved. */}
@@ -618,6 +691,17 @@ export default function MushafScreen() {
         visible={isReflectionVisible}
         verseKey={selectedVerseKey}
         onClose={() => setIsReflectionVisible(false)}
+      />
+
+      <KhatmaReachedSheet
+        visible={reached !== null}
+        wirdName={reached?.name ?? ''}
+        labels={{ title: messages.khatma.reachedTitle, confirm: messages.khatma.confirm, notNow: messages.khatma.notNow, failed: messages.khatma.failed }}
+        busy={isConfirming}
+        failed={confirmFailed}
+        onConfirm={() => void onConfirmKhatma()}
+        // ليس الآن: nothing is counted; the completion stays pending in أورادي وختماتي.
+        onNotNow={() => setReached(null)}
       />
     </GestureHandlerRootView>
   );

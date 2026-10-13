@@ -21,6 +21,8 @@ import {
 import { clearAllReflections } from '@/storage/ayahReflections';
 import { clearAllConflictVersions } from '@/storage/reflectionConflicts';
 import { clearAllFavorites } from '@/storage/favorites';
+import { clearAccountReadingData } from '@/mushaf/khatmas';
+import { clearRecentEmotions } from '@/storage/recentEmotions';
 import { hideAccountDataNow, notifyLocalDataChanged } from '@/storage/localDataOwner';
 import {
   activateGuestLocalData,
@@ -571,6 +573,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Kept other versions (D5) are this account's reflections too.
     if (deletedUserId) await clearAllConflictVersions(deletedUserId);
     await clearAllFavorites(deletedUserId ?? undefined);
+    // The account's reading stops, Khatmas and recent emotions on this device (never synced, so only here).
+    if (deletedUserId) {
+      await clearAccountReadingData(deletedUserId);
+      await clearRecentEmotions(deletedUserId);
+    }
     await endSession();
     if (deletedUserId) await releaseLocalDataAfterAccountDeletion(deletedUserId);
   }, [endSession, promptForFreshProviderCredential]);

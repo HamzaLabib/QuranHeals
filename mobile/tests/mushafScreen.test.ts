@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
 import { createElement } from 'react';
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -60,15 +63,15 @@ vi.mock('react-native', async () => {
       h('FlatList', rest, ...(data.length ? data.map((item, index) => h('Row', { key: keyExtractor(item) }, renderItem({ item, index }) as never)) : [ListEmptyComponent as never])),
     TouchableWithoutFeedback: 'TouchableWithoutFeedback',
     useWindowDimensions: () => ({ width: 390, height: 844 }),
-    Pressable: 'Pressable', ScrollView: 'ScrollView', Text: 'Text', TextInput: 'TextInput', View: 'View',
+    ActivityIndicator: 'ActivityIndicator', Pressable: 'Pressable', ScrollView: 'ScrollView', Text: 'Text', TextInput: 'TextInput', View: 'View',
   };
 });
 vi.mock('react-native-svg', () => ({ default: 'Svg', ClipPath: 'ClipPath', Rect: 'Rect', Path: 'Path', Circle: 'Circle', SvgXml: 'SvgXml', Defs: 'Defs', Ellipse: 'Ellipse', G: 'G', LinearGradient: 'LinearGradient', Stop: 'Stop' }));
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView', useSafeAreaInsets: () => state.insets }));
 vi.mock('lucide-react-native', () => ({
-  ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', Bookmark: 'Bookmark', Check: 'Check', ChevronDown: 'ChevronDown', Maximize: 'Maximize', Minimize: 'Minimize', Plus: 'Plus', Search: 'Search', X: 'X',
+  ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', BookMarked: 'BookMarked', Bookmark: 'Bookmark', Check: 'Check', ChevronDown: 'ChevronDown', Maximize: 'Maximize', Minimize: 'Minimize', Plus: 'Plus', Search: 'Search', X: 'X',
 }));
-vi.mock('expo-router', () => ({ router: { back: vi.fn(), replace: vi.fn(), push: vi.fn(), canGoBack: () => state.canGoBack }, useLocalSearchParams: () => state.params }));
+vi.mock('expo-router', () => ({ router: { back: vi.fn(), replace: vi.fn(), push: vi.fn(), navigate: vi.fn(), canGoBack: () => state.canGoBack }, useLocalSearchParams: () => state.params }));
 vi.mock('@/mushaf/khatmDua', async (original) => ({ ...(await original<object>()), get KHATM_DUA() { return state.khatmDua; } }));
 vi.mock('react-native-gesture-handler', () => {
   // Each Gesture.X() records its handlers (onStart…) and settings (enabled, maxPointers…), chainable like the real builder.
@@ -131,7 +134,7 @@ vi.mock('@/services/quranAsset', async () => {
   return { openBundledQuran: async () => openTestDatabase() };
 });
 
-const { default: MushafScreen, parsePageNumber, fitMushafPage, BACK_BAR_HEIGHT, TALLER_MAX_TILES_DOWN, TALLER_MAX_LINE_SPACING } = await import('@/app/mushaf');
+const { default: MushafScreen, parsePageNumber, fitMushafPage, BACK_BAR_HEIGHT, TALLER_MAX_TILES_DOWN, TALLER_MAX_LINE_SPACING } = await import('@/app/(tabs)/mushaf');
 const { router } = await import('expo-router');
 const { MUSHAF_PANEL_COLORS } = await import('@/constants/mushafTheme');
 const { ReflectionBulbIcon } = await import('@/components/ReflectionBulbIcon');
@@ -245,7 +248,9 @@ beforeEach(() => {
   state.locale = 'en';
   state.storage.clear();
   state.fontsLoaded = true;
-  state.params = {};
+  // Most tests draw page 61 (bundled: drawn before any download), so they open it explicitly; without ?page= the
+  // reader opens the saved ورد's page, or page 1 (tests below).
+  state.params = { page: '61' };
   state.theme = 'light';
   state.insets = { top: 47, bottom: 34, left: 0, right: 0 };
   state.canGoBack = true;
@@ -745,7 +750,7 @@ describe('Taller full screen: every page, every build; Normal Mode always Tradit
   const setDev = (on: boolean) => { (globalThis as { __DEV__?: boolean }).__DEV__ = on; };
   afterEach(() => setDev(false));
   async function renderQpc(params: Record<string, string>, area = { width: 412, height: 855 }) {
-    state.params = params;
+    state.params = { page: '61', ...params };
     state.fetch.mockResolvedValue(layoutResponse(200, { success: true, data: syntheticQpcPage61() }));
     await render(area);
     const layout = syntheticQpcPage61();
@@ -1552,6 +1557,7 @@ describe('the active reading stop (ورد)', () => {
 
   it('opens on its saved page after a restart (no page asked for); a page in the link wins', async () => {
     seed(THREE, 'tadabbur');
+    state.params = {};
     await render();
     expect(state.offline.readPage).toHaveBeenLastCalledWith(125);
     expect(pillText()).toBe('ورد التدبر');
@@ -1900,7 +1906,7 @@ describe('QPC V1 (1405 AH) renderer', () => {
   });
 
   it('the phase-1C presets restore Original Cream and the font`s green marker glyphs exactly', async () => {
-    state.params = { background: 'original', markers: 'qpc-glyph' };
+    state.params = { page: '61', background: 'original', markers: 'qpc-glyph' };
     const layout = syntheticQpcPage61();
     await renderQpc(layout);
     await layOut(layout);
@@ -2190,5 +2196,159 @@ describe('دعاء ختم القرآن after page 604', () => {
       expect(state.storage.get(ACTIVE_READING_STOP_STORAGE_KEY)).toBe('fajr');
       await act(async () => root.unmount());
     }
+  });
+});
+
+describe('Khatma: reaching page 604 through the saved ورد (mushaf/khatmas.ts)', () => {
+  const { KHATMAS_STORAGE_KEY } = { KHATMAS_STORAGE_KEY: 'quran-heals:mushaf-khatmas:v1' };
+  const records = () => (JSON.parse(state.storage.get(KHATMAS_STORAGE_KEY) ?? '{"records":[]}') as { records: { id: string; stopId: string }[] }).records;
+  const stops = () => JSON.parse(state.storage.get(READING_STOPS_STORAGE_KEY) ?? '[]') as { id: string; name: string; page: number }[];
+  const sheet = () => root.root.findAllByProps({ testID: 'khatma-reached' }).filter((node) => String(node.type) === 'View');
+  const sheetButton = (which: 'confirm' | 'cancel') => root.root.findAllByProps({ testID: `khatma-reached-${which}` }).find((node) => String(node.type) === 'Pressable')!;
+  const fajrAt = (page: number) => {
+    state.storage.set(READING_STOPS_STORAGE_KEY, JSON.stringify([{ id: 'fajr', name: 'ورد الفجر', page, updatedAt: '2026-10-01T00:00:00.000Z' }]));
+    state.storage.set(ACTIVE_READING_STOP_STORAGE_KEY, 'fajr');
+  };
+  async function saveAs(name: string) {
+    await press(panelButton('save'));
+    await act(async () => root.root.findByProps({ testID: 'mushaf-popup-save' }).findByType('TextInput' as never).props.onChangeText(name));
+    await press(button(copy().confirmStop));
+    await flush();
+  }
+
+  it('showing, turning to or searching page 604 offers nothing and counts nothing', async () => {
+    fajrAt(300);
+    state.params = { page: '603' };
+    await render();
+    await press(panelButton('next'));
+    await flush();
+    expect(panelButton('next').props.disabled).toBe(true); // page 604, the last
+    expect(sheet()).toHaveLength(0);
+    expect(records()).toHaveLength(0);
+    expect(stops()[0].page).toBe(300);
+  });
+
+  it('saving the active ورد from an earlier page at 604 asks «ما شاء الله، أتممت ختم القرآن»; ليس الآن records nothing and keeps it pending', async () => {
+    state.locale = 'ar';
+    fajrAt(300);
+    state.params = { page: '604' };
+    await render();
+    await saveAs('ورد الفجر');
+    expect(sheet()).toHaveLength(1);
+    expect(texts()).toContain('ما شاء الله، أتممت ختم القرآن');
+    expect(sheetButton('confirm').findByType('Text' as never).props.children).toBe('إتمام الختمة');
+    expect(sheetButton('cancel').findByType('Text' as never).props.children).toBe('ليس الآن');
+    await press(sheetButton('cancel'));
+    expect(sheet()).toHaveLength(0);
+    expect(records()).toHaveLength(0);
+    expect(stops()[0].page).toBe(604);
+    const { loadReadingData } = await import('@/mushaf/khatmas');
+    expect((await loadReadingData()).wirds[0].status).toBe('pending');
+  });
+
+  it('إتمام الختمة records it once (a double tap too), starts the next cycle at page 1, and opens the completion screen', async () => {
+    fajrAt(300);
+    state.params = { page: '604' };
+    await render();
+    await saveAs('ورد الفجر');
+    vi.mocked(router.push).mockClear();
+    await act(async () => {
+      sheetButton('confirm').props.onPress();
+      sheetButton('confirm').props.onPress();
+    });
+    await flush();
+    await flush();
+    expect(records()).toHaveLength(1);
+    expect(records()[0].stopId).toBe('fajr');
+    expect(stops()[0].page).toBe(1);
+    expect(router.push).toHaveBeenCalledTimes(1);
+    expect(router.push).toHaveBeenCalledWith({ pathname: '/khatma-complete', params: { id: records()[0].id } });
+    expect(sheet()).toHaveLength(0);
+  });
+
+  it('a new ورد saved directly on page 604 is not offered a Khatma', async () => {
+    state.params = { page: '604' };
+    await render();
+    await saveAs('New');
+    expect(sheet()).toHaveLength(0);
+    expect(records()).toHaveLength(0);
+  });
+
+  it('the ورد list links to أورادي وختماتي', async () => {
+    fajrAt(300);
+    await render();
+    await press(root.root.findByProps({ testID: 'mushaf-wird' }));
+    await press(root.root.findAllByProps({ testID: 'mushaf-wird-manage' }).find((node) => String(node.type) === 'Pressable'));
+    // A tab now: navigate (switch to it), never a second copy pushed on a stack.
+    expect(router.navigate).toHaveBeenLastCalledWith('/my-reading');
+  });
+});
+
+describe('the Mushaf tab', () => {
+  /** The page number drawn under the page, in either digits. */
+  const pageNow = () => Number((shownPageNumber() ?? '').replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660)));
+  const tabsLayout = readFileSync(resolve(__dirname, '../src/app/(tabs)/_layout.tsx'), 'utf8');
+
+  it('has no tab bar, in Normal Mode or full screen: the tab declares it hidden; Back returns to the tab before (Home first)', async () => {
+    const { MUSHAF_TAB_OPTIONS } = await import('@/mushaf/screenOptions');
+    expect(MUSHAF_TAB_OPTIONS).toEqual({ tabBarStyle: { display: 'none' } });
+    expect(tabsLayout).toMatch(/<Tabs\.Screen name="mushaf" options=\{MUSHAF_TAB_OPTIONS\} \/>/);
+    expect(tabsLayout).toMatch(/backBehavior="history"/);
+    // The other tabs keep the bar (no options of their own).
+    for (const name of ['index', 'my-reading', 'reflections']) expect(tabsLayout).toMatch(new RegExp(`<Tabs\\.Screen name="${name}" \\/>`));
+  });
+
+  it('keeps the approved page size: the same fit as before the tabs, the bar on the bottom safe area, in both modes', async () => {
+    // iPhone 15 (393 × 852, insets 59 / 34) below its 36-pt Back row: the approved 387-pt page (not 354 above a tab bar).
+    expect(fitMushafPage({ width: 393, height: 852 - 59 - 36 }, 34).page.width).toBe(387);
+    // iPhone SE: 317 (not 280).
+    expect(fitMushafPage({ width: 375, height: 667 - 20 - 36 }, 0).page.width).toBe(317);
+    await render();
+    expect(flat(root.root.findByProps({ testID: 'mushaf-panel' }).parent!.props.style).bottom).toBe(state.insets.bottom + 8);
+    // Normal Mode keeps its Back arrow (back, or Home when opened directly).
+    expect(root.root.findAllByProps({ testID: 'mushaf-back' }).length).toBeGreaterThan(0);
+  });
+
+  it('a later /mushaf?page=N&at=… (Continue Reading) moves an open reader to page N; the same request twice moves once', async () => {
+    state.params = { page: '61' };
+    await render();
+    state.params = { page: '300', at: '1' };
+    await act(async () => root.update(createElement(MushafScreen)));
+    await flush();
+    expect(pageNow()).toBe(300);
+    await press(panelButton('next'));
+    await act(async () => root.update(createElement(MushafScreen)));
+    await flush();
+    expect(pageNow()).toBe(301);
+  });
+});
+
+describe('opening without a page (the Mushaf tab, a first launch)', () => {
+  it('no saved position: page 1, not page 61', async () => {
+    state.params = {};
+    await render();
+    expect(state.offline.readPage).toHaveBeenLastCalledWith(1);
+    expect(state.offline.readPage).not.toHaveBeenCalledWith(61);
+  });
+
+  it('the active ورد page wins; else the most recently saved ورد page; a page in the link wins over both', async () => {
+    state.storage.set(READING_STOPS_STORAGE_KEY, JSON.stringify([
+      { id: 'a', name: 'A', page: 210, updatedAt: '2026-10-02T00:00:00.000Z' },
+      { id: 'b', name: 'B', page: 77, updatedAt: '2026-10-01T00:00:00.000Z' },
+    ]));
+    state.params = {};
+    state.storage.set(ACTIVE_READING_STOP_STORAGE_KEY, 'b');
+    await render();
+    expect(state.offline.readPage).toHaveBeenLastCalledWith(77);
+    await act(async () => root.unmount());
+    state.storage.delete(ACTIVE_READING_STOP_STORAGE_KEY);
+    await render();
+    expect(state.offline.readPage).toHaveBeenLastCalledWith(210);
+    await act(async () => root.unmount());
+    state.params = { page: '5' };
+    await render();
+    expect(state.offline.readPage).toHaveBeenLastCalledWith(5);
+    // Opening never saved or moved anything.
+    expect(JSON.parse(state.storage.get(READING_STOPS_STORAGE_KEY)!).map((stop: { page: number }) => stop.page)).toEqual([210, 77]);
   });
 });

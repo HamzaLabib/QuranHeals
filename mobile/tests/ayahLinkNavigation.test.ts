@@ -232,6 +232,9 @@ describe('cold starts and routing', () => {
   });
 
   it('a cold-start link opens with Home beneath it, so Back returns Home', () => {
-    expect(read('src/app/_layout.tsx')).toMatch(/export const unstable_settings = \{ initialRouteName: 'index' \};/);
+    // Home is the first tab of the (tabs) group (app/(tabs)/_layout.tsx).
+    expect(read('src/app/_layout.tsx')).toMatch(/export const unstable_settings = \{ initialRouteName: '\(tabs\)' \};/);
+    expect(read('src/app/(tabs)/_layout.tsx')).toMatch(/<Tabs\.Screen name="index" \/>[\s\S]*?<Tabs\.Screen name="mushaf"/);
+    expect(read('src/app/(tabs)/_layout.tsx').indexOf('<Tabs.Screen name="index"')).toBeLessThan(read('src/app/(tabs)/_layout.tsx').indexOf('<Tabs.Screen'.concat(' name="mushaf"')));
   });
 });

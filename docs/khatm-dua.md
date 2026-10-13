@@ -33,9 +33,11 @@ Because the wording varies, I have **not** chosen a text. Options:
 
 **What I need from you:** pick an option, and for 1 or 3 send the source. Nothing is shown to users until you approve the final transcription.
 
-## Khatma completion (deferred)
+## Khatma completion (built 2026-10-13, see `docs/khatma.md`)
 
-The action **تسجيل ختمة مكتملة / Mark Khatma as Completed** is not built. There is no button, placeholder or stored data, as you asked: أورادي وختماتي doesn't exist yet.
+The du'a screen stays optional and records nothing by being opened, read or scrolled. Opened from أورادي وختماتي for a ورد whose completion is pending (`/khatm-dua?wird=<id>`), it also shows **تأكيد إتمام الختمة**, a separate, deliberate tap; this works while the du'a text is still pending approval (the screen then shows its not-available note and the button). It opens from three places: page 604 (once a text is approved), the permanent row in أورادي وختماتي, and «قراءة دعاء ختم القرآن» on the completion screen. Back now reads «رجوع»/"Back" (it returns to wherever it was opened from; opened directly, to page 604 as before).
+
+The original plan, kept for reference:
 
 When that feature is built, the action needs:
 
