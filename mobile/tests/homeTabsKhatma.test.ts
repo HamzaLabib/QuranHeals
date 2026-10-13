@@ -322,18 +322,26 @@ describe('the du`a screen for a pending ورد (?wird=)', () => {
     expect(router.replace).toHaveBeenCalledWith({ pathname: '/khatma-complete', params: { id: data.records[0].id } });
   });
 
-  it('opening, resizing and leaving the du`a never records a Khatma; the completion stays pending, confirmable without the du`a', async () => {
+  it('opening, scrolling, resizing and leaving the approved du`a never records a Khatma; the completion stays pending, confirmable without the du`a', async () => {
     await saveWirdPage({ name: 'Fajr', page: 300 });
     await saveWirdPage({ name: 'Fajr', page: 604 });
-    const [w] = (await loadReadingData()).wirds;
+    const before = await loadReadingData();
+    const [w] = before.wirds;
     state.params = { wird: w.stop.id };
-    await mount(createElement(KhatmDuaScreen, { dua: { paragraphs: ['نص تجريبي'], source: 'stand-in' } }));
+    await mount(createElement(KhatmDuaScreen));
+    expect(all('khatm-dua-text')).toHaveLength(1); // the approved du`a, with the confirmation below it
+    expect(textOf(byId('khatm-dua-khatma'))).toContain('Confirm Khatma completion');
+    // Scrolling is plain native scrolling: the screen listens to no scroll event, so it cannot save one.
+    const scroll = byId('khatm-dua-scroll');
+    expect(Object.keys(scroll.props).filter((key) => /^on/.test(key))).toEqual([]);
     await press('khatm-dua-larger');
     await press('khatm-dua-back');
     await act(async () => root.unmount());
     const data = await loadReadingData();
     expect(data.stats.total).toBe(0);
     expect(data.wirds[0].status).toBe('pending');
+    // Reading progress is untouched: the ورد still stands on page 604, and nothing else changed.
+    expect(data).toEqual(before);
     // Confirmable directly (أورادي وختماتي's card uses this same call), no du'a involved.
     expect((await confirmKhatma(w.stop.id, w.cycle.id)).alreadyRecorded).toBe(false);
   });

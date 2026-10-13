@@ -1,41 +1,42 @@
 # دعاء ختم القرآن (after page 604)
 
-**Status (2026-10-12):** the screen and its navigation are built and tested. **The text is waiting for your approval of a source**, so `KHATM_DUA` (`mobile/src/mushaf/khatmDua.ts`) is `null`. Until it is set, page 604 shows no link, and the screen, opened by URL, says it is not available yet.
+**Status (2026-10-13):** the screen, its navigation and the owner-approved text are built and tested. Page 604 shows the link «دعاء ختم القرآن». Physical-device checks are pending.
 
 ## What is built
 
 - **Screen:** `/khatm-dua` (`mobile/src/app/khatm-dua.tsx`), titled دعاء ختم القرآن in every app language, with a subtitle and note in the app's language.
 - **Note:** above the du'a, saying it is a traditional supplication as printed in many Mushafs, not part of the Quran, not a supplication prescribed by the Prophet ﷺ, optional, and that reading it records no khatma.
-- **Text:** always right to left and centred, in the device's own Arabic system font (deliberately not the Mushaf's QPC glyphs), with no ayah markers. It is selectable, in comfortable paragraphs, and scrolls.
-- **Controls:** text size smaller and larger (20–34 pt), a Back button, and the printed source shown under the du'a. Light and Dark follow the app.
+- **Text:** always right to left and right-aligned (the title alone is centred), in the device's own Arabic system font (deliberately not the Mushaf's QPC glyphs), with no ayah markers. It is selectable, in comfortable paragraphs, and scrolls.
+- **Title:** «دُعَاءُ خَتْمِ الْقُرْآنِ», centred on the screen (a spacer balances the Back button), with room for its vowel marks.
+- **Controls:** text size smaller and larger (20–34 pt; line height 1.9 × size, wider spacing between paragraphs) and a Back button. Light and Dark follow the app. VoiceOver reads the du'a as Arabic (`accessibilityLanguage="ar"`) in every app language.
 - **Navigation:** a link «دعاء ختم القرآن» in the space under page 604 (Normal Mode) opens the screen. Back returns to page 604 in the reader, as you left it. Opened directly, Back opens page 604.
 - **Not Quran:** the Mushaf still has 604 pages and 6,236 ayahs; the next-page arrow stays disabled on 604; nothing is a "page 605"; the du'a is not in the Quran database, search or counts.
 - **Saves nothing:** no reading position, ورد, bookmark, reflection or khatma.
 
-## The text: options for your approval
+## The text (approved 2026-10-13)
 
-The research found a clear picture:
+This is the **approved traditional Mushaf du'a**: the wording printed at the end of Mushafs, approved word for word by the owner, with its title «دُعَاءُ خَتْمِ الْقُرْآنِ» and 12 paragraphs. It is **not a verbatim reproduction of any one hadith narration**. Where a paragraph draws on a hadith, it keeps the traditional Mushaf wording, not the wording of a particular narration.
 
-- **The long du'a printed at the end of many Mushafs** (it commonly begins «اللَّهُمَّ ارْحَمْنِي بِالقُرْآنِ وَاجْعَلْهُ لِي إِمَامًا وَنُورًا وَهُدًى وَرَحْمَةً…») is popularly attributed to Ibn Taymiyyah.
-  - Ibn Bāz, al-Albānī and Ibn ʿUthaymīn reject that attribution, as does Bakr Abū Zayd in *جزء في مرويات دعاء ختم القرآن وحكمه داخل الصلاة وخارجها*. Ibn Bāz said the du'a is good, but its attribution to Ibn Taymiyyah is a mistake with no known source.
-  - No authentic khatm du'a from the Prophet ﷺ is established; the reports are weak or fabricated (Bakr Abū Zayd).
-  - The practice of Anas ibn Mālik (may Allah be pleased with him), gathering his family to make du'a at a khatm, is reported with a chain described as authentic.
-- **Several versions circulate**, with differing wording and later additions, for example versions "with additions by Sheikh al-Khulayfī". Websites copy them without citing a printed source.
+- **Stored in** `mobile/src/mushaf/khatmDua.ts` (`KHATM_DUA`: the title and one string per paragraph).
+- **Reference:** `mobile/tests/fixtures/khatmDuaApproved.txt` holds the approved text exactly as supplied (UTF-8, LF line endings pinned in `.gitattributes`). `mobile/tests/khatmDua.test.ts` compares the app text with it character by character and pins the reference's SHA-256, so neither can change unnoticed.
+- **Never edit, correct or normalize it**, and never replace it with a hadith narration's wording, without the owner's approval.
+- **What it is:** a compilation. Some paragraphs come from prophetic supplications (for example Muslim 2720, Tirmidhī 3502), one is Quranic (البقرة ٢:٢٠١, in ordinary spelling), and others are traditional wording. The on-screen note says it is not Quran (though it includes supplications from the Quran and the Sunnah), and that no wording is prescribed by the Prophet ﷺ for a khatm. It is never presented as one hadith.
+- **No source line:** the approved text names no printed edition, so the screen shows none.
 
-Because the wording varies, I have **not** chosen a text. Options:
+**Intentional differences from the hadith narrations** (confirmed by the owner on 2026-10-13: keep the traditional Mushaf wording; do not "correct" them):
 
-1. **(Recommended) The traditional long du'a, transcribed from one specific printed Mushaf you choose.** For example, the Mushaf you own whose end pages you want reproduced.
-   - Send clear photos of those pages and the Mushaf's title page (publisher and year).
-   - I transcribe it exactly, show it to you for checking word by word, and cite that edition under the du'a.
-   - The note stays: traditional, attribution unproven, optional.
-2. **The same du'a from a named published book** with a printed text you approve. Bakr Abū Zayd's study discusses the reports but is not a source of the long text.
-3. **A khatm du'a from a named imam of the Haramain**, from an official transcript you choose. These change from year to year and are tied to one person.
+| Paragraph | Approved Mushaf wording (kept) | Narration's wording (not used) |
+|---|---|---|
+| 9 | «مَا تَحُولُ بِهِ بَيْنَنَا وَبَيْنَ مَعْصِيَتِكَ» | «مَا يَحُولُ بَيْنَنَا وَبَيْنَ مَعَاصِيكَ» (Tirmidhī 3502) |
+| 9 | «مَا تُبَلِّغُنَا بِهَا جَنَّتَكَ» | «بِهِ» (Tirmidhī 3502) |
+| 9 | «مَصَائِبَ الدُّنْيَا» | «مُصِيبَاتِ الدُّنْيَا» (Tirmidhī 3502) |
+| 3 | «دِينِي» | «دِينِيَ» (Muslim 2720) |
 
-**What I need from you:** pick an option, and for 1 or 3 send the source. Nothing is shown to users until you approve the final transcription.
+Background research (kept for reference): the long du'a is popularly attributed to Ibn Taymiyyah. Ibn Bāz, al-Albānī, Ibn ʿUthaymīn and Bakr Abū Zayd reject that attribution. No authentic khatm du'a from the Prophet ﷺ is established. Anas ibn Mālik's practice of gathering his family for du'a at a khatm is reported authentically.
 
 ## Khatma completion (built 2026-10-13, see `docs/khatma.md`)
 
-The du'a screen stays optional and records nothing by being opened, read or scrolled. Opened from أورادي وختماتي for a ورد whose completion is pending (`/khatm-dua?wird=<id>`), it also shows **تأكيد إتمام الختمة**, a separate, deliberate tap; this works while the du'a text is still pending approval (the screen then shows its not-available note and the button). It opens from three places: page 604 (once a text is approved), the permanent row in أورادي وختماتي, and «قراءة دعاء ختم القرآن» on the completion screen. Back now reads «رجوع»/"Back" (it returns to wherever it was opened from; opened directly, to page 604 as before).
+The du'a screen stays optional and records nothing by being opened, read or scrolled. Opened from أورادي وختماتي for a ورد whose completion is pending (`/khatm-dua?wird=<id>`), it also shows **تأكيد إتمام الختمة**, a separate, deliberate tap, shown below the du'a (it also works without a text, under the not-available note). It opens from three places: page 604, the permanent row in أورادي وختماتي, and «قراءة دعاء ختم القرآن» on the completion screen. Back now reads «رجوع»/"Back" (it returns to wherever it was opened from; opened directly, to page 604 as before).
 
 The original plan, kept for reference:
 

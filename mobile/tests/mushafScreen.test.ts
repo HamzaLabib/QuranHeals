@@ -24,8 +24,8 @@ const state = vi.hoisted(() => ({
   params: {} as Record<string, string>,
   theme: 'light' as 'light' | 'dark',
   insets: { top: 47, bottom: 34, left: 0, right: 0 },
-  /** The دعاء ختم القرآن text (mushaf/khatmDua.ts mock): null, as now, until a verified version is approved. */
-  khatmDua: null as null | { paragraphs: string[]; source: string },
+  /** The دعاء ختم القرآن text (mushaf/khatmDua.ts mock): null here unless a test sets the approved text. */
+  khatmDua: null as null | { title: string; paragraphs: readonly string[] },
   /** The page's gestures as last rendered (react-native-gesture-handler mock), to drive pinches, drags, swipes and taps. */
   gesture: null as null | { gestures: { __g: MockGesture }[] },
   /** The zoomed page's animated style (Reanimated mock), read after gestures. */
@@ -2167,14 +2167,15 @@ describe('real touch sequences', () => {
 
 describe('دعاء ختم القرآن after page 604', () => {
   const link = () => root.root.findAllByProps({ testID: 'mushaf-khatm-dua' }).filter((node) => String(node.type) === 'Pressable');
-  it('no link while there is no verified text (now), on page 604 or anywhere', async () => {
+  it('no link without a du`a text, on page 604 or anywhere', async () => {
     state.params = { page: '604' };
     await render();
     expect(link()).toHaveLength(0);
   });
 
-  it('with an approved text: a link on page 604 only, opening its own screen; the Mushaf still ends at 604', async () => {
-    state.khatmDua = { paragraphs: ['نص'], source: 'test' };
+  it('with the approved text: a link on page 604 only, opening its own screen; the Mushaf still ends at 604', async () => {
+    state.khatmDua = (await vi.importActual<typeof import('@/mushaf/khatmDua')>('@/mushaf/khatmDua')).KHATM_DUA;
+    expect(state.khatmDua).not.toBeNull();
     state.storage.set(READING_STOPS_STORAGE_KEY, JSON.stringify([{ id: 'fajr', name: 'ورد الفجر', page: 604, updatedAt: '2026-10-01T00:00:00.000Z' }]));
     state.storage.set(ACTIVE_READING_STOP_STORAGE_KEY, 'fajr');
     const stored = state.storage.get(READING_STOPS_STORAGE_KEY);

@@ -254,7 +254,6 @@ export type Messages = {
     /** The link on page 604. */
     open: string;
     back: string;
-    sourceLabel: string;
     /** Opened for a ورد whose completion awaits confirmation (?wird=): a separate, explicit action. */
     confirmFor: string;
     confirm: string;
@@ -756,13 +755,12 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     khatmDua: {
       title: 'دعاء ختم القرآن',
       subtitle: 'Supplication on completing the Quran',
-      note: 'A traditional supplication, as printed at the end of many Mushafs. It is not part of the Quran and is not a supplication prescribed by the Prophet ﷺ; saying it is optional. Reading it does not record a completed khatma.',
+      note: 'A traditional supplication, as printed at the end of many Mushafs. It is not part of the Quran, although it includes some supplications from the Quran and the Sunnah, and it is not a supplication prescribed by the Prophet ﷺ for completing the Quran; saying it is optional. Reading it does not record a completed khatma.',
       unavailable: 'This supplication is not available yet.',
       smaller: 'Smaller text',
       larger: 'Larger text',
       open: 'دعاء ختم القرآن',
       back: 'Back',
-      sourceLabel: 'Source',
       confirmFor: '“{name}” has reached page 604. When you have completed your recitation, confirm the Khatma. Reading this supplication does not record it.',
       confirm: 'Confirm Khatma completion',
     },
@@ -1235,13 +1233,12 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     khatmDua: {
       title: 'دعاء ختم القرآن',
       subtitle: 'دعاء يُقرأ بعد ختم القرآن الكريم',
-      note: 'دعاء متداول كما يُطبع في آخر كثير من المصاحف، وليس من القرآن الكريم، ولا هو دعاء ثابت عن النبي ﷺ، وقراءته اختيارية. وقراءته لا تسجّل ختمة مكتملة.',
+      note: 'دعاء متداول كما يُطبع في آخر كثير من المصاحف، وليس من القرآن الكريم وإن تضمّن أدعية من القرآن والسنة، ولا هو دعاء ثابت عن النبي ﷺ لختم القرآن، وقراءته اختيارية. وقراءته لا تسجّل ختمة مكتملة.',
       unavailable: 'هذا الدعاء غير متاح بعد.',
       smaller: 'تصغير الخط',
       larger: 'تكبير الخط',
       open: 'دعاء ختم القرآن',
       back: 'رجوع',
-      sourceLabel: 'المصدر',
       confirmFor: 'بلغ «{name}» الصفحة ٦٠٤. إذا أتممت القراءة فأكّد إتمام الختمة. قراءة هذا الدعاء لا تسجّل الختمة.',
       confirm: 'تأكيد إتمام الختمة',
     },
@@ -1728,13 +1725,12 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     khatmDua: {
       title: 'دعاء ختم القرآن',
       subtitle: 'دعاء بيتقري بعد ختم القرآن الكريم',
-      note: 'دعاء متداول زي ما بيتطبع في آخر مصاحف كتير، ومش من القرآن الكريم، ولا هو دعاء ثابت عن النبي ﷺ، وقرايته اختيارية. وقرايته مش بتسجّل ختمة مكتملة.',
+      note: 'دعاء متداول زي ما بيتطبع في آخر مصاحف كتير، ومش من القرآن الكريم وإن كان فيه أدعية من القرآن والسنة، ولا هو دعاء ثابت عن النبي ﷺ لختم القرآن، وقرايته اختيارية. وقرايته مش بتسجّل ختمة مكتملة.',
       unavailable: 'الدعاء ده مش متاح لسه.',
       smaller: 'تصغير الخط',
       larger: 'تكبير الخط',
       open: 'دعاء ختم القرآن',
       back: 'رجوع',
-      sourceLabel: 'المصدر',
       confirmFor: '«{name}» وصل للصفحة ٦٠٤. لو خلّصت القراية أكّد إتمام الختمة. قراية الدعاء ده مش بتسجّل الختمة.',
       confirm: 'تأكيد إتمام الختمة',
     },

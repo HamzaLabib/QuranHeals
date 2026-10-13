@@ -26,8 +26,8 @@ function backToPage604() {
  * language. Reading it records nothing. Opened for a ورد whose completion
  * awaits confirmation (?wird=<id>, from أورادي وختماتي), it also offers
  * تأكيد إتمام الختمة: a separate, deliberate tap, never implied by opening,
- * reading or scrolling. The text itself is empty until a verified version is
- * approved (mushaf/khatmDua.ts); the screen then says it is not available yet.
+ * reading or scrolling. The text is the owner-approved du'a (mushaf/khatmDua.ts),
+ * shown exactly as approved; without a text the screen says it is not available.
  */
 export default function KhatmDuaScreen({ dua = KHATM_DUA }: { dua?: KhatmDuaText | null }) {
   const colors = usePalette();
@@ -102,9 +102,11 @@ export default function KhatmDuaScreen({ dua = KHATM_DUA }: { dua?: KhatmDuaText
           <BackIcon size={22} color={colors.icon} />
         </Pressable>
         <View style={styles.headerText}>
-          <Text accessibilityRole="header" style={[styles.title, styles.arabic]}>{copy.title}</Text>
-          {copy.subtitle !== copy.title && <Text style={[styles.subtitle, direction]}>{copy.subtitle}</Text>}
+          <Text accessibilityRole="header" accessibilityLanguage="ar" style={[styles.title, styles.arabic]}>{dua?.title ?? copy.title}</Text>
+          {copy.subtitle !== copy.title && <Text style={[styles.subtitle, styles.centred]}>{copy.subtitle}</Text>}
         </View>
+        {/* Balances the Back button so the title is centred on the screen. */}
+        <View style={styles.headerSpacer} />
       </View>
 
       {dua ? (
@@ -134,12 +136,11 @@ export default function KhatmDuaScreen({ dua = KHATM_DUA }: { dua?: KhatmDuaText
           </View>
           <View testID="khatm-dua-text" style={styles.duaCard}>
             {dua.paragraphs.map((paragraph, index) => (
-              <Text key={index} testID={`khatm-dua-paragraph-${index}`} selectable style={[styles.arabic, styles.dua, { fontSize: size, lineHeight: Math.round(size * 1.9) }]}>
+              <Text key={index} testID={`khatm-dua-paragraph-${index}`} selectable accessibilityLanguage="ar" style={[styles.arabicRight, styles.dua, { fontSize: size, lineHeight: Math.round(size * 1.9) }]}>
                 {paragraph}
               </Text>
             ))}
           </View>
-          <Text testID="khatm-dua-source" style={[styles.source, direction]}>{`${copy.sourceLabel}: ${dua.source}`}</Text>
           {confirmBlock}
         </ScrollView>
       ) : (
@@ -181,14 +182,22 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     justifyContent: 'center',
     width: 48,
   },
+  headerSpacer: {
+    width: 48,
+  },
   title: {
     color: colors.textPrimary,
     fontSize: 26,
     fontWeight: '700',
+    // Room above and below for the vowel marks, so none is clipped.
+    lineHeight: 44,
   },
   subtitle: {
     color: colors.textSecondary,
     fontSize: typography.body,
+  },
+  centred: {
+    textAlign: 'center',
   },
   scroll: {
     flex: 1,
@@ -223,21 +232,24 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radii.md,
     borderWidth: 1,
-    gap: spacing.lg,
+    // A clear pause between paragraphs, wider than the lines' own spacing.
+    gap: spacing.xl,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.xl,
   },
-  // The du'a is Arabic in every app language: right to left, centred like the printed pages.
+  // The title is Arabic in every app language: right to left, centred.
   arabic: {
     textAlign: 'center',
     writingDirection: 'rtl',
   },
+  // The du'a's paragraphs: right to left and right-aligned in every app language. The app never
+  // flips layout globally (I18nManager), so 'right' is always the physical right edge.
+  arabicRight: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
   dua: {
     color: colors.textPrimary,
-  },
-  source: {
-    color: colors.textSecondary,
-    fontSize: typography.caption,
   },
   unavailable: {
     gap: spacing.lg,
