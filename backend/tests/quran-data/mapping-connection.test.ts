@@ -40,6 +40,7 @@ const mappings: Fixture[] = [
 beforeEach(() => {
   vi.spyOn(EmotionModel, 'findOne').mockImplementation(((filter: { key: string }) =>
     leanResult({ key: filter.key, name: filter.key, arabicName: filter.key, description: '', icon: 'heart', order: 1, active: true, _id: new Types.ObjectId() })) as never);
+  vi.spyOn(EmotionModel, 'exists').mockImplementation((() => Promise.resolve({ _id: new Types.ObjectId() })) as never);
   vi.spyOn(VerseModel, 'findOne').mockReturnValue(leanResult(null));
   vi.spyOn(EmotionVerseMappingModel, 'find').mockReturnValue(leanResult(mappings));
   vi.spyOn(EmotionVerseMappingModel, 'aggregate').mockImplementation((async (pipeline: { $match: { emotionKey: string } }[]) =>
@@ -102,12 +103,13 @@ describe('selectMappingConnection', () => {
 });
 
 describe('mapping schema', () => {
-  it('accepts an optional { en, ar } connection and keeps existing mappings valid without one', () => {
+  it('accepts an optional { en, ar } connection and keeps existing mappings valid without one', async () => {
     const base = { verseReferenceKey: '94:6', emotionKey: 'sad', status: 'approved', mappingVersion: 'v1' };
-    expect(new EmotionVerseMappingModel(base).validateSync()?.errors.connection).toBeUndefined();
+    await expect(new EmotionVerseMappingModel(base).validate()).resolves.toBeUndefined();
     const withConnection = new EmotionVerseMappingModel({ ...base, connection: { en: ' text ', ar: 'نص' } });
     expect(withConnection.connection).toMatchObject({ en: 'text', ar: 'نص' });
     const tooLong = new EmotionVerseMappingModel({ ...base, connection: { en: 'x'.repeat(2001) } });
-    expect(tooLong.validateSync()?.errors['connection.en']).toBeDefined();
+    const error = await tooLong.validate().catch((validationError: { errors: Record<string, unknown> }) => validationError);
+    expect(error.errors['connection.en']).toBeDefined();
   });
 });

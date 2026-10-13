@@ -1,3 +1,4 @@
+import { createHash, randomUUID } from 'node:crypto';
 import { mkdir, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { gunzipSync, gzipSync } from 'node:zlib';
@@ -60,10 +61,24 @@ export type OfflineManifest = {
 };
 
 const writeAtomically = async (path: string, data: string | Buffer) => {
-  const temporary = `${path}.${process.pid}.${Date.now()}.tmp`;
+  const temporary = `${path}.${process.pid}.${randomUUID()}.tmp`;
   await writeFile(temporary, data);
   await rename(temporary, path);
 };
+
+const VERSION_RENAME_RETRY_DELAYS_MS = [25, 50, 100, 200, 400] as const;
+
+class InvalidPublishedVersionError extends Error {}
+
+function hasErrorCode(error: unknown, code: string): boolean {
+  return typeof error === 'object' && error !== null && 'code' in error && error.code === code;
+}
+
+function isDestinationConflict(error: unknown): boolean {
+  return hasErrorCode(error, 'EEXIST') || hasErrorCode(error, 'ENOTEMPTY') || (process.platform === 'win32' && hasErrorCode(error, 'EPERM'));
+}
+
+const pause = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 
 export function createMushafSyncStore(dir: string) {
   const versionsDir = join(dir, 'versions');
@@ -95,16 +110,93 @@ export function createMushafSyncStore(dir: string) {
 
   async function writeVersion(version: string, manifest: OfflineManifest, chunks: readonly DatasetChunk[]) {
     const final = join(versionsDir, version);
+
+    async function existingVersionIsComplete(): Promise<boolean> {
+      let existing: OfflineManifest;
+      try {
+        existing = JSON.parse(await readFile(join(final, 'manifest.json'), 'utf8')) as OfflineManifest;
+      } catch (error) {
+        if (hasErrorCode(error, 'ENOENT')) {
+          try {
+            await readdir(final);
+          } catch (directoryError) {
+            if (hasErrorCode(directoryError, 'ENOENT')) return false;
+            throw directoryError;
+          }
+          throw new InvalidPublishedVersionError(`Existing Mushaf version ${version} has no manifest`);
+        }
+        if (error instanceof SyntaxError) throw new InvalidPublishedVersionError(`Existing Mushaf version ${version} has an invalid manifest`);
+        throw error;
+      }
+
+      const invalidVersion = () => new InvalidPublishedVersionError(`Existing Mushaf version ${version} is incomplete or does not match its content address`);
+      const expectedChunks = manifest.chunks;
+      if (existing.version !== version || !Array.isArray(existing.chunks) || existing.chunks.length !== chunks.length) throw invalidVersion();
+
+      for (const [position, chunk] of chunks.entries()) {
+        const metadata = existing.chunks[position];
+        if (
+          metadata?.index !== chunk.index ||
+          metadata.firstPage !== chunk.firstPage ||
+          metadata.lastPage !== chunk.lastPage ||
+          metadata.sha256 !== chunk.sha256 ||
+          metadata.bytes !== chunk.bytes ||
+          expectedChunks[position]?.sha256 !== chunk.sha256
+        ) throw invalidVersion();
+
+        let content: Buffer;
+        try {
+          content = gunzipSync(await readFile(join(final, 'chunks', `${chunk.index}.json.gz`)));
+        } catch (error) {
+          if (hasErrorCode(error, 'ENOENT') || hasErrorCode(error, 'Z_DATA_ERROR') || hasErrorCode(error, 'Z_BUF_ERROR')) throw invalidVersion();
+          throw error;
+        }
+        const digest = createHash('sha256').update(content).digest('hex');
+        if (content.toString('utf8') !== chunk.json || content.byteLength !== chunk.bytes || digest !== chunk.sha256) throw invalidVersion();
+      }
+      return true;
+    }
+
+    async function reuseOrRemoveInvalidVersion(): Promise<boolean> {
+      try {
+        return await existingVersionIsComplete();
+      } catch (error) {
+        if (!(error instanceof InvalidPublishedVersionError)) throw error;
+        await rm(final, { recursive: true, force: true, maxRetries: 3, retryDelay: 20 });
+        return false;
+      }
+    }
+
+    if (await reuseOrRemoveInvalidVersion()) return; // Already published (same content): versions are immutable.
+
+    const temporary = `${final}.${process.pid}.${randomUUID()}.tmp`;
     try {
-      await readFile(join(final, 'manifest.json'));
-      return; // Already published (same content): versions are immutable.
-    } catch { /* not yet */ }
-    const temporary = `${final}.${process.pid}.${Date.now()}.tmp`;
-    await mkdir(join(temporary, 'chunks'), { recursive: true });
-    for (const chunk of chunks) await writeFile(join(temporary, 'chunks', `${chunk.index}.json.gz`), gzipSync(chunk.json, { level: 9 }));
-    await writeFile(join(temporary, 'manifest.json'), JSON.stringify(manifest));
-    await rm(final, { recursive: true, force: true });
-    await rename(temporary, final);
+      await mkdir(join(temporary, 'chunks'), { recursive: true });
+      for (const chunk of chunks) await writeFile(join(temporary, 'chunks', `${chunk.index}.json.gz`), gzipSync(chunk.json, { level: 9 }));
+      await writeFile(join(temporary, 'manifest.json'), JSON.stringify(manifest));
+
+      for (let attempt = 0; ; attempt++) {
+        try {
+          await rename(temporary, final);
+          return;
+        } catch (error) {
+          if (!isDestinationConflict(error)) throw error;
+          if (await reuseOrRemoveInvalidVersion()) {
+            await rm(temporary, { recursive: true, force: true, maxRetries: 3, retryDelay: 20 });
+            return; // Another publisher won the same immutable version.
+          }
+          if (process.platform !== 'win32' || !hasErrorCode(error, 'EPERM') || attempt >= VERSION_RENAME_RETRY_DELAYS_MS.length) throw error;
+          await pause(VERSION_RENAME_RETRY_DELAYS_MS[attempt]);
+        }
+      }
+    } catch (error) {
+      try {
+        await rm(temporary, { recursive: true, force: true, maxRetries: 3, retryDelay: 20 });
+      } catch (cleanupError) {
+        throw new AggregateError([error, cleanupError], `Mushaf version ${version} publication failed and its staging directory could not be removed`);
+      }
+      throw error;
+    }
   }
 
   return {

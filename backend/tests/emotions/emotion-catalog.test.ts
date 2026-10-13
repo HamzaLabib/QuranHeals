@@ -231,7 +231,7 @@ describe('15. DTO localized maps serialize as ordinary JSON objects', () => {
     expect(wire.descriptions).toEqual(canonical.descriptions);
   });
 
-  it('a legacy-shaped document (no names/descriptions at all) is still schema-valid — required-field relaxation confirmed offline, no DB connection', () => {
+  it('a legacy-shaped document (no names/descriptions at all) is still schema-valid — required-field relaxation confirmed offline, no DB connection', async () => {
     const doc = new EmotionModel({
       key: 'sad',
       name: 'Sad',
@@ -241,11 +241,10 @@ describe('15. DTO localized maps serialize as ordinary JSON objects', () => {
       order: 1,
       active: true,
     });
-    const validationError = doc.validateSync();
-    expect(validationError).toBeUndefined();
+    await expect(doc.validate()).resolves.toBeUndefined();
   });
 
-  it('a names/descriptions map missing a required locale fails schema validation (offline)', () => {
+  it('a names/descriptions map missing a required locale fails schema validation (offline)', async () => {
     const doc = new EmotionModel({
       key: 'sad',
       names: { en: 'Sad', ar: 'حزين' }, // ar-EG missing
@@ -254,12 +253,10 @@ describe('15. DTO localized maps serialize as ordinary JSON objects', () => {
       order: 1,
       active: true,
     });
-    const validationError = doc.validateSync();
-    expect(validationError).toBeDefined();
-    expect(validationError?.errors.names).toBeDefined();
+    await expect(doc.validate()).rejects.toHaveProperty('errors.names');
   });
 
-  it('a names map with a non-string value fails schema validation (offline)', () => {
+  it('a names map with a non-string value fails schema validation (offline)', async () => {
     const doc = new EmotionModel({
       key: 'sad',
       names: { en: 'Sad', ar: 'حزين', 'ar-EG': 12345 as never },
@@ -268,8 +265,7 @@ describe('15. DTO localized maps serialize as ordinary JSON objects', () => {
       order: 1,
       active: true,
     });
-    const validationError = doc.validateSync();
-    expect(validationError?.errors.names).toBeDefined();
+    await expect(doc.validate()).rejects.toHaveProperty('errors.names');
   });
 });
 

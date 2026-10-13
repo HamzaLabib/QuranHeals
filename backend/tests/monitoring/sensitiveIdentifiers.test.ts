@@ -52,9 +52,14 @@ function castError() {
 }
 
 /** A real ValidationError from a model: a cast failure plus an over-long comment (both values appear in Mongoose's messages). */
-function validationError() {
+async function validationError(): Promise<mongoose.Error.ValidationError> {
   const doc = new IssueReportModel({ category: 'other', comment: `${COMMENT} ${'x'.repeat(2000)}`, surahNumber: `${USER_ID}-x` });
-  return doc.validateSync()!;
+  try {
+    await doc.validate();
+  } catch (error) {
+    return error as mongoose.Error.ValidationError;
+  }
+  throw new Error('Expected the synthetic issue report to fail validation.');
 }
 
 function memoryTransport() {
@@ -100,10 +105,10 @@ afterEach(async () => {
 });
 
 describe('the synthetic errors really carry the identifiers (so the tests are meaningful)', () => {
-  it('duplicate-key, cast and validation messages contain the raw values', () => {
+  it('duplicate-key, cast and validation messages contain the raw values', async () => {
     expect(duplicateKeyError('google', GOOGLE_SUBJECT).message).toContain(GOOGLE_SUBJECT);
     expect(castError().message).toContain(USER_ID);
-    expect(validationError().message).toContain(COMMENT);
+    expect((await validationError()).message).toContain(COMMENT);
   });
 });
 
@@ -133,7 +138,7 @@ describe('events sent to Sentry', () => {
   });
 
   it('a Mongoose ValidationError: no rejected values or comment text; model, paths and kinds kept', async () => {
-    const event = await sent(validationError());
+    const event = await sent(await validationError());
     expectNoIdentifiers(withoutSourceContext(event));
     const value = event.exception!.values![0].value!;
     expect(value).toMatch(/^IssueReport validation failed at /);
@@ -169,13 +174,13 @@ describe('events sent to Sentry', () => {
 });
 
 describe('scrubEvent without the original error (text-only fallback)', () => {
-  it('database exception entries are rebuilt from fixed identifiers parsed out of the text', () => {
+  it('database exception entries are rebuilt from fixed identifiers parsed out of the text', async () => {
     const event = scrubEvent({
       exception: {
         values: [
           { type: 'MongoServerError', value: duplicateKeyError('google', GOOGLE_SUBJECT).message },
           { type: 'CastError', value: castError().message },
-          { type: 'ValidationError', value: validationError().message },
+          { type: 'ValidationError', value: (await validationError()).message },
           { type: 'DocumentNotFoundError', value: `No document found for query "{ _id: '${USER_ID}' }" on model "User"` },
         ],
       },
@@ -232,10 +237,10 @@ describe('text patterns (defense in depth for non-database messages)', () => {
 });
 
 describe('logs never carry the identifiers either', () => {
-  it('describeError uses the same safe summaries', () => {
+  it('describeError uses the same safe summaries', async () => {
     expect(describeError(duplicateKeyError('apple', APPLE_SUBJECT))).toBe('MongoServerError: duplicate key (code 11000) in quranheals_prod.users on index provider_1_providerSubject_1 fields: provider, providerSubject; key values removed');
     expect(describeError(castError())).toBe('CastError: Cast to ObjectId failed at path "userId"; value removed');
-    expectNoIdentifiers(describeError(validationError()));
+    expectNoIdentifiers(describeError(await validationError()));
   });
 
   it('the request error handler reports a duplicate-key error without identifiers', async () => {
@@ -252,11 +257,11 @@ describe('logs never carry the identifiers either', () => {
     expectNoIdentifiers(withoutSourceContext(events));
   });
 
-  it('what the error handler writes to the server log (describeError + frames) carries no identifiers', () => {
+  it('what the error handler writes to the server log (describeError + frames) carries no identifiers', async () => {
     // errorHandler skips console output under NODE_ENV=test, so its two logged parts are checked directly.
     const source = require('node:fs').readFileSync(require('node:path').resolve(__dirname, '../../src/middleware/errorHandler.ts'), 'utf8') as string;
     expect(source).toContain("console.error('Unhandled request error:', describeError(error), safeStackFrames(error));");
-    for (const error of [duplicateKeyError('google', GOOGLE_SUBJECT), castError(), validationError(), emailDuplicateKeyError()]) {
+    for (const error of [duplicateKeyError('google', GOOGLE_SUBJECT), castError(), await validationError(), emailDuplicateKeyError()]) {
       expectNoIdentifiers(`${describeError(error)}\n${safeStackFrames(error)}`);
     }
   });
@@ -276,8 +281,9 @@ describe('logs never carry the identifiers either', () => {
     for (const spy of spies) expect(spy).not.toHaveBeenCalled();
   });
 
-  it('a real cast failure on a user-scoped model keeps the model name and drops the value', () => {
-    const error = new UserFavoriteModel({ userId: 'u', verseKey: '2:255', deleted: { nested: USER_ID } }).validateSync()!;
+  it('a real cast failure on a user-scoped model keeps the model name and drops the value', async () => {
+    const doc = new UserFavoriteModel({ userId: 'u', verseKey: '2:255', deleted: { nested: USER_ID } });
+    const error = await doc.validate().catch((validationError: mongoose.Error.ValidationError) => validationError);
     expect(error.message).toContain(USER_ID);
     const summary = summarizeDatabaseError(error)!;
     expect(summary).toMatch(/^UserFavorite validation failed at deleted \(Boolean\)/);

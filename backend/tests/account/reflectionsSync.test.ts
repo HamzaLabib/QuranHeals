@@ -362,21 +362,24 @@ describe('Reflection deletion tombstones', () => {
 });
 
 describe('UserReflectionModel: conditional required fields for tombstones (schema-level, no live DB needed)', () => {
-  it('requires ciphertext/nonce/encryptionVersion/createdAt for a non-deleted (active) document', () => {
+  it('requires ciphertext/nonce/encryptionVersion/createdAt for a non-deleted (active) document', async () => {
     const doc = new UserReflectionModel({ userId: 'u1', verseKey: '2:255', deleted: false, updatedAt: new Date() });
-    const errors = doc.validateSync();
-    expect(errors?.errors.ciphertext).toBeDefined();
-    expect(errors?.errors.nonce).toBeDefined();
-    expect(errors?.errors.encryptionVersion).toBeDefined();
-    expect(errors?.errors.createdAt).toBeDefined();
+    await expect(doc.validate()).rejects.toMatchObject({
+      errors: expect.objectContaining({
+        ciphertext: expect.anything(),
+        nonce: expect.anything(),
+        encryptionVersion: expect.anything(),
+        createdAt: expect.anything(),
+      }),
+    });
   });
 
-  it('does not require ciphertext/nonce/encryptionVersion/createdAt for a deleted (tombstone) document', () => {
+  it('does not require ciphertext/nonce/encryptionVersion/createdAt for a deleted (tombstone) document', async () => {
     const doc = new UserReflectionModel({ userId: 'u1', verseKey: '2:255', deleted: true, updatedAt: new Date() });
-    expect(doc.validateSync()).toBeUndefined();
+    await expect(doc.validate()).resolves.toBeUndefined();
   });
 
-  it('defaults deleted to false, keeping pre-existing (pre-tombstone) active-record documents valid unchanged', () => {
+  it('defaults deleted to false, keeping pre-existing (pre-tombstone) active-record documents valid unchanged', async () => {
     const doc = new UserReflectionModel({
       userId: 'u1',
       verseKey: '2:255',
@@ -387,7 +390,7 @@ describe('UserReflectionModel: conditional required fields for tombstones (schem
       updatedAt: new Date(),
     });
     expect(doc.deleted).toBe(false);
-    expect(doc.validateSync()).toBeUndefined();
+    await expect(doc.validate()).resolves.toBeUndefined();
   });
 
   it('still enforces the unique (userId, verseKey) index definition for tombstones and active records alike', () => {
