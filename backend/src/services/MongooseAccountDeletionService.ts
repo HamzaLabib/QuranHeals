@@ -5,6 +5,8 @@ import { SessionModel } from '../models/Session';
 import { UserModel } from '../models/User';
 import { UserFavoriteModel } from '../models/UserFavorite';
 import { UserPreferenceModel } from '../models/UserPreference';
+import { UserReadingRecordModel } from '../models/UserReadingRecord';
+import { UserReadingSyncStateModel } from '../models/UserReadingSyncState';
 import { UserReflectionModel } from '../models/UserReflection';
 import { UserSyncKeyModel } from '../models/UserSyncKey';
 import type { AccountDeletionService } from './AccountDeletionService';
@@ -39,6 +41,9 @@ export class MongooseAccountDeletionService implements AccountDeletionService {
         await UserPreferenceModel.deleteMany({ userId }).session(session);
         await UserReflectionModel.deleteMany({ userId }).session(session);
         await UserSyncKeyModel.deleteMany({ userId }).session(session);
+        // أورادي وختماتي: every ورد, Khatma, deletion marker and the change counter.
+        await UserReadingRecordModel.deleteMany({ userId }).session(session);
+        await UserReadingSyncStateModel.deleteMany({ userId }).session(session);
         await AppleCredentialModel.deleteMany({ userId }).session(session);
         await SessionModel.deleteMany({ userId }).session(session);
 

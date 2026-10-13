@@ -10,19 +10,24 @@ import { SettingsAccordion } from '@/components/SettingsAccordion';
 import { getLegalLinks } from '@/constants/legalLinks';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
-import { APP_LOCALES, APP_LOCALE_DISPLAY_NAMES, getDirectionStyle, isRtlLocale } from '@/localization/locales';
+import { EMOTIONS_LANGUAGES, type EmotionsLanguage } from '@/localization/emotionsLanguage';
+import { APP_LANGUAGES, APP_LOCALE_DISPLAY_NAMES, getDirectionStyle, isRtlLocale } from '@/localization/locales';
+import { QURAN_READING_MODES, useQuranReadingMode } from '@/localization/quranLanguage';
 import { useAppLocale } from '@/localization/useAppLocale';
-import { useQuranTranslationPreference } from '@/localization/useQuranTranslationPreference';
-import type { TranslationDisplayMode } from '@/localization/quranTranslationPreference';
+import { useEmotionsLanguage } from '@/localization/useEmotionsLanguage';
 import type { AppearanceMode } from '@/theme/appearancePreference';
 import { useAppearancePreference } from '@/theme/useAppearancePreference';
 import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
 
-const TRANSLATION_DISPLAY_MODES: readonly TranslationDisplayMode[] = ['always', 'on-demand', 'off'];
 const APPEARANCE_MODES: readonly AppearanceMode[] = ['system', 'light', 'dark'];
 
-/** The four collapsible sections; at most one is open at a time. Account and the Danger Zone are not part of this. */
-type SettingsSectionKey = 'language' | 'translation' | 'appearance' | 'legal';
+/**
+ * The collapsible sections; at most one is open at a time. Account and the
+ * Danger Zone are not part of this. Exactly three language settings, in
+ * this order: App Language, Emotions Language, Quran Language (no separate
+ * Quran Translation row: the ayah screen's Show translation covers it).
+ */
+type SettingsSectionKey = 'language' | 'emotions' | 'quran' | 'appearance' | 'legal';
 
 /** Animates the next layout change: a section opening/closing and the cards below it moving. */
 function animateNextLayout() {
@@ -33,7 +38,8 @@ export default function SettingsScreen() {
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
   const { locale, setLocale, messages } = useAppLocale();
-  const { preference, setDisplayMode } = useQuranTranslationPreference();
+  const { preference: emotionsLanguage, setPreference: setEmotionsLanguage } = useEmotionsLanguage();
+  const { mode: quranMode, setMode: setQuranMode } = useQuranReadingMode();
   const { mode, setMode } = useAppearancePreference();
   const { refreshSync } = useAuth();
   const direction = getDirectionStyle(locale);
@@ -70,11 +76,10 @@ export default function SettingsScreen() {
         // Reuses the exact same account sync used everywhere else (a no-op
         // for a guest) — never a duplicate preference-sync implementation.
         // Preferences already flow through runFullSync's
-        // reconcilePreferencesOnSignIn, which applies any account-side
-        // locale/translation-display change via the exact setLocale/
-        // setDisplayMode above (through AuthProvider's
-        // applyPreferencesLocally) — both are shared context state, so this
-        // screen re-renders with the synced values automatically; no
+        // reconcilePreferencesOnSignIn, which applies an account-side App
+        // Language change via the same setLocale used above (through
+        // AuthProvider's applyPreferencesLocally) — shared context state, so
+        // this screen re-renders with the synced value automatically; no
         // separate local re-read is needed here.
         await refreshSync();
       } finally {
@@ -83,16 +88,15 @@ export default function SettingsScreen() {
     });
   }, [refreshSync]);
 
-  const translationModeLabel: Record<TranslationDisplayMode, string> = {
-    always: messages.settings.translationDisplayAlways,
-    'on-demand': messages.settings.translationDisplayOnDemand,
-    off: messages.settings.translationDisplayOff,
+  // "Follow App Language" and "English" in the interface's language; the two Arabic choices always in Arabic (their own names).
+  const emotionsLanguageLabel: Record<EmotionsLanguage, string> = {
+    follow: messages.settings.emotionsFollowApp,
+    en: messages.settings.emotionsEnglish,
+    ar: messages.settings.emotionsArabicStandard,
+    'ar-EG': messages.settings.emotionsArabicEgyptian,
   };
-  const translationModeHint: Record<TranslationDisplayMode, string> = {
-    always: messages.settings.translationDisplayAlwaysHint,
-    'on-demand': messages.settings.translationDisplayOnDemandHint,
-    off: messages.settings.translationDisplayOffHint,
-  };
+  const emotionsLanguageDirection = (option: EmotionsLanguage) => (option === 'ar' || option === 'ar-EG' ? getDirectionStyle('ar') : direction);
+  const quranModeLabel = (id: string) => messages.settings[QURAN_READING_MODES.find((m) => m.id === id)?.labelKey ?? 'quranTextOption'];
   const appearanceModeLabel: Record<AppearanceMode, string> = {
     system: messages.appearance.system,
     light: messages.appearance.light,
@@ -135,7 +139,7 @@ export default function SettingsScreen() {
             onToggle={() => toggleSection('language')}
             direction={direction}
             isRtl={isRtl}>
-            {APP_LOCALES.map((option) => (
+            {APP_LANGUAGES.map((option) => (
               <OptionRow
                 key={option}
                 label={APP_LOCALE_DISPLAY_NAMES[option]}
@@ -147,23 +151,40 @@ export default function SettingsScreen() {
           </SettingsAccordion>
 
           <SettingsAccordion
-            title={messages.settings.quranTranslationSection}
-            summary={translationModeLabel[preference.displayMode]}
-            expanded={openSection === 'translation'}
-            onToggle={() => toggleSection('translation')}
+            title={messages.settings.emotionsLanguageSection}
+            summary={emotionsLanguageLabel[emotionsLanguage]}
+            expanded={openSection === 'emotions'}
+            onToggle={() => toggleSection('emotions')}
             direction={direction}
             isRtl={isRtl}>
-            {TRANSLATION_DISPLAY_MODES.map((mode) => (
+            {EMOTIONS_LANGUAGES.map((option) => (
               <OptionRow
-                key={mode}
-                label={translationModeLabel[mode]}
-                hint={translationModeHint[mode]}
-                selected={mode === preference.displayMode}
-                onPress={() => choose(() => setDisplayMode(mode))}
+                key={option}
+                label={emotionsLanguageLabel[option]}
+                selected={option === emotionsLanguage}
+                onPress={() => choose(() => setEmotionsLanguage(option))}
+                direction={emotionsLanguageDirection(option)}
+              />
+            ))}
+          </SettingsAccordion>
+
+          <SettingsAccordion
+            title={messages.settings.quranLanguageSection}
+            summary={quranModeLabel(quranMode)}
+            expanded={openSection === 'quran'}
+            onToggle={() => toggleSection('quran')}
+            direction={direction}
+            isRtl={isRtl}>
+            {/* Only the modes that exist (localization/quranLanguage.ts): today, the Arabic Mushaf. */}
+            {QURAN_READING_MODES.map((option) => (
+              <OptionRow
+                key={option.id}
+                label={messages.settings[option.labelKey]}
+                selected={option.id === quranMode}
+                onPress={() => choose(() => setQuranMode(option.id))}
                 direction={direction}
               />
             ))}
-            {/* <Text style={[styles.note, direction]}>{messages.settings.quranArabicNote}</Text> */}
           </SettingsAccordion>
 
           <SettingsAccordion
@@ -226,8 +247,8 @@ function OptionRow({ label, hint, selected, onPress, direction }: OptionRowProps
   const styles = useThemedStyles(makeStyles);
   // Each row mirrors to match its own label's direction (App Language rows
   // each display — and so mirror for — their own language, independent of
-  // the screen's current locale; Quran Translation rows all share the
-  // screen's single direction).
+  // the screen's current locale; the other rows share the screen's direction,
+  // except the two Arabic Emotions Language choices, always right to left).
   const isRtl = direction.writingDirection === 'rtl';
 
   return (

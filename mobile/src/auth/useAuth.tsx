@@ -8,7 +8,9 @@ import { GuestDataSheet, type GuestDataChoice } from '@/components/GuestDataShee
 import { SyncPassphraseSheet } from '@/components/SyncPassphraseSheet';
 import { pushPreferences, type LocalPreferencesSnapshot } from '@/sync/preferencesSync';
 import { hasUnsyncedLocalPreferences } from '@/sync/preferencesSyncState';
-import { subscribeToLocalChanges } from '@/storage/localChanges';
+import { subscribeToLocalChanges, subscribeToLocalReadingChanges } from '@/storage/localChanges';
+import { markReadingChangedLocally, resetReadingSyncStatus } from '@/sync/readingSyncState';
+import { syncReading } from '@/sync/readingSync';
 import { runFullSync } from '@/sync/syncOrchestrator';
 import {
   SyncPassphraseCancelledError,
@@ -62,6 +64,21 @@ class SessionEndedError extends SyncPassphraseCancelledError {}
 // (refreshSync(), called directly by a screen) is never throttled — only
 // the passive AppState listener is.
 const FOREGROUND_RESYNC_THROTTLE_MS = 60_000;
+
+/**
+ * أورادي وختماتي: a reading change (saving a page, confirming a Khatma…) is
+ * uploaded this long after the last one, so a few saves in a row make one
+ * sync, not one each. Everything is already saved on the device meanwhile.
+ */
+const READING_CHANGE_DEBOUNCE_MS = 2_000;
+/**
+ * When a sync fails or leaves reading changes unacknowledged (offline, a
+ * server error), it is retried while the app stays open, at these growing
+ * intervals — the app has no network-status module, so this, the
+ * foreground resync and the next change are how a returning connection is
+ * noticed. Never polls otherwise; stops in the background and on sign-out.
+ */
+const SYNC_RETRY_DELAYS_MS = [15_000, 60_000, 5 * 60_000, 15 * 60_000];
 
 /** Why a sync started — for dev-only timing logs (devLog), and so a local change is never dropped while another sync runs. */
 type SyncTrigger = 'session' | 'foreground' | 'pull' | 'local-change';
@@ -149,6 +166,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Throttles only the *automatic* AppState-triggered resync below — see
   // FOREGROUND_RESYNC_THROTTLE_MS.
   const lastForegroundSyncAtRef = useRef(0);
+  // أورادي وختماتي: the pending debounced upload, and the retry schedule (see SYNC_RETRY_DELAYS_MS).
+  const readingDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const retryAttemptRef = useRef(0);
+  const readingSyncRef = useRef<() => Promise<void>>(async () => {});
+  const clearSyncTimers = useCallback(() => {
+    if (readingDebounceRef.current) clearTimeout(readingDebounceRef.current);
+    if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
+    readingDebounceRef.current = null;
+    retryTimerRef.current = null;
+  }, []);
+  /** After a failed or incomplete sync: one retry, later each time (never two scheduled at once). */
+  const scheduleSyncRetry = useCallback(() => {
+    if (retryTimerRef.current || AppState.currentState !== 'active') return;
+    const delay = SYNC_RETRY_DELAYS_MS[Math.min(retryAttemptRef.current, SYNC_RETRY_DELAYS_MS.length - 1)];
+    retryAttemptRef.current += 1;
+    retryTimerRef.current = setTimeout(() => {
+      retryTimerRef.current = null;
+      void readingSyncRef.current();
+    }, delay);
+  }, []);
 
   const { locale, setLocale, isReady: isLocaleReady } = useAppLocale();
   const { preference, setDisplayMode, isReady: isTranslationPreferenceReady } = useQuranTranslationPreference();
@@ -291,12 +329,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           });
           // Screens showing this account's data pick up what was downloaded.
           if (isCurrent() && (result.favoritesSynced || result.reflectionsSynced)) notifyLocalDataChanged();
+          if (isCurrent()) {
+            if (result.readingSynced) retryAttemptRef.current = 0;
+            // Some reading change is still not on the account (e.g. a refused
+            // upload, or more conflicts than one sync resolves): try again.
+            else scheduleSyncRetry();
+          }
           devLog('sync', 'done', { trigger: runTrigger, elapsedMs: Date.now() - startedAt, ...result });
         } catch (error) {
           // Sync failures never undo a successful sign-in or block app
           // usage (Part H §33) — the user is signed in and can keep using
           // the app; sync can be retried later (e.g. next app foreground).
           devLog('sync', 'failed', { trigger: runTrigger, elapsedMs: Date.now() - startedAt, kind: error instanceof Error ? error.name : 'unknown' });
+          if (isCurrent()) scheduleSyncRetry();
         }
       };
 
@@ -314,8 +359,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         runTrigger = 'local-change';
       }
     },
-    [promptForPassphrase, promptForGuestData, setLocale, setDisplayMode, waitForPreferenceHydration],
+    [promptForPassphrase, promptForGuestData, setLocale, setDisplayMode, waitForPreferenceHydration, scheduleSyncRetry],
   );
+
+  /**
+   * أورادي وختماتي alone, for a reading change and for retries: the session
+   * is all it needs, so it never waits for (or shows) the Sync Password
+   * prompt, and runs whether reflections are unlocked or not. Pinned to the
+   * signed-in account; stops if that session ends (auth/authEpoch.ts).
+   * readingSync.ts runs one sync per account at a time.
+   */
+  const runReadingSync = useCallback(async () => {
+    const ownerUserId = currentUserIdRef.current;
+    if (!ownerUserId) return;
+    const epoch = currentAuthEpoch();
+    const isCurrent = () => epoch === currentAuthEpoch();
+    try {
+      const token = (await getSessionToken()) ?? sessionTokenRef.current;
+      if (!token || !isCurrent()) return;
+      const synced = await syncReading(token, ownerUserId, { isCurrent });
+      if (!isCurrent()) return;
+      if (synced) retryAttemptRef.current = 0;
+      else scheduleSyncRetry();
+    } catch {
+      if (isCurrent()) scheduleSyncRetry();
+    }
+  }, [scheduleSyncRetry]);
+  useEffect(() => {
+    readingSyncRef.current = runReadingSync;
+  }, [runReadingSync]);
 
   // Pushes a preference change made on this device while signed in, as soon
   // as it happens. Best-effort: offline or failed pushes are retried by the
@@ -410,6 +482,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void runSyncAfterSignIn(token, 'local-change');
   }), [runSyncAfterSignIn]);
 
+  // أورادي وختماتي: a ورد, Khatma or active-ورد change made here is uploaded
+  // shortly after (debounced), by the reading-only sync (no Sync Password).
+  // A guest has no session token: nothing happens.
+  useEffect(() => subscribeToLocalReadingChanges(() => {
+    if (!sessionTokenRef.current) return;
+    markReadingChangedLocally();
+    if (readingDebounceRef.current) clearTimeout(readingDebounceRef.current);
+    readingDebounceRef.current = setTimeout(() => {
+      readingDebounceRef.current = null;
+      void runReadingSync();
+    }, READING_CHANGE_DEBOUNCE_MS);
+  }), [runReadingSync]);
+  useEffect(() => clearSyncTimers, [clearSyncTimers]);
+  // No retry timer in the background; coming back runs the foreground sync.
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active' || !retryTimerRef.current) return;
+      clearTimeout(retryTimerRef.current);
+      retryTimerRef.current = null;
+    });
+    return () => subscription.remove();
+  }, []);
+
   const handleSignInSuccess = useCallback(
     async (token: string, refreshToken: string | undefined, signedInUser: AuthUser) => {
       // A sign-out still clearing storage finishes first, so it can never
@@ -421,6 +516,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const isCurrent = () => epoch === currentAuthEpoch();
       forgetInFlightRefresh();
       rejectOpenPrompts();
+      clearSyncTimers();
+      retryAttemptRef.current = 0;
+      resetReadingSyncStatus();
       // Before anything can sync: switch local data to this account's own
       // partition. Nothing moves into it here — guest data only on request
       // (see storage/localDataOwnership.ts). A storage failure here cannot
@@ -442,7 +540,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLastError(null);
       await runSyncAfterSignIn(token);
     },
-    [runSyncAfterSignIn, rejectOpenPrompts],
+    [runSyncAfterSignIn, rejectOpenPrompts, clearSyncTimers],
   );
 
   const signInWithGoogle = useCallback(
@@ -491,6 +589,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     forgetInFlightRefresh();
     sessionTokenRef.current = null;
     currentUserIdRef.current = null;
+    clearSyncTimers();
+    retryAttemptRef.current = 0;
+    resetReadingSyncStatus();
     rejectOpenPrompts();
     discardUnfinishedKeySetup();
     hideAccountDataNow();
@@ -502,7 +603,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })();
     pendingSignOutRef.current = cleared;
     return cleared;
-  }, [rejectOpenPrompts]);
+  }, [rejectOpenPrompts, clearSyncTimers]);
 
   useEffect(() => {
     registerSessionExpiredHandler(() => {
@@ -573,7 +674,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Kept other versions (D5) are this account's reflections too.
     if (deletedUserId) await clearAllConflictVersions(deletedUserId);
     await clearAllFavorites(deletedUserId ?? undefined);
-    // The account's reading stops, Khatmas and recent emotions on this device (never synced, so only here).
+    // The account's reading stops, Khatmas (also deleted on the server with the account) and recent emotions on this device.
     if (deletedUserId) {
       await clearAccountReadingData(deletedUserId);
       await clearRecentEmotions(deletedUserId);

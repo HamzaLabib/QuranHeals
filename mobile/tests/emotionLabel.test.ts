@@ -125,7 +125,8 @@ describe('Emotion cards show only the selected-locale name — descriptions are 
   const source = readFileSync(EMOTION_CARD_PATH, 'utf-8');
 
   it('renders resolveEmotionDisplayName for the current locale, and never renders emotion.description or a second (e.g. Arabic) name simultaneously', () => {
-    expect(source).toMatch(/resolveEmotionDisplayName\(emotion, locale\)/);
+    // The Emotions Language (لغة المشاعر) decides the name, not the App Language.
+    expect(source).toMatch(/resolveEmotionDisplayName\(emotion, emotionLocale\)/);
     expect(source).not.toMatch(/emotion\.description/);
     expect(source).not.toMatch(/emotion\.arabicName/);
     expect(source).not.toMatch(/emotion\.descriptions/);
@@ -140,8 +141,8 @@ describe('Result screen resolves the display label from emotion.names[currentApp
   const AYAH_EXPERIENCE_PATH = resolve(__dirname, '../src/components/AyahExperience.tsx');
   const source = readFileSync(AYAH_EXPERIENCE_PATH, 'utf-8');
 
-  it('computes headerTitle via resolveLocalizedEmotionName(source.names, locale, source.emotionKey) in emotion mode, never a single passed English name', () => {
-    expect(source).toMatch(/resolveLocalizedEmotionName\(source\.names, locale, source\.emotionKey\)/);
+  it('computes headerTitle via resolveLocalizedEmotionName(source.names, emotionLocale, source.emotionKey) in emotion mode, never a single passed English name', () => {
+    expect(source).toMatch(/resolveLocalizedEmotionName\(source\.names, emotionLocale, source\.emotionKey\)/);
   });
 
   it('never renders emotion.descriptions on this screen (descriptions are data-ready only, not yet in the UI)', () => {

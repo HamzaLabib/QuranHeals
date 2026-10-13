@@ -1,5 +1,10 @@
 /**
- * The three app interface locales Quran Heals v1 supports. Mirrors
+ * The three content locales Quran Heals has text for (messages.ts, the
+ * emotion catalog). Only English and Arabic are App Languages (the
+ * interface, APP_LANGUAGES below); Egyptian Arabic is offered for emotion
+ * content only (Emotions Language, emotionsLanguage.ts).
+ *
+ * The locales: Mirrors
  * backend/src/emotions/emotionCatalog.ts's `AppLocale` exactly (kept as an
  * independent copy rather than a cross-package import, since mobile and
  * backend are separate npm packages with separate module resolution).
@@ -13,8 +18,16 @@ export type AppLocale = 'en' | 'ar' | 'ar-EG';
 
 export const APP_LOCALES: readonly AppLocale[] = ['en', 'ar', 'ar-EG'];
 
+/** The App Language (لغة التطبيق): the whole interface. Exactly English and Arabic. */
+export type AppLanguage = 'en' | 'ar';
+export const APP_LANGUAGES: readonly AppLanguage[] = ['en', 'ar'];
+
+export function isAppLanguage(value: unknown): value is AppLanguage {
+  return value === 'en' || value === 'ar';
+}
+
 /** Preserves current app behavior: the app has always started in English. */
-export const DEFAULT_APP_LOCALE: AppLocale = 'en';
+export const DEFAULT_APP_LOCALE: AppLanguage = 'en';
 
 export const RTL_LOCALES: readonly AppLocale[] = ['ar', 'ar-EG'];
 

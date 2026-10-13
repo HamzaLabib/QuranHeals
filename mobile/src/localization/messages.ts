@@ -288,7 +288,6 @@ export type Messages = {
     back: string;
     statsTotal: string;
     statsRamadan: string;
-    statsNonRamadan: string;
     wirdsTitle: string;
     newWird: string;
     emptyTitle: string;
@@ -299,7 +298,14 @@ export type Messages = {
     /** The progress bar's spoken name. */
     positionLabel: string;
     /** Under the statistics: where the data lives, and what position and Khatma mean. */
+    /** A guest: saved on this device only. */
     footnote: string;
+    /** Signed in: synced across the account's devices. */
+    footnoteSynced: string;
+    /** Signed in: the sync line under the footnote. */
+    syncSyncing: string;
+    syncSynced: string;
+    syncPending: string;
     khatmaCount: string;
     active: string;
     continue: string;
@@ -374,6 +380,15 @@ export type Messages = {
     subtitle: string;
     openSettings: string;
     appLanguageSection: string;
+    /** Emotions Language (localization/emotionsLanguage.ts) and its four choices. */
+    emotionsLanguageSection: string;
+    emotionsFollowApp: string;
+    emotionsEnglish: string;
+    emotionsArabicStandard: string;
+    emotionsArabicEgyptian: string;
+    /** Quran Language (localization/quranLanguage.ts) and its one current mode. */
+    quranLanguageSection: string;
+    quranTextOption: string;
     quranTranslationSection: string;
     translationDisplayAlways: string;
     translationDisplayOnDemand: string;
@@ -686,7 +701,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       readingStops: 'Reading stops',
       stopNameLabel: 'Name (for example: Ramadan, Mum)',
       saveStop: 'Save stop on this page',
-      stopSaved: 'Reading stop saved.',
+      stopSaved: 'Saved',
       stopNameInvalid: 'Enter a name of up to 40 characters.',
       tooManyStops: 'You have too many reading stops to add another. Remove one first.',
       stopSaveFailed: "The reading stop couldn't be saved. Please try again.",
@@ -767,7 +782,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     tabs: {
       home: 'Home',
       mushaf: 'Mushaf',
-      myReading: 'Recitations & Khatmas',
+      myReading: 'Recitations',
       reflections: 'Reflections',
     },
     continueReading: {
@@ -788,17 +803,20 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     myReading: {
       title: 'My Recitations & Khatmas',
       back: 'Back',
-      statsTotal: 'All-time Khatmas',
+      statsTotal: 'Khatmas',
       statsRamadan: 'Ramadan Khatmas',
-      statsNonRamadan: 'Non-Ramadan Khatmas',
       wirdsTitle: 'My Wirds',
       newWird: 'New Wird',
       emptyTitle: 'No Wird yet',
       emptyBody: 'Create a Wird to keep your place in the Mushaf. Each Wird keeps its own page, progress and Khatmas.',
       pageOf: 'Page {page} of {total}',
-      percent: 'Position {percent}%',
-      positionLabel: 'Saved position in the Mushaf',
-      footnote: 'Your Wirds and Khatmas are saved on this device only. A Wird’s position is the page you last saved, not a count of pages recited; a Khatma is counted only when you confirm it.',
+      percent: 'Completion {percent}%',
+      positionLabel: 'Completion, by the saved page in the Mushaf',
+      footnote: 'Your Wirds and Khatmas are saved on this device only. A Wird’s completion is based on the page you last saved, not a count of pages recited; a Khatma is counted only when you confirm it.',
+      footnoteSynced: 'Your Wirds and Khatmas sync with your account across the devices signed in to it, and are always saved on this device first. A Wird’s completion is based on the page you last saved, not a count of pages recited; a Khatma is counted only when you confirm it.',
+      syncSyncing: 'Syncing…',
+      syncSynced: 'Synced with your account',
+      syncPending: 'Saved on this device. It will sync with your account when you’re online.',
       khatmaCount: 'Khatmas: {count}',
       active: 'Current',
       continue: 'Continue reciting',
@@ -871,7 +889,14 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       title: 'Settings',
       subtitle: 'App language and Quran translation preferences.',
       openSettings: 'Open settings',
-      appLanguageSection: 'Languages',
+      appLanguageSection: 'App Language',
+      emotionsLanguageSection: 'Emotions Language',
+      emotionsFollowApp: 'Follow App Language',
+      emotionsEnglish: 'English',
+      emotionsArabicStandard: 'العربية الفصحى',
+      emotionsArabicEgyptian: 'العربية المصرية',
+      quranLanguageSection: 'Quran Language',
+      quranTextOption: 'Quranic Text',
       quranTranslationSection: 'Quran Translation',
       translationDisplayAlways: 'Always',
       translationDisplayOnDemand: 'On demand',
@@ -964,7 +989,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     guestData: {
       title: "Add your local data to this account?",
-      body: "You have favorites, reflections, or Wirds and Khatmas saved on this device. Would you like to add them to this account? Favorites and reflections then sync across your devices; Wirds and Khatmas stay on this device.",
+      body: "You have favorites, reflections, or Wirds and Khatmas saved on this device. Would you like to add them to this account? They will then sync across the devices signed in to this account.",
       add: "Add to this account",
       keepSeparate: "Keep separate",
     },
@@ -972,7 +997,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       createTitle: "Set Password",
       unlockTitle: "Enter Password",
       createDescription: "Create a Password to protect and encrypt your private reflections when they sync across your devices. Quran Heals cannot recover your Password if you forget it, so choose something you can remember.",
-      unlockDescription: "Enter your Password to unlock your encrypted synced data on this device.",
+      unlockDescription: "Enter your Password to unlock your encrypted reflections on this device.",
       createPlaceholder: "Password",
       unlockPlaceholder: "Password",
       continueLabel: "Continue",
@@ -1164,7 +1189,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       readingStops: 'مواضع التوقف',
       stopNameLabel: 'الاسم (مثل: رمضان، أمي)',
       saveStop: 'حفظ موضع التوقف في هذه الصفحة',
-      stopSaved: 'تم حفظ موضع التوقف.',
+      stopSaved: 'تم الحفظ',
       stopNameInvalid: 'أدخل اسمًا لا يزيد على ٤٠ حرفًا.',
       tooManyStops: 'لا يمكن إضافة موضع توقف آخر لكثرة المواضع المحفوظة. احذف واحدًا أولًا.',
       stopSaveFailed: 'تعذّر حفظ موضع التوقف. يرجى إعادة المحاولة.',
@@ -1245,7 +1270,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     tabs: {
       home: 'الرئيسية',
       mushaf: 'المصحف',
-      myReading: 'أورادي وختماتي',
+      myReading: 'أورادي',
       reflections: 'خواطري',
     },
     continueReading: {
@@ -1266,17 +1291,20 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     myReading: {
       title: 'أورادي وختماتي',
       back: 'رجوع',
-      statsTotal: 'إجمالي الختمات',
+      statsTotal: 'الختمات',
       statsRamadan: 'ختمات رمضان',
-      statsNonRamadan: 'ختمات خارج رمضان',
       wirdsTitle: 'أورادي',
       newWird: 'ورد جديد',
       emptyTitle: 'لا توجد أوراد بعد',
       emptyBody: 'أنشئ وردًا لتحتفظ بموضعك في المصحف. لكل ورد صفحته وتقدّمه وختماته.',
       pageOf: 'صفحة {page} من {total}',
-      percent: 'الموضع {percent}٪',
-      positionLabel: 'الموضع المحفوظ في المصحف',
-      footnote: 'تُحفظ أورادك وختماتك على هذا الجهاز فقط. موضع الورد هو آخر صفحة حفظتها، وليس عدد الصفحات التي تلوتها، ولا تُحتسب الختمة إلا بتأكيدك.',
+      percent: 'الإنجاز {percent}٪',
+      positionLabel: 'الإنجاز حسب الصفحة المحفوظة في المصحف',
+      footnote: 'تُحفظ أورادك وختماتك على هذا الجهاز فقط. نسبة إنجاز الورد مبنية على آخر صفحة حفظتها، وليس عدد الصفحات التي تلوتها، ولا تُحتسب الختمة إلا بتأكيدك.',
+      footnoteSynced: 'تُزامَن أورادك وختماتك مع حسابك بين الأجهزة المسجَّل دخولها به، وتُحفظ دائمًا على هذا الجهاز أولًا. نسبة إنجاز الورد مبنية على آخر صفحة حفظتها، وليس عدد الصفحات التي تلوتها، ولا تُحتسب الختمة إلا بتأكيدك.',
+      syncSyncing: 'جارٍ المزامنة…',
+      syncSynced: 'تمت المزامنة مع حسابك',
+      syncPending: 'محفوظة على هذا الجهاز، وستُزامَن مع حسابك عند الاتصال بالإنترنت.',
       khatmaCount: 'الختمات: {count}',
       active: 'الحالي',
       continue: 'متابعة التلاوة',
@@ -1350,6 +1378,13 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       subtitle: 'لغة التطبيق وتفضيلات ترجمة القرآن.',
       openSettings: 'فتح الإعدادات',
       appLanguageSection: 'لغة التطبيق',
+      emotionsLanguageSection: 'لغة المشاعر',
+      emotionsFollowApp: 'حسب لغة التطبيق',
+      emotionsEnglish: 'الإنجليزية',
+      emotionsArabicStandard: 'العربية الفصحى',
+      emotionsArabicEgyptian: 'العربية المصرية',
+      quranLanguageSection: 'لغة القرآن',
+      quranTextOption: 'النص القرآني',
       quranTranslationSection: 'ترجمة القرآن',
       translationDisplayAlways: 'دائمًا',
       translationDisplayOnDemand: 'عند الطلب',
@@ -1446,7 +1481,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     guestData: {
       title: "إضافة البيانات المحفوظة على هذا الجهاز إلى هذا الحساب؟",
-      body: "لديك مفضلة أو خواطر أو أوراد وختمات محفوظة على هذا الجهاز. هل تريد إضافتها إلى هذا الحساب؟ تُشارَك المفضلة والخواطر عبر أجهزتك، وتبقى الأوراد والختمات على هذا الجهاز.",
+      body: "لديك مفضلة أو خواطر أو أوراد وختمات محفوظة على هذا الجهاز. هل تريد إضافتها إلى هذا الحساب؟ ستُزامَن بعد ذلك بين أجهزتك المسجَّل دخولها بهذا الحساب.",
       add: "إضافة إلى هذا الحساب",
       keepSeparate: "إبقاؤها منفصلة",
     },
@@ -1454,7 +1489,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       createTitle: "إنشاء كلمة المرور",
       unlockTitle: "أدخل كلمة المرور",
       createDescription: "أنشئ كلمة مرور لحماية وتشفير خواطرك الخاصة عند تحديثها عبر أجهزتك. لا يمكن لتطبيق Quran Heals استعادة كلمة المرور إذا نسيتها، لذا اختر كلمة مرور يمكنك تذكرها.",
-      unlockDescription: "أدخل كلمة المرور لفتح بياناتك المشفّرة على هذا الجهاز.",
+      unlockDescription: "أدخل كلمة المرور لفتح خواطرك المشفّرة على هذا الجهاز.",
       createPlaceholder: "كلمة المرور",
       unlockPlaceholder: "كلمة المرور",
       continueLabel: "متابعة",
@@ -1656,7 +1691,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       readingStops: 'أماكن الوقوف',
       stopNameLabel: 'الاسم (زي: رمضان، ماما)',
       saveStop: 'احفظ مكان الوقوف في الصفحة دي',
-      stopSaved: 'مكان الوقوف اتحفظ.',
+      stopSaved: 'تم الحفظ',
       stopNameInvalid: 'اكتب اسم مش أكتر من ٤٠ حرف.',
       tooManyStops: 'عندك أماكن وقوف كتير، ومينفعش تضيف تاني. امسح واحد الأول.',
       stopSaveFailed: 'متقدرناش نحفظ مكان الوقوف. جرّب تاني.',
@@ -1738,7 +1773,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     tabs: {
       home: 'الرئيسية',
       mushaf: 'المصحف',
-      myReading: 'أورادي وختماتي',
+      myReading: 'أورادي',
       reflections: 'خواطري',
     },
     continueReading: {
@@ -1759,17 +1794,20 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     myReading: {
       title: 'أورادي وختماتي',
       back: 'رجوع',
-      statsTotal: 'إجمالي الختمات',
+      statsTotal: 'الختمات',
       statsRamadan: 'ختمات رمضان',
-      statsNonRamadan: 'ختمات خارج رمضان',
       wirdsTitle: 'أورادي',
       newWird: 'ورد جديد',
       emptyTitle: 'مفيش أوراد لسه',
       emptyBody: 'اعمل ورد عشان تحفظ مكانك في المصحف. كل ورد ليه صفحته وتقدّمه وختماته.',
       pageOf: 'صفحة {page} من {total}',
-      percent: 'الموضع {percent}٪',
-      positionLabel: 'الموضع المحفوظ في المصحف',
-      footnote: 'أورادك وختماتك محفوظة على الجهاز ده بس. موضع الورد هو آخر صفحة حفظتها، مش عدد الصفحات اللي تلوتها، والختمة مابتتحسبش غير لما تأكدها.',
+      percent: 'الإنجاز {percent}٪',
+      positionLabel: 'الإنجاز حسب الصفحة المحفوظة في المصحف',
+      footnote: 'أورادك وختماتك محفوظة على الجهاز ده بس. نسبة إنجاز الورد على حسب آخر صفحة حفظتها، مش عدد الصفحات اللي تلوتها، والختمة مابتتحسبش غير لما تأكدها.',
+      footnoteSynced: 'أورادك وختماتك بتتزامن مع حسابك بين الأجهزة اللي داخلة عليه، وبتتحفظ على الجهاز ده الأول دايمًا. نسبة إنجاز الورد على حسب آخر صفحة حفظتها، مش عدد الصفحات اللي تلوتها، والختمة مابتتحسبش غير لما تأكدها.',
+      syncSyncing: 'بيتزامن…',
+      syncSynced: 'اتزامنت مع حسابك',
+      syncPending: 'محفوظة على الجهاز ده، وهتتزامن مع حسابك لما تكون متصل بالإنترنت.',
       khatmaCount: 'الختمات: {count}',
       active: 'الحالي',
       continue: 'كمّل التلاوة',
@@ -1843,6 +1881,13 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       subtitle: 'لغة التطبيق وتفضيلات ترجمة القرآن.',
       openSettings: 'افتح الإعدادات',
       appLanguageSection: 'لغة التطبيق',
+      emotionsLanguageSection: 'لغة المشاعر',
+      emotionsFollowApp: 'حسب لغة التطبيق',
+      emotionsEnglish: 'الإنجليزية',
+      emotionsArabicStandard: 'العربية الفصحى',
+      emotionsArabicEgyptian: 'العربية المصرية',
+      quranLanguageSection: 'لغة القرآن',
+      quranTextOption: 'النص القرآني',
       quranTranslationSection: 'ترجمة القرآن',
       translationDisplayAlways: 'دائمًا',
       translationDisplayOnDemand: 'عند الطلب',
@@ -1946,7 +1991,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     // sync-password phase), never Egyptian colloquial.
     guestData: {
       title: "إضافة البيانات المحفوظة على هذا الجهاز إلى هذا الحساب؟",
-      body: "لديك مفضلة أو خواطر أو أوراد وختمات محفوظة على هذا الجهاز. هل تريد إضافتها إلى هذا الحساب؟ تُشارَك المفضلة والخواطر عبر أجهزتك، وتبقى الأوراد والختمات على هذا الجهاز.",
+      body: "لديك مفضلة أو خواطر أو أوراد وختمات محفوظة على هذا الجهاز. هل تريد إضافتها إلى هذا الحساب؟ ستُزامَن بعد ذلك بين أجهزتك المسجَّل دخولها بهذا الحساب.",
       add: "إضافة إلى هذا الحساب",
       keepSeparate: "إبقاؤها منفصلة",
     },
@@ -1954,7 +1999,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       createTitle: "إنشاء كلمة المرور",
       unlockTitle: "أدخل كلمة المرور",
       createDescription: "أنشئ كلمة مرور لحماية وتشفير خواطرك الخاصة عند تحديثها عبر أجهزتك. لا يمكن لتطبيق Quran Heals استعادة كلمة المرور إذا نسيتها، لذا اختر كلمة مرور يمكنك تذكرها.",
-      unlockDescription: "أدخل كلمة المرور لفتح بياناتك المشفّرة على هذا الجهاز.",
+      unlockDescription: "أدخل كلمة المرور لفتح خواطرك المشفّرة على هذا الجهاز.",
       createPlaceholder: "كلمة المرور",
       unlockPlaceholder: "كلمة المرور",
       continueLabel: "متابعة",

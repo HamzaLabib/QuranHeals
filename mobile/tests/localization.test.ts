@@ -249,7 +249,7 @@ describe('Interface message dictionary (messages.ts)', () => {
     expect(MESSAGES.en.syncPassphrase).toMatchObject({
       createTitle: 'Set Password', unlockTitle: 'Enter Password',
       createDescription: 'Create a Password to protect and encrypt your private reflections when they sync across your devices. Quran Heals cannot recover your Password if you forget it, so choose something you can remember.',
-      unlockDescription: 'Enter your Password to unlock your encrypted synced data on this device.',
+      unlockDescription: 'Enter your Password to unlock your encrypted reflections on this device.',
       createPlaceholder: 'Password', unlockPlaceholder: 'Password', confirmPassword: 'Confirm Password',
       show: 'Show', hide: 'Hide', continueLabel: 'Continue',
       lengthHint: 'Use 8–32 characters.', allowedHint: 'Letters, numbers, and symbols are allowed.',
@@ -260,7 +260,7 @@ describe('Interface message dictionary (messages.ts)', () => {
     expect(MESSAGES.ar.syncPassphrase).toMatchObject({
       createTitle: 'إنشاء كلمة المرور', unlockTitle: 'أدخل كلمة المرور',
       createDescription: 'أنشئ كلمة مرور لحماية وتشفير خواطرك الخاصة عند تحديثها عبر أجهزتك. لا يمكن لتطبيق Quran Heals استعادة كلمة المرور إذا نسيتها، لذا اختر كلمة مرور يمكنك تذكرها.',
-      unlockDescription: 'أدخل كلمة المرور لفتح بياناتك المشفّرة على هذا الجهاز.',
+      unlockDescription: 'أدخل كلمة المرور لفتح خواطرك المشفّرة على هذا الجهاز.',
       createPlaceholder: 'كلمة المرور', confirmPassword: 'تأكيد كلمة المرور',
       show: 'إظهار', hide: 'إخفاء', continueLabel: 'متابعة',
       lengthHint: 'استخدم من 8 إلى 32 حرفًا.', allowedHint: 'يمكنك استخدام الحروف والأرقام والرموز.',
@@ -385,17 +385,18 @@ describe('Locale persistence (useAppLocale.tsx): AsyncStorage wiring proven by s
 
   it('persists under a versioned/namespaced AsyncStorage key, matching this project`s existing storage convention', () => {
     expect(source).toMatch(/APP_LOCALE_STORAGE_KEY\s*=\s*'quran-heals:app-locale:v1'/);
-    expect(source).toMatch(/AsyncStorage\.getItem\(APP_LOCALE_STORAGE_KEY\)/);
-    expect(source).toMatch(/AsyncStorage\.setItem\(APP_LOCALE_STORAGE_KEY,\s*next\)/);
+    // Read through the legacy-Egyptian-Arabic migration (emotionsLanguage.ts), written as English or Arabic only.
+    expect(source).toMatch(/await migrateLegacyAppLanguage\(\)/);
+    expect(source).toMatch(/AsyncStorage\.setItem\(APP_LOCALE_STORAGE_KEY,\s*language\)/);
   });
 
-  it('defaults to DEFAULT_APP_LOCALE (English) and only accepts a stored value that passes isAppLocale', () => {
-    expect(source).toMatch(/useState<AppLocale>\(DEFAULT_APP_LOCALE\)/);
-    expect(source).toMatch(/isAppLocale\(stored\)/);
+  it('defaults to DEFAULT_APP_LOCALE (English) and only accepts English or Arabic', () => {
+    expect(source).toMatch(/useState<AppLanguage>\(DEFAULT_APP_LOCALE\)/);
+    expect(source).toMatch(/const language: AppLanguage = next === 'en' \? 'en' : 'ar'/);
   });
 
   it('never throws on unreadable/corrupted storage — a read failure is caught and the default locale is kept', () => {
-    expect(source).toMatch(/try\s*{[\s\S]*AsyncStorage\.getItem[\s\S]*}\s*catch/);
+    expect(source).toMatch(/try\s*{[\s\S]*migrateLegacyAppLanguage[\s\S]*}\s*catch/);
   });
 });
 

@@ -8,7 +8,7 @@ import { MESSAGES } from '@/localization/messages';
  * أورادي وختماتي (/my-reading), rendered over the real reading data
  * (mushaf/khatmas.ts) on an in-memory AsyncStorage.
  */
-const state = vi.hoisted(() => ({ locale: 'en' as 'en' | 'ar' | 'ar-EG', storage: new Map<string, string>() }));
+const state = vi.hoisted(() => ({ locale: 'en' as 'en' | 'ar' | 'ar-EG', dark: false, storage: new Map<string, string>() }));
 vi.mock('react-native', async () => {
   const { createElement: h } = await import('react');
   return {
@@ -30,8 +30,9 @@ vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView',
 vi.mock('lucide-react-native', () => Object.fromEntries(['ArrowLeft', 'ArrowRight', 'BookOpen', 'BookOpenText', 'Pencil', 'Plus', 'Trash2'].map((name) => [name, name])));
 vi.mock('expo-router', () => ({ router: { push: vi.fn(), navigate: vi.fn(), back: vi.fn(), replace: vi.fn(), canGoBack: () => true } }));
 vi.mock('@/theme/useTheme', async () => {
-  const { lightPalette } = await import('@/constants/theme');
-  return { usePalette: () => lightPalette, useThemedStyles: (factory: (colors: unknown) => unknown) => factory(lightPalette) };
+  const { darkPalette, lightPalette } = await import('@/constants/theme');
+  const palette = () => (state.dark ? darkPalette : lightPalette);
+  return { usePalette: palette, useThemedStyles: (factory: (colors: unknown) => unknown) => factory(palette()) };
 });
 vi.mock('@/localization/useAppLocale', () => ({ useAppLocale: () => ({ locale: state.locale, messages: MESSAGES[state.locale] }) }));
 
@@ -60,6 +61,7 @@ const wirds = async () => (await loadReadingData()).wirds;
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   state.locale = 'en';
+  state.dark = false;
   state.storage.clear();
   resetLocalDataOwnerForTests();
   vi.mocked(router.push).mockClear();
@@ -73,7 +75,7 @@ describe('أورادي وختماتي', () => {
   it('with no ورد: an empty state, zero statistics, the new-ورد action and the du`a entry', async () => {
     await render();
     expect(byId('my-reading-empty')).toBeDefined();
-    for (const id of ['total', 'ramadan', 'non-ramadan']) expect(textOf(byId(`my-reading-stat-${id}`))).toMatch(/^0 \| /);
+    for (const id of ['total', 'ramadan']) expect(textOf(byId(`my-reading-stat-${id}`))).toMatch(/^0 \| /);
     expect(byId('my-reading-new')).toBeDefined();
     await press('my-reading-dua');
     expect(router.push).toHaveBeenLastCalledWith('/khatm-dua');
@@ -88,9 +90,9 @@ describe('أورادي وختماتي', () => {
     await render();
     const cards = (await wirds()).map((w) => [w.stop.name, textOf(byId(`wird-card-${w.stop.id}`))] as const);
     // A position (the saved page), never presented as pages recited.
-    expect(cards.find(([name]) => name === 'ورد رمضان')![1]).toMatch(/Page 320 of 604 \| Position 52% \| Khatmas: 0/);
-    expect(cards.find(([name]) => name === 'ورد التدبر')![1]).toMatch(/Page 150 of 604 \| Position 24% \| Khatmas: 0/);
-    expect(cards.find(([name]) => name === 'وردي اليومي')![1]).toMatch(/Page 1 of 604 \| Position 0% \| Khatmas: 1/);
+    expect(cards.find(([name]) => name === 'ورد رمضان')![1]).toMatch(/Page 320 of 604 \| Completion 52% \| Khatmas: 0/);
+    expect(cards.find(([name]) => name === 'ورد التدبر')![1]).toMatch(/Page 150 of 604 \| Completion 24% \| Khatmas: 0/);
+    expect(cards.find(([name]) => name === 'وردي اليومي')![1]).toMatch(/Page 1 of 604 \| Completion 0% \| Khatmas: 1/);
     const bar = byId(`wird-card-${daily.stop.id}`).findAll((node) => node.props.accessibilityRole === 'progressbar')[0];
     expect(bar.props.accessibilityValue).toEqual({ min: 0, max: 100, now: 0 });
     expect(bar.props.accessibilityLabel).toBe(copy().positionLabel);
@@ -210,6 +212,118 @@ describe('أورادي وختماتي', () => {
     expect(data.wirds[0].status).toBe('pending'); // not saved since: back to 604, awaiting confirmation
   });
 
+  it('the percentage reads Completion / الإنجاز (still the saved page out of 604), with a matching progress-bar label', async () => {
+    const expected = {
+      en: ['Completion {percent}%', 'Completion, by the saved page in the Mushaf', 'Completion 52%'],
+      ar: ['الإنجاز {percent}٪', 'الإنجاز حسب الصفحة المحفوظة في المصحف', 'الإنجاز ٥٢٪'],
+      'ar-EG': ['الإنجاز {percent}٪', 'الإنجاز حسب الصفحة المحفوظة في المصحف', 'الإنجاز ٥٢٪'],
+    } as const;
+    await readTo('Daily', 320);
+    const [w] = await wirds();
+    expect(w.percent).toBe(52); // floor(320 / 604 × 100): unchanged
+    for (const locale of ['en', 'ar', 'ar-EG'] as const) {
+      const [template, barLabel, shown] = expected[locale];
+      expect([MESSAGES[locale].myReading.percent, MESSAGES[locale].myReading.positionLabel]).toEqual([template, barLabel]);
+      expect(JSON.stringify(MESSAGES[locale].myReading)).not.toMatch(/Position \{|Progress \{|التقدّم|الموضع \{|الموضع المحفوظ/);
+      state.locale = locale;
+      await render();
+      expect(byId(`wird-percent-${w.stop.id}`).props.children).toBe(shown);
+      const bar = byId(`wird-card-${w.stop.id}`).findAll((node) => node.props.accessibilityRole === 'progressbar')[0];
+      expect(bar.props.accessibilityLabel).toBe(barLabel);
+      expect(bar.props.accessibilityValue).toEqual({ min: 0, max: 100, now: 52 });
+      // The note still says the figure is the saved page, not pages recited.
+      expect(byId('my-reading-footnote').props.children).toMatch(locale === 'en' ? /not a count of pages recited/ : /وليس عدد الصفحات|مش عدد الصفحات/);
+      await act(async () => root.unmount());
+    }
+  });
+
+  it('a guest: "saved on this device only", and no sync line', async () => {
+    await readTo('Daily', 10);
+    await render();
+    expect(byId('my-reading-footnote').props.children).toBe(copy().footnote);
+    expect(copy().footnote).toMatch(/on this device only/);
+    expect(all('my-reading-sync')).toHaveLength(0);
+  });
+
+  it('signed in: the synced explanation (still: completion is the saved page; a Khatma counts only when confirmed) and a sync line that says "synced" only after the account confirmed', async () => {
+    const { setLocalDataOwnerState } = await import('@/storage/localDataOwner');
+    const status = await import('@/sync/readingSyncState');
+    // Signed in: the account's own partition is the active one.
+    setLocalDataOwnerState({ activeUserId: 'user-a', keptSeparate: [], resolved: true });
+    await readTo('Daily', 10);
+    for (const locale of ['en', 'ar', 'ar-EG'] as const) {
+      state.locale = locale;
+      status.resetReadingSyncStatus();
+      await render();
+      const c = MESSAGES[locale].myReading;
+      expect(byId('my-reading-footnote').props.children).toBe(c.footnoteSynced);
+      expect(all('my-reading-sync')).toHaveLength(0); // nothing known yet: no claim either way
+      await act(async () => status.markReadingSyncStarted());
+      expect(byId('my-reading-sync').props.children).toBe(c.syncSyncing);
+      await act(async () => status.markReadingSyncFinished(false, null));
+      expect(byId('my-reading-sync').props.children).toBe(c.syncPending);
+      await act(async () => status.markReadingSyncFinished(true, '2026-10-13T10:00:00.000Z'));
+      expect(byId('my-reading-sync').props.children).toBe(c.syncSynced);
+      await act(async () => status.markReadingChangedLocally());
+      expect(byId('my-reading-sync').props.children).toBe(c.syncPending);
+      await act(async () => root.unmount());
+    }
+    expect(MESSAGES.en.myReading.footnoteSynced).toMatch(/sync with your account across the devices signed in to it.*not a count of pages recited.*only when you confirm/);
+    // Account-synced, not end-to-end encrypted: never described as encrypted.
+    for (const locale of ['en', 'ar', 'ar-EG'] as const) expect(MESSAGES[locale].myReading.footnoteSynced).not.toMatch(/encrypt|مشفّر|متشفّر/i);
+    for (const locale of ['ar', 'ar-EG'] as const) expect(MESSAGES[locale].myReading.footnoteSynced).toMatch(/وليس عدد الصفحات|مش عدد الصفحات/);
+  });
+
+  it('exactly two counters, side by side in equal-width cards: الختمات (all, Ramadan included) and ختمات رمضان; no non-Ramadan counter', async () => {
+    const labels = { en: ['Khatmas', 'Ramadan Khatmas'], ar: ['الختمات', 'ختمات رمضان'], 'ar-EG': ['الختمات', 'ختمات رمضان'] } as const;
+    for (const locale of ['en', 'ar', 'ar-EG'] as const) {
+      expect([MESSAGES[locale].myReading.statsTotal, MESSAGES[locale].myReading.statsRamadan]).toEqual(labels[locale]);
+      expect(MESSAGES[locale].myReading).not.toHaveProperty('statsNonRamadan');
+    }
+    // One Ramadan and one non-Ramadan Khatma: الختمات counts both, ختمات رمضان only the first.
+    await readTo('Daily', 1, 604);
+    let [w] = await wirds();
+    const ramadan = await confirmKhatma(w.stop.id, w.cycle.id, { now: () => new Date(2027, 1, 10, 12) });
+    await readTo('Daily', 604);
+    [w] = await wirds();
+    await confirmKhatma(w.stop.id, w.cycle.id, { now: () => new Date(2027, 5, 10, 12) });
+    for (const locale of ['en', 'ar', 'ar-EG'] as const) {
+      state.locale = locale;
+      await render();
+      const cards = byId('my-reading-stats').children.filter((node) => typeof node !== 'string') as ReactTestInstance[];
+      expect(cards.map((card) => card.props.testID)).toEqual(['my-reading-stat-total', 'my-reading-stat-ramadan']);
+      expect(cards.map((card) => flat(card.props.style).flex)).toEqual([1, 1]);
+      expect(all('my-reading-stat-non-ramadan')).toHaveLength(0);
+      const [totalValue, totalLabel] = textOf(byId('my-reading-stat-total')).split(' | ');
+      const [ramadanValue, ramadanLabel] = textOf(byId('my-reading-stat-ramadan')).split(' | ');
+      expect([totalLabel, ramadanLabel]).toEqual(labels[locale]);
+      expect([totalValue, ramadanValue]).toEqual(locale === 'en' ? ['2', '1'] : ['٢', '١']);
+      await act(async () => root.unmount());
+    }
+    // Every record is kept, non-Ramadan included, and the counts stay consistent.
+    const data = await loadReadingData();
+    expect(data.records).toHaveLength(2);
+    expect(data.stats).toEqual({ total: 2, ramadan: 1, nonRamadan: 1 });
+    // Removing the Ramadan Khatma updates both counters.
+    state.locale = 'en';
+    await render();
+    await press(`khatma-remove-${ramadan.record.id}`);
+    await press('khatma-remove-sheet-confirm');
+    expect(textOf(byId('my-reading-stat-total')).split(' | ')[0]).toBe('1');
+    expect(textOf(byId('my-reading-stat-ramadan')).split(' | ')[0]).toBe('0');
+  });
+
+  for (const [name, dark] of [['Light', false], ['Dark', true]] as const) {
+    it(`${name}: the two counters take the theme's card colours`, async () => {
+      state.dark = dark;
+      const { darkPalette, lightPalette } = await import('@/constants/theme');
+      const palette = dark ? darkPalette : lightPalette;
+      await render();
+      expect(flat(byId('my-reading-stat-ramadan').props.style)).toMatchObject({ backgroundColor: palette.card, borderColor: palette.border });
+      expect(flat(byId('my-reading-stat-total').props.style)).toMatchObject({ backgroundColor: palette.sageSurface, borderColor: palette.sageBorder });
+    });
+  }
+
   it('the du`a entry passes a pending ورد along, so the du`a screen can offer its confirmation', async () => {
     await readTo('Fajr', 300, 604);
     const [w] = await wirds();
@@ -224,9 +338,7 @@ describe('أورادي وختماتي', () => {
     const [w] = await wirds();
     await render();
     expect(root.root.findAll((node) => node.props.accessibilityRole === 'header')[0].props.children).toBe('أورادي وختماتي');
-    expect(textOf(byId('my-reading-stats'))).toContain('إجمالي الختمات');
-    expect(textOf(byId('my-reading-stats'))).toContain('ختمات رمضان');
-    expect(textOf(byId('my-reading-stats'))).toContain('ختمات خارج رمضان');
+    expect(textOf(byId('my-reading-stats'))).toBe('٠ | الختمات | ٠ | ختمات رمضان');
     expect(textOf(byId(`wird-card-${w.stop.id}`))).toContain('صفحة ٣٠٢ من ٦٠٤');
     expect(flat(byId('my-reading-stats').props.style).flexDirection).toBe('row-reverse');
   });

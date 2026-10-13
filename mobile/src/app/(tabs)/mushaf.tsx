@@ -651,6 +651,7 @@ export default function MushafScreen() {
           saveStop: copy.saveStopAction,
           stopName: copy.stopNameLabel,
           confirmStop: copy.confirmStop,
+          saved: copy.stopSaved,
         }}
         canGoPrevious={page > 1}
         canGoNext={page < MUSHAF_PAGE_COUNT}
@@ -662,6 +663,8 @@ export default function MushafScreen() {
         onPopup={setPopup}
         defaultStopName={activeStop?.name}
         onSaveStop={onSaveStop}
+        // The selected ورد's own saved page, from the stored stops (updated after every save, switch and sync).
+        pageSaved={activeStop !== null && activeStop.page === page}
       />
       )}
 

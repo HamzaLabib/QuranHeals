@@ -33,6 +33,10 @@ export function createSyncRoutes(
   router.put('/reflections', asyncHandler(controller.putReflections));
   router.post('/reflections/reset', accountReauthLimiter, asyncHandler(controller.resetReflectionSync));
 
+  // أورادي وختماتي (docs/auth-and-sync/reading-sync.md).
+  router.get('/reading', asyncHandler(controller.getReading));
+  router.post('/reading', asyncHandler(controller.pushReading));
+
   router.get('/key', asyncHandler(controller.getSyncKey));
   router.put('/key', asyncHandler(controller.putSyncKey));
   router.patch('/key', asyncHandler(controller.replaceSyncKey));

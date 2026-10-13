@@ -63,6 +63,7 @@ vi.mock('@/sync/syncKeyManager', () => {
 // because their real imports need native Expo modules.
 vi.mock('@/sync/favoritesSync', () => ({ syncFavorites: vi.fn() }));
 vi.mock('@/sync/reflectionsSync', () => ({ syncReflections: vi.fn() }));
+vi.mock('@/sync/readingSync', () => ({ syncReading: vi.fn(async () => true) }));
 vi.mock('@/storage/ayahReflections', () => ({ clearAllReflections: vi.fn(), guestHasReflections: vi.fn(async () => false), adoptGuestReflections: vi.fn(async () => true) }));
 vi.mock('@/storage/favorites', () => ({ clearAllFavorites: vi.fn(), guestHasFavorites: vi.fn(async () => false), adoptGuestFavorites: vi.fn(async () => true) }));
 
@@ -206,20 +207,20 @@ describe('signed-in preference changes are never reverted by a later sync', () =
     await launchApp();
 
     server.online = false;
-    await act(async () => { appLocale.setLocale('ar-EG'); });
+    await act(async () => { appLocale.setLocale('ar'); });
     await settle();
     await act(async () => { await account.refreshSync(); }); // offline sync attempt fails quietly
     await settle();
     expect(server.preference).toMatchObject({ locale: 'en' });
-    expect(appLocale.locale).toBe('ar-EG');
+    expect(appLocale.locale).toBe('ar');
 
     server.online = true;
     await act(async () => { await account.refreshSync(); });
     await settle();
 
-    expect(server.preference).toMatchObject({ locale: 'ar-EG' });
+    expect(server.preference).toMatchObject({ locale: 'ar' });
     expect(Date.parse(server.preference!.updatedAt)).toBeGreaterThan(Date.parse(OLD_CLOUD.updatedAt));
-    expect(appLocale.locale).toBe('ar-EG');
+    expect(appLocale.locale).toBe('ar');
   });
 
   it('reopening the app keeps the newer local choice even when the cloud still holds an older value', async () => {
@@ -244,11 +245,29 @@ describe('signed-in preference changes are never reverted by a later sync', () =
     await act(async () => { appLocale.setLocale('ar'); });
     await settle();
 
-    server.preference = { ...OLD_CLOUD, locale: 'ar-EG', updatedAt: new Date(Date.now() + 60_000).toISOString() };
+    server.preference = { ...OLD_CLOUD, locale: 'en', updatedAt: new Date(Date.now() + 60_000).toISOString() };
     await act(async () => { await account.refreshSync(); });
     await settle();
 
-    expect(appLocale.locale).toBe('ar-EG');
+    expect(appLocale.locale).toBe('en');
+  });
+
+  it('an older device`s Egyptian Arabic from the account: Arabic interface, Egyptian Arabic emotions (unless chosen otherwise)', async () => {
+    server.preference = { ...OLD_CLOUD, locale: 'ar-EG', updatedAt: new Date(Date.now() + 60_000).toISOString() };
+    await launchApp();
+    await settle();
+    expect(appLocale.locale).toBe('ar');
+    expect(env.storage.get('quran-heals:app-locale:v1')).toBe('ar');
+    expect(env.storage.get('quran-heals:emotions-language:v1')).toBe('ar-EG');
+
+    // An explicit Emotions Language is never overridden by it.
+    await closeApp();
+    env.storage.set('quran-heals:emotions-language:v1', 'en');
+    server.preference = { ...OLD_CLOUD, locale: 'ar-EG', updatedAt: new Date(Date.now() + 120_000).toISOString() };
+    await launchApp();
+    await settle();
+    expect(appLocale.locale).toBe('ar');
+    expect(env.storage.get('quran-heals:emotions-language:v1')).toBe('en');
   });
 });
 

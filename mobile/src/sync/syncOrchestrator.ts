@@ -1,6 +1,7 @@
 import type { ApplyPreferences, LocalPreferencesSource } from './preferencesSync';
 import { reconcilePreferencesOnSignIn } from './preferencesSync';
 import { syncFavorites } from './favoritesSync';
+import { syncReading } from './readingSync';
 import { syncReflections } from './reflectionsSync';
 import { ensureReflectionMasterKey, SyncPassphraseCancelledError, type PassphrasePrompt } from './syncKeyManager';
 
@@ -27,6 +28,8 @@ export type FullSyncResult = {
   favoritesSynced: boolean;
   preferencesSynced: boolean;
   reflectionsSynced: boolean;
+  /** أورادي وختماتي: true only when every change was acknowledged by the account. */
+  readingSynced: boolean;
 };
 
 /**
@@ -35,7 +38,12 @@ export type FullSyncResult = {
  *
  * 1. Preferences (locale, translation display) carry nothing sensitive and
  *    need no Sync Password, so they sync immediately.
- * 2. The Sync Password is a mandatory gate on *reflections and favorites*
+ * 2. أورادي وختماتي (sync/readingSync.ts): account-based, like favorites'
+ *    storage, and never behind the Sync Password — so they sync before its
+ *    prompt, whether reflections are unlocked, locked, or never set up. A
+ *    failure (offline…) never blocks the rest or throws: it is reported as
+ *    `readingSynced: false`, and the caller retries (useAuth.tsx).
+ * 3. The Sync Password is a mandatory gate on *reflections and favorites*
  *    specifically (see SyncPassphraseSheet's copy) — it must be
  *    created/unlocked before either syncs, not after. Favorites therefore
  *    now runs after the password step, not before it, even though
@@ -43,16 +51,16 @@ export type FullSyncResult = {
  *    docs/auth-and-sync/reflection-privacy.md) — the password is an
  *    access gate for that data, not just an encryption step for
  *    reflections alone.
- * 3. Reflections run last, using the now-unlocked master key.
+ * 4. Reflections run last, using the now-unlocked master key.
  *
  * ensureReflectionMasterKey's prompt is mandatory in the UI (no
  * cancel/skip) — the only way it rejects with SyncPassphraseCancelledError
  * is the user choosing to sign out instead (see useAuth.tsx), in which case
- * this returns a partial result (preferences only) rather than throwing,
+ * this returns a partial result (preferences and أورادي وختماتي) rather than throwing,
  * since the session is being torn down anyway.
  */
 export async function runFullSync(sessionToken: string, options: FullSyncOptions): Promise<FullSyncResult> {
-  const result: FullSyncResult = { favoritesSynced: false, preferencesSynced: false, reflectionsSynced: false };
+  const result: FullSyncResult = { favoritesSynced: false, preferencesSynced: false, reflectionsSynced: false, readingSynced: false };
   const isCurrent = options.isCurrent ?? (() => true);
   const stopIfStale = () => {
     if (!isCurrent()) throw new StaleSyncError('The session this sync was for has ended.');
@@ -62,6 +70,13 @@ export async function runFullSync(sessionToken: string, options: FullSyncOptions
     stopIfStale();
     await reconcilePreferencesOnSignIn(sessionToken, options.local, options.applyPreferencesLocally);
     result.preferencesSynced = true;
+
+    stopIfStale();
+    try {
+      result.readingSynced = await syncReading(sessionToken, options.ownerUserId, { isCurrent });
+    } catch {
+      // Everything stays saved on the device; the next sync retries it.
+    }
 
     stopIfStale();
     const masterKey = await ensureReflectionMasterKey(sessionToken, options.promptForPassphrase, options.ownerUserId, isCurrent);

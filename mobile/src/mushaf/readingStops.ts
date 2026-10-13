@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { notifyLocalReadingChange } from '@/storage/localChanges';
 import { getActiveLocalOwner, ownerStorageKey } from '@/storage/localDataOwner';
 
 import { MUSHAF_PAGE_COUNT } from './mushafPage';
@@ -7,8 +8,9 @@ import { MUSHAF_PAGE_COUNT } from './mushafPage';
 /**
  * Reading stops (أورادي): named page bookmarks — "Mum", "Ramadan" — so
  * several readers or reading plans on one device each keep their place. A
- * stop records a whole page, never an ayah. Device-local only: never
- * uploaded, synced or shared.
+ * stop records a whole page, never an ayah. A guest's stay on the device;
+ * a signed-in account's sync with the account (no Sync Password) between its devices
+ * (sync/readingSync.ts, docs/auth-and-sync/reading-sync.md).
  *
  * Stored per owner like favorites and reflections (storage/localDataOwner.ts):
  * the keys below are the guest partition (so stops saved before partitioning
@@ -32,12 +34,16 @@ export type ReadingStop = {
   page: number;
   /** ISO timestamp of the last time the stop was saved (not renamed). */
   updatedAt: string;
+  /** ISO timestamp of the last time its name was set (created or renamed); absent on stops from before sync. Resolves concurrent renames. */
+  nameUpdatedAt?: string;
 };
 
 /** Unchanged from phase 1; stops saved then with an ayah are read as page-only. */
 export const READING_STOPS_STORAGE_KEY = 'quran-heals:mushaf-reading-stops:v1';
 /** The id of the active stop (the ورد being read), or nothing. */
 export const ACTIVE_READING_STOP_STORAGE_KEY = 'quran-heals:mushaf-active-reading-stop:v1';
+/** When the active stop was last chosen on this device (ISO), so two devices' choices resolve by time. A separate key: the id's format is unchanged. */
+export const ACTIVE_READING_STOP_AT_STORAGE_KEY = 'quran-heals:mushaf-active-reading-stop-at:v1';
 export const READING_STOP_NAME_MAX_LENGTH = 40;
 /**
  * Not a product limit — a storage safeguard so a runaway loop or corrupted
@@ -79,7 +85,9 @@ export function parseReadingStops(raw: unknown): ReadingStop[] {
     if (typeof candidate.id !== 'string' || !candidate.id || !name || !isValidPage(candidate.page)) continue;
     if (typeof candidate.updatedAt !== 'string' || Number.isNaN(Date.parse(candidate.updatedAt))) continue;
     // Any other stored field (e.g. phase 1's `verseKey`) is dropped.
-    stops.push({ id: candidate.id, name, page: candidate.page, updatedAt: candidate.updatedAt });
+    const stop: ReadingStop = { id: candidate.id, name, page: candidate.page, updatedAt: candidate.updatedAt };
+    if (typeof candidate.nameUpdatedAt === 'string' && !Number.isNaN(Date.parse(candidate.nameUpdatedAt))) stop.nameUpdatedAt = candidate.nameUpdatedAt;
+    stops.push(stop);
   }
   const newestFirst = stops.sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
   return newestFirst
@@ -93,6 +101,7 @@ export async function readingOwner(ownerUserId?: string | null): Promise<string 
 }
 export const readingStopsKey = (owner: string | null) => ownerStorageKey(READING_STOPS_STORAGE_KEY, owner);
 export const activeReadingStopKey = (owner: string | null) => ownerStorageKey(ACTIVE_READING_STOP_STORAGE_KEY, owner);
+export const activeReadingStopAtKey = (owner: string | null) => ownerStorageKey(ACTIVE_READING_STOP_AT_STORAGE_KEY, owner);
 
 /**
  * Every read-modify-write of reading data (stops, the active stop, cycles
@@ -136,8 +145,10 @@ export type SaveReadingStopInput = { name: string; page: number };
 type Options = { now?: () => Date; newId?: () => string };
 
 /** Saves (or moves) the stop with this name to `page`. Returns the updated list, newest first. */
-export function saveReadingStop(input: SaveReadingStopInput, options: Options = {}): Promise<ReadingStop[]> {
-  return withReadingLock(() => saveReadingStopUnlocked(input, options));
+export async function saveReadingStop(input: SaveReadingStopInput, options: Options = {}): Promise<ReadingStop[]> {
+  const stops = await withReadingLock(() => saveReadingStopUnlocked(input, options));
+  notifyLocalReadingChange();
+  return stops;
 }
 
 /** saveReadingStop for callers already inside withReadingLock (khatmas.ts). */
@@ -150,12 +161,16 @@ export async function saveReadingStopUnlocked(input: SaveReadingStopInput, optio
   const stops = await loadReadingStops(owner);
   const existing = stops.find((stop) => sameName(stop.name, name));
   if (!existing && stops.length >= MAX_READING_STOPS) throw new ReadingStopError('too_many');
+  const at = (options.now ?? (() => new Date()))().toISOString();
   const saved: ReadingStop = {
     id: existing?.id ?? (options.newId ?? defaultId)(),
     name,
     page: input.page,
-    updatedAt: (options.now ?? (() => new Date()))().toISOString(),
+    updatedAt: at,
   };
+  // A new stop, or the same name typed differently: its name was set now.
+  const nameUpdatedAt = existing && existing.name === name ? existing.nameUpdatedAt : at;
+  if (nameUpdatedAt) saved.nameUpdatedAt = nameUpdatedAt;
   const next = [saved, ...stops.filter((stop) => stop !== existing)];
   await persistReadingStops(owner, next);
   notifyReadingDataChanged();
@@ -163,8 +178,8 @@ export async function saveReadingStopUnlocked(input: SaveReadingStopInput, optio
 }
 
 /** Renames one stop; its page, position and every other stop are unchanged. */
-export function renameReadingStop(id: string, newName: string): Promise<ReadingStop[]> {
-  return withReadingLock(async () => {
+export async function renameReadingStop(id: string, newName: string, options: Pick<Options, 'now'> = {}): Promise<ReadingStop[]> {
+  const stops = await withReadingLock(async () => {
     const name = normalizeReadingStopName(newName);
     if (!name) throw new ReadingStopError('invalid_name');
     const owner = await readingOwner();
@@ -172,23 +187,28 @@ export function renameReadingStop(id: string, newName: string): Promise<ReadingS
     const target = stops.find((stop) => stop.id === id);
     if (!target) throw new ReadingStopError('not_found');
     if (stops.some((stop) => stop.id !== id && sameName(stop.name, name))) throw new ReadingStopError('name_taken');
-    const next = stops.map((stop) => (stop.id === id ? { ...stop, name } : stop));
+    const nameUpdatedAt = (options.now ?? (() => new Date()))().toISOString();
+    const next = stops.map((stop) => (stop.id === id ? { ...stop, name, nameUpdatedAt } : stop));
     await persistReadingStops(owner, next);
     notifyReadingDataChanged();
     return next;
   });
+  notifyLocalReadingChange();
+  return stops;
 }
 
 /** Removes one stop (khatmas.ts's deleteWird also drops its cycle; its completed Khatmas stay in the history). */
-export function removeReadingStop(id: string): Promise<ReadingStop[]> {
-  return withReadingLock(() => removeReadingStopUnlocked(id));
+export async function removeReadingStop(id: string): Promise<ReadingStop[]> {
+  const stops = await withReadingLock(() => removeReadingStopUnlocked(id));
+  notifyLocalReadingChange();
+  return stops;
 }
 
 export async function removeReadingStopUnlocked(id: string, ownerUserId?: string | null): Promise<ReadingStop[]> {
   const owner = await readingOwner(ownerUserId);
   const next = (await loadReadingStops(owner)).filter((stop) => stop.id !== id);
   await persistReadingStops(owner, next);
-  if ((await loadActiveReadingStopId(owner)) === id) await AsyncStorage.removeItem(activeReadingStopKey(owner));
+  if ((await loadActiveReadingStopId(owner)) === id) await writeActiveReadingStop(owner, null);
   notifyReadingDataChanged();
   return next;
 }
@@ -203,14 +223,38 @@ export async function loadActiveReadingStopId(ownerUserId?: string | null): Prom
   }
 }
 
+/** When the active stop was last chosen (ISO), or null if never recorded. Never throws. */
+export async function loadActiveReadingStopChangedAt(ownerUserId?: string | null): Promise<string | null> {
+  try {
+    const at = await AsyncStorage.getItem(activeReadingStopAtKey(await readingOwner(ownerUserId)));
+    return at && !Number.isNaN(Date.parse(at)) ? at : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Sets `owner`'s active stop (null: none), recording when it was chosen.
+ * Inside withReadingLock. Does nothing when it is already the active one,
+ * so re-saving the same ورد never looks like a new choice. `at` is given
+ * only when applying another device's choice (sync).
+ */
+export async function writeActiveReadingStop(owner: string | null, id: string | null, at?: string | null): Promise<void> {
+  if (at === undefined && (await loadActiveReadingStopId(owner)) === id) return;
+  if (id === null) await AsyncStorage.removeItem(activeReadingStopKey(owner));
+  else await AsyncStorage.setItem(activeReadingStopKey(owner), id);
+  const changedAt = at === undefined ? new Date().toISOString() : at;
+  if (changedAt === null) await AsyncStorage.removeItem(activeReadingStopAtKey(owner));
+  else await AsyncStorage.setItem(activeReadingStopAtKey(owner), changedAt);
+}
+
 /** Makes a stop the active one (null: none). Changes no stop. */
-export function setActiveReadingStopId(id: string | null): Promise<void> {
-  return withReadingLock(async () => {
-    const key = activeReadingStopKey(await readingOwner());
-    if (id === null) await AsyncStorage.removeItem(key);
-    else await AsyncStorage.setItem(key, id);
+export async function setActiveReadingStopId(id: string | null): Promise<void> {
+  await withReadingLock(async () => {
+    await writeActiveReadingStop(await readingOwner(), id);
     notifyReadingDataChanged();
   });
+  notifyLocalReadingChange();
 }
 
 /** The active stop among `stops`, or null when none is set or it was removed. */

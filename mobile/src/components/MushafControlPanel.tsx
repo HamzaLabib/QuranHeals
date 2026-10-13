@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowRight, Bookmark, Check, Search } from 'lucide-react-native';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { ReflectionBulbIcon } from '@/components/ReflectionBulbIcon';
@@ -16,6 +16,8 @@ type Labels = {
   saveStop: string;
   stopName: string;
   confirmStop: string;
+  /** The brief confirmation after a save, and the bookmark's spoken state when the page is saved. */
+  saved: string;
 };
 
 type MushafControlPanelProps = {
@@ -37,7 +39,16 @@ type MushafControlPanelProps = {
   defaultStopName?: string;
   /** Saves a page-based stop with this name; returns the message to show. */
   onSaveStop: (name: string) => Promise<{ tone: 'info' | 'error'; text: string }>;
+  /**
+   * This page is the selected ورد's saved page (from the stored stops, never
+   * a visual toggle): the bookmark is drawn filled, in green. Says nothing
+   * about cloud sync, which has its own status (أورادي وختماتي).
+   */
+  pageSaved: boolean;
 };
+
+/** How long the "Saved" confirmation stays. */
+export const SAVED_TOAST_MS = 1800;
 
 /** Height of the floating bar itself (without its bottom margin and the inset). */
 export const MUSHAF_PANEL_HEIGHT = 56;
@@ -47,9 +58,11 @@ export const MUSHAF_PANEL_MARGIN = 8;
 /**
  * The reader's floating action bar: a rounded, translucent, icon-only bar
  * above the bottom safe area, in this fixed order from left to right:
- * next page (arrow-left), reflection (lightbulb), page search (search),
- * save a reading stop (bookmark), previous page (arrow-right) — right to
- * left, as the Mushaf is read.
+ * next page (arrow-left), reflection (lightbulb), save a reading stop
+ * (bookmark, in the centre), page search (search), previous page
+ * (arrow-right) — the arrows as the Mushaf is read, right to left.
+ * The bookmark is an outline, or filled green when this page is the
+ * selected ورد's saved page; a successful save shows a brief "Saved".
  * Only the lightbulb changes with the selection: grey and without rays until
  * an ayah is selected, then lit with rays. Each button keeps a spoken label
  * for screen readers. Search opens the reader's search sheet; the bookmark,
@@ -60,6 +73,20 @@ export function MushafControlPanel(props: MushafControlPanelProps) {
   const [stopName, setStopName] = useState('');
   const [notice, setNotice] = useState<{ tone: 'info' | 'error'; text: string } | null>(null);
   const [saving, setSaving] = useState(false);
+  // The brief confirmation after a save: one at a time (a new save restarts it), never blocking.
+  const [toast, setToast] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+  }, []);
+  const showToast = (text: string) => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToast(text);
+    toastTimer.current = setTimeout(() => {
+      toastTimer.current = null;
+      setToast(null);
+    }, SAVED_TOAST_MS);
+  };
   const theme = dark ? MUSHAF_PANEL_COLORS.dark : MUSHAF_PANEL_COLORS.light;
   const iconColor = theme.icon;
 
@@ -75,10 +102,12 @@ export function MushafControlPanel(props: MushafControlPanelProps) {
     try {
       const result = await props.onSaveStop(stopName);
       if (result.tone === 'info') {
+        // Only now: the page is saved on this device.
         setNotice(null);
         setStopName('');
         Keyboard.dismiss();
         props.onPopup(null);
+        showToast(result.text);
       } else {
         setNotice(result);
       }
@@ -108,6 +137,11 @@ export function MushafControlPanel(props: MushafControlPanelProps) {
       pointerEvents="box-none"
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={[styles.dock, { bottom: bottomInset + MUSHAF_PANEL_MARGIN }]}>
+      {toast !== null && popup !== 'save' && (
+        <View testID="mushaf-saved-toast" pointerEvents="none" style={[styles.toast, theme.surface]}>
+          <Text accessibilityLiveRegion="polite" accessibilityRole="alert" style={[styles.toastText, { color: theme.text }]}>{toast}</Text>
+        </View>
+      )}
       {popup === 'save' && (
         <View testID="mushaf-popup-save" style={[styles.popup, theme.surface]}>
           <View style={styles.popupRow}>
@@ -141,8 +175,16 @@ export function MushafControlPanel(props: MushafControlPanelProps) {
       <View testID="mushaf-panel" style={[styles.bar, theme.surface]}>
         {button('next', labels.nextPage, <ArrowLeft size={ICON_SIZE} color={iconColor} />, props.onNext, { disabled: !props.canGoNext })}
         {button('reflect', labels.reflect, <ReflectionBulbIcon lit={props.reflectionEnabled} size={ICON_SIZE} color={props.reflectionEnabled ? theme.bulbOn : theme.bulbOff} />, props.onReflect, { disabled: !props.reflectionEnabled, greyed: false })}
+        {button(
+          'save',
+          props.pageSaved ? `${labels.saveStop}, ${labels.saved}` : labels.saveStop,
+          props.pageSaved
+            ? <Bookmark testID="mushaf-bookmark-saved" size={ICON_SIZE} color={theme.saved} fill={theme.saved} />
+            : <Bookmark testID="mushaf-bookmark-unsaved" size={ICON_SIZE} color={iconColor} fill="none" />,
+          () => toggle('save'),
+          { selected: popup === 'save' },
+        )}
         {button('search', labels.searchPage, <Search size={ICON_SIZE} color={iconColor} />, () => toggle('search'), { selected: popup === 'search' })}
-        {button('save', labels.saveStop, <Bookmark size={ICON_SIZE} color={iconColor} />, () => toggle('save'), { selected: popup === 'save' })}
         {button('previous', labels.previousPage, <ArrowRight size={ICON_SIZE} color={iconColor} />, props.onPrevious, { disabled: !props.canGoPrevious })}
       </View>
     </KeyboardAvoidingView>
@@ -230,6 +272,18 @@ const styles = StyleSheet.create({
     height: 44,
     justifyContent: 'center',
     width: 44,
+  },
+  // As unobtrusive as the bar itself: a small pill just above it, gone after SAVED_TOAST_MS.
+  toast: {
+    borderRadius: 16,
+    borderWidth: StyleSheet.hairlineWidth,
+    marginBottom: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+  },
+  toastText: {
+    fontSize: 14,
+    fontWeight: '600',
   },
   notice: {
     fontSize: 13,

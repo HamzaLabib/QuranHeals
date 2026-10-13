@@ -113,7 +113,7 @@ export function mergeGuestDataIntoAccount(userId: string, isCurrent: () => boole
     if (!isCurrent()) return false;
     const reflectionsMoved = await adoptGuestReflections(userId);
     const favoritesMoved = await adoptGuestFavorites(userId);
-    // Reading stops (أورادي) and completed Khatmas: device-local, never synced, but owned the same way.
+    // Reading stops (أورادي) and completed Khatmas, owned the same way (an account's then sync: sync/readingSync.ts).
     const readingMoved = await adoptGuestReadingData(userId);
     notifyLocalDataChanged();
     return reflectionsMoved && favoritesMoved && readingMoved;

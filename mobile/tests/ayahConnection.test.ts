@@ -328,7 +328,8 @@ describe('ayah page wiring', () => {
 
   it('renders only when this emotion’s mapping has text for the active locale, and resets per loaded ayah', () => {
     expect(page).toMatch(/\{connectionText && <AyahConnectionAccordion text=\{connectionText\} resetKey=\{ayahLoadId\} \/>\}/);
-    expect(page).toMatch(/resolveConnectionText\(connection, source\.mode === 'emotion' \? source\.emotionKey : undefined, locale\)/);
+    // In the Emotions Language (لغة المشاعر), not the App Language.
+    expect(page).toMatch(/resolveConnectionText\(connection, source\.mode === 'emotion' \? source\.emotionKey : undefined, emotionLocale\)/);
     expect(page).toMatch(/setAyahLoadId\(\(id\) => id \+ 1\)/);
   });
 

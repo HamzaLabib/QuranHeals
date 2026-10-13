@@ -41,6 +41,8 @@ export const MUSHAF_PANEL_COLORS = {
     surface: { backgroundColor: '#E9DBB9', borderColor: '#DBCCA8', shadowColor: '#000000' },
     input: { backgroundColor: 'rgba(255, 255, 255, 0.9)', borderColor: 'rgba(43, 42, 38, 0.18)', color: '#231F20' },
     go: { backgroundColor: '#3E6B4B' },
+    // The bookmark, filled, when this page is the selected ورد's saved page: the palette's sage green (the save button's).
+    saved: '#3E6B4B',
     selected: { backgroundColor: 'rgba(89, 111, 73, 0.16)' },
     // The ورد selector (a small pill under the page) and its list.
     accent: '#3E6B4B',
@@ -69,6 +71,8 @@ export const MUSHAF_PANEL_COLORS = {
     surface: { backgroundColor: '#343D31', borderColor: '#475243', shadowColor: '#000000' },
     input: { backgroundColor: 'rgba(20, 24, 19, 0.85)', borderColor: 'rgba(241, 233, 214, 0.2)', color: '#F1E9D6' },
     go: { backgroundColor: '#8EA68A' },
+    // The filled bookmark on a saved page: the dark palette's green (the save button's).
+    saved: '#8EA68A',
     selected: { backgroundColor: 'rgba(181, 201, 169, 0.18)' },
     accent: '#B5C9A9',
     muted: '#A39C88',

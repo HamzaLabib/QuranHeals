@@ -8,6 +8,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { AuthProvider } from '@/auth/useAuth';
 import { navigationColorsFor, paletteFor, statusBarStyleFor } from '@/constants/theme';
 import { AppLocaleProvider, useAppLocale } from '@/localization/useAppLocale';
+import { EmotionsLanguageProvider } from '@/localization/useEmotionsLanguage';
 import { MUSHAF_SCREEN_OPTIONS } from '@/mushaf/screenOptions';
 import { QuranFontSizePreferenceProvider } from '@/localization/useQuranFontSizePreference';
 import { QuranTranslationPreferenceProvider } from '@/localization/useQuranTranslationPreference';
@@ -61,13 +62,15 @@ export default function RootLayout() {
   return (
     <AppearancePreferenceProvider>
       <AppLocaleProvider>
-        <QuranTranslationPreferenceProvider>
-          <QuranFontSizePreferenceProvider>
-            <AuthProvider>
-              <ThemedRoot />
-            </AuthProvider>
-          </QuranFontSizePreferenceProvider>
-        </QuranTranslationPreferenceProvider>
+        <EmotionsLanguageProvider>
+          <QuranTranslationPreferenceProvider>
+            <QuranFontSizePreferenceProvider>
+              <AuthProvider>
+                <ThemedRoot />
+              </AuthProvider>
+            </QuranFontSizePreferenceProvider>
+          </QuranTranslationPreferenceProvider>
+        </EmotionsLanguageProvider>
       </AppLocaleProvider>
     </AppearancePreferenceProvider>
   );

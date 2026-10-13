@@ -7,6 +7,7 @@ import type {
   ReflectionSyncRecordDto,
   SyncKeyDto,
 } from '../types/accountDto';
+import type { ReadingChange, ReadingPullResult, ReadingPushResult } from './readingSync';
 
 export type IncomingActiveReflectionRecord = {
   type: 'active';
@@ -122,11 +123,17 @@ export interface SyncRepository {
   /**
    * Forgotten-password reset: deletes this user's sync key and every
    * reflection record (ciphertext and deletion markers) — nothing else
-   * (never favorites, preferences, sessions, or the account). Idempotent.
+   * (never favorites, preferences, أورادي وختماتي, sessions, or the
+   * account). Idempotent.
    */
   resetReflectionSync(userId: string): Promise<void>;
   /** When this user's current sync key was created (null if none). */
   getSyncKeyCreatedAt(userId: string): Promise<Date | null>;
-  /** Deletes this user's active reflection records NOT encrypted under the key with this fingerprint (tombstones are kept). */
+  /** Deletes this user's active reflection records NOT encrypted under the key with this fingerprint (tombstones are kept). Never touches أورادي وختماتي. */
   deleteReflectionsNotEncryptedWith(userId: string, keyFingerprint: string): Promise<void>;
+
+  /** أورادي وختماتي (account-synced, no Sync Password): this user's records changed after `since`, in change order (services/readingSync.ts). */
+  pullReading(userId: string, since: number, limit: number): Promise<ReadingPullResult>;
+  /** أورادي وختماتي: applies a batch atomically by the rules in services/readingSync.ts. */
+  pushReading(userId: string, changes: readonly ReadingChange[]): Promise<ReadingPushResult>;
 }

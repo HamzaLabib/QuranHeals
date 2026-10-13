@@ -1,6 +1,6 @@
 # أورادي وختماتي: Wird progress and Khatmas
 
-**Status (2026-10-13):** implemented on the device, not synced. Code: `mobile/src/mushaf/khatmas.ts`, `readingStops.ts`, `ramadan.ts`; screens `app/my-reading.tsx`, `app/khatma-complete.tsx`; the reader `app/(tabs)/mushaf.tsx`.
+**Status (2026-10-13):** implemented on the device; a signed-in account's أوراد and Khatmas also sync across its devices (`docs/auth-and-sync/reading-sync.md`). Code: `mobile/src/mushaf/khatmas.ts`, `readingStops.ts`, `ramadan.ts`; screens `app/my-reading.tsx`, `app/khatma-complete.tsx`; the reader `app/(tabs)/mushaf.tsx`.
 
 ## The rules
 
@@ -30,7 +30,7 @@
   - Otherwise its current progress is kept.
   - Other ورد are never touched.
 - **Rename** keeps the ورد's cycle and count. **Delete**, after confirmation, removes the ورد and its cycle. Its completed Khatmas stay in the history and totals under the name they were recorded with.
-- **Statistics:** إجمالي الختمات = ختمات رمضان + ختمات خارج رمضان. They are always computed from the records, never kept as separate counters.
+- **Statistics (two counters, side by side):** **الختمات / Khatmas** counts every confirmed Khatma, Ramadan ones included, and **ختمات رمضان / Ramadan Khatmas** counts only those completed in Ramadan. Both are always computed from the confirmed records, never kept as separate counters. The non-Ramadan count is no longer shown, but every record keeps its classification (`total = ramadan + nonRamadan` still holds in `khatmaStats`).
 
 ## Ramadan classification
 
@@ -56,7 +56,7 @@ Storage is per owner, like favorites and reflections (`storage/localDataOwner.ts
   - Sign-in shows the existing "Add to this account" question when the guest has ورد or Khatmas. "Add to this account" merges them: a ورد whose name the account already uses gets a numbered name, and records are kept by id.
   - Sign-out shows the guest's own data again.
   - Account deletion removes that account's ورد, Khatmas and recent emotions from this device.
-- **Not synced.** There is no backend support for reading data; see the recommendation in the implementation report.
+- **Synced for signed-in accounts** (account-based like favorites, no Sync Password; a guest's stay on the device): `docs/auth-and-sync/reading-sync.md`. Sync never confirms a Khatma, and counts are always computed from the records on each device.
 
 ## Home and navigation
 

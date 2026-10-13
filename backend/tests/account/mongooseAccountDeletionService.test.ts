@@ -59,6 +59,8 @@ const mock = vi.hoisted(() => {
     userPreferenceModel: fakeModel('UserPreference', 'deleteMany'),
     userReflectionModel: fakeModel('UserReflection', 'deleteMany'),
     userSyncKeyModel: fakeModel('UserSyncKey', 'deleteMany'),
+    userReadingRecordModel: fakeModel('UserReadingRecord', 'deleteMany'),
+    userReadingSyncStateModel: fakeModel('UserReadingSyncState', 'deleteMany'),
     appleCredentialModel: fakeModel('AppleCredential', 'deleteMany'),
     sessionModel: fakeModel('Session', 'deleteMany'),
     endSession: vi.fn(async () => {}),
@@ -73,6 +75,8 @@ vi.mock('../../src/models/UserFavorite', () => ({ UserFavoriteModel: mock.userFa
 vi.mock('../../src/models/UserPreference', () => ({ UserPreferenceModel: mock.userPreferenceModel }));
 vi.mock('../../src/models/UserReflection', () => ({ UserReflectionModel: mock.userReflectionModel }));
 vi.mock('../../src/models/UserSyncKey', () => ({ UserSyncKeyModel: mock.userSyncKeyModel }));
+vi.mock('../../src/models/UserReadingRecord', () => ({ UserReadingRecordModel: mock.userReadingRecordModel }));
+vi.mock('../../src/models/UserReadingSyncState', () => ({ UserReadingSyncStateModel: mock.userReadingSyncStateModel }));
 vi.mock('../../src/models/AppleCredential', () => ({ AppleCredentialModel: mock.appleCredentialModel }));
 vi.mock('../../src/models/Session', () => ({ SessionModel: mock.sessionModel }));
 vi.mock('mongoose', () => ({
@@ -113,6 +117,8 @@ describe('MongooseAccountDeletionService: session/transaction concurrency', () =
       'UserPreference',
       'UserReflection',
       'UserSyncKey',
+      'UserReadingRecord',
+      'UserReadingSyncState',
       'AppleCredential',
       'Session',
       'User',
@@ -128,6 +134,8 @@ describe('MongooseAccountDeletionService: session/transaction concurrency', () =
     expect(mock.userPreferenceModel.deleteMany).toHaveBeenCalledWith({ userId: 'user-42' });
     expect(mock.userReflectionModel.deleteMany).toHaveBeenCalledWith({ userId: 'user-42' });
     expect(mock.userSyncKeyModel.deleteMany).toHaveBeenCalledWith({ userId: 'user-42' });
+    expect(mock.userReadingRecordModel.deleteMany).toHaveBeenCalledWith({ userId: 'user-42' });
+    expect(mock.userReadingSyncStateModel.deleteMany).toHaveBeenCalledWith({ userId: 'user-42' });
     expect(mock.appleCredentialModel.deleteMany).toHaveBeenCalledWith({ userId: 'user-42' });
     expect(mock.sessionModel.deleteMany).toHaveBeenCalledWith({ userId: 'user-42' });
     expect(mock.userModel.deleteOne).toHaveBeenCalledWith({ _id: 'user-42' });

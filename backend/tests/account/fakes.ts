@@ -14,6 +14,16 @@ import type { GoogleTokenVerifier, VerifiedGoogleIdentity } from '../../src/auth
 import { AppError } from '../../src/errors/AppError';
 import type { AppleCredentialRepository } from '../../src/services/AppleCredentialRepository';
 import type { IssueReportRepository } from '../../src/services/IssueReportRepository';
+import {
+  decideReadingChange,
+  exceedsReadingLimit,
+  type ReadingChange,
+  type ReadingChangeResult,
+  type ReadingPullResult,
+  type ReadingPushResult,
+  publicRecord,
+  type StoredReadingState,
+} from '../../src/services/readingSync';
 import type { IssuedSession, SessionRepository } from '../../src/services/SessionRepository';
 import type {
   IncomingFavoriteRecord,
@@ -219,7 +229,117 @@ function toFavoriteSyncRecordDto(stored: StoredFavorite): FavoriteSyncRecordDto 
 }
 
 /** Mirrors MongooseSyncRepository's merge semantics (tombstone-aware last-write-wins for favorites and reflections, tie → tombstone wins / conflictVersions) purely in memory. */
+/**
+ * أورادي وختماتي sync in memory, by the same rules as production
+ * (services/readingSync.ts decides; this only stores). Each push applies
+ * atomically: nothing else runs between its first and last change.
+ */
+export class InMemoryReadingStore {
+  private readonly byUser = new Map<string, { seq: number; syncId: string; records: Map<string, StoredReadingState & { legacyEncrypted?: unknown }> }>();
+
+  private account(userId: string) {
+    let account = this.byUser.get(userId);
+    if (!account) {
+      account = { seq: 0, syncId: randomUUID(), records: new Map() };
+      this.byUser.set(userId, account);
+    }
+    return account;
+  }
+
+  pull(userId: string, since: number, limit: number): ReadingPullResult {
+    const account = this.byUser.get(userId);
+    // As on MongoDB: deletion markers and records with content; never legacy encrypted ones.
+    const changed = [...(account?.records.values() ?? [])]
+      .filter((record) => record.changeSeq > since && (record.deleted || !record.legacy))
+      .sort((a, b) => a.changeSeq - b.changeSeq);
+    const page = changed.slice(0, limit).map((record) => structuredClone(publicRecord(record)));
+    return { syncId: account?.syncId ?? null, records: page, nextSince: page.at(-1)?.changeSeq ?? since, hasMore: changed.length > limit };
+  }
+
+  push(userId: string, changes: readonly ReadingChange[]): ReadingPushResult {
+    const account = this.account(userId);
+    const all = () => [...account.records.values()];
+    const counts = {
+      records: account.records.size,
+      activeWirds: all().filter((r) => r.kind === 'wird' && !r.deleted).length,
+      activeKhatmas: all().filter((r) => r.kind === 'khatma' && !r.deleted).length,
+    };
+    const results: ReadingChangeResult[] = [];
+    for (const change of changes) {
+      const key = `${change.kind}:${change.recordId}`;
+      const existing = account.records.get(key) ?? null;
+      let cycleKhatma: StoredReadingState | null = null;
+      if (change.kind === 'khatma' && change.action === 'upsert') {
+        // The Khatma already holding this cycle (its cycle id: from its content, or, for a legacy record, the stored field).
+        const cycleOf = (r: StoredReadingState) => (r.data as { cycleId?: string } | undefined)?.cycleId ?? (r as { cycleId?: string }).cycleId;
+        const holderKey = [...account.records.entries()].find(([k, r]) => k !== key && r.kind === 'khatma' && !r.deleted && cycleOf(r) === change.data.cycleId)?.[0];
+        const holder = holderKey ? account.records.get(holderKey)! : null;
+        // A legacy encrypted holder is set aside (kept under another kind), as on MongoDB.
+        if (holder?.legacy) {
+          account.records.delete(holderKey!);
+          account.records.set(`legacy-khatma:${holder.recordId}`, { ...holder, kind: 'legacy-khatma' as never });
+        } else if (holder) cycleKhatma = holder;
+      }
+      const decision = decideReadingChange(change, existing, cycleKhatma);
+      if (!decision.write) {
+        results.push({ kind: change.kind, recordId: change.recordId, status: decision.status, record: structuredClone(decision.current) });
+        continue;
+      }
+      if (exceedsReadingLimit(change, existing, counts)) {
+        results.push({ kind: change.kind, recordId: change.recordId, status: 'limit' });
+        continue;
+      }
+      account.seq += 1;
+      const saved: StoredReadingState & { legacyEncrypted?: unknown } = {
+        kind: change.kind,
+        recordId: change.recordId,
+        revision: (existing?.revision ?? 0) + 1,
+        changeSeq: account.seq,
+        deleted: decision.write.deleted,
+        ...(decision.write.data ? { data: structuredClone(decision.write.data) } : {}),
+        ...(!decision.write.deleted && existing?.legacy ? { legacyEncrypted: (existing as { ciphertext?: unknown }).ciphertext } : {}),
+      };
+      if (!existing) counts.records += 1;
+      const delta = (saved.deleted ? 0 : 1) - (existing && !existing.deleted ? 1 : 0);
+      if (change.kind === 'wird') counts.activeWirds += delta;
+      if (change.kind === 'khatma') counts.activeKhatmas += delta;
+      account.records.set(key, saved);
+      results.push({ kind: change.kind, recordId: change.recordId, status: 'applied', record: structuredClone(publicRecord(saved)) });
+    }
+    return { syncId: account.syncId, results };
+  }
+
+  /** Test-only: a record in the unreleased encrypted format (ciphertext, no content). */
+  seedLegacy(userId: string, record: { kind: 'wird' | 'khatma' | 'active'; recordId: string; cycleId?: string; deleted?: boolean }): void {
+    const account = this.account(userId);
+    account.seq += 1;
+    account.records.set(`${record.kind}:${record.recordId}`, {
+      kind: record.kind, recordId: record.recordId, revision: 1, changeSeq: account.seq, deleted: record.deleted ?? false,
+      ...(record.deleted ? {} : { legacy: true, ciphertext: 'bGVnYWN5', cycleId: record.cycleId }),
+    } as StoredReadingState);
+  }
+
+  deleteAll(userId: string): void {
+    this.byUser.delete(userId);
+  }
+
+  /** Test-only: the raw stored records. */
+  recordsOf(userId: string): (StoredReadingState & { legacyEncrypted?: unknown })[] {
+    return [...(this.byUser.get(userId)?.records.values() ?? [])].map((record) => structuredClone(record));
+  }
+}
+
 export class InMemorySyncRepository implements SyncRepository {
+  readonly reading = new InMemoryReadingStore();
+
+  async pullReading(userId: string, since: number, limit: number): Promise<ReadingPullResult> {
+    return this.reading.pull(userId, since, limit);
+  }
+
+  async pushReading(userId: string, changes: readonly ReadingChange[]): Promise<ReadingPushResult> {
+    return this.reading.push(userId, changes);
+  }
+
   private readonly favoritesByUser = new Map<string, Map<string, StoredFavorite>>();
   private readonly preferencesByUser = new Map<string, PreferencesDto>();
   private readonly reflectionsByUser = new Map<string, Map<string, StoredReflection>>();
@@ -426,6 +546,7 @@ export class InMemorySyncRepository implements SyncRepository {
   async resetReflectionSync(userId: string): Promise<void> {
     this.reflectionsByUser.delete(userId);
     this.syncKeyByUser.delete(userId);
+    // أورادي وختماتي are account-synced: a Sync Password reset never touches them.
   }
 
   async deleteReflectionsNotEncryptedWith(userId: string, keyFingerprint: string): Promise<void> {
@@ -442,6 +563,7 @@ export class InMemorySyncRepository implements SyncRepository {
     this.preferencesByUser.delete(userId);
     this.reflectionsByUser.delete(userId);
     this.syncKeyByUser.delete(userId);
+    this.reading.deleteAll(userId);
   }
 }
 

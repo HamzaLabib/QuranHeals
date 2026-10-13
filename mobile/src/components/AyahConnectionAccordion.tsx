@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
+import { useEmotionLocale } from '@/localization/useEmotionsLanguage';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { usePalette, useThemedStyles, useThemeName } from '@/theme/useTheme';
 
@@ -28,6 +29,8 @@ export function AyahConnectionAccordion({ text, resetKey }: AyahConnectionAccord
   const styles = useThemedStyles(makeStyles);
   const direction = getDirectionStyle(locale);
   const isRtl = isRtlLocale(locale);
+  // The heading is interface text (App Language); the explanation is emotion content (Emotions Language), in its own direction.
+  const { emotionDirection } = useEmotionLocale();
   const [expanded, setExpanded] = useState(false);
   const [trackedResetKey, setTrackedResetKey] = useState(resetKey);
 
@@ -71,7 +74,7 @@ export function AyahConnectionAccordion({ text, resetKey }: AyahConnectionAccord
           <Chevron size={ICON_SIZE} color={chevronColor} />
         </View>
       </Pressable>
-      {expanded && <Text style={[styles.body, direction]}>{text}</Text>}
+      {expanded && <Text style={[styles.body, emotionDirection]}>{text}</Text>}
     </View>
   );
 }

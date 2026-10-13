@@ -53,6 +53,7 @@ const mock = vi.hoisted(() => {
     preferenceFindOneAndUpdate: 0,
     reflectionCreate: 0,
     syncKeyCreate: 0,
+    readingWrite: 0,
   };
 
   return {
@@ -117,6 +118,24 @@ const mock = vi.hoisted(() => {
         return docs.map((doc) => ({ ...doc, toObject: () => doc }));
       }),
     },
+    userReadingRecordModel: {
+      findOne: vi.fn(() => fakeQuery(null)),
+      countDocuments: vi.fn(() => fakeQuery(0)),
+      findOneAndUpdate: vi.fn(() => {
+        calls.readingWrite += 1;
+        return fakeQuery(null);
+      }),
+    },
+    userReadingSyncStateModel: {
+      findOneAndUpdate: vi.fn(() => {
+        calls.readingWrite += 1;
+        return fakeQuery({ seq: 0, syncId: 'sync-1' });
+      }),
+      updateOne: vi.fn(() => {
+        calls.readingWrite += 1;
+        return fakeQuery({ modifiedCount: 1 });
+      }),
+    },
     endSession: vi.fn(async () => {}),
   };
 });
@@ -126,6 +145,8 @@ vi.mock('../../src/models/UserFavorite', () => ({ UserFavoriteModel: mock.userFa
 vi.mock('../../src/models/UserPreference', () => ({ UserPreferenceModel: mock.userPreferenceModel }));
 vi.mock('../../src/models/UserReflection', () => ({ UserReflectionModel: mock.userReflectionModel }));
 vi.mock('../../src/models/UserSyncKey', () => ({ UserSyncKeyModel: mock.userSyncKeyModel }));
+vi.mock('../../src/models/UserReadingRecord', () => ({ UserReadingRecordModel: mock.userReadingRecordModel }));
+vi.mock('../../src/models/UserReadingSyncState', () => ({ UserReadingSyncStateModel: mock.userReadingSyncStateModel }));
 vi.mock('mongoose', () => ({
   default: {
     startSession: async () => ({
@@ -203,6 +224,23 @@ describe('Phase B3: sync writes vs. a concurrent account deletion', () => {
 
     await expect(write).rejects.toMatchObject({ statusCode: 401 });
     expect(mock.calls.syncKeyCreate).toBe(0);
+  });
+
+  it('Test D2 — أورادي وختماتي write: deletion completing mid-write aborts it and writes nothing', async () => {
+    const repo = new MongooseSyncRepository();
+    mock.armGate();
+
+    const write = repo.pushReading('user-1', [
+      { kind: 'wird', recordId: 'stop-1', action: 'upsert', baseRevision: null, data: { v: 1, kind: 'wird', id: 'stop-1', name: 'Fajr', nameUpdatedAt: null, page: 1, savedAt: '2026-10-01T00:00:00.000Z', cycle: { id: 'c1', startedAt: '2026-10-01T00:00:00.000Z', lastSavedPage: 1, reachedEndAt: null, startedByKhatmaId: null, savedSinceStart: false, seq: 0, undoneCycleId: null } } },
+    ]);
+    await flushMicrotasks();
+    expect(mock.calls.touch).toBe(1);
+
+    mock.simulateDeletion();
+    mock.releaseGate();
+
+    await expect(write).rejects.toMatchObject({ statusCode: 401 });
+    expect(mock.calls.readingWrite).toBe(0);
   });
 
   it('Test E — if the write resolves its existence check before any deletion happens, it proceeds normally', async () => {

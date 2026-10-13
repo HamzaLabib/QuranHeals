@@ -15,6 +15,7 @@ import { MUSHAF_PAGE_COUNT } from '@/mushaf/mushafPage';
 import { parsePageNumber } from '@/mushaf/pageNumber';
 import { READING_STOP_NAME_MAX_LENGTH, ReadingStopError, renameReadingStop, subscribeToReadingData } from '@/mushaf/readingStops';
 import { subscribeToLocalDataOwner } from '@/storage/localDataOwner';
+import { getReadingSyncStatus, subscribeToReadingSyncStatus, type ReadingSyncStatus } from '@/sync/readingSyncState';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { formatReflectionDate } from '@/utils/formatDate';
 import { goBackOrHome } from '@/utils/goBackOrHome';
@@ -80,6 +81,8 @@ export default function MyReadingScreen() {
       unsubscribeOwner();
     };
   }, []);
+  const [syncStatus, setSyncStatus] = useState<ReadingSyncStatus>(getReadingSyncStatus);
+  useEffect(() => subscribeToReadingSyncStatus(setSyncStatus), []);
 
   const close = () => {
     if (busyRef.current) return;
@@ -113,6 +116,9 @@ export default function MyReadingScreen() {
     });
 
   const stats = data?.stats ?? { total: 0, ramadan: 0, nonRamadan: 0 };
+  // An account's أوراد sync; a guest's stay on this device (data.owner: null).
+  const signedIn = data !== null && data.owner !== null;
+  const syncLine = syncStatus.state === 'syncing' ? copy.syncSyncing : syncStatus.state === 'synced' ? copy.syncSynced : syncStatus.state === 'pending' ? copy.syncPending : null;
   const nameOf = (record: KhatmaRecord) => data?.wirds.find((w) => w.stop.id === record.stopId)?.stop.name ?? record.stopName;
   const pendingWird = data?.wirds.find((w) => w.stop.id === data.activeStopId && w.status === 'pending') ?? data?.wirds.find((w) => w.status === 'pending');
 
@@ -131,9 +137,9 @@ export default function MyReadingScreen() {
       </View>
 
       <ScrollView testID="my-reading-scroll" contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding(insets.bottom) }]}>
-        {/* إجمالي الختمات = ختمات رمضان + ختمات خارج رمضان, all from the records. */}
+        {/* Two counters, both from the confirmed records: الختمات (every Khatma, Ramadan ones included) and ختمات رمضان. */}
         <View testID="my-reading-stats" style={[styles.stats, rtl && styles.rowRtl]}>
-          {([['total', copy.statsTotal, stats.total], ['ramadan', copy.statsRamadan, stats.ramadan], ['non-ramadan', copy.statsNonRamadan, stats.nonRamadan]] as const).map(([id, label, value]) => (
+          {([['total', copy.statsTotal, stats.total], ['ramadan', copy.statsRamadan, stats.ramadan]] as const).map(([id, label, value]) => (
             <View key={id} testID={`my-reading-stat-${id}`} style={[styles.stat, id === 'total' && styles.statTotal]}>
               <Text style={[styles.statValue, id === 'total' && styles.statValueTotal]}>{num(value)}</Text>
               <Text style={[styles.statLabel, { writingDirection: direction.writingDirection }]}>{label}</Text>
@@ -141,7 +147,10 @@ export default function MyReadingScreen() {
           ))}
         </View>
 
-        <Text testID="my-reading-footnote" style={[styles.muted, direction]}>{copy.footnote}</Text>
+        <Text testID="my-reading-footnote" style={[styles.muted, direction]}>{signedIn ? copy.footnoteSynced : copy.footnote}</Text>
+        {signedIn && syncLine && (
+          <Text testID="my-reading-sync" accessibilityLiveRegion="polite" style={[styles.syncLine, direction]}>{syncLine}</Text>
+        )}
 
         <View style={[styles.sectionHeader, rtl && styles.rowRtl]}>
           <Text accessibilityRole="header" style={[styles.sectionTitle, direction]}>{copy.wirdsTitle}</Text>
@@ -446,6 +455,7 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   statValue: { color: colors.textPrimary, fontSize: 26, fontWeight: '800' },
   statValueTotal: { color: colors.accent },
   statLabel: { color: colors.textSecondary, fontSize: typography.small, fontWeight: '700', textAlign: 'center' },
+  syncLine: { color: colors.textSecondary, fontSize: typography.caption, marginTop: -spacing.sm },
   sectionHeader: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', gap: spacing.sm },
   sectionTitle: { color: colors.textPrimary, fontSize: typography.bodyLarge, fontWeight: '800' },
   newButton: {

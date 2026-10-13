@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 import request from 'supertest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { UserReadingRecordModel } from '../../src/models/UserReadingRecord';
+import { UserReadingSyncStateModel } from '../../src/models/UserReadingSyncState';
 import { UserReflectionModel } from '../../src/models/UserReflection';
 import { UserSyncKeyModel } from '../../src/models/UserSyncKey';
 import { MongooseSyncRepository } from '../../src/services/MongooseSyncRepository';
@@ -199,9 +201,18 @@ describe('MongooseSyncRepository reset queries', () => {
       return { session: vi.fn(async () => ({ deletedCount: 0 })) };
     }) as never);
 
+    const readingTouched = [
+      vi.spyOn(UserReadingRecordModel, 'deleteMany'),
+      vi.spyOn(UserReadingRecordModel, 'updateMany'),
+      vi.spyOn(UserReadingSyncStateModel, 'updateOne'),
+      vi.spyOn(UserReadingSyncStateModel, 'deleteMany'),
+    ];
+
     await new MongooseSyncRepository().resetReflectionSync('user-1');
 
     expect(calls).toEqual(['reflections {"userId":"user-1"}', 'key {"userId":"user-1"}']);
+    // أورادي وختماتي are account-synced, not under the Sync Password: a reset never touches them.
+    for (const spy of readingTouched) expect(spy).not.toHaveBeenCalled();
     expect(session.withTransaction).toHaveBeenCalledTimes(1);
     expect(session.endSession).toHaveBeenCalledTimes(1);
     expect(reflectionDelete).toHaveBeenCalledTimes(1);
@@ -210,9 +221,14 @@ describe('MongooseSyncRepository reset queries', () => {
 
   it('removes only active records under another key, never deletion markers or another user\'s data', async () => {
     const deleteMany = vi.spyOn(UserReflectionModel, 'deleteMany').mockResolvedValue({ deletedCount: 0 } as never);
+    const readingDelete = vi.spyOn(UserReadingRecordModel, 'deleteMany');
+    const readingState = vi.spyOn(UserReadingSyncStateModel, 'updateOne');
 
     await new MongooseSyncRepository().deleteReflectionsNotEncryptedWith('user-1', 'fp-new');
 
     expect(deleteMany).toHaveBeenCalledWith({ userId: 'user-1', deleted: { $ne: true }, keyFingerprint: { $ne: 'fp-new' } });
+    // A new Sync Password key never touches أورادي وختماتي.
+    expect(readingDelete).not.toHaveBeenCalled();
+    expect(readingState).not.toHaveBeenCalled();
   });
 });

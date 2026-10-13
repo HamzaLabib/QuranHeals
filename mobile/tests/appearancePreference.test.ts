@@ -360,12 +360,12 @@ describe('Settings screen: Appearance selection (source-scan, matching the App L
     expect(source).toMatch(/APPEARANCE_MODES\.map\(/);
   });
 
-  it('is placed directly under the Quran Translation section, and before the Account section', () => {
-    const quranTranslationIndex = source.indexOf('messages.settings.quranTranslationSection');
+  it('is placed directly under the Quran Language section, and before the Account section', () => {
+    const quranLanguageIndex = source.indexOf('messages.settings.quranLanguageSection');
     const appearanceIndex = source.indexOf('messages.appearance.sectionLabel');
     const accountSectionIndex = source.indexOf('<AccountSection');
-    expect(quranTranslationIndex).toBeGreaterThanOrEqual(0);
-    expect(appearanceIndex).toBeGreaterThan(quranTranslationIndex);
+    expect(quranLanguageIndex).toBeGreaterThanOrEqual(0);
+    expect(appearanceIndex).toBeGreaterThan(quranLanguageIndex);
     expect(accountSectionIndex).toBeGreaterThan(appearanceIndex);
   });
 

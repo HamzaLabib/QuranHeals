@@ -276,3 +276,7 @@ backend's `putReflections`):
 read (`getReflection`, `getAllReflections` in `ayahReflections.ts`) and
 never appear in the My Reflections list or anywhere else in the UI — they
 are purely a sync bookkeeping mechanism, invisible by design.
+
+## أورادي وختماتي are not under this key
+
+The Sync Password and the master key protect reflections only. A signed-in account's أوراد, saved pages and Khatmas sync through the authenticated account like favorites: they are **not** end-to-end encrypted, never need the Sync Password, and are never touched by a forgotten-password reset or a new key. See `docs/auth-and-sync/reading-sync.md`.

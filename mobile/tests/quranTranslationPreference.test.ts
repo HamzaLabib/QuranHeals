@@ -187,7 +187,8 @@ describe('Translation display-mode behavior in AyahCard.tsx (source-scan: no RN 
   });
 
   it('delegates show/hide-toggle visibility to the pure, independently-tested resolveTranslationVisibility function', () => {
-    expect(source).toMatch(/resolveTranslationVisibility\(preference\.displayMode,\s*isRevealed\)/);
+    // The ayah screen: always Show / Hide translation (no Settings row to change it any more).
+    expect(source).toMatch(/resolveTranslationVisibility\(AYAH_SCREEN_TRANSLATION_MODE,\s*isRevealed\)/);
   });
 
   it('the English translation text is rendered only when showTranslation is true (never unconditionally)', () => {

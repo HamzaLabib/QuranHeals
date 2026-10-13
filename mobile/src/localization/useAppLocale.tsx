@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
-import { APP_LOCALES, DEFAULT_APP_LOCALE, isAppLocale, type AppLocale } from './locales';
+import { migrateLegacyAppLanguage, moveEgyptianArabicToEmotions } from './emotionsLanguage';
+import { APP_LOCALES, DEFAULT_APP_LOCALE, type AppLanguage, type AppLocale } from './locales';
 import { getMessages, type Messages } from './messages';
 import { recordLocalPreferencesUpdatedAt } from '@/sync/preferencesSyncState';
 
@@ -12,7 +13,9 @@ export const APP_LOCALE_STORAGE_KEY = 'quran-heals:app-locale:v1';
 export type PreferenceChangeOptions = { fromSync?: boolean };
 
 export type AppLocaleContextValue = {
-  locale: AppLocale;
+  /** The App Language: English or Arabic (never Egyptian Arabic, which is an Emotions Language). */
+  locale: AppLanguage;
+  /** 'ar-EG' (an older device's synced preference) means Arabic here, with Egyptian Arabic emotions unless chosen otherwise. */
   setLocale: (locale: AppLocale, options?: PreferenceChangeOptions) => void;
   messages: Messages;
   /** True once the persisted preference has been read (or safely defaulted). */
@@ -24,14 +27,15 @@ const AppLocaleContext = createContext<AppLocaleContextValue | undefined>(undefi
 /**
  * Persists the user's app-language choice via AsyncStorage (this project's
  * existing persistence mechanism — see recentAyahs.ts) under a
- * versioned/namespaced key. Defaults to `en` (DEFAULT_APP_LOCALE),
+ * versioned/namespaced key. English or Arabic only (a legacy Egyptian
+ * Arabic choice is migrated: emotionsLanguage.ts). Defaults to `en` (DEFAULT_APP_LOCALE),
  * preserving current app behavior. An invalid or unreadable stored value
  * (corrupted storage, a future removed locale) falls back to the default
  * safely — it never throws and never leaves the app in a broken locale
  * state.
  */
 export function AppLocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<AppLocale>(DEFAULT_APP_LOCALE);
+  const [locale, setLocaleState] = useState<AppLanguage>(DEFAULT_APP_LOCALE);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
@@ -39,8 +43,9 @@ export function AppLocaleProvider({ children }: { children: ReactNode }) {
 
     (async () => {
       try {
-        const stored = await AsyncStorage.getItem(APP_LOCALE_STORAGE_KEY);
-        if (!cancelled && isAppLocale(stored)) {
+        // A stored Egyptian Arabic App Language is migrated first (emotionsLanguage.ts).
+        const stored = await migrateLegacyAppLanguage();
+        if (!cancelled && stored) {
           setLocaleState(stored);
         }
       } catch {
@@ -60,8 +65,10 @@ export function AppLocaleProvider({ children }: { children: ReactNode }) {
     // account's value; a value adopted from the account is stamped by sync
     // itself (preferencesSync.ts) with the account's own timestamp.
     if (!options?.fromSync) recordLocalPreferencesUpdatedAt(Date.now());
-    setLocaleState(next);
-    void AsyncStorage.setItem(APP_LOCALE_STORAGE_KEY, next).catch(() => {
+    const language: AppLanguage = next === 'en' ? 'en' : 'ar';
+    if (next === 'ar-EG') void moveEgyptianArabicToEmotions();
+    setLocaleState(language);
+    void AsyncStorage.setItem(APP_LOCALE_STORAGE_KEY, language).catch(() => {
       // Persistence failure is non-fatal: the in-memory selection still applies this session.
     });
   }, []);

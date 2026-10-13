@@ -182,7 +182,7 @@ describe('reflections localization (messages.ts)', () => {
     expect(MESSAGES.en.tabs.reflections).toBe('Reflections');
     expect(MESSAGES.ar.tabs.reflections).toBe('خواطري');
     expect(MESSAGES['ar-EG'].tabs.reflections).toBe('خواطري');
-    expect(MESSAGES.ar.tabs.myReading).toBe('أورادي وختماتي');
+    expect(MESSAGES.ar.tabs.myReading).toBe('أورادي');
   });
 
   it('the reflection editor keeps its own title and Save action', () => {

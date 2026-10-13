@@ -1,5 +1,7 @@
 # App locales and Quran translation preferences
 
+> **Superseded in part (2026-10-13):** the App Language is now English or Arabic only; Egyptian Arabic is an Emotions Language; the Quran Translation Settings row is replaced by the ayah screen's Show translation. See [quran-language.md](quran-language.md).
+
 This document covers two deliberately independent axes of localization in
 Quran Heals: which language the **app interface** is shown in, and which
 **Quran translation** (if any) is shown alongside the Arabic text. Confusing

@@ -13,9 +13,9 @@ This policy explains what information the app handles, where it is kept, who can
 ## 1. Summary
 
 - No account is needed. Without one, everything you save stays on your device.
-- If you sign in (with Apple or Google), we store your account, favorites and preferences on our servers so they sync between your devices.
+- If you sign in (with Apple or Google), we store your account, favorites, preferences, and your Recitations (أورادي) and Khatmas on our servers so they sync between your devices.
 - **Reflections you sync are end-to-end encrypted**: they are encrypted on your device with a key protected by your sync password before they leave it, and we cannot read them.
-- **Not everything is end-to-end encrypted.** Your account details, favorites, preferences and issue reports are stored in a form we can read (they are protected in transit and by our providers' security, but not end-to-end encrypted).
+- **Not everything is end-to-end encrypted.** Your account details, favorites, preferences, Recitations and Khatmas, and issue reports are stored in a form we can read (they are protected in transit and by our providers' security, but not end-to-end encrypted).
 - We do not sell your information, show ads, or use analytics or advertising trackers.
 - You can delete your account and all synced data at any time from the app.
 
@@ -25,6 +25,7 @@ Whether or not you have an account, the app stores the following **on your devic
 
 - **Reflections (خواطر)** you write, in readable form. They are protected by your device's own security (for example your device passcode), not by an extra layer of app encryption. If the same reflection was changed on two of your devices before they synced, the version that was replaced is also kept on the device so you can review it.
 - **Favorites** (saved ayahs) and a short history of recently shown ayahs, used to avoid showing you the same ayah again too soon.
+- **Recitations (أورادي) and Khatmas**: the reading plans you name, the Mushaf page each one was last saved at and its current reading cycle, and the Khatmas you confirm (completion date, and whether it was in Ramadan).
 - **Settings**: app language, Quran translation display, appearance (light/dark), and Quran text size.
 - A cached copy of the list of emotions, so the app works offline.
 - If you are signed in: your account's basic profile (an internal account ID, whether you used Apple or Google, your email address if one was provided, and when the account was created); your sign-in tokens; and, after you enter your sync password, the key that decrypts your synced reflections. Tokens and the key are kept in your device's secure storage (iOS Keychain / Android Keystore).
@@ -41,6 +42,7 @@ Signing in is optional. If you sign in, we store the following on our servers:
 | Sessions | Hashed (not reversible) sign-in tokens with their expiry, rotation and revocation times. We do **not** store your IP address or device details with sessions. | Yes (hashes only) |
 | Favorites | Which ayahs you saved (by verse reference, e.g. 2:286), deletion markers, and times | Yes |
 | Preferences | App language, translation display mode, translation identifier, and time of last change | Yes |
+| Recitations (أورادي) and Khatmas | The names you give your Recitations; the Mushaf page each was last saved at, when, and its current reading cycle; which Recitation is selected; your confirmed Khatmas (completion date and time, local date, whether in Ramadan and its Hijri year, and which Recitation it belonged to); deletion markers for removed items; and record versions used to keep your devices in step. Counts are calculated from these records. | Yes (not end-to-end encrypted) |
 | Synced reflections | The verse reference each reflection belongs to; the reflection text **encrypted on your device**; encryption metadata; when it was created/updated; and, if the same reflection was edited on two devices before syncing, the other **encrypted** version(s) so neither is lost. For a deleted reflection, only the verse reference and deletion time. | Verse reference and times: yes. **Reflection text: no.** |
 | Encrypted reflection key | Your reflection key, **encrypted with your sync password** on your device, with the values needed to unlock it (a random salt and a work-factor setting) and a one-way fingerprint | No — it cannot be unlocked without your sync password |
 | Apple revocation credential (Apple accounts only) | A token from Apple, **encrypted** by us, used only to revoke Quran Heals' access to your Apple ID when you delete your account | Only by our server, for that purpose |
@@ -55,7 +57,8 @@ When you first sync reflections, the app asks you to create a sync password (sho
 - We cannot read your synced reflections, and we cannot recover them for you.
 - **If you forget your sync password**, synced reflections cannot be decrypted by anyone, including us. The app offers a reset: after you confirm your identity with Apple or Google, it deletes your encrypted reflections and encrypted key from our servers and lets you set a new password. Reflections still stored on your device are kept and are uploaded again, encrypted with the new password. Reflections that existed **only** on our servers are permanently lost.
 - Anyone holding the encrypted data could try to guess your sync password. A longer, unique password makes this much harder.
-- End-to-end encryption covers **reflection text only**. It does not cover your account details, favorites, preferences, verse references or timestamps of reflections, or issue reports.
+- End-to-end encryption covers **reflection text only**. It does not cover your account details, favorites, preferences, Recitations and Khatmas, verse references or timestamps of reflections, or issue reports.
+- Your sync password protects reflections only. Your Recitations and Khatmas never need it, and resetting it does not delete or change them.
 
 ## 5. Issue reports
 
@@ -90,7 +93,7 @@ We do not use your information for advertising, profiling or automated decisions
 
 - **Account data** (section 3) is kept until you delete your account.
 - **Sessions** expire after 60 days of inactivity and are then removed automatically. Signing out ends the session on that device.
-- **Deleting your account** (Settings → Account → Danger Zone → Delete Account) immediately and permanently deletes from our database your account, sessions, favorites, preferences, encrypted reflections, encrypted reflection key and Apple revocation credential. For Apple accounts we also revoke Quran Heals' access to your Apple ID. On the device you use to delete, the account's reflections and favorites are also removed; other devices are signed out but keep any copies stored on them until you uninstall the app there (or clear its data). See our account deletion page: [TO CONFIRM: URL].
+- **Deleting your account** (Settings → Account → Danger Zone → Delete Account) immediately and permanently deletes from our database your account, sessions, favorites, preferences, Recitations and Khatmas, encrypted reflections, encrypted reflection key and Apple revocation credential. For Apple accounts we also revoke Quran Heals' access to your Apple ID. On the device you use to delete, the account's reflections, favorites, Recitations and Khatmas are also removed; other devices are signed out but keep any copies stored on them until you uninstall the app there (or clear its data). See our account deletion page: [TO CONFIRM: URL].
 - **Backups.** Deleted data may remain in our database provider's encrypted backups for up to [TO CONFIRM: backup retention period] before being overwritten.
 - **Issue reports**: see section 5.
 

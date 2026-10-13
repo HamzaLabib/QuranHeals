@@ -57,7 +57,7 @@ describe('Routing safety: the emotion key reaches the API/history/navigation lay
 
   it('headerTitle (the display label) is computed from resolveLocalizedEmotionName in emotion mode, and is never itself fed back into emotionKey/historyKey, the API calls, or history storage', () => {
     const source = readFileSync(AYAH_EXPERIENCE_PATH, 'utf-8');
-    expect(source).toMatch(/resolveLocalizedEmotionName\(source\.names, locale, source\.emotionKey\)/);
+    expect(source).toMatch(/resolveLocalizedEmotionName\(source\.names, emotionLocale, source\.emotionKey\)/);
     // headerTitle may only appear where it's actually displayed — never
     // passed to any of the key-consuming calls.
     // General mode's key-consuming calls used to be the single atomic

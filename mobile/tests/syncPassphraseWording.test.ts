@@ -63,6 +63,16 @@ describe('SyncPassphraseSheet wording: Set Password (first-time) vs Enter Passwo
     }
   });
 
+  it('the Sync Password is described as protecting reflections only — never أوراد, Khatmas or other synced data', () => {
+    for (const locale of ['en', 'ar', 'ar-EG'] as const) {
+      const copy = MESSAGES[locale].syncPassphrase;
+      for (const text of [copy.createDescription, copy.unlockDescription]) {
+        expect(text).toMatch(locale === 'en' ? /reflections/ : /خواطر/);
+        expect(text).not.toMatch(/synced data|Wird|Khatma|بياناتك|أوراد|ختم/);
+      }
+    }
+  });
+
   it('ar-EG uses the exact same wording as ar for this security flow (never Egyptian colloquial)', () => {
     expect(MESSAGES['ar-EG'].syncPassphrase).toEqual(MESSAGES.ar.syncPassphrase);
   });

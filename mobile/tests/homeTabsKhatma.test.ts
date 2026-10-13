@@ -112,13 +112,17 @@ describe('the four bottom tabs', () => {
     };
   };
 
-  it('Home, Mushaf, Recitations & Khatmas, Reflections — in this order, with the approved labels in every language', async () => {
+  it('exactly four tabs: Home, Mushaf, Recitations, Reflections — in this order, with the approved labels in every language', async () => {
     expect(APP_TABS).toEqual(['index', 'mushaf', 'my-reading', 'reflections']);
-    const expected = { en: ['Home', 'Mushaf', 'Recitations & Khatmas', 'Reflections'], ar: ['الرئيسية', 'المصحف', 'أورادي وختماتي', 'خواطري'], 'ar-EG': ['الرئيسية', 'المصحف', 'أورادي وختماتي', 'خواطري'] } as const;
+    const expected = { en: ['Home', 'Mushaf', 'Recitations', 'Reflections'], ar: ['الرئيسية', 'المصحف', 'أورادي', 'خواطري'], 'ar-EG': ['الرئيسية', 'المصحف', 'أورادي', 'خواطري'] } as const;
     for (const locale of ['en', 'ar', 'ar-EG'] as const) {
       state.locale = locale;
       await mount(createElement(AppTabBar, props(0).props));
       expect(APP_TABS.map((name) => byId(`tab-${name}`).props.accessibilityLabel)).toEqual(expected[locale]);
+      // One line, shrinking to fit rather than wrapping or clipping on a narrow iPhone.
+      for (const label of root.root.findByProps({ testID: 'app-tab-bar' }).findAllByType('Text' as never)) {
+        expect(label.props).toMatchObject({ numberOfLines: 1, adjustsFontSizeToFit: true });
+      }
       expect(flat(byId('app-tab-bar').props.style).flexDirection).toBe(locale === 'en' ? 'row' : 'row-reverse');
       await act(async () => root.unmount());
     }
@@ -196,9 +200,13 @@ describe('Home', () => {
     expect(MESSAGES.en.continueReading.title).toBe('Continue Reciting');
     expect(MESSAGES.ar.continueReading.title).toBe('متابعة التلاوة');
     expect(MESSAGES['ar-EG'].continueReading.title).toBe('متابعة التلاوة');
+    // The page keeps its full title; only the tab is shortened.
     expect(MESSAGES.en.myReading.title).toBe('My Recitations & Khatmas');
     expect(MESSAGES.ar.myReading.title).toBe('أورادي وختماتي');
-    expect(MESSAGES.en.tabs.myReading).toBe('Recitations & Khatmas');
+    expect(MESSAGES['ar-EG'].myReading.title).toBe('أورادي وختماتي');
+    expect(MESSAGES.en.tabs.myReading).toBe('Recitations');
+    expect(MESSAGES.ar.tabs.myReading).toBe('أورادي');
+    expect(MESSAGES['ar-EG'].tabs.myReading).toBe('أورادي');
   });
 });
 

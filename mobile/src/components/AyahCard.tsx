@@ -11,10 +11,9 @@ import {
   computeQuranLineHeight,
   countArabicWords,
 } from '@/localization/quranFontSizePreference';
-import { resolveTranslationVisibility } from '@/localization/quranTranslationPreference';
+import { AYAH_SCREEN_TRANSLATION_MODE, resolveTranslationVisibility } from '@/localization/quranTranslationPreference';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { useQuranFontSizePreference } from '@/localization/useQuranFontSizePreference';
-import { useQuranTranslationPreference } from '@/localization/useQuranTranslationPreference';
 import type { Ayah } from '@/types/domain';
 import { formatAyahReference } from '@/utils/ayahReference';
 import { buildTanzilAyahUrl } from '@/utils/tanzilLink';
@@ -29,9 +28,10 @@ type AyahCardProps = {
 const COPY_CONFIRMATION_MS = 1300;
 
 /**
- * Quran Arabic is always shown — the translation `displayMode` setting
- * (`always` | `on-demand` | `off`) never hides it. Only the English
- * Pickthall translation's visibility is governed by that setting.
+ * Quran Arabic is always shown. The English Pickthall translation (with
+ * its attribution) appears only when the reader taps Show translation, and
+ * Hide translation hides it again (AYAH_SCREEN_TRANSLATION_MODE: there is
+ * no Settings choice any more; see quranTranslationPreference.ts).
  * "Revealed on this ayah" (`on-demand` mode) is local, per-card state keyed
  * to `ayah.id` — it resets automatically whenever a different ayah is
  * shown (new `AyahCard` render for that id), and is never written to the
@@ -43,7 +43,6 @@ export function AyahCard({ ayah, compact = false }: AyahCardProps) {
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
   const { messages } = useAppLocale();
-  const { preference } = useQuranTranslationPreference();
   const { preferredSize } = useQuranFontSizePreference();
   const [revealedAyahId, setRevealedAyahId] = useState<string | null>(null);
   const [trackedAyahId, setTrackedAyahId] = useState(ayah.id);
@@ -67,7 +66,7 @@ export function AyahCard({ ayah, compact = false }: AyahCardProps) {
   }, []);
 
   const isRevealed = revealedAyahId === ayah.id;
-  const { showTranslation, showToggleControl } = resolveTranslationVisibility(preference.displayMode, isRevealed);
+  const { showTranslation, showToggleControl } = resolveTranslationVisibility(AYAH_SCREEN_TRANSLATION_MODE, isRevealed);
   const toggleLabel = isRevealed ? messages.translation.hideTranslation : messages.translation.showTranslation;
 
   // Each ayah calculates its own automatic length adjustment from its own

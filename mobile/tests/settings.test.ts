@@ -3,52 +3,49 @@ import { resolve } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-// settings.tsx is a React Native component (.tsx importing lucide-react-native
-// and react-native), which this project's plain-Node vitest environment
-// cannot parse/render (see the same constraint documented in
-// emotionIcons.test.ts and emotionRouting.test.ts). Its wiring is proven by
-// source-scan instead, matching this repository's established pattern.
+import { APP_LANGUAGES } from '@/localization/locales';
+import { EMOTIONS_LANGUAGES } from '@/localization/emotionsLanguage';
+import { QURAN_READING_MODES } from '@/localization/quranLanguage';
+
+// The Settings screen is rendered for real in settingsAccordion.test.ts;
+// these source-scans pin its wiring, matching this repository's pattern.
 const SETTINGS_SCREEN_PATH = resolve(__dirname, '../src/app/settings.tsx');
 const source = readFileSync(SETTINGS_SCREEN_PATH, 'utf-8');
 
-describe('Settings screen: app language selection', () => {
-  it('offers all three approved app locales, derived from APP_LOCALES (never a hardcoded duplicate list)', () => {
-    expect(source).toMatch(/APP_LOCALES\.map\(/);
-    expect(source).toMatch(/APP_LOCALE_DISPLAY_NAMES\[option\]/);
-  });
-
-  it('selecting a language calls setLocale, which (per useAppLocale.tsx) updates and persists the choice immediately', () => {
+describe('Settings screen: exactly three language settings', () => {
+  it('App Language offers English and Arabic only, derived from APP_LANGUAGES', () => {
+    expect(APP_LANGUAGES).toEqual(['en', 'ar']);
+    expect(source).toMatch(/APP_LANGUAGES\.map\(/);
     expect(source).toMatch(/onPress=\{\(\) => choose\(\(\) => setLocale\(option\)\)\}/);
-  });
-
-  it('marks the currently-active locale as selected for accessibility/visual state', () => {
     expect(source).toMatch(/selected=\{option === locale\}/);
   });
-});
 
-describe('Settings screen: Quran translation display-mode selection', () => {
-  it('offers exactly the three valid display modes: always, on-demand, off', () => {
-    expect(source).toMatch(/TRANSLATION_DISPLAY_MODES[\s\S]*?=\s*\['always', 'on-demand', 'off'\]/);
+  it('Emotions Language offers follow / en / ar / ar-EG, derived from EMOTIONS_LANGUAGES', () => {
+    expect(EMOTIONS_LANGUAGES).toEqual(['follow', 'en', 'ar', 'ar-EG']);
+    expect(source).toMatch(/EMOTIONS_LANGUAGES\.map\(/);
+    expect(source).toMatch(/choose\(\(\) => setEmotionsLanguage\(option\)\)/);
   });
 
-  it('selecting a mode calls setDisplayMode, which persists via the shared QuranTranslationPreferenceProvider', () => {
-    expect(source).toMatch(/onPress=\{\(\) => choose\(\(\) => setDisplayMode\(mode\)\)\}/);
+  it('Quran Language lists only the reading modes that exist (one today), stored by id', () => {
+    expect(QURAN_READING_MODES.map((mode) => mode.id)).toEqual(['quran-text']);
+    expect(source).toMatch(/QURAN_READING_MODES\.map\(/);
+    expect(source).toMatch(/choose\(\(\) => setQuranMode\(option\.id\)\)/);
   });
 
-  it('marks the currently-active display mode as selected', () => {
-    expect(source).toMatch(/selected=\{mode === preference\.displayMode\}/);
-  });
-
-  it('shows a note that the Arabic Quran is always displayed regardless of this setting, using localized copy', () => {
-    expect(source).toMatch(/messages\.settings\.quranArabicNote/);
+  it('in this order: App Language, Emotions Language, Quran Language, then Appearance; no Quran Translation row', () => {
+    const order = ['messages.settings.appLanguageSection', 'messages.settings.emotionsLanguageSection', 'messages.settings.quranLanguageSection', 'messages.appearance.sectionLabel']
+      .map((needle) => source.indexOf(needle));
+    expect(order.every((index) => index >= 0)).toBe(true);
+    expect([...order].sort((a, b) => a - b)).toEqual(order);
+    expect(source).not.toMatch(/quranTranslationSection|setDisplayMode|TRANSLATION_DISPLAY_MODES/);
   });
 });
 
 describe('Settings screen: no hardcoded interface strings', () => {
   it('every user-facing label on this screen is sourced from the localized messages object or locale display names', () => {
     expect(source).toMatch(/messages\.settings\.title/);
-    expect(source).toMatch(/messages\.settings\.appLanguageSection/);
-    expect(source).toMatch(/messages\.settings\.quranTranslationSection/);
+    expect(source).toMatch(/messages\.settings\.emotionsFollowApp/);
+    expect(source).toMatch(/messages\.settings\[option\.labelKey\]/);
   });
 });
 

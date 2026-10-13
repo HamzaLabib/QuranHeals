@@ -6,8 +6,8 @@ import { darkPalette, lightPalette } from '@/constants/theme';
 import { MESSAGES } from '@/localization/messages';
 
 /**
- * The Settings accordion redesign, rendered with the real locale /
- * translation / appearance providers over an in-memory AsyncStorage, so a
+ * The Settings accordion: App, Emotions and Quran Language, Appearance,
+ * Legal & Privacy — rendered with the real locale / emotions / translation / appearance providers over an in-memory AsyncStorage, so a
  * selection is proven to go through the existing persisted preference
  * setters — not a parallel implementation.
  */
@@ -58,12 +58,15 @@ vi.mock('@/components/AccountSection', async () => {
 
 import SettingsScreen from '@/app/settings';
 import { AppLocaleProvider } from '@/localization/useAppLocale';
+import { EmotionsLanguageProvider } from '@/localization/useEmotionsLanguage';
 import { QuranTranslationPreferenceProvider } from '@/localization/useQuranTranslationPreference';
 import { AppearancePreferenceProvider } from '@/theme/useAppearancePreference';
 
 const LOCALE_KEY = 'quran-heals:app-locale:v1';
 const TRANSLATION_KEY = 'quran-heals:quran-translation-preference:v1';
 const APPEARANCE_KEY = 'quran-heals:appearance-preference:v1';
+const EMOTIONS_KEY = 'quran-heals:emotions-language:v1';
+const QURAN_LANGUAGE_KEY = 'quran-heals:quran-language:v1';
 
 const en = MESSAGES.en;
 const ar = MESSAGES.ar;
@@ -91,8 +94,9 @@ afterEach(async () => {
 async function renderSettings() {
   const tree = (children: ReactNode) =>
     createElement(AppLocaleProvider, null,
-      createElement(QuranTranslationPreferenceProvider, null,
-        createElement(AppearancePreferenceProvider, null, children)));
+      createElement(EmotionsLanguageProvider, null,
+        createElement(QuranTranslationPreferenceProvider, null,
+          createElement(AppearancePreferenceProvider, null, children))));
   await act(async () => { root = create(tree(createElement(SettingsScreen))); });
 }
 
@@ -118,20 +122,23 @@ const pressOption = (label: string) => press(optionRows().find((node) => node.pr
 const resolveStyle = (node: ReactTestInstance) =>
   [typeof node.props.style === 'function' ? node.props.style({ pressed: false }) : node.props.style].flat(Infinity).filter(Boolean);
 
+const EN_HEADERS = ['App Language', 'Emotions Language', 'Quran Language', 'Appearance', 'Legal & Privacy'];
+const AR_HEADERS = ['لغة التطبيق', 'لغة المشاعر', 'لغة القرآن', 'المظهر', 'السياسات والشروط'];
+
 describe('Settings: section order and initial state', () => {
-  it('shows Languages, Quran Translation, Appearance, Legal & Privacy, then the Account section (which owns the Danger Zone)', async () => {
+  it('exactly three language settings — App, Emotions, Quran — then Appearance, Legal & Privacy and the Account section; no Quran Translation row', async () => {
     await renderSettings();
     const order = root!.root
       .findAll((node) => node.type === ('AccountSection' as never) || headers().includes(node))
       .map((node) => (node.type === ('AccountSection' as never) ? 'Account' : node.props.accessibilityLabel.split(', ')[0]));
-    expect(order).toEqual([en.settings.appLanguageSection, en.settings.quranTranslationSection, en.appearance.sectionLabel, en.settings.legalSection, 'Account']);
-    expect(en.settings.appLanguageSection).toBe('Languages');
+    expect(order).toEqual([...EN_HEADERS, 'Account']);
+    expect(texts()).not.toContain(en.settings.quranTranslationSection);
     expect(en.settings.legalSection).toBe('Legal & Privacy');
   });
 
-  it('starts with all four sections collapsed and no option or legal rows rendered', async () => {
+  it('starts with every section collapsed and no option or legal rows rendered', async () => {
     await renderSettings();
-    expect(expandedStates()).toEqual([false, false, false, false]);
+    expect(expandedStates()).toEqual([false, false, false, false, false]);
     expect(optionRows()).toHaveLength(0);
     expect(linkRows()).toHaveLength(0);
   });
@@ -139,8 +146,9 @@ describe('Settings: section order and initial state', () => {
   it('shows each current selection under its collapsed heading, and nothing under Legal & Privacy', async () => {
     await renderSettings();
     expect(headers().map((node) => node.props.accessibilityLabel)).toEqual([
-      'Languages, English',
-      `Quran Translation, ${en.settings.translationDisplayAlways}`,
+      'App Language, English',
+      'Emotions Language, Follow App Language',
+      'Quran Language, Quranic Text',
       'Appearance, Light',
       'Legal & Privacy',
     ]);
@@ -151,84 +159,151 @@ describe('Settings: section order and initial state', () => {
 describe('Settings: accordion behavior', () => {
   it('tapping a header expands it and tapping it again collapses it', async () => {
     await renderSettings();
-    await pressHeader('Languages');
-    expect(expandedStates()).toEqual([true, false, false, false]);
-    expect(optionRows().map((node) => node.props.accessibilityLabel)).toEqual(['English', 'العربية', 'العربية المصرية']);
-    await pressHeader('Languages');
-    expect(expandedStates()).toEqual([false, false, false, false]);
+    await pressHeader('App Language');
+    expect(expandedStates()).toEqual([true, false, false, false, false]);
+    // Exactly English and Arabic: Egyptian Arabic is an Emotions Language only.
+    expect(optionRows().map((node) => node.props.accessibilityLabel)).toEqual(['English', 'العربية']);
+    await pressHeader('App Language');
+    expect(expandedStates()).toEqual([false, false, false, false, false]);
     expect(optionRows()).toHaveLength(0);
   });
 
   it('opening another section closes the previously open one', async () => {
     await renderSettings();
-    await pressHeader('Languages');
+    await pressHeader('App Language');
     await pressHeader('Appearance');
-    expect(expandedStates()).toEqual([false, false, true, false]);
+    expect(expandedStates()).toEqual([false, false, false, true, false]);
     await pressHeader('Legal & Privacy');
-    expect(expandedStates()).toEqual([false, false, false, true]);
+    expect(expandedStates()).toEqual([false, false, false, false, true]);
     expect(optionRows()).toHaveLength(0);
   });
 
   it('animates opening and closing, and never touches storage, sync, or the network', async () => {
     await renderSettings();
     const before = new Map(state.storage);
-    for (const title of ['Languages', 'Quran Translation', 'Appearance', 'Legal & Privacy', 'Legal & Privacy']) await pressHeader(title);
-    expect(state.layoutAnimations).toBe(5);
+    for (const title of [...EN_HEADERS, 'Legal & Privacy']) await pressHeader(title);
+    expect(state.layoutAnimations).toBe(6);
     expect(state.storage).toEqual(before);
     expect(fetchSpy).not.toHaveBeenCalled();
     expect(state.refreshSyncCalls).toBe(0);
   });
 });
 
-describe('Settings: selecting an option', () => {
-  it('Languages: applies the locale immediately, persists it, switches to RTL, and collapses', async () => {
+describe('Settings: App Language', () => {
+  it('applies the locale immediately, persists it, switches to RTL, and collapses', async () => {
     await renderSettings();
-    await pressHeader('Languages');
+    await pressHeader('App Language');
     await pressOption('العربية');
-
     expect(state.storage.get(LOCALE_KEY)).toBe('ar');
-    expect(expandedStates()).toEqual([false, false, false, false]);
+    expect(expandedStates()).toEqual([false, false, false, false, false]);
     const languageHeader = header(ar.settings.appLanguageSection);
     expect(languageHeader.props.accessibilityLabel).toBe('لغة التطبيق, العربية');
     expect(resolveStyle(languageHeader)).toContainEqual({ flexDirection: 'row-reverse' });
-    const title = languageHeader.findAll(isType('Text'))[0];
-    expect(title.props.style).toContainEqual({ writingDirection: 'rtl', textAlign: 'right' });
+    expect(languageHeader.findAll(isType('Text'))[0].props.style).toContainEqual({ writingDirection: 'rtl', textAlign: 'right' });
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it('Languages: switching back to English restores LTR', async () => {
-    state.storage.set(LOCALE_KEY, 'ar-EG');
+  it('switching back to English restores LTR', async () => {
+    state.storage.set(LOCALE_KEY, 'ar');
     await renderSettings();
-    expect(header(ar.settings.appLanguageSection).props.accessibilityLabel).toBe('لغة التطبيق, العربية المصرية');
+    expect(header(ar.settings.appLanguageSection).props.accessibilityLabel).toBe('لغة التطبيق, العربية');
     await pressHeader(ar.settings.appLanguageSection);
     await pressOption('English');
     expect(state.storage.get(LOCALE_KEY)).toBe('en');
-    expect(resolveStyle(header('Languages'))).not.toContainEqual({ flexDirection: 'row-reverse' });
+    expect(resolveStyle(header('App Language'))).not.toContainEqual({ flexDirection: 'row-reverse' });
   });
 
-  it('Quran Translation: keeps every option description, persists the mode, updates the summary, and collapses', async () => {
+  it('an existing Egyptian Arabic App Language migrates: Arabic interface, Egyptian Arabic emotions; an explicit Emotions choice survives', async () => {
+    state.storage.set(LOCALE_KEY, 'ar-EG');
+    state.storage.set(TRANSLATION_KEY, JSON.stringify({ translationId: 'en.pickthall.gutenberg16955', displayMode: 'off' }));
     await renderSettings();
-    await pressHeader('Quran Translation');
-    for (const hint of [en.settings.translationDisplayAlwaysHint, en.settings.translationDisplayOnDemandHint, en.settings.translationDisplayOffHint]) {
-      expect(texts()).toContain(hint);
-    }
-    expect(optionRows().find((node) => node.props.accessibilityState.selected)!.props.accessibilityLabel).toBe(en.settings.translationDisplayAlways);
-
-    await pressOption(en.settings.translationDisplayOff);
+    await act(async () => { await new Promise((done) => setTimeout(done, 0)); });
+    expect(state.storage.get(LOCALE_KEY)).toBe('ar');
+    expect(state.storage.get(EMOTIONS_KEY)).toBe('ar-EG');
+    expect(header('لغة التطبيق').props.accessibilityLabel).toBe('لغة التطبيق, العربية');
+    expect(header('لغة المشاعر').props.accessibilityLabel).toBe('لغة المشاعر, العربية المصرية');
+    // Unrelated preferences untouched.
     expect(JSON.parse(state.storage.get(TRANSLATION_KEY)!)).toMatchObject({ displayMode: 'off' });
-    expect(header('Quran Translation').props.accessibilityLabel).toBe(`Quran Translation, ${en.settings.translationDisplayOff}`);
-    expect(expandedStates()).toEqual([false, false, false, false]);
+    await act(async () => root!.unmount());
+    root = undefined;
+
+    // Already chosen: kept. And running again changes nothing (idempotent).
+    state.storage.set(LOCALE_KEY, 'ar-EG');
+    state.storage.set(EMOTIONS_KEY, 'en');
+    await renderSettings();
+    await act(async () => { await new Promise((done) => setTimeout(done, 0)); });
+    expect(state.storage.get(LOCALE_KEY)).toBe('ar');
+    expect(state.storage.get(EMOTIONS_KEY)).toBe('en');
+  });
+});
+
+describe('Settings: Emotions Language', () => {
+  it('offers Follow App Language, English, العربية الفصحى and العربية المصرية; Follow is the default', async () => {
+    await renderSettings();
+    await pressHeader('Emotions Language');
+    const rows = optionRows();
+    expect(rows.map((node) => node.props.accessibilityLabel)).toEqual(['Follow App Language', 'English', 'العربية الفصحى', 'العربية المصرية']);
+    expect(rows.map((node) => node.props.accessibilityState.selected)).toEqual([true, false, false, false]);
+    // Each choice in its own direction: the two Arabic names right to left, even in an English interface.
+    const labelDirection = (node: ReactTestInstance) => resolveStyle(node.findAll(isType('Text'))[0]).find((style) => style.writingDirection)?.writingDirection;
+    expect(rows.map(labelDirection)).toEqual(['ltr', 'ltr', 'rtl', 'rtl']);
   });
 
-  it('Appearance: persists the unchanged internal value, updates the summary, and collapses', async () => {
+  it('a choice persists independently of the App Language, and survives an App Language change and a restart', async () => {
+    await renderSettings();
+    await pressHeader('Emotions Language');
+    await pressOption('العربية المصرية');
+    expect(state.storage.get(EMOTIONS_KEY)).toBe('ar-EG');
+    expect(header('Emotions Language').props.accessibilityLabel).toBe('Emotions Language, العربية المصرية');
+    expect(state.storage.get(LOCALE_KEY)).toBeUndefined(); // the App Language is untouched
+
+    await pressHeader('App Language');
+    await pressOption('العربية');
+    expect(header('لغة المشاعر').props.accessibilityLabel).toBe('لغة المشاعر, العربية المصرية');
+    await pressHeader('لغة المشاعر');
+    expect(optionRows().map((node) => node.props.accessibilityLabel)).toEqual(['حسب لغة التطبيق', 'الإنجليزية', 'العربية الفصحى', 'العربية المصرية']);
+
+    await act(async () => root!.unmount());
+    root = undefined;
+    await renderSettings();
+    expect(header('لغة المشاعر').props.accessibilityLabel).toBe('لغة المشاعر, العربية المصرية');
+  });
+});
+
+describe('Settings: Quran Language', () => {
+  it('exactly one option today — Quranic Text / النص القرآني — stored as a stable id, never a label; no unreleased languages', async () => {
+    await renderSettings();
+    await pressHeader('Quran Language');
+    expect(optionRows().map((node) => [node.props.accessibilityLabel, node.props.accessibilityState.selected])).toEqual([['Quranic Text', true]]);
+    for (const unreleased of ['Turkish', 'French', 'Urdu', 'Coming soon']) expect(texts(root!.root)).not.toContain(unreleased);
+    await pressOption('Quranic Text');
+    expect(state.storage.get(QURAN_LANGUAGE_KEY)).toBe('quran-text');
+    expect(expandedStates()).toEqual([false, false, false, false, false]);
+  });
+
+  it('Arabic: لغة القرآن / النص القرآني, and the choice is kept after a restart', async () => {
+    state.storage.set(LOCALE_KEY, 'ar');
+    state.storage.set(QURAN_LANGUAGE_KEY, 'quran-text');
+    await renderSettings();
+    expect(header('لغة القرآن').props.accessibilityLabel).toBe('لغة القرآن, النص القرآني');
+    // An unknown stored mode (e.g. from a future version) falls back to the Arabic Mushaf.
+    await act(async () => root!.unmount());
+    root = undefined;
+    state.storage.set(QURAN_LANGUAGE_KEY, 'turkish');
+    await renderSettings();
+    expect(header('لغة القرآن').props.accessibilityLabel).toBe('لغة القرآن, النص القرآني');
+  });
+});
+
+describe('Settings: Appearance', () => {
+  it('persists the unchanged internal value, updates the summary, and collapses', async () => {
     await renderSettings();
     await pressHeader('Appearance');
     expect(optionRows().map((node) => node.props.accessibilityLabel)).toEqual(['Auto', 'Light', 'Dark']);
     await pressOption('Dark');
     expect(JSON.parse(state.storage.get(APPEARANCE_KEY)!)).toBe('dark');
     expect(header('Appearance').props.accessibilityLabel).toBe('Appearance, Dark');
-    expect(expandedStates()).toEqual([false, false, false, false]);
-
+    expect(expandedStates()).toEqual([false, false, false, false, false]);
     await pressHeader('Appearance');
     await pressOption('Auto');
     expect(JSON.parse(state.storage.get(APPEARANCE_KEY)!)).toBe('system');
@@ -238,21 +313,19 @@ describe('Settings: selecting an option', () => {
     await renderSettings();
     await pressHeader('Appearance');
     await pressOption('Light');
-    expect(expandedStates()).toEqual([false, false, false, false]);
+    expect(expandedStates()).toEqual([false, false, false, false, false]);
   });
 
   it('saved choices are shown after a restart', async () => {
-    state.storage.set(TRANSLATION_KEY, JSON.stringify({ translationId: 20, displayMode: 'on-demand' }));
     state.storage.set(APPEARANCE_KEY, JSON.stringify('dark'));
     await renderSettings();
-    expect(header('Quran Translation').props.accessibilityLabel).toBe(`Quran Translation, ${en.settings.translationDisplayOnDemand}`);
     expect(header('Appearance').props.accessibilityLabel).toBe('Appearance, Dark');
   });
 });
 
 describe('Settings: Arabic labels', () => {
-  it.each(['ar', 'ar-EG'] as const)('%s: Appearance reads تلقائي / وضع النهار / وضع الليل, collapsed and expanded', async (locale) => {
-    state.storage.set(LOCALE_KEY, locale);
+  it('Appearance reads تلقائي / وضع النهار / وضع الليل, collapsed and expanded', async () => {
+    state.storage.set(LOCALE_KEY, 'ar');
     await renderSettings();
     expect(header('المظهر').props.accessibilityLabel).toBe('المظهر, وضع النهار');
     expect(texts(header('المظهر'))).toEqual(['المظهر', 'وضع النهار']);
@@ -262,10 +335,10 @@ describe('Settings: Arabic labels', () => {
     expect(texts(header('المظهر'))).toEqual(['المظهر', 'وضع الليل']);
   });
 
-  it.each(['ar', 'ar-EG'] as const)('%s: Legal & Privacy is titled السياسات والشروط and opens the Arabic pages', async (locale) => {
-    state.storage.set(LOCALE_KEY, locale);
+  it('the sections in Arabic; Legal & Privacy opens the Arabic pages', async () => {
+    state.storage.set(LOCALE_KEY, 'ar');
     await renderSettings();
-    expect(headers().map((node) => texts(node)[0])).toEqual(['لغة التطبيق', 'ترجمة القرآن', 'المظهر', 'السياسات والشروط']);
+    expect(headers().map((node) => texts(node)[0])).toEqual(AR_HEADERS);
     await pressHeader('السياسات والشروط');
     expect(linkRows().map((node) => node.props.accessibilityLabel)).toEqual(['سياسة الخصوصية', 'شروط الخدمة', 'حذف الحساب والبيانات']);
     for (const row of linkRows()) expect(resolveStyle(row)).toContainEqual({ flexDirection: 'row-reverse' });
@@ -316,14 +389,14 @@ describe('Settings: theming', () => {
 
   it('uses the light palette card for every accordion in Light', async () => {
     await renderSettings();
-    expect(cardBackgrounds()).toEqual(Array(4).fill(lightPalette.card));
+    expect(cardBackgrounds()).toEqual(Array(5).fill(lightPalette.card));
   });
 
   it('uses the dark palette card for every accordion in Dark, including expanded and selected rows', async () => {
     state.storage.set(APPEARANCE_KEY, JSON.stringify('dark'));
     await renderSettings();
-    expect(cardBackgrounds()).toEqual(Array(4).fill(darkPalette.card));
-    await pressHeader('Appearance');
+    expect(cardBackgrounds()).toEqual(Array(5).fill(darkPalette.card));
+    await pressHeader('Emotions Language');
     const selected = optionRows().find((node) => node.props.accessibilityState.selected)!;
     expect(resolveStyle(selected)).toContainEqual(expect.objectContaining({ backgroundColor: darkPalette.accentSoft }));
   });
@@ -332,7 +405,7 @@ describe('Settings: theming', () => {
     state.storage.set(APPEARANCE_KEY, JSON.stringify('system'));
     state.scheme = 'dark';
     await renderSettings();
-    expect(cardBackgrounds()).toEqual(Array(4).fill(darkPalette.card));
+    expect(cardBackgrounds()).toEqual(Array(5).fill(darkPalette.card));
     expect(header('Appearance').props.accessibilityLabel).toBe('Appearance, Auto');
   });
 });
@@ -344,21 +417,19 @@ describe('Settings: accessibility', () => {
       expect(node.props.accessibilityRole).toBe('button');
       expect(node.props.accessibilityLabel).toBeTruthy();
     }
-    await pressHeader('Quran Translation');
-    expect(header('Quran Translation').props.accessibilityState).toEqual({ expanded: true });
+    await pressHeader('Quran Language');
+    expect(header('Quran Language').props.accessibilityState).toEqual({ expanded: true });
   });
 
   it('options announce which one is selected', async () => {
     await renderSettings();
-    await pressHeader('Languages');
-    expect(optionRows().map((node) => [node.props.accessibilityRole, node.props.accessibilityState.selected])).toEqual([
-      ['button', true], ['button', false], ['button', false],
-    ]);
+    await pressHeader('App Language');
+    expect(optionRows().map((node) => [node.props.accessibilityRole, node.props.accessibilityState.selected])).toEqual([['button', true], ['button', false]]);
   });
 
   it('headers and rows keep a 56pt minimum touch target with no fixed height that could clip large text', async () => {
     await renderSettings();
-    await pressHeader('Quran Translation');
+    await pressHeader('Emotions Language');
     for (const node of [...headers(), ...optionRows()]) {
       const styles = resolveStyle(node);
       expect(styles).toContainEqual(expect.objectContaining({ minHeight: 56 }));

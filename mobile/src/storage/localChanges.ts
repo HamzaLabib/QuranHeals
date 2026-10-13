@@ -23,3 +23,23 @@ export function subscribeToLocalChanges(listener: () => void): () => void {
 export function notifyLocalChange(): void {
   listeners.forEach((listener) => listener());
 }
+
+const readingListeners = new Set<() => void>();
+
+/**
+ * أورادي وختماتي: the user's own change to a ورد, the active ورد or a
+ * Khatma on this device (never one applied by sync). Separate from
+ * notifyLocalChange so the signed-in session can debounce it: saving pages
+ * in a row uploads once, not once per save. For a guest nothing listens.
+ */
+export function subscribeToLocalReadingChanges(listener: () => void): () => void {
+  readingListeners.add(listener);
+  return () => {
+    readingListeners.delete(listener);
+  };
+}
+
+/** Called after a reading change has been saved (never before, never on failure). */
+export function notifyLocalReadingChange(): void {
+  readingListeners.forEach((listener) => listener());
+}

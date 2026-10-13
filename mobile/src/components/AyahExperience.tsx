@@ -15,6 +15,7 @@ import { buildExhaustionRetryExclusions, getExcludedVerseKeys, GENERAL_QURAN_HIS
 import type { Ayah, AyahConnection, LocalizedText } from '@/types/domain';
 import { resolveConnectionText, splitAyahConnection } from '@/utils/ayahConnection';
 import { resolveLocalizedEmotionName } from '@/utils/emotionLabel';
+import { useEmotionLocale } from '@/localization/useEmotionsLanguage';
 import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
 import { AyahCard } from './AyahCard';
 import { AyahConnectionAccordion } from './AyahConnectionAccordion';
@@ -61,6 +62,8 @@ export function AyahExperience({ source }: AyahExperienceProps) {
   const styles = useThemedStyles(makeStyles);
   const { locale, messages } = useAppLocale();
   const direction = getDirectionStyle(locale);
+  // The emotion's name and its connection text follow the Emotions Language; everything else the App Language.
+  const { emotionLocale, emotionDirection } = useEmotionLocale();
   const isRtl = isRtlLocale(locale);
   const BackIcon = isRtl ? ArrowRight : ArrowLeft;
   const [ayah, setAyah] = useState<Ayah | null>(null);
@@ -103,8 +106,8 @@ export function AyahExperience({ source }: AyahExperienceProps) {
   // an existing, always-defined string, not a new one invented for this
   // header.
   const headerTitle = useMemo(
-    () => (source.mode === 'emotion' ? resolveLocalizedEmotionName(source.names, locale, source.emotionKey) : messages.appName),
-    [source, locale, messages.appName],
+    () => (source.mode === 'emotion' ? resolveLocalizedEmotionName(source.names, emotionLocale, source.emotionKey) : messages.appName),
+    [source, emotionLocale, messages.appName],
   );
 
   // The recent-history namespace: the emotionKey itself in emotion mode, or
@@ -114,7 +117,7 @@ export function AyahExperience({ source }: AyahExperienceProps) {
   // history is never read or touched by general-mode loads, and vice versa.
   const historyKey = source.mode === 'emotion' ? source.emotionKey : GENERAL_QURAN_HISTORY_KEY;
   // Null (section not rendered) unless this emotion's own mapping has text in the active locale.
-  const connectionText = resolveConnectionText(connection, source.mode === 'emotion' ? source.emotionKey : undefined, locale);
+  const connectionText = resolveConnectionText(connection, source.mode === 'emotion' ? source.emotionKey : undefined, emotionLocale);
 
   const loadAyah = useCallback(async () => {
     if (source.mode === 'emotion' && !source.emotionKey) {
@@ -316,7 +319,7 @@ export function AyahExperience({ source }: AyahExperienceProps) {
             <BackIcon size={22} color={colors.icon} />
           </Pressable>
           <View style={styles.headerText}>
-            <Text style={[styles.emotion, direction]}>{headerTitle}</Text>
+            <Text style={[styles.emotion, source.mode === 'emotion' ? emotionDirection : direction]}>{headerTitle}</Text>
             <Text style={[styles.kicker, direction]}>{messages.ayah.kicker}</Text>
           </View>
         </View>

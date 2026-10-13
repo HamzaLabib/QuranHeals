@@ -55,7 +55,8 @@ describe('saving', () => {
   it('saves a named stop for a whole page — no ayah — under a versioned key', async () => {
     const stops = await saveReadingStop({ name: 'Ramadan', page: 61 }, options);
     expect(READING_STOPS_STORAGE_KEY).toBe('quran-heals:mushaf-reading-stops:v1');
-    expect(stops).toEqual([{ id: 'id-1', name: 'Ramadan', page: 61, updatedAt: '2026-10-11T08:01:00.000Z' }]);
+    // nameUpdatedAt: when its name was set (sync resolves concurrent renames by it).
+    expect(stops).toEqual([{ id: 'id-1', name: 'Ramadan', page: 61, updatedAt: '2026-10-11T08:01:00.000Z', nameUpdatedAt: '2026-10-11T08:01:00.000Z' }]);
     expect(stored()).toEqual(stops);
     expect(await loadReadingStops()).toEqual(stops);
   });
@@ -104,8 +105,9 @@ describe('renaming', () => {
     await saveReadingStop({ name: 'Mum', page: 61 }, options);
     await saveReadingStop({ name: 'Dad', page: 62 }, options);
     const before = await loadReadingStops();
-    const after = await renameReadingStop('id-1', '  Mother ');
-    expect(after).toEqual(before.map((stop) => (stop.id === 'id-1' ? { ...stop, name: 'Mother' } : stop)));
+    const after = await renameReadingStop('id-1', '  Mother ', { now: () => new Date('2026-10-12T09:00:00.000Z') });
+    // Only the name and when it was set; the page and its save time are untouched.
+    expect(after).toEqual(before.map((stop) => (stop.id === 'id-1' ? { ...stop, name: 'Mother', nameUpdatedAt: '2026-10-12T09:00:00.000Z' } : stop)));
     expect(stored()).toEqual(after);
   });
 

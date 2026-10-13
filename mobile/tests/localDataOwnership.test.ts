@@ -115,6 +115,9 @@ import { getAllReflections, saveReflection } from '@/storage/ayahReflections';
 import { GUEST_FAVORITES_KEY, GUEST_REFLECTIONS_KEY, resetLocalDataOwnerForTests } from '@/storage/localDataOwner';
 import { activateLocalDataForAccount } from '@/storage/localDataOwnership';
 import { syncReflections } from '@/sync/reflectionsSync';
+import * as khatmas from '@/mushaf/khatmas';
+
+import { FakeReadingServer } from './helpers/fakeReadingServer';
 
 // ---------------------------------------------------------------------------
 // Fake backend: per-account cloud state and a log of every upload.
@@ -134,6 +137,8 @@ type CloudAccount = {
   deleted: boolean;
 };
 let cloud: Record<string, CloudAccount>;
+/** أورادي وختماتي: the account side of reading sync (same rules as the backend). */
+let readingServer: FakeReadingServer;
 
 function emptyAccount(): CloudAccount {
   return {
@@ -179,6 +184,7 @@ async function fakeBackend(url: string, init?: RequestInit): Promise<Response> {
     return user ? json({ id: user, provider: 'google', createdAt: '2026-01-01T00:00:00.000Z' }) : json(null, 401);
   }
   if (!user) return json(null, 401);
+  if (path === '/api/sync/reading') return readingServer.handle(url, { ...init, headers: { Authorization: `Bearer ${user}` } });
   const account = cloud[user];
 
   if (path === '/api/sync/preferences') return json(method === 'PUT' ? body : null);
@@ -328,6 +334,7 @@ beforeEach(() => {
   env.heldGuestChoice = null;
   frames = [];
   cloud = { A: emptyAccount(), B: emptyAccount() };
+  readingServer = new FakeReadingServer((token) => (token === 'A' || token === 'B' ? token : null));
   resetLocalDataOwnerForTests();
   resetAuthEpochForTests();
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true);
@@ -894,4 +901,59 @@ describe('reading stops (أورادي) and Khatmas follow the same ownership', (
     expect(env.storage.has(READING_STOPS_STORAGE_KEY)).toBe(false);
     expect(await guestDataAwaitsDecision('B')).toBe(false);
   });
+});
+
+describe('أورادي وختماتي sync in the signed-in session', () => {
+  const readingUploads = () => readingServer.log.filter((entry) => entry.method === 'POST');
+  const waitForDebounce = async () => {
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 2_300)); });
+    await settle();
+    for (let round = 0; round < 20; round += 1) await settle();
+  };
+
+  it('signed in: a reading change is uploaded on its own shortly after; several quick saves make one upload', async () => {
+    cloud.A = emptyAccount();
+    await launchApp();
+    await signIn('A');
+    const before = readingUploads().length;
+    await perform(async () => {
+      await khatmas.saveWirdPage({ name: 'Fajr', page: 10 });
+      await khatmas.saveWirdPage({ name: 'Fajr', page: 11 });
+      await khatmas.saveWirdPage({ name: 'Fajr', page: 12 });
+    });
+    expect(readingUploads().length).toBe(before); // not yet: debounced
+    await waitForDebounce();
+    expect(readingUploads().length).toBe(before + 1);
+    expect(readingServer.active('A', 'wird')).toHaveLength(1);
+    expect(readingServer.active('B', 'wird')).toHaveLength(0);
+  }, 20_000);
+
+  it('reflections locked (the Sync Password prompt left open): أورادي وختماتي still sync, with the session alone', async () => {
+    const { ensureReflectionMasterKey } = await import('@/sync/syncKeyManager');
+    // The prompt is shown and never answered: reflections stay locked for this whole test.
+    vi.mocked(ensureReflectionMasterKey).mockImplementationOnce(() => new Promise(() => {}));
+    await launchApp();
+    await act(async () => { void account.signInWithGoogleIdToken('id-A'); });
+    for (let round = 0; round < 20; round += 1) await settle();
+    expect(account.status).toBe('signed-in');
+    await perform(async () => {
+      await khatmas.saveWirdPage({ name: 'Fajr', page: 250 });
+    });
+    await waitForDebounce();
+    expect(readingServer.active('A', 'wird')).toEqual([expect.objectContaining({ data: expect.objectContaining({ name: 'Fajr', page: 250 }) })]);
+    expect(cloud.A.uploadedReflections).toEqual([]);
+  }, 20_000);
+
+  it('a guest: reading changes never reach the network', async () => {
+    await launchApp();
+    expect(account.status).toBe('guest');
+    await perform(async () => {
+      await khatmas.saveWirdPage({ name: 'Fajr', page: 1 });
+      await khatmas.saveWirdPage({ name: 'Fajr', page: 604 });
+      const w = (await khatmas.loadReadingData()).wirds[0];
+      await khatmas.confirmKhatma(w.stop.id, w.cycle.id);
+    });
+    await waitForDebounce();
+    expect(readingServer.log).toEqual([]);
+  }, 20_000);
 });

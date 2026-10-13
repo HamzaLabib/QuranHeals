@@ -20,14 +20,15 @@ From our servers, immediately:
 - your account (sign-in provider, provider account identifier, email address);
 - all sign-in sessions;
 - synced favorites and preferences;
+- synced Recitations (أورادي), their saved pages, and Khatmas;
 - synced reflections (which were end-to-end encrypted) and your encrypted reflection key;
 - for Apple accounts, the stored Apple credential; we also revoke Quran Heals' access to your Apple ID.
 
-On the device you deleted from, that account's reflections and favorites are also removed.
+On the device you deleted from, that account's reflections, favorites, Recitations and Khatmas are also removed.
 
 ## What is not deleted
 
-- **Copies on your other devices.** Other devices you signed in on are signed out but keep any reflections and favorites already stored on them. To remove them, uninstall the app on that device (or clear the app's data).
+- **Copies on your other devices.** Other devices you signed in on are signed out but keep any reflections, favorites, Recitations and Khatmas already stored on them. To remove them, uninstall the app on that device (or clear the app's data).
 - **Data you used without an account** (guest data) on any device. Uninstall the app to remove it.
 - **App settings** on the device (language, appearance, text size).
 - **Issue reports** you sent. They are not linked to your account. To have one deleted, email us (below) with the email address or details you included in it.

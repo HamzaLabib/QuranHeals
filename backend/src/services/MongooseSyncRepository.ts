@@ -13,6 +13,8 @@ import type {
   PutReflectionsResult,
   SyncRepository,
 } from './SyncRepository';
+import { pullReadingRecords, pushReadingChanges } from './MongooseReadingSync';
+import type { ReadingChange, ReadingPullResult, ReadingPushResult } from './readingSync';
 import { withExistingUser } from './withExistingUser';
 
 function toFavoriteDto(doc: { verseKey: string; createdAt?: Date; updatedAt?: Date }): FavoriteDto {
@@ -422,6 +424,7 @@ export class MongooseSyncRepository implements SyncRepository {
       await session.withTransaction(async () => {
         await UserReflectionModel.deleteMany({ userId }).session(session);
         await UserSyncKeyModel.deleteMany({ userId }).session(session);
+        // أورادي وختماتي are account-synced, not under this key: a reset never touches them.
       });
     } finally {
       await session.endSession();
@@ -435,5 +438,13 @@ export class MongooseSyncRepository implements SyncRepository {
 
   async deleteReflectionsNotEncryptedWith(userId: string, keyFingerprint: string): Promise<void> {
     await UserReflectionModel.deleteMany({ userId, deleted: { $ne: true }, keyFingerprint: { $ne: keyFingerprint } });
+  }
+
+  pullReading(userId: string, since: number, limit: number): Promise<ReadingPullResult> {
+    return pullReadingRecords(userId, since, limit);
+  }
+
+  pushReading(userId: string, changes: readonly ReadingChange[]): Promise<ReadingPushResult> {
+    return pushReadingChanges(userId, changes);
   }
 }

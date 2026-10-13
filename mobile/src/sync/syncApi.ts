@@ -3,6 +3,8 @@ import { isStaleSessionToken } from '@/auth/authEpoch';
 import type { ProviderCredential } from '@/auth/reauthentication';
 import { fetchWithTimeout } from '@/services/fetchWithTimeout';
 
+import type { ActiveContent, KhatmaContent, WirdContent } from './readingSyncModel';
+
 export class SyncApiError extends Error {
   constructor(message: string, public readonly statusCode?: number) {
     super(message);
@@ -188,6 +190,47 @@ export function putCloudReflections(sessionToken: string, reflections: Reflectio
     '/api/sync/reflections',
     { method: 'PUT', body: JSON.stringify({ reflections }) },
   );
+}
+
+/**
+ * أورادي وختماتي (sync/readingSync.ts, backend services/readingSync.ts):
+ * account-based like favorites — the signed-in session only, no Sync
+ * Password. `data` is the record's content (readingSyncModel.ts).
+ */
+export type ReadingRecordKind = 'wird' | 'khatma' | 'active';
+export type CloudReadingRecord = {
+  kind: ReadingRecordKind;
+  recordId: string;
+  revision: number;
+  changeSeq: number;
+  deleted: boolean;
+  /** Absent on a deletion marker. Unknown until checked (readingSyncModel.ts's parseContent). */
+  data?: unknown;
+};
+export type ReadingChange =
+  | { kind: 'wird'; recordId: string; action: 'upsert'; baseRevision: number | null; data: WirdContent }
+  | { kind: 'active'; recordId: 'active'; action: 'upsert'; baseRevision: number | null; data: ActiveContent }
+  | { kind: 'khatma'; recordId: string; action: 'upsert'; data: KhatmaContent }
+  | { kind: 'wird' | 'khatma'; recordId: string; action: 'delete' };
+export type ReadingChangeResult = {
+  kind: ReadingRecordKind;
+  recordId: string;
+  status: 'applied' | 'conflict' | 'deleted' | 'duplicate' | 'limit';
+  record?: CloudReadingRecord;
+};
+
+export function getCloudReading(sessionToken: string, since: number, limit: number) {
+  return authedRequest<{ syncId: string | null; records: CloudReadingRecord[]; nextSince: number; hasMore: boolean }>(
+    sessionToken,
+    `/api/sync/reading?since=${encodeURIComponent(String(since))}&limit=${encodeURIComponent(String(limit))}`,
+  );
+}
+
+export function pushCloudReading(sessionToken: string, changes: ReadingChange[]) {
+  return authedRequest<{ syncId: string; results: ReadingChangeResult[] }>(sessionToken, '/api/sync/reading', {
+    method: 'POST',
+    body: JSON.stringify({ changes }),
+  });
 }
 
 export type SyncKeyRecord = {

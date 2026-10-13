@@ -730,10 +730,13 @@ describe('the bar and the ورد pill blend with the page', () => {
       const buttons = root.root.findByProps({ testID: 'mushaf-panel' }).findAllByType('Pressable' as never);
       expect(buttons).toHaveLength(5);
       for (const button of buttons) expect(flat(button.props.style({ pressed: false }))).toMatchObject({ width: 44, height: 44 });
-      for (const key of ['previous', 'search', 'save', 'next']) {
+      for (const key of ['previous', 'search', 'next']) {
         const iconNode = panelButton(key).children[0] as ReactTestInstance;
         expect(iconNode.props.color, key).toBe(icon);
       }
+      // Page 61 is ورد الفجر's saved page: the bookmark is filled with the palette's green.
+      const saved = theme === 'light' ? '#3E6B4B' : '#8EA68A';
+      expect((panelButton('save').children[0] as ReactTestInstance).props).toMatchObject({ color: saved, fill: saved });
       // The ورد pill: its original sage-green style restored (not the bar's colour), same shape and size.
       const pill = root.root.findByProps({ testID: 'mushaf-wird' });
       const own = PILL[theme];
@@ -1052,16 +1055,17 @@ describe('Taller full screen: every page, every build; Normal Mode always Tradit
 });
 
 describe('the floating bar', () => {
-  it('is icon-only, in the fixed order arrow-left · lightbulb · search · bookmark · arrow-right, above the bottom inset', async () => {
+  it('is icon-only, in the fixed order arrow-left · lightbulb · bookmark (centre) · search · arrow-right, above the bottom inset', async () => {
     await render();
     const bar = root.root.findByProps({ testID: 'mushaf-panel' });
     const buttons = bar.findAllByType('Pressable' as never);
     // Right to left: the left arrow is "next page", the right arrow "previous page".
-    expect(buttons.map((node) => node.props.testID)).toEqual(['mushaf-panel-next', 'mushaf-panel-reflect', 'mushaf-panel-search', 'mushaf-panel-save', 'mushaf-panel-previous']);
+    expect(buttons.map((node) => node.props.testID)).toEqual(['mushaf-panel-next', 'mushaf-panel-reflect', 'mushaf-panel-save', 'mushaf-panel-search', 'mushaf-panel-previous']);
+    expect(buttons.findIndex((node) => node.props.testID === 'mushaf-panel-save')).toBe(Math.floor(buttons.length / 2)); // the centre of five
     expect(bar.findAllByType('Text' as never)).toHaveLength(0); // no labels under the icons
-    expect(buttons.map((node) => node.props.accessibilityLabel)).toEqual([copy().nextPage, MESSAGES.en.reflection.writeAction, copy().searchPage, copy().saveStopAction, copy().previousPage]);
+    expect(buttons.map((node) => node.props.accessibilityLabel)).toEqual([copy().nextPage, MESSAGES.en.reflection.writeAction, copy().saveStopAction, copy().searchPage, copy().previousPage]);
     const icons = buttons.map((node) => node.children[0] as ReactTestInstance);
-    expect(icons.map(typeName)).toEqual(['ArrowLeft', 'ReflectionBulbIcon', 'Search', 'Bookmark', 'ArrowRight']);
+    expect(icons.map(typeName)).toEqual(['ArrowLeft', 'ReflectionBulbIcon', 'Bookmark', 'Search', 'ArrowRight']);
     expect(new Set(icons.map((icon) => icon.props.size)).size).toBe(1); // one icon size
     // The bookmark: lucide's plain outline (no plus, check or fill).
     expect(icons[3].props).not.toHaveProperty('fill');
@@ -1382,8 +1386,8 @@ describe('search (one button, two modes)', () => {
     const avoider = root.root.findByType('Modal' as never).findByType('KeyboardAvoidingView' as never);
     expect(avoider.props.behavior).toBe('padding');
     expect(root.root.findAllByProps({ testID: 'mushaf-popup-search' })).toHaveLength(0);
-    // Still exactly five bar buttons, the search one where it was.
-    expect(root.root.findByProps({ testID: 'mushaf-panel' }).findAllByType('Pressable' as never).map((node) => node.props.testID)[2]).toBe('mushaf-panel-search');
+    // Still exactly five bar buttons; search is fourth (the bookmark is in the centre).
+    expect(root.root.findByProps({ testID: 'mushaf-panel' }).findAllByType('Pressable' as never).map((node) => node.props.testID)[3]).toBe('mushaf-panel-search');
   });
 
   it('Page Number: a numeric field; Western or Arabic-Indic digits go straight there and close the sheet', async () => {
@@ -1769,7 +1773,7 @@ describe('languages', () => {
       state.locale = locale;
       await render();
       const labels = root.root.findByProps({ testID: 'mushaf-panel' }).findAllByType('Pressable' as never).map((node) => node.props.accessibilityLabel);
-      expect(labels).toEqual([copy().nextPage, MESSAGES[locale].reflection.writeAction, copy().searchPage, copy().saveStopAction, copy().previousPage]);
+      expect(labels).toEqual([copy().nextPage, MESSAGES[locale].reflection.writeAction, copy().saveStopAction, copy().searchPage, copy().previousPage]);
       expect(labels.every((label) => /[؀-ۿ]/.test(label))).toBe(true);
       expect(texts()).toEqual(expect.arrayContaining(['سورة آل عمران', 'الجزء الثالث', '٦١']));
     });
@@ -2351,5 +2355,181 @@ describe('opening without a page (the Mushaf tab, a first launch)', () => {
     expect(state.offline.readPage).toHaveBeenLastCalledWith(5);
     // Opening never saved or moved anything.
     expect(JSON.parse(state.storage.get(READING_STOPS_STORAGE_KEY)!).map((stop: { page: number }) => stop.page)).toEqual([210, 77]);
+  });
+});
+
+describe('the bookmark shows whether this page is the selected ورد`s saved page', () => {
+  const stop = (id: string, name: string, page: number, day: number) => ({ id, name, page, updatedAt: `2026-10-0${day}T00:00:00.000Z` });
+  const seed = (stops: ReturnType<typeof stop>[], active?: string) => {
+    state.storage.set(READING_STOPS_STORAGE_KEY, JSON.stringify(stops));
+    if (active) state.storage.set(ACTIVE_READING_STOP_STORAGE_KEY, active);
+  };
+  const icon = () => panelButton('save').children[0] as ReactTestInstance;
+  const isSaved = () => icon().props.testID === 'mushaf-bookmark-saved';
+  const toast = () => root.root.findAllByProps({ testID: 'mushaf-saved-toast' }).filter((node) => String(node.type) === 'View');
+  const goToPage = async (page: number) => {
+    await press(panelButton('search'));
+    await act(async () => root.root.findByProps({ testID: 'mushaf-search-page-input' }).props.onChangeText(String(page)));
+    await press(root.root.findByProps({ testID: 'mushaf-search-go' }));
+    await flush();
+  };
+  const saveHere = async (name?: string) => {
+    await press(panelButton('save'));
+    if (name !== undefined) await act(async () => root.root.findByProps({ testID: 'mushaf-popup-save' }).findByType('TextInput' as never).props.onChangeText(name));
+    await press(button(copy().confirmStop));
+    await flush();
+  };
+  const savedStops = () => JSON.parse(state.storage.get(READING_STOPS_STORAGE_KEY) ?? '[]') as { id: string; name: string; page: number }[];
+
+  it('no ورد or no saved page here: the plain outline in the bar`s own colour', async () => {
+    await render();
+    expect(isSaved()).toBe(false);
+    expect(icon().props).toMatchObject({ color: '#596F49', fill: 'none' });
+    expect(panelButton('save').props.accessibilityLabel).toBe(copy().saveStopAction);
+    // A ورد saved on another page, or another ورد saved on this one, is not this page's saved state.
+    await act(async () => root.unmount());
+    seed([stop('fajr', 'ورد الفجر', 100, 2), stop('isha', 'ورد العشاء', 61, 1)], 'fajr');
+    await render();
+    expect(isSaved()).toBe(false);
+  });
+
+  it('save 100 → green; 150 → outline; save 150 → green; back to 100 → outline; 150 → green — one position per ورد', async () => {
+    seed([stop('fajr', 'ورد الفجر', 20, 1)], 'fajr');
+    state.params = { page: '100' };
+    await render();
+    expect(isSaved()).toBe(false);
+    await saveHere();
+    expect(isSaved()).toBe(true);
+    expect(icon().props).toMatchObject({ color: '#3E6B4B', fill: '#3E6B4B' });
+    expect(panelButton('save').props.accessibilityLabel).toBe(`${copy().saveStopAction}, ${copy().stopSaved}`);
+    await goToPage(150);
+    expect(isSaved()).toBe(false);
+    await saveHere();
+    expect(isSaved()).toBe(true);
+    await goToPage(100);
+    expect(isSaved()).toBe(false);
+    await goToPage(150);
+    expect(isSaved()).toBe(true);
+    expect(savedStops()).toEqual([expect.objectContaining({ id: 'fajr', page: 150 })]);
+  });
+
+  it('switching ورد shows that ورد`s own saved page, never another`s', async () => {
+    seed([stop('fajr', 'ورد الفجر', 61, 2), stop('isha', 'ورد العشاء', 300, 1)], 'fajr');
+    await render();
+    expect(isSaved()).toBe(true);
+    await press(root.root.findByProps({ testID: 'mushaf-wird' }));
+    await press(root.root.findAllByProps({ testID: 'mushaf-wird-isha' }).find((node) => String(node.type) === 'Pressable')!);
+    await flush();
+    // ورد العشاء's page (300) opened: its bookmark is saved there…
+    expect(state.offline.readPage).toHaveBeenLastCalledWith(300);
+    expect(isSaved()).toBe(true);
+    // …and on page 61 (ورد الفجر's), it is not ورد العشاء's.
+    await goToPage(61);
+    expect(isSaved()).toBe(false);
+    // Neither ورد moved.
+    expect(savedStops().map((s) => [s.id, s.page]).sort()).toEqual([['fajr', 61], ['isha', 300]]);
+  });
+
+  it('"Saved" appears briefly only after the page is saved on the device — once for repeated saves, never on failure', async () => {
+    const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
+    seed([stop('fajr', 'ورد الفجر', 20, 1)], 'fajr');
+    await render();
+    expect(toast()).toHaveLength(0);
+    // A failed save: the reason in the field, no "Saved", the bookmark unchanged.
+    await press(panelButton('save'));
+    vi.mocked(AsyncStorage.setItem).mockRejectedValueOnce(new Error('disk full'));
+    await press(button(copy().confirmStop));
+    expect(texts()).toContain(copy().stopSaveFailed);
+    expect(toast()).toHaveLength(0);
+    expect(isSaved()).toBe(false);
+    // The retry saves: the field closes and "Saved" shows, without blocking the bar.
+    await press(button(copy().confirmStop));
+    await flush();
+    expect(toast()).toHaveLength(1);
+    expect(toast()[0].props.pointerEvents).toBe('none');
+    expect(texts().filter((text) => text === 'Saved')).toEqual(['Saved']);
+    expect(isSaved()).toBe(true);
+    // Saving the same page again: the same one stop, still one message.
+    await saveHere();
+    expect(savedStops()).toEqual([expect.objectContaining({ id: 'fajr', page: 61 })]);
+    expect(toast()).toHaveLength(1);
+    // An invalid name: no "Saved".
+    await act(async () => root.unmount());
+    await render();
+    await saveHere('   ');
+    expect(toast()).toHaveLength(0);
+    expect(texts()).toContain(copy().stopNameInvalid);
+  });
+
+  it('the message is gone shortly after, and nothing else changes', async () => {
+    const { SAVED_TOAST_MS } = await import('@/components/MushafControlPanel');
+    seed([stop('fajr', 'ورد الفجر', 20, 1)], 'fajr');
+    await render();
+    await saveHere();
+    expect(toast()).toHaveLength(1);
+    await act(async () => { await new Promise((done) => setTimeout(done, SAVED_TOAST_MS + 50)); });
+    expect(toast()).toHaveLength(0);
+    expect(isSaved()).toBe(true);
+  });
+
+  for (const locale of ['ar', 'ar-EG'] as const) {
+    it(`${locale}: "تم الحفظ"`, async () => {
+      state.locale = locale;
+      seed([stop('fajr', 'ورد الفجر', 20, 1)], 'fajr');
+      await render();
+      await saveHere();
+      expect(MESSAGES[locale].mushaf.stopSaved).toBe('تم الحفظ');
+      expect(texts()).toContain('تم الحفظ');
+      // The bar's order is the same in every language.
+      expect(root.root.findByProps({ testID: 'mushaf-panel' }).findAllByType('Pressable' as never).map((node) => node.props.testID))
+        .toEqual(['mushaf-panel-next', 'mushaf-panel-reflect', 'mushaf-panel-save', 'mushaf-panel-search', 'mushaf-panel-previous']);
+    });
+  }
+
+  it('English: exactly "Saved"', () => {
+    expect(MESSAGES.en.mushaf.stopSaved).toBe('Saved');
+  });
+
+  it('dark: the outline in the dark bar`s colour, the saved page filled with the dark palette`s green', async () => {
+    state.theme = 'dark';
+    seed([stop('fajr', 'ورد الفجر', 100, 1)], 'fajr');
+    await render();
+    expect(icon().props).toMatchObject({ color: '#B5C9A9', fill: 'none' });
+    await act(async () => root.unmount());
+    seed([stop('fajr', 'ورد الفجر', 61, 1)], 'fajr');
+    await render();
+    expect(icon().props).toMatchObject({ color: '#8EA68A', fill: '#8EA68A' });
+  });
+
+  it('the guest`s and an account`s أوراد are separate: switching owner shows that owner`s saved page', async () => {
+    const { setLocalDataOwnerState } = await import('@/storage/localDataOwner');
+    seed([stop('fajr', 'ورد الفجر', 61, 1)], 'fajr');
+    state.storage.set(`${READING_STOPS_STORAGE_KEY}:account:user-a`, JSON.stringify([stop('acct', 'Account ورد', 300, 1)]));
+    state.storage.set(`${ACTIVE_READING_STOP_STORAGE_KEY}:account:user-a`, 'acct');
+    await render();
+    expect(isSaved()).toBe(true); // the guest's ورد on 61
+    await act(async () => setLocalDataOwnerState({ activeUserId: 'user-a', keptSeparate: [], resolved: true }));
+    await flush();
+    expect(isSaved()).toBe(false); // the account's ورد is on 300, not 61
+    await act(async () => setLocalDataOwnerState({ activeUserId: null, keptSeparate: [], resolved: true }));
+    await flush();
+    expect(isSaved()).toBe(true);
+  });
+
+  it('page 604: saving still asks to confirm the Khatma (never automatic); once confirmed, the ورد starts again on page 1, so 604 is no longer its saved page', async () => {
+    seed([stop('fajr', 'ورد الفجر', 600, 1)], 'fajr');
+    state.params = { page: '604' };
+    await render();
+    expect(isSaved()).toBe(false);
+    await saveHere();
+    expect(isSaved()).toBe(true);
+    const sheet = root.root.findAllByProps({ testID: 'khatma-reached' }).filter((node) => String(node.type) === 'View');
+    expect(sheet).toHaveLength(1);
+    expect(JSON.parse(state.storage.get('quran-heals:mushaf-khatmas:v1') ?? '{"records":[]}').records).toHaveLength(0);
+    await press(root.root.findAllByProps({ testID: 'khatma-reached-confirm' }).find((node) => String(node.type) === 'Pressable')!);
+    await flush();
+    expect(JSON.parse(state.storage.get('quran-heals:mushaf-khatmas:v1')!).records).toHaveLength(1);
+    expect(savedStops()).toEqual([expect.objectContaining({ id: 'fajr', page: 1 })]);
+    expect(isSaved()).toBe(false);
   });
 });

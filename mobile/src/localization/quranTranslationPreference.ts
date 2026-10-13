@@ -73,6 +73,17 @@ export async function saveQuranTranslationPreference(preference: QuranTranslatio
 }
 
 /**
+ * The individual ayah screen's translation behaviour since the Quran
+ * Translation row left Settings (docs/localization/quran-language.md):
+ * the Arabic ayah alone, with a Show translation / Hide translation
+ * toggle. With no setting left to change it, a stored 'always' or 'off'
+ * would otherwise lock a reader into one state for good ('off': never able
+ * to see the translation). The stored preference itself is kept as it is —
+ * never erased, still synced, and still the Share sheet's starting choice.
+ */
+export const AYAH_SCREEN_TRANSLATION_MODE: TranslationDisplayMode = 'on-demand';
+
+/**
  * Pure decision logic for AyahCard's translation visibility, factored out
  * so it's testable without a React Native renderer (this project's test
  * environment has none — see mobile/tests/*.test.ts's other source-scans).

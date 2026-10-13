@@ -1,8 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { radii, shadows, spacing, type Palette } from '@/constants/theme';
-import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
-import { useAppLocale } from '@/localization/useAppLocale';
+import { useEmotionLocale } from '@/localization/useEmotionsLanguage';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import type { Emotion } from '@/types/domain';
 import { EMOTION_ICON_FALLBACK, EMOTION_ICONS } from '@/utils/emotionIcons';
@@ -16,19 +15,20 @@ type EmotionCardProps = {
 };
 
 export function EmotionCard({ emotion, onPress, compact = false }: EmotionCardProps) {
-  const { locale } = useAppLocale();
+  // Emotion names follow the Emotions Language (لغة المشاعر), not the App Language.
+  const { emotionLocale, emotionDirection, emotionRtl } = useEmotionLocale();
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
   const Icon = EMOTION_ICONS[emotion.icon] ?? EMOTION_ICON_FALLBACK;
   // Only the selected locale's name is ever shown — never English+Arabic
   // together, and never the description (data-ready only, not rendered).
-  const displayName = resolveEmotionDisplayName(emotion, locale);
-  const direction = getDirectionStyle(locale);
+  const displayName = resolveEmotionDisplayName(emotion, emotionLocale);
+  const direction = emotionDirection;
   // The icon+name are stacked in a column, so RTL mirroring means aligning
   // that stack to the end (right) edge instead of the start (left) one —
   // writingDirection alone (already applied to the text below) doesn't
   // reposition sibling layout.
-  const alignEnd = isRtlLocale(locale);
+  const alignEnd = emotionRtl;
 
   return (
     <Pressable

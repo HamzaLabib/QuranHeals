@@ -1,13 +1,17 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { notifyLocalReadingChange } from '@/storage/localChanges';
 import { ownerStorageKey } from '@/storage/localDataOwner';
 
 import { MUSHAF_PAGE_COUNT } from './mushafPage';
 import { classifyRamadan, localCivilDate } from './ramadan';
 import {
+  ACTIVE_READING_STOP_AT_STORAGE_KEY,
   ACTIVE_READING_STOP_STORAGE_KEY,
+  activeReadingStopAtKey,
   activeReadingStopKey,
   defaultId,
+  loadActiveReadingStopChangedAt,
   loadActiveReadingStopId,
   normalizeReadingStopName,
   notifyReadingDataChanged,
@@ -21,8 +25,10 @@ import {
   removeReadingStopUnlocked,
   saveReadingStopUnlocked,
   withReadingLock,
+  writeActiveReadingStop,
   type ReadingStop,
 } from './readingStops';
+import { LEGACY_READING_SYNC_STORAGE_KEY, READING_SYNC_STORAGE_KEY } from './readingSyncKeys';
 
 /**
  * أورادي وختماتي: each reading stop's (ورد's) current reading cycle, and
@@ -53,6 +59,16 @@ import {
  *
  * Writes that touch both the stops and this document (confirm, undo) mark
  * the cycle's `pendingPage` first; a later load finishes an interrupted one.
+ *
+ * Sync (signed-in accounts, account-based: sync/readingSync.ts) needs three more things,
+ * all optional so older data reads unchanged:
+ *  - each cycle's `seq`: its generation, +1 at every confirmation and
+ *    every undo. Two devices' versions of one ورد compare by it, so a
+ *    device that has not seen a confirmation can never revert it.
+ *  - `undoneCycleId`: on a cycle restored by an undo, the cycle the undo
+ *    discarded — another device's progress in that cycle then wins.
+ *  - deletion markers (`deletedStops`, `deletedRecords`), so a deletion
+ *    reaches the account and an older copy can never bring the record back.
  */
 
 export const KHATMAS_STORAGE_KEY = 'quran-heals:mushaf-khatmas:v1';
@@ -71,6 +87,10 @@ export type ReadingCycle = {
   savedSinceStart: boolean;
   /** Set between the two writes of a confirmation or undo: the stop's page to apply. */
   pendingPage?: number;
+  /** Generation: +1 at each confirmation and undo (absent: 0). */
+  seq?: number;
+  /** On a cycle restored by an undo: the cycle the undo discarded. */
+  undoneCycleId?: string;
 };
 
 export type KhatmaRecord = {
@@ -113,7 +133,17 @@ export type ReadingData = {
   stats: KhatmaStats;
 };
 
-type KhatmaDocument = { schema: 1; cycles: Record<string, ReadingCycle>; records: KhatmaRecord[] };
+type KhatmaDocument = {
+  schema: 1;
+  cycles: Record<string, ReadingCycle>;
+  records: KhatmaRecord[];
+  /** Deleted stops and removed Khatma records, by id → when (ISO). */
+  deletedStops: Record<string, string>;
+  deletedRecords: Record<string, string>;
+};
+
+/** Bounds the deletion markers kept on the device (the account keeps its own permanently). */
+const MAX_DELETION_MARKERS = 5000;
 
 export type KhatmaErrorKind = 'not_found' | 'not_eligible' | 'stale';
 export class KhatmaError extends Error {
@@ -141,10 +171,18 @@ function parseCycle(value: unknown): ReadingCycle | null {
     startedByKhatmaId: c.startedByKhatmaId, savedSinceStart: c.savedSinceStart,
   };
   if (isPage(c.pendingPage)) cycle.pendingPage = c.pendingPage;
+  if (typeof c.seq === 'number' && Number.isInteger(c.seq) && c.seq >= 0) cycle.seq = c.seq;
+  if (isText(c.undoneCycleId)) cycle.undoneCycleId = c.undoneCycleId;
   return cycle;
 }
 
-function parseRecord(value: unknown): KhatmaRecord | null {
+function parseDeletionMarkers(value: unknown): Record<string, string> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  const entries = Object.entries(value as Record<string, unknown>).filter((entry): entry is [string, string] => entry[0].length > 0 && entry[0].length <= 128 && isDate(entry[1]));
+  return Object.fromEntries(entries.sort((a, b) => Date.parse(b[1]) - Date.parse(a[1])).slice(0, MAX_DELETION_MARKERS));
+}
+
+export function parseRecord(value: unknown): KhatmaRecord | null {
   if (!value || typeof value !== 'object') return null;
   const r = value as Record<string, unknown>;
   if (!isText(r.id) || !isText(r.stopId) || !isText(r.stopName) || !isText(r.cycleId) || !isDate(r.cycleStartedAt)) return null;
@@ -161,7 +199,7 @@ function parseRecord(value: unknown): KhatmaRecord | null {
 
 /** Malformed entries are dropped; never throws (an unreadable document reads as empty). */
 export function parseKhatmaDocument(raw: unknown): KhatmaDocument {
-  const empty: KhatmaDocument = { schema: 1, cycles: {}, records: [] };
+  const empty: KhatmaDocument = { schema: 1, cycles: {}, records: [], deletedStops: {}, deletedRecords: {} };
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return empty;
   const doc = raw as Record<string, unknown>;
   const cycles: Record<string, ReadingCycle> = {};
@@ -182,7 +220,7 @@ export function parseKhatmaDocument(raw: unknown): KhatmaDocument {
       records.push(record);
     }
   }
-  return { schema: 1, cycles, records };
+  return { schema: 1, cycles, records, deletedStops: parseDeletionMarkers(doc.deletedStops), deletedRecords: parseDeletionMarkers(doc.deletedRecords) };
 }
 
 async function readDocument(owner: string | null): Promise<KhatmaDocument> {
@@ -195,6 +233,8 @@ async function readDocument(owner: string | null): Promise<KhatmaDocument> {
 }
 
 async function writeDocument(owner: string | null, doc: KhatmaDocument): Promise<void> {
+  doc.deletedStops = parseDeletionMarkers(doc.deletedStops);
+  doc.deletedRecords = parseDeletionMarkers(doc.deletedRecords);
   await AsyncStorage.setItem(khatmasKey(owner), JSON.stringify(doc));
 }
 
@@ -209,7 +249,7 @@ async function readStops(owner: string | null): Promise<ReadingStop[]> {
 
 /** A stop with no cycle on record (saved before this feature): its first cycle, with a stable id. */
 function initialCycle(stop: ReadingStop): ReadingCycle {
-  return { id: `first-${stop.id}`, startedAt: stop.updatedAt, lastSavedPage: stop.page, reachedEndAt: null, startedByKhatmaId: null, savedSinceStart: true };
+  return { id: `first-${stop.id}`, startedAt: stop.updatedAt, lastSavedPage: stop.page, reachedEndAt: null, startedByKhatmaId: null, savedSinceStart: true, seq: 0 };
 }
 
 /** Catches a cycle up with its stop's saved page (a save made elsewhere, or by an interrupted write). */
@@ -296,8 +336,8 @@ export function loadReadingData(ownerUserId?: string | null): Promise<ReadingDat
 }
 
 /** A new ورد on `page` (1 by default). A name already in use (any case) is refused: creating never moves another stop. */
-export function createWird(input: { name: string; page?: number }, clock: Clock = {}): Promise<ReadingStop> {
-  return withReadingLock(async () => {
+export async function createWird(input: { name: string; page?: number }, clock: Clock = {}): Promise<ReadingStop> {
+  const created = await withReadingLock(async () => {
     const owner = await readingOwner();
     const name = normalizeReadingStopName(input.name);
     if (!name) throw new ReadingStopError('invalid_name');
@@ -305,12 +345,14 @@ export function createWird(input: { name: string; page?: number }, clock: Clock 
     if (stops.some((stop) => stop.name.toLocaleLowerCase() === name.toLocaleLowerCase())) throw new ReadingStopError('name_taken');
     const page = input.page ?? 1;
     const [created] = await saveReadingStopUnlocked({ name, page }, { ...clock, owner });
-    doc.cycles[created.id] = { id: (clock.newId ?? defaultId)(), startedAt: created.updatedAt, lastSavedPage: page, reachedEndAt: null, startedByKhatmaId: null, savedSinceStart: false };
+    doc.cycles[created.id] = { id: (clock.newId ?? defaultId)(), startedAt: created.updatedAt, lastSavedPage: page, reachedEndAt: null, startedByKhatmaId: null, savedSinceStart: false, seq: 0 };
     await writeDocument(owner, doc);
-    await AsyncStorage.setItem(activeReadingStopKey(owner), created.id);
+    await writeActiveReadingStop(owner, created.id);
     notifyReadingDataChanged();
     return created;
   });
+  notifyLocalReadingChange();
+  return created;
 }
 
 /**
@@ -318,8 +360,8 @@ export function createWird(input: { name: string; page?: number }, clock: Clock 
  * `name` to `page`, and makes it the active one. `reachedEnd` is true only
  * when this save took an existing stop from an earlier page to page 604.
  */
-export function saveWirdPage(input: { name: string; page: number }, clock: Clock = {}): Promise<{ stops: ReadingStop[]; stop: ReadingStop; reachedEnd: boolean; cycleId: string }> {
-  return withReadingLock(async () => {
+export async function saveWirdPage(input: { name: string; page: number }, clock: Clock = {}): Promise<{ stops: ReadingStop[]; stop: ReadingStop; reachedEnd: boolean; cycleId: string }> {
+  const saved = await withReadingLock(async () => {
     const owner = await readingOwner();
     const { stops: before, doc } = await loadRepaired(owner);
     const name = normalizeReadingStopName(input.name);
@@ -328,14 +370,16 @@ export function saveWirdPage(input: { name: string; page: number }, clock: Clock
     const stop = stops[0];
     const cycle = previous
       ? catchUp(doc.cycles[stop.id] ?? initialCycle(previous), stop)
-      : { id: (clock.newId ?? defaultId)(), startedAt: stop.updatedAt, lastSavedPage: stop.page, reachedEndAt: null, startedByKhatmaId: null, savedSinceStart: false };
+      : { id: (clock.newId ?? defaultId)(), startedAt: stop.updatedAt, lastSavedPage: stop.page, reachedEndAt: null, startedByKhatmaId: null, savedSinceStart: false, seq: 0 };
     doc.cycles[stop.id] = cycle;
     await writeDocument(owner, doc);
-    await AsyncStorage.setItem(activeReadingStopKey(owner), stop.id);
+    await writeActiveReadingStop(owner, stop.id);
     notifyReadingDataChanged();
     const reachedEnd = previous !== undefined && previous.page < MUSHAF_PAGE_COUNT && wirdStatus(stop, cycle) === 'pending';
     return { stops, stop, reachedEnd, cycleId: cycle.id };
   });
+  notifyLocalReadingChange();
+  return saved;
 }
 
 /**
@@ -344,8 +388,8 @@ export function saveWirdPage(input: { name: string; page: number }, clock: Clock
  * existing record is returned and nothing changes. `unconfirmedEnd` stops
  * need `acceptUnconfirmedEnd` (the reader's separate, explicit choice).
  */
-export function confirmKhatma(stopId: string, cycleId: string, options: Clock & { acceptUnconfirmedEnd?: boolean } = {}): Promise<{ record: KhatmaRecord; alreadyRecorded: boolean }> {
-  return withReadingLock(async () => {
+export async function confirmKhatma(stopId: string, cycleId: string, options: Clock & { acceptUnconfirmedEnd?: boolean } = {}): Promise<{ record: KhatmaRecord; alreadyRecorded: boolean }> {
+  const confirmed = await withReadingLock(async () => {
     const owner = await readingOwner();
     const { stops, doc } = await loadRepaired(owner);
     const existing = doc.records.find((record) => record.cycleId === cycleId && record.stopId === stopId);
@@ -361,7 +405,7 @@ export function confirmKhatma(stopId: string, cycleId: string, options: Clock & 
     const localDate = localCivilDate(at);
     const ramadan = classifyRamadan(localDate);
     const record: KhatmaRecord = {
-      id: `khatma-${cycle.id}`,
+      id: khatmaRecordId(cycle.id, doc),
       stopId: stop.id,
       stopName: stop.name,
       cycleId: cycle.id,
@@ -372,7 +416,7 @@ export function confirmKhatma(stopId: string, cycleId: string, options: Clock & 
       ramadan: ramadan.ramadan,
       ramadanHijriYear: ramadan.hijriYear,
     };
-    const next: ReadingCycle = { id: (options.newId ?? defaultId)(), startedAt: record.completedAt, lastSavedPage: 1, reachedEndAt: null, startedByKhatmaId: record.id, savedSinceStart: false };
+    const next: ReadingCycle = { id: (options.newId ?? defaultId)(), startedAt: record.completedAt, lastSavedPage: 1, reachedEndAt: null, startedByKhatmaId: record.id, savedSinceStart: false, seq: (cycle.seq ?? 0) + 1 };
     // 1. The record and the new cycle, together; the stop's page is still pending.
     doc.records.push(record);
     doc.cycles[stop.id] = { ...next, pendingPage: 1 };
@@ -384,6 +428,22 @@ export function confirmKhatma(stopId: string, cycleId: string, options: Clock & 
     notifyReadingDataChanged();
     return { record, alreadyRecorded: false };
   });
+  if (!confirmed.alreadyRecorded) notifyLocalReadingChange();
+  return confirmed;
+}
+
+/**
+ * A cycle's Khatma id: `khatma-<cycle id>`, so retries and repeated taps
+ * can never count it twice. If that id was removed (an undone mistaken
+ * confirmation) and the cycle is confirmed again, the next free
+ * `khatma-<cycle id>-<n>`: a removed record is never brought back, here or
+ * on the account. Every device derives the same id from the same history.
+ */
+function khatmaRecordId(cycleId: string, doc: KhatmaDocument): string {
+  const taken = (id: string) => id in doc.deletedRecords || doc.records.some((record) => record.id === id);
+  const base = `khatma-${cycleId}`;
+  if (!taken(base)) return base;
+  for (let n = 2; ; n += 1) if (!taken(`${base}-${n}`)) return `${base}-${n}`;
 }
 
 /**
@@ -392,20 +452,21 @@ export function confirmKhatma(stopId: string, cycleId: string, options: Clock & 
  * the completion pending again ('restored'); otherwise the stop's progress
  * is left as it is ('kept'). Other stops and records are never touched.
  */
-export function removeKhatma(recordId: string): Promise<'restored' | 'kept'> {
-  return withReadingLock(async () => {
+export async function removeKhatma(recordId: string, clock: Pick<Clock, 'now'> = {}): Promise<'restored' | 'kept'> {
+  const outcome = await withReadingLock(async () => {
     const owner = await readingOwner();
     const { stops, doc } = await loadRepaired(owner);
     const record = doc.records.find((r) => r.id === recordId);
     if (!record) throw new KhatmaError('not_found');
     doc.records = doc.records.filter((r) => r.id !== recordId);
+    doc.deletedRecords[recordId] = (clock.now ?? (() => new Date()))().toISOString();
     const stop = stops.find((s) => s.id === record.stopId);
     const cycle = stop ? doc.cycles[stop.id] : undefined;
     const restore = stop !== undefined && cycle !== undefined && cycle.startedByKhatmaId === record.id && !cycle.savedSinceStart && stop.page === 1;
     if (!restore) {
       await writeDocument(owner, doc);
       notifyReadingDataChanged();
-      return 'kept';
+      return 'kept' as const;
     }
     const restored: ReadingCycle = {
       id: record.cycleId,
@@ -414,6 +475,8 @@ export function removeKhatma(recordId: string): Promise<'restored' | 'kept'> {
       reachedEndAt: record.completedAt,
       startedByKhatmaId: record.previousStartedByKhatmaId,
       savedSinceStart: true,
+      seq: (cycle.seq ?? 0) + 1,
+      undoneCycleId: cycle.id,
     };
     doc.cycles[stop.id] = { ...restored, pendingPage: MUSHAF_PAGE_COUNT };
     await writeDocument(owner, doc);
@@ -421,22 +484,25 @@ export function removeKhatma(recordId: string): Promise<'restored' | 'kept'> {
     doc.cycles[stop.id] = restored;
     await writeDocument(owner, doc);
     notifyReadingDataChanged();
-    return 'restored';
+    return 'restored' as const;
   });
+  notifyLocalReadingChange();
+  return outcome;
 }
 
 /** Deletes a ورد and its current cycle. Its completed Khatmas stay in the history and totals. */
-export function deleteWird(stopId: string): Promise<void> {
-  return withReadingLock(async () => {
+export async function deleteWird(stopId: string, clock: Pick<Clock, 'now'> = {}): Promise<void> {
+  await withReadingLock(async () => {
     const owner = await readingOwner();
     const doc = await readDocument(owner);
+    // The marker first: an interrupted deletion is still a deletion, never a lost stop.
+    delete doc.cycles[stopId];
+    doc.deletedStops[stopId] = (clock.now ?? (() => new Date()))().toISOString();
+    await writeDocument(owner, doc);
     await removeReadingStopUnlocked(stopId, owner);
-    if (doc.cycles[stopId]) {
-      delete doc.cycles[stopId];
-      await writeDocument(owner, doc);
-    }
     notifyReadingDataChanged();
   });
+  notifyLocalReadingChange();
 }
 
 // ── Guest data and accounts (storage/localDataOwnership.ts) ─────────────
@@ -468,12 +534,43 @@ function uniqueName(name: string, taken: readonly ReadingStop[]): string {
 }
 
 /**
- * "Add to this account": moves the guest partition's stops, cycles and
- * Khatmas into `userId`'s. Nothing is overwritten: a guest stop whose name
- * the account already uses gets a numbered name; records are kept by id.
- * The guest copies are removed only after the merged data is written, so
- * an interrupted merge repeats safely. Returns false (moving nothing) when
- * the guest data cannot be read.
+ * Gives every ورد a distinct name (names are how a save finds its ورد),
+ * deterministically, so every device that sees the same أوراد renames the
+ * same ones the same way: within a group sharing a name (any case), the
+ * stop with the smallest id keeps it and the others get a numbered one.
+ * Returns the stops (unchanged objects where nothing changed).
+ */
+export function withDistinctNames(stops: readonly ReadingStop[]): ReadingStop[] {
+  const byId = [...stops].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  const kept: ReadingStop[] = [];
+  const renamed = new Map<string, ReadingStop>();
+  for (const stop of byId) {
+    const clash = kept.find((other) => other.name.toLocaleLowerCase() === stop.name.toLocaleLowerCase());
+    if (!clash) {
+      kept.push(stop);
+      continue;
+    }
+    const nameUpdatedAt = [clash.nameUpdatedAt, stop.nameUpdatedAt].filter((at): at is string => !!at).sort().at(-1);
+    const next: ReadingStop = { ...stop, name: uniqueName(stop.name, [...kept, ...byId]) };
+    if (nameUpdatedAt) next.nameUpdatedAt = nameUpdatedAt;
+    kept.push(next);
+    renamed.set(stop.id, next);
+  }
+  return renamed.size === 0 ? [...stops] : stops.map((stop) => renamed.get(stop.id) ?? stop);
+}
+
+/**
+ * "Add to this account": moves the guest partition's stops, cycles,
+ * Khatmas and deletion markers into `userId`'s. Nothing is overwritten:
+ *  - a guest stop whose name the account already uses gets a numbered name;
+ *  - a guest stop whose id the account already uses (not expected: ids are
+ *    random) gets a new id, with its cycle and Khatmas moved along, so it
+ *    is added, never merged into or replacing the account's;
+ *  - records are kept by id, one per cycle.
+ * When signed in, the next sync uploads what was added. The guest copies
+ * are removed only after the merged data is written, so an interrupted
+ * merge repeats safely. Returns false (moving nothing) when the guest data
+ * cannot be read.
  */
 export function adoptGuestReadingData(userId: string): Promise<boolean> {
   return withReadingLock(async () => {
@@ -481,8 +578,15 @@ export function adoptGuestReadingData(userId: string): Promise<boolean> {
     const guestDocRaw = await readStrict(KHATMAS_STORAGE_KEY);
     if (guestStopsRaw === 'unreadable' || guestDocRaw === 'unreadable') return false;
     const guestActive = await AsyncStorage.getItem(ACTIVE_READING_STOP_STORAGE_KEY);
+    const guestActiveAt = await AsyncStorage.getItem(ACTIVE_READING_STOP_AT_STORAGE_KEY);
+    const removeGuest = async () => {
+      await AsyncStorage.removeItem(READING_STOPS_STORAGE_KEY);
+      await AsyncStorage.removeItem(KHATMAS_STORAGE_KEY);
+      await AsyncStorage.removeItem(ACTIVE_READING_STOP_STORAGE_KEY);
+      await AsyncStorage.removeItem(ACTIVE_READING_STOP_AT_STORAGE_KEY);
+    };
     if (guestStopsRaw === null && guestDocRaw === null) {
-      if (guestActive !== null) await AsyncStorage.removeItem(ACTIVE_READING_STOP_STORAGE_KEY);
+      await removeGuest();
       return true;
     }
     const guestStops = parseReadingStops(guestStopsRaw);
@@ -490,33 +594,121 @@ export function adoptGuestReadingData(userId: string): Promise<boolean> {
     const { stops: accountStops, doc: accountDoc } = await loadRepaired(userId);
 
     const merged = [...accountStops];
+    const newIds = new Map<string, string>();
     for (const stop of guestStops) {
-      if (merged.some((s) => s.id === stop.id)) continue;
-      merged.push({ ...stop, name: uniqueName(stop.name, merged) });
-      if (!accountDoc.cycles[stop.id] && guestDoc.cycles[stop.id]) accountDoc.cycles[stop.id] = guestDoc.cycles[stop.id];
+      let id = stop.id;
+      if (merged.some((s) => s.id === id) || id in accountDoc.deletedStops) {
+        id = defaultId();
+        newIds.set(stop.id, id);
+      }
+      merged.push({ ...stop, id, name: uniqueName(stop.name, merged) });
+      const cycle = guestDoc.cycles[stop.id];
+      if (cycle && !accountDoc.cycles[id]) accountDoc.cycles[id] = cycle;
     }
     const ids = new Set(accountDoc.records.map((record) => record.id));
-    for (const record of guestDoc.records) if (!ids.has(record.id)) accountDoc.records.push(record);
+    const cycles = new Set(accountDoc.records.map((record) => record.cycleId));
+    for (const record of guestDoc.records) {
+      if (ids.has(record.id) || cycles.has(record.cycleId) || record.id in accountDoc.deletedRecords) continue;
+      accountDoc.records.push({ ...record, stopId: newIds.get(record.stopId) ?? record.stopId });
+    }
+    // The guest's own removals: so a re-confirmed cycle never takes back a removed id.
+    accountDoc.deletedRecords = { ...guestDoc.deletedRecords, ...accountDoc.deletedRecords };
 
     await persistReadingStops(userId, merged);
     await writeDocument(userId, accountDoc);
-    if ((await AsyncStorage.getItem(activeReadingStopKey(userId))) === null && guestActive && merged.some((s) => s.id === guestActive)) {
-      await AsyncStorage.setItem(activeReadingStopKey(userId), guestActive);
+    const active = guestActive ? (newIds.get(guestActive) ?? guestActive) : null;
+    if ((await AsyncStorage.getItem(activeReadingStopKey(userId))) === null && active && merged.some((s) => s.id === active)) {
+      await writeActiveReadingStop(userId, active, guestActiveAt && !Number.isNaN(Date.parse(guestActiveAt)) ? guestActiveAt : new Date().toISOString());
     }
-    await AsyncStorage.removeItem(READING_STOPS_STORAGE_KEY);
-    await AsyncStorage.removeItem(KHATMAS_STORAGE_KEY);
-    await AsyncStorage.removeItem(ACTIVE_READING_STOP_STORAGE_KEY);
+    await removeGuest();
     notifyReadingDataChanged();
     return true;
   });
 }
 
-/** Account deletion: that account's stops, active stop and Khatmas on this device. Guest data and other accounts are untouched. */
+/** Account deletion: that account's stops, active stop, Khatmas and sync state on this device. Guest data and other accounts are untouched. */
 export function clearAccountReadingData(userId: string): Promise<void> {
   return withReadingLock(async () => {
     await AsyncStorage.removeItem(readingStopsKey(userId));
     await AsyncStorage.removeItem(activeReadingStopKey(userId));
+    await AsyncStorage.removeItem(activeReadingStopAtKey(userId));
     await AsyncStorage.removeItem(khatmasKey(userId));
+    await AsyncStorage.removeItem(ownerStorageKey(READING_SYNC_STORAGE_KEY, userId));
+    await AsyncStorage.removeItem(ownerStorageKey(LEGACY_READING_SYNC_STORAGE_KEY, userId));
     notifyReadingDataChanged();
+  });
+}
+
+// ── Sync (sync/readingSync.ts) ───────────────────────────────────────────
+
+/** One owner's whole reading data, as sync reads and replaces it. */
+export type ReadingSnapshot = {
+  stops: ReadingStop[];
+  cycles: Record<string, ReadingCycle>;
+  records: KhatmaRecord[];
+  deletedStops: Record<string, string>;
+  deletedRecords: Record<string, string>;
+  activeStopId: string | null;
+  activeChangedAt: string | null;
+};
+
+async function readSnapshot(owner: string | null): Promise<ReadingSnapshot> {
+  const { stops, doc } = await loadRepaired(owner);
+  return {
+    stops,
+    cycles: doc.cycles,
+    records: doc.records,
+    deletedStops: doc.deletedStops,
+    deletedRecords: doc.deletedRecords,
+    activeStopId: await loadActiveReadingStopId(owner),
+    activeChangedAt: await loadActiveReadingStopChangedAt(owner),
+  };
+}
+
+/** `owner`'s reading data, repaired, read inside the lock. */
+export function readReadingSnapshot(owner: string | null): Promise<ReadingSnapshot> {
+  return withReadingLock(() => readSnapshot(owner));
+}
+
+/**
+ * Reads `owner`'s data, lets `change` edit the snapshot in place, and
+ * writes it back if `change` returns true — all inside the reading lock,
+ * so no user edit can interleave. Writes like a confirmation: cycles first,
+ * each changed stop's page marked pending (loadRepaired finishes an
+ * interrupted write and never mistakes it for a save to page 604), then
+ * the stops, then the cycles again. Applying downloaded data is not a user
+ * change: it never notifies notifyLocalReadingChange (no upload loop).
+ */
+export function updateReadingSnapshot<T>(owner: string | null, change: (snapshot: ReadingSnapshot) => { changed: boolean; result: T }): Promise<T> {
+  return withReadingLock(async () => {
+    const before = await readSnapshot(owner);
+    const snapshot: ReadingSnapshot = structuredClone(before);
+    const { changed, result } = change(snapshot);
+    if (!changed) return result;
+    // Distinct names first: parsing keeps only the newest stop of each name.
+    const stops = parseReadingStops(withDistinctNames(snapshot.stops));
+    const pageBefore = new Map(before.stops.map((stop) => [stop.id, stop.page]));
+    const doc: KhatmaDocument = {
+      schema: 1,
+      cycles: Object.fromEntries(Object.entries(snapshot.cycles).filter(([id]) => stops.some((stop) => stop.id === id))),
+      records: parseKhatmaDocument({ records: snapshot.records }).records,
+      deletedStops: snapshot.deletedStops,
+      deletedRecords: snapshot.deletedRecords,
+    };
+    const marked = structuredClone(doc);
+    for (const stop of stops) {
+      if (marked.cycles[stop.id] && pageBefore.get(stop.id) !== undefined && pageBefore.get(stop.id) !== stop.page) {
+        marked.cycles[stop.id] = { ...marked.cycles[stop.id], pendingPage: stop.page };
+      }
+    }
+    await writeDocument(owner, marked);
+    await persistReadingStops(owner, stops);
+    await writeDocument(owner, doc);
+    const activeStopId = snapshot.activeStopId && stops.some((stop) => stop.id === snapshot.activeStopId) ? snapshot.activeStopId : null;
+    if (activeStopId !== before.activeStopId || snapshot.activeChangedAt !== before.activeChangedAt) {
+      await writeActiveReadingStop(owner, activeStopId, snapshot.activeChangedAt);
+    }
+    notifyReadingDataChanged();
+    return result;
   });
 }

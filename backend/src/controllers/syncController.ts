@@ -4,6 +4,7 @@ import { verifyFreshProviderReauthentication, type ReauthenticationDeps } from '
 import { AppError } from '../errors/AppError';
 import type { AuthenticatedRequest } from '../middleware/requireAuth';
 import type { SyncRepository } from '../services/SyncRepository';
+import { pullReadingQuerySchema, pushReadingSchema } from '../validators/readingSyncValidators';
 import {
   favoriteVerseKeyParamsSchema,
   putFavoritesSchema,
@@ -92,6 +93,25 @@ export function createSyncController(repository: SyncRepository, reauthenticatio
       }
 
       res.json({ success: true, data: await repository.putReflections(userId(req), parsed.data.reflections) });
+    },
+
+    /** أورادي وختماتي: this account's records changed after `since` (docs/auth-and-sync/reading-sync.md). */
+    getReading: async (req: Request, res: Response) => {
+      const parsed = pullReadingQuerySchema.safeParse(req.query);
+      if (!parsed.success) throw new AppError('Invalid reading sync query.', 400);
+      res.json({ success: true, data: await repository.pullReading(userId(req), parsed.data.since, parsed.data.limit) });
+    },
+
+    /**
+     * أورادي وختماتي: a batch of record changes, for the authenticated
+     * account only. Account-based like favorites: no Sync Password, and
+     * nothing to do with the reflections' key. Its content is never logged
+     * (AppError messages here are fixed strings).
+     */
+    pushReading: async (req: Request, res: Response) => {
+      const parsed = pushReadingSchema.safeParse(req.body);
+      if (!parsed.success) throw new AppError('Invalid reading sync payload.', 400);
+      res.json({ success: true, data: await repository.pushReading(userId(req), parsed.data.changes) });
     },
 
     getSyncKey: async (req: Request, res: Response) => {
