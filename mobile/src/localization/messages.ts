@@ -265,6 +265,8 @@ export type Messages = {
     quranFoundationWork: string;
     kingFahdName: string;
     kingFahdWork: string;
+    amiriName: string;
+    amiriWork: string;
     website: string;
     license: string;
     terms: string;
@@ -679,6 +681,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       quranFoundationWork: 'Mushaf page layout and the QPC V1 page fonts (1405 AH Madinah Mushaf), used under Quran Foundation’s developer terms.',
       kingFahdName: 'King Fahd Glorious Qur’an Printing Complex',
       kingFahdWork: 'Original Mushaf typography and artwork: the 1405 AH Madinah Mushaf. QCF V1 fonts © King Fahd Glorious Qur’an Printing Complex. All rights reserved.',
+      amiriName: 'Amiri Project Authors',
+      amiriWork: 'The Amiri Bold font is used for Surah names, not Quran text. SIL Open Font License 1.1 permits embedding and commercial redistribution with software; the font may not be sold by itself. The required copyright notice and full license are bundled with the app. The decorative frame is original Quran Heals artwork.',
       website: 'Website',
       license: 'Licence',
       terms: 'Terms of use',
@@ -1073,6 +1077,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       quranFoundationWork: 'تخطيط صفحات المصحف وخطوط صفحات QPC V1 (مصحف المدينة ١٤٠٥هـ)، وفق شروط المطوّرين لدى Quran Foundation.',
       kingFahdName: 'مجمع الملك فهد لطباعة المصحف الشريف',
       kingFahdWork: 'الخط الأصلي للمصحف وزخارفه: مصحف المدينة ١٤٠٥هـ. خطوط QCF V1 © مجمع الملك فهد لطباعة المصحف الشريف. جميع الحقوق محفوظة.',
+      amiriName: 'Amiri Project Authors (مؤلفو مشروع Amiri)',
+      amiriWork: 'يُستخدم خط Amiri Bold لكتابة أسماء السور فقط، وليس لنص القرآن. تسمح رخصة SIL OFL 1.1 بتضمين الخط وإعادة توزيعه تجاريًا مع التطبيقات، ولا تسمح ببيع الخط منفردًا. وقد أُرفق إشعار حقوق النشر ونص الرخصة كاملًا مع التطبيق. الإطار الزخرفي تصميم أصلي من Quran Heals.',
       website: 'الموقع',
       license: 'الرخصة',
       terms: 'شروط الاستخدام',
@@ -1481,6 +1487,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       quranFoundationWork: 'تخطيط صفحات المصحف وخطوط صفحات QPC V1 (مصحف المدينة ١٤٠٥هـ)، حسب شروط المطوّرين بتاعة Quran Foundation.',
       kingFahdName: 'مجمع الملك فهد لطباعة المصحف الشريف',
       kingFahdWork: 'الخط الأصلي للمصحف وزخارفه: مصحف المدينة ١٤٠٥هـ. خطوط QCF V1 © مجمع الملك فهد لطباعة المصحف الشريف. جميع الحقوق محفوظة.',
+      amiriName: 'Amiri Project Authors (مؤلفو مشروع Amiri)',
+      amiriWork: 'يُستخدم خط Amiri Bold لأسماء السور، وليس لنص القرآن. تسمح رخصة SIL OFL 1.1 بتضمين الخط وإعادة توزيعه تجاريًا مع التطبيقات، ولا تسمح ببيع الخط منفردًا. وقد أُرفق إشعار حقوق النشر ونص الرخصة كاملًا مع التطبيق. الإطار الزخرفي تصميم أصلي من Quran Heals.',
       website: 'الموقع',
       license: 'الرخصة',
       terms: 'شروط الاستخدام',

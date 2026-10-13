@@ -121,6 +121,12 @@ const QCF_V1_LINE_METRICS_BY_PAGE: Readonly<Record<number, typeof QCF_V1_LINE_ME
   237: { ascent: 2327, descent: 1331, typoDescent: 410, typoLineGap: 0 },
 };
 
+/** Where the layout puts a page's glyph baseline, in font units below its line box's top (its hhea line centred). */
+export function qcfV1IntendedBaselineUnits(page: number): number {
+  const m = QCF_V1_LINE_METRICS_BY_PAGE[page] ?? QCF_V1_LINE_METRICS;
+  return (QCF_V1_LINE_BOX_EM * QCF_V1_METRICS.unitsPerEm - (m.ascent + m.descent)) / 2 + m.ascent;
+}
+
 /**
  * How far below the layout's line the platform draws a page's glyphs, in em (0 where it draws them as laid out).
  *
@@ -144,6 +150,21 @@ export const ANDROID_MATCHES_IPHONE_BASELINE = true;
 /** Android only: how far the Quran rows of `page` move down to match the iPhone, in em (see ANDROID_MATCHES_IPHONE_BASELINE). */
 export function qcfV1AndroidRowShiftEm(page: number, os: string): number {
   return os === 'android' && ANDROID_MATCHES_IPHONE_BASELINE ? qcfV1DrawnLineShiftEm(page, 'ios') : 0;
+}
+
+/**
+ * Surah headings follow the Quran lines (2026-10-12): the heading row's contents (ornament and name) move down by
+ * as much as the platform draws the page's Quran glyphs below the layout (iOS: qcfV1DrawnLineShiftEm; Android: the
+ * rows themselves, qcfV1AndroidRowShiftEm; the web: 0), plus HEADING_CLEARANCE_PITCH of the row. Without it, on the
+ * iPhone and Android the line above a mid-page heading reached 3.0–8.5 pt into the heading row and the ornament, drawn
+ * after it, covered its descenders and medallions (page 293's ayah 111). Checked against every heading's real ink
+ * (mobile/tests/surahHeadingClearance.test.ts).
+ */
+export const HEADING_CLEARANCE_PITCH = 0.045;
+
+/** How far a Surah heading row's contents move down, in pt, for a page at `fontSize` with rows `rowPitch` apart. */
+export function surahHeadingShift(page: number, os: string, fontSize: number, rowPitch: number): number {
+  return (qcfV1DrawnLineShiftEm(page, os) + qcfV1AndroidRowShiftEm(page, os)) * fontSize + HEADING_CLEARANCE_PITCH * rowPitch;
 }
 
 export function qcfV1DrawnLineShiftEm(page: number, os: string): number {

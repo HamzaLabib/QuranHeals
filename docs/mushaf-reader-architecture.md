@@ -141,10 +141,7 @@ The client secret can't go on devices: it's a server credential, and the app tal
     1. Draw numbers with a font inside the shared ornament: Uthmanic Hafs (QF's documented CDN, covered by the font terms), or Amiri. One small font covers all 6,236 ayahs. **Recommended**, after a side-by-side check against page 61's artwork numbers.
     2. Extract all 6,236 number paths from the quran-svg pages at build time (≈ 5 MB): exact artwork, but heavy.
   - **Placement:** the QCF V1 marker glyph has the same box (2, −574 → 2546, 1785) on pages 61, 300 and 604, one per ayah. **Pages 1–2 use a different, smaller marker** (9, −459 → 1916, 1310) and need their own metrics, as their layout differs anyway. A dev script should confirm the box across all 604 fonts once they are downloaded.
-- **Surah headers and basmala lines** (not on page 61): Content Sync has no records for them, and QF documents no header or basmala fonts. Candidates:
-  - extract the header and basmala artwork from the quran-svg pages (King Fahd artwork, as with the medallions);
-  - or use the Tarteel QUL surah-name fonts, whose licence still needs checking.
-  - Ask QF (Q5).
+- **Surah headers and basmala lines** (not on page 61): Content Sync has no records for them, so `surahOpenings.ts` derives their slots from empty lines and ayah order. The Basmala uses QPC V1 glyphs; Surah names use Amiri Bold with an original Quran Heals SVG frame. No publisher calligraphy or unverified QUL font is extracted. See current licensing findings in `mushaf.md`; Quran Foundation question 5 remains useful for any officially licensed matching assets.
 
 ## 5. Questions for Quran Foundation
 

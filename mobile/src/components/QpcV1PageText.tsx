@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View, type GestureResponderEvent, type LayoutChangeEvent, type NativeSyntheticEvent, type TextLayoutEventData } from 'react-native';
 
 import { AyahMarkerOrnament } from '@/components/AyahMarkerOrnament';
+import { SurahHeaderOrnament } from '@/components/SurahHeaderOrnament';
 import { MUSHAF_PAPER } from '@/constants/mushafTheme';
 import { MUSHAF_MARKER_STYLES, type MushafMarkerStyleId } from '@/mushaf/appearance';
 import { cssBaseline, getAyahMarker, markerOverlayBox, QCF_V1_INK_OVERFLOW_EM, QCF_V1_INK_ROOM_V_EM, QCF_V1_LINE_BOX_EM, qcfV1AndroidRowShiftEm, qcfV1DrawnLineShiftEm } from '@/mushaf/ayahMarkers';
@@ -9,6 +10,7 @@ import { textSideInset } from '@/mushaf/pageGeometry';
 import { pressLocation } from '@/mushaf/pressLocation';
 import { ayahAtLineX, lineAtY, selectionSpan, type QpcV1PageLayout, type WordBox } from '@/mushaf/qpcV1Layout';
 import { withSelectionInk } from '@/mushaf/qpcV1Selection';
+import { placeSurahHeading } from '@/mushaf/surahHeadingPlacement';
 import { BASMALA_GLYPHS, isOpeningPage, surahOpeningSlots } from '@/mushaf/surahOpenings';
 import { getSurahName } from '@/services/surahNames';
 
@@ -58,6 +60,10 @@ const OPENING_PAGE_SIZE_PER_WIDTH = 0.0692;
 const WORD_GAP_EM = 0.033;
 /** A Surah heading's name, relative to the Quran text size. */
 const HEADING_SIZE = 0.78;
+/** The Surah heading ornament's width: this share of the frame's inner width (centred; 2 % clear of the rule each side). */
+const HEADING_ORNAMENT_SPAN = 0.96;
+/** The widest heading's ink ("سورة الإخلاص", Amiri Bold, measured 2026-10-12), in em of the heading size. */
+const HEADING_NAME_MAX_EM = 5.27;
 
 /**
  * The page's text in QPC V1: each word is its own glyph in the page's QCF
@@ -80,8 +86,8 @@ const HEADING_SIZE = 0.78;
  *
  * Surah openings: the empty heading and Basmala lines are drawn — the
  * Basmala in QPC V1's own glyphs (page 1's font), the heading as the
- * Surah's name in the running heads' font. The print's ornamental heading
- * frame is not drawn: no licensed source for it yet.
+ * Surah's name in the running heads' font, with an original Quran Heals
+ * ornament confined to the existing empty heading line.
  */
 export function QpcV1PageText({
   layout, width, height, selectedVerseKey, onSelectVerse, accessibilityLabel, accessibilityHint,
@@ -288,7 +294,17 @@ export function QpcV1PageText({
             key={`heading-${slot.line}`}
             testID={`qpc-heading-${slot.line}`}
             pointerEvents="none"
-            style={[styles.line, { justifyContent: 'center', height: rowPitch, top: rowTop(slot.line), width }]}>
+            style={[styles.line, { justifyContent: 'center', height: rowPitch, top: placeSurahHeading({ page: layout.page, line: slot.line, os: Platform.OS, fontSize, rowPitch, rowTop, textWidth: width, textHeight: height }).top, width }]}>
+            {/* Across the frame's inner width (the text area and its side margins), HEADING_ORNAMENT_SPAN of it, centred;
+                the row's full height. The panel opens wider than the widest name (HEADING_NAME_MAX_EM). */}
+            <SurahHeaderOrnament
+              testID={`qpc-header-ornament-${slot.line}`}
+              width={(width + 2 * textSideInset(width)) * HEADING_ORNAMENT_SPAN}
+              height={rowPitch}
+              left={(width - (width + 2 * textSideInset(width)) * HEADING_ORNAMENT_SPAN) / 2}
+              top={0}
+              nameWidth={fontSize * HEADING_SIZE * HEADING_NAME_MAX_EM}
+            />
             <Text
               allowFontScaling={false}
               style={[styles.heading, { color: headingColor ?? ink, fontFamily: headingFontFamily, fontSize: fontSize * HEADING_SIZE, lineHeight: fontSize * HEADING_SIZE * 1.8 }]}>

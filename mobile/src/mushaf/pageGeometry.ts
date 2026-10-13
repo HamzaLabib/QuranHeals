@@ -76,6 +76,12 @@ export function textSideInset(textWidth: number): number {
   return (textWidth / (1 - 2 * g.tile - 2 * g.textInsetX)) * g.textInsetX;
 }
 
+/** The margin between the text area and the frame's inner edge, top and bottom, for a text area `textWidth` wide. */
+export function textVerticalInset(textWidth: number): number {
+  const g = PAGE_GEOMETRY;
+  return (textWidth / (1 - 2 * g.tile - 2 * g.textInsetX)) * g.textInsetY;
+}
+
 /**
  * TEMPORARY visual adjustment (2026-10-12), pending verification on real devices: the whole Quran text area — every
  * line, Surah heading, Basmala, medallion, highlight and tap target (all are inside it), pages 1–2 included — is

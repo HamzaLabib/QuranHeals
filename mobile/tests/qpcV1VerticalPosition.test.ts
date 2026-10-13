@@ -16,7 +16,7 @@ vi.mock('react-native', () => ({
   StyleSheet: { create: (value: unknown) => value, absoluteFill: { position: 'absolute' }, hairlineWidth: 0.5 },
   Pressable: 'Pressable', Text: 'Text', View: 'View',
 }));
-vi.mock('react-native-svg', () => ({ default: 'Svg', Path: 'Path', G: 'G', Defs: 'Defs', Ellipse: 'Ellipse', LinearGradient: 'LinearGradient', Stop: 'Stop' }));
+vi.mock('react-native-svg', () => ({ default: 'Svg', ClipPath: 'ClipPath', Rect: 'Rect', Path: 'Path', Circle: 'Circle', G: 'G', Defs: 'Defs', Ellipse: 'Ellipse', LinearGradient: 'LinearGradient', Stop: 'Stop' }));
 vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem: vi.fn(), setItem: vi.fn(), removeItem: vi.fn() } }));
 
 const { QpcV1PageText } = await import('@/components/QpcV1PageText');
@@ -50,14 +50,17 @@ async function render(layout: Layout, boxMarginEm: number) {
 
 describe('rows on the printed grid, no correction of their own (Normal and Full-Screen)', () => {
   for (const [mode, margin] of [['Normal', QCF_V1_NORMAL_BOX_MARGIN_EM], ['Full-Screen', 0]] as const) {
-    it(`${mode}: every Quran line, Surah heading and Basmala row at its grid position; no baseline probe`, async () => {
+    it(`${mode}: every Quran line and Basmala row at its grid position, the heading row moved by surahHeadingShift; no baseline probe`, async () => {
+      const { surahHeadingShift } = await import('@/mushaf/ayahMarkers');
       const root = await render(page61, margin);
       const pitch = HEIGHT / 15;
       const rows = rowNodes(root);
+      const fontSize = styleOf(root.root.find((n) => n.props.testID === 'qpc-line-1' && typeof n.type === 'string').findAll((n) => String(n.type) === 'Text')[0]).fontSize as number;
       expect(rows.map((row) => row.props.testID)).toEqual(expect.arrayContaining(['qpc-line-1', 'qpc-heading-2', 'qpc-basmala-3']));
       for (const row of rows) {
         const line = Number(String(row.props.testID).split('-').pop());
-        expect(styleOf(row).top, row.props.testID).toBeCloseTo((line - 1) * pitch, 9);
+        const shift = String(row.props.testID).startsWith('qpc-heading-') ? surahHeadingShift(61, 'ios', fontSize, pitch) : 0;
+        expect(styleOf(row).top, row.props.testID).toBeCloseTo((line - 1) * pitch + shift, 9);
         expect(styleOf(row).height, row.props.testID).toBeCloseTo(pitch, 9);
       }
       expect(root.root.findAll((node) => String(node.props.testID ?? '').includes('probe'))).toHaveLength(0);
@@ -83,7 +86,13 @@ describe('rows on the printed grid, no correction of their own (Normal and Full-
   it('pages 1–2 keep their own centred composition (no correction)', async () => {
     const page1 = { ...page61, page: 1, fontFamily: 'QCF_P001', verseKeys: ['1:1'], lines: [{ line: 2, words: [{ verseKey: '1:1', position: 1, kind: 'word', glyph: 'ﭑ' }] }] } as unknown as Layout;
     const root = await render(page1, QCF_V1_NORMAL_BOX_MARGIN_EM);
-    const rows = rowNodes(root).map((row) => styleOf(row) as { top: number; height: number });
+    const { surahHeadingShift } = await import('@/mushaf/ayahMarkers');
+    const fontSize = 315 * 0.0692;
+    // Each row's grid position (a heading row is drawn surahHeadingShift lower than its grid position).
+    const rows = rowNodes(root).map((row) => {
+      const s = styleOf(row) as { top: number; height: number };
+      return String(row.props.testID).startsWith('qpc-heading-') ? { ...s, top: s.top - surahHeadingShift(1, 'ios', fontSize, s.height) } : s;
+    });
     const blockTop = Math.min(...rows.map((row) => row.top));
     const blockBottom = Math.max(...rows.map((row) => row.top + row.height));
     expect((blockTop + blockBottom) / 2).toBeCloseTo(HEIGHT / 2, 6); // the rows' block centred, as before

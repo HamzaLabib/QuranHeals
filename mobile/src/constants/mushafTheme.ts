@@ -81,3 +81,15 @@ export const MUSHAF_PANEL_COLORS = {
     backdrop: 'rgba(0, 0, 0, 0.5)',
   },
 } as const;
+
+/**
+ * Surah heading ornament (approved design "Option A", components/SurahHeaderOrnament.tsx): deep emerald grounds, a
+ * lighter emerald for leaves, warm antique gold and its deep outline. The same in both appearances (the ornament's
+ * central panel opens onto the page's own paper in the dark one).
+ */
+export const SURAH_HEADER_INKS = {
+  emerald: '#2F5E3B',
+  emeraldLight: '#4F7F4E',
+  gold: '#C9A34A',
+  goldDeep: '#93702B',
+} as const;

@@ -18,7 +18,7 @@ vi.mock('react-native', () => ({
   StyleSheet: { create: (value: unknown) => value, absoluteFill: { position: 'absolute' }, hairlineWidth: 0.5 },
   Pressable: 'Pressable', Text: 'Text', View: 'View',
 }));
-vi.mock('react-native-svg', () => ({ default: 'Svg', Path: 'Path', G: 'G', Defs: 'Defs', Ellipse: 'Ellipse', LinearGradient: 'LinearGradient', Stop: 'Stop' }));
+vi.mock('react-native-svg', () => ({ default: 'Svg', ClipPath: 'ClipPath', Rect: 'Rect', Path: 'Path', Circle: 'Circle', G: 'G', Defs: 'Defs', Ellipse: 'Ellipse', LinearGradient: 'LinearGradient', Stop: 'Stop' }));
 vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem: vi.fn(), setItem: vi.fn(), removeItem: vi.fn() } }));
 
 const { QpcV1PageText } = await import('@/components/QpcV1PageText');
@@ -95,7 +95,7 @@ describe('Android: every Quran glyph drawn through an unclipped copy', () => {
 });
 
 describe('Android: the Quran lines where the approved iPhone draws them (ANDROID_MATCHES_IPHONE_BASELINE)', () => {
-  it('Quran and Basmala rows move down by the iPhone`s measured drop; headings stay; copies and in-flow glyphs share one baseline', async () => {
+  it('Quran and Basmala rows move down by the iPhone`s measured drop; headings by surahHeadingShift; copies and in-flow glyphs share one baseline', async () => {
     const { ANDROID_MATCHES_IPHONE_BASELINE, qcfV1AndroidRowShiftEm, qcfV1DrawnLineShiftEm } = await import('@/mushaf/ayahMarkers');
     expect(ANDROID_MATCHES_IPHONE_BASELINE).toBe(true);
     expect(qcfV1AndroidRowShiftEm(61, 'android')).toBeCloseTo(770 / 2048, 9); // = the iPhone's drop (3311 − 2541 units)
@@ -113,7 +113,8 @@ describe('Android: the Quran lines where the approved iPhone draws them (ANDROID
     const fontSize = styleOf(glyph).fontSize as number;
     const pitch = 509 / 15;
     expect(row('qpc-line-1').top).toBeCloseTo(0 + qcfV1DrawnLineShiftEm(61, 'ios') * fontSize, 9);
-    expect(row('qpc-heading-2').top).toBeCloseTo(pitch, 9);
+    const { surahHeadingShift } = await import('@/mushaf/ayahMarkers');
+    expect(row('qpc-heading-2').top).toBeCloseTo(pitch + surahHeadingShift(61, 'android', fontSize, pitch), 9);
     expect(row('qpc-basmala-3').top).toBeCloseTo(2 * pitch + qcfV1DrawnLineShiftEm(1, 'ios') * fontSize, 9);
     // In-flow and copy: the same font, size, line box and content top, so the same baseline (checkPage verifies boxes).
     expect(checkPage(root, QCF_V1_NORMAL_BOX_MARGIN_EM, [], 'parity')).toContain('ﭑ');

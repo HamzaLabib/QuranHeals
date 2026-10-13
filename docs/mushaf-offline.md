@@ -125,7 +125,7 @@ Run `node tools/mushaf/verify-offline-dataset.mjs http://localhost:4000`: it dow
 - **Basmala:** Tanzil's text starts the first ayah of 112 surahs (all but 1 and 9) with the basmala, while the print sets it on its own line. Those 4 words are left out of the count only when the ayah begins exactly with Tanzil's 1:1 basmala, or (95:1, 97:1) with بِّسْمِ, the same word with a shadda after the ب.
 - **Joined words:** the QCF V1 layout counts two Tanzil tokens as one word in 2:181, 8:6 and 13:37 (بَعْدَ مَا) and 37:130 (إِلْ يَاسِينَ). The ayah must contain that exact pair and have exactly one word fewer. All four are in `tools/quran-verification/output/kfgqpc-comparison-report.md`.
 
-## Surah headers and basmala (investigated, not drawn yet)
+## Surah headers and basmala
 
 Content Sync has no records for them; they are **lines with no words**. In the data:
 - All 240 empty lines lie directly before a surah's first ayah: none are anywhere else.
@@ -134,7 +134,7 @@ Content Sync has no records for them; they are **lines with no words**. In the d
 - **Surah 9:** 1 line (no basmala).
 - **Pages 1–2:** the text sits on lines 9–15 and 10–15 (8 and 9 empty lines above): the special opening pages.
 
-What the data does **not** say is which empty line is the header and which the basmala, especially in the 21 split cases. That must come from Quran Foundation (question 5 in `mushaf-reader-architecture.md`) or from checking those pages against a print. The artwork (header frame, basmala) also still needs a licensed source.
+`surahOpenings.ts` resolves the empty lines using page and ayah order and checks the result across all 604 pages: 114 headings and 112 Basmalas, including all 21 split openings. The Basmala uses the verified QPC V1 glyphs from page 1. Each Surah name uses Amiri Bold; a newly authored vector ornament sits behind it inside the existing heading row. Neither adds a line nor moves Quran text. The full SIL OFL 1.1 font notice is shipped with the app; see `mushaf.md` for source and licence findings.
 
 ## Page fonts (phase 2C)
 
@@ -173,11 +173,11 @@ The app's own code ran in Node against the local relay and the real CDN:
 
 ## Phase 2D: open questions and recommendations
 
-1. **Surah headers and basmala.** In all 21 split cases the previous page's last line is empty and the surah's first ayah starts on **line 2** of the new page (line 1 empty):
+1. **Surah headers and basmala.** All 21 split cases are resolved and checked across the complete 604-page snapshot: the prior page carries the heading, and the first empty line on the new page carries the Basmala. The original frame and font licensing are documented in `mushaf.md`.
    - surahs 4 (p. 77), 10 (208), 22 (332), 23 (342), 24 (350), 26 (367), 27 (377), 32 (415), 33 (418), 37 (446), 38 (453), 45 (499), 47 (507), 53 (526), 60 (549), 64 (556), 65 (558), 80 (585), 82 (587), 86 (591), 91 (595).
-   - That fits *header at the foot of the previous page, basmala at the head of the next*, but the data doesn't say it. **Check these 21 pages against a 1405 print** (or Quran Foundation, question 5) before drawing anything.
+   - The heading/Basmala assignment is validated by `tests/mushafAllPages.test.ts` and `tools/mushaf-audit/audit-surah-openings.mts`.
    - In 32 more surahs the two reserved lines are the top two lines of a page.
-   - Artwork for the header frame and basmala still needs a licensed source: candidates are the King Fahd Quran SVG pages, as for the medallions, or Tarteel QUL's fonts once their licence is confirmed.
+   - The frame is original Quran Heals vector artwork; the Basmala remains the verified QPC V1 glyphs. No King Fahd page calligraphy or unverified QUL font is embedded.
 2. **Pages 1 and 2.**
    - Text sits on lines 9–15 and 10–15.
    - Their marker glyph is smaller: box (9, −459) – (1916, 1310), against (2, −574) – (2546, 1785) on every other page sampled. They need their own `QCF_V1_METRICS` entry and a frame layout of their own.

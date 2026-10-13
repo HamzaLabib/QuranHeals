@@ -13,7 +13,7 @@ vi.mock('react-native', () => ({
   StyleSheet: { create: (value: unknown) => value, absoluteFill: { position: 'absolute' }, hairlineWidth: 0.5 },
   Pressable: 'Pressable', Text: 'Text', View: 'View',
 }));
-vi.mock('react-native-svg', () => ({ default: 'Svg', Path: 'Path', G: 'G', Defs: 'Defs', Ellipse: 'Ellipse', LinearGradient: 'LinearGradient', Stop: 'Stop' }));
+vi.mock('react-native-svg', () => ({ default: 'Svg', ClipPath: 'ClipPath', Rect: 'Rect', Path: 'Path', Circle: 'Circle', G: 'G', Defs: 'Defs', Ellipse: 'Ellipse', LinearGradient: 'LinearGradient', Stop: 'Stop' }));
 vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem: vi.fn(), setItem: vi.fn(), removeItem: vi.fn() } }));
 
 /**
@@ -31,6 +31,11 @@ const snapshot = existsSync(dir) ? readdirSync(dir).find((name) => /^records-\d+
 describe.skipIf(!snapshot)('all 604 pages (local Content Sync snapshot)', async () => {
   const { checkAgainstTanzil } = await import('@/mushaf/qpcV1Layout');
   const { surahOpeningSlots } = await import('@/mushaf/surahOpenings');
+  const { getSurahName } = await import('@/services/surahNames');
+  const { placeSurahHeading } = await import('@/mushaf/surahHeadingPlacement');
+  const FIT = 0.985; // QpcV1PageText
+  const headingPageSize = new Map((JSON.parse(readFileSync(new URL('./fixtures/headingNeighbours.json', import.meta.url), 'utf8')) as { page: number; sizePerTextWidth: number }[]).map((h) => [h.page, h.sizePerTextWidth]));
+  const { MUSHAF_TEXT_LIFT_PT, textSideInset, textVerticalInset } = await import('@/mushaf/pageGeometry');
   const db = new DatabaseSync(fileURLToPath(new URL('../assets/quran/quran.sqlite', import.meta.url)), { readOnly: true });
   const verses = db.prepare('SELECT verse_key AS k, arabic_text AS t FROM verses ORDER BY surah, ayah').all() as { k: string; t: string }[];
   const textOf = new Map(verses.map((v) => [v.k, v.t]));
@@ -96,25 +101,59 @@ describe.skipIf(!snapshot)('all 604 pages (local Content Sync snapshot)', async 
         });
         // Regular pages measure their lines first (as on a device); the widest fills the width.
         const measures = renderer.root.findAll((node) => typeof node.props.testID === 'string' && node.props.testID.startsWith('qpc-measure-'));
-        if (measures.length) await act(async () => { for (const m of measures) m.props.onLayout({ nativeEvent: { layout: { width: 400 } } }); });
+        // A page with a Surah heading gets its real letter size (its widest line from the page font, recorded by the
+        // heading-ink generator): the heading is placed by the real ink next to it, at that size.
+        const size = headingPageSize.get(page);
+        const measured = size === undefined ? 400 : (100 * FIT) / size;
+        if (measures.length) await act(async () => { for (const m of measures) m.props.onLayout({ nativeEvent: { layout: { width: measured } } }); });
         const rows = renderer.root.findAll((node) => typeof node.props.testID === 'string' && /^qpc-(line|heading|basmala)-\d+$/.test(node.props.testID) && String(node.type) !== 'Text');
         const lines = rows.filter((r) => r.props.testID.startsWith('qpc-line-'));
         if (lines.length !== layout.lines.length) problems.push(`page ${page}: ${lines.length} of ${layout.lines.length} lines drawn`);
         const headings = rows.filter((r) => r.props.testID.startsWith('qpc-heading-')).length;
         const basmalas = rows.filter((r) => r.props.testID.startsWith('qpc-basmala-')).length;
         if (headings !== slots.filter((x) => x.kind === 'heading').length || basmalas !== slots.filter((x) => x.kind === 'basmala').length) problems.push(`page ${page}: ${headings} headings, ${basmalas} Basmalas drawn`);
-        const tops = rows.map((r) => Math.round(styleOf(r).top * 1000));
-        if (new Set(tops).size !== tops.length) problems.push(`page ${page}: two rows share a line`);
         // Pages 1–2 keep the printed line spacing in every frame (their own composition, centred); others fill the grid.
         const rowPitch = page <= 2 ? Math.min(pitch, printedPitch) : pitch;
+        for (const slot of slots.filter((candidate) => candidate.kind === 'heading')) {
+          const heading = renderer.root.findByProps({ testID: `qpc-heading-${slot.line}` });
+          const ornament = heading.findByType('Svg' as never);
+          const ornamentStyle = styleOf(ornament);
+          const headingText = heading.findAllByType('Text' as never).map((node) => [node.props.children].flat().join('')).join('');
+          if (headingText !== `سورة ${getSurahName(slot.surah).nameArabic}`) problems.push(`page ${page}: wrong heading for Surah ${slot.surah}`);
+          if (ornament.props.pointerEvents !== 'none' || ornament.props.accessible === true) problems.push(`page ${page}: heading ornament is interactive or accessible`);
+          // Option A, full width: 96 % of the frame's inner width (the text area and its side margins), centred, inside
+          // the frame's inner edge; the heading row's own height and place (the row itself is checked below).
+          const side = textSideInset(width);
+          const span = (width + 2 * side) * 0.96;
+          if (Math.abs(ornament.props.width - span) > 1e-6 || Math.abs(ornament.props.height - rowPitch) > 1e-6
+            || Math.abs(ornamentStyle.left - (width - span) / 2) > 1e-6 || ornamentStyle.top !== 0
+            || ornamentStyle.left < -side || ornamentStyle.left + ornament.props.width > width + side) {
+            problems.push(`page ${page}: heading ornament outside its full-width slot or the frame's inner edge`);
+          }
+        }
+        const tops = rows.map((r) => Math.round(styleOf(r).top * 1000));
+        if (new Set(tops).size !== tops.length) problems.push(`page ${page}: two rows share a line`);
         for (const r of rows) {
           const { top, height: h } = styleOf(r);
-          if (top < -0.001 || top + h > height + 0.001 || Math.abs(h - rowPitch) > 0.001) problems.push(`page ${page}: ${r.props.testID} outside the page (top ${top.toFixed(1)})`);
+          if (Math.abs(h - rowPitch) > 0.001) problems.push(`page ${page}: ${r.props.testID} is not one row tall`);
+          if (String(r.props.testID).startsWith('qpc-heading-')) {
+            // A Surah heading is placed by its neighbouring ink (surahHeadingPlacement.ts): it may reach past the text
+            // area (a page's last line), but its ornament and name must stay inside the frame's inner edge, 0.5 pt clear.
+            const inset = textVerticalInset(width);
+            if (top < -(inset - MUSHAF_TEXT_LIFT_PT) + 0.5 - 0.001 || top + h > height + inset + MUSHAF_TEXT_LIFT_PT - 0.5 + 0.001) problems.push(`page ${page}: ${r.props.testID} outside the frame's inner edge (top ${top.toFixed(1)})`);
+          } else if (top < -0.001 || top + h > height + 0.001) problems.push(`page ${page}: ${r.props.testID} outside the page (top ${top.toFixed(1)})`); // Quran and Basmala rows: inside the text area
         }
-        // Regular pages: 15 rows exactly one pitch apart (uniform baselines: every glyph box is centred in its row).
+        // Regular pages: every Quran line and Basmala row exactly on its grid row (uniform baselines: every glyph box
+        // centred in its row); each Surah heading where its neighbouring ink places it (surahHeadingPlacement.ts).
         if (page > 2) {
-          const sorted = rows.map((r) => styleOf(r).top).sort((a, b) => a - b);
-          if (sorted.some((top, i) => i > 0 && Math.abs(top - sorted[i - 1] - pitch) > 0.001)) problems.push(`page ${page}: uneven line spacing`);
+          for (const r of rows) {
+            const line = Number(String(r.props.testID).split('-').pop());
+            const top = styleOf(r).top as number;
+            const expected = String(r.props.testID).startsWith('qpc-heading-')
+              ? placeSurahHeading({ page, line, os: 'ios', fontSize: styleOf(lines[0].findAll((n) => String(n.type) === 'Text')[0]).fontSize as number, rowPitch: pitch, rowTop: (l) => (l - 1) * pitch, textWidth: width, textHeight: height }).top
+              : (line - 1) * pitch;
+            if (Math.abs(top - expected) > 0.001) problems.push(`page ${page}: ${r.props.testID} off its place (uneven line spacing)`);
+          }
         }
         // Every glyph (words, ayah separators, marks) has the full QPC V1 glyph box: nothing can be clipped by its Text.
         for (const line of lines) {
@@ -158,9 +197,12 @@ describe.skipIf(!snapshot)('all 604 pages (local Content Sync snapshot)', async 
         if (page <= 2) {
           const size = styleOf(lines[0].findAllByType('Text' as never)[0]).fontSize;
           if (Math.abs(size - width * 0.0692) > 0.01) problems.push(`page ${page}: letter size ${size}`);
-          const all = rows.map((r) => styleOf(r).top);
-          const above = Math.min(...all);
-          const below = height - (Math.max(...all) + rowPitch);
+          // The block (heading, Basmala, lines) centred: from the line rows' grid, with the heading's grid row.
+          const firstLine = lines[0];
+          const blockTop = (styleOf(firstLine).top as number) - (Number(String(firstLine.props.testID).split('-').pop()) - 1) * rowPitch;
+          const used = [...layout.lines.map((l) => l.line), ...slots.map((x) => x.line)];
+          const above = blockTop + (Math.min(...used) - 1) * rowPitch;
+          const below = height - (blockTop + Math.max(...used) * rowPitch);
           if (Math.abs(above - below) > 0.01) problems.push(`page ${page}: block not centred (${above.toFixed(1)} above, ${below.toFixed(1)} below)`);
         }
         await act(async () => renderer.unmount());

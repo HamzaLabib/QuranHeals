@@ -7,10 +7,11 @@ vi.mock('react-native', () => ({
   StyleSheet: { create: (value: unknown) => value, absoluteFill: { position: 'absolute' }, hairlineWidth: 0.5 },
   Pressable: 'Pressable', Text: 'Text', View: 'View',
 }));
-vi.mock('react-native-svg', () => ({ default: 'Svg', Path: 'Path', G: 'G', Defs: 'Defs', Ellipse: 'Ellipse', LinearGradient: 'LinearGradient', Stop: 'Stop' }));
+vi.mock('react-native-svg', () => ({ default: 'Svg', ClipPath: 'ClipPath', Rect: 'Rect', Path: 'Path', Circle: 'Circle', G: 'G', Defs: 'Defs', Ellipse: 'Ellipse', LinearGradient: 'LinearGradient', Stop: 'Stop' }));
 
 const { surahOpeningSlots, BASMALA_GLYPHS, isOpeningPage } = await import('@/mushaf/surahOpenings');
 const { QpcV1PageText } = await import('@/components/QpcV1PageText');
+const { surahHeadingShift } = await import('@/mushaf/ayahMarkers');
 
 /**
  * Surah headings and Basmalas (the empty lines of a Surah's opening), and the
@@ -76,12 +77,23 @@ describe('drawing them', () => {
     const size = styleOf(root.root.findByProps({ testID: 'qpc-line-10' }).findAllByType('Text' as never)[0]).fontSize;
     expect(size).toBeCloseTo(300 * 0.0692); // the regular pages' size, not 1.5× it
     expect(row(10).justifyContent).toBe('center');
-    // Block: heading (8), Basmala (9), lines 10–15 — 8 rows, centred: 3.5 rows of space above and below.
-    expect(styleOf(root.root.findByProps({ testID: 'qpc-heading-8' })).top).toBeCloseTo(3.5 * pitch);
+    // Block: heading (8), Basmala (9), lines 10–15 — 8 rows, centred: 3.5 rows of space above and below; the heading
+    // row drawn surahHeadingShift lower (it follows the lines as the platform draws them).
+    expect(styleOf(root.root.findByProps({ testID: 'qpc-heading-8' })).top).toBeCloseTo(3.5 * pitch + surahHeadingShift(2, 'ios', size, pitch));
     expect(row(15).top + pitch).toBeCloseTo(450 - 3.5 * pitch);
     // Even spacing kept: consecutive rows one pitch apart.
     expect(row(11).top - row(10).top).toBeCloseTo(pitch);
     expect(textOf(root.root.findByProps({ testID: 'qpc-heading-8' }))).toEqual(['سورة البقرة']);
+    const ornament = root.root.findByProps({ testID: 'qpc-heading-8' }).findByType('Svg' as never);
+    expect(ornament.props.pointerEvents).toBe('none');
+    // Option A, drawn for its box (no aspect-ratio fitting): 96 % of the frame's inner width, centred, the row's height.
+    const { textSideInset } = await import('@/mushaf/pageGeometry');
+    const span = (300 + 2 * textSideInset(300)) * 0.96;
+    expect(ornament.props.preserveAspectRatio).toBeUndefined();
+    expect(ornament.props.width).toBeCloseTo(span, 9);
+    expect(ornament.props.height).toBeCloseTo(pitch, 9);
+    expect(styleOf(ornament)).toMatchObject({ position: 'absolute', top: 0 });
+    expect(styleOf(ornament).left).toBeCloseTo((300 - span) / 2, 9);
     const basmala = root.root.findByProps({ testID: 'qpc-basmala-9' });
     expect(basmala.findAllByType('Text' as never).map((t) => t.props.children)).toEqual([...BASMALA_GLYPHS]);
     expect(styleOf(basmala.findAllByType('Text' as never)[0])).toMatchObject({ fontFamily: 'QCF_P001', fontSize: size });
@@ -94,7 +106,10 @@ describe('drawing them', () => {
     await act(async () => { for (const l of lines) root.root.findByProps({ testID: `qpc-measure-${l.line}` }).props.onLayout({ nativeEvent: { layout: { width: 400 } } }); });
     const pitch = 450 / 15;
     expect(styleOf(root.root.findByProps({ testID: 'qpc-line-8' }))).toMatchObject({ top: 7 * pitch, justifyContent: 'space-between' });
-    expect(styleOf(root.root.findByProps({ testID: 'qpc-heading-6' })).top).toBeCloseTo(5 * pitch);
+    // The heading is placed by its neighbouring ink (surahHeadingPlacement.ts), at this page's letter size.
+    const { placeSurahHeading } = await import('@/mushaf/surahHeadingPlacement');
+    const placed = placeSurahHeading({ page: 106, line: 6, os: 'ios', fontSize: (100 * 300 * 0.985) / 400, rowPitch: pitch, rowTop: (l) => (l - 1) * pitch, textWidth: 300, textHeight: 450 });
+    expect(styleOf(root.root.findByProps({ testID: 'qpc-heading-6' })).top).toBeCloseTo(placed.top);
     expect(styleOf(root.root.findByProps({ testID: 'qpc-basmala-7' })).top).toBeCloseTo(6 * pitch);
     expect(textOf(root.root.findByProps({ testID: 'qpc-heading-6' }))).toEqual(['سورة المائدة']);
   });

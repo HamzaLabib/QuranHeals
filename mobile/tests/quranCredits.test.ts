@@ -55,7 +55,7 @@ afterEach(async () => {
 });
 
 describe('Quran Sources & Credits page', () => {
-  it('credits Tanzil, Quran Foundation and the King Fahd Complex, each for its own work', async () => {
+  it('credits Quran text, layout, artwork and the licensed running-head font separately', async () => {
     await act(async () => { root = create(createElement(CreditsScreen)); });
     const shown = texts().join('\n');
     const copy = MESSAGES.en.credits;
@@ -67,7 +67,9 @@ describe('Quran Sources & Credits page', () => {
     expect(shown).toMatch(/QPC V1/);
     expect(shown).toMatch(/King Fahd Glorious Qur’an Printing Complex/);
     expect(shown).toMatch(/typography and artwork/);
-    for (const key of ['tanzilWork', 'quranFoundationWork', 'kingFahdWork'] as const) expect(texts()).toContain(copy[key]);
+    expect(shown).toMatch(/Amiri Project Authors/);
+    expect(shown).toMatch(/SIL Open Font License 1\.1/);
+    for (const key of ['tanzilWork', 'quranFoundationWork', 'kingFahdWork', 'amiriWork'] as const) expect(texts()).toContain(copy[key]);
   });
 
   it('links to the official sites and terms, as accessible links that open in the browser', async () => {
@@ -79,6 +81,8 @@ describe('Quran Sources & Credits page', () => {
       'https://quran.foundation/',
       'https://api-docs.quran.foundation/legal/developer-terms/',
       'https://qurancomplex.gov.sa/',
+      'https://github.com/aliftype/amiri',
+      'https://openfontlicense.org/',
     ]);
     expect(links()).toHaveLength(urls.length);
     for (const link of links()) {
@@ -87,6 +91,14 @@ describe('Quran Sources & Credits page', () => {
     }
     await act(async () => links()[0].props.onPress());
     expect(state.openURL).toHaveBeenCalledWith('https://tanzil.net/');
+  });
+
+  it('ships the exact Amiri font copyright and SIL OFL notice with the app assets', () => {
+    const shipped = readFileSync(resolve(__dirname, '../assets/licenses/OFL-Amiri.txt'), 'utf8');
+    const upstream = readFileSync(resolve(__dirname, '../node_modules/@expo-google-fonts/amiri/LICENSE_FONT'), 'utf8');
+    expect(shipped).toBe(upstream);
+    expect(shipped).toContain('Copyright 2010-2022 The Amiri Project Authors');
+    expect(shipped).toContain('SIL OPEN FONT LICENSE Version 1.1');
   });
 
   it('Back returns to the previous screen, or Home when opened directly', async () => {

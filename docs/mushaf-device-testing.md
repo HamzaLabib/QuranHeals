@@ -173,5 +173,41 @@ These have only run in a browser with emulated safe areas (`mushaf-final-ui-scre
 | R28 | Android: resolve mathematical frame contacts on native pixels | On a 432×960 device near 3.333×, inspect Normal Mode pages 5, 26, 65, 142, 202, 381, 459, 467, 550, 553, 556 and 560, especially the last line against the lower rule; page 560 is the worst modeled case. Repeat pages 65, 550 and 556 on the smallest device (about 320×640 at 1.5–2×), including page 556's left edge. Check both navigation modes, Light/Dark and Full-Screen; compare the same pages with the approved iPhone appearance. Save native-resolution screenshots. | Record whether Quran ink actually merges with or crosses the decorative rule, versus remaining visibly separate after native rasterization. The model predicts geometric bottom overlap on pages 5, 26, 142, 202, 381, 459, 467, 553, 556 and 560; pages 65 and 550 are within the one-pixel guard but geometrically clear. Page 556's left edge is geometrically clear by about 0.31 pt and is a rounding-risk check. Any visible overlap is an open issue; do not hide it with an unreviewed offset. |
 | R29 | Android: RTL neighboring-line ink | In Normal Mode, inspect page 98 lines 2–3, page 213 lines 9–10, and page 341 lines 7–8 at native resolution. Repeat in Full-Screen on a phone that grows beyond 29 tiles. | The two lines' letters and marks remain visually distinct. The outline model finds only three tiny Traditional-layout intersections (11, 1 and 41 pixels at 2048 pixels per em) and none from 30 through 35 tiles; record any visible merge without changing the approved line spacing. |
 | R19 | Taller on every page | Full screen on pages 1, 2, 50, 61, 106, 187, 322, 466 and 604, on an iPhone, a small Android and a tall Android | Taller where it fits (iPhone 393: 33 tiles), never more than 35 tiles; small phones fall back to Traditional; the whole page and border always visible; letter size as in Normal Mode. |
-| R18 | Pages 1–2 and Surah openings (offline Mushaf installed) | Open pages 1, 2, 50, 106, 187 and 604 | Pages 1–2: the letters are the same size as on other pages, each line is centred, and the block sits in the middle of the frame. Every opening shows the Surah's name on its heading line and the Basmala on its own line (none before At-Tawbah on page 187). Each page opens; none says "This page can't be shown". |
+| R18 | Pages 1–2 and Surah openings (offline Mushaf installed) | Open pages 1, 2, 50, 106, 187 and 604 in Normal and Full-Screen, Light and Dark. Check the new frame at native resolution on narrow and wide phones. | Pages 1–2: the letters are the same size as on other pages, each line is centred, and the block sits in the middle of the frame. Every opening shows the correct centred Surah name with its symmetrical Quran Heals ornament wholly within the existing heading row; it does not collide with the name, Basmala, Quran text or page border. The frame remains legible at both widths and follows the Mushaf ink colour. The Basmala stays on its own line (none before At-Tawbah on page 187). Each page opens; none says "This page can't be shown". |
 | R12 | Credits | Home → *Quran Sources & Credits* → each link | The page lists Tanzil, Quran Foundation and the King Fahd Complex; each link opens in the browser. Check qurancomplex.gov.sa opens from your region. |
+
+
+## Android native verification (final stage, after the geometry audits of 2026-10-12)
+
+Nothing below has run on Android yet: the audits are geometry and source reading. Use an Android 15+ emulator or phone, with a development build (no OTA). Restart Metro with `npx expo start -c` first. For each item, record PASS / FAIL with a screenshot.
+
+**Devices.** At least one small (360 dp wide or less, three-button navigation) and one Pixel-size (412 dp, gesture). If you can: the largest available (432 dp+), a cutout phone, and Display size / Font size set to their largest.
+
+**1. Glyphs and tashkeel, Normal and Full-Screen, Light and Dark**
+
+| Page | Check |
+|---|---|
+| 465 | تَقُولَ (39:57): the ت's dots and tooth complete (the original iPhone defect) |
+| 11 | 2:70 line 2: the waqf sign far left of its word, whole (the tightest drawing room) |
+| 343 | 23:24 line 8: rightmost ink whole |
+| 322, 323 | line 15: the highest marks whole |
+| 466 | line 7, 39:71: the lowest descender whole |
+| 1, 2 | the opening pages, every mark |
+| 237 | the one page font with different metrics |
+
+**2. Position, against the iPhone screenshots of the same page**
+- Pages 5, 61 and 466: the lines sit at the same distance from the frame's rules as on the iPhone (same top gap, same bottom gap).
+- Pages 553 and 560 on the widest phone: the last line's descenders reach the inner rule as on the iPhone (expected; see `docs/mushaf.md`). If they look worse than on the iPhone, record by how much.
+- Page 556: the small mark at line 3's left end clear of the rule.
+- Headings and Basmala (pages 50, 106, 560): in their slots; the Basmala aligned with the lines' baseline.
+
+**3. Medallions.** Each sits on its line, centred on the font's ring. Compare their height with the iPhone's (Android places them exactly on the ring; the iPhone about 0.2 em higher).
+
+**4. Selection and taps**
+- Page 5: 2:25 (lines 1–4), 2:26, and 2:29 (from the last word of line 13). Page 61: 3:84, 3:85.
+- Tap high and low on words, and on medallions. The green band sits on the words, covers each end word's ink and waqf sign, and never covers the next ayah.
+
+**5. Behaviour**
+- Turning pages, zoom, Normal ⇄ Full-Screen, and rotation locked: no glyph flickers or shifts after it first appears.
+- TalkBack reads the page, not the hidden copies.
+- Changing Font size / Display size does not change the Quran page.

@@ -63,7 +63,7 @@ vi.mock('react-native', async () => {
     Pressable: 'Pressable', ScrollView: 'ScrollView', Text: 'Text', TextInput: 'TextInput', View: 'View',
   };
 });
-vi.mock('react-native-svg', () => ({ default: 'Svg', Path: 'Path', SvgXml: 'SvgXml', Defs: 'Defs', Ellipse: 'Ellipse', G: 'G', LinearGradient: 'LinearGradient', Stop: 'Stop' }));
+vi.mock('react-native-svg', () => ({ default: 'Svg', ClipPath: 'ClipPath', Rect: 'Rect', Path: 'Path', Circle: 'Circle', SvgXml: 'SvgXml', Defs: 'Defs', Ellipse: 'Ellipse', G: 'G', LinearGradient: 'LinearGradient', Stop: 'Stop' }));
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView', useSafeAreaInsets: () => state.insets }));
 vi.mock('lucide-react-native', () => ({
   ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', Bookmark: 'Bookmark', Check: 'Check', ChevronDown: 'ChevronDown', Maximize: 'Maximize', Minimize: 'Minimize', Plus: 'Plus', Search: 'Search', X: 'X',

@@ -1,0 +1,2570 @@
+[
+{
+"page": 1,
+"line": 8,
+"surah": 1,
+"opening": true,
+"sizePerTextWidth": 0.0692,
+"usedLines": [
+8,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "line",
+"highUnits": 1398,
+"medallionTopUnits": 1398
+}
+},
+{
+"page": 2,
+"line": 8,
+"surah": 2,
+"opening": true,
+"sizePerTextWidth": 0.0692,
+"usedLines": [
+8,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 50,
+"line": 1,
+"surah": 3,
+"opening": false,
+"sizePerTextWidth": 0.069142,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 76,
+"line": 15,
+"surah": 4,
+"opening": false,
+"sizePerTextWidth": 0.069945,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -757
+},
+"below": {
+"kind": "none"
+}
+},
+{
+"page": 106,
+"line": 6,
+"surah": 5,
+"opening": false,
+"sizePerTextWidth": 0.068993,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -818
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 128,
+"line": 1,
+"surah": 6,
+"opening": false,
+"sizePerTextWidth": 0.069715,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 151,
+"line": 1,
+"surah": 7,
+"opening": false,
+"sizePerTextWidth": 0.069566,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 177,
+"line": 1,
+"surah": 8,
+"opening": false,
+"sizePerTextWidth": 0.069073,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 187,
+"line": 1,
+"surah": 9,
+"opening": false,
+"sizePerTextWidth": 0.068948,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "line",
+"highUnits": 1949,
+"medallionTopUnits": 1903
+}
+},
+{
+"page": 207,
+"line": 15,
+"surah": 10,
+"opening": false,
+"sizePerTextWidth": 0.069605,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -692
+},
+"below": {
+"kind": "none"
+}
+},
+{
+"page": 221,
+"line": 7,
+"surah": 11,
+"opening": false,
+"sizePerTextWidth": 0.06909,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -765
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 235,
+"line": 9,
+"surah": 12,
+"opening": false,
+"sizePerTextWidth": 0.06781,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -829
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 249,
+"line": 1,
+"surah": 13,
+"opening": false,
+"sizePerTextWidth": 0.068327,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 255,
+"line": 3,
+"surah": 14,
+"opening": false,
+"sizePerTextWidth": 0.068179,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -755
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 262,
+"line": 1,
+"surah": 15,
+"opening": false,
+"sizePerTextWidth": 0.067787,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 267,
+"line": 7,
+"surah": 16,
+"opening": false,
+"sizePerTextWidth": 0.067963,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -710
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 282,
+"line": 1,
+"surah": 17,
+"opening": false,
+"sizePerTextWidth": 0.068429,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 293,
+"line": 10,
+"surah": 18,
+"opening": false,
+"sizePerTextWidth": 0.067377,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -847
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 305,
+"line": 1,
+"surah": 19,
+"opening": false,
+"sizePerTextWidth": 0.070899,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 312,
+"line": 5,
+"surah": 20,
+"opening": false,
+"sizePerTextWidth": 0.069061,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -995
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 322,
+"line": 1,
+"surah": 21,
+"opening": false,
+"sizePerTextWidth": 0.069785,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 331,
+"line": 15,
+"surah": 22,
+"opening": false,
+"sizePerTextWidth": 0.070044,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -736
+},
+"below": {
+"kind": "none"
+}
+},
+{
+"page": 341,
+"line": 15,
+"surah": 23,
+"opening": false,
+"sizePerTextWidth": 0.069225,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -878
+},
+"below": {
+"kind": "none"
+}
+},
+{
+"page": 349,
+"line": 15,
+"surah": 24,
+"opening": false,
+"sizePerTextWidth": 0.06756,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -788
+},
+"below": {
+"kind": "none"
+}
+},
+{
+"page": 359,
+"line": 11,
+"surah": 25,
+"opening": false,
+"sizePerTextWidth": 0.06895,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -906
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 366,
+"line": 15,
+"surah": 26,
+"opening": false,
+"sizePerTextWidth": 0.070411,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -864
+},
+"below": {
+"kind": "none"
+}
+},
+{
+"page": 376,
+"line": 15,
+"surah": 27,
+"opening": false,
+"sizePerTextWidth": 0.067615,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -715
+},
+"below": {
+"kind": "none"
+}
+},
+{
+"page": 385,
+"line": 8,
+"surah": 28,
+"opening": false,
+"sizePerTextWidth": 0.069454,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -909
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 396,
+"line": 8,
+"surah": 29,
+"opening": false,
+"sizePerTextWidth": 0.070176,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -693
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 404,
+"line": 10,
+"surah": 30,
+"opening": false,
+"sizePerTextWidth": 0.06817,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -997
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 411,
+"line": 1,
+"surah": 31,
+"opening": false,
+"sizePerTextWidth": 0.068438,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 414,
+"line": 15,
+"surah": 32,
+"opening": false,
+"sizePerTextWidth": 0.069423,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -808
+},
+"below": {
+"kind": "none"
+}
+},
+{
+"page": 417,
+"line": 15,
+"surah": 33,
+"opening": false,
+"sizePerTextWidth": 0.068408,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -964
+},
+"below": {
+"kind": "none"
+}
+},
+{
+"page": 428,
+"line": 1,
+"surah": 34,
+"opening": false,
+"sizePerTextWidth": 0.069812,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 434,
+"line": 8,
+"surah": 35,
+"opening": false,
+"sizePerTextWidth": 0.068283,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -990
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 440,
+"line": 4,
+"surah": 36,
+"opening": false,
+"sizePerTextWidth": 0.067572,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -833
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 445,
+"line": 15,
+"surah": 37,
+"opening": false,
+"sizePerTextWidth": 0.069751,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -747
+},
+"below": {
+"kind": "none"
+}
+},
+{
+"page": 452,
+"line": 15,
+"surah": 38,
+"opening": false,
+"sizePerTextWidth": 0.067256,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -798
+},
+"below": {
+"kind": "none"
+}
+},
+{
+"page": 458,
+"line": 4,
+"surah": 39,
+"opening": false,
+"sizePerTextWidth": 0.069831,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -942
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 467,
+"line": 3,
+"surah": 40,
+"opening": false,
+"sizePerTextWidth": 0.070025,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -951
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 477,
+"line": 1,
+"surah": 41,
+"opening": false,
+"sizePerTextWidth": 0.068311,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 483,
+"line": 1,
+"surah": 42,
+"opening": false,
+"sizePerTextWidth": 0.06817,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 489,
+"line": 5,
+"surah": 43,
+"opening": false,
+"sizePerTextWidth": 0.069408,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -692
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 496,
+"line": 1,
+"surah": 44,
+"opening": false,
+"sizePerTextWidth": 0.0688,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 498,
+"line": 15,
+"surah": 45,
+"opening": false,
+"sizePerTextWidth": 0.070451,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -846
+},
+"below": {
+"kind": "none"
+}
+},
+{
+"page": 502,
+"line": 7,
+"surah": 46,
+"opening": false,
+"sizePerTextWidth": 0.069542,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -697
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 506,
+"line": 15,
+"surah": 47,
+"opening": false,
+"sizePerTextWidth": 0.069643,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -1091
+},
+"below": {
+"kind": "none"
+}
+},
+{
+"page": 511,
+"line": 1,
+"surah": 48,
+"opening": false,
+"sizePerTextWidth": 0.069812,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 515,
+"line": 7,
+"surah": 49,
+"opening": false,
+"sizePerTextWidth": 0.069301,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -864
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 518,
+"line": 1,
+"surah": 50,
+"opening": false,
+"sizePerTextWidth": 0.06826,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 520,
+"line": 12,
+"surah": 51,
+"opening": false,
+"sizePerTextWidth": 0.066439,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -891
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 523,
+"line": 8,
+"surah": 52,
+"opening": false,
+"sizePerTextWidth": 0.067576,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -858
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 525,
+"line": 15,
+"surah": 53,
+"opening": false,
+"sizePerTextWidth": 0.067965,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -741
+},
+"below": {
+"kind": "none"
+}
+},
+{
+"page": 528,
+"line": 9,
+"surah": 54,
+"opening": false,
+"sizePerTextWidth": 0.067596,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -837
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 531,
+"line": 5,
+"surah": 55,
+"opening": false,
+"sizePerTextWidth": 0.06888,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -1029
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 534,
+"line": 7,
+"surah": 56,
+"opening": false,
+"sizePerTextWidth": 0.067831,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -850
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 537,
+"line": 11,
+"surah": 57,
+"opening": false,
+"sizePerTextWidth": 0.068281,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -974
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 542,
+"line": 1,
+"surah": 58,
+"opening": false,
+"sizePerTextWidth": 0.070433,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 545,
+"line": 7,
+"surah": 59,
+"opening": false,
+"sizePerTextWidth": 0.069967,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -808
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 548,
+"line": 15,
+"surah": 60,
+"opening": false,
+"sizePerTextWidth": 0.070335,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -895
+},
+"below": {
+"kind": "none"
+}
+},
+{
+"page": 551,
+"line": 7,
+"surah": 61,
+"opening": false,
+"sizePerTextWidth": 0.070113,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -770
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 553,
+"line": 1,
+"surah": 62,
+"opening": false,
+"sizePerTextWidth": 0.070802,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 554,
+"line": 7,
+"surah": 63,
+"opening": false,
+"sizePerTextWidth": 0.069756,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -773
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 555,
+"line": 15,
+"surah": 64,
+"opening": false,
+"sizePerTextWidth": 0.070939,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -706
+},
+"below": {
+"kind": "none"
+}
+},
+{
+"page": 557,
+"line": 15,
+"surah": 65,
+"opening": false,
+"sizePerTextWidth": 0.071672,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -884
+},
+"below": {
+"kind": "none"
+}
+},
+{
+"page": 560,
+"line": 1,
+"surah": 66,
+"opening": false,
+"sizePerTextWidth": 0.06987,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 562,
+"line": 1,
+"surah": 67,
+"opening": false,
+"sizePerTextWidth": 0.069549,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 564,
+"line": 6,
+"surah": 68,
+"opening": false,
+"sizePerTextWidth": 0.069576,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -985
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 566,
+"line": 9,
+"surah": 69,
+"opening": false,
+"sizePerTextWidth": 0.068366,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -692
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 568,
+"line": 9,
+"surah": 70,
+"opening": false,
+"sizePerTextWidth": 0.068557,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -860
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 570,
+"line": 5,
+"surah": 71,
+"opening": false,
+"sizePerTextWidth": 0.06895,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -815
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 572,
+"line": 1,
+"surah": 72,
+"opening": false,
+"sizePerTextWidth": 0.069759,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 574,
+"line": 1,
+"surah": 73,
+"opening": false,
+"sizePerTextWidth": 0.068986,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 575,
+"line": 8,
+"surah": 74,
+"opening": false,
+"sizePerTextWidth": 0.066649,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -838
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 577,
+"line": 6,
+"surah": 75,
+"opening": false,
+"sizePerTextWidth": 0.066753,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -692
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 578,
+"line": 9,
+"surah": 76,
+"opening": false,
+"sizePerTextWidth": 0.067258,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -692
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 580,
+"line": 7,
+"surah": 77,
+"opening": false,
+"sizePerTextWidth": 0.068338,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -777
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 582,
+"line": 1,
+"surah": 78,
+"opening": false,
+"sizePerTextWidth": 0.067542,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 583,
+"line": 8,
+"surah": 79,
+"opening": false,
+"sizePerTextWidth": 0.067988,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -771
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 584,
+"line": 15,
+"surah": 80,
+"opening": false,
+"sizePerTextWidth": 0.066953,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -876
+},
+"below": {
+"kind": "none"
+}
+},
+{
+"page": 586,
+"line": 1,
+"surah": 81,
+"opening": false,
+"sizePerTextWidth": 0.066884,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 586,
+"line": 15,
+"surah": 82,
+"opening": false,
+"sizePerTextWidth": 0.066884,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -942
+},
+"below": {
+"kind": "none"
+}
+},
+{
+"page": 587,
+"line": 11,
+"surah": 83,
+"opening": false,
+"sizePerTextWidth": 0.068652,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -751
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 589,
+"line": 2,
+"surah": 84,
+"opening": false,
+"sizePerTextWidth": 0.068025,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -714
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 590,
+"line": 1,
+"surah": 85,
+"opening": false,
+"sizePerTextWidth": 0.068419,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 590,
+"line": 15,
+"surah": 86,
+"opening": false,
+"sizePerTextWidth": 0.068419,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -919
+},
+"below": {
+"kind": "none"
+}
+},
+{
+"page": 591,
+"line": 8,
+"surah": 87,
+"opening": false,
+"sizePerTextWidth": 0.067592,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -747
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 592,
+"line": 3,
+"surah": 88,
+"opening": false,
+"sizePerTextWidth": 0.06858,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -978
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 593,
+"line": 1,
+"surah": 89,
+"opening": false,
+"sizePerTextWidth": 0.069192,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 594,
+"line": 4,
+"surah": 90,
+"opening": false,
+"sizePerTextWidth": 0.068336,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -726
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 594,
+"line": 15,
+"surah": 91,
+"opening": false,
+"sizePerTextWidth": 0.068336,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -839
+},
+"below": {
+"kind": "none"
+}
+},
+{
+"page": 595,
+"line": 9,
+"surah": 92,
+"opening": false,
+"sizePerTextWidth": 0.067669,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -816
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 596,
+"line": 4,
+"surah": 93,
+"opening": false,
+"sizePerTextWidth": 0.070603,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -692
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 596,
+"line": 11,
+"surah": 94,
+"opening": false,
+"sizePerTextWidth": 0.070603,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -720
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 597,
+"line": 1,
+"surah": 95,
+"opening": false,
+"sizePerTextWidth": 0.066406,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 597,
+"line": 7,
+"surah": 96,
+"opening": false,
+"sizePerTextWidth": 0.066406,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -692
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 598,
+"line": 1,
+"surah": 97,
+"opening": false,
+"sizePerTextWidth": 0.070083,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 598,
+"line": 6,
+"surah": 98,
+"opening": false,
+"sizePerTextWidth": 0.070083,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -924
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 599,
+"line": 3,
+"surah": 99,
+"opening": false,
+"sizePerTextWidth": 0.068085,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -891
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 599,
+"line": 10,
+"surah": 100,
+"opening": false,
+"sizePerTextWidth": 0.068085,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -692
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 600,
+"line": 2,
+"surah": 101,
+"opening": false,
+"sizePerTextWidth": 0.069778,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -826
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 600,
+"line": 10,
+"surah": 102,
+"opening": false,
+"sizePerTextWidth": 0.069778,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -692
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 601,
+"line": 1,
+"surah": 103,
+"opening": false,
+"sizePerTextWidth": 0.066848,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 601,
+"line": 5,
+"surah": 104,
+"opening": false,
+"sizePerTextWidth": 0.066848,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -713
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 601,
+"line": 11,
+"surah": 105,
+"opening": false,
+"sizePerTextWidth": 0.066848,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -915
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 602,
+"line": 1,
+"surah": 106,
+"opening": false,
+"sizePerTextWidth": 0.069727,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 602,
+"line": 6,
+"surah": 107,
+"opening": false,
+"sizePerTextWidth": 0.069727,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -974
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 602,
+"line": 12,
+"surah": 108,
+"opening": false,
+"sizePerTextWidth": 0.069727,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -857
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 603,
+"line": 1,
+"surah": 109,
+"opening": false,
+"sizePerTextWidth": 0.069986,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 603,
+"line": 6,
+"surah": 110,
+"opening": false,
+"sizePerTextWidth": 0.069986,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -734
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 603,
+"line": 11,
+"surah": 111,
+"opening": false,
+"sizePerTextWidth": 0.069986,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -692
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 604,
+"line": 1,
+"surah": 112,
+"opening": false,
+"sizePerTextWidth": 0.070904,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "none"
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 604,
+"line": 5,
+"surah": 113,
+"opening": false,
+"sizePerTextWidth": 0.070904,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -837
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+},
+{
+"page": 604,
+"line": 10,
+"surah": 114,
+"opening": false,
+"sizePerTextWidth": 0.070904,
+"usedLines": [
+1,
+15
+],
+"hhea": [
+2541,
+1378
+],
+"above": {
+"kind": "line",
+"lowUnits": -847
+},
+"below": {
+"kind": "basmala",
+"highUnits": 1348
+}
+}
+]
