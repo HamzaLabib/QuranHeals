@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { MushafBorder } from '@/components/MushafBorder';
+import { OpeningPageOrnament } from '@/components/OpeningPageOrnament';
 import { MUSHAF_PAPER } from '@/constants/mushafTheme';
 import { MUSHAF_BACKGROUNDS, MUSHAF_APPEARANCE_DEFAULT } from '@/mushaf/appearance';
 import type { BorderInk } from '@/mushaf/borderPattern';
@@ -28,6 +29,8 @@ type MushafPageViewProps = {
   tilesDown?: number;
   /** Normal Mode: the Hizb / quarter-Hizb starting on this page (hizbLabelsForPage), centred in the header. */
   hizbLabels?: readonly string[];
+  /** Pages 1–2 in the QPC V1 fonts: the ornamental circle and corner ornaments inside the frame (OpeningPageOrnament). */
+  openingOrnament?: boolean;
   /** Font for the running heads and page number once loaded (system font until then). */
   headerFontFamily?: string;
   /** Paper colour: a background preset from mushaf/appearance.ts (the approved Warm Cream by default). */
@@ -53,6 +56,7 @@ export function MushafPageView({
   borderInks,
   tilesDown,
   hizbLabels,
+  openingOrnament = false,
 }: MushafPageViewProps) {
   const layout = computePageLayout(width, tilesDown);
   const printedLinePitch = tilesDown === undefined ? layout.linePitch : computePageLayout(width).linePitch;
@@ -90,6 +94,7 @@ export function MushafPageView({
         importantForAccessibility="no-hide-descendants"
         style={[styles.absolute, { height: layout.frame.height, left: layout.frame.x, top: layout.frame.y, width: layout.frame.width }]}>
         <MushafBorder width={layout.frame.width} height={layout.frame.height} inks={borderInks} down={tilesDown} />
+        {openingOrnament && <OpeningPageOrnament testID="mushaf-opening-ornament" width={layout.frame.width} height={layout.frame.height} left={0} top={0} />}
       </View>
 
       {/* The Quran text, MUSHAF_TEXT_LIFT_PT above the printed text area (a temporary, uniform adjustment). */}

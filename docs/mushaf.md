@@ -497,3 +497,20 @@ QPC V1 layout for page 61 unavailable: category=<…> stage=<token|content> env=
   - Each check uses the real neighbouring ink, computed independently from the fixture, against the frame's inner edge too.
   - Result: 0.5 pt or more everywhere, except page 506 at 434 pt (0.479 pt each side). Every heading stays inside the frame's inner edge.
   - `mushafAllPages.test.ts` now tells the two boundaries apart. Quran and Basmala rows stay exactly on their grid rows inside the text area. Headings sit where the placement puts them, and may reach past the text area but stay 0.5 pt inside the frame's inner edge.
+
+### Pages 1–2: the ornamental circle (2026-10-12; awaiting visual approval)
+
+- **Design** (`OpeningPageOrnament.tsx`, in `MushafPageView` when pages 1–2 show in the QPC V1 fonts):
+  - A large emerald-and-gold circle centred in the frame: outer radius 0.485 of the inner frame width, band 9.5 % of it. The band carries a gold vine, rosettes and leaves, beaded gold rims and an outer lace.
+  - Floral crests above and below; side crests on the band.
+  - Emerald quarter-fans in the four inner corners.
+  - The centre is open (the page's paper), in Light and Dark.
+  - The same design in Normal and Full-Screen, centred in the frame.
+- **Text**: the verified QPC V1 lines of the 1405 print, unchanged: Hafs numbering (on page 1 the Basmala is ayah 1, not repeated), line breaks, letter size, word spacing, medallions, the printed line spacing.
+  - The block is centred on the circle as drawn: the text area's 4 pt lift taken back, less the platform's drawn drop.
+  - The title is the compact Option A cartouche (0.40 of the page width, 0.8 of a row).
+  - Selection, highlights and taps are the regular rows'.
+- **Checks** (`tests/openingPages.test.ts`): every line's ink (end words and medallions included), the Basmala, the cartouche and the name are inside the circle's opening on iOS, Android and the web, page widths 251–434, Normal and Full-Screen. The least clearance is the cartouche, 4.2–7.2 pt (by page width).
+  - The circle, crests and corner ornaments stay inside the frame, and the corners stay clear of the circle.
+  - Data: `fixtures/openingPagesInk.json` (`tools/mushaf-audit/generate_opening_ink.py`).
+- **Differences from the reference image (deliberate):** the verified Hafs numbering and line breaks (the image counts Al-Fatiha differently and repeats the Basmala); running heads and the page number kept outside the frame; side crests on the band (only about 5 pt from the circle to the frame at the sides).

@@ -95,7 +95,11 @@ describe('rows on the printed grid, no correction of their own (Normal and Full-
     });
     const blockTop = Math.min(...rows.map((row) => row.top));
     const blockBottom = Math.max(...rows.map((row) => row.top + row.height));
-    expect((blockTop + blockBottom) / 2).toBeCloseTo(HEIGHT / 2, 6); // the rows' block centred, as before
+    // The rows' block centred on the frame (its ornamental circle) as drawn: the text area's lift taken back, less the
+    // platform's drawn drop (iOS here).
+    const { MUSHAF_TEXT_LIFT_PT } = await import('@/mushaf/pageGeometry');
+    const { qcfV1DrawnLineShiftEm } = await import('@/mushaf/ayahMarkers');
+    expect((blockTop + blockBottom) / 2).toBeCloseTo(HEIGHT / 2 + MUSHAF_TEXT_LIFT_PT - qcfV1DrawnLineShiftEm(1, 'ios') * fontSize, 6);
     await act(async () => root.unmount());
   });
 });

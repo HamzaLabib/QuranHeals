@@ -29,6 +29,13 @@ const ROSETTE_X = 19; // the end medallion's centre
 const ROSETTE_R = 16;
 const TIP_X = 100; // the cartouche's pointed tip
 const END_PANEL = 150; // tip → the central panel's end
+/**
+ * The compact cartouche (pages 1–2, inside their ornamental circle): the same frame, end panels and open centre, without
+ * the stems and end medallions; the end panels shorter, their arabesque at COMPACT_ARABESQUE of its size.
+ */
+const COMPACT_TIP_X = 3;
+const COMPACT_END_PANEL = 88;
+const COMPACT_ARABESQUE = 0.75;
 const FRAME_OUT = 0.25; // the frame's outer edge (top; the bottom mirrors it)
 const FRAME_IN = 1.45; // the frame's inner edge: across the name, the panel's top and bottom edge
 /** The panel's outline is drawn this far (u) in from each end: round its lobes, not across the name. */
@@ -43,6 +50,8 @@ type SurahHeaderOrnamentProps = {
   top: number;
   /** The widest name's ink width (pt): the central panel opens at least this wide, plus clearance. */
   nameWidth?: number;
+  /** The compact cartouche (pages 1–2): no stems or end medallions, shorter end panels. */
+  compact?: boolean;
   testID: string;
 };
 
@@ -74,11 +83,13 @@ function Rosette({ cx, cy, r, u }: { cx: number; cy: number; r: number; u: numbe
 }
 
 /** One end of the heading, drawn for the left; the right is its mirror image. Coordinates in u. */
-function End({ u, panelEnd }: { u: number; panelEnd: number }) {
-  const tip = TIP_X;
+function End({ u, panelEnd, compact }: { u: number; panelEnd: number; compact: boolean }) {
+  const tip = compact ? COMPACT_TIP_X : TIP_X;
   const mid = (tip + panelEnd) / 2 + 2; // the end panel's rosette
   return (
     <G transform={`scale(${f(u)})`}>
+      {!compact && (
+        <G>
       {/* The stem: a gold double line from the medallion to the cartouche's tip, with a leaf sprig. */}
       <Path d={`M${ROSETTE_X + ROSETTE_R} 50 H${tip}`} stroke={GOLD_DEEP} strokeWidth={1.6} fill="none" />
       <Path d={`M${ROSETTE_X + ROSETTE_R} 50 H${tip}`} stroke={GOLD} strokeWidth={0.7} fill="none" />
@@ -96,10 +107,12 @@ function End({ u, panelEnd }: { u: number; panelEnd: number }) {
       {/* The end medallion, with a pointed gold leaf outward. */}
       <Path d="M0.6 50 C3 47.4 5 46.6 7.5 47.2 C6.6 48.4 6.6 51.6 7.5 52.8 C5 53.4 3 52.6 0.6 50 Z" fill={GOLD} stroke={GOLD_DEEP} strokeWidth={0.5} />
       <Rosette cx={ROSETTE_X} cy={50} r={ROSETTE_R} u={1} />
+        </G>
+      )}
 
       {/* The end panel's arabesque, over its emerald ground (drawn with the frame): a ring of gold scrolls round a
           rosette, palmettes in the corners, a small rosette at the tip, buds along the edges. */}
-      <G>
+      <G transform={compact ? `translate(${mid} 50) scale(${COMPACT_ARABESQUE}) translate(${-mid} -50)` : undefined}>
         {[-1, 1].map((sx) =>
           [-1, 1].map((sy) => (
             <G key={`${sx}${sy}`} transform={`translate(${mid} 50) scale(${sx} ${sy})`}>
@@ -130,16 +143,17 @@ function End({ u, panelEnd }: { u: number; panelEnd: number }) {
   );
 }
 
-export const SurahHeaderOrnament = memo(function SurahHeaderOrnament({ width, height, left, top, nameWidth = 0, testID }: SurahHeaderOrnamentProps) {
+export const SurahHeaderOrnament = memo(function SurahHeaderOrnament({ width, height, left, top, nameWidth = 0, compact = false, testID }: SurahHeaderOrnamentProps) {
   const u = height / 100;
   const W = width;
   // The central panel: from the end panels inward; wider than the widest name plus its clearance, the end panels
   // giving way (narrower) if a very narrow screen ever needed it.
   const wanted = nameWidth * (1 + 2 * NAME_CLEARANCE);
-  const panelEndU = Math.min(TIP_X + END_PANEL, (W / 2 - wanted / 2) / u - 6);
+  const tipX = compact ? COMPACT_TIP_X : TIP_X;
+  const panelEndU = Math.min(tipX + (compact ? COMPACT_END_PANEL : END_PANEL), (W / 2 - wanted / 2) / u - 6);
   const pL = panelEndU * u;
   const pR = W - pL;
-  const tipL = TIP_X * u;
+  const tipL = tipX * u;
   const tipR = W - tipL;
   const yo = FRAME_OUT * u;
   const yi = FRAME_IN * u;
@@ -186,9 +200,9 @@ export const SurahHeaderOrnament = memo(function SurahHeaderOrnament({ width, he
       <Path d={cartouche(0)} fill="none" stroke={GOLD_DEEP} strokeWidth={0.5 * u} />
       <Path d={cartouche(yi - yo)} fill={EMERALD} stroke={GOLD_DEEP} strokeWidth={0.4 * u} clipPath={`url(#${testID}-ends)`} />
       <Path d={cartouche(yi - yo)} fill="none" stroke={GOLD} strokeWidth={1.6 * u} clipPath={`url(#${testID}-ends)`} />
-      <End u={u} panelEnd={panelEndU} />
+      <End u={u} panelEnd={panelEndU} compact={compact} />
       <G transform={`translate(${f(W)} 0) scale(-1 1)`}>
-        <End u={u} panelEnd={panelEndU} />
+        <End u={u} panelEnd={panelEndU} compact={compact} />
       </G>
       {/* The central panel: open (no fill), so the page's own paper is behind the name in every appearance; a gold double outline. */}
       {/* Its double gold outline round the lobed ends only: across the name the frame's band is its edge, so no line
@@ -200,10 +214,10 @@ export const SurahHeaderOrnament = memo(function SurahHeaderOrnament({ width, he
 });
 
 /** Exported for tests and audits: the clear opening for the name in a box `width` × `height` (pt). */
-export function surahHeaderGeometry(width: number, height: number, nameWidth = 0) {
+export function surahHeaderGeometry(width: number, height: number, nameWidth = 0, compact = false) {
   const u = height / 100;
   const wanted = nameWidth * (1 + 2 * NAME_CLEARANCE);
-  const panelEndU = Math.min(TIP_X + END_PANEL, (width / 2 - wanted / 2) / u - 6);
+  const panelEndU = Math.min((compact ? COMPACT_TIP_X + COMPACT_END_PANEL : TIP_X + END_PANEL), (width / 2 - wanted / 2) / u - 6);
   return {
     /** Horizontally: inside the panel's outlines where they are drawn (LOBE in from its ends); vertically: inside the frame's band. */
     nameBox: { left: (panelEndU + LOBE) * u, right: width - (panelEndU + LOBE) * u, top: FRAME_IN * u, bottom: height - FRAME_IN * u },

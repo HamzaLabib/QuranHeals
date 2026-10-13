@@ -35,7 +35,8 @@ describe.skipIf(!snapshot)('all 604 pages (local Content Sync snapshot)', async 
   const { placeSurahHeading } = await import('@/mushaf/surahHeadingPlacement');
   const FIT = 0.985; // QpcV1PageText
   const headingPageSize = new Map((JSON.parse(readFileSync(new URL('./fixtures/headingNeighbours.json', import.meta.url), 'utf8')) as { page: number; sizePerTextWidth: number }[]).map((h) => [h.page, h.sizePerTextWidth]));
-  const { MUSHAF_TEXT_LIFT_PT, textSideInset, textVerticalInset } = await import('@/mushaf/pageGeometry');
+  const { MUSHAF_TEXT_LIFT_PT, pageWidthOfText, textSideInset, textVerticalInset } = await import('@/mushaf/pageGeometry');
+  const { qcfV1DrawnLineShiftEm } = await import('@/mushaf/ayahMarkers');
   const db = new DatabaseSync(fileURLToPath(new URL('../assets/quran/quran.sqlite', import.meta.url)), { readOnly: true });
   const verses = db.prepare('SELECT verse_key AS k, arabic_text AS t FROM verses ORDER BY surah, ayah').all() as { k: string; t: string }[];
   const textOf = new Map(verses.map((v) => [v.k, v.t]));
@@ -123,10 +124,12 @@ describe.skipIf(!snapshot)('all 604 pages (local Content Sync snapshot)', async 
           if (ornament.props.pointerEvents !== 'none' || ornament.props.accessible === true) problems.push(`page ${page}: heading ornament is interactive or accessible`);
           // Option A, full width: 96 % of the frame's inner width (the text area and its side margins), centred, inside
           // the frame's inner edge; the heading row's own height and place (the row itself is checked below).
+          // Pages 1–2: the compact cartouche inside the ornamental circle (0.40 of the page width, 0.8 of the row, centred).
           const side = textSideInset(width);
-          const span = (width + 2 * side) * 0.96;
-          if (Math.abs(ornament.props.width - span) > 1e-6 || Math.abs(ornament.props.height - rowPitch) > 1e-6
-            || Math.abs(ornamentStyle.left - (width - span) / 2) > 1e-6 || ornamentStyle.top !== 0
+          const span = page <= 2 ? pageWidthOfText(width) * 0.4 : (width + 2 * side) * 0.96;
+          const tall = page <= 2 ? rowPitch * 0.8 : rowPitch;
+          if (Math.abs(ornament.props.width - span) > 1e-6 || Math.abs(ornament.props.height - tall) > 1e-6
+            || Math.abs(ornamentStyle.left - (width - span) / 2) > 1e-6 || Math.abs(ornamentStyle.top - (rowPitch - tall) / 2) > 1e-6
             || ornamentStyle.left < -side || ornamentStyle.left + ornament.props.width > width + side) {
             problems.push(`page ${page}: heading ornament outside its full-width slot or the frame's inner edge`);
           }
@@ -203,7 +206,9 @@ describe.skipIf(!snapshot)('all 604 pages (local Content Sync snapshot)', async 
           const used = [...layout.lines.map((l) => l.line), ...slots.map((x) => x.line)];
           const above = blockTop + (Math.min(...used) - 1) * rowPitch;
           const below = height - (blockTop + Math.max(...used) * rowPitch);
-          if (Math.abs(above - below) > 0.01) problems.push(`page ${page}: block not centred (${above.toFixed(1)} above, ${below.toFixed(1)} below)`);
+          // Centred on the frame (its ornamental circle) as drawn: the lift taken back, less iOS's drawn drop.
+          const offset = MUSHAF_TEXT_LIFT_PT - qcfV1DrawnLineShiftEm(page, 'ios') * size;
+          if (Math.abs(above - below - 2 * offset) > 0.01) problems.push(`page ${page}: block not centred (${above.toFixed(1)} above, ${below.toFixed(1)} below)`);
         }
         await act(async () => renderer.unmount());
       }

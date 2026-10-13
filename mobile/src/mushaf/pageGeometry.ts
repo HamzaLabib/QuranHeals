@@ -76,6 +76,12 @@ export function textSideInset(textWidth: number): number {
   return (textWidth / (1 - 2 * g.tile - 2 * g.textInsetX)) * g.textInsetX;
 }
 
+/** The page width whose text area is `textWidth` wide. */
+export function pageWidthOfText(textWidth: number): number {
+  const g = PAGE_GEOMETRY;
+  return textWidth / (1 - 2 * g.tile - 2 * g.textInsetX);
+}
+
 /** The margin between the text area and the frame's inner edge, top and bottom, for a text area `textWidth` wide. */
 export function textVerticalInset(textWidth: number): number {
   const g = PAGE_GEOMETRY;

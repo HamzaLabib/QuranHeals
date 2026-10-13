@@ -77,22 +77,30 @@ describe('drawing them', () => {
     const size = styleOf(root.root.findByProps({ testID: 'qpc-line-10' }).findAllByType('Text' as never)[0]).fontSize;
     expect(size).toBeCloseTo(300 * 0.0692); // the regular pages' size, not 1.5× it
     expect(row(10).justifyContent).toBe('center');
-    // Block: heading (8), Basmala (9), lines 10–15 — 8 rows, centred: 3.5 rows of space above and below; the heading
-    // row drawn surahHeadingShift lower (it follows the lines as the platform draws them).
-    expect(styleOf(root.root.findByProps({ testID: 'qpc-heading-8' })).top).toBeCloseTo(3.5 * pitch + surahHeadingShift(2, 'ios', size, pitch));
-    expect(row(15).top + pitch).toBeCloseTo(450 - 3.5 * pitch);
+    // Block: heading (8), Basmala (9), lines 10–15 — 8 rows, centred: 3.5 rows of space above and below, then moved so
+    // that, as drawn, it is centred on the frame (and its ornamental circle): the text area's lift taken back, less the
+    // platform's drawn drop (iOS here). The heading placed by its neighbouring ink (surahHeadingPlacement.ts).
+    const { MUSHAF_TEXT_LIFT_PT } = await import('@/mushaf/pageGeometry');
+    const { qcfV1DrawnLineShiftEm } = await import('@/mushaf/ayahMarkers');
+    const { placeSurahHeading } = await import('@/mushaf/surahHeadingPlacement');
+    const offset = MUSHAF_TEXT_LIFT_PT - qcfV1DrawnLineShiftEm(2, 'ios') * size;
+    const blockTop = 3.5 * pitch - 7 * pitch + offset;
+    expect(styleOf(root.root.findByProps({ testID: 'qpc-heading-8' })).top).toBeCloseTo(placeSurahHeading({ page: 2, line: 8, os: 'ios', fontSize: size, rowPitch: pitch, rowTop: (l) => blockTop + (l - 1) * pitch, textWidth: 300, textHeight: 450 }).top);
+    expect(row(15).top + pitch).toBeCloseTo(450 - 3.5 * pitch + offset);
+    expect(surahHeadingShift(2, 'ios', size, pitch)).toBeGreaterThan(0);
     // Even spacing kept: consecutive rows one pitch apart.
     expect(row(11).top - row(10).top).toBeCloseTo(pitch);
     expect(textOf(root.root.findByProps({ testID: 'qpc-heading-8' }))).toEqual(['سورة البقرة']);
     const ornament = root.root.findByProps({ testID: 'qpc-heading-8' }).findByType('Svg' as never);
     expect(ornament.props.pointerEvents).toBe('none');
-    // Option A, drawn for its box (no aspect-ratio fitting): 96 % of the frame's inner width, centred, the row's height.
-    const { textSideInset } = await import('@/mushaf/pageGeometry');
-    const span = (300 + 2 * textSideInset(300)) * 0.96;
+    // Pages 1–2: the compact Option A cartouche inside the ornamental circle, 0.40 of the page width, 0.8 of the row, centred.
+    const { pageWidthOfText } = await import('@/mushaf/pageGeometry');
+    const span = pageWidthOfText(300) * 0.4;
     expect(ornament.props.preserveAspectRatio).toBeUndefined();
     expect(ornament.props.width).toBeCloseTo(span, 9);
-    expect(ornament.props.height).toBeCloseTo(pitch, 9);
-    expect(styleOf(ornament)).toMatchObject({ position: 'absolute', top: 0 });
+    expect(ornament.props.height).toBeCloseTo(pitch * 0.8, 9);
+    expect(styleOf(ornament)).toMatchObject({ position: 'absolute' });
+    expect(styleOf(ornament).top).toBeCloseTo(pitch * 0.1, 9);
     expect(styleOf(ornament).left).toBeCloseTo((300 - span) / 2, 9);
     const basmala = root.root.findByProps({ testID: 'qpc-basmala-9' });
     expect(basmala.findAllByType('Text' as never).map((t) => t.props.children)).toEqual([...BASMALA_GLYPHS]);

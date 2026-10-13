@@ -6,7 +6,7 @@ import { SurahHeaderOrnament } from '@/components/SurahHeaderOrnament';
 import { MUSHAF_PAPER } from '@/constants/mushafTheme';
 import { MUSHAF_MARKER_STYLES, type MushafMarkerStyleId } from '@/mushaf/appearance';
 import { cssBaseline, getAyahMarker, markerOverlayBox, QCF_V1_INK_OVERFLOW_EM, QCF_V1_INK_ROOM_V_EM, QCF_V1_LINE_BOX_EM, qcfV1AndroidRowShiftEm, qcfV1DrawnLineShiftEm } from '@/mushaf/ayahMarkers';
-import { textSideInset } from '@/mushaf/pageGeometry';
+import { MUSHAF_TEXT_LIFT_PT, pageWidthOfText, textSideInset } from '@/mushaf/pageGeometry';
 import { pressLocation } from '@/mushaf/pressLocation';
 import { ayahAtLineX, lineAtY, selectionSpan, type QpcV1PageLayout, type WordBox } from '@/mushaf/qpcV1Layout';
 import { withSelectionInk } from '@/mushaf/qpcV1Selection';
@@ -62,8 +62,12 @@ const WORD_GAP_EM = 0.033;
 const HEADING_SIZE = 0.78;
 /** The Surah heading ornament's width: this share of the frame's inner width (centred; 2 % clear of the rule each side). */
 const HEADING_ORNAMENT_SPAN = 0.96;
+/** Pages 1–2: the title cartouche, as shares of the page width and of the row (approved 2026-10-12). */
+export const OPENING_CARTOUCHE = { width: 0.4, height: 0.8 } as const;
 /** The widest heading's ink ("سورة الإخلاص", Amiri Bold, measured 2026-10-12), in em of the heading size. */
 const HEADING_NAME_MAX_EM = 5.27;
+/** Pages 1–2's headings: the wider ink of "سورة الفاتحة" and "سورة البقرة" (Amiri Bold, measured 2026-10-12). */
+const OPENING_NAME_MAX_EM = 3.95;
 
 /**
  * The page's text in QPC V1: each word is its own glyph in the page's QCF
@@ -107,7 +111,11 @@ export function QpcV1PageText({
   // keep the printed line spacing (also in a Taller frame, where only the frame grows) and are centred on the page.
   const rowPitch = opening ? Math.min(pitch, printedPitch ?? pitch) : pitch;
   const used = [...layout.lines.map((line) => line.line), ...slots.map((slot) => slot.line)];
-  const blockTop = opening && used.length ? (height - (Math.max(...used) - Math.min(...used) + 1) * rowPitch) / 2 - (Math.min(...used) - 1) * rowPitch : 0;
+  // Pages 1–2 (their ornamental circle, OpeningPageOrnament, centred in the frame): the block is centred on the frame's
+  // centre as drawn — the text area's MUSHAF_TEXT_LIFT_PT taken back, less the platform's drawn drop (iOS draws the
+  // glyphs lower; Android's rows move by the same; the web neither).
+  const openingDrop = opening ? (qcfV1DrawnLineShiftEm(layout.page, Platform.OS) + qcfV1AndroidRowShiftEm(layout.page, Platform.OS)) * width * OPENING_PAGE_SIZE_PER_WIDTH : 0;
+  const blockTop = opening && used.length ? (height - (Math.max(...used) - Math.min(...used) + 1) * rowPitch) / 2 - (Math.min(...used) - 1) * rowPitch + MUSHAF_TEXT_LIFT_PT - openingDrop : 0;
   const rowTop = (line: number) => blockTop + (line - 1) * rowPitch;
   // The highlight band: 92% of the line pitch, as printed — no taller when the lines are spaced wider.
   const band = Math.min(pitch, printedPitch ?? pitch) * 0.92;
@@ -297,14 +305,27 @@ export function QpcV1PageText({
             style={[styles.line, { justifyContent: 'center', height: rowPitch, top: placeSurahHeading({ page: layout.page, line: slot.line, os: Platform.OS, fontSize, rowPitch, rowTop, textWidth: width, textHeight: height }).top, width }]}>
             {/* Across the frame's inner width (the text area and its side margins), HEADING_ORNAMENT_SPAN of it, centred;
                 the row's full height. The panel opens wider than the widest name (HEADING_NAME_MAX_EM). */}
-            <SurahHeaderOrnament
-              testID={`qpc-header-ornament-${slot.line}`}
-              width={(width + 2 * textSideInset(width)) * HEADING_ORNAMENT_SPAN}
-              height={rowPitch}
-              left={(width - (width + 2 * textSideInset(width)) * HEADING_ORNAMENT_SPAN) / 2}
-              top={0}
-              nameWidth={fontSize * HEADING_SIZE * HEADING_NAME_MAX_EM}
-            />
+            {opening ? (
+              // Pages 1–2: the compact cartouche inside the ornamental circle (OPENING_CARTOUCHE of the page width).
+              <SurahHeaderOrnament
+                testID={`qpc-header-ornament-${slot.line}`}
+                compact
+                width={pageWidthOfText(width) * OPENING_CARTOUCHE.width}
+                height={rowPitch * OPENING_CARTOUCHE.height}
+                left={(width - pageWidthOfText(width) * OPENING_CARTOUCHE.width) / 2}
+                top={(rowPitch * (1 - OPENING_CARTOUCHE.height)) / 2}
+                nameWidth={fontSize * HEADING_SIZE * OPENING_NAME_MAX_EM}
+              />
+            ) : (
+              <SurahHeaderOrnament
+                testID={`qpc-header-ornament-${slot.line}`}
+                width={(width + 2 * textSideInset(width)) * HEADING_ORNAMENT_SPAN}
+                height={rowPitch}
+                left={(width - (width + 2 * textSideInset(width)) * HEADING_ORNAMENT_SPAN) / 2}
+                top={0}
+                nameWidth={fontSize * HEADING_SIZE * HEADING_NAME_MAX_EM}
+              />
+            )}
             <Text
               allowFontScaling={false}
               style={[styles.heading, { color: headingColor ?? ink, fontFamily: headingFontFamily, fontSize: fontSize * HEADING_SIZE, lineHeight: fontSize * HEADING_SIZE * 1.8 }]}>
