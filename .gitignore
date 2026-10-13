@@ -60,6 +60,7 @@ yarn-error.log*
 Thumbs.db
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
 
 # Third-party source/reference files kept locally
 tools/quran-import/raw/UthmanicHafs_v2-0.zip
