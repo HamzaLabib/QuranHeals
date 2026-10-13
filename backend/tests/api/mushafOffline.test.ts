@@ -155,18 +155,30 @@ function fakeContentSync(initial: RawRecord[]) {
   return { client, state, change };
 }
 
-describe('backend Content Sync and relay', () => {
+// Every sync here runs the real pipeline over the full ~25 MB synthetic snapshot (stream parse,
+// validation against Tanzil, gzip -9 of 31 chunks, atomic writes): about 1 s each on a fast
+// machine, and some tests need three. CI runners measured 4.2 s for the slowest test, too close
+// to the 5 s default; the scoped limit keeps a real hang failing without flaking on load.
+describe('backend Content Sync and relay', { timeout: 20_000 }, () => {
   let dir: string;
   let clock: number;
+  /** Syncs started by the current test: a test that fails or times out can leave one still writing to `dir`. */
+  let inFlight: Promise<unknown>[];
   beforeEach(async () => {
     dir = await mkdtemp(join(tmpdir(), 'mushaf-sync-'));
     clock = Date.parse('2026-10-11T00:00:00Z');
+    inFlight = [];
   });
   afterEach(async () => {
-    await rm(dir, { recursive: true, force: true });
+    // Removing `dir` while a sync still writes chunks into it fails with ENOTEMPTY and hides the real failure.
+    await Promise.allSettled(inFlight);
+    await rm(dir, { recursive: true, force: true, maxRetries: 3 });
   });
-  const service = (client: QfContentClient, environment: 'production' | 'prelive' = 'production') =>
-    createMushafSyncService({ client, environment, store: createMushafSyncStore(dir), quran: canonicalQuran, now: () => new Date(clock), log: () => undefined });
+  const service = (client: QfContentClient, environment: 'production' | 'prelive' = 'production') => {
+    const sync = createMushafSyncService({ client, environment, store: createMushafSyncStore(dir), quran: canonicalQuran, now: () => new Date(clock), log: () => undefined });
+    // The same promise is returned, so single-flight identity (`a` toBe `b`) is unchanged.
+    return { ...sync, runSync: () => { const run = sync.runSync(); inFlight.push(run); return run; } };
+  };
   const app = () => createApp({ repository: {} as QuranRepository, databaseHealthCheck: async () => true, mushafOfflineStore: createMushafSyncStore(dir) });
   const manifest = async () => (await request(app()).get('/api/mushaf/qpc-v1/offline/manifest')).body.data;
 

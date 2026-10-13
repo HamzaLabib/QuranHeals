@@ -62,13 +62,21 @@ afterEach(async () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
+// Tests that install the Mushaf run the real path end to end: ~85k words into SQLite, then 603
+// fonts each fetched, parsed, SHA-256 hashed and recorded, and some check all 603 again (ETag).
+// About 1.2–1.9 s each locally; one exceeded the 5 s default on a loaded CI runner. The scoped
+// limit below keeps a real hang failing without flaking on load.
+const FULL_INSTALL_TIMEOUT_MS = 15_000;
+
 function setup() {
   const relay = fakeRelay(publishVersion(pages));
   const cdn = fakeFontCdn();
   const files = memoryFontFiles();
   let clock = Date.parse('2026-10-11T00:00:00Z');
+  // Bound now, not read from `dir` later: work left running by a timed-out test never opens the next test's database.
+  const dbPath = join(dir, 'm.db');
   const make = (options: { freeBytes?: number | null } = {}) => createOfflineMushaf({
-    openDb: async () => { const db = nodeOfflineDb(join(dir, 'm.db')); opened.push(db); return db; },
+    openDb: async () => { const db = nodeOfflineDb(dbPath); opened.push(db); return db; },
     relay: relay.relay,
     verses: async () => verses,
     freeBytes: () => (options.freeBytes === undefined ? 1e10 : options.freeBytes),
@@ -78,7 +86,7 @@ function setup() {
   return { relay, cdn, files, make, advance: (ms: number) => { clock += ms; } };
 }
 
-describe('downloading the page fonts with the Mushaf', () => {
+describe('downloading the page fonts with the Mushaf', { timeout: FULL_INSTALL_TIMEOUT_MS }, () => {
   it('one download brings the layout and the 603 fonts not in the app (page 61 is bundled): complete', async () => {
     const { cdn, files, make } = setup();
     const progress: DownloadProgress[] = [];
@@ -149,7 +157,7 @@ describe('downloading the page fonts with the Mushaf', () => {
   });
 });
 
-describe('damage, restarts and updates', () => {
+describe('damage, restarts and updates', { timeout: FULL_INSTALL_TIMEOUT_MS }, () => {
   it('a damaged font is found (on load, or a full check), deleted, and downloaded again alone', async () => {
     const { cdn, files, make } = setup();
     await make().download();

@@ -20,11 +20,20 @@ beforeEach(() => {
 });
 afterEach(() => vi.unstubAllGlobals());
 
-// Compares the whole bundled Quran database byte for byte: about 5 s when the full suite runs in parallel, so a longer limit.
+// The assertions below compare the whole 1.7 MB bundled Quran database byte for byte. Vitest's
+// generic equality walks it element by element (~2.8 s, past 5 s under full-suite load); this
+// same-type byte comparison has the same result in under a millisecond. Other values, and byte
+// arrays of different types, still use the default equality.
+expect.addEqualityTesters([
+  (a: unknown, b: unknown) => (a instanceof Uint8Array && b instanceof Uint8Array && a.constructor === b.constructor
+    ? Buffer.from(a.buffer, a.byteOffset, a.byteLength).equals(b)
+    : undefined),
+]);
+
 it('native adapter sends exact bundled bytes to the private in-memory connection', async () => {
   await native.openBundledQuran();
   expect(deserialize).toHaveBeenCalledWith(original, { useNewConnection: true });
-}, 20_000);
+});
 
 it('native adapter rejects a truncated asset before opening SQLite', async () => {
   fixture.bytes = original.subarray(1);
