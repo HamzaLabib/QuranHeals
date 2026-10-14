@@ -31,7 +31,7 @@ vi.mock('react-native', () => ({
 vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem: vi.fn(), setItem: state.setItem, removeItem: vi.fn() } }));
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView', useSafeAreaInsets: () => ({ top: 47, bottom: 34, left: 0, right: 0 }) }));
 vi.mock('react-native-svg', () => ({ default: 'Svg', Path: 'Path', Circle: 'Circle' }));
-vi.mock('lucide-react-native', () => ({ ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', AArrowDown: 'AArrowDown', AArrowUp: 'AArrowUp' }));
+vi.mock('lucide-react-native', () => ({ ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', Minus: 'Minus', Plus: 'Plus' }));
 vi.mock('expo-router', () => ({ router: { back: vi.fn(), replace: vi.fn(), canGoBack: () => state.canGoBack }, useLocalSearchParams: () => state.params }));
 vi.mock('@/theme/useTheme', async () => {
   const { darkPalette, lightPalette } = await import('@/constants/theme');
@@ -260,6 +260,32 @@ describe('دعاء ختم القرآن', () => {
     expect(byId('khatm-dua-smaller').props.disabled).toBe(true);
     // Every paragraph follows the chosen size.
     expect(new Set(paragraphs().map((node) => styleOf(node).fontSize))).toEqual(new Set([KHATM_DUA_SIZES[0]]));
+  });
+
+  it('the size buttons show − (smaller) and + (larger) in the icons` place: same size and colour, labelled, in each language`s order', async () => {
+    for (const locale of ['en', 'ar'] as const) {
+      state.locale = locale;
+      await render();
+      const smaller = byId('khatm-dua-smaller');
+      const larger = byId('khatm-dua-larger');
+      expect(smaller.findAllByType('Minus' as never)).toHaveLength(1);
+      expect(larger.findAllByType('Plus' as never)).toHaveLength(1);
+      expect(root.root.findAllByType('AArrowDown' as never)).toHaveLength(0);
+      expect(root.root.findAllByType('AArrowUp' as never)).toHaveLength(0);
+      for (const icon of [smaller.findByType('Minus' as never), larger.findByType('Plus' as never)]) expect(icon.props).toMatchObject({ size: 22 });
+      expect(smaller.findByType('Minus' as never).props.color).toBe(larger.findByType('Plus' as never).props.color);
+      expect(smaller.props.accessibilityLabel).toBe(MESSAGES[locale].khatmDua.smaller);
+      expect(larger.props.accessibilityLabel).toBe(MESSAGES[locale].khatmDua.larger);
+      // The same 44-pt round buttons; − first in reading order (left in English, right in Arabic).
+      for (const button of [smaller, larger]) expect(Object.assign({}, ...[button.props.style({ pressed: false })].flat(3).filter(Boolean))).toMatchObject({ width: 44, height: 44 });
+      expect(styleOf(smaller.parent!).flexDirection).toBe(locale === 'ar' ? 'row-reverse' : 'row');
+      // + one step up, − one step back.
+      await press('khatm-dua-larger');
+      expect(styleOf(byId('khatm-dua-paragraph-0')).fontSize).toBe(KHATM_DUA_SIZES[DEFAULT_KHATM_DUA_SIZE + 1]);
+      await press('khatm-dua-smaller');
+      expect(styleOf(byId('khatm-dua-paragraph-0')).fontSize).toBe(KHATM_DUA_SIZES[DEFAULT_KHATM_DUA_SIZE]);
+      await act(async () => root.unmount());
+    }
   });
 
   it('Back returns to the reader (page 604 is under it); opened directly, it opens page 604', async () => {

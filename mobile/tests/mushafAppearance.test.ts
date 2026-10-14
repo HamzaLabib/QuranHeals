@@ -178,8 +178,8 @@ describe('Dark Mode (Warm Midnight Olive)', () => {
     const { BORDER_INKS } = await import('@/mushaf/borderPattern');
     expect(MUSHAF_BACKGROUND_MIDNIGHT_OLIVE.paper).toBe('#222820');
     expect(MUSHAF_INKS.midnight.color).toBe('#F1E9D6');
-    expect(MUSHAF_APPEARANCE_DARK).toEqual({ background: 'midnight', markers: 'traditional', ink: 'midnight', border: 'original' });
-    // The approved border, untouched: the same object as the Light page's.
+    expect(MUSHAF_APPEARANCE_DARK).toEqual({ background: 'midnight', markers: 'traditional', ink: 'midnight', border: 'midnight' });
+    // The approved border's inks, untouched: the Light page's own object.
     expect(MUSHAF_BORDER_STYLES.original.inks).toBe(BORDER_INKS);
     // Medallion numbers stay dark on cream.
     expect(MUSHAF_MARKER_STYLES.traditional.colors).toMatchObject({ number: '#231F20', innerFill: '#FBF7E4' });
@@ -187,8 +187,34 @@ describe('Dark Mode (Warm Midnight Olive)', () => {
     for (const id of ['original', 'warm'] as const) {
       expect(MUSHAF_PAGE_FURNITURE[id]).toEqual({ header: MUSHAF_PAPER.header, highlight: MUSHAF_PAPER.highlight, highlightOpacity: MUSHAF_PAPER.highlightOpacity });
     }
-    // The gold and sage border is a separate, reversible option.
-    expect(MUSHAF_BORDER_STYLES.midnight.inks).toMatchObject({ rule: '#A99A70', green: '#8EA68A' });
+    // Dark Mode's border: gold rules and sage leaves, every ink exactly as defined.
+    expect(MUSHAF_BORDER_STYLES.midnight.inks).toEqual({ rule: '#A99A70', cream: '#2B3228', mint: '#3E4B3B', green: '#8EA68A', brown: '#A99A70', ochre: '#6E6548' });
+  });
+
+  it('dark pages take the midnight border inks: no bright cream or mint ground on the dark paper; Light keeps the approved inks', async () => {
+    const { MUSHAF_BACKGROUND_MIDNIGHT_OLIVE, MUSHAF_BORDER_STYLES } = await import('@/mushaf/appearance');
+    const { BORDER_INKS } = await import('@/mushaf/borderPattern');
+    const luminance = (hex: string) => {
+      const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const contrast = (a: string, b: string) => { const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x); return (hi + 0.05) / (lo + 0.05); };
+    const paper = MUSHAF_BACKGROUND_MIDNIGHT_OLIVE.paper;
+    const dark = MUSHAF_BORDER_STYLES[resolveMushafAppearance({}, 'dark').border!].inks;
+    expect(dark).toBe(MUSHAF_BORDER_STYLES.midnight.inks);
+    // The large grounds sit close to the paper (the original's cream and mint were ~13:1 against it) ...
+    expect(contrast(BORDER_INKS.cream, paper)).toBeGreaterThan(12);
+    for (const ink of ['cream', 'mint', 'ochre'] as const) expect(contrast(dark[ink], paper)).toBeLessThan(3);
+    // ... while the gold rules and sage leaves stay readable on it.
+    for (const ink of ['rule', 'green', 'brown'] as const) expect(contrast(dark[ink], paper)).toBeGreaterThan(4);
+    // Every page resolves the same border (one preset, no per-page case); Light is unchanged.
+    for (const page of ['1', '2', '61', '604']) {
+      expect(resolveMushafAppearance({ page }, 'dark').border).toBe('midnight');
+      expect(resolveMushafAppearance({ page }, 'light').border).toBe('original');
+    }
+    expect(MUSHAF_BORDER_STYLES[resolveMushafAppearance({}, 'light').border!].inks).toBe(BORDER_INKS);
+    // A preview can still show the original border on the dark page.
+    expect(resolveMushafAppearance({ border: 'original' }, 'dark').border).toBe('original');
   });
 
   it('follows the app theme; Light stays the default; a preview can force either', async () => {

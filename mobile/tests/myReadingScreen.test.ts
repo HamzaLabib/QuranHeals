@@ -3,6 +3,7 @@ import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'rea
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { MESSAGES } from '@/localization/messages';
+import { formatCivilDate } from '@/utils/formatDate';
 
 /**
  * أورادي وختماتي (/my-reading), rendered over the real reading data
@@ -210,6 +211,91 @@ describe('أورادي وختماتي', () => {
     const data = await loadReadingData();
     expect(data.stats).toEqual({ total: 0, ramadan: 0, nonRamadan: 0 });
     expect(data.wirds[0].status).toBe('pending'); // not saved since: back to 604, awaiting confirmation
+  });
+
+  describe('history dates: the record`s stored local calendar day, in any time zone', () => {
+    const originalTz = process.env.TZ;
+    afterEach(() => { process.env.TZ = originalTz; });
+    const unmarked = (text: string) => text.replace(/[‎‏؜]/g, '');
+    const dateText = (id: string) => byId(`khatma-date-${id}`).props.children as string;
+
+    it('confirmed on 14 Oct in UTC+14 (still 13 Oct in UTC and UTC−11): 14 Oct wherever the history is opened', async () => {
+      process.env.TZ = 'Pacific/Kiritimati'; // UTC+14
+      await readTo('Daily', 1, 604);
+      const [w] = await wirds();
+      // 12:00 UTC on 13 Oct is 02:00 on 14 Oct in Kiritimati.
+      const { record } = await confirmKhatma(w.stop.id, w.cycle.id, { now: () => new Date(Date.UTC(2026, 9, 13, 12)) });
+      expect(record).toMatchObject({ localDate: '2026-10-14', completedAt: '2026-10-13T12:00:00.000Z' });
+      for (const tz of ['Pacific/Pago_Pago', 'UTC', 'Asia/Riyadh', 'Pacific/Kiritimati']) {
+        process.env.TZ = tz;
+        // In Pago Pago (UTC−11) the completion instant itself is 01:00 on 13 Oct: the old completedAt date was a day early.
+        if (tz === 'Pacific/Pago_Pago') expect(new Date(record.completedAt).getDate()).toBe(13);
+        for (const locale of ['en', 'ar', 'ar-EG'] as const) {
+          state.locale = locale;
+          await render();
+          const expected = { en: 'Oct 14, 2026', ar: '14/10/2026', 'ar-EG': '١٤/١٠/٢٠٢٦' }[locale];
+          expect(unmarked(dateText(record.id))).toBe(expected);
+          expect(dateText(record.id)).toBe(formatCivilDate('2026-10-14', locale));
+          await act(async () => root.unmount());
+        }
+      }
+      // Nothing stored was changed by showing it.
+      const data = await loadReadingData();
+      expect(data.records).toEqual([record]);
+      expect(data.stats).toEqual({ total: 1, ramadan: 0, nonRamadan: 1 });
+    });
+
+    it('English and Arabic ورد names stay on their own line, outside the date, on Arabic and English screens', async () => {
+      process.env.TZ = 'UTC';
+      const records = [];
+      for (const [name, day] of [['Hi', 11], ['ورد الفجر', 12], ['Personal 2026', 13]] as const) {
+        await readTo(name, 1, 604);
+        const w = (await wirds()).find((x) => x.stop.name === name)!;
+        records.push((await confirmKhatma(w.stop.id, w.cycle.id, { now: () => new Date(Date.UTC(2026, 9, day, 12)) })).record);
+      }
+      for (const locale of ['ar', 'en'] as const) {
+        state.locale = locale;
+        await render();
+        for (const record of records) {
+          const row = byId(`khatma-record-${record.id}`).findAllByType('Text' as never).map((t) => [t.props.children].flat().join(''));
+          const date = formatCivilDate(record.localDate, locale);
+          expect(row.slice(0, 2)).toEqual([record.stopName, date]);
+          expect(date).not.toContain(record.stopName);
+          expect(unmarked(date)).toBe(locale === 'en' ? `Oct ${record.localDate.slice(8).replace(/^0/, '')}, 2026` : `${record.localDate.slice(8)}/10/2026`);
+        }
+        await act(async () => root.unmount());
+      }
+    });
+  });
+
+  it('history ورد names, with punctuation and mixed scripts, are read in their own direction and aligned with the language', async () => {
+    const names = ['Hi!', 'Mosque (Fajr)', 'Personal 2026?', 'Personal ورد', 'ورد الفجر.', 'ورد (Personal)!', 'ورد Personal'];
+    const records = [];
+    for (const name of names) {
+      await readTo(name, 1, 604);
+      const w = (await wirds()).find((x) => x.stop.name === name)!;
+      records.push((await confirmKhatma(w.stop.id, w.cycle.id)).record);
+    }
+    for (const locale of ['ar', 'ar-EG', 'en'] as const) {
+      state.locale = locale;
+      await render();
+      const rtl = locale !== 'en';
+      for (const record of records) {
+        const nameText = byId(`khatma-name-${record.id}`);
+        // The name exactly as typed, punctuation and all: nothing added, moved or stripped.
+        expect(nameText.props.children).toBe(record.stopName);
+        const style = flat(nameText.props.style);
+        // No forced paragraph direction (the platform takes the name's first strong letter), so "Hi!" never reads "!Hi" on an
+        // Arabic screen nor "ورد الفجر." gains a leading full stop on an English one; the row's alignment and type stay as they were.
+        expect(style.writingDirection).toBeUndefined();
+        expect(style).toMatchObject({ textAlign: rtl ? 'right' : 'left', fontSize: 16, fontWeight: '700' });
+        // The date beside it keeps the language's direction and its stored day.
+        expect(flat(byId(`khatma-date-${record.id}`).props.style)).toMatchObject({ writingDirection: rtl ? 'rtl' : 'ltr', textAlign: rtl ? 'right' : 'left' });
+        expect(byId(`khatma-date-${record.id}`).props.children).toBe(formatCivilDate(record.localDate, locale));
+      }
+      await act(async () => root.unmount());
+    }
+    expect((await loadReadingData()).stats.total).toBe(names.length);
   });
 
   it('the percentage reads Completion / الإنجاز (still the saved page out of 604), with a matching progress-bar label', async () => {

@@ -12,6 +12,14 @@ import { getSurahName } from '@/services/surahNames';
 
 /** The Hizb label's size, relative to the running heads (modest: it never outweighs the Surah and juz'). */
 const HIZB_LABEL_SIZE = 0.85;
+/**
+ * How far in from the page's edges the Surah and juz' heads sit, each on its own side: one border tile
+ * (the band's width, page width ÷ 20), so their outer edges line up with the frame's inner rule below them
+ * at every page size. (A fixed 7 pt left them over the band itself, still reading as flush with the edge.)
+ * The header's height, font and the page below are unchanged. Pages 1–2 (the approved opening design) keep their
+ * heads as approved.
+ */
+export const headerSideInset = (layout: { tile: number }) => layout.tile;
 
 type MushafPageViewProps = {
   pageNumber: number;
@@ -70,8 +78,10 @@ export function MushafPageView({
     // The page background is this one opaque fill; everything else is transparent over it.
     <View testID="mushaf-paper" style={[styles.paper, { backgroundColor: paperColor, height: layout.page.height, width: layout.page.width }]}>
       {/* Fixed physical layout, as printed: juz' on the right, surah on the left. */}
-      <View style={[styles.headerRow, { height: layout.header.height }, hizbLabels && hizbLabels.length > 0 && styles.headerBaseline]}>
-        <Text allowFontScaling={false} style={[headerText, styles.headerSide]}>{surahTitle}</Text>
+      <View
+        testID="mushaf-header"
+        style={[styles.headerRow, { height: layout.header.height, paddingHorizontal: openingOrnament ? 0 : headerSideInset(layout) }, hizbLabels && hizbLabels.length > 0 && styles.headerBaseline]}>
+        <Text testID="mushaf-header-surah" allowFontScaling={false} style={[headerText, styles.headerSide]}>{surahTitle}</Text>
         {/* Only on a page where a Hizb or one of its quarters starts: centred between the two, a little smaller. */}
         {hizbLabels && hizbLabels.length > 0 && (
           <Text
@@ -84,7 +94,7 @@ export function MushafPageView({
             {hizbLabels.join('، ')}
           </Text>
         )}
-        <Text allowFontScaling={false} style={[headerText, styles.headerSide]}>{juz}</Text>
+        <Text testID="mushaf-header-juz" allowFontScaling={false} style={[headerText, styles.headerSide]}>{juz}</Text>
       </View>
 
       {/* Decorative: no touches (taps reach the text above it), hidden from screen readers. */}

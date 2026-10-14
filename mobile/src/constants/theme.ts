@@ -1,5 +1,7 @@
 import { Platform } from 'react-native';
 
+import { FIELD_COLORS } from './fieldColors';
+
 /**
  * Semantic color tokens. Components read these through useThemedStyles() /
  * usePalette() (see src/theme/useTheme.ts) so the device's light/dark
@@ -16,6 +18,13 @@ export type Palette = {
   sheetBackground: string;
   inputBackground: string;
   inputBorder: string;
+  /**
+   * Every editable text field (reflections, ورد names, search, the sync password, Report an Issue, …): a soft surface
+   * of its own, a little warmer than the window around it, with a quiet border. Only text fields use these;
+   * inputBackground / inputBorder stay with the other controls (segmented choices, option lists).
+   */
+  fieldBackground: string;
+  fieldBorder: string;
   placeholder: string;
   /** Primary reading text — also the Quran Arabic ayah. */
   textPrimary: string;
@@ -74,7 +83,10 @@ export const lightPalette: Palette = {
   sheetBackground: '#FFFDF8',
   inputBackground: '#F7F2EA',
   inputBorder: '#E5DED2',
-  placeholder: '#66736B',
+  fieldBackground: FIELD_COLORS.light.background, // soft warm cream
+  fieldBorder: FIELD_COLORS.light.border,
+  // On the cream text fields at WCAG AA (4.5:1): a shade darker than textSecondary.
+  placeholder: '#616E66',
   textPrimary: '#1F2A24',
   textSecondary: '#66736B',
   // Was #8B948E — only ~2.8-3.1:1 against surface/parchment, below the 4.5:1
@@ -130,7 +142,10 @@ export const darkPalette: Palette = {
   sheetBackground: '#1E2530',
   inputBackground: '#171E27',
   inputBorder: '#4A5A6B',
-  placeholder: '#A39A8C',
+  fieldBackground: FIELD_COLORS.dark.background, // a softly lighter dark surface
+  fieldBorder: FIELD_COLORS.dark.border,
+  // On the dark text fields at WCAG AA (4.5:1).
+  placeholder: '#A59D8F',
   textPrimary: '#EDE6DA',
   // Cooler/brighter than the first blue/cyan pass (was #BDB4A6/#A39A8C,
   // warm beige-gray): still clearly a muted/tertiary tone, never competing

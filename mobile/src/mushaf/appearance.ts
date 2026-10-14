@@ -108,9 +108,10 @@ export type MushafInkId = keyof typeof MUSHAF_INKS;
 
 /**
  * The border's colours. Its pattern and geometry (borderPattern.ts) never
- * change. 'original' is the approved border exactly, in Light and Dark.
- * 'midnight' is a separately reversible alternative for Dark Mode (gold
- * rules and rhombi, sage leaves), not adopted: compare it before choosing it.
+ * change. 'original' is the approved border exactly, on the Light page.
+ * 'midnight' is Dark Mode's (gold rules and rhombi, sage leaves on muted
+ * olive grounds): the original's bright cream and mint grounds glared on the
+ * dark paper. Reversible: set MUSHAF_APPEARANCE_DARK.border back.
  */
 export const MUSHAF_BORDER_STYLES = {
   original: { id: 'original', label: 'Original border', inks: BORDER_INKS },
@@ -135,9 +136,9 @@ export const MUSHAF_APPEARANCE_PHASE_1C: MushafAppearance = { background: 'origi
 /**
  * Approved Dark Mode (phase 2C, Warm Midnight Olive): dark paper, warm cream
  * ink, the same traditional medallions (dark number on cream) and the
- * approved border in its original colours.
+ * approved border's pattern in its midnight gold and sage inks.
  */
-export const MUSHAF_APPEARANCE_DARK: MushafAppearance = { background: 'midnight', markers: 'traditional', ink: 'midnight', border: 'original' };
+export const MUSHAF_APPEARANCE_DARK: MushafAppearance = { background: 'midnight', markers: 'traditional', ink: 'midnight', border: 'midnight' };
 
 /**
  * The one setting: what /mushaf shows. To restore the phase-1C page, set

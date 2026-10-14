@@ -188,17 +188,10 @@ export function juzOfAyah(surah: number, ayah: number): number {
   return juz;
 }
 
-/** As printed in a Mushaf header: الجزء الأول … الجزء الثلاثون. */
-const JUZ_ORDINALS = [
-  'الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس', 'السادس', 'السابع', 'الثامن', 'التاسع', 'العاشر',
-  'الحادي عشر', 'الثاني عشر', 'الثالث عشر', 'الرابع عشر', 'الخامس عشر', 'السادس عشر', 'السابع عشر', 'الثامن عشر', 'التاسع عشر', 'العشرون',
-  'الحادي والعشرون', 'الثاني والعشرون', 'الثالث والعشرون', 'الرابع والعشرون', 'الخامس والعشرون',
-  'السادس والعشرون', 'السابع والعشرون', 'الثامن والعشرون', 'التاسع والعشرون', 'الثلاثون',
-] as const;
-
+/** The juz' head: الجزء ١ … الجزء ٣٠, in Arabic-Indic digits whatever the app's language (as the page number). */
 export function juzTitle(juz: number): string {
   if (!Number.isInteger(juz) || juz < 1 || juz > 30) throw new MushafPageError('Invalid juz');
-  return `الجزء ${JUZ_ORDINALS[juz - 1]}`;
+  return `الجزء ${toArabicIndicDigits(juz)}`;
 }
 
 /** Page numbers are printed in Arabic-Indic digits (٦١). */

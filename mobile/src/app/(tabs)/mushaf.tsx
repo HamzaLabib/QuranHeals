@@ -58,7 +58,9 @@ import { goBackOrHome } from '@/utils/goBackOrHome';
  * status bar, then the printed QPC V1 page as large as the screen allows,
  * with one floating, icon-only action bar at the bottom (previous page,
  * reflection, search, save a reading stop, next page). Swiping the page
- * turns it too, in step with the arrows; pinching zooms it (MushafZoomView).
+ * turns it too, in step with the arrows, the page following the finger with
+ * its neighbour beside it (both drawn ahead); pinching zooms it
+ * (MushafZoomView).
  * The active reading stop (ورد) sits between the page and the bar
  * (MushafWirdSelector); search opens a sheet for a page number or a Surah
  * (MushafSearchSheet). The sources are credited on Home and in /credits.
@@ -231,6 +233,37 @@ async function ensurePageFont(page: number, family: string): Promise<boolean> {
   }
 }
 
+/** One page's layout and font, checked against the verified Tanzil text before it may be drawn. Never throws. */
+async function loadPageState(page: number, onlineInDev: boolean): Promise<PageState> {
+  const startedAt = Date.now();
+  try {
+    const offline = await offlineMushaf.readPage(page).catch(() => null);
+    // Online: page 61 from the page API; in development builds with ?source=online, any page straight from the relay.
+    const devRelay = !offline && onlineInDev && page !== DEFAULT_PAGE
+      ? await readRelayPageForDev(page).catch(() => null)
+      : null;
+    const layout = offline ?? devRelay ?? (page === DEFAULT_PAGE ? await loadQpcV1PageLayout(page).catch(() => null) : null);
+    if (!layout) return page === DEFAULT_PAGE ? { status: 'svg' } : { status: 'missing' };
+    const tanzil: Record<string, string> = {};
+    for (const verseKey of layout.verseKeys) tanzil[verseKey] = (await getVerseByKey(verseKey)).arabicText;
+    const basmala = (await getVerseByKey('1:1')).arabicText;
+    const check = checkAgainstTanzil(layout, layout.verseKeys, tanzil, basmala);
+    const fontReady = page === DEFAULT_PAGE ? true : await ensurePageFont(page, layout.fontFamily);
+    devLog('mushaf', 'page', { page, source: offline ? 'offline' : 'api', ms: Date.now() - startedAt, ok: check.ok, fontReady, problems: check.problems });
+    // A Basmala line is drawn in page 1's font; without it the line stays empty (never another font).
+    const needsBasmala = surahOpeningSlots(layout).some((slot) => slot.kind === 'basmala');
+    const basmalaFont = needsBasmala && (await ensurePageFont(BASMALA_FONT_PAGE, 'QCF_P001')) ? 'QCF_P001' : null;
+    if (check.ok && fontReady) return { status: 'qpc', layout, source: offline ? 'offline' : 'api', basmalaFont };
+    return page === DEFAULT_PAGE ? { status: 'svg' } : { status: 'unavailable' };
+  } catch {
+    return page === DEFAULT_PAGE ? { status: 'svg' } : { status: 'unavailable' };
+  }
+}
+
+const LOADING: PageState = { status: 'loading' };
+/** A neighbour page's ayahs can't be chosen: it is only seen sliding in. */
+const ignoreVerse = () => undefined;
+
 export default function MushafScreen() {
   const styles = useThemedStyles(makeStyles);
   const insets = useSafeAreaInsets();
@@ -252,8 +285,11 @@ export default function MushafScreen() {
   // No ?page=: page 1 until the saved ورد (if any) is read from storage just below.
   const initialPage = requestedPage ?? FIRST_PAGE;
   const [page, setPage] = useState(initialPage);
-  // What was loaded, for which page: any other page is still loading.
-  const [loaded, setLoaded] = useState<{ page: number; reload: number; state: PageState } | null>(null);
+  // What was loaded for the page and its two neighbours (drawn beside it for a swipe), and for which reload: any other
+  // page is still loading. The loads themselves, by page, reload and source, so a neighbour already loading or loaded
+  // is never read twice when it becomes the page.
+  const [loadedPages, setLoadedPages] = useState<Record<number, { reload: number; state: PageState }>>({});
+  const pageLoads = useRef(new Map<string, { page: number; load: Promise<PageState> }>());
   const [reloadKey, setReloadKey] = useState(0);
   const [fontsLoaded, fontError] = useFonts(QPC_V1_FONTS);
   // Separate, so the heads' font can never hold back or disable the Quran text.
@@ -314,38 +350,30 @@ export default function MushafScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // The page's layout and font, checked against the verified Tanzil text before it may be drawn.
+  // The page's layout and font (loadPageState), then its neighbours', so a swipe finds them drawn.
   useEffect(() => {
     let cancelled = false;
-    const startedAt = Date.now();
-    const setContent = (state: PageState) => setLoaded({ page, reload: reloadKey, state });
+    const near = (n: number) => Math.abs(n - page) <= 1;
+    for (const [key, entry] of pageLoads.current) if (!near(entry.page) || !key.endsWith(`|${reloadKey}|${onlineInDev}`)) pageLoads.current.delete(key);
     void (async () => {
-      try {
-        const offline = await offlineMushaf.readPage(page).catch(() => null);
-        // Online: page 61 from the page API; in development builds with ?source=online, any page straight from the relay.
-        const devRelay = !offline && onlineInDev && page !== DEFAULT_PAGE
-          ? await readRelayPageForDev(page).catch(() => null)
-          : null;
-        const layout = offline ?? devRelay ?? (page === DEFAULT_PAGE ? await loadQpcV1PageLayout(page).catch(() => null) : null);
-        if (!layout) {
-          if (!cancelled) setContent(page === DEFAULT_PAGE ? { status: 'svg' } : { status: 'missing' });
-          return;
+      for (const n of [page, page + 1, page - 1]) {
+        if (n < 1 || n > MUSHAF_PAGE_COUNT) continue;
+        const key = `${n}|${reloadKey}|${onlineInDev}`;
+        let entry = pageLoads.current.get(key);
+        if (!entry) {
+          entry = { page: n, load: loadPageState(n, onlineInDev) };
+          pageLoads.current.set(key, entry);
         }
-        const tanzil: Record<string, string> = {};
-        for (const verseKey of layout.verseKeys) tanzil[verseKey] = (await getVerseByKey(verseKey)).arabicText;
-        const basmala = (await getVerseByKey('1:1')).arabicText;
-        const check = checkAgainstTanzil(layout, layout.verseKeys, tanzil, basmala);
-        const fontReady = page === DEFAULT_PAGE ? true : await ensurePageFont(page, layout.fontFamily);
-        devLog('mushaf', 'page', { page, source: offline ? 'offline' : 'api', ms: Date.now() - startedAt, ok: check.ok, fontReady, problems: check.problems });
+        const state = await entry.load;
+        // A newer page takes over (and finds this load already done).
         if (cancelled) return;
-        // A Basmala line is drawn in page 1's font; without it the line stays empty (never another font).
-        const needsBasmala = surahOpeningSlots(layout).some((slot) => slot.kind === 'basmala');
-        const basmalaFont = needsBasmala && (await ensurePageFont(BASMALA_FONT_PAGE, 'QCF_P001')) ? 'QCF_P001' : null;
-        if (cancelled) return;
-        if (check.ok && fontReady) setContent({ status: 'qpc', layout, source: offline ? 'offline' : 'api', basmalaFont });
-        else setContent(page === DEFAULT_PAGE ? { status: 'svg' } : { status: 'unavailable' });
-      } catch {
-        if (!cancelled) setContent(page === DEFAULT_PAGE ? { status: 'svg' } : { status: 'unavailable' });
+        setLoadedPages((previous) => {
+          if (previous[n]?.reload === reloadKey && previous[n].state === state) return previous;
+          const next: Record<number, { reload: number; state: PageState }> = {};
+          for (const [kept, value] of Object.entries(previous)) if (near(Number(kept))) next[Number(kept)] = value;
+          next[n] = { reload: reloadKey, state };
+          return next;
+        });
       }
     })();
     return () => {
@@ -561,9 +589,11 @@ export default function MushafScreen() {
     }
   };
 
-  const content: PageState = loaded && loaded.page === page && loaded.reload === reloadKey ? loaded.state : { status: 'loading' };
+  const stateOf = (n: number): PageState => (loadedPages[n]?.reload === reloadKey ? loadedPages[n].state : LOADING);
+  const content = stateOf(page);
   const svg = svgPage61();
-  const showQpc = content.status === 'qpc' && (content.layout.page !== DEFAULT_PAGE || (fontsLoaded && !fontError));
+  const qpcShown = (state: PageState) => state.status === 'qpc' && (state.layout.page !== DEFAULT_PAGE || (fontsLoaded && !fontError));
+  const showQpc = qpcShown(content);
   // Automatic, on every page: Taller in full screen wherever the whole page fits (fitMushafPage falls back to
   // Traditional otherwise); Normal Mode is always Traditional. It needs the QPC lines (the Quran SVG page keeps
   // its own fixed line positions). There is no layout choice anywhere.
@@ -571,13 +601,16 @@ export default function MushafScreen() {
   // The largest page that fits between the Back row and the floating bar, never cropped. No tab bar on this tab.
   const fit = fitMushafPage(area, insets.bottom, fullScreen, taller);
   const { width: pageWidth, height: pageHeight } = fit.page;
-  const showSvg = page === DEFAULT_PAGE && svg && (content.status === 'svg' || (content.status === 'qpc' && !showQpc));
-  const firstAyah = showQpc && content.status === 'qpc'
-    ? (() => { const [surah, ayah] = content.layout.verseKeys[0].split(':').map(Number); return { surah, ayah }; })()
-    : svg?.page.ayahs[0];
-  const pageLabel = `${copy.pageLabel} ${page}`;
-
-  const drawn = pageWidth > 0 && (showQpc || showSvg) && firstAyah;
+  /** What a page shows: its QPC lines, page 61's Quran SVG, or neither (yet); and its first ayah (the page's heads). */
+  const partsOf = (n: number, state: PageState) => {
+    const qpc = qpcShown(state);
+    const svgShown = n === DEFAULT_PAGE && svg && (state.status === 'svg' || (state.status === 'qpc' && !qpc));
+    const first = qpc && state.status === 'qpc'
+      ? (() => { const [surah, ayah] = state.layout.verseKeys[0].split(':').map(Number); return { surah, ayah }; })()
+      : svg?.page.ayahs[0];
+    return { qpc, svgShown, first, drawn: pageWidth > 0 && (qpc || svgShown) && first };
+  };
+  const drawn = partsOf(page, content).drawn;
   const iconColor = (dark ? MUSHAF_PANEL_COLORS.dark : MUSHAF_PANEL_COLORS.light).icon;
   return (
     <GestureHandlerRootView style={[styles.reader, { backgroundColor: MUSHAF_BACKGROUNDS[appearance.background].paper, paddingTop: insets.top }]}>
@@ -614,67 +647,73 @@ export default function MushafScreen() {
         style={styles.pageArea}
         onLayout={(event) => setArea({ width: Math.floor(event.nativeEvent.layout.width), height: Math.floor(event.nativeEvent.layout.height) })}>
         {pageWidth > 0 && (
-          <MushafZoomView ref={zoomView} key={page} viewport={fit.viewport} page={fit.page} centered={fullScreen} zoomable={Boolean(drawn)} onSwipe={turn}
+          <MushafZoomView ref={zoomView} viewport={fit.viewport} page={fit.page} centered={fullScreen} zoomable={Boolean(drawn)} onSwipe={turn}
+            current={page}
+            lastPage={MUSHAF_PAGE_COUNT}
             onSwipeDown={fullScreen && !isReflectionVisible ? () => switchReadingMode(false) : undefined}
             swipeDownFromY={insets.top + SWIPE_DOWN_TOP_GUARD}
             onDoubleTap={onDoubleTap}
-            onZoomChange={setZoomed}>
-            {drawn ? (
-              <MushafPageView
-                pageNumber={page}
-                firstAyah={firstAyah}
-                width={pageWidth}
-                tilesDown={fit.tilesDown === BORDER_TILES_DOWN ? undefined : fit.tilesDown}
-                hizbLabels={hizbLabelsForPage(page)}
-                openingOrnament={showQpc && page <= 2}
-                headerFontFamily={headerFontLoaded ? MUSHAF_HEADER_FONT_FAMILY : undefined}
-                paperColor={MUSHAF_BACKGROUNDS[appearance.background].paper}
-                headerColor={furniture.header}
-                borderInks={MUSHAF_BORDER_STYLES[appearance.border ?? 'original'].inks}
-                renderText={(textArea, { printedLinePitch }) => (showQpc && content.status === 'qpc' ? (
-                  <QpcV1PageText
-                    key={`qpc-${page}-${textArea.width}`}
-                    layout={content.layout}
-                    width={textArea.width}
-                    height={textArea.height}
-                    selectedVerseKey={selectedVerseKey}
-                    onSelectVerse={selectVerse}
-                    accessibilityLabel={pageLabel}
-                    accessibilityHint={copy.tapHint}
-                    markerStyle={appearance.markers}
-                    printedPitch={printedLinePitch}
-                    boxMarginEm={fullScreen ? 0 : QCF_V1_NORMAL_BOX_MARGIN_EM}
-                    basmalaFontFamily={content.basmalaFont}
-                    headingFontFamily={headerFontLoaded ? MUSHAF_HEADER_FONT_FAMILY : undefined}
-                    headingColor={furniture.header}
-                    ink={ink}
-                    highlight={highlight}
-                  />
-                ) : (
-                  <MushafSvgText
-                    page={svg!.page}
-                    svg={ink === MUSHAF_INKS.original.color ? svg!.svg : inkedSvg(svg!.svg, ink)}
-                    highlight={highlight}
-                    area={textArea}
-                    selectedVerseKey={selectedVerseKey}
-                    onSelectVerse={selectVerse}
-                    accessibilityLabel={pageLabel}
-                    accessibilityHint={copy.tapHint}
-                  />
-                ))}
-              />
-            ) : content.status === 'missing' || content.status === 'unavailable' ? (
-              <View testID="mushaf-page-missing" style={[styles.missingPage, { width: pageWidth, height: pageHeight, backgroundColor: MUSHAF_BACKGROUNDS[appearance.background].paper }]}>
-                <Text style={[styles.missingNumber, { color: furniture.header }]}>{String(page)}</Text>
-                <Text style={[styles.missingText, { color: furniture.header }]}>
-                  {content.status === 'missing' ? copy.pageNotDownloaded : copy.pageUnavailable}
-                </Text>
-                <OfflineMushafPanel onChange={() => setReloadKey((key) => key + 1)} />
-              </View>
-            ) : (
-              <View style={{ height: pageHeight }} accessibilityLabel={copy.qpcLoading} />
-            )}
-          </MushafZoomView>
+            onZoomChange={setZoomed}
+            renderPage={(n, isCurrent) => {
+              const state = isCurrent ? content : stateOf(n);
+              const parts = partsOf(n, state);
+              return parts.drawn ? (
+                <MushafPageView
+                  pageNumber={n}
+                  firstAyah={parts.first!}
+                  width={pageWidth}
+                  tilesDown={fit.tilesDown === BORDER_TILES_DOWN ? undefined : fit.tilesDown}
+                  hizbLabels={hizbLabelsForPage(n)}
+                  openingOrnament={parts.qpc && n <= 2}
+                  headerFontFamily={headerFontLoaded ? MUSHAF_HEADER_FONT_FAMILY : undefined}
+                  paperColor={MUSHAF_BACKGROUNDS[appearance.background].paper}
+                  headerColor={furniture.header}
+                  borderInks={MUSHAF_BORDER_STYLES[appearance.border ?? 'original'].inks}
+                  renderText={(textArea, { printedLinePitch }) => (parts.qpc && state.status === 'qpc' ? (
+                    <QpcV1PageText
+                      key={`qpc-${n}-${textArea.width}`}
+                      layout={state.layout}
+                      width={textArea.width}
+                      height={textArea.height}
+                      selectedVerseKey={isCurrent ? selectedVerseKey : null}
+                      onSelectVerse={isCurrent ? selectVerse : ignoreVerse}
+                      accessibilityLabel={`${copy.pageLabel} ${n}`}
+                      accessibilityHint={copy.tapHint}
+                      markerStyle={appearance.markers}
+                      printedPitch={printedLinePitch}
+                      boxMarginEm={fullScreen ? 0 : QCF_V1_NORMAL_BOX_MARGIN_EM}
+                      basmalaFontFamily={state.basmalaFont}
+                      headingFontFamily={headerFontLoaded ? MUSHAF_HEADER_FONT_FAMILY : undefined}
+                      headingColor={furniture.header}
+                      ink={ink}
+                      highlight={highlight}
+                    />
+                  ) : (
+                    <MushafSvgText
+                      page={svg!.page}
+                      svg={ink === MUSHAF_INKS.original.color ? svg!.svg : inkedSvg(svg!.svg, ink)}
+                      highlight={highlight}
+                      area={textArea}
+                      selectedVerseKey={isCurrent ? selectedVerseKey : null}
+                      onSelectVerse={isCurrent ? selectVerse : ignoreVerse}
+                      accessibilityLabel={`${copy.pageLabel} ${n}`}
+                      accessibilityHint={copy.tapHint}
+                    />
+                  ))}
+                />
+              ) : state.status === 'missing' || state.status === 'unavailable' ? (
+                <View testID={isCurrent ? 'mushaf-page-missing' : undefined} style={[styles.missingPage, { width: pageWidth, height: pageHeight, backgroundColor: MUSHAF_BACKGROUNDS[appearance.background].paper }]}>
+                  <Text style={[styles.missingNumber, { color: furniture.header }]}>{String(n)}</Text>
+                  <Text style={[styles.missingText, { color: furniture.header }]}>
+                    {state.status === 'missing' ? copy.pageNotDownloaded : copy.pageUnavailable}
+                  </Text>
+                  {isCurrent && <OfflineMushafPanel onChange={() => setReloadKey((key) => key + 1)} />}
+                </View>
+              ) : (
+                <View style={{ height: pageHeight }} accessibilityLabel={copy.qpcLoading} />
+              );
+            }}
+          />
         )}
         {pageWidth > 0 && !fullScreen && (
           <View
@@ -795,6 +834,8 @@ export default function MushafScreen() {
         visible={isReflectionVisible}
         verseKey={selectedVerseKey}
         onClose={() => setIsReflectionVisible(false)}
+        // In the reader's own window colours, light or dark with the page.
+        mushaf={{ dark }}
       />
 
       <KhatmaReachedSheet

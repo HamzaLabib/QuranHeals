@@ -17,7 +17,7 @@ import { READING_STOP_NAME_MAX_LENGTH, ReadingStopError, renameReadingStop, subs
 import { subscribeToLocalDataOwner } from '@/storage/localDataOwner';
 import { getReadingSyncStatus, subscribeToReadingSyncStatus, type ReadingSyncStatus } from '@/sync/readingSyncState';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
-import { formatReflectionDate } from '@/utils/formatDate';
+import { formatCivilDate } from '@/utils/formatDate';
 import { goBackOrHome } from '@/utils/goBackOrHome';
 import { scrollBottomPadding } from '@/utils/safeAreaSpacing';
 
@@ -271,8 +271,11 @@ export default function MyReadingScreen() {
           return (
             <View key={record.id} testID={`khatma-record-${record.id}`} style={[styles.historyRow, rtl && styles.rowRtl]}>
               <View style={styles.flex}>
-                <Text style={[styles.historyName, direction]}>{name}</Text>
-                <Text style={[styles.meta, direction]}>{formatReflectionDate(Date.parse(record.completedAt), locale)}</Text>
+                {/* Aligned with the language, but read in the name's own direction (its first strong letter), as on
+                    تقبل الله ختمتك: an English name keeps its punctuation in place on an Arabic screen, and vice versa. */}
+                <Text testID={`khatma-name-${record.id}`} style={[styles.historyName, { textAlign: direction.textAlign }]}>{name}</Text>
+                {/* The record's stored local calendar day, as on تقبل الله ختمتك: never shifted by this device's time zone. */}
+                <Text testID={`khatma-date-${record.id}`} style={[styles.meta, direction]}>{formatCivilDate(record.localDate, locale)}</Text>
               </View>
               <Text style={[styles.tag, record.ramadan ? styles.tagRamadan : styles.tagOther]}>
                 {record.ramadan && record.ramadanHijriYear !== null ? fill(copy.ramadanTag, { year: num(record.ramadanHijriYear) }) : copy.nonRamadanTag}
@@ -530,7 +533,7 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   sheetTitle: { color: colors.textPrimary, fontSize: 22, fontWeight: '800', marginBottom: spacing.sm },
   label: { color: colors.textSecondary, fontSize: typography.caption, fontWeight: '700' },
   input: {
-    backgroundColor: colors.inputBackground, borderColor: colors.inputBorder, borderRadius: radii.sm, borderWidth: 1,
+    backgroundColor: colors.fieldBackground, borderColor: colors.fieldBorder, borderRadius: radii.sm, borderWidth: 1,
     color: colors.textPrimary, fontSize: typography.body, minHeight: 48, paddingHorizontal: spacing.md,
   },
   error: { color: colors.danger, fontSize: typography.caption },

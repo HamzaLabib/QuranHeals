@@ -1,3 +1,4 @@
+import { FIELD_COLORS } from '@/constants/fieldColors';
 import { REFERENCE_COLORS } from '@/mushaf/pageGeometry';
 
 /**
@@ -34,11 +35,13 @@ export const MUSHAF_PANEL_COLORS = {
     bulbOff: '#857F6C',
     text: '#2B2A26',
     error: '#A33A2B',
-    placeholder: '#8A8578',
+    // On the cream text fields at WCAG AA (4.5:1).
+    placeholder: '#6E6A60',
     onGo: '#FFFFFF',
     // The approved bar (Option A): a gently darker cream than the page (#F9EFD2), a faint edge.
     surface: { backgroundColor: '#E9DBB9', borderColor: '#DBCCA8', shadowColor: '#000000' },
-    input: { backgroundColor: 'rgba(255, 255, 255, 0.9)', borderColor: 'rgba(43, 42, 38, 0.18)', color: '#231F20' },
+    // Text fields: the app's own (fieldBackground / fieldBorder), as everywhere else.
+    input: { backgroundColor: FIELD_COLORS.light.background, borderColor: FIELD_COLORS.light.border, color: '#231F20' },
     go: { backgroundColor: '#3E6B4B' },
     // The lit lightbulb's outline and rays: the palette's sage green.
     saved: '#3E6B4B',
@@ -65,11 +68,12 @@ export const MUSHAF_PANEL_COLORS = {
     bulbOff: '#868B7C',
     text: '#F1E9D6',
     error: '#F0A898',
-    placeholder: '#A39C88',
+    // On the dark text fields at WCAG AA (4.5:1).
+    placeholder: '#A59E8A',
     onGo: '#1B2018',
     // The approved bar (Option A): a slightly lighter olive than the page (#222820).
     surface: { backgroundColor: '#343D31', borderColor: '#475243', shadowColor: '#000000' },
-    input: { backgroundColor: 'rgba(20, 24, 19, 0.85)', borderColor: 'rgba(241, 233, 214, 0.2)', color: '#F1E9D6' },
+    input: { backgroundColor: FIELD_COLORS.dark.background, borderColor: FIELD_COLORS.dark.border, color: '#F1E9D6' },
     go: { backgroundColor: '#8EA68A' },
     // The lit lightbulb's outline and rays: the dark palette's green.
     saved: '#8EA68A',

@@ -5,8 +5,10 @@ import { createElement } from 'react';
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { fill, localNumber } from '@/localization/fill';
 import { MESSAGES } from '@/localization/messages';
 import type { Emotion } from '@/types/domain';
+import { formatCivilDate } from '@/utils/formatDate';
 
 /**
  * The four tabs, Home's redesign (Continue Reading, four emotions, View All),
@@ -20,6 +22,16 @@ const state = vi.hoisted(() => ({
   params: {} as Record<string, string>,
   emotions: [] as unknown[],
   heightReports: [] as number[],
+  /** The screen, and where a measured view is on it (measureInWindow: x, y, width, height). */
+  window: { width: 390, height: 844 },
+  anchor: [24, 200, 120, 32] as [number, number, number, number],
+  /** Where the Wird menu's overlay (a separate native window) measures itself: the whole screen unless a test moves it. */
+  overlay: [0, 0, 390, 844] as [number, number, number, number],
+  /** The name can't be measured (its view not ready). */
+  unmeasurable: false,
+  /** Animations held mid-way (Reanimated mock): their completions wait in `pending` until run. */
+  holdAnimations: false,
+  pending: [] as ((finished: boolean) => void)[],
 }));
 vi.mock('react-native', async () => {
   const { createElement: h } = await import('react');
@@ -29,8 +41,30 @@ vi.mock('react-native', async () => {
     Modal: ({ visible, children, ...rest }: { visible: boolean; children: unknown }) => (visible ? h('Modal', rest, children as never) : null),
     ActivityIndicator: 'ActivityIndicator', KeyboardAvoidingView: 'KeyboardAvoidingView',
     Pressable: 'Pressable', ScrollView: 'ScrollView', Text: 'Text', TextInput: 'TextInput', View: 'View',
+    useWindowDimensions: () => state.window,
   };
 });
+vi.mock('react-native-reanimated', async () => {
+  const { useRef } = await import('react');
+  return {
+    default: { View: 'AnimatedView' },
+    useSharedValue: (initial: unknown) => {
+      const ref = useRef<{ get: () => unknown; set: (v: unknown) => void } | null>(null);
+      if (!ref.current) { let value = initial; ref.current = { get: () => value, set: (next) => { value = next; } }; }
+      return ref.current;
+    },
+    // The style as rendered, carrying (not enumerable) the function itself, to read it live.
+    useAnimatedStyle: (style: () => object) => Object.defineProperty(style(), '__live', { value: style }),
+    // Arrives at once; its completion runs after the value is set (or, held, when `pending` is run).
+    withTiming: (value: number, _config?: unknown, done?: (finished: boolean) => void) => {
+      if (done && state.holdAnimations) state.pending.push(done);
+      else if (done) queueMicrotask(() => done(true));
+      return value;
+    },
+    Easing: { out: (easing: unknown) => easing, cubic: 'cubic' },
+  };
+});
+vi.mock('react-native-worklets', () => ({ scheduleOnRN: (fn: (...args: unknown[]) => void, ...args: unknown[]) => fn(...args) }));
 vi.mock('@react-native-async-storage/async-storage', () => ({
   default: {
     getItem: vi.fn(async (key: string) => state.storage.get(key) ?? null),
@@ -40,7 +74,7 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
 }));
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView', useSafeAreaInsets: () => ({ top: 47, bottom: 34, left: 0, right: 0 }) }));
 vi.mock('lucide-react-native', () => Object.fromEntries(
-  ['AArrowDown', 'AArrowUp', 'ArrowLeft', 'ArrowRight', 'BookHeart', 'BookMarked', 'BookOpen', 'BookOpenText', 'Heart', 'House', 'NotebookPen', 'RefreshCw'].map((name) => [name, name]),
+  ['ArrowLeft', 'ArrowRight', 'BookHeart', 'BookMarked', 'BookOpen', 'BookOpenText', 'Check', 'ChevronDown', 'Heart', 'House', 'Minus', 'NotebookPen', 'Plus', 'RefreshCw'].map((name) => [name, name]),
 ));
 vi.mock('expo-router', () => ({
   router: { push: vi.fn(), navigate: vi.fn(), back: vi.fn(), replace: vi.fn(), dismissTo: vi.fn(), canGoBack: () => true },
@@ -69,6 +103,7 @@ const { default: KhatmaCompleteScreen } = await import('@/app/khatma-complete');
 const { lightPalette } = await import('@/constants/theme');
 const { default: KhatmDuaScreen } = await import('@/app/khatm-dua');
 const { confirmKhatma, loadReadingData, saveWirdPage } = await import('@/mushaf/khatmas');
+const { setActiveReadingStopId } = await import('@/mushaf/readingStops');
 const { RECENT_EMOTIONS_STORAGE_KEY } = await import('@/storage/recentEmotions');
 const { resetLocalDataOwnerForTests } = await import('@/storage/localDataOwner');
 const { router } = await import('expo-router');
@@ -81,7 +116,14 @@ const textOf = (node: ReactTestInstance) => node.findAllByType('Text' as never).
 const press = async (id: string) => { await act(async () => { await byId(id).props.onPress(); }); await flush(); await flush(); };
 const flat = (style: unknown) => Object.assign({}, ...[style].flat(3).filter(Boolean));
 async function mount(element: ReturnType<typeof createElement>) {
-  await act(async () => { root = create(element); });
+  // Host views measure where the test says: the menu's overlay at state.overlay, any other (the Wird name) at state.anchor.
+  const createNodeMock = (element: { props: unknown }) => ({
+    measureInWindow: (done: (...box: number[]) => void) => {
+      if ((element.props as { testID?: string }).testID === 'home-wird-overlay') done(...state.overlay);
+      else if (!state.unmeasurable) done(...state.anchor);
+    },
+  });
+  await act(async () => { root = create(element, { createNodeMock }); });
   await flush();
   await flush();
 }
@@ -93,6 +135,12 @@ beforeEach(() => {
   state.storage.clear();
   state.params = {};
   state.heightReports = [];
+  state.window = { width: 390, height: 844 };
+  state.anchor = [24, 200, 120, 32];
+  state.overlay = [0, 0, 390, 844];
+  state.unmeasurable = false;
+  state.holdAnimations = false;
+  state.pending = [];
   resetLocalDataOwnerForTests();
   for (const fn of [router.push, router.navigate, router.replace, router.dismissTo]) vi.mocked(fn).mockClear();
 });
@@ -226,6 +274,32 @@ describe('Continue Reading (متابعة القراءة)', () => {
     expect(router.navigate).toHaveBeenLastCalledWith({ pathname: '/mushaf', params: { page: '1', at: expect.any(String) } });
   });
 
+  it('with no ورد: invites reflection with a new ورد under the unchanged title; gone once a ورد exists', async () => {
+    const expected = {
+      en: 'Open the Mushaf to its first page and reflect on its verses as you begin a new Wird.',
+      ar: 'افتح المصحف من صفحته الأولى، وتفكّر في آياته مع وردٍ جديد.',
+      'ar-EG': 'افتح المصحف من أول صفحة، واتأمّل في آياته مع ورد جديد.',
+    } as const;
+    expect(MESSAGES.ar.continueReading.firstTitle).toBe('ابدأ قراءتك');
+    for (const locale of ['en', 'ar', 'ar-EG'] as const) {
+      state.locale = locale;
+      state.storage.clear();
+      resetLocalDataOwnerForTests();
+      if (root) await act(async () => root.unmount());
+      await mount(createElement(ContinueReadingCard));
+      expect(MESSAGES[locale].continueReading.firstBody).toBe(expected[locale]);
+      const first = byId('home-continue-first').findAllByType('Text' as never).map((t) => t.props.children);
+      expect(first).toEqual([MESSAGES[locale].continueReading.firstTitle, expected[locale]]);
+      expect(flat(byId('home-continue-first').findAllByType('Text' as never)[1].props.style).writingDirection).toBe(locale === 'en' ? 'ltr' : 'rtl');
+      // A saved ورد replaces the invitation.
+      await act(async () => { await saveWirdPage({ name: 'Personal', page: 12 }); });
+      await flush();
+      expect(all('home-continue-first')).toHaveLength(0);
+      expect(textOf(byId('home-continue-reading'))).not.toContain(expected[locale]);
+      expect(textOf(byId('home-continue-reading'))).toContain('Personal');
+    }
+  });
+
   it('shows the active ورد, its saved page and progress; المصحف opens that page; أورادي وختماتي opens its page', async () => {
     state.locale = 'ar';
     await saveWirdPage({ name: 'ورد التدبر', page: 150 });
@@ -241,6 +315,331 @@ describe('Continue Reading (متابعة القراءة)', () => {
     await press('home-open-my-reading');
     // The tab: navigate switches to it; nothing is pushed twice.
     expect(router.navigate).toHaveBeenLastCalledWith('/my-reading');
+  });
+
+  describe('the ورد selector', () => {
+    const optionIds = () => byId('home-wird-menu').findAll((n) => typeof n.type === 'string' && /^home-wird-option-/.test(String(n.props.testID))).map((n) => n.props.testID as string);
+    const shown = () => textOf(byId('home-continue-wird'));
+    const nameShown = () => byId('home-wird-selector').findByType('Text' as never).props.children;
+
+    it('one ورد: no chevron and nothing to open; the card is as before', async () => {
+      await saveWirdPage({ name: 'Fajr', page: 40 });
+      await mount(createElement(ContinueReadingCard));
+      expect(all('home-wird-selector')).toHaveLength(0);
+      expect(root.root.findAllByType('ChevronDown' as never)).toHaveLength(0);
+      expect(shown()).toContain('Fajr');
+    });
+
+    it('two or more: a chevron beside the name opens every ورد with its page and a check on the shown one', async () => {
+      await saveWirdPage({ name: 'Isha', page: 302 });
+      await saveWirdPage({ name: 'Fajr', page: 40 });
+      await mount(createElement(ContinueReadingCard));
+      const selector = byId('home-wird-selector');
+      expect(nameShown()).toBe('Fajr');
+      expect(selector.findAllByType('ChevronDown' as never)).toHaveLength(1);
+      expect(selector.props).toMatchObject({ accessibilityRole: 'button', accessibilityHint: MESSAGES.en.continueReading.switchHint, accessibilityState: { expanded: false } });
+      expect(all('home-wird-menu')).toHaveLength(0);
+      await press('home-wird-selector');
+      expect(byId('home-wird-selector').props.accessibilityState).toEqual({ expanded: true });
+      const { wirds } = await loadReadingData();
+      expect(optionIds()).toEqual(wirds.map((w) => `home-wird-option-${w.stop.id}`));
+      const fajr = wirds.find((w) => w.stop.name === 'Fajr')!;
+      const isha = wirds.find((w) => w.stop.name === 'Isha')!;
+      expect(textOf(byId(`home-wird-option-${fajr.stop.id}`))).toBe('Fajr | Page 40');
+      expect(textOf(byId(`home-wird-option-${isha.stop.id}`))).toBe('Isha | Page 302');
+      expect(byId(`home-wird-option-${fajr.stop.id}`).props.accessibilityState).toEqual({ selected: true });
+      expect(byId(`home-wird-option-${fajr.stop.id}`).findAllByType('Check' as never)).toHaveLength(1);
+      expect(byId(`home-wird-option-${isha.stop.id}`).findAllByType('Check' as never)).toHaveLength(0);
+      expect(textOf(byId('home-wird-menu'))).toContain(MESSAGES.en.continueReading.chooseWird);
+      // A tap outside closes it, choosing nothing.
+      await press('home-wird-backdrop');
+      expect(all('home-wird-menu')).toHaveLength(0);
+      expect(nameShown()).toBe('Fajr');
+      expect((await loadReadingData()).activeStopId).toBe(before(wirds));
+    });
+    const before = (wirds: readonly { stop: { id: string; name: string } }[]) => wirds.find((w) => w.stop.name === 'Fajr')!.stop.id;
+
+    it('choosing another ورد updates the name, page, percentage and bar at once; it is stored as the active ورد; المصحف opens its page', async () => {
+      await saveWirdPage({ name: 'Isha', page: 302 });
+      await saveWirdPage({ name: 'Fajr', page: 40 });
+      const start = await loadReadingData();
+      const isha = start.wirds.find((w) => w.stop.name === 'Isha')!;
+      await mount(createElement(ContinueReadingCard));
+      expect(shown()).toContain('Page 40 of 604');
+      await press('home-wird-selector');
+      // Shown at once, in the same update as the choice (before storage answers).
+      await act(async () => { byId(`home-wird-option-${isha.stop.id}`).props.onPress(); });
+      expect(all('home-wird-menu')).toHaveLength(0);
+      expect(nameShown()).toBe('Isha');
+      expect(shown()).toContain('Page 302 of 604');
+      expect(shown()).toContain('50%');
+      expect(shown()).toContain(MESSAGES.en.continueReading.activeWird);
+      const bar = byId('home-continue-wird').findAll((n) => n.props.accessibilityRole === 'progressbar')[0];
+      expect(bar.props.accessibilityValue).toMatchObject({ now: 50 });
+      expect(flat((bar.children[0] as ReactTestInstance).props.style).width).toBe('50%');
+      await flush();
+      // Stored through the existing reading state as the active ورد.
+      const after = await loadReadingData();
+      expect(after.activeStopId).toBe(isha.stop.id);
+      // Each ورد keeps its own page, cycle and Khatmas; no record changes.
+      const summary = (data: typeof start) => data.wirds.map((w) => [w.stop.id, w.stop.page, w.cycle.id, w.khatmas].join()).sort();
+      expect(summary(after)).toEqual(summary(start));
+      expect(after.records).toEqual(start.records);
+      // After the reload the choice triggers, still Isha; المصحف opens its saved page.
+      expect(nameShown()).toBe('Isha');
+      await press('home-open-mushaf');
+      expect(router.navigate).toHaveBeenLastCalledWith({ pathname: '/mushaf', params: { page: '302', at: expect.any(String) } });
+      expect((await loadReadingData()).activeStopId).toBe(isha.stop.id);
+    });
+
+    it('a ورد chosen elsewhere (the reader) shows here too', async () => {
+      await saveWirdPage({ name: 'Isha', page: 302 });
+      await saveWirdPage({ name: 'Fajr', page: 40 });
+      await mount(createElement(ContinueReadingCard));
+      const isha = (await loadReadingData()).wirds.find((w) => w.stop.name === 'Isha')!;
+      await act(async () => { await setActiveReadingStopId(isha.stop.id); });
+      await flush();
+      expect(nameShown()).toBe('Isha');
+    });
+
+    describe('anchored under the name, its chevron showing the way it opens and closes', () => {
+      type Live = { __live: () => { transform: Record<string, string | number>[] } };
+      const live = (node: ReactTestInstance) => ([node.props.style].flat(3).find((style) => style && (style as Live).__live) as Live).__live();
+      /** The chevron's turn: 0 points down, 180 up. */
+      const chevron = () => Number(String(live(byId('home-wird-chevron')).transform[0].rotate).replace('deg', ''));
+      const menuBox = () => flat(byId('home-wird-menu').props.style);
+      const twoWirds = async () => {
+        await saveWirdPage({ name: 'Isha', page: 302 });
+        await saveWirdPage({ name: 'Fajr', page: 40 });
+        await mount(createElement(ContinueReadingCard));
+      };
+
+      it('English: opens just below the name, from its left edge, floating (not centred, not a sheet); the chevron turns up', async () => {
+        state.anchor = [24, 200, 120, 32];
+        await twoWirds();
+        expect(chevron()).toBe(0);
+        await press('home-wird-selector');
+        // Just under the name (6 pt), its left edge on the name's, 300 pt wide at most.
+        expect(menuBox()).toMatchObject({ position: 'absolute', top: 200 + 32 + 6, left: 24, width: 300 });
+        expect(menuBox().bottom).toBeUndefined();
+        expect(menuBox()).not.toHaveProperty('alignSelf');
+        expect(chevron()).toBe(180); // open: up, though the list opens downward
+        expect(byId('home-wird-selector').props.accessibilityState).toEqual({ expanded: true });
+        // Nothing behind is dimmed: the backdrop only catches the tap outside.
+        expect(flat(byId('home-wird-backdrop').props.style).backgroundColor).toBeUndefined();
+      });
+
+      it('Arabic: its right edge on the name`s right edge; kept inside the screen`s 14-pt margin', async () => {
+        state.locale = 'ar';
+        state.anchor = [250, 200, 120, 32]; // the name's right edge at 370
+        await twoWirds();
+        await press('home-wird-selector');
+        expect(menuBox()).toMatchObject({ top: 238, left: 370 - 300, width: 300 });
+        // A name further right still keeps the whole menu on screen.
+        await press('home-wird-backdrop');
+        state.anchor = [300, 200, 88, 32];
+        await press('home-wird-selector');
+        expect(menuBox().left).toBe(390 - 14 - 300);
+      });
+
+      it('near the bottom of the screen: opens upward, anchored above the name; the chevron points up', async () => {
+        state.anchor = [24, 760, 120, 32];
+        await twoWirds();
+        await press('home-wird-selector');
+        expect(menuBox()).toMatchObject({ bottom: 844 - 760 + 6, left: 24 });
+        expect(menuBox().top).toBeUndefined();
+        expect(chevron()).toBe(180);
+        // Reopened where there is room below: below this time (placement measured at every opening); open, so still up.
+        await press('home-wird-backdrop');
+        expect(chevron()).toBe(0);
+        state.anchor = [24, 200, 120, 32];
+        await press('home-wird-selector');
+        expect(menuBox().top).toBe(238);
+        expect(chevron()).toBe(180);
+      });
+
+      it('closing a menu below: the chevron is down as soon as it closes, while the list goes back up toward the name', async () => {
+        await twoWirds();
+        await press('home-wird-selector');
+        state.holdAnimations = true;
+        await press('home-wird-backdrop');
+        // Still on screen, closing (held): closed, so the chevron is already down.
+        expect(all('home-wird-menu')).toHaveLength(1);
+        expect(byId('home-wird-selector').props.accessibilityState).toEqual({ expanded: false });
+        expect(chevron()).toBe(0);
+        expect(live(byId('home-wird-menu')).transform[0].translateY).toBe(-8); // toward the name
+        await act(async () => { state.pending.splice(0).forEach((done) => done(true)); });
+        await flush();
+        expect(all('home-wird-menu')).toHaveLength(0);
+        expect(chevron()).toBe(0);
+      });
+
+      it('closing a menu above: it goes back down and the chevron points down; tapping the name again also closes it', async () => {
+        state.anchor = [24, 760, 120, 32];
+        await twoWirds();
+        await press('home-wird-selector');
+        expect(chevron()).toBe(180);
+        state.holdAnimations = true;
+        await press('home-wird-selector'); // the name again: a toggle
+        expect(all('home-wird-menu')).toHaveLength(1);
+        expect(chevron()).toBe(0);
+        expect(live(byId('home-wird-menu')).transform[0].translateY).toBe(8);
+        await act(async () => { state.pending.splice(0).forEach((done) => done(true)); });
+        await flush();
+        expect(all('home-wird-menu')).toHaveLength(0);
+        expect(chevron()).toBe(0);
+      });
+
+      it('rapid taps: reopened while closing, it stays open and its chevron is up (a late close never shuts it)', async () => {
+        state.anchor = [24, 760, 120, 32];
+        await twoWirds();
+        state.holdAnimations = true;
+        await press('home-wird-selector');
+        await press('home-wird-selector');
+        await press('home-wird-selector');
+        // The first closing's completion arrives late: ignored, the menu is open again.
+        await act(async () => { state.pending.splice(0).forEach((done) => done(true)); });
+        await flush();
+        expect(all('home-wird-menu')).toHaveLength(1);
+        expect(byId('home-wird-selector').props.accessibilityState).toEqual({ expanded: true });
+        expect(chevron()).toBe(180);
+      });
+
+      for (const [locale, top] of [['en', 200], ['ar', 200], ['en', 760], ['ar', 760]] as const) {
+        it(`${locale}, list ${top === 200 ? 'below' : 'above'} the name: the chevron is down whenever it is closed and up whenever it is open, through every way of opening and closing`, async () => {
+          state.locale = locale;
+          state.anchor = locale === 'ar' ? [250, top, 120, 32] : [24, top, 120, 32];
+          await twoWirds();
+          const expanded = () => byId('home-wird-selector').props.accessibilityState.expanded as boolean;
+          const agrees = () => expect(chevron()).toBe(expanded() ? 180 : 0);
+          // Loaded: closed, down.
+          expect(expanded()).toBe(false);
+          expect(chevron()).toBe(0);
+          // Opened by the name; closed by the name again.
+          await press('home-wird-selector');
+          expect(chevron()).toBe(180);
+          await press('home-wird-selector');
+          expect(chevron()).toBe(0);
+          // Opened; closed by a tap outside.
+          await press('home-wird-selector');
+          expect(chevron()).toBe(180);
+          await press('home-wird-backdrop');
+          expect(chevron()).toBe(0);
+          // Opened; closed by choosing another ورد.
+          await press('home-wird-selector');
+          const other = (await loadReadingData()).wirds.find((w) => w.stop.name !== byId('home-wird-selector').findByType('Text' as never).props.children)!;
+          await press(`home-wird-option-${other.stop.id}`);
+          expect(expanded()).toBe(false);
+          expect(chevron()).toBe(0);
+          // Rapid toggles with every animation interrupted (held), then their late completions: it always ends on the state.
+          state.holdAnimations = true;
+          for (let i = 0; i < 5; i++) {
+            await press('home-wird-selector');
+            agrees();
+          }
+          expect(expanded()).toBe(true);
+          await act(async () => { state.pending.splice(0).forEach((done) => done(true)); });
+          await flush();
+          agrees();
+          expect(chevron()).toBe(180);
+          await press('home-wird-backdrop');
+          await act(async () => { state.pending.splice(0).forEach((done) => done(false)); }); // interrupted
+          await flush();
+          agrees();
+          expect(chevron()).toBe(0);
+        });
+      }
+
+      it('choosing a ورد closes the menu and the chevron comes back to rest; the card shows the choice', async () => {
+        await twoWirds();
+        const isha = (await loadReadingData()).wirds.find((w) => w.stop.name === 'Isha')!;
+        await press('home-wird-selector');
+        await press(`home-wird-option-${isha.stop.id}`);
+        expect(all('home-wird-menu')).toHaveLength(0);
+        expect(chevron()).toBe(0);
+        expect(byId('home-wird-selector').findByType('Text' as never).props.children).toBe('Isha');
+        expect(textOf(byId('home-continue-wird'))).toContain('Page 302 of 604');
+      });
+
+      it('the overlay is its own window: placed by the name`s box minus the overlay`s, it lands under the name wherever that window starts', async () => {
+        // An overlay window starting 24 pt down (below an Android status bar), the name at y 200 in the app's window.
+        state.overlay = [0, 24, 390, 820];
+        await twoWirds();
+        await press('home-wird-selector');
+        // In the overlay: 200 − 24 + 32 + 6; on screen (overlay + menu): exactly 6 pt under the name's bottom (232).
+        expect(menuBox().top).toBe(200 - 24 + 32 + 6);
+        expect(state.overlay[1] + menuBox().top).toBe(200 + 32 + 6);
+        expect(menuBox().left).toBe(24);
+        // Arabic, an overlay offset sideways too: the right edges still meet on screen.
+        await press('home-wird-backdrop');
+        await act(async () => root.unmount());
+        state.locale = 'ar';
+        state.overlay = [10, 24, 380, 820];
+        state.anchor = [250, 200, 120, 32];
+        await mount(createElement(ContinueReadingCard));
+        await press('home-wird-selector');
+        expect(state.overlay[0] + menuBox().left + menuBox().width).toBe(250 + 120);
+        // Opening upward in such a window: its bottom 6 pt above the name, on screen.
+        await press('home-wird-backdrop');
+        state.anchor = [250, 740, 120, 32];
+        await press('home-wird-selector');
+        expect(menuBox().top).toBeUndefined();
+        expect(state.overlay[1] + state.overlay[3] - menuBox().bottom).toBe(740 - 6);
+      });
+
+      it('laid out again (rotation, a window resize), the overlay re-measures and the menu follows', async () => {
+        await twoWirds();
+        await press('home-wird-selector');
+        expect(menuBox().top).toBe(238);
+        state.overlay = [0, 30, 390, 814];
+        await act(async () => { byId('home-wird-overlay').props.onLayout({ nativeEvent: { layout: { x: 0, y: 0, width: 390, height: 814 } } }); });
+        expect(menuBox().top).toBe(238 - 30);
+      });
+
+      it('a name that can`t be measured never opens the menu anywhere else (never centred, never at a guess)', async () => {
+        state.unmeasurable = true;
+        await twoWirds();
+        await press('home-wird-selector');
+        expect(all('home-wird-menu')).toHaveLength(0);
+        expect(all('home-wird-overlay')).toHaveLength(0);
+        expect(byId('home-wird-selector').props.accessibilityState).toEqual({ expanded: false });
+      });
+
+      it('many Wirds: the menu stops at 320 pt and scrolls; long names stay on one line', async () => {
+        const long = 'ورد قراءة سورة البقرة كاملة';
+        for (let i = 0; i < 12; i++) await saveWirdPage({ name: i === 0 ? long : `Wird ${i + 1}`, page: 10 + i });
+        await mount(createElement(ContinueReadingCard));
+        await press('home-wird-selector');
+        expect(menuBox().maxHeight).toBe(320);
+        expect(byId('home-wird-menu').findAllByType('ScrollView' as never)).toHaveLength(1);
+        const { wirds } = await loadReadingData();
+        expect(byId('home-wird-menu').findAll((n) => typeof n.type === 'string' && /^home-wird-option-/.test(String(n.props.testID)))).toHaveLength(12);
+        const longRow = byId(`home-wird-option-${wirds.find((w) => w.stop.name === long)!.stop.id}`);
+        expect(longRow.findAllByType('Text' as never)[0].props.numberOfLines).toBe(1);
+      });
+    });
+
+    for (const locale of ['ar', 'ar-EG', 'en'] as const) {
+      it(`${locale}: the name and chevron, and each row, follow the language's direction`, async () => {
+        state.locale = locale;
+        await saveWirdPage({ name: 'ورد العشاء', page: 302 });
+        await saveWirdPage({ name: 'ورد الفجر', page: 40 });
+        await mount(createElement(ContinueReadingCard));
+        const rtl = locale !== 'en';
+        expect(flat(byId('home-wird-selector').props.style({ pressed: false }))).toMatchObject({ flexDirection: rtl ? 'row-reverse' : 'row', alignSelf: rtl ? 'flex-end' : 'flex-start' });
+        expect(flat(byId('home-wird-selector').findByType('Text' as never).props.style)).toMatchObject({ textAlign: rtl ? 'right' : 'left', fontSize: 22, fontWeight: '800' });
+        await press('home-wird-selector');
+        const copy = MESSAGES[locale];
+        expect(textOf(byId('home-wird-menu')).split(' | ')[0]).toBe(copy.continueReading.chooseWird);
+        const { wirds } = await loadReadingData();
+        for (const w of wirds) {
+          const row = byId(`home-wird-option-${w.stop.id}`);
+          expect(flat(row.props.style({ pressed: false })).flexDirection).toBe(rtl ? 'row-reverse' : 'row');
+          const page = locale === 'en' ? String(w.stop.page) : w.stop.page === 40 ? '٤٠' : '٣٠٢';
+          expect(textOf(row)).toBe(`${w.stop.name} | ${copy.mushaf.pageShort} ${page}`);
+        }
+      });
+    }
   });
 
   it('follows changes made elsewhere (the reader, أورادي وختماتي) without reopening Home', async () => {
@@ -303,13 +702,82 @@ describe('the Khatma completion screen (/khatma-complete)', () => {
     expect(byId('khatma-complete-body').props.children).toBe('نسأل الله أن يجعل القرآن نورًا لقلبك وشفيعًا لك');
     expect(textOf(byId('khatma-complete-dua'))).toBe('قراءة دعاء ختم القرآن');
     expect(textOf(byId('khatma-complete-back'))).toBe('العودة إلى ختماتي');
-    expect(byId('khatma-complete-detail').props.children).toContain('ورد الفجر');
+    expect(byId('khatma-complete-name').props.children).toBe('ورد الفجر');
     await press('khatma-complete-dua');
     expect(router.push).toHaveBeenLastCalledWith('/khatm-dua');
     await press('khatma-complete-back');
     expect(router.dismissTo).toHaveBeenLastCalledWith('/my-reading');
     // Showing it again records nothing more.
     expect((await loadReadingData()).stats.total).toBe(1);
+  });
+
+  /** A ورد named `name` confirmed at `at` (local time); then its stored record's localDate set to `localDate`, if given. */
+  async function completed(name: string, at: Date, localDate?: string) {
+    await saveWirdPage({ name, page: 300 });
+    await saveWirdPage({ name, page: 604 });
+    const w = (await loadReadingData()).wirds.find((x) => x.stop.name === name)!;
+    const { record } = await confirmKhatma(w.stop.id, w.cycle.id, { now: () => at });
+    if (localDate) {
+      for (const [key, value] of state.storage) {
+        if (value.includes(record.id)) state.storage.set(key, value.split(`"localDate":"${record.localDate}"`).join(`"localDate":"${localDate}"`));
+      }
+    }
+    state.params = { id: record.id };
+    await mount(createElement(KhatmaCompleteScreen));
+    return record;
+  }
+  const detailTexts = () => byId('khatma-complete-detail').findAllByType('Text' as never).map((t) => [t.props.children].flat().join(''));
+
+  it('the ورد name, the date and the Ramadan tag are separate lines: no name, English or Arabic, ever lands inside the date', async () => {
+    const names = ['Hi', 'ورد الفجر', 'Personal 2026', 'ورد Personal', 'Mosque ورد ٢'];
+    for (const locale of ['ar', 'en', 'ar-EG'] as const) {
+      for (const name of names) {
+        state.locale = locale;
+        state.storage.clear();
+        resetLocalDataOwnerForTests();
+        const record = await completed(name, new Date(2026, 9, 13, 21, 0));
+        const date = formatCivilDate('2026-10-13', locale);
+        const texts = detailTexts();
+        expect(texts).toEqual([name, date, MESSAGES[locale].myReading.nonRamadanTag]);
+        // The date line is exactly the formatted date: nothing joined to it, and the name is not in it.
+        expect(byId('khatma-complete-date').props.children).toBe(date);
+        expect(date).not.toContain(name);
+        // The name takes its own direction (its first strong letter); the date and tag the app language's.
+        const rtl = locale !== 'en';
+        expect(flat(byId('khatma-complete-name').props.style).writingDirection).toBeUndefined();
+        expect(flat(byId('khatma-complete-name').props.style).textAlign).toBe('center');
+        for (const id of ['khatma-complete-date', 'khatma-complete-tag']) {
+          expect(flat(byId(id).props.style)).toMatchObject({ textAlign: 'center', writingDirection: rtl ? 'rtl' : 'ltr' });
+        }
+        // The stored record and the counts are as confirmed.
+        const data = await loadReadingData();
+        expect(data.records.find((r) => r.id === record.id)).toMatchObject({ stopName: name, localDate: '2026-10-13', ramadan: false });
+        expect(data.stats).toEqual({ total: 1, ramadan: 0, nonRamadan: 1 });
+        await act(async () => root.unmount());
+      }
+    }
+    expect(source('src/app/khatma-complete.tsx')).not.toMatch(/join\('\s*·\s*'\)/);
+  });
+
+  it('a Ramadan Khatma shows its own tag line under the date', async () => {
+    state.locale = 'ar';
+    // 1 Ramadan 1448 ≈ 2027-02-08: mid-Ramadan 1448.
+    await completed('Hi', new Date(2027, 1, 20, 12, 0));
+    const record = (await loadReadingData()).records[0];
+    expect(record.ramadan).toBe(true);
+    expect(detailTexts()).toEqual(['Hi', formatCivilDate(record.localDate, 'ar'), fill(MESSAGES.ar.myReading.ramadanTag, { year: localNumber('ar', record.ramadanHijriYear!) })]);
+  });
+
+  it('shows the record`s stored local calendar day, not the completion instant`s day in this time zone', async () => {
+    state.locale = 'en';
+    // Confirmed late on 13 October on a device ahead of UTC is stored as localDate 2026-10-14 there; this one re-reads it.
+    await completed('Hi', new Date(2026, 9, 13, 23, 30), '2026-10-14');
+    expect(byId('khatma-complete-date').props.children).toBe('Oct 14, 2026');
+    state.locale = 'ar';
+    await act(async () => root.unmount());
+    await mount(createElement(KhatmaCompleteScreen));
+    expect(byId('khatma-complete-date').props.children).toBe(formatCivilDate('2026-10-14', 'ar'));
+    expect(byId('khatma-complete-date').props.children).toContain('14');
   });
   /** Fajr confirmed after a save at 604 (its new cycle at page 1); Isha selected meanwhile, unless `keepFajr`. */
   async function confirmedFajr(options: { keepFajr?: boolean } = {}) {

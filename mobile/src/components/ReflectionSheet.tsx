@@ -1,6 +1,6 @@
 import * as Clipboard from 'expo-clipboard';
 import { Trash2 } from 'lucide-react-native';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   Keyboard,
@@ -18,6 +18,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/useAuth';
+import { MUSHAF_PANEL_COLORS } from '@/constants/mushafTheme';
 import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
@@ -31,7 +32,52 @@ type ReflectionSheetProps = {
   visible: boolean;
   verseKey: string | null;
   onClose: () => void;
+  /**
+   * Opened from the Mushaf: in the reader's own window colours (MUSHAF_PANEL_COLORS, as its page search, ورد list
+   * and Khatma sheets), light or dark with the page. Absent everywhere else (an emotion's ayah, خواطري): the app's
+   * standard window, unchanged.
+   */
+  mushaf?: { dark: boolean };
 };
+
+/**
+ * The app palette with the Mushaf's window colours over it, for the reflection window opened from the reader. Only
+ * existing colours: the window, its text, dividers, buttons and backdrop from MUSHAF_PANEL_COLORS; the text field keeps
+ * the app's own (fieldBackground / fieldBorder), as every text field does.
+ */
+export function mushafReflectionPalette(app: Palette, dark: boolean): Palette {
+  const panel = dark ? MUSHAF_PANEL_COLORS.dark : MUSHAF_PANEL_COLORS.light;
+  return {
+    ...app,
+    overlay: panel.backdrop,
+    sheetBackground: panel.sheet.backgroundColor,
+    surface: panel.sheet.backgroundColor,
+    card: panel.surface.backgroundColor,
+    border: panel.surface.borderColor,
+    divider: panel.divider,
+    textPrimary: panel.text,
+    textSecondary: panel.muted,
+    textMuted: panel.muted,
+    placeholder: panel.placeholder,
+    primaryButton: panel.go.backgroundColor,
+    onPrimaryButton: panel.onGo,
+    accent: panel.accent,
+    accentSoft: panel.selected.backgroundColor,
+    danger: panel.error,
+  };
+}
+
+/** The sheet's colours and styles: the app's own, or (opened from the Mushaf) the reader's. */
+function useReflectionTheme(mushaf: { dark: boolean } | undefined) {
+  const app = usePalette();
+  const appStyles = useThemedStyles(makeStyles);
+  const dark = mushaf?.dark;
+  return useMemo(() => {
+    if (dark === undefined) return { colors: app, styles: appStyles };
+    const colors = mushafReflectionPalette(app, dark);
+    return { colors, styles: makeStyles(colors) };
+  }, [app, appStyles, dark]);
+}
 
 /**
  * Private خواطر editor — deliberately never shows Quran Arabic/translation
@@ -40,18 +86,17 @@ type ReflectionSheetProps = {
  * note is chosen truthfully from the actual auth status, never claiming
  * sync that hasn't happened (Part C §14).
  */
-export function ReflectionSheet({ visible, verseKey, onClose }: ReflectionSheetProps) {
+export function ReflectionSheet({ visible, verseKey, onClose, mushaf }: ReflectionSheetProps) {
   if (!visible || !verseKey) return null;
 
   // Keyed by verseKey so opening the sheet for a different ayah remounts
   // this inner component with fresh state, instead of imperatively
   // resetting isLoading/text inside an effect.
-  return <ReflectionSheetContent key={verseKey} verseKey={verseKey} onClose={onClose} />;
+  return <ReflectionSheetContent key={verseKey} verseKey={verseKey} onClose={onClose} mushaf={mushaf} />;
 }
 
-function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClose: () => void }) {
-  const colors = usePalette();
-  const styles = useThemedStyles(makeStyles);
+function ReflectionSheetContent({ verseKey, onClose, mushaf }: { verseKey: string; onClose: () => void; mushaf?: { dark: boolean } }) {
+  const { colors, styles } = useReflectionTheme(mushaf);
   const { locale, messages } = useAppLocale();
   const { status } = useAuth();
   const direction = getDirectionStyle(locale);
@@ -246,13 +291,14 @@ function ReflectionSheetContent({ verseKey, onClose }: { verseKey: string; onClo
                           <Text selectable style={[styles.otherVersionText, direction]}>{version.text}</Text>
                           {!canAdd && <Text style={[styles.otherVersionsHint, direction]}>{messages.reflection.otherVersionTooLong}</Text>}
                           <View style={[styles.otherVersionActions, isRtl && styles.actionsRtl]}>
-                            <VersionButton label={messages.reflection.useOtherVersion} onPress={() => adoptVersion(version, version.text)} />
-                            {canAdd && <VersionButton label={messages.reflection.addOtherVersion} onPress={() => adoptVersion(version, combined)} />}
+                            <VersionButton styles={styles} label={messages.reflection.useOtherVersion} onPress={() => adoptVersion(version, version.text)} />
+                            {canAdd && <VersionButton styles={styles} label={messages.reflection.addOtherVersion} onPress={() => adoptVersion(version, combined)} />}
                             <VersionButton
+                              styles={styles}
                               label={copiedVersionId === version.id ? messages.reflection.copiedOtherVersion : messages.reflection.copyOtherVersion}
                               onPress={() => void copyVersion(version)}
                             />
-                            <VersionButton label={messages.reflection.discardOtherVersion} onPress={() => confirmDiscardVersion(version)} destructive />
+                            <VersionButton styles={styles} label={messages.reflection.discardOtherVersion} onPress={() => confirmDiscardVersion(version)} destructive />
                           </View>
                         </View>
                       );
@@ -349,8 +395,7 @@ export function handledVersionIds(versions: ReflectionConflictVersion[], adopted
   return versions.filter((version) => adoptedIds.includes(version.id) && savedText.includes(version.text.trim())).map((version) => version.id);
 }
 
-function VersionButton({ label, onPress, destructive }: { label: string; onPress: () => void; destructive?: boolean }) {
-  const styles = useThemedStyles(makeStyles);
+function VersionButton({ label, onPress, destructive, styles }: { label: string; onPress: () => void; destructive?: boolean; styles: ReturnType<typeof makeStyles> }) {
   return (
     <Pressable
       accessibilityRole="button"
@@ -393,8 +438,8 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     lineHeight: 19,
   },
   input: {
-    backgroundColor: colors.inputBackground,
-    borderColor: colors.border,
+    backgroundColor: colors.fieldBackground,
+    borderColor: colors.fieldBorder,
     borderRadius: radii.md,
     borderWidth: 1,
     color: colors.textPrimary,

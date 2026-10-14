@@ -38,8 +38,8 @@ export function SyncPasswordField({ value, onChangeText, label, editable = true,
 
 const makeStyles = (colors: Palette) => StyleSheet.create({
   field: { gap: spacing.sm },
-  row: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.inputBackground,
-    borderColor: colors.inputBorder, borderRadius: radii.md, borderWidth: 1 },
+  row: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.fieldBackground,
+    borderColor: colors.fieldBorder, borderRadius: radii.md, borderWidth: 1 },
   rtl: { flexDirection: 'row-reverse' },
   label: { color: colors.textPrimary, fontSize: typography.caption },
   input: { flex: 1, minWidth: 0, minHeight: 52, paddingHorizontal: spacing.md, color: colors.textPrimary, fontSize: typography.body },

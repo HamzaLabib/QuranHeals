@@ -141,9 +141,9 @@ describe('page furniture', () => {
     expect(juzOfAyah(114, 6)).toBe(30);
   });
 
-  it('prints the reference page`s header and number: الجزء الثالث, ٦١', () => {
-    expect(juzTitle(3)).toBe('الجزء الثالث');
-    expect(juzTitle(30)).toBe('الجزء الثلاثون');
+  it('prints the reference page`s header and number: الجزء ٣, ٦١', () => {
+    expect(juzTitle(3)).toBe('الجزء ٣');
+    expect(juzTitle(30)).toBe('الجزء ٣٠');
     expect(() => juzTitle(31)).toThrow(MushafPageError);
     expect(toArabicIndicDigits(61)).toBe('٦١');
     expect(toArabicIndicDigits(604)).toBe('٦٠٤');

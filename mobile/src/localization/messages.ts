@@ -269,6 +269,9 @@ export type Messages = {
     pageOf: string;
     activeWird: string;
     lastSaved: string;
+    /** The ورد menu opened from the name (two or more Wirds): its title, and the name's screen-reader hint. */
+    chooseWird: string;
+    switchHint: string;
     firstTitle: string;
     firstBody: string;
   };
@@ -736,7 +739,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       selectedAyah: 'Selected ayah',
       clearSelection: 'Clear selection',
       readingStops: 'Reading stops',
-      stopNameLabel: 'Name (for example: Ramadan, Mum)',
+      stopNameLabel: 'Wird name (e.g., Personal or Mosque)',
       saveStop: 'Save stop on this page',
       stopSaved: 'Saved',
       stopNameInvalid: 'Enter a name of up to 40 characters.',
@@ -825,8 +828,10 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       pageOf: 'Page {page} of {total}',
       activeWird: 'Current Wird',
       lastSaved: 'Last saved Wird',
+      chooseWird: 'Choose a Wird',
+      switchHint: 'Shows your Wirds to switch between them.',
       firstTitle: 'Begin your recitation',
-      firstBody: 'Open the Mushaf at its first page, and save a Wird to keep your place.',
+      firstBody: 'Open the Mushaf to its first page and reflect on its verses as you begin a new Wird.',
     },
     emotionsAll: {
       viewAll: 'View All',
@@ -1247,7 +1252,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       selectedAyah: 'الآية المحددة',
       clearSelection: 'إلغاء التحديد',
       readingStops: 'مواضع التوقف',
-      stopNameLabel: 'الاسم (مثل: رمضان، أمي)',
+      stopNameLabel: 'اسم الورد (مثل: شخصي أو المسجد)',
       saveStop: 'حفظ موضع التوقف في هذه الصفحة',
       stopSaved: 'تم الحفظ',
       stopNameInvalid: 'أدخل اسمًا لا يزيد على ٤٠ حرفًا.',
@@ -1336,8 +1341,10 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       pageOf: 'صفحة {page} من {total}',
       activeWird: 'الورد الحالي',
       lastSaved: 'آخر ورد محفوظ',
+      chooseWird: 'اختر الورد',
+      switchHint: 'يعرض أورادك للتنقل بينها.',
       firstTitle: 'ابدأ قراءتك',
-      firstBody: 'افتح المصحف من صفحته الأولى، واحفظ وردًا لتحتفظ بموضعك.',
+      firstBody: 'افتح المصحف من صفحته الأولى، وتفكّر في آياته مع وردٍ جديد.',
     },
     emotionsAll: {
       viewAll: 'عرض الكل',
@@ -1772,7 +1779,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       selectedAyah: 'الآية اللي اخترتها',
       clearSelection: 'الغي الاختيار',
       readingStops: 'أماكن الوقوف',
-      stopNameLabel: 'الاسم (زي: رمضان، ماما)',
+      stopNameLabel: 'اسم الورد (زي: شخصي أو المسجد)',
       saveStop: 'احفظ مكان الوقوف في الصفحة دي',
       stopSaved: 'تم الحفظ',
       stopNameInvalid: 'اكتب اسم مش أكتر من ٤٠ حرف.',
@@ -1862,8 +1869,10 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       pageOf: 'صفحة {page} من {total}',
       activeWird: 'الورد الحالي',
       lastSaved: 'آخر ورد محفوظ',
+      chooseWird: 'اختار الورد',
+      switchHint: 'بيعرض أورادك عشان تنقل بينهم.',
       firstTitle: 'ابدأ قرايتك',
-      firstBody: 'افتح المصحف من أول صفحة، واحفظ ورد عشان تفضل فاكر مكانك.',
+      firstBody: 'افتح المصحف من أول صفحة، واتأمّل في آياته مع ورد جديد.',
     },
     emotionsAll: {
       viewAll: 'عرض الكل',

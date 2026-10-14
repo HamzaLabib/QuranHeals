@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { AArrowDown, AArrowUp, ArrowLeft, ArrowRight } from 'lucide-react-native';
+import { ArrowLeft, ArrowRight, Minus, Plus } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -72,7 +72,7 @@ export default function KhatmDuaScreen({ dua = KHATM_DUA }: { dua?: KhatmDuaText
               disabled={sizeIndex === 0}
               onPress={() => setSizeIndex((i) => Math.max(0, i - 1))}
               style={({ pressed }) => [styles.sizeButton, sizeIndex === 0 && styles.disabled, pressed && styles.pressed]}>
-              <AArrowDown size={22} color={colors.icon} />
+              <Minus size={22} color={colors.icon} />
             </Pressable>
             <Pressable
               testID="khatm-dua-larger"
@@ -82,7 +82,7 @@ export default function KhatmDuaScreen({ dua = KHATM_DUA }: { dua?: KhatmDuaText
               disabled={sizeIndex === KHATM_DUA_SIZES.length - 1}
               onPress={() => setSizeIndex((i) => Math.min(KHATM_DUA_SIZES.length - 1, i + 1))}
               style={({ pressed }) => [styles.sizeButton, sizeIndex === KHATM_DUA_SIZES.length - 1 && styles.disabled, pressed && styles.pressed]}>
-              <AArrowUp size={22} color={colors.icon} />
+              <Plus size={22} color={colors.icon} />
             </Pressable>
           </View>
           {/* A manuscript-style panel: a fine gold rule inside the card's edge, an arch over the du'a and a divider under it. Shapes only; the text is untouched. */}

@@ -11,7 +11,7 @@ import { useAppLocale } from '@/localization/useAppLocale';
 import { loadReadingData, type KhatmaRecord } from '@/mushaf/khatmas';
 import { setActiveReadingStopId } from '@/mushaf/readingStops';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
-import { formatReflectionDate } from '@/utils/formatDate';
+import { formatCivilDate } from '@/utils/formatDate';
 
 /** Back to أورادي وختماتي: the one under this screen when it is there, otherwise opened in its place. */
 export function backToMyKhatmas() {
@@ -80,10 +80,21 @@ export default function KhatmaCompleteScreen() {
         <View style={styles.rule} />
         <Text testID="khatma-complete-title" accessibilityRole="header" style={[styles.title, styles.centered]}>{copy.completeTitle}</Text>
         <Text testID="khatma-complete-body" style={[styles.body, styles.centered]}>{copy.completeBody}</Text>
+        {/* The ورد name, the date and the Ramadan tag each in its own line: one mixed-direction string let an English
+            name land inside an Arabic date (2026/10/Hi · 13). The name takes its own direction (its first strong letter);
+            the date is the record's stored local calendar day, never shifted by the time zone. */}
         {record && (
-          <Text testID="khatma-complete-detail" style={[styles.detail, styles.centered, { writingDirection: direction.writingDirection }]}>
-            {[record.stopName, formatReflectionDate(Date.parse(record.completedAt), locale), tag].filter(Boolean).join(' · ')}
-          </Text>
+          <View testID="khatma-complete-detail" style={styles.details}>
+            {record.stopName ? (
+              <Text testID="khatma-complete-name" style={[styles.detailName, styles.centered]}>{record.stopName}</Text>
+            ) : null}
+            <Text testID="khatma-complete-date" style={[styles.detail, styles.centered, { writingDirection: direction.writingDirection }]}>
+              {formatCivilDate(record.localDate, locale)}
+            </Text>
+            {tag ? (
+              <Text testID="khatma-complete-tag" style={[styles.detail, styles.centered, { writingDirection: direction.writingDirection }]}>{tag}</Text>
+            ) : null}
+          </View>
         )}
         <View style={styles.rule} />
         {/* Three full-width actions, stacked (never crowded side by side): the Mushaf, أورادي وختماتي, the du'a. */}
@@ -161,6 +172,15 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     color: colors.textSecondary,
     fontSize: typography.bodyLarge,
     lineHeight: 30,
+  },
+  details: {
+    alignItems: 'stretch',
+    gap: spacing.xs,
+  },
+  detailName: {
+    color: colors.textSecondary,
+    fontSize: typography.body,
+    fontWeight: '700',
   },
   detail: {
     color: colors.textMuted,

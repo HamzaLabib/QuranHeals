@@ -71,3 +71,33 @@ export function swipeTurn(translationX: number, translationY: number, velocityX:
   if (distance < SWIPE_DISTANCE && !flick) return 0;
   return translationX > 0 ? 1 : -1;
 }
+
+/** At page 1 or 604, a drag toward the missing page moves the page this fraction of the finger's travel: a light resistance. */
+export const EDGE_RESISTANCE = 0.2;
+
+/**
+ * The page strip's offset (pt) for a finger-following drag at 1×: `raw` is
+ * where the finger has taken it (its translation, plus any offset it picked up
+ * from a page still settling). Positive shows the next page sliding in from the
+ * left (finger left to right, as swipeTurn), negative the previous one from the
+ * right. Never more than one page width either way (only the neighbours are
+ * drawn), and only a little toward a page that doesn't exist (before `first`,
+ * after `last`).
+ */
+export function pagerOffset(raw: number, centre: number, first: number, last: number, width: number): number {
+  'worklet';
+  if ((raw > 0 && centre >= last) || (raw < 0 && centre <= first)) return raw * EDGE_RESISTANCE;
+  return Math.max(-width, Math.min(width, raw));
+}
+
+/**
+ * Where a finger-following drag settles when the finger lifts: +1 next, -1
+ * previous, 0 back to the page it started on. swipeTurn's rules on the
+ * finger's travel (50 pt, or a 30-pt flick), and one more for a page that
+ * follows the finger: flicked back the other way, it returns.
+ */
+export function pageSettle(travel: number, translationY: number, velocityX: number): -1 | 0 | 1 {
+  'worklet';
+  if (Math.abs(velocityX) >= FLICK_VELOCITY && Math.sign(velocityX) !== Math.sign(travel)) return 0;
+  return swipeTurn(travel, translationY, velocityX);
+}

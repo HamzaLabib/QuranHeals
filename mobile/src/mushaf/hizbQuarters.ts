@@ -1,4 +1,5 @@
 import { HIZB_QUARTER_STARTS } from './generated/hizbQuarters';
+import { toArabicIndicDigits } from './mushafPage';
 
 /**
  * Hizb and quarter-Hizb labels for the page header (Normal Mode): shown only on
@@ -8,28 +9,17 @@ import { HIZB_QUARTER_STARTS } from './generated/hizbQuarters';
  * Quran Foundation and the QCF V1 print). Not a running "current quarter".
  */
 
-/** Masculine ordinals, as the header's الجزء الأول … الثلاثون, continued to 60 (الحزب is masculine). */
-export const HIZB_ORDINALS = [
-  'الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس', 'السادس', 'السابع', 'الثامن', 'التاسع', 'العاشر',
-  'الحادي عشر', 'الثاني عشر', 'الثالث عشر', 'الرابع عشر', 'الخامس عشر', 'السادس عشر', 'السابع عشر', 'الثامن عشر', 'التاسع عشر', 'العشرون',
-  'الحادي والعشرون', 'الثاني والعشرون', 'الثالث والعشرون', 'الرابع والعشرون', 'الخامس والعشرون',
-  'السادس والعشرون', 'السابع والعشرون', 'الثامن والعشرون', 'التاسع والعشرون', 'الثلاثون',
-  'الحادي والثلاثون', 'الثاني والثلاثون', 'الثالث والثلاثون', 'الرابع والثلاثون', 'الخامس والثلاثون',
-  'السادس والثلاثون', 'السابع والثلاثون', 'الثامن والثلاثون', 'التاسع والثلاثون', 'الأربعون',
-  'الحادي والأربعون', 'الثاني والأربعون', 'الثالث والأربعون', 'الرابع والأربعون', 'الخامس والأربعون',
-  'السادس والأربعون', 'السابع والأربعون', 'الثامن والأربعون', 'التاسع والأربعون', 'الخمسون',
-  'الحادي والخمسون', 'الثاني والخمسون', 'الثالث والخمسون', 'الرابع والخمسون', 'الخامس والخمسون',
-  'السادس والخمسون', 'السابع والخمسون', 'الثامن والخمسون', 'التاسع والخمسون', 'الستون',
-] as const;
-
 /** Part of a Hizb a quarter starts: 0 the Hizb itself, 1 its quarter, 2 its half, 3 its three quarters. */
 const PART_PREFIX = ['', 'ربع ', 'نصف ', 'ثلاثة أرباع '] as const;
 
-/** The label for quarter 1–240: الحزب الأول, ربع الحزب الأول, نصف الحزب الأول, ثلاثة أرباع الحزب الأول, الحزب الثاني … */
+/**
+ * The label for quarter 1–240, its Hizb in Arabic-Indic digits whatever the app's language (as the page number):
+ * الحزب ١, ربع الحزب ١, نصف الحزب ١, ثلاثة أرباع الحزب ١, الحزب ٢ … ثلاثة أرباع الحزب ٦٠.
+ */
 export function hizbQuarterLabel(quarter: number): string {
   if (!Number.isInteger(quarter) || quarter < 1 || quarter > 240) throw new Error('Invalid quarter');
   const hizb = Math.floor((quarter - 1) / 4) + 1;
-  return `${PART_PREFIX[(quarter - 1) % 4]}الحزب ${HIZB_ORDINALS[hizb - 1]}`;
+  return `${PART_PREFIX[(quarter - 1) % 4]}الحزب ${toArabicIndicDigits(hizb)}`;
 }
 
 const BY_PAGE = new Map<number, string[]>();

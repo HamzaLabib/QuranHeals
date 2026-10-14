@@ -461,8 +461,8 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     fontWeight: '600',
   },
   input: {
-    backgroundColor: colors.inputBackground,
-    borderColor: colors.border,
+    backgroundColor: colors.fieldBackground,
+    borderColor: colors.fieldBorder,
     borderRadius: radii.md,
     borderWidth: 1,
     color: colors.textPrimary,

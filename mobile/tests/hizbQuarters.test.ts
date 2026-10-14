@@ -6,8 +6,8 @@ import { gunzipSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
 
 import { HIZB_QUARTER_STARTS } from '@/mushaf/generated/hizbQuarters';
-import { HIZB_ORDINALS, hizbLabelsForPage, hizbQuarterLabel } from '@/mushaf/hizbQuarters';
-import { juzTitle } from '@/mushaf/mushafPage';
+import { hizbLabelsForPage, hizbQuarterLabel } from '@/mushaf/hizbQuarters';
+import { juzTitle, toArabicIndicDigits } from '@/mushaf/mushafPage';
 
 const counts = (JSON.parse(readFileSync(new URL('../../tools/quran-verification/surah-counts.json', import.meta.url), 'utf8')) as { counts: number[] }).counts;
 const KEYS = counts.flatMap((n, s) => Array.from({ length: n }, (_, a) => `${s + 1}:${a + 1}`));
@@ -26,32 +26,47 @@ describe('Hizb and quarter-Hizb starts (generated/hizbQuarters.ts)', () => {
     expect(HIZB_QUARTER_STARTS[105]).toEqual([106, '15:49', 264]);
   });
 
-  it('labels each quarter as printed: الحزب, ربع, نصف, ثلاثة أرباع الحزب … with the header`s ordinals', () => {
-    expect(hizbQuarterLabel(1)).toBe('الحزب الأول');
-    expect(hizbQuarterLabel(2)).toBe('ربع الحزب الأول');
-    expect(hizbQuarterLabel(3)).toBe('نصف الحزب الأول');
-    expect(hizbQuarterLabel(4)).toBe('ثلاثة أرباع الحزب الأول');
-    expect(hizbQuarterLabel(5)).toBe('الحزب الثاني');
-    expect(hizbQuarterLabel(106)).toBe('ربع الحزب السابع والعشرون');
-    expect(hizbQuarterLabel(237)).toBe('الحزب الستون');
-    expect(hizbQuarterLabel(240)).toBe('ثلاثة أرباع الحزب الستون');
+  it('labels each quarter as printed: الحزب, ربع, نصف, ثلاثة أرباع الحزب … its Hizb in Arabic-Indic digits', () => {
+    expect(hizbQuarterLabel(1)).toBe('الحزب ١');
+    expect(hizbQuarterLabel(2)).toBe('ربع الحزب ١');
+    expect(hizbQuarterLabel(3)).toBe('نصف الحزب ١');
+    expect(hizbQuarterLabel(4)).toBe('ثلاثة أرباع الحزب ١');
+    expect(hizbQuarterLabel(5)).toBe('الحزب ٢');
+    expect(hizbQuarterLabel(106)).toBe('ربع الحزب ٢٧');
+    expect(hizbQuarterLabel(117)).toBe('الحزب ٣٠');
+    expect(hizbQuarterLabel(237)).toBe('الحزب ٦٠');
+    expect(hizbQuarterLabel(240)).toBe('ثلاثة أرباع الحزب ٦٠');
     expect(() => hizbQuarterLabel(0)).toThrow();
     expect(() => hizbQuarterLabel(241)).toThrow();
-    // The same ordinals as the header's juz' (الجزء الأول … الثلاثون), 60 of them.
-    expect(HIZB_ORDINALS).toHaveLength(60);
-    for (let n = 1; n <= 30; n++) expect(`الجزء ${HIZB_ORDINALS[n - 1]}`).toBe(juzTitle(n));
-    expect(new Set(HIZB_ORDINALS).size).toBe(60);
+  });
+
+  it('all 60 Hizbs and every part: the same wording, numbered ١ … ٦٠ in Arabic-Indic digits only (never Western digits or written-out numbers)', () => {
+    const parts = ['الحزب', 'ربع الحزب', 'نصف الحزب', 'ثلاثة أرباع الحزب'];
+    const all = Array.from({ length: 240 }, (_, i) => hizbQuarterLabel(i + 1));
+    for (let hizb = 1; hizb <= 60; hizb++) {
+      parts.forEach((part, p) => expect(all[(hizb - 1) * 4 + p]).toBe(`${part} ${toArabicIndicDigits(hizb)}`));
+    }
+    expect(new Set(all).size).toBe(240);
+    for (const label of all) {
+      expect(label).toMatch(/^(ربع |نصف |ثلاثة أرباع )?الحزب [١-٩][٠-٩]?$/);
+      expect(label).not.toMatch(/[0-9]|الأول|الثاني|العشرون|الستون/);
+    }
+    // Two-digit Hizbs read in order (٣٠, not ٠٣).
+    expect(hizbQuarterLabel(4 * 29 + 1)).toBe('الحزب ٣٠');
+    expect(hizbQuarterLabel(4 * 39 + 4)).toBe('ثلاثة أرباع الحزب ٤٠');
+    // The juz' head is numbered the same way: الجزء ١ … الجزء ٣٠.
+    for (let n = 1; n <= 30; n++) expect(juzTitle(n)).toBe(`الجزء ${toArabicIndicDigits(n)}`);
   });
 
   it('shows labels only on the 240 start pages; the other 364 pages have none', () => {
     const labelled = Array.from({ length: 604 }, (_, i) => i + 1).filter((page) => hizbLabelsForPage(page).length > 0);
     expect(labelled).toEqual(HIZB_QUARTER_STARTS.map(([, , page]) => page));
     expect(labelled).toHaveLength(240);
-    expect(hizbLabelsForPage(1)).toEqual(['الحزب الأول']);
-    expect(hizbLabelsForPage(5)).toEqual(['ربع الحزب الأول']);
-    expect(hizbLabelsForPage(7)).toEqual(['نصف الحزب الأول']);
-    expect(hizbLabelsForPage(9)).toEqual(['ثلاثة أرباع الحزب الأول']);
-    expect(hizbLabelsForPage(11)).toEqual(['الحزب الثاني']);
+    expect(hizbLabelsForPage(1)).toEqual(['الحزب ١']);
+    expect(hizbLabelsForPage(5)).toEqual(['ربع الحزب ١']);
+    expect(hizbLabelsForPage(7)).toEqual(['نصف الحزب ١']);
+    expect(hizbLabelsForPage(9)).toEqual(['ثلاثة أرباع الحزب ١']);
+    expect(hizbLabelsForPage(11)).toEqual(['الحزب ٢']);
     for (const page of [2, 3, 4, 6, 8, 10, 61, 604]) expect(hizbLabelsForPage(page), `page ${page}`).toEqual([]);
   });
 });

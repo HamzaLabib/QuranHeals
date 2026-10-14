@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { clampPan, clampZoom, FLICK_DISTANCE, FLICK_VELOCITY, MAX_ZOOM, MIN_ZOOM, panBounds, SWIPE_DISTANCE, swipeTurn, ZOOM_SNAP, zoomAbout } from '@/mushaf/pageZoom';
+import { clampPan, clampZoom, EDGE_RESISTANCE, FLICK_DISTANCE, FLICK_VELOCITY, MAX_ZOOM, MIN_ZOOM, pagerOffset, pageSettle, panBounds, SWIPE_DISTANCE, swipeTurn, ZOOM_SNAP, zoomAbout } from '@/mushaf/pageZoom';
 
 /**
  * The Mushaf reader's pinch-to-zoom geometry (mushaf/pageZoom.ts), run on the
@@ -93,5 +93,44 @@ describe('page swipe direction (swipeTurn): finger left to right = next, right t
     expect(swipeTurn(120, 90, 800)).toBe(0);
     expect(swipeTurn(-60, -60, -800)).toBe(0);
     expect(swipeTurn(0, 0, 0)).toBe(0);
+  });
+});
+
+describe('finger-following pages (pagerOffset, pageSettle)', () => {
+  const W = 390;
+  it('the strip follows the finger 1:1, never more than one page either way', () => {
+    for (const f of [0.25, 0.5, 0.75]) {
+      expect(pagerOffset(f * W, 61, 1, 604, W)).toBe(f * W);
+      expect(pagerOffset(-f * W, 61, 1, 604, W)).toBe(-f * W);
+    }
+    expect(pagerOffset(3 * W, 61, 1, 604, W)).toBe(W);
+    expect(pagerOffset(-3 * W, 61, 1, 604, W)).toBe(-W);
+  });
+
+  it('toward a page that doesn`t exist (before 1, after 604) it only gives a little; the other way is free', () => {
+    expect(pagerOffset(-200, 1, 1, 604, W)).toBe(-200 * EDGE_RESISTANCE);
+    expect(pagerOffset(200, 1, 1, 604, W)).toBe(200);
+    expect(pagerOffset(200, 604, 1, 604, W)).toBe(200 * EDGE_RESISTANCE);
+    expect(pagerOffset(-200, 604, 1, 604, W)).toBe(-200);
+    expect(EDGE_RESISTANCE).toBeLessThan(0.5);
+  });
+
+  it('released: swipeTurn`s distances and flicks, in the same direction in every language', () => {
+    expect(pageSettle(SWIPE_DISTANCE, 0, 0)).toBe(1);
+    expect(pageSettle(-SWIPE_DISTANCE, 0, 0)).toBe(-1);
+    expect(pageSettle(SWIPE_DISTANCE - 1, 0, 0)).toBe(0);
+    expect(pageSettle(FLICK_DISTANCE, 0, FLICK_VELOCITY)).toBe(1);
+    expect(pageSettle(-FLICK_DISTANCE, 0, -FLICK_VELOCITY)).toBe(-1);
+    expect(pageSettle(0.75 * W, 0, 0)).toBe(1);
+    // Mostly vertical: not a turn.
+    expect(pageSettle(120, 90, 0)).toBe(0);
+  });
+
+  it('flicked back against the drag, it returns (a page that follows the finger); a slow drift back still turns past 50 pt', () => {
+    expect(pageSettle(200, 0, -FLICK_VELOCITY)).toBe(0);
+    expect(pageSettle(-200, 0, FLICK_VELOCITY)).toBe(0);
+    expect(pageSettle(200, 0, -(FLICK_VELOCITY - 1))).toBe(1);
+    // For comparison, the release-only rule turned it anyway.
+    expect(swipeTurn(200, 0, -FLICK_VELOCITY)).toBe(1);
   });
 });

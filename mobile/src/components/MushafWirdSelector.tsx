@@ -1,8 +1,12 @@
 import { BookMarked, Check, ChevronDown, Plus } from 'lucide-react-native';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View, type DimensionValue } from 'react-native';
+import Animated from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useDropdownMotion } from '@/components/useDropdownMotion';
 import { MUSHAF_PANEL_COLORS } from '@/constants/mushafTheme';
 import type { ReadingStop } from '@/mushaf/readingStops';
+import { DROPDOWN_GAP, resolveDropdownPlacement } from '@/utils/dropdownPlacement';
 
 type Labels = {
   choose: string;
@@ -40,6 +44,8 @@ type MushafWirdSelectorProps = {
 
 /** Height of the pill itself; its touch target is 44 pt. */
 export const WIRD_PILL_HEIGHT = 26;
+/** The list's rows (44 pt), its title and padding, and its two last rows (new ورد, أورادي وختماتي): its full height. */
+const listHeight = (rows: number) => 8 + 20 + rows * 44 + 1 + 2 * 44 + 8;
 
 /**
  * The active reading stop (ورد), centred between the page and the floating
@@ -47,6 +53,10 @@ export const WIRD_PILL_HEIGHT = 26;
  * a check on the active one) to switch between them; the list scrolls, stays
  * on screen and closes on a choice, a tap outside or Back. With no stops it
  * offers the bookmark's existing name field instead.
+ *
+ * The list opens above the pill (the bar is below it), or below where
+ * there is no room above; the chevron turns to show which way it opens and
+ * closes (utils/dropdownPlacement.ts).
  *
  * Choosing a stop changes no stop: it only becomes the active one and the
  * reader opens its saved page (mushaf.tsx). The last row opens أورادي
@@ -56,7 +66,20 @@ export function MushafWirdSelector(props: MushafWirdSelectorProps) {
   const { labels, dark, rtl, stops, active, formatNumber } = props;
   const theme = dark ? MUSHAF_PANEL_COLORS.dark : MUSHAF_PANEL_COLORS.light;
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const empty = stops.length === 0;
+  const pillTop = windowHeight - props.anchorBottom;
+  const { placement, maxHeight } = resolveDropdownPlacement({
+    anchorTop: pillTop,
+    anchorBottom: pillTop + WIRD_PILL_HEIGHT,
+    menuHeight: listHeight(stops.length),
+    maxHeight: Math.min(380, windowHeight * 0.5),
+    windowHeight,
+    safeTop: insets.top,
+    safeBottom: insets.bottom,
+    preferred: 'above',
+  });
+  const motion = useDropdownMotion(props.open, placement);
   const title = active ? active.name : empty ? labels.add : labels.choose;
   const row = rtl ? styles.rowRtl : styles.row;
 
@@ -75,16 +98,28 @@ export function MushafWirdSelector(props: MushafWirdSelectorProps) {
         <Text numberOfLines={1} ellipsizeMode="tail" style={[styles.pillText, { color: active ? theme.text : theme.accent, writingDirection: rtl ? 'rtl' : 'ltr' }]}>
           {title}
         </Text>
-        {!empty && <ChevronDown size={14} color={theme.accent} />}
+        {!empty && (
+          <Animated.View testID="mushaf-wird-chevron" style={motion.chevronStyle}>
+            <ChevronDown size={14} color={theme.accent} />
+          </Animated.View>
+        )}
       </Pressable>
 
-      <Modal visible={props.open} transparent animationType="fade" onRequestClose={props.onClose}>
+      <Modal visible={motion.mounted} transparent animationType="none" onRequestClose={props.onClose}>
         {/* A tap anywhere outside the list closes it. */}
-        <Pressable testID="mushaf-wird-backdrop" accessibilityLabel={labels.close} style={[styles.backdrop, { backgroundColor: theme.backdrop }]} onPress={props.onClose} />
-        <View
+        <Animated.View style={[styles.backdrop, motion.backdropStyle]}>
+          <Pressable testID="mushaf-wird-backdrop" accessibilityLabel={labels.close} style={[styles.backdrop, { backgroundColor: theme.backdrop }]} onPress={props.onClose} />
+        </Animated.View>
+        <Animated.View
           testID="mushaf-wird-list"
           accessibilityViewIsModal
-          style={[styles.card, theme.sheet, { shadowColor: theme.surface.shadowColor, bottom: props.anchorBottom + 6, maxHeight: Math.min(380, windowHeight * 0.5), width: Math.min(340, windowWidth - 32) }]}>
+          style={[
+            styles.card,
+            theme.sheet,
+            { shadowColor: theme.surface.shadowColor, maxHeight, width: Math.min(340, windowWidth - 32) },
+            placement === 'above' ? { bottom: props.anchorBottom + DROPDOWN_GAP } : { top: pillTop + WIRD_PILL_HEIGHT + DROPDOWN_GAP },
+            motion.menuStyle,
+          ]}>
           <Text accessibilityRole="header" style={[styles.title, { color: theme.muted, textAlign: rtl ? 'right' : 'left' }]}>{labels.choose}</Text>
           <ScrollView style={styles.list} keyboardShouldPersistTaps="handled">
             {stops.map((stop) => {
@@ -127,7 +162,7 @@ export function MushafWirdSelector(props: MushafWirdSelectorProps) {
             <View style={styles.check}><BookMarked size={16} color={theme.accent} /></View>
             <Text numberOfLines={1} style={[styles.name, { color: theme.accent, textAlign: rtl ? 'right' : 'left', writingDirection: rtl ? 'rtl' : 'ltr' }]}>{labels.manage}</Text>
           </Pressable>
-        </View>
+        </Animated.View>
       </Modal>
     </>
   );

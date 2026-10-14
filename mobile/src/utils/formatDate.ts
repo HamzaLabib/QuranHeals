@@ -22,3 +22,21 @@ export function formatReflectionDate(updatedAtMs: number, locale: AppLocale): st
     return new Date(updatedAtMs).toISOString().slice(0, 10);
   }
 }
+
+/**
+ * A stored local civil date (YYYY-MM-DD, e.g. a Khatma's `localDate`) in the
+ * same localized medium style. Formatted as that calendar day in UTC, so the
+ * device's time zone can never move it to the day before or after. Never
+ * throws: a malformed or unformattable value is returned as given.
+ */
+export function formatCivilDate(localDate: string, locale: AppLocale): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(localDate);
+  if (!match) return localDate;
+  try {
+    return new Intl.DateTimeFormat(INTL_LOCALE_TAG[locale] ?? INTL_LOCALE_TAG.en, { dateStyle: 'medium', timeZone: 'UTC' }).format(
+      new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]))),
+    );
+  } catch {
+    return localDate;
+  }
+}
