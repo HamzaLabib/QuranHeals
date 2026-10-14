@@ -28,7 +28,8 @@ import {
  * Download, verification, installation and synchronisation of the offline
  * QPC V1 Mushaf (all 604 pages), through our backend's Content Sync relay.
  *
- *  - Download is optional and user-started. It resumes: every verified chunk
+ *  - Download is started by autoDownload.ts (after the app opens, or from
+ *    the reader's Download button), never by itself here. It resumes: every verified chunk
  *    is staged in SQLite at once, so a cancelled or interrupted download
  *    (even across restarts) continues with what is missing, and a chunk that
  *    hasn't changed since the installed version is never downloaded again.

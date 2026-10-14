@@ -38,6 +38,9 @@ SplashScreen.setOptions({ duration: 300, fade: true });
  */
 const SPLASH_MAX_WAIT_MS = 3000;
 
+/** After the first screen shows: when the offline Mushaf controller starts (its status check, then any download). */
+const MUSHAF_AUTO_START_DELAY_MS = 3000;
+
 let splashHidden = false;
 function hideSplash(reason: string) {
   if (splashHidden) return;
@@ -106,14 +109,18 @@ function ThemedRoot() {
 
   useEffect(() => {
     // Offline Mushaf (Quran Foundation Content Sync, relayed by our backend):
-    // when it is installed and the device is online, check for an update at
-    // least daily. Deferred so it never competes with startup; offline or
-    // failed checks change nothing, and the installed copy stays readable.
+    // the one start of the automatic download controller
+    // (mushaf/offline/autoDownload.ts). Complete: the daily update check, as
+    // before. Missing or partial: it prepares the Mushaf (Wi-Fi, or with
+    // permission on mobile data) without blocking any screen. Deferred a
+    // little so it never competes with the first screen; offline or failed
+    // attempts change nothing, and an installed copy stays readable.
+    if (!startupReady) return;
     const timer = setTimeout(() => {
-      void import('@/mushaf/offline').then(({ offlineMushaf }) => offlineMushaf.checkForUpdate()).catch(() => undefined);
-    }, 15_000);
+      void import('@/mushaf/offline/autoDownloadService').then(({ mushafAutoDownload }) => mushafAutoDownload().start()).catch(() => undefined);
+    }, MUSHAF_AUTO_START_DELAY_MS);
     return () => clearTimeout(timer);
-  }, []);
+  }, [startupReady]);
 
   useEffect(() => {
     if (startupReady) {

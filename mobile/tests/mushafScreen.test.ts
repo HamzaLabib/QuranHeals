@@ -145,6 +145,10 @@ vi.mock('@/localization/useAppLocale', () => ({ useAppLocale: () => ({ locale: s
 vi.mock('@/components/ReflectionSheet', () => ({ ReflectionSheet: 'ReflectionSheet' }));
 vi.mock('expo-font', () => ({ useFonts: () => [state.fontsLoaded, null], loadAsync: state.loadFont, isLoaded: () => false }));
 vi.mock('@/mushaf/qpcV1Fonts', () => ({ QPC_V1_FONTS: { QCF_P061: 1 } }));
+// The binary's EAS Update channel (expo-updates, a native module): none, as in a development build.
+vi.mock('expo-updates', () => ({ channel: null }));
+// The device's connection (expo-network, a native module): Wi-Fi.
+vi.mock('expo-network', () => ({ getNetworkStateAsync: async () => ({ type: 'WIFI', isConnected: true, isInternetReachable: true }), addNetworkStateListener: () => ({ remove: () => undefined }) }));
 vi.mock('@/mushaf/offline', () => {
   class OfflineMushafError extends Error {
     constructor(message: string, readonly kind: string) { super(message); }
@@ -158,6 +162,7 @@ vi.mock('@/services/quranAsset', async () => {
   return { openBundledQuran: async () => openTestDatabase() };
 });
 
+const { resetMushafAutoDownloadForTests } = await import('@/mushaf/offline/autoDownloadService');
 const { default: MushafScreen, parsePageNumber, fitMushafPage, BACK_BAR_HEIGHT, TALLER_MAX_TILES_DOWN, TALLER_MAX_LINE_SPACING } = await import('@/app/(tabs)/mushaf');
 const { router } = await import('expo-router');
 const { MUSHAF_PANEL_COLORS } = await import('@/constants/mushafTheme');
@@ -315,6 +320,8 @@ beforeEach(() => {
 });
 afterEach(async () => {
   if (root) await act(async () => root.unmount());
+  // The offline Mushaf's one controller (a module singleton): each test starts with a fresh one.
+  await resetMushafAutoDownloadForTests();
 });
 
 describe('full-screen reading view', () => {
@@ -3381,6 +3388,33 @@ describe('finger-following page turns', () => {
     expect(currentPage()).toBe(61);
     expect(x(61)).toBe(0);
     expect(zoom().scale).toBe(1);
+  });
+
+  // Release audit (rapid swipes): only one page is read ahead on each side, so a second swipe made before the new
+  // neighbour has loaded slides in an empty placeholder (no paper, frame or text) until its load finishes. Pins the
+  // current behaviour; it never shows the wrong page, never skips a page and draws the page as soon as it is read.
+  it('a second swipe before the new neighbour has loaded shows an empty placeholder, then the page once read', async () => {
+    everyPageDrawn();
+    await render();
+    let finish63!: () => void;
+    const drawn = state.offline.readPage.getMockImplementation()!;
+    state.offline.readPage.mockImplementation((n: number) => (n === 63 ? new Promise((resolve) => { finish63 = () => resolve(drawn(n)); }) : drawn(n)));
+    await swipeTo(120);
+    expect(currentPage()).toBe(62);
+    const text = (n: number) => slot(n).findAll((node) => typeof node.type === 'string' && node.props.testID === 'qpc-v1-text');
+    // Page 63 is still being read: its slot is the bare loading placeholder, not a page.
+    expect(text(63)).toHaveLength(0);
+    expect(slot(63).findAll((node) => typeof node.type === 'string' && node.props.testID === 'mushaf-page-missing')).toHaveLength(0);
+    expect(slot(63).findAll((node) => typeof node.type === 'string' && node.props.accessibilityLabel === 'Loading the 1405 page…')).toHaveLength(1);
+    // The reader swipes on at once: page 63 slides in (and is shown) as that placeholder.
+    await swipeTo(120);
+    expect(currentPage()).toBe(63);
+    expect(text(63)).toHaveLength(0);
+    // The read finishes: page 63 is drawn in place.
+    await act(async () => { finish63(); });
+    await flush();
+    await flush();
+    expect(text(63)).toHaveLength(1);
   });
 });
 

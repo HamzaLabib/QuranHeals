@@ -9,6 +9,8 @@ import { isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 
+import { MushafDownloadIndicator } from './MushafDownloadIndicator';
+
 /** The four tabs, in the approved order; the route names are app/(tabs)/<name>.tsx. */
 export const APP_TABS = ['index', 'mushaf', 'my-reading', 'reflections'] as const;
 type TabName = (typeof APP_TABS)[number];
@@ -33,11 +35,10 @@ export function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps)
   if (hidden) return null;
   const labels: Record<TabName, string> = { index: messages.tabs.home, mushaf: messages.tabs.mushaf, 'my-reading': messages.tabs.myReading, reflections: messages.tabs.reflections };
 
-  return (
+  const tabs = (
     <View
       testID="app-tab-bar"
       accessibilityRole="tablist"
-      onLayout={(event) => onHeight?.(event.nativeEvent.layout.height)}
       style={[styles.bar, { paddingBottom: Math.max(insets.bottom, spacing.sm) }, isRtlLocale(locale) && styles.rtl]}>
       {APP_TABS.map((name) => {
         const route = state.routes.find((r) => r.name === name);
@@ -64,6 +65,14 @@ export function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps)
           </Pressable>
         );
       })}
+    </View>
+  );
+
+  // The offline Mushaf's quiet download line (MushafDownloadIndicator) sits above the tabs and counts in the bar's height.
+  return (
+    <View testID="app-tab-bar-area" onLayout={(event) => onHeight?.(event.nativeEvent.layout.height)}>
+      <MushafDownloadIndicator />
+      {tabs}
     </View>
   );
 }

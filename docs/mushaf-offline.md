@@ -70,7 +70,7 @@ On opening, a `PRAGMA quick_check` and a row-count check against `meta` decide b
 
 ## Download lifecycle
 
-`offlineMushaf.download({ signal, onProgress })`, started from **Offline Mushaf → Download for offline reading** on `/mushaf`:
+`offlineMushaf.download({ signal, onProgress })`, started only by the automatic-download controller (next section): by itself after the app opens, or from the **Offline Mushaf** panel (Settings, or any page not yet downloaded):
 
 1. **Check:** fetch and validate the manifest (it must describe exactly 31 chunks covering pages 1–604).
    - Same version installed and healthy → *up to date*; nothing is downloaded.
@@ -84,10 +84,37 @@ On opening, a `PRAGMA quick_check` and a row-count check against `meta` decide b
 
 Removal (`remove()`) deletes the installed copy and any staged chunks.
 
+## Automatic download (first launch)
+
+Code: `mobile/src/mushaf/offline/autoDownload.ts` (the rules, pure and tested), `autoDownloadService.ts` (the app's one instance), `autoDownloadConfig.ts` (release gate), `network.ts` (connection type). UI: `components/MushafDownloadIndicator.tsx` (above the tab bar) and `components/OfflineMushafPanel.tsx` (Settings, and any page not yet downloaded). Tests: `mobile/tests/mushafAutoDownload.test.ts`, `mushafDownloadIndicator.test.ts`.
+
+It decides only **when** the verified download above runs; it never changes what is downloaded or how it is checked. No sign-in is needed, and the copy is device content, shared by every account on the device.
+
+- **Start:** once, from the root layout, about 3 s after the first screen shows. Never from screens; repeated starts do nothing more.
+- **Already complete** (layout installed and all 604 fonts verified, `status().complete`): nothing downloads; only the update check above.
+- **Missing or partial:** on Wi-Fi it starts by itself. On mobile data it asks once, in a quiet line above the tab bar: **Download now** (remembered: `allowed`) or **Wait for Wi-Fi** (remembered: `wifi-only`; then it starts on Wi-Fi, without asking again). Stored device-wide in `quran-heals:mushaf-offline-auto:v1`.
+- **Network type** (`network.ts`, from `expo-network`, approved 2026-10-14; a native module, so it needs a new build): Wi-Fi or Ethernet starts by itself; mobile data asks; no connection, or the internet explicitly unreachable (a Wi-Fi login page), waits. Anything else (VPN, Bluetooth, "other", unknown, the web, or the module failing) is *unknown* and treated like mobile data: it asks (**Download now** / **Not now**; *Not now* then waits for Wi-Fi). Tests: `mobile/tests/mushafNetwork.test.ts`.
+- **Progress:** «Preparing your Mushaf for offline reading» with one bar over the layout (about a fifth) and the fonts. Never shown on the Mushaf page (no tab bar there); the panel there shows the same progress. On completion, «Your Mushaf is ready for offline reading» for 4 s, once.
+- **Never complete by mistake:** *ready* only when the engine's own `status()` says complete after the download. Anything less is a failure (`integrity`) and is retried.
+- **Failures:** offline, 503 (relay not ready, Render restarting) and damaged downloads retry after 30 s, 2, 10 and 30 min, then stop. They start again when the network returns, when the app is reopened at least 15 min after the last failure, or from **Try again**. Low storage never retries by itself. Every verified chunk and font is kept between attempts.
+- **Network change:** leaving Wi-Fi mid-download without mobile-data permission stops it (what is verified is kept) and asks; Wi-Fi resumes it.
+- **App closed or in the background:** the run stops when the app goes to the background and resumes when it is active again; a closed app resumes on its next launch. **Nothing downloads while the app is suspended or closed** (see below).
+- **Pause / Remove:** remembered. No automatic download until **Continue** / **Download** in the panel.
+
+**Build gate** (`autoDownloadConfig.ts`): automatic starts happen in development builds and in **EAS preview builds** only, recognised by the binary's EAS Update channel (`preview` in `eas.json`, read from `expo-updates`). A build-profile environment variable is deliberately not used: `eas update` does not apply a profile's `env`, so an OTA update to the preview channel would silently turn it off. Production (`production` channel), any other channel and no channel stay off: the panel's manual download and the daily update check work as before. Tests: `mobile/tests/mushafAutoDownload.test.ts` ("build gate").
+
+Preview was enabled (2026-10-14) after checks 1 and 2 below passed on the hosted relay. Still open: the restart test in 3 and the device check in 4, both needed before production is added:
+1. `GET /api/mushaf/qpc-v1/offline/manifest` on the production URL returns 200 with `pagesCount: 604`, 31 chunks and `verses: 6236`.
+2. Each chunk downloads and matches its SHA-256 (`tools/mushaf/verify-offline-dataset.mjs`).
+3. Storage chosen (*Production storage on Render* below; preview testing uses Render's temporary disk) and a restart tested: during the re-bootstrap the relay answers 503, which devices treat as *retry later*.
+4. A device check: a fresh install on Wi-Fi completes; airplane mode mid-download resumes.
+
+**Background downloading (not implemented):** iOS suspends the app's JavaScript seconds after it leaves the screen, and Android may stop it at any time, so the download continues only while the app is open. Continuing while suspended needs native background transfers: an iOS background `URLSession` or Android WorkManager, then the same SHA-256 checks when the app returns. That is a native change (a new build) and a redesign of the font step; it is proposed, not done.
+
 ## Synchronisation strategy
 
 - **Backend → Quran Foundation:** at least daily while enabled.
-- **Device → backend:** `checkForUpdate()` runs 15 s after app start when the Mushaf is installed, at most once per 24 h (`UPDATE_CHECK_MS`). *Check for updates* on `/mushaf` forces it.
+- **Device → backend:** `checkForUpdate()` runs once per app session when the Mushaf is installed (started by the controller about 3 s after the first screen), at most once per 24 h (`UPDATE_CHECK_MS`). *Check for updates* in the Offline Mushaf panel forces it.
   - A new version installs as above, so usually only the changed chunks are downloaded.
   - Offline or server unavailable: the result is `offline`, and nothing changes.
 - **Offline for any length of time:** the installed copy stays readable. Nothing expires it or deletes it because the device has been offline for more than seven days; it updates on the next check once online. (Tested with 400 days.)

@@ -63,6 +63,28 @@ The tightest are page 466 line 7 (the tail of م in 39:71, 1 font unit above the
 
 - **`generate_selection_ink.py`** (`<fonts dir> <records-*.json.gz>`): writes `mobile/src/mushaf/generated/qpcV1SelectionInk.ts`, the ink past the advance of the words where a selection can end.
 - **`export_word_advances.py`** (`<fonts dir> <records> <out.json> [--pages …]`): every word's advance, for `mobile/tests/mushafSelectionAudit.test.ts`. Keep the full export outside the repo; run the audit with `QPC_V1_ADVANCES=<path>`. With `--pages` it wrote the committed fixture `mobile/tests/fixtures/qpcV1WordAdvances.json`.
+- **`export-word-advances.mjs`** (same arguments and output): the Node equivalent, for machines without Python. Checked on 2026-10-14: with `--pages 1,2,5,50,61,237,466` its output equals the committed fixture byte for byte (page 237 included, the font with different metrics), and two full runs give the same file.
+
+## Running the six 604-page Mushaf tests (mobile)
+
+Six tests in `mobile/tests` skip unless these local, uncommitted inputs exist (Quran Foundation content stays out of the repository):
+
+| Test | Needs |
+|---|---|
+| `mushafAllPages.test.ts` (3 tests), `hizbQuarters.test.ts` (1, the snapshot part), `qpcV1Android.test.ts` (1, all pages) | the snapshot `backend/data/mushaf-sync/records-*.json.gz` |
+| `mushafSelectionAudit.test.ts` (1, all pages) | the snapshot, the 604 fonts, and the advances export in `QPC_V1_ADVANCES` |
+
+```sh
+# 1. Snapshot: QF_ENV=production, QF_CLIENT_ID and QF_CLIENT_SECRET in backend/.env (never committed), then
+cd backend && npm run mushaf:sync -- --report && cd ..
+# 2. Fonts (public CDN, outside the repo) and the advances export (Python tool or its Node equivalent)
+node tools/mushaf-audit/fetch-qcf-fonts.mjs /tmp/qcf
+node tools/mushaf-audit/export-word-advances.mjs /tmp/qcf backend/data/mushaf-sync/records-<seq>.json.gz /tmp/qpc-v1-advances.json
+# 3. Everything, nothing skipped but the legal-site test (it needs ../quranhealslegal checked out)
+cd mobile && QPC_V1_ADVANCES=/tmp/qpc-v1-advances.json npm test
+```
+
+Check the snapshot is the one devices receive: the `--report` version must equal `version` in the production manifest (`/api/mushaf/qpc-v1/offline/manifest`). Last run, 2026-10-14: sequence 547617, version `de84dc6fa58675669b4f5c30`, 604 pages, 6,236 ayahs, 83,665 words; all six passed (the selection audit about 5 minutes).
 
 ## Android (2026-10-12)
 

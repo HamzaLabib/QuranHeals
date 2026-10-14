@@ -393,15 +393,18 @@ describe('Settings: theming', () => {
   const cardBackgrounds = () =>
     all('View').map((node) => resolveStyle(node)).flat().filter((style) => style.borderRadius !== undefined && style.backgroundColor !== undefined).map((style) => style.backgroundColor);
 
+  // The five accordions, then the offline Mushaf card (components/OfflineMushafPanel.tsx), in the same palette card.
+  const CARDS = 6;
+
   it('uses the light palette card for every accordion in Light', async () => {
     await renderSettings();
-    expect(cardBackgrounds()).toEqual(Array(5).fill(lightPalette.card));
+    expect(cardBackgrounds()).toEqual(Array(CARDS).fill(lightPalette.card));
   });
 
   it('uses the dark palette card for every accordion in Dark, including expanded and selected rows', async () => {
     state.storage.set(APPEARANCE_KEY, JSON.stringify('dark'));
     await renderSettings();
-    expect(cardBackgrounds()).toEqual(Array(5).fill(darkPalette.card));
+    expect(cardBackgrounds()).toEqual(Array(CARDS).fill(darkPalette.card));
     await pressHeader('Emotions Language');
     const selected = optionRows().find((node) => node.props.accessibilityState.selected)!;
     expect(resolveStyle(selected)).toContainEqual(expect.objectContaining({ backgroundColor: darkPalette.accentSoft }));
@@ -411,7 +414,7 @@ describe('Settings: theming', () => {
     state.storage.set(APPEARANCE_KEY, JSON.stringify('system'));
     state.scheme = 'dark';
     await renderSettings();
-    expect(cardBackgrounds()).toEqual(Array(5).fill(darkPalette.card));
+    expect(cardBackgrounds()).toEqual(Array(CARDS).fill(darkPalette.card));
     expect(header('Appearance').props.accessibilityLabel).toBe('Appearance, Auto');
   });
 });

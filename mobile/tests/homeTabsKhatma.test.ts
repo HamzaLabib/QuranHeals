@@ -211,7 +211,7 @@ describe('the four bottom tabs', () => {
     expect(all('app-tab-bar')).toHaveLength(0);
     await act(async () => root.unmount());
     await mount(createElement(AppTabBar, props(0).props));
-    await act(async () => byId('app-tab-bar').props.onLayout({ nativeEvent: { layout: { height: 83 } } }));
+    await act(async () => byId('app-tab-bar-area').props.onLayout({ nativeEvent: { layout: { height: 83 } } }));
     expect(state.heightReports).toEqual([83]);
   });
 

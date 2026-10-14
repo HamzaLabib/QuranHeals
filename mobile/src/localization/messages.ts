@@ -199,6 +199,20 @@ export type Messages = {
     offlineFonts: string;
     offlineFontsCount: string;
     offlineComplete: string;
+    /** Automatic download (mushaf/offline/autoDownload.ts): the tab bar's indicator and the mobile-data question. */
+    autoPreparing: string;
+    autoReady: string;
+    autoConsentCellular: string;
+    autoConsentUnknown: string;
+    autoDownloadNow: string;
+    autoWaitForWifi: string;
+    autoNotNow: string;
+    offlinePause: string;
+    offlineRetry: string;
+    offlinePaused: string;
+    offlineWaitingWifi: string;
+    offlineWaitingNetwork: string;
+    offlineRetrying: string;
     previousPage: string;
     nextPage: string;
     searchPage: string;
@@ -754,7 +768,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       stopRenamed: 'Name updated.',
       stopNameTaken: 'Another reading stop already uses this name.',
       offlineTitle: "Offline Mushaf",
-      offlineIntro: "Download the layout of all 604 pages to read without an internet connection. Page fonts are downloaded separately later.",
+      offlineIntro: "All 604 pages and their fonts (about 115 MB), to read without an internet connection.",
       offlineDownload: "Download for offline reading",
       offlineResume: "Continue download",
       offlineCancel: "Cancel",
@@ -775,6 +789,19 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       offlineFonts: "Downloading page fonts",
       offlineFontsCount: "Page fonts",
       offlineComplete: "The complete Mushaf is ready for offline reading",
+      autoPreparing: "Preparing your Mushaf for offline reading",
+      autoReady: "Your Mushaf is ready for offline reading",
+      autoConsentCellular: "Download the Mushaf for offline reading (about 115 MB) using mobile data?",
+      autoConsentUnknown: "Download the Mushaf for offline reading now? It is about 115 MB.",
+      autoDownloadNow: "Download now",
+      autoWaitForWifi: "Wait for Wi-Fi",
+      autoNotNow: "Not now",
+      offlinePause: "Pause",
+      offlineRetry: "Try again",
+      offlinePaused: "Paused. What has been downloaded is kept.",
+      offlineWaitingWifi: "It will download by itself on Wi-Fi.",
+      offlineWaitingNetwork: "Waiting for an internet connection.",
+      offlineRetrying: "It will try again by itself shortly.",
       previousPage: "Previous page",
       nextPage: "Next page",
       searchPage: 'Search: a page or a Surah',
@@ -1267,7 +1294,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       stopRenamed: 'تم تحديث الاسم.',
       stopNameTaken: 'هذا الاسم مستخدم لموضع توقف آخر.',
       offlineTitle: "المصحف دون اتصال",
-      offlineIntro: "نزّل تخطيط صفحات المصحف الـ٦٠٤ كلها للقراءة دون اتصال بالإنترنت. تُنزَّل خطوط الصفحات لاحقًا بشكل منفصل.",
+      offlineIntro: "صفحات المصحف الـ٦٠٤ كلها وخطوطها (حوالي ١١٥ ميغابايت)، للقراءة دون اتصال بالإنترنت.",
       offlineDownload: "التنزيل للقراءة دون اتصال",
       offlineResume: "متابعة التنزيل",
       offlineCancel: "إلغاء",
@@ -1288,6 +1315,19 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       offlineFonts: "جارٍ تنزيل خطوط الصفحات",
       offlineFontsCount: "خطوط الصفحات",
       offlineComplete: "المصحف كاملًا جاهز للقراءة دون اتصال",
+      autoPreparing: "جارٍ تجهيز المصحف للقراءة دون اتصال",
+      autoReady: "المصحف جاهز للقراءة دون اتصال",
+      autoConsentCellular: "تنزيل المصحف للقراءة دون اتصال (حوالي ١١٥ ميغابايت) باستخدام بيانات الجوال؟",
+      autoConsentUnknown: "هل تريد تنزيل المصحف للقراءة دون اتصال الآن؟ حجمه حوالي ١١٥ ميغابايت.",
+      autoDownloadNow: "نزّله الآن",
+      autoWaitForWifi: "انتظر شبكة Wi-Fi",
+      autoNotNow: "ليس الآن",
+      offlinePause: "إيقاف مؤقت",
+      offlineRetry: "إعادة المحاولة",
+      offlinePaused: "متوقف مؤقتًا، وما تم تنزيله محفوظ.",
+      offlineWaitingWifi: "سيُنزَّل تلقائيًا عند الاتصال بشبكة Wi-Fi.",
+      offlineWaitingNetwork: "في انتظار الاتصال بالإنترنت.",
+      offlineRetrying: "ستُعاد المحاولة تلقائيًا بعد قليل.",
       previousPage: "الصفحة السابقة",
       nextPage: "الصفحة التالية",
       searchPage: 'البحث: صفحة أو سورة',
@@ -1794,7 +1834,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       stopRenamed: 'الاسم اتغيّر.',
       stopNameTaken: 'الاسم ده مستخدم لمكان وقوف تاني.',
       offlineTitle: "المصحف من غير نت",
-      offlineIntro: "نزّل شكل صفحات المصحف الـ٦٠٤ كلها عشان تقرا من غير نت. خطوط الصفحات هتتنزّل بعدين لوحدها.",
+      offlineIntro: "صفحات المصحف الـ٦٠٤ كلها وخطوطها (حوالي ١١٥ ميجا)، عشان تقرا من غير نت.",
       offlineDownload: "نزّله للقراية من غير نت",
       offlineResume: "كمّل التنزيل",
       offlineCancel: "إلغاء",
@@ -1815,6 +1855,19 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       offlineFonts: "بيتنزّل خطوط الصفحات",
       offlineFontsCount: "خطوط الصفحات",
       offlineComplete: "المصحف كله جاهز تقراه من غير نت",
+      autoPreparing: "بنجهّز المصحف عشان تقراه من غير نت",
+      autoReady: "المصحف جاهز تقراه من غير نت",
+      autoConsentCellular: "تنزّل المصحف للقراية من غير نت (حوالي ١١٥ ميجا) بباقة الموبايل؟",
+      autoConsentUnknown: "تحب تنزّل المصحف للقراية من غير نت دلوقتي؟ حجمه حوالي ١١٥ ميجا.",
+      autoDownloadNow: "نزّله دلوقتي",
+      autoWaitForWifi: "استنى الواي فاي",
+      autoNotNow: "مش دلوقتي",
+      offlinePause: "وقّف شوية",
+      offlineRetry: "جرّب تاني",
+      offlinePaused: "واقف، واللي اتنزّل محفوظ.",
+      offlineWaitingWifi: "هيتنزّل لوحده لما تتصل بالواي فاي.",
+      offlineWaitingNetwork: "مستنيين النت.",
+      offlineRetrying: "هنجرّب تاني لوحدنا كمان شوية.",
       previousPage: "الصفحة اللي قبل",
       nextPage: "الصفحة اللي بعد",
       searchPage: 'دوّر على صفحة أو سورة',

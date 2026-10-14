@@ -61,5 +61,7 @@ The next iOS and Android builds pick up native changes that an EAS Update cannot
 
 - `mobile/modules/quran-heals-pbkdf2`: local Expo module for native PBKDF2 (sync password unlock). Without it the app uses the JavaScript implementation (same keys, slower). See `docs/auth-and-sync/sync-password-improvements.md`.
 - Expo SDK 57 patch alignment (`expo`, `expo-updates`, `expo-sqlite`, `expo-splash-screen`, `expo-router`, `expo-auth-session`, `expo-linking`, `expo-asset`, `expo-constants`, `expo-file-system`), applied with `npx expo install --fix`.
+- SDK 57 patch alignment, 2026-10-14 (`npx expo install --fix`): `expo` 57.0.29, `expo-auth-session` 57.0.16, `expo-linking` 57.0.13, `expo-router` 57.0.27, with `expo-asset` 57.0.20, `expo-constants` 57.0.22 and other Expo internals in the lockfile. Patch releases only; `expo-doctor` 21/21.
+- `expo-network` (~57.0.2): the connection type for the automatic offline Mushaf download (Wi-Fi starts it; mobile data asks). See `docs/mushaf-offline.md`, "Automatic download". Older binaries without it never receive the code that uses it (fingerprint).
 
 JavaScript-only changes in the same release (legal links in Settings, reflection conflict recovery, rate-limit handling) also work as an EAS Update to the new binaries. Installed preview builds keep working against the updated backend, but get none of this until they are reinstalled.

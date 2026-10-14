@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/useAuth';
 import { AccountSection } from '@/components/AccountSection';
+import { OfflineMushafPanel } from '@/components/OfflineMushafPanel';
 import { ReportIssueSheet } from '@/components/ReportIssueSheet';
 import { SettingsAccordion } from '@/components/SettingsAccordion';
 import { getLegalLinks } from '@/constants/legalLinks';
@@ -229,6 +230,9 @@ export default function SettingsScreen() {
             ))}
           </SettingsAccordion>
         </View>
+
+        {/* The offline Mushaf (shared device content, the same signed in or not): progress and controls — pause, continue, try again, check for updates, remove — also once it is complete. */}
+        <OfflineMushafPanel />
 
         {/* General and technical issues: the same reporting sheet as the ayah screen, with no ayah attached. Signed in or not. */}
         <Pressable

@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ConfirmSheet } from '@/components/ConfirmSheet';
 import { KhatmaReachedSheet } from '@/components/KhatmaReachedSheet';
+import { OfflineMushafPanel } from '@/components/OfflineMushafPanel';
 import { MushafControlPanel, MUSHAF_PANEL_HEIGHT, MUSHAF_PANEL_MARGIN, type MushafPopup } from '@/components/MushafControlPanel';
 import { MushafPageView } from '@/components/MushafPageView';
 import { MushafSearchSheet } from '@/components/MushafSearchSheet';
@@ -19,7 +20,7 @@ import { QpcV1PageText } from '@/components/QpcV1PageText';
 import { ReflectionSheet } from '@/components/ReflectionSheet';
 import { MUSHAF_PANEL_COLORS, MUSHAF_PAPER } from '@/constants/mushafTheme';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
-import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
+import { isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { MUSHAF_BACKGROUNDS, MUSHAF_BORDER_STYLES, MUSHAF_INKS, MUSHAF_PAGE_FURNITURE, resolveMushafAppearance } from '@/mushaf/appearance';
 import { QCF_V1_NORMAL_BOX_MARGIN_EM } from '@/mushaf/ayahMarkers';
@@ -27,8 +28,9 @@ import { HAFS_KFQC_PAGE_061 } from '@/mushaf/generated/hafsKfqcPage061';
 import { KHATM_DUA } from '@/mushaf/khatmDua';
 import { MUSHAF_HEADER_FONT_FAMILY, MUSHAF_HEADER_FONTS } from '@/mushaf/headerFonts';
 import { MUSHAF_PAGE_COUNT, parseMushafPage, tintAyahMarkers, tintSvgInk, toArabicIndicDigits } from '@/mushaf/mushafPage';
-import { offlineMushaf, OfflineMushafError, type DownloadProgress, type OfflineStatus } from '@/mushaf/offline';
+import { offlineMushaf } from '@/mushaf/offline';
 import { readRelayPageForDev } from '@/mushaf/offline/devRelayPage';
+import { useMushafAutoDownload } from '@/mushaf/offline/useMushafAutoDownload';
 import { qcfFontUrl } from '@/mushaf/offline/fonts';
 import { resolveDecorations } from '@/mushaf/decorations';
 import { hizbLabelsForPage } from '@/mushaf/hizbQuarters';
@@ -292,6 +294,14 @@ export default function MushafScreen() {
   const [loadedPages, setLoadedPages] = useState<Record<number, { reload: number; state: PageState }>>({});
   const pageLoads = useRef(new Map<string, { page: number; load: Promise<PageState> }>());
   const [reloadKey, setReloadKey] = useState(0);
+  // The offline Mushaf changed (a download, update or removal ended, automatic or from the panel): read the pages again.
+  const { runs: offlineRuns } = useMushafAutoDownload();
+  const seenOfflineRuns = useRef(offlineRuns);
+  useEffect(() => {
+    if (seenOfflineRuns.current === offlineRuns) return;
+    seenOfflineRuns.current = offlineRuns;
+    setReloadKey((key) => key + 1);
+  }, [offlineRuns]);
   const [fontsLoaded, fontError] = useFonts(QPC_V1_FONTS);
   // Separate, so the heads' font can never hold back or disable the Quran text.
   const [headerFontLoaded] = useFonts(MUSHAF_HEADER_FONTS);
@@ -712,7 +722,7 @@ export default function MushafScreen() {
                   <Text style={[styles.missingText, { color: furniture.header }]}>
                     {state.status === 'missing' ? copy.pageNotDownloaded : copy.pageUnavailable}
                   </Text>
-                  {isCurrent && <OfflineMushafPanel onChange={() => setReloadKey((key) => key + 1)} />}
+                  {isCurrent && <OfflineMushafPanel />}
                 </View>
               ) : (
                 <View style={{ height: pageHeight }} accessibilityLabel={copy.qpcLoading} />
@@ -867,142 +877,6 @@ export default function MushafScreen() {
   );
 }
 
-/**
- * "Download Mushaf for offline reading": all 604 pages' layout (not the page
- * fonts yet), with progress, cancel (a later download continues where it
- * stopped), update check and removal. See mushaf/offline/offlineMushaf.ts.
- */
-function OfflineMushafPanel({ onChange }: { onChange?: () => void } = {}) {
-  const styles = useThemedStyles(makeStyles);
-  const { locale, messages } = useAppLocale();
-  const copy = messages.mushaf;
-  const direction = getDirectionStyle(locale);
-  const [status, setStatus] = useState<OfflineStatus | null>(null);
-  const [progress, setProgress] = useState<DownloadProgress | null>(null);
-  const [notice, setNotice] = useState<{ tone: 'info' | 'error'; text: string } | null>(null);
-  const controller = useRef<AbortController | null>(null);
-
-  const refresh = useCallback(() => offlineMushaf.status().then(setStatus, () => setStatus(null)), []);
-  useEffect(() => {
-    void refresh();
-    return () => controller.current?.abort();
-  }, [refresh]);
-
-  const explain = (error: unknown) => {
-    const kind = error instanceof OfflineMushafError ? error.kind : null;
-    const text = kind === 'cancelled' ? copy.offlineCancelled
-      : kind === 'offline' ? copy.offlineErrorOffline
-      : kind === 'unavailable' ? copy.offlineErrorUnavailable
-      : kind === 'insufficient_storage' ? copy.offlineErrorStorage
-      : kind === 'integrity' ? copy.offlineErrorIntegrity
-      : copy.offlineErrorGeneric;
-    setNotice({ tone: kind === 'cancelled' ? 'info' : 'error', text });
-  };
-
-  const download = async () => {
-    if (controller.current) return;
-    controller.current = new AbortController();
-    setNotice(null);
-    try {
-      const result = await offlineMushaf.download({ signal: controller.current.signal, onProgress: setProgress });
-      const after = await offlineMushaf.status().catch(() => null);
-      setNotice({ tone: 'info', text: after?.complete ? copy.offlineComplete : result.status === 'up-to-date' ? copy.offlineUpToDate : status?.installed ? copy.offlineUpdated : copy.offlineReady });
-    } catch (error) {
-      explain(error);
-    } finally {
-      controller.current = null;
-      setProgress(null);
-      void refresh();
-      onChange?.();
-    }
-  };
-
-  const remove = async () => {
-    try {
-      await offlineMushaf.remove();
-      setNotice(null);
-    } catch (error) {
-      explain(error);
-    }
-    void refresh();
-  };
-
-  // Two steps: the layout (by bytes), then the page fonts (by count).
-  const inFonts = progress?.phase === 'fonts';
-  const percent = !progress ? 0
-    : inFonts ? (progress.fontsReady ?? 0) / (progress.fontsTotal || 604)
-    : progress.bytesTotal > 0 ? progress.bytesReady / progress.bytesTotal : 0;
-  const number = (value: number) => new Intl.NumberFormat(locale).format(value);
-  const busy = progress !== null && progress.phase !== 'done';
-  const formatDate = (iso: string) => {
-    try {
-      return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date(iso));
-    } catch {
-      return iso.slice(0, 10);
-    }
-  };
-  const fontsIncomplete = status?.installed && status.fonts && status.fonts.ready < status.fonts.total;
-  const action = fontsIncomplete ? copy.offlineResume
-    : status?.installed ? copy.offlineCheckUpdate
-    : status && status.stagedChunks > 0 ? copy.offlineResume
-    : copy.offlineDownload;
-
-  return (
-    <View testID="offline-mushaf" style={styles.panel}>
-      <Text style={[styles.label, direction]}>{copy.offlineTitle}</Text>
-      {status?.installed ? (
-        <>
-          <Text style={[styles.muted, direction]}>{`${status.complete === false ? copy.offlineReady : status.fonts ? copy.offlineComplete : copy.offlineReady} · ${copy.offlineUpdatedFrom}: ${formatDate(status.syncedAt)}`}</Text>
-          {status.fonts && (
-            <Text style={[styles.muted, direction]}>{`${copy.offlineFontsCount}: ${number(status.fonts.ready)} / ${number(status.fonts.total)}`}</Text>
-          )}
-        </>
-      ) : (
-        <Text style={[styles.muted, direction]}>{copy.offlineIntro}</Text>
-      )}
-      {busy ? (
-        <>
-          <Text accessibilityLiveRegion="polite" style={[styles.status, direction]}>
-            {inFonts
-              ? `${copy.offlineFonts} ${number(progress.fontsReady ?? 0)} / ${number(progress.fontsTotal ?? 604)}`
-              : `${progress.phase === 'downloading' || progress.phase === 'checking' ? copy.offlineDownloading : copy.offlineVerifying} ${new Intl.NumberFormat(locale, { style: 'percent' }).format(percent)}`}
-          </Text>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={copy.offlineCancel}
-            onPress={() => controller.current?.abort()}
-            style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
-            <Text style={styles.secondaryButtonText}>{copy.offlineCancel}</Text>
-          </Pressable>
-        </>
-      ) : (
-        <>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={action}
-            disabled={status === null}
-            onPress={() => void download()}
-            style={({ pressed }) => [styles.secondaryButton, status === null && styles.disabled, pressed && styles.pressed]}>
-            <Text style={styles.secondaryButtonText}>{action}</Text>
-          </Pressable>
-          {status?.installed && (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={copy.offlineRemove}
-              onPress={() => void remove()}
-              style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
-              <Text style={styles.secondaryButtonText}>{copy.offlineRemove}</Text>
-            </Pressable>
-          )}
-        </>
-      )}
-      {notice && (
-        <Text accessibilityLiveRegion="polite" style={[styles.status, direction, notice.tone === 'error' && styles.statusError]}>{notice.text}</Text>
-      )}
-    </View>
-  );
-}
-
 const makeStyles = (colors: Palette) => StyleSheet.create({
   // Full-screen reader: the page starts right under the status bar.
   reader: {
@@ -1123,14 +997,6 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     fontSize: typography.body,
     fontWeight: '700',
   },
-  panel: {
-    backgroundColor: colors.card,
-    borderColor: colors.border,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    gap: spacing.sm,
-    padding: spacing.md,
-  },
   panelHeader: {
     alignItems: 'center',
     flexDirection: 'row',
@@ -1139,11 +1005,6 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   panelTitle: {
     flex: 1,
     gap: 2,
-  },
-  label: {
-    color: colors.textSecondary,
-    fontSize: typography.caption,
-    fontWeight: '700',
   },
   reference: {
     color: colors.accent,
@@ -1171,22 +1032,6 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     fontSize: typography.body,
     fontWeight: '800',
   },
-  secondaryButton: {
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    flexDirection: 'row',
-    gap: spacing.sm,
-    justifyContent: 'center',
-    minHeight: 48,
-  },
-  secondaryButtonText: {
-    color: colors.textPrimary,
-    fontSize: typography.body,
-    fontWeight: '700',
-  },
   input: {
     backgroundColor: colors.inputBackground,
     borderColor: colors.inputBorder,
@@ -1196,18 +1041,6 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     fontSize: typography.body,
     minHeight: 48,
     paddingHorizontal: spacing.md,
-  },
-  status: {
-    color: colors.accent,
-    fontSize: typography.caption,
-    fontWeight: '700',
-  },
-  statusError: {
-    color: colors.danger,
-  },
-  muted: {
-    color: colors.textMuted,
-    fontSize: typography.caption,
   },
   stopRow: {
     alignItems: 'center',
@@ -1269,9 +1102,6 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   },
   segmentTextSelected: {
     color: colors.onPrimaryButton,
-  },
-  disabled: {
-    opacity: 0.5,
   },
   pressed: {
     opacity: 0.78,
