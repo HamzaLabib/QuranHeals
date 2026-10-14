@@ -60,7 +60,7 @@ Storage is per owner, like favorites and reflections (`storage/localDataOwner.ts
 
 ## Home and navigation
 
-- **Bottom tabs:** Home, Mushaf, أورادي وختماتي (Recitations & Khatmas, `/my-reading`), Reflections (`app/(tabs)/`). Home's header has Favorites and Settings. أورادي وختماتي also opens from Home's متابعة التلاوة / Continue Reciting and from the last row of the reader's ورد list (both switch to its tab).
+- **Bottom tabs:** Home, Mushaf, أورادي وختماتي (Recitations & Khatmas, `/my-reading`), Reflections (`app/(tabs)/`). Home's header has Favorites and Settings; the Settings gear (`components/SettingsHeaderButton.tsx`) is also in the header of Favorites, Reflections, All Emotions, every ayah screen, أورادي وختماتي, Credits and the Khatma completion screen (alone at its header's far end; it has no Back button), never on the Mushaf reader, Settings itself or دعاء ختم القرآن. Home's متابعة التلاوة / Continue Reciting card has one action, المصحف (since 2026-10-14). أورادي وختماتي opens from its tab and from the last row of the reader's ورد list (which switches to its tab).
 - **No saved position:** the Mushaf opens page 1 (the active ورد's page, else the most recently saved ورد's, when there is one). Page 61 stays special only because it is bundled.
 - **Wording:** English says "Recitations" (My Recitations & Khatmas, Continue Reciting); routes, storage keys and identifiers keep their names (`/my-reading`, `myReading`, `quran-heals:mushaf-reading-stops:v1`).
 - **Shared state:** Home, the reader and أورادي وختماتي read the same storage and reload on every change (`subscribeToReadingData`) and on every account change.

@@ -1,5 +1,5 @@
 import { Link, router } from 'expo-router';
-import { BookOpen, ChevronLeft, ChevronRight, Heart, MessageSquare, RefreshCw, Settings } from 'lucide-react-native';
+import { BookOpen, ChevronLeft, ChevronRight, Heart, MessageSquare, RefreshCw } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,6 +7,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ContinueReadingCard } from '@/components/ContinueReadingCard';
 import { EmotionCard } from '@/components/EmotionCard';
 import { ReportIssueSheet } from '@/components/ReportIssueSheet';
+import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { StateView } from '@/components/StateView';
 import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
@@ -220,14 +221,7 @@ export default function HomeScreen() {
                 <Heart size={20} color={colors.icon} strokeWidth={2} />
               </Pressable>
             </Link>
-            <Link href="/settings" asChild>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={messages.settings.openSettings}
-                style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
-                <Settings size={20} color={colors.icon} strokeWidth={2} />
-              </Pressable>
-            </Link>
+            <SettingsHeaderButton style={styles.iconButton} pressedStyle={styles.pressed} />
           </View>
         </View>
 

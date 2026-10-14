@@ -5,6 +5,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { EmotionCard } from '@/components/EmotionCard';
+import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { StateView } from '@/components/StateView';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
@@ -81,6 +82,7 @@ export default function AllEmotionsScreen() {
           <BackIcon size={22} color={colors.icon} />
         </Pressable>
         <Text accessibilityRole="header" style={[styles.title, direction]}>{messages.emotionsAll.title}</Text>
+        <SettingsHeaderButton style={styles.iconButton} pressedStyle={styles.pressed} />
       </View>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding(insets.bottom) }]}>
         {isLoading && (

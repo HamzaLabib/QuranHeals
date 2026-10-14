@@ -74,12 +74,12 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
 }));
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView', useSafeAreaInsets: () => ({ top: 47, bottom: 34, left: 0, right: 0 }) }));
 vi.mock('lucide-react-native', () => Object.fromEntries(
-  ['ArrowLeft', 'ArrowRight', 'BookHeart', 'BookMarked', 'BookOpen', 'BookOpenText', 'Check', 'ChevronDown', 'Heart', 'House', 'Minus', 'NotebookPen', 'Plus', 'RefreshCw'].map((name) => [name, name]),
+  ['ArrowLeft', 'ArrowRight', 'BookHeart', 'BookMarked', 'BookOpen', 'BookOpenText', 'Check', 'ChevronDown', 'Heart', 'House', 'Minus', 'NotebookPen', 'Plus', 'RefreshCw', 'Settings'].map((name) => [name, name]),
 ));
-vi.mock('expo-router', () => ({
-  router: { push: vi.fn(), navigate: vi.fn(), back: vi.fn(), replace: vi.fn(), dismissTo: vi.fn(), canGoBack: () => true },
-  useLocalSearchParams: () => state.params,
-}));
+vi.mock('expo-router', async () => {
+  const { createElement: h } = await import('react');
+  return { router: { push: vi.fn(), navigate: vi.fn(), back: vi.fn(), replace: vi.fn(), dismissTo: vi.fn(), canGoBack: () => true }, useLocalSearchParams: () => state.params, Link: ({ href, children }: { href: string; children: unknown }) => h('Link', { href }, children as never) };
+});
 vi.mock('expo-router/tabs', async () => {
   const { createContext } = await import('react');
   return { BottomTabBarHeightCallbackContext: createContext((height: number) => { state.heightReports.push(height); }) };
@@ -162,6 +162,13 @@ describe('the four bottom tabs', () => {
       } as never,
     };
   };
+
+  it('أورادي وختماتي stays reachable from Home without the Continue card`s old button: its bottom tab opens it', async () => {
+    const { navigation, props: tabProps } = props(0);
+    await mount(createElement(AppTabBar, tabProps));
+    await act(async () => { byId('tab-my-reading').props.onPress(); });
+    expect(navigation.navigate).toHaveBeenCalledWith('my-reading', undefined);
+  });
 
   it('exactly four tabs: Home, Mushaf, Recitations, Reflections — in this order, with the approved labels in every language', async () => {
     expect(APP_TABS).toEqual(['index', 'mushaf', 'my-reading', 'reflections']);
@@ -247,7 +254,8 @@ describe('Home', () => {
 
   it('the header keeps Favorites and Settings; the approved English and Arabic names', () => {
     expect(home).toMatch(/<Link href="\/favorites" asChild>/);
-    expect(home).toMatch(/<Link href="\/settings" asChild>/);
+    // Settings: the shared header gear (components/SettingsHeaderButton.tsx, a Link to /settings).
+    expect(home).toMatch(/<SettingsHeaderButton style=\{styles\.iconButton\} pressedStyle=\{styles\.pressed\} \/>/);
     expect(MESSAGES.en.continueReading.title).toBe('Continue Reciting');
     expect(MESSAGES.ar.continueReading.title).toBe('متابعة التلاوة');
     expect(MESSAGES['ar-EG'].continueReading.title).toBe('متابعة التلاوة');
@@ -300,7 +308,7 @@ describe('Continue Reading (متابعة القراءة)', () => {
     }
   });
 
-  it('shows the active ورد, its saved page and progress; المصحف opens that page; أورادي وختماتي opens its page', async () => {
+  it('shows the active ورد, its saved page and progress; its only action, المصحف, opens that page', async () => {
     state.locale = 'ar';
     await saveWirdPage({ name: 'ورد التدبر', page: 150 });
     await saveWirdPage({ name: 'ورد الفجر', page: 302 });
@@ -312,9 +320,12 @@ describe('Continue Reading (متابعة القراءة)', () => {
     expect(text).toContain('٥٠٪');
     await press('home-open-mushaf');
     expect(router.navigate).toHaveBeenLastCalledWith({ pathname: '/mushaf', params: { page: '302', at: expect.any(String) } });
-    await press('home-open-my-reading');
-    // The tab: navigate switches to it; nothing is pushed twice.
-    expect(router.navigate).toHaveBeenLastCalledWith('/my-reading');
+    // One action only: the أورادي وختماتي button left the card (2026-10-14); its tab stays (below).
+    const actions = byId('home-continue-reading').findAll((n) => typeof n.type === 'string' && n.props.accessibilityRole === 'button' && n.props.testID !== 'home-wird-selector');
+    expect(actions.map((n) => n.props.testID)).toEqual(['home-open-mushaf']);
+    expect(actions[0].props.accessibilityLabel).toBe('المصحف');
+    expect(all('home-open-my-reading')).toHaveLength(0);
+    expect(text).not.toContain(MESSAGES.ar.continueReading.myReading);
   });
 
   describe('the ورد selector', () => {
@@ -710,6 +721,41 @@ describe('the Khatma completion screen (/khatma-complete)', () => {
     // Showing it again records nothing more.
     expect((await loadReadingData()).stats.total).toBe(1);
   });
+
+  for (const locale of ['en', 'ar'] as const) {
+    it(`${locale}: the Settings gear alone at the header's far end (right in English, left in Arabic), subtle, above the content; no Back added`, async () => {
+      state.locale = locale;
+      await saveWirdPage({ name: 'Fajr', page: 300 });
+      await saveWirdPage({ name: 'Fajr', page: 604 });
+      const [w] = (await loadReadingData()).wirds;
+      const { record } = await confirmKhatma(w.stop.id, w.cycle.id);
+      state.params = { id: record.id };
+      await mount(createElement(KhatmaCompleteScreen));
+      const flat = (node: ReactTestInstance) => Object.assign({}, ...[typeof node.props.style === 'function' ? node.props.style({ pressed: false }) : node.props.style].flat(3).filter(Boolean));
+      const header = byId('khatma-complete-header');
+      // In the safe area (inside the SafeAreaView with its top edge), before the scrolling content.
+      const safe = root.root.findAllByType('SafeAreaView' as never)[0];
+      expect(safe.props.edges).toContain('top');
+      const order = (safe.children as ReactTestInstance[]).map((c) => String(c.type));
+      expect(order.indexOf('View')).toBeLessThan(order.indexOf('ScrollView'));
+      // Only the gear in it, at the end of the reading direction's row.
+      const gears = header.findAll((n) => typeof n.type === 'string' && n.props.testID === 'header-settings');
+      expect(gears).toHaveLength(1);
+      expect(all('header-settings')).toHaveLength(1);
+      expect(header.findAll((n) => typeof n.type === 'string' && n.props.accessibilityRole === 'button')).toHaveLength(1);
+      expect(flat(header)).toMatchObject({ flexDirection: locale === 'ar' ? 'row-reverse' : 'row', justifyContent: 'flex-end' });
+      expect(gears[0].parent!.type).toBe('Link');
+      expect(gears[0].parent!.props.href).toBe('/settings');
+      expect(gears[0].props.accessibilityLabel).toBe(MESSAGES[locale].settings.openSettings);
+      // Subtle: the plain 48-pt round surface button of the other headers, no shadow; the icon in the theme's icon colour.
+      expect(flat(gears[0])).toMatchObject({ width: 48, height: 48, borderWidth: 1 });
+      expect(flat(gears[0]).shadowOpacity).toBeUndefined();
+      expect(gears[0].findByType('Settings' as never).props.size).toBe(20);
+      // No Back button was added; the three actions are unchanged.
+      expect(root.root.findAll((n) => typeof n.type === 'string' && n.props.accessibilityLabel === MESSAGES[locale].ayah.goBack)).toHaveLength(0);
+      expect(['khatma-complete-mushaf', 'khatma-complete-back', 'khatma-complete-dua'].map((id) => all(id).length)).toEqual([1, 1, 1]);
+    });
+  }
 
   /** A ورد named `name` confirmed at `at` (local time); then its stored record's localDate set to `localDate`, if given. */
   async function completed(name: string, at: Date, localDate?: string) {

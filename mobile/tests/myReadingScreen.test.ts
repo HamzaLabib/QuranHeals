@@ -28,8 +28,11 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
   },
 }));
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView', useSafeAreaInsets: () => ({ top: 47, bottom: 34, left: 0, right: 0 }) }));
-vi.mock('lucide-react-native', () => Object.fromEntries(['ArrowLeft', 'ArrowRight', 'BookOpen', 'BookOpenText', 'Pencil', 'Plus', 'Trash2'].map((name) => [name, name])));
-vi.mock('expo-router', () => ({ router: { push: vi.fn(), navigate: vi.fn(), back: vi.fn(), replace: vi.fn(), canGoBack: () => true } }));
+vi.mock('lucide-react-native', () => Object.fromEntries(['ArrowLeft', 'ArrowRight', 'BookOpen', 'BookOpenText', 'Pencil', 'Plus', 'Settings', 'Trash2'].map((name) => [name, name])));
+vi.mock('expo-router', async () => {
+  const { createElement: h } = await import('react');
+  return { router: { push: vi.fn(), navigate: vi.fn(), back: vi.fn(), replace: vi.fn(), canGoBack: () => true }, Link: ({ href, children }: { href: string; children: unknown }) => h('Link', { href }, children as never) };
+});
 vi.mock('@/theme/useTheme', async () => {
   const { darkPalette, lightPalette } = await import('@/constants/theme');
   const palette = () => (state.dark ? darkPalette : lightPalette);

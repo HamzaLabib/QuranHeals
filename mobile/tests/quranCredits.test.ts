@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import { createElement } from 'react';
-import { act, create, type ReactTestRenderer } from 'react-test-renderer';
+import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { APP_LOCALES } from '@/localization/locales';
@@ -28,8 +28,11 @@ vi.mock('react-native', () => ({
   Pressable: 'Pressable', ScrollView: 'ScrollView', Text: 'Text', View: 'View',
 }));
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView', useSafeAreaInsets: () => ({ top: 47, bottom: 34, left: 0, right: 0 }) }));
-vi.mock('lucide-react-native', () => ({ ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', ArrowUpRight: 'ArrowUpRight' }));
-vi.mock('expo-router', () => ({ router: { back: vi.fn(), replace: vi.fn(), canGoBack: () => state.canGoBack } }));
+vi.mock('lucide-react-native', () => ({ ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', ArrowUpRight: 'ArrowUpRight', Settings: 'Settings' }));
+vi.mock('expo-router', async () => {
+  const { createElement: h } = await import('react');
+  return { router: { back: vi.fn(), replace: vi.fn(), canGoBack: () => state.canGoBack }, Link: ({ href, children }: { href: string; children: unknown }) => h('Link', { href }, children as never) };
+});
 vi.mock('@/theme/useTheme', async () => {
   const { lightPalette } = await import('@/constants/theme');
   return { usePalette: () => lightPalette, useThemedStyles: (factory: (colors: unknown) => unknown) => factory(lightPalette) };
@@ -156,4 +159,38 @@ describe('Home footer', () => {
     const reader = readFileSync(resolve(__dirname, '../src/app/(tabs)/mushaf.tsx'), 'utf-8');
     expect(reader).not.toMatch(/qpcCredit|artworkCredit|styles\.credit/);
   });
+});
+
+describe('the Settings shortcut in the header (components/SettingsHeaderButton.tsx)', () => {
+  /** The header row: the nearest host View holding the gear. */
+  const header = () => {
+    let node = root.root.findAll((n) => typeof n.type === 'string' && n.props.testID === 'header-settings')[0].parent!;
+    while (String(node.type) !== 'View') node = node.parent!;
+    return node;
+  };
+  /** A node's host children (composite wrappers looked through). */
+  const hostChildren = (node: ReactTestInstance): ReactTestInstance[] => (node.children as ReactTestInstance[]).flatMap((c) => (typeof c === 'string' ? [] : typeof c.type === 'string' ? [c] : hostChildren(c)));
+  for (const locale of ['en', 'ar'] as const) {
+    it(`${locale}: Back, the title, then the gear, which links to /settings; the row mirrors in Arabic`, async () => {
+      state.locale = locale;
+      await act(async () => { root = create(createElement(CreditsScreen)); });
+      const gears = root.root.findAll((node) => typeof node.type === 'string' && node.props.testID === 'header-settings');
+      expect(gears).toHaveLength(1);
+      expect(gears[0].parent!.type).toBe('Link');
+      expect(gears[0].parent!.props.href).toBe('/settings');
+      expect(gears[0].props).toMatchObject({ accessibilityRole: 'button', accessibilityLabel: MESSAGES[locale].settings.openSettings });
+      const row = header();
+      const kids = hostChildren(row);
+      expect(kids.map((k) => String(k.type))).toEqual(['Pressable', 'Text', 'Link']);
+      expect(kids[0].props.accessibilityLabel).toBe(MESSAGES[locale].ayah.goBack);
+      const rowStyle = Object.assign({}, ...[row.props.style].flat().filter(Boolean)) as { flexDirection?: string };
+      expect(rowStyle.flexDirection).toBe(locale === 'ar' ? 'row-reverse' : 'row');
+      // The title takes the remaining width, so the gear sits at the far end, opposite Back.
+      expect(Object.assign({}, ...[kids[1].props.style].flat().filter(Boolean)).flex).toBe(1);
+      // The gear matches the Back button beside it: the same 48-pt round button.
+      const look = (n: ReactTestInstance) => Object.assign({}, ...[typeof n.props.style === 'function' ? n.props.style({ pressed: false }) : n.props.style].flat(3).filter(Boolean));
+      expect(look(gears[0])).toEqual(look(kids[0]));
+      expect(look(gears[0])).toMatchObject({ width: 48, height: 48 });
+    });
+  }
 });

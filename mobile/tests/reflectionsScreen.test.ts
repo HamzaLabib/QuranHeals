@@ -197,11 +197,15 @@ describe('index.tsx: the Home header (source-scan)', () => {
 
   it('exactly two shortcuts, Favorites then Settings, side by side in the RTL-aware headerActions row; no Reflections (it is a tab)', () => {
     const actionsBlock = homeSource.match(/<View style=\{\[styles\.headerActions,[\s\S]*?\n {8}<\/View>/)?.[0] ?? '';
-    expect(actionsBlock.match(/<Link href=/g)).toHaveLength(2);
+    // Favorites, then Settings: the shared header gear (components/SettingsHeaderButton.tsx) in Home's own button style.
+    expect(actionsBlock.match(/<Link href=|<SettingsHeaderButton /g)).toEqual(['<Link href=', '<SettingsHeaderButton ']);
     expect(actionsBlock.indexOf('<Link href="/favorites" asChild>')).toBeGreaterThan(-1);
-    expect(actionsBlock.indexOf('<Link href="/settings" asChild>')).toBeGreaterThan(actionsBlock.indexOf('<Link href="/favorites" asChild>'));
+    expect(actionsBlock.indexOf('<SettingsHeaderButton style={styles.iconButton}')).toBeGreaterThan(actionsBlock.indexOf('<Link href="/favorites" asChild>'));
     expect(actionsBlock).toMatch(/accessibilityLabel=\{messages\.home\.openFavorites\}/);
-    expect(actionsBlock).toMatch(/accessibilityLabel=\{messages\.settings\.openSettings\}/);
+    const gear = readFileSync(resolve(__dirname, '../src/components/SettingsHeaderButton.tsx'), 'utf-8');
+    expect(gear).toMatch(/<Link href="\/settings" asChild>/);
+    expect(gear).toMatch(/accessibilityLabel=\{messages\.settings\.openSettings\}/);
+    expect(gear).toMatch(/<Settings size=\{20\} color=\{colors\.icon\} strokeWidth=\{2\} \/>/);
     expect(actionsBlock).toMatch(/<Heart size=\{20\} color=\{colors\.icon\} strokeWidth=\{2\} \/>/);
     expect(actionsBlock).not.toContain('/reflections');
     expect(homeSource).not.toMatch(/NotebookPen/);

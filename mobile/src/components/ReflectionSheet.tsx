@@ -42,8 +42,8 @@ type ReflectionSheetProps = {
 
 /**
  * The app palette with the Mushaf's window colours over it, for the reflection window opened from the reader. Only
- * existing colours: the window, its text, dividers, buttons and backdrop from MUSHAF_PANEL_COLORS; the text field keeps
- * the app's own (fieldBackground / fieldBorder), as every text field does.
+ * existing colours: the window, its text, dividers, buttons, backdrop and text field from MUSHAF_PANEL_COLORS (the
+ * reader's own fields, unchanged when the app's fields took the option-row surface).
  */
 export function mushafReflectionPalette(app: Palette, dark: boolean): Palette {
   const panel = dark ? MUSHAF_PANEL_COLORS.dark : MUSHAF_PANEL_COLORS.light;
@@ -59,6 +59,8 @@ export function mushafReflectionPalette(app: Palette, dark: boolean): Palette {
     textSecondary: panel.muted,
     textMuted: panel.muted,
     placeholder: panel.placeholder,
+    fieldBackground: panel.input.backgroundColor,
+    fieldBorder: panel.input.borderColor,
     primaryButton: panel.go.backgroundColor,
     onPrimaryButton: panel.onGo,
     accent: panel.accent,

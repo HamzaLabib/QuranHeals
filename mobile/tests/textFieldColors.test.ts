@@ -11,7 +11,7 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('react-native', () => ({ Platform: { OS: 'ios', select: (values: { ios: unknown }) => values.ios } }));
 const { darkPalette, lightPalette } = await import('@/constants/theme');
 const { MUSHAF_PANEL_COLORS } = await import('@/constants/mushafTheme');
-const { FIELD_COLORS } = await import('@/constants/fieldColors');
+const { FIELD_COLORS, OPTION_SURFACE } = await import('@/constants/fieldColors');
 
 const luminance = (hex: string) => {
   const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
@@ -33,10 +33,15 @@ const styleBlock = (text: string, name: string) => {
 };
 
 describe('text field colours', () => {
-  it('Light: soft warm cream with a quiet beige border; Dark: a softly lighter dark surface — in the app palette and the Mushaf`s alike', () => {
-    expect(FIELD_COLORS).toEqual({ light: { background: '#F3EBDD', border: '#E5DCCF' }, dark: { background: '#33363A', border: '#494A47' } });
-    expect([lightPalette.fieldBackground, lightPalette.fieldBorder]).toEqual(['#F3EBDD', '#E5DCCF']);
-    expect([darkPalette.fieldBackground, darkPalette.fieldBorder]).toEqual(['#33363A', '#494A47']);
+  it('the app`s fields use the unselected option rows` surface (inputBackground), with their quiet borders; the Mushaf reader keeps its own', () => {
+    // 2026-10-14: the same surface as the unselected option rows (e.g. Report an Issue's categories), in both themes.
+    expect(OPTION_SURFACE).toEqual({ light: '#F7F2EA', dark: '#171E27' });
+    expect(FIELD_COLORS).toEqual({ light: { background: '#F7F2EA', border: '#E5DCCF' }, dark: { background: '#171E27', border: '#494A47' } });
+    for (const palette of [lightPalette, darkPalette]) expect(palette.fieldBackground).toBe(palette.inputBackground);
+    expect([lightPalette.fieldBackground, lightPalette.fieldBorder]).toEqual(['#F7F2EA', '#E5DCCF']);
+    expect([darkPalette.fieldBackground, darkPalette.fieldBorder]).toEqual(['#171E27', '#494A47']);
+    // Unchanged: the option rows themselves, and the Mushaf reader's fields on its own cream and olive panels.
+    expect([lightPalette.inputBackground, darkPalette.inputBackground]).toEqual(['#F7F2EA', '#171E27']);
     expect(MUSHAF_PANEL_COLORS.light.input).toMatchObject({ backgroundColor: '#F3EBDD', borderColor: '#E5DCCF' });
     expect(MUSHAF_PANEL_COLORS.dark.input).toMatchObject({ backgroundColor: '#33363A', borderColor: '#494A47' });
   });
@@ -53,9 +58,12 @@ describe('text field colours', () => {
     }
   });
 
-  it('stand apart from the windows and screens around them (never the same colour; a visible step)', () => {
+  it('stand apart from the sheets and cards they sit on (never the same colour; a visible step), with a visible border', () => {
+    // Every app field is on a sheet (sheetBackground). The screen background is not checked: in Light it is the option
+    // rows' own colour, which the fields deliberately share (the border, below, still outlines them).
     for (const palette of [lightPalette, darkPalette]) {
-      for (const around of [palette.background, palette.surface, palette.card, palette.sheetBackground]) {
+      expect(contrast(palette.fieldBorder, palette.fieldBackground)).toBeGreaterThanOrEqual(1.15);
+      for (const around of [palette.surface, palette.card, palette.sheetBackground]) {
         expect(palette.fieldBackground).not.toBe(around);
         expect(contrast(palette.fieldBackground, around)).toBeGreaterThanOrEqual(1.05);
       }

@@ -53,7 +53,9 @@ describe('Navigation entry point to Settings', () => {
   const INDEX_SCREEN_PATH = resolve(__dirname, '../src/app/(tabs)/index.tsx');
   const indexSource = readFileSync(INDEX_SCREEN_PATH, 'utf-8');
 
-  it('the home screen exposes a clear nav entry to /settings', () => {
-    expect(indexSource).toMatch(/<Link href="\/settings" asChild>/);
+  it('the home screen exposes a clear nav entry to /settings (the shared header gear)', () => {
+    expect(indexSource).toMatch(/<SettingsHeaderButton style=\{styles\.iconButton\} pressedStyle=\{styles\.pressed\} \/>/);
+    const gear = readFileSync(resolve(__dirname, '../src/components/SettingsHeaderButton.tsx'), 'utf-8');
+    expect(gear).toMatch(/<Link href="\/settings" asChild>/);
   });
 });

@@ -44,7 +44,7 @@ vi.mock('@/storage/localChanges', () => ({ notifyLocalChange: vi.fn() }));
 const { ReflectionSheet } = await import('@/components/ReflectionSheet');
 const { darkPalette, lightPalette } = await import('@/constants/theme');
 const { MUSHAF_PANEL_COLORS } = await import('@/constants/mushafTheme');
-const { FIELD_COLORS } = await import('@/constants/fieldColors');
+const { MUSHAF_FIELD_COLORS } = await import('@/constants/fieldColors');
 
 let root: ReactTestRenderer;
 const flat = (style: unknown) => Object.assign({}, ...[style].flat(3).filter(Boolean)) as Record<string, unknown>;
@@ -101,7 +101,7 @@ describe('the reflection window from an emotion`s ayah (and خواطري): the a
 
 describe('the reflection window from the Mushaf: the reader`s own window colours', () => {
   for (const dark of [false, true]) {
-    it(`${dark ? 'dark' : 'light'}: the Mushaf sheet, text, divider, Save and backdrop colours; the field in the app's field colours`, async () => {
+    it(`${dark ? 'dark' : 'light'}: the Mushaf sheet, text, divider, Save and backdrop colours; the field in the reader's own field colours`, async () => {
       // The app theme agrees with the page (the reader follows it); the sheet follows the page.
       state.theme = dark ? 'dark' : 'light';
       const panel = dark ? MUSHAF_PANEL_COLORS.dark : MUSHAF_PANEL_COLORS.light;
@@ -113,8 +113,10 @@ describe('the reflection window from the Mushaf: the reader`s own window colours
       expect(styleOf(cancel)).toMatchObject({ backgroundColor: panel.sheet.backgroundColor, borderColor: panel.surface.borderColor });
       expect(styleOf(cancel.findByType('Text' as never)).color).toBe(panel.text);
       expect(colours.has(panel.backdrop)).toBe(true);
-      // The field: the app's field colours (as every text field), the Mushaf's text and placeholder.
-      expect(styleOf(field)).toMatchObject({ backgroundColor: FIELD_COLORS[dark ? 'dark' : 'light'].background, borderColor: FIELD_COLORS[dark ? 'dark' : 'light'].border, color: panel.text });
+      // The field: the reader's own field colours (as its search and ورد fields; unchanged when the app's fields took the
+      // option-row surface), the Mushaf's text and placeholder.
+      expect(styleOf(field)).toMatchObject({ backgroundColor: MUSHAF_FIELD_COLORS[dark ? 'dark' : 'light'].background, borderColor: MUSHAF_FIELD_COLORS[dark ? 'dark' : 'light'].border, color: panel.text });
+      expect(styleOf(field)).toMatchObject({ backgroundColor: panel.input.backgroundColor, borderColor: panel.input.borderColor });
       expect(field.props.placeholderTextColor).toBe(panel.placeholder);
       // None of the app window's own surfaces remain (no stray white or blue-slate).
       for (const colour of [app.sheetBackground, app.primaryButton, app.overlay]) expect(colours.has(colour), colour).toBe(false);

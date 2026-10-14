@@ -22,6 +22,7 @@ import { AyahConnectionAccordion } from './AyahConnectionAccordion';
 import { FavoriteButton } from './FavoriteButton';
 import { ReflectionSheet } from './ReflectionSheet';
 import { ReportIssueSheet } from './ReportIssueSheet';
+import { SettingsHeaderButton } from './SettingsHeaderButton';
 import { ShareAyahSheet } from './ShareAyahSheet';
 import { StateView } from './StateView';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
@@ -322,6 +323,7 @@ export function AyahExperience({ source }: AyahExperienceProps) {
             <Text style={[styles.emotion, source.mode === 'emotion' ? emotionDirection : direction]}>{headerTitle}</Text>
             <Text style={[styles.kicker, direction]}>{messages.ayah.kicker}</Text>
           </View>
+          <SettingsHeaderButton style={styles.iconButton} pressedStyle={styles.pressed} />
         </View>
 
         {isLoading && (

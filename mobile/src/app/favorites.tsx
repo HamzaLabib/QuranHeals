@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/useAuth';
 import { AyahCard } from '@/components/AyahCard';
+import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { ShareAyahSheet } from '@/components/ShareAyahSheet';
 import { StateView } from '@/components/StateView';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
@@ -111,6 +112,7 @@ export default function FavoritesScreen() {
             <Text style={[styles.title, direction]}>{messages.favorites.title}</Text>
             <Text style={[styles.subtitle, direction]}>{messages.favorites.subtitle}</Text>
           </View>
+          <SettingsHeaderButton style={styles.iconButton} pressedStyle={styles.pressed} />
         </View>
 
         {!isReady && (

@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/useAuth';
 import { ReflectionListCard } from '@/components/ReflectionListCard';
 import { ReflectionSheet } from '@/components/ReflectionSheet';
+import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { StateView } from '@/components/StateView';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
@@ -102,6 +103,7 @@ export default function ReflectionsScreen() {
                 <Text style={[styles.title, direction]}>{messages.reflections.title}</Text>
                 <Text style={[styles.subtitle, direction]}>{messages.reflections.subtitle}</Text>
               </View>
+              <SettingsHeaderButton style={styles.iconButton} pressedStyle={styles.pressed} />
             </View>
 
             {showLoading && (

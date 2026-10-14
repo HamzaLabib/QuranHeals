@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
 import { fill, localNumber } from '@/localization/fill';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
@@ -73,6 +74,11 @@ export default function KhatmaCompleteScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
+      {/* Only the Settings gear, quietly at the header's far end (right in English, left in Arabic), where it sits on every
+          other screen. No Back button is added: the actions below remain the way on, and system Back is unchanged. */}
+      <View testID="khatma-complete-header" style={[styles.header, isRtlLocale(locale) && styles.rowRtl]}>
+        <SettingsHeaderButton style={styles.iconButton} pressedStyle={styles.pressed} />
+      </View>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.emblem}>
           <BookHeart size={34} color={colors.accent} strokeWidth={1.8} />
@@ -133,6 +139,23 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   safeArea: {
     backgroundColor: colors.background,
     flex: 1,
+  },
+  // The gear's row: the same 48-pt plain round button as All Emotions' and أورادي وختماتي's headers, at the far end.
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
+  },
+  iconButton: {
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderRadius: radii.full,
+    borderWidth: 1,
+    height: 48,
+    justifyContent: 'center',
+    width: 48,
   },
   content: {
     alignItems: 'stretch',

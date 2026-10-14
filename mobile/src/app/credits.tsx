@@ -2,6 +2,7 @@ import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react-native';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { QURAN_SOURCES } from '@/constants/quranSources';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
@@ -37,6 +38,7 @@ export default function CreditsScreen() {
             <BackIcon size={22} color={colors.icon} />
           </Pressable>
           <Text accessibilityRole="header" style={[styles.title, direction]}>{copy.title}</Text>
+          <SettingsHeaderButton style={styles.iconButton} pressedStyle={styles.pressed} />
         </View>
 
         <Text style={[styles.intro, direction]}>{copy.intro}</Text>

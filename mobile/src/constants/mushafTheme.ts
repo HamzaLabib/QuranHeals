@@ -1,4 +1,4 @@
-import { FIELD_COLORS } from '@/constants/fieldColors';
+import { MUSHAF_FIELD_COLORS } from '@/constants/fieldColors';
 import { REFERENCE_COLORS } from '@/mushaf/pageGeometry';
 
 /**
@@ -40,8 +40,8 @@ export const MUSHAF_PANEL_COLORS = {
     onGo: '#FFFFFF',
     // The approved bar (Option A): a gently darker cream than the page (#F9EFD2), a faint edge.
     surface: { backgroundColor: '#E9DBB9', borderColor: '#DBCCA8', shadowColor: '#000000' },
-    // Text fields: the app's own (fieldBackground / fieldBorder), as everywhere else.
-    input: { backgroundColor: FIELD_COLORS.light.background, borderColor: FIELD_COLORS.light.border, color: '#231F20' },
+    // Text fields: the reader's own (MUSHAF_FIELD_COLORS), unchanged on its cream and olive panels.
+    input: { backgroundColor: MUSHAF_FIELD_COLORS.light.background, borderColor: MUSHAF_FIELD_COLORS.light.border, color: '#231F20' },
     go: { backgroundColor: '#3E6B4B' },
     // The lit lightbulb's outline and rays: the palette's sage green.
     saved: '#3E6B4B',
@@ -73,7 +73,7 @@ export const MUSHAF_PANEL_COLORS = {
     onGo: '#1B2018',
     // The approved bar (Option A): a slightly lighter olive than the page (#222820).
     surface: { backgroundColor: '#343D31', borderColor: '#475243', shadowColor: '#000000' },
-    input: { backgroundColor: FIELD_COLORS.dark.background, borderColor: FIELD_COLORS.dark.border, color: '#F1E9D6' },
+    input: { backgroundColor: MUSHAF_FIELD_COLORS.dark.background, borderColor: MUSHAF_FIELD_COLORS.dark.border, color: '#F1E9D6' },
     go: { backgroundColor: '#8EA68A' },
     // The lit lightbulb's outline and rays: the dark palette's green.
     saved: '#8EA68A',

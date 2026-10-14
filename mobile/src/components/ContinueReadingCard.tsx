@@ -1,5 +1,4 @@
-import { router } from 'expo-router';
-import { BookMarked, BookOpen, Check, ChevronDown } from 'lucide-react-native';
+import { BookOpen, Check, ChevronDown } from 'lucide-react-native';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Animated from 'react-native-reanimated';
@@ -42,8 +41,8 @@ export function continueTarget(wirds: readonly Wird[], activeStopId: string | nu
 
 /**
  * Home's first section, متابعة التلاوة / Continue Reciting: the ورد being read (its name, saved
- * page and progress) with two actions — المصحف, opening the reader at that
- * saved page, and أورادي وختماتي. With no ورد yet, a first-reading state
+ * page and progress) with one action, المصحف, opening the reader at that saved
+ * page (أورادي وختماتي is its own bottom tab). With no ورد yet, a first-reading state
  * opens the Mushaf at page 1; no progress is shown or invented.
  *
  * With two or more Wirds, the name carries a chevron and opens a compact list
@@ -205,15 +204,6 @@ export function ContinueReadingCard() {
           <BookOpen size={20} color={colors.onAccentFill} />
           <Text style={styles.primaryText}>{copy.mushaf}</Text>
         </Pressable>
-        <Pressable
-          testID="home-open-my-reading"
-          accessibilityRole="button"
-          accessibilityLabel={copy.myReading}
-          onPress={() => router.navigate('/my-reading')}
-          style={({ pressed }) => [styles.secondary, rtl && styles.rowRtl, pressed && styles.pressed]}>
-          <BookMarked size={20} color={colors.accent} />
-          <Text numberOfLines={2} style={styles.secondaryText}>{copy.myReading}</Text>
-        </Pressable>
       </View>
 
       {canSwitch && (
@@ -292,11 +282,6 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     gap: spacing.sm, justifyContent: 'center', minHeight: 50, paddingHorizontal: spacing.md,
   },
   primaryText: { color: colors.onAccentFill, fontSize: typography.body, fontWeight: '800' },
-  secondary: {
-    alignItems: 'center', backgroundColor: colors.surface, borderColor: colors.border, borderRadius: radii.full, borderWidth: 1,
-    flex: 1.3, flexDirection: 'row', gap: spacing.sm, justifyContent: 'center', minHeight: 50, paddingHorizontal: spacing.md,
-  },
-  secondaryText: { color: colors.textPrimary, flexShrink: 1, fontSize: typography.caption, fontWeight: '800', textAlign: 'center' },
   pressed: { opacity: 0.75 },
   backdrop: { ...StyleSheet.absoluteFill },
   menu: {

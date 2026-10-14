@@ -5,6 +5,7 @@ import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleShee
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ConfirmSheet } from '@/components/ConfirmSheet';
+import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
 import { fill, localNumber } from '@/localization/fill';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
@@ -133,6 +134,7 @@ export default function MyReadingScreen() {
           <BackIcon size={22} color={colors.icon} />
         </Pressable>
         <Text accessibilityRole="header" style={[styles.title, direction]}>{copy.title}</Text>
+        <SettingsHeaderButton style={styles.iconButton} pressedStyle={styles.pressed} />
       </View>
 
       <ScrollView testID="my-reading-scroll" contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding(insets.bottom) }]}>

@@ -30,8 +30,11 @@ vi.mock('react-native', () => ({
   Pressable: 'Pressable', RefreshControl: 'RefreshControl', ScrollView: 'ScrollView', Text: 'Text', View: 'View',
 }));
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView' }));
-vi.mock('lucide-react-native', () => ({ ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', Flag: 'Flag', RefreshCw: 'RefreshCw', Share2: 'Share2' }));
-vi.mock('expo-router', () => ({ router: { back: state.back }, useLocalSearchParams: () => state.params }));
+vi.mock('lucide-react-native', () => ({ ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', Flag: 'Flag', RefreshCw: 'RefreshCw', Settings: 'Settings', Share2: 'Share2' }));
+vi.mock('expo-router', async () => {
+  const { createElement: h } = await import('react');
+  return { router: { back: state.back }, useLocalSearchParams: () => state.params, Link: ({ href, children }: { href: string; children: unknown }) => h('Link', { href }, children as never) };
+});
 vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem: vi.fn(async () => null), setItem: vi.fn(async () => undefined) } }));
 vi.mock('@/theme/useTheme', async () => {
   const { lightPalette } = await import('@/constants/theme');

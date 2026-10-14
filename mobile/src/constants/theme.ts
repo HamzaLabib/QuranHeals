@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 
-import { FIELD_COLORS } from './fieldColors';
+import { FIELD_COLORS, OPTION_SURFACE } from './fieldColors';
 
 /**
  * Semantic color tokens. Components read these through useThemedStyles() /
@@ -19,8 +19,8 @@ export type Palette = {
   inputBackground: string;
   inputBorder: string;
   /**
-   * Every editable text field (reflections, ورد names, search, the sync password, Report an Issue, …): a soft surface
-   * of its own, a little warmer than the window around it, with a quiet border. Only text fields use these;
+   * Every editable text field in the app (reflections, ورد names, the sync password, Report an Issue, …): the same
+   * surface as unselected option rows (inputBackground; constants/fieldColors.ts), with a quiet border. Only text fields use these;
    * inputBackground / inputBorder stay with the other controls (segmented choices, option lists).
    */
   fieldBackground: string;
@@ -81,9 +81,9 @@ export const lightPalette: Palette = {
   surface: '#FFFDF8',
   card: '#FFFDF8',
   sheetBackground: '#FFFDF8',
-  inputBackground: '#F7F2EA',
+  inputBackground: OPTION_SURFACE.light,
   inputBorder: '#E5DED2',
-  fieldBackground: FIELD_COLORS.light.background, // soft warm cream
+  fieldBackground: FIELD_COLORS.light.background, // the option rows' surface
   fieldBorder: FIELD_COLORS.light.border,
   // On the cream text fields at WCAG AA (4.5:1): a shade darker than textSecondary.
   placeholder: '#616E66',
@@ -140,9 +140,9 @@ export const darkPalette: Palette = {
   surface: '#1E2530',
   card: '#1E2530',
   sheetBackground: '#1E2530',
-  inputBackground: '#171E27',
+  inputBackground: OPTION_SURFACE.dark,
   inputBorder: '#4A5A6B',
-  fieldBackground: FIELD_COLORS.dark.background, // a softly lighter dark surface
+  fieldBackground: FIELD_COLORS.dark.background, // the option rows' surface
   fieldBorder: FIELD_COLORS.dark.border,
   // On the dark text fields at WCAG AA (4.5:1).
   placeholder: '#A59D8F',
