@@ -26,6 +26,7 @@ vi.mock('react-native-svg', () => ({ default: 'Svg', ClipPath: 'ClipPath', Rect:
 vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem: vi.fn(), setItem: vi.fn(), removeItem: vi.fn() } }));
 
 const { QpcV1PageText, OPENING_CARTOUCHE } = await import('@/components/QpcV1PageText');
+const { QURAN_TEXT_SCALE } = await import('@/mushaf/pageGeometry');
 const { openingCircleGeometry, OPENING_CIRCLE_RADIUS, OPENING_CIRCLE_BAND } = await import('@/components/OpeningPageOrnament');
 const { surahHeaderGeometry } = await import('@/components/SurahHeaderOrnament');
 const { getAyahMarker, qcfV1DrawnLineShiftEm } = await import('@/mushaf/ayahMarkers');
@@ -43,9 +44,11 @@ const GAP_EM = 0.033;
 const HEADING_SIZE = 0.78;
 const styleOf = (node: ReactTestInstance) => Object.assign({}, ...[node.props.style].flat(5).filter(Boolean));
 
+// The frames pages 1–2 are drawn in: with the larger text (candidate C) the shortest is MIN_TILES_DOWN (31; Normal Mode
+// on the shortest screens), the tallest 35; and the printed 29 (the Quran SVG page's frame, and the original geometry).
 const CONFIGS = [
-  ...[251, 317, 396, 434].map((w) => ({ w, tiles: 29, mode: 'Normal' })),
-  ...[[310, 29], [314, 31], [396, 35], [434, 35]].map(([w, tiles]) => ({ w, tiles, mode: 'Full-Screen' })),
+  ...[251, 290, 317, 336, 396, 434].map((w) => ({ w, tiles: 31, mode: 'Normal (shortest)' })),
+  ...[[310, 29], [384, 32], [434, 33], [314, 33], [396, 35], [434, 35]].map(([w, tiles]) => ({ w, tiles, mode: 'Taller' })),
 ];
 
 async function audit(page: 1 | 2, os: string, w: number, tiles: number) {
@@ -65,7 +68,8 @@ async function audit(page: 1 | 2, os: string, w: number, tiles: number) {
     root = create(createElement(QpcV1PageText, { layout: qpc as never, width: textW, height: textH, printedPitch: printed, selectedVerseKey: null, onSelectVerse: () => undefined, accessibilityLabel: 'p', accessibilityHint: 'h', basmalaFontFamily: 'QCF_P001', markerStyle: 'traditional', boxMarginEm: 0.25 }));
   });
   const row = (id: string) => styleOf(root.root.find((n) => n.props.testID === id && typeof n.type === 'string'));
-  const fs = textW * OPENING_SIZE;
+  // The printed letter size: on the printed text width (QpcV1PageText's openingPageSize), not the wider text area.
+  const fs = (textW / QURAN_TEXT_SCALE) * OPENING_SIZE;
   const em = fs / UPM;
   const pitch = Math.min(layout.linePitch, printed);
   // The circle in text-area coordinates: the frame's centre, the text area drawn MUSHAF_TEXT_LIFT_PT up.
@@ -116,7 +120,7 @@ async function audit(page: 1 | 2, os: string, w: number, tiles: number) {
   const s = styleOf(svg);
   const cw = svg.props.width as number;
   const ch = svg.props.height as number;
-  expect(cw).toBeCloseTo((textW / (1 - 2 / 20 - 2 * 25 / 593)) * OPENING_CARTOUCHE.width, 6);
+  expect(cw).toBeCloseTo(w * OPENING_CARTOUCHE.width, 6); // a share of the page width, as approved
   const cl = s.left as number;
   const ctop = ht + (s.top as number);
   const u = ch / 100;

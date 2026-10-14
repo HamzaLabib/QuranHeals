@@ -1,0 +1,43 @@
+diff --git a/C:/Users/HAMZAL~1/AppData/Local/Temp/claude/c--Users-hamzalabib-OneDrive---McGill-University-Documents-Personal-My-App-QuranHeals/44d23233-ece4-487f-8dcf-601067e2b12b/scratchpad/exp/pageGeometry.orig.ts b/src/mushaf/pageGeometry.ts
+index 71e1f5f..64feaad 100644
+--- a/C:/Users/HAMZAL~1/AppData/Local/Temp/claude/c--Users-hamzalabib-OneDrive---McGill-University-Documents-Personal-My-App-QuranHeals/44d23233-ece4-487f-8dcf-601067e2b12b/scratchpad/exp/pageGeometry.orig.ts
++++ b/src/mushaf/pageGeometry.ts
+@@ -16,6 +16,29 @@
+  * error. Everything below is a fraction of the frame's outer width.
+  */
+ 
++/**
++ * EXPERIMENT (scratch copy only, design-archive/experiments/larger-text-mushaf): read once from the web URL.
++ *   exp_inset=<fraction of the page width>  the plain margin between the inner rule and the text, each side
++ *                                           (printed: 25/593 = 0.04216); smaller = wider text area = larger glyphs
++ *   exp_tiles=max | <n>                     Normal Mode frame height in whole border tiles (printed: 29)
++ *   exp_noband=1                            Normal Mode without the retired bar's reserved 64 pt
++ * Without them every value is the production one.
++ */
++export const EXPERIMENT = (() => {
++  try {
++    const q = new URLSearchParams((globalThis as { location?: { search?: string } }).location?.search ?? '');
++    const inset = Number(q.get('exp_inset'));
++    const tiles = q.get('exp_tiles');
++    return {
++      textInsetX: q.has('exp_inset') && Number.isFinite(inset) && inset > 0 ? inset : null,
++      tiles: tiles === 'max' ? ('max' as const) : tiles && Number.isInteger(Number(tiles)) ? Number(tiles) : null,
++      noBand: q.get('exp_noband') === '1',
++    };
++  } catch {
++    return { textInsetX: null, tiles: null, noBand: false };
++  }
++})();
++
+ export const BORDER_TILES_ACROSS = 20;
+ export const BORDER_TILES_DOWN = 29;
+ 
+@@ -28,7 +51,7 @@ export const PAGE_GEOMETRY = {
+   /** Each brown rule, as a fraction of the frame width (≈ 4 px of 593). */
+   rule: 4 / 593,
+   /** Text safe area inside the inner rule (reference ink margins, rounded up). */
+-  textInsetX: 25 / 593,
++  textInsetX: EXPERIMENT.textInsetX ?? 25 / 593,
+   textInsetY: 10 / 593,
+   lineCount: 15,
+   /** Header text: size, and the gap below its line box (heads centred 35 px above the frame). */

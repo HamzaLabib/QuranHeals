@@ -75,7 +75,9 @@ describe('drawing them', () => {
     const row = (n: number) => styleOf(root.root.findByProps({ testID: `qpc-line-${n}` }));
     expect(root.root.findAllByProps({ testID: 'qpc-measure-10' })).toHaveLength(0); // not fitted to the width
     const size = styleOf(root.root.findByProps({ testID: 'qpc-line-10' }).findAllByType('Text' as never)[0]).fontSize;
-    expect(size).toBeCloseTo(300 * 0.0692); // the regular pages' size, not 1.5× it
+    // The regular pages' printed size (on the printed text width: this 300-pt text area is QURAN_TEXT_SCALE wider), not 1.5× it.
+    const { QURAN_TEXT_SCALE } = await import('@/mushaf/pageGeometry');
+    expect(size).toBeCloseTo((300 / QURAN_TEXT_SCALE) * 0.0692);
     expect(row(10).justifyContent).toBe('center');
     // Block: heading (8), Basmala (9), lines 10–15 — 8 rows, centred: 3.5 rows of space above and below, then moved so
     // that, as drawn, it is centred on the frame (and its ornamental circle): the text area's lift taken back, less the

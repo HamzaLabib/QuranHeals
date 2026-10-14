@@ -1,0 +1,566 @@
+{
+  "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+  "createdAt": "2026-10-14",
+  "files": [
+    {
+      "archivePath": "mushaf-navigation-v1/original-source/mobile/src/app/(tabs)/mushaf.tsx",
+      "source": "mobile/src/app/(tabs)/mushaf.tsx",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "177c1727acd2cfe7f724c8055b6b4d8164fa58b6",
+      "sha256": "862bc4483dfd32880428655d32ebf4ce5c855810e1c81f187acd24379aa48a4d",
+      "bytes": 50976
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/original-source/mobile/src/components/MushafControlPanel.tsx",
+      "source": "mobile/src/components/MushafControlPanel.tsx",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "5408bcd0c698f010ac073b5c3f6b156d094afe24",
+      "sha256": "f0ad6e0a415e893111130b6abb93c64e505bf69f2f29e52519d2e98c6e888489",
+      "bytes": 11292
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/original-source/mobile/src/components/MushafSearchSheet.tsx",
+      "source": "mobile/src/components/MushafSearchSheet.tsx",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "7c091c0c8a0fbae6ce1a1572146eb1bd6ca664b6",
+      "sha256": "68b04ba8d8fbedd96517a56aaf15028234debe9e48b30dd5ffc5263cbb069185",
+      "bytes": 11737
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/original-source/mobile/src/components/MushafWirdSelector.tsx",
+      "source": "mobile/src/components/MushafWirdSelector.tsx",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "fe5980a32d8cdfde8423850f016acfa4441eec89",
+      "sha256": "12a29a69035fe43923a39784b5d6e05a834704920295e0411a85657c5a2b5bad",
+      "bytes": 9850
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/original-source/mobile/src/components/MushafZoomView.tsx",
+      "source": "mobile/src/components/MushafZoomView.tsx",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "3c3eb89230732b836f3220c257956bfcb01640c9",
+      "sha256": "51912c4df62fd94c3e5f85e05137471c4d7db59000a227c3da45a116199e8b09",
+      "bytes": 14335
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/original-source/mobile/src/components/ReflectionBulbIcon.tsx",
+      "source": "mobile/src/components/ReflectionBulbIcon.tsx",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "d93a907adbdcebe5639eb59d4f60f0e7e8ce8002",
+      "sha256": "f7ecbf374771e02f74ca5d422c7a45bcb9f221ca651da7a6153a22b2e15df5c3",
+      "bytes": 2474
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/original-source/mobile/src/components/FavoriteButton.tsx",
+      "source": "mobile/src/components/FavoriteButton.tsx",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "121e5e84e2ef73f7aba3bce3c5331ee54b0c5264",
+      "sha256": "c1f41752f3ef429f8413e096516fbf2151cae8c9da8589336b8b879cf0d3a73b",
+      "bytes": 1643
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/original-source/mobile/src/components/KhatmaReachedSheet.tsx",
+      "source": "mobile/src/components/KhatmaReachedSheet.tsx",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "87de0b44e12f62fda27b4572c9452edec81a888f",
+      "sha256": "8fa08a368bf38187bacb012b7f7a807d47fad3a185c4ddfb6c270d0fae0b1e6f",
+      "bytes": 1048
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/original-source/mobile/src/mushaf/surahSearch.ts",
+      "source": "mobile/src/mushaf/surahSearch.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "0bb5a705ef5f978b852e53a512d96db6fd998cb7",
+      "sha256": "d16008dfcce4fc726efb3a2579e1ec1196da9268eba6f0dabc8552069b0f1363",
+      "bytes": 3776
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/original-source/mobile/src/mushaf/pageNumber.ts",
+      "source": "mobile/src/mushaf/pageNumber.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "ede09573a88bb6c7893d986bcd03b6b1a5ce666c",
+      "sha256": "b4fdd28709e7561deefd9057b4947b2cc424fbd3ee81d03817a96b6542620a8e",
+      "bytes": 479
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/original-source/mobile/src/mushaf/pageZoom.ts",
+      "source": "mobile/src/mushaf/pageZoom.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "728032308efaf5fafc8c725d3a7978f90ba14674",
+      "sha256": "a1610de540533bf8940b1f3634cf487d53cbf4ee964fc98320a24ccd1a173609",
+      "bytes": 4808
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/original-source/mobile/src/mushaf/screenOptions.ts",
+      "source": "mobile/src/mushaf/screenOptions.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "b69ae6f7aa992708dc19c4d318a3d03dbd0f875e",
+      "sha256": "c0c71708a4d8e4814c13d186e2f3fcefc373dd084cb91b552ef97e85aa442d83",
+      "bytes": 1082
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/original-source/mobile/src/mushaf/readingStops.ts",
+      "source": "mobile/src/mushaf/readingStops.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "fe8c2bd6d5ea2e24e11f09eb44890b3383084aa8",
+      "sha256": "542c1f4e753b89e2abc734f5bafbaee9fd3849f94bedb634716fc11a468953c1",
+      "bytes": 13013
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/original-source/mobile/src/constants/mushafTheme.ts",
+      "source": "mobile/src/constants/mushafTheme.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "de357678a07443eda6fda8fe2ddbbad2560bb465",
+      "sha256": "80ac143f51c91b4d0884eff4a5e19d8b35ed688bfe5cfa92aaeec8a346fbd3c7",
+      "bytes": 5532
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/original-source/mobile/src/localization/messages.ts",
+      "source": "mobile/src/localization/messages.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "ba1fa7d355f21e052802ca389bd322adc7f35f76",
+      "sha256": "9047ef10dd941647965a16b42912c8e2ee6b65c6e7073425a19ac1cf63b3ce29",
+      "bytes": 118104
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/tests/mobile/tests/mushafScreen.test.ts",
+      "source": "mobile/tests/mushafScreen.test.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "554491d3f98a35569913766f65fa63d8109ed760",
+      "sha256": "76d792037b202192bd5b43a02e4aecdf27af350097861e589bf8d3cb7279e12c",
+      "bytes": 195557
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/tests/mobile/tests/mushafZoom.test.ts",
+      "source": "mobile/tests/mushafZoom.test.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "ade7fa5e417663bdb8b254bd0749cb881c593525",
+      "sha256": "819e9b6265aff2cc06c777a9096e2eba32d09e0e449fab6c1c9e494b03e031af",
+      "bytes": 6565
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/tests/mobile/tests/surahSearch.test.ts",
+      "source": "mobile/tests/surahSearch.test.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "6cbecaa989c0bb9838789d392e7865ec117e9434",
+      "sha256": "4198ae15ed620419c89562b844d1477c58f0ff63c1e43603ab68729edb221537",
+      "bytes": 5130
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/tests/mobile/tests/khatmDua.test.ts",
+      "source": "mobile/tests/khatmDua.test.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "5700ec68efc21850db9cbc13843b13439f0ac1c5",
+      "sha256": "3b73e736e2bb9398c21b8b8cdac1d1daea4d693e6b9aa825fc4783bf87fcbfcb",
+      "bytes": 22238
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/tests/mobile/tests/textFieldColors.test.ts",
+      "source": "mobile/tests/textFieldColors.test.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "9febdd279fc73e3a9271b93bc043295446aa36ec",
+      "sha256": "1b5b3af79e8d489f3b6e445ab9cebcd17102adc6bef04a58985e16b464e6a075",
+      "bytes": 7964
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/tests/mobile/tests/helpers/gestureSimulator.ts",
+      "source": "mobile/tests/helpers/gestureSimulator.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "d620b3c568b3c3238c427f5ed8b535f040c46f2e",
+      "sha256": "18bfab41277cbb7c0cf4e739873150ce89ed8b78dbf217a89010949209b46d05",
+      "bytes": 9368
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/tests/mobile/tests/helpers/syntheticQpcPage61.ts",
+      "source": "mobile/tests/helpers/syntheticQpcPage61.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "58ee3b8e18fa03d7eaaf682b56f087c32650c4fd",
+      "sha256": "830587106fa5a5d0c55fe51b9609301cbbd96965c5337807f9ea5cd2e6f21f6e",
+      "bytes": 1861
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/references/docs/mushaf-reader-architecture.md",
+      "source": "docs/mushaf-reader-architecture.md",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "5f19ce6507a8288c570265ad51ff2c648cbb2290",
+      "sha256": "ba66cb35fe53ff3eaf04e20a9d399fb3405393b9ae235132c011d520102422ac",
+      "bytes": 16011
+    },
+    {
+      "archivePath": "mushaf-navigation-v1/references/docs/mushaf-device-testing.md",
+      "source": "docs/mushaf-device-testing.md",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "177db60bff97e38a176b9a05d1f9bf3590e39192",
+      "sha256": "db87d396c9231825275f1caef984fbd1f070980f877fb58a6e2d4a9781421788",
+      "bytes": 27272
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/original-source/mobile/src/mushaf/pageGeometry.ts",
+      "source": "mobile/src/mushaf/pageGeometry.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "71e1f5ffffb5e873edb866ddd5e6f2df91002ada",
+      "sha256": "0e1f49412971e3a519f42da5fc275230bbf10654b3bf55cc18d8ad1852f31c23",
+      "bytes": 6722
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/original-source/mobile/src/components/MushafPageView.tsx",
+      "source": "mobile/src/components/MushafPageView.tsx",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "b6f7fe773dc301a6d3815525bb9e3108f0bf437b",
+      "sha256": "b4b3cbe0d3a3d89c837ff05efde42c4adb8d73cda69f2730f5bc3d00bf4a2ad4",
+      "bytes": 8480
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/original-source/mobile/src/components/QpcV1PageText.tsx",
+      "source": "mobile/src/components/QpcV1PageText.tsx",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "3a9e1f421dac81d8f61823cf6a72c28f8ddfab5f",
+      "sha256": "a10ee8996d7c11f708406c6d6963719d41039e95a64bc2c9216f29d1cc7c21b9",
+      "bytes": 21471
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/original-source/mobile/src/components/MushafSvgText.tsx",
+      "source": "mobile/src/components/MushafSvgText.tsx",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "a8cb15929cd85ff95fa297595a9aae7a9e8b2acd",
+      "sha256": "073f3088576e37cfe0e5055b76ca331652c9e4d26c15f198e21e63a11c6d3114",
+      "bytes": 3019
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/original-source/mobile/src/components/MushafBorder.tsx",
+      "source": "mobile/src/components/MushafBorder.tsx",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "64d134b5cf109f39b49d0adeb40990cbcb384640",
+      "sha256": "515eeda671ded9d84a0acd640779ba4c8652ac79dc78d472f31158e6f05e3248",
+      "bytes": 1841
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/original-source/mobile/src/components/AyahMarkerOrnament.tsx",
+      "source": "mobile/src/components/AyahMarkerOrnament.tsx",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "29049914fce09fdfbfa1d4838521fbd4405e05fe",
+      "sha256": "27c9e9086aeb8b72021a764edd9193c36d61a9a0d739f3b8d5c4da38644bc1c4",
+      "bytes": 4184
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/original-source/mobile/src/mushaf/borderPattern.ts",
+      "source": "mobile/src/mushaf/borderPattern.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "a98de1aae453896c3afc1f790917c899eb9e97a2",
+      "sha256": "96e20c4691b807d50b324db4bac134ded795f6ac27054c766850ca03f599287f",
+      "bytes": 8986
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/original-source/mobile/src/mushaf/ayahMarkers.ts",
+      "source": "mobile/src/mushaf/ayahMarkers.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "c8fbc2dabda323ee7b960fb74a122aef0b8c8814",
+      "sha256": "7f6248225768705907857e4b9f91ceb465ce9d337bbcc6e3300a9e35391daf68",
+      "bytes": 14223
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/original-source/mobile/src/mushaf/qpcV1Layout.ts",
+      "source": "mobile/src/mushaf/qpcV1Layout.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "061c2f3b358cb973132fa162d5d4f71fbfa07106",
+      "sha256": "380e64757c0e013e8430156aa47388e2048d8d036cec50c59234bd4644aae1c8",
+      "bytes": 11897
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/original-source/mobile/src/mushaf/qpcV1Selection.ts",
+      "source": "mobile/src/mushaf/qpcV1Selection.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "18f40aedb113e63f3bc4328576d6e9f8dd043567",
+      "sha256": "b9b694c7e09b81823cb97bdebcc7d54632d26c3e08f19d44e9cc79c6e130da0b",
+      "bytes": 1069
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/original-source/mobile/src/mushaf/qpcV1Fonts.ts",
+      "source": "mobile/src/mushaf/qpcV1Fonts.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "a556a51ec3fb7af8515e58180c803f8b5402ba11",
+      "sha256": "ef00d510a6e510cbd8b6db0e023acc58d1a5316fc71e4a9476f39d4ebdd3ac86",
+      "bytes": 1190
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/original-source/mobile/src/mushaf/headerFonts.ts",
+      "source": "mobile/src/mushaf/headerFonts.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "aa8020c520d2094e9df6ec09250dcaaa8be8c509",
+      "sha256": "649e34d99734027983c9c554daa9f4cab9ad1f96d19e00db76593cd834c1662d",
+      "bytes": 639
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/original-source/mobile/src/mushaf/pressLocation.ts",
+      "source": "mobile/src/mushaf/pressLocation.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "1cd68f416d5a39c2e12504786395f7854dc73ab4",
+      "sha256": "ddaac3e025db52cd7d47c87c2d8a11f5f0165661085ad01b7703c3125561e6bd",
+      "bytes": 785
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/original-source/mobile/src/mushaf/appearance.ts",
+      "source": "mobile/src/mushaf/appearance.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "1e4a976e93f67619c70a36eefbcbd9e83992bae2",
+      "sha256": "200c20b3ffb207ae6f0723fd0a56c6628931ee94f0d167af9d506c240ec6f5b8",
+      "bytes": 9090
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/original-source/mobile/src/mushaf/mushafPage.ts",
+      "source": "mobile/src/mushaf/mushafPage.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "3d12bd18c1befc9dee752bd719233900bc6e1c5b",
+      "sha256": "a38439966992d461de71fa3de729bf8c9c3822ba294b1b771fea6db0431068d3",
+      "bytes": 8347
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/original-source/mobile/src/mushaf/hizbQuarters.ts",
+      "source": "mobile/src/mushaf/hizbQuarters.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "8d50bb751967dd23eb725191d5fef0e10a6857bf",
+      "sha256": "0340936d1ab0ceb70b1863c7fdf85066ae276ddd85cffa0be9679e8adc09a472",
+      "bytes": 1678
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/original-source/mobile/src/mushaf/surahOpenings.ts",
+      "source": "mobile/src/mushaf/surahOpenings.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "9b65d6f40a8c94c7ca00525f350c950caf374ab5",
+      "sha256": "24f2208a8cec9de0c6e8a4fd89cac991fe9936d28a5f77324c4661681266880c",
+      "bytes": 3328
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/original-source/mobile/src/mushaf/generated/hizbQuarters.ts",
+      "source": "mobile/src/mushaf/generated/hizbQuarters.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "0305ea1e1cf47994688bec2147a6dbae983b7c71",
+      "sha256": "004f7e321adcedb447ef26eeadcc7478cd6cf424410b0d84deb14e56186c03a6",
+      "bytes": 5932
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/original-source/mobile/src/mushaf/generated/surahStartPages.ts",
+      "source": "mobile/src/mushaf/generated/surahStartPages.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "8f63759c5ceb1fd5364be8048775c5813f3c5f97",
+      "sha256": "a3a4eb784b85aa622e44c75b81e20afff7b8cc8cad4f7a81f09c2c7b028a29b4",
+      "bytes": 1031
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/tests/mobile/tests/mushafGeometry.test.ts",
+      "source": "mobile/tests/mushafGeometry.test.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "ef278e012f435d1e2e8d061e341501be02133113",
+      "sha256": "b64feef9bbe9e2329ee9c03ab1c3529b484aeedf521da4435bd3fd9649dffc52",
+      "bytes": 4623
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/tests/mobile/tests/mushafBorder.test.ts",
+      "source": "mobile/tests/mushafBorder.test.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "dcbfca54479da782d12d3a8bafc1fdc2dd8e0f13",
+      "sha256": "c5e50b9005207c987d44985bf536460a8472a908881b4bd61ac47c050b9ce831",
+      "bytes": 3412
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/tests/mobile/tests/mushafAppearance.test.ts",
+      "source": "mobile/tests/mushafAppearance.test.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "7446fec333cff2ee6dbe16f3910dbe78a50b4be1",
+      "sha256": "9b6be8f8f4de55976ad98433d34dba72a673c0ae987ad83ba7812931a99476d0",
+      "bytes": 15619
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/tests/mobile/tests/mushafAllPages.test.ts",
+      "source": "mobile/tests/mushafAllPages.test.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "9ded7d59dd7c5cc725f0fe682615b8fa977cdf05",
+      "sha256": "d731d23923c42cc3caca03400813f73f0f3f088a7c579e222f617b5cff68c077",
+      "bytes": 19661
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/tests/mobile/tests/qpcV1Android.test.ts",
+      "source": "mobile/tests/qpcV1Android.test.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "55f02073ea6e30a657c29434046f3177822b0f02",
+      "sha256": "9fd5648e170916d36462431309f8f98fc7f3ae950b5e802c291db73ba5d95ef6",
+      "bytes": 11710
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/tests/mobile/tests/qpcV1GlyphBounds.test.ts",
+      "source": "mobile/tests/qpcV1GlyphBounds.test.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "8b4d6c36042dfbc64a5ce1f0a84a943682a2b17b",
+      "sha256": "03a76aa4ebb5c2a3e6d8fedfbce6e2a7e79c130e41c2338fb29579b3f45d5731",
+      "bytes": 7600
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/tests/mobile/tests/qpcV1VerticalPosition.test.ts",
+      "source": "mobile/tests/qpcV1VerticalPosition.test.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "39d22215ea987d9a0ee60ef55f8136e076c4ef58",
+      "sha256": "dc568f4e72b30e64cc40591620e4e977b0c3540aafa23c6c92dcea985c8c5356",
+      "bytes": 9836
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/tests/mobile/tests/mushafSelectionAudit.test.ts",
+      "source": "mobile/tests/mushafSelectionAudit.test.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "d1d965a7b05f42691d9a93da5920fcc5d29d0f79",
+      "sha256": "79b22ac270f2a309705fa1b9aa746e3c47029a96d79e597273daaaa40718f874",
+      "bytes": 13198
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/tests/mobile/tests/androidRenderingAudit.test.ts",
+      "source": "mobile/tests/androidRenderingAudit.test.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "1037c6dbd8a2f5a91b2680aa8b26ed91e145dc3a",
+      "sha256": "7799603f340b3b5e4712670c4c570985dd3e336634c691024776bd78319f04cb",
+      "bytes": 3040
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/tests/mobile/tests/hizbQuarters.test.ts",
+      "source": "mobile/tests/hizbQuarters.test.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "e91f0e384effa84d179a787c00cb2dccd9bbc7de",
+      "sha256": "d3cf9fd47be8baa4407975f7ad09cf2c44d7dfbaa579bf966e4c4169f40da678",
+      "bytes": 6725
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/references/docs/mushaf.md",
+      "source": "docs/mushaf.md",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "e4ccce92e37634e76ae5c5a8fdbbaac61c0b803e",
+      "sha256": "6b547d977cbd6f4057469e0005d0f453550293de9d36bedff48c0bf585fdf9b4",
+      "bytes": 60762
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/references/tools/mushaf-audit/README.md",
+      "source": "tools/mushaf-audit/README.md",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "637f85770ba548f9880d9b264969541560948f13",
+      "sha256": "c805ddc99536018bf887871d4e171778d3a879c5a9092b0feed9be8c01237208",
+      "bytes": 11893
+    },
+    {
+      "archivePath": "mushaf-page-layout-v1/references/tools/mushaf-audit/vertical-position.report.json",
+      "source": "tools/mushaf-audit/vertical-position.report.json",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "a65142848b3cb992ed06e70351781a2dd2f50219",
+      "sha256": "860518c265d5356dcd8fe8470c8eefb9d0c91578eb70fd04b90782b4bbda0f93",
+      "bytes": 114751
+    },
+    {
+      "archivePath": "surah-heading-original/original-source/mobile/src/components/SurahHeaderOrnament.tsx",
+      "source": "mobile/src/components/SurahHeaderOrnament.tsx",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "9dc7352bf6af0dd16cc0e8360b544c85bbbbf9b2",
+      "sha256": "e9d180fdec36421111bfe0d9e01d8ca252038e312d0831c6add280c330eb2258",
+      "bytes": 14694
+    },
+    {
+      "archivePath": "surah-heading-original/original-source/mobile/src/components/SurahHeadingTraditional.tsx",
+      "source": "mobile/src/components/SurahHeadingTraditional.tsx",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "ad97967e568b8ef9619a648924d9d95d5d750fe6",
+      "sha256": "443d10e746cb37de257e699f25278d4551144a0157340ebe2256d331bbe9f147",
+      "bytes": 10576
+    },
+    {
+      "archivePath": "surah-heading-original/original-source/mobile/src/mushaf/surahHeadingPlacement.ts",
+      "source": "mobile/src/mushaf/surahHeadingPlacement.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "fb8ab4fc4b40b16323bfb5b3a2b1fd1825b249ee",
+      "sha256": "1df6922587a80cfe70c205592add158ed2e088f0abbe5491ec170ffa0565abca",
+      "bytes": 3869
+    },
+    {
+      "archivePath": "surah-heading-original/original-source/mobile/src/mushaf/decorations.ts",
+      "source": "mobile/src/mushaf/decorations.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "c5f26667a9c4974478f9cc154d209e27a59d6b6e",
+      "sha256": "5f6f56a86c18634c9103cb4cc77bb11312312505cb8f6d11a9141671e0e8c6da",
+      "bytes": 1978
+    },
+    {
+      "archivePath": "surah-heading-original/original-source/mobile/src/mushaf/generated/surahHeadingNeighbours.ts",
+      "source": "mobile/src/mushaf/generated/surahHeadingNeighbours.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "e805da86bbff4f031af33b6aaa5e31ec3cba8fe0",
+      "sha256": "586c555c9839a8089f48373006a56f95b09a3c58aa66b7479be8f22a247d204b",
+      "bytes": 9139
+    },
+    {
+      "archivePath": "surah-heading-original/tests/mobile/tests/surahHeaderOrnament.test.ts",
+      "source": "mobile/tests/surahHeaderOrnament.test.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "518de15d9f79069c87129216181fdba02744fb8b",
+      "sha256": "1f85567fd59a3ef52ac9ae8cda9bc65c63f172e6dd60fa3e8f723a5719f38d1d",
+      "bytes": 5912
+    },
+    {
+      "archivePath": "surah-heading-original/tests/mobile/tests/surahHeadingClearance.test.ts",
+      "source": "mobile/tests/surahHeadingClearance.test.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "de0de27825ccd20a9875bd9ec3bba2e5942d7c69",
+      "sha256": "476b59dd307c9c20e4c7a3ed0073e5286814cc03869116708093532845adc771",
+      "bytes": 12074
+    },
+    {
+      "archivePath": "surah-heading-original/tests/mobile/tests/surahOpenings.test.ts",
+      "source": "mobile/tests/surahOpenings.test.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "7ab05c4e4a001026671081ca94ba52a7e4e57411",
+      "sha256": "bc5f2c71fbaadd5470d801eb93842a0d0cf7cf11aa9833e9d7f0cf3596c289e3",
+      "bytes": 12720
+    },
+    {
+      "archivePath": "surah-heading-original/tests/mobile/tests/mushafDecorations.test.ts",
+      "source": "mobile/tests/mushafDecorations.test.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "ebfd9221e9b0d43117f4a2132a04714563775b3b",
+      "sha256": "4ad7fcac37f961811a4c888cfec4ac4c6b4decd763404c81199737b1ee9c7ccd",
+      "bytes": 11401
+    },
+    {
+      "archivePath": "surah-heading-original/references/docs/mushaf-decorations.md",
+      "source": "docs/mushaf-decorations.md",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "8c260b29ff24596e18329dbe596d210b313c6127",
+      "sha256": "615a6ee7e0d8375bba0b50dad0eb02922bb280761aea9c2e66b792f277bd0dcb",
+      "bytes": 2578
+    },
+    {
+      "archivePath": "opening-page-decorations/original-source/mobile/src/components/OpeningPageOrnament.tsx",
+      "source": "mobile/src/components/OpeningPageOrnament.tsx",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "236f980156a0e32fe7f81e3d19f6c6c0f052f2af",
+      "sha256": "cac5ab30118fdf5d15c7c71ae7347da0a095e72eab615eb24b9e4e2ba19ea65e",
+      "bytes": 11955
+    },
+    {
+      "archivePath": "opening-page-decorations/original-source/mobile/src/components/OpeningPageOrnamentRich.tsx",
+      "source": "mobile/src/components/OpeningPageOrnamentRich.tsx",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "a0404bb38b9ae4399c5826308bec6f84e9e57ea7",
+      "sha256": "6195bd3a9864046447f50a9e573c65cfd8180867b259898ed6adb1ca09a30a91",
+      "bytes": 18019
+    },
+    {
+      "archivePath": "opening-page-decorations/tests/mobile/tests/openingPages.test.ts",
+      "source": "mobile/tests/openingPages.test.ts",
+      "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+      "blob": "22f41950b503e90b35e33d031507374581f0b0fa",
+      "sha256": "14af253b8c54351883796fff725199862f0cfddf87f1076316001b18ec59d7d3",
+      "bytes": 10573
+    },
+    {
+      "archivePath": "surah-heading-original/history/2cc7e75/mobile/src/components/SurahHeaderOrnament.tsx",
+      "source": "mobile/src/components/SurahHeaderOrnament.tsx",
+      "revision": "2cc7e75dd98ea4a69045639e596aa98b72566dce",
+      "blob": "d098b1c865182fdc7ad3f21c8b51f7f6344578ab",
+      "sha256": "6a2e4a57c72257a32cdba48bd6562d3c80531b1db54b4adcdb74870104426f05",
+      "bytes": 13841
+    }
+  ]
+}

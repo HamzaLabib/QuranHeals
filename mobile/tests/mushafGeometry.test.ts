@@ -6,7 +6,14 @@ import {
   computePageLayout,
   fitInside,
   FRAME_ASPECT,
+  MIN_TILES_DOWN,
   PAGE_GEOMETRY,
+  pageWidthOfText,
+  PRINTED_TEXT_INSET_X,
+  PRINTED_TEXT_WIDTH_SHARE,
+  QURAN_TEXT_SCALE,
+  textSideInset,
+  textVerticalInset,
 } from '@/mushaf/pageGeometry';
 
 /** Page geometry measured from Reference Design.jpg (707 × 1024 px): frame, border tiles, safe text area. */
@@ -34,8 +41,11 @@ describe('frame and border', () => {
 });
 
 describe('safe text area', () => {
-  it('reproduces the reference ink block (484 × 776 px) and leaves a margin inside the inner rule', () => {
-    expect(reference.text.width).toBeCloseTo(484, 0);
+  it('the printed proportions reproduce the reference ink block (484 × 776 px) and leave a margin inside the inner rule', () => {
+    // The print's text width (PRINTED_TEXT_INSET_X), kept as the reference the larger text is measured from.
+    expect(PRINTED_TEXT_INSET_X).toBe(25 / 593);
+    expect(593 * PRINTED_TEXT_WIDTH_SHARE).toBeCloseTo(484, 0);
+    expect(reference.text.width / QURAN_TEXT_SCALE).toBeCloseTo(484, 0);
     expect(reference.text.height).toBeGreaterThan(776);
     expect(reference.text.height).toBeLessThan(790);
     expect(reference.text.x).toBeGreaterThan(reference.inner.x);
@@ -49,9 +59,12 @@ describe('safe text area', () => {
     expect(reference.linePitch).toBeCloseTo(52, 0);
   });
 
-  it('the current SVG page (345 × 550) fits the text area almost exactly', () => {
+  it('the current SVG page (345 × 550) fits the printed text width almost exactly, and stays inside the wider text area', () => {
     const fitted = fitInside(reference.text, 550 / 345);
-    expect(fitted.width / reference.text.width).toBeGreaterThan(0.98);
+    // Its height decides now (the text area is wider, not taller): the same size as on the printed page, centred.
+    expect(fitted.width / (593 * PRINTED_TEXT_WIDTH_SHARE)).toBeGreaterThan(0.98);
+    expect(fitted.width).toBeLessThanOrEqual(reference.text.width);
+    expect(fitted.x).toBeGreaterThan(reference.text.x);
     expect(fitted.height).toBeCloseTo(fitted.width * (550 / 345));
     expect(fitted.x).toBeGreaterThanOrEqual(reference.text.x);
     expect(fitted.y).toBeGreaterThanOrEqual(reference.text.y);
@@ -89,5 +102,50 @@ describe('text position: the printed layout, one lift for every page', () => {
       expect(layout.text.y - layout.inner.y).toBeCloseTo((width * 10) / 593, 9);
       expect(layout.text.height).toBeCloseTo(layout.inner.height - (2 * width * 10) / 593, 9);
     }
+  });
+});
+
+describe('larger Quran text (candidate C, approved 2026-10-14)', () => {
+  it('the text area is exactly QURAN_TEXT_SCALE (1.05) times the printed one, on the same page width', () => {
+    expect(QURAN_TEXT_SCALE).toBe(1.05);
+    for (const width of [290, 336, 384, 387, 406, 434]) {
+      expect(computePageLayout(width).text.width / (width * PRINTED_TEXT_WIDTH_SHARE)).toBeCloseTo(1.05, 12);
+    }
+  });
+
+  it('only the plain paper margin inside the inner rule is narrower: page, header, frame, tiles, inner edge, page number, the top and bottom margins unchanged', () => {
+    const printedLayout = (width: number, tiles = BORDER_TILES_DOWN) => {
+      // The printed geometry, recomputed independently from the reference proportions.
+      const tile = width / 20;
+      const headerHeight = width * (18 / 593) * 1.6;
+      const frameY = headerHeight + width * (20.6 / 593);
+      const frameHeight = (width * tiles) / 20;
+      return { tile, frameY, frameHeight, insetY: width * (10 / 593), pageHeight: frameY + frameHeight + width * (16 / 593) + width * (18 / 593) * 1.6 };
+    };
+    for (const width of [290, 336, 384, 434]) for (const tiles of [29, 31, 33, 35]) {
+      const layout = computePageLayout(width, tiles);
+      const printed = printedLayout(width, tiles);
+      expect(layout.tile).toBeCloseTo(printed.tile, 9);
+      expect(layout.frame).toEqual({ x: 0, y: expect.closeTo(printed.frameY, 9), width, height: expect.closeTo(printed.frameHeight, 9) });
+      expect(layout.page.height).toBeCloseTo(printed.pageHeight, 9);
+      expect(layout.text.y - layout.inner.y).toBeCloseTo(printed.insetY, 9);
+      expect(layout.text.height).toBeCloseTo(layout.inner.height - 2 * printed.insetY, 9);
+      // The side margin: what the print had, less exactly the 5% extra text width, shared by both sides.
+      const side = layout.text.x - layout.inner.x;
+      expect(side).toBeCloseTo(width * PRINTED_TEXT_INSET_X - (width * PRINTED_TEXT_WIDTH_SHARE * (QURAN_TEXT_SCALE - 1)) / 2, 9);
+      expect(side).toBeGreaterThan(width * 0.02); // 8.4 pt of plain paper on a 384-pt page (printed: 16.2)
+      expect(layout.text.x + layout.text.width).toBeCloseTo(layout.inner.x + layout.inner.width - side, 9); // centred
+      // The helpers the renderer uses agree with the layout.
+      expect(textSideInset(layout.text.width)).toBeCloseTo(side, 9);
+      expect(pageWidthOfText(layout.text.width)).toBeCloseTo(width, 9);
+      expect(textVerticalInset(layout.text.width)).toBeCloseTo(printed.insetY, 9);
+    }
+  });
+
+  it('the shortest frame for QPC pages keeps the printed spacing relative to the glyphs: 31 tiles, the first whose pitch is ≥ 1.05 × printed', () => {
+    const printedPitch = computePageLayout(1000).linePitch;
+    expect(MIN_TILES_DOWN).toBe(31);
+    expect(computePageLayout(1000, MIN_TILES_DOWN).linePitch / printedPitch).toBeGreaterThanOrEqual(QURAN_TEXT_SCALE);
+    expect(computePageLayout(1000, MIN_TILES_DOWN - 1).linePitch / printedPitch).toBeLessThan(QURAN_TEXT_SCALE);
   });
 });

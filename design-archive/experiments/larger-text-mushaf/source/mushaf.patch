@@ -1,0 +1,35 @@
+diff --git a/C:/Users/HAMZAL~1/AppData/Local/Temp/claude/c--Users-hamzalabib-OneDrive---McGill-University-Documents-Personal-My-App-QuranHeals/44d23233-ece4-487f-8dcf-601067e2b12b/scratchpad/exp/mushaf.orig.tsx b/src/app/(tabs)/mushaf.tsx
+index 7a9c935..261a901 100644
+--- a/C:/Users/HAMZAL~1/AppData/Local/Temp/claude/c--Users-hamzalabib-OneDrive---McGill-University-Documents-Personal-My-App-QuranHeals/44d23233-ece4-487f-8dcf-601067e2b12b/scratchpad/exp/mushaf.orig.tsx
++++ b/src/app/(tabs)/mushaf.tsx
+@@ -42,7 +42,7 @@ import { useMushafAutoDownload } from '@/mushaf/offline/useMushafAutoDownload';
+ import { qcfFontUrl } from '@/mushaf/offline/fonts';
+ import { resolveDecorations } from '@/mushaf/decorations';
+ import { hizbLabelsForPage } from '@/mushaf/hizbQuarters';
+-import { BORDER_TILES_DOWN, computePageLayout } from '@/mushaf/pageGeometry';
++import { BORDER_TILES_DOWN, computePageLayout, EXPERIMENT } from '@/mushaf/pageGeometry';
+ import { QPC_V1_FONTS } from '@/mushaf/qpcV1Fonts';
+ import { checkAgainstTanzil, loadQpcV1PageLayout, type QpcV1PageLayout } from '@/mushaf/qpcV1Layout';
+ import { confirmKhatma, loadReadingData, saveWirdPage, type ReadingCycle } from '@/mushaf/khatmas';
+@@ -198,12 +198,17 @@ const isDevBuild = () => typeof __DEV__ !== 'undefined' && __DEV__;
+  * from the actual space, so any phone (or, later, tablet) gets its own.
+  */
+ export function fitMushafPage(area: { width: number; height: number }, bottomInset: number, fullScreen = false, taller = false) {
+-  const viewportHeight = Math.max(0, area.height - (fullScreen ? FULL_SCREEN_BOTTOM_GAP + bottomInset : PAGE_PANEL_GAP + MUSHAF_PANEL_HEIGHT + MUSHAF_PANEL_MARGIN + bottomInset));
++  const band = !fullScreen && EXPERIMENT.noBand ? 0 : MUSHAF_PANEL_HEIGHT + MUSHAF_PANEL_MARGIN;
++  const viewportHeight = Math.max(0, area.height - (fullScreen ? FULL_SCREEN_BOTTOM_GAP + bottomInset : PAGE_PANEL_GAP + band + bottomInset));
+   const available = viewportHeight - (fullScreen ? 0 : WIRD_ROW_HEIGHT);
+-  const width = Math.floor(Math.max(0, Math.min(area.width - SIDE_MARGIN * 2, available / PAGE_ASPECT)));
++  // EXPERIMENT: a fixed frame height in Normal Mode (the page narrows if it does not fit, never cropped).
++  const fixedTiles = !fullScreen && typeof EXPERIMENT.tiles === 'number' ? EXPERIMENT.tiles : null;
++  const aspect = fixedTiles ? pageHeightFor(1000, fixedTiles) / 1000 : PAGE_ASPECT;
++  const width = Math.floor(Math.max(0, Math.min(area.width - SIDE_MARGIN * 2, available / aspect)));
+   // Taller: at that same width, the tallest whole-tile frame that still fits.
+-  let tilesDown = BORDER_TILES_DOWN;
+-  while (taller && width > 0 && tilesDown < TALLER_MAX_TILES_DOWN && pageHeightFor(width, tilesDown + 1) <= available) tilesDown += 1;
++  let tilesDown = fixedTiles ?? BORDER_TILES_DOWN;
++  const growTaller = taller || (!fullScreen && EXPERIMENT.tiles === 'max');
++  while (growTaller && width > 0 && tilesDown < TALLER_MAX_TILES_DOWN && pageHeightFor(width, tilesDown + 1) <= available) tilesDown += 1;
+   return {
+     viewport: { width: Math.max(0, area.width), height: viewportHeight },
+     page: { width, height: width > 0 ? pageHeightFor(width, tilesDown) : 0 },

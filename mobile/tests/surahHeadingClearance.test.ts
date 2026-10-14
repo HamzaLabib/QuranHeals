@@ -28,7 +28,7 @@ const { QpcV1PageText } = await import('@/components/QpcV1PageText');
 const { qcfV1DrawnLineShiftEm, surahHeadingShift, HEADING_CLEARANCE_PITCH } = await import('@/mushaf/ayahMarkers');
 const { placeSurahHeading, HEADING_INK_CLEARANCE_PT, IOS_MEDALLION_LIFT_UNITS } = await import('@/mushaf/surahHeadingPlacement');
 const { SURAH_HEADING_NEIGHBOURS } = await import('@/mushaf/generated/surahHeadingNeighbours');
-const { computePageLayout, MUSHAF_TEXT_LIFT_PT, PAGE_GEOMETRY } = await import('@/mushaf/pageGeometry');
+const { computePageLayout, MIN_TILES_DOWN, MUSHAF_TEXT_LIFT_PT, PAGE_GEOMETRY, QURAN_TEXT_SCALE } = await import('@/mushaf/pageGeometry');
 
 type Neighbour = { kind: 'line' | 'basmala' | 'heading' | 'none'; lowUnits?: number; highUnits?: number; medallionTopUnits?: number | null };
 type Heading = { page: number; line: number; surah: number; opening: boolean; sizePerTextWidth: number; usedLines: [number, number]; hhea: [number, number]; above: Neighbour; below: Neighbour };
@@ -46,11 +46,13 @@ const MIN_PT = 0.5;
  */
 const PAGE_506_MIN_PT = 0.47;
 
-// Normal: the printed 29 tiles; Full-Screen: the frames fitMushafPage gives (Android matrix and iPhones).
-const CONFIGS = [
-  ...[251, 268, 317, 338, 354, 378, 387, 396, 406, 426, 434].map((w) => ({ w, tiles: 29, mode: 'Normal' })),
-  ...[[310, 29], [314, 30], [314, 31], [354, 32], [369, 29], [387, 33], [396, 34], [354, 35], [406, 35], [426, 35]].map(([w, tiles]) => ({ w, tiles, mode: 'Full-Screen' })),
-];
+// With the larger text (candidate C) QPC pages have frames of MIN_TILES_DOWN (31) to 35 tiles, in Normal Mode and Full
+// Screen alike (fitMushafPage). Every one of those frames at every page width up to 400 pt (a superset of what any phone
+// gets). Pages wider than 400 pt only come from tall phones, which get 33 tiles or more in Normal Mode (16 Pro Max, Plus:
+// 33; Pixel-size: 35); they are checked from 32 tiles. A 31-tile frame on a page that wide (an Android tablet, height-
+// limited) would leave page 506's heading 0.467 pt each side, as the printed 29-tile frame already did there.
+const CONFIGS = [251, 261, 268, 274, 290, 317, 324, 336, 338, 354, 369, 378, 384, 387, 396, 406, 424, 426, 434]
+  .flatMap((w) => (w > 400 ? [32, 33, 34, 35] : [31, 32, 33, 34, 35]).map((tiles) => ({ w, tiles, mode: `${tiles} tiles` })));
 
 function audit(os: string) {
   const worst = { above: [Infinity, ''], below: [Infinity, ''], frameTop: [Infinity, ''], frameBottom: [Infinity, ''] } as Record<string, [number, string]>;
@@ -63,7 +65,8 @@ function audit(os: string) {
     const textH = layout.text.height;
     const insetY = w * PAGE_GEOMETRY.textInsetY;
     for (const h of headings) {
-      const fontSize = textW * h.sizePerTextWidth;
+      // Pages 1–2 keep the printed letter size (QpcV1PageText's openingPageSize); every other page's is QURAN_TEXT_SCALE larger.
+      const fontSize = (h.opening ? textW / QURAN_TEXT_SCALE : textW) * h.sizePerTextWidth;
       const em = fontSize / UPM;
       const rowPitch = h.opening ? Math.min(layout.linePitch, printed) : layout.linePitch;
       const [u0, u1] = h.usedLines;
@@ -88,7 +91,8 @@ function audit(os: string) {
       const floor = h.page === 506 && room < 2 * MIN_PT ? PAGE_506_MIN_PT : MIN_PT;
       const check = (key: string, value: number) => {
         if (value < worst[key][0]) worst[key] = [value, where];
-        if (value < floor) failures.push(`${where}: ${key} ${value.toFixed(2)} pt`);
+        // 1e-9: a heading placed exactly at the clearance (surahHeadingPlacement) may compute a hair under it.
+        if (value < floor - 1e-9) failures.push(`${where}: ${key} ${value.toFixed(2)} pt`);
       };
       if (h.page === 506 && room < 2 * MIN_PT) exceptions.push(`${where}: room ${room.toFixed(3)} pt, ${(room / 2).toFixed(3)} each side`);
       // Deterministic: moved from the approved place (surahHeadingShift) only when that place is not clear.
@@ -104,8 +108,9 @@ function audit(os: string) {
   return { worst, failures, exceptions };
 }
 
-describe('Surah headings clear of the Quran ink around them (all 114, 21 page sizes and frames)', () => {
+describe('Surah headings clear of the Quran ink around them (all 114, 91 page sizes and frames)', () => {
   it('covers every heading: 79 with a Quran line above, 91 with the Basmala below', () => {
+    expect(MIN_TILES_DOWN).toBe(31);
     expect(headings).toHaveLength(114);
     expect(headings.filter((h) => h.above.kind === 'line')).toHaveLength(79);
     expect(headings.filter((h) => h.below.kind === 'basmala')).toHaveLength(91);

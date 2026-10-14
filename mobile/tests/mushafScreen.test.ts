@@ -69,15 +69,24 @@ vi.mock('react-native', async () => {
       h('FlatList', rest, ...(data.length ? data.map((item, index) => h('Row', { key: keyExtractor(item) }, renderItem({ item, index }) as never)) : [ListEmptyComponent as never])),
     TouchableWithoutFeedback: 'TouchableWithoutFeedback',
     useWindowDimensions: () => ({ width: 390, height: 844 }),
+    // Foreground (Keep Screen Awake, mushaf/useMushafKeepAwake.ts).
+    AppState: { currentState: 'active', addEventListener: () => ({ remove: () => undefined }) },
     ActivityIndicator: 'ActivityIndicator', Pressable: 'Pressable', ScrollView: 'ScrollView', Text: 'Text', TextInput: 'TextInput', View: 'View',
   };
 });
 vi.mock('react-native-svg', () => ({ default: 'Svg', ClipPath: 'ClipPath', Rect: 'Rect', Path: 'Path', Circle: 'Circle', SvgXml: 'SvgXml', Defs: 'Defs', Ellipse: 'Ellipse', G: 'G', LinearGradient: 'LinearGradient', Stop: 'Stop' }));
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView', useSafeAreaInsets: () => state.insets }));
 vi.mock('lucide-react-native', () => ({
-  ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', BookMarked: 'BookMarked', Bookmark: 'Bookmark', Check: 'Check', ChevronDown: 'ChevronDown', Maximize: 'Maximize', Minimize: 'Minimize', Plus: 'Plus', Search: 'Search', X: 'X',
+  ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', BookMarked: 'BookMarked', Bookmark: 'Bookmark', Check: 'Check', ChevronDown: 'ChevronDown', Heart: 'Heart', Maximize2: 'Maximize2', Minimize2: 'Minimize2', Plus: 'Plus', Search: 'Search', Share2: 'Share2', X: 'X',
 }));
-vi.mock('expo-router', () => ({ router: { back: vi.fn(), replace: vi.fn(), push: vi.fn(), navigate: vi.fn(), canGoBack: () => state.canGoBack }, useLocalSearchParams: () => state.params }));
+vi.mock('expo-router', () => ({ router: { back: vi.fn(), replace: vi.fn(), push: vi.fn(), navigate: vi.fn(), canGoBack: () => state.canGoBack }, useLocalSearchParams: () => state.params, useIsFocused: () => true }));
+// Keep Screen Awake: the reader holds its own tag while focused (lifecycle cases: mushafKeepAwake.test.ts).
+const keepAwake = vi.hoisted(() => ({ activate: vi.fn(async (_tag?: string) => undefined), deactivate: vi.fn(async (_tag?: string) => undefined) }));
+vi.mock('expo-keep-awake', () => ({ activateKeepAwakeAsync: keepAwake.activate, deactivateKeepAwake: keepAwake.deactivate }));
+// The ayah screens' Share Ayah sheet, as in ayahLinkNavigation.test.ts: its props are what the reader hands it.
+vi.mock('@/components/ShareAyahSheet', () => ({ ShareAyahSheet: 'ShareAyahSheet' }));
+// Signed out (a guest): Save's Favorites stay on the device (the real hook and storage; no cloud sync, no native sign-in).
+vi.mock('@/auth/useAuth', () => ({ getCurrentSessionToken: async () => null, useAuth: () => ({}) }));
 vi.mock('@/mushaf/khatmDua', async (original) => ({ ...(await original<object>()), get KHATM_DUA() { return state.khatmDua; } }));
 vi.mock('react-native-gesture-handler', () => {
   // Each Gesture.X() records its handlers (onStart…) and settings (enabled, maxPointers…), chainable like the real builder.
@@ -163,11 +172,10 @@ vi.mock('@/services/quranAsset', async () => {
 });
 
 const { resetMushafAutoDownloadForTests } = await import('@/mushaf/offline/autoDownloadService');
-const { default: MushafScreen, parsePageNumber, fitMushafPage, BACK_BAR_HEIGHT, TALLER_MAX_TILES_DOWN, TALLER_MAX_LINE_SPACING } = await import('@/app/(tabs)/mushaf');
+const { default: MushafScreen, fitMushafPage, BACK_BAR_HEIGHT, TALLER_MAX_TILES_DOWN, TALLER_MAX_LINE_SPACING } = await import('@/app/(tabs)/mushaf');
 const { router } = await import('expo-router');
 const { MUSHAF_PANEL_COLORS } = await import('@/constants/mushafTheme');
 const { ReflectionBulbIcon } = await import('@/components/ReflectionBulbIcon');
-const typeName = (node: ReactTestInstance) => (typeof node.type === 'string' ? node.type : (node.type as { name: string }).name);
 const { ACTIVE_READING_STOP_STORAGE_KEY, READING_STOPS_STORAGE_KEY } = await import('@/mushaf/readingStops');
 const { SURAH_START_PAGES } = await import('@/mushaf/generated/surahStartPages');
 const { syntheticQpcPage61 } = await import('./helpers/syntheticQpcPage61');
@@ -193,7 +201,32 @@ async function drawnLineY(line: ReactTestInstance) {
   return (flat(line.props.style).height as number) / 2 + qcfV1DrawnLineShiftEm(61, 'ios') * fontSize;
 }
 const flush = async () => { await act(async () => { await new Promise((done) => setTimeout(done, 0)); }); };
-const panelButton = (key: string) => root.root.findByProps({ testID: `mushaf-panel-${key}` });
+/**
+ * The reader after the 2026-10-14 redesign (the floating bar is archived in design-archive/mushaf-navigation-v1/):
+ *  - the ورد name field opens from the ورد list's Add (its pill, then Add);
+ *  - pages turn by swipe, or by the page's own screen-reader actions (nextPage / previousPage);
+ *  - an ayah's popup opens DOUBLE_TAP_MS (350 ms) after the tap.
+ */
+async function openNameField() {
+  await press(root.root.findAllByProps({ testID: 'mushaf-wird' }).find((node) => typeof node.type === 'string'));
+  await flush();
+  // No ورد yet: the pill is itself "Add" and opened the field; otherwise its list's Add does.
+  if (root.root.findAllByProps({ testID: 'mushaf-popup-save' }).length > 0) return;
+  await press(root.root.findAllByProps({ testID: 'mushaf-wird-new' }).find((node) => typeof node.type === 'string'));
+  await flush();
+}
+/** The current page's screen-reader action: next (+1) or previous (-1) page. */
+async function turnPage(delta: 1 | -1) {
+  const target = inPage().findAll((node) => typeof node.type === 'string' && Array.isArray(node.props.accessibilityActions))[0];
+  await act(async () => target.props.onAccessibilityAction({ nativeEvent: { actionName: delta === 1 ? 'nextPage' : 'previousPage' } }));
+  await flush();
+}
+/** After an ayah tap: its popup opens once the double-tap window has passed. */
+async function afterTapWindow() {
+  await act(async () => { await new Promise((done) => setTimeout(done, 360)); });
+  await flush();
+}
+const hosts = (testID: string) => root.root.findAllByProps({ testID }).filter((node) => typeof node.type === 'string');
 /** The current page's drawing (its neighbours, drawn beside it for a swipe, are left out). */
 const inPage = () => root.root.findByProps({ testID: 'mushaf-zoom-page' });
 /** The page the reader shows: the pager's current slot (mushaf-pager-N). */
@@ -358,20 +391,22 @@ describe('full-screen reading view', () => {
     }
   });
 
-  it('takes the largest page that fits above the floating bar, in its own proportions, never cropped', async () => {
-    const { computePageLayout } = await import('@/mushaf/pageGeometry');
+  it('takes the largest page that fits above the ورد row (the retired bar`s space reclaimed), in its own proportions, never cropped', async () => {
+    const { computePageLayout, MIN_TILES_DOWN } = await import('@/mushaf/pageGeometry');
     const aspect = computePageLayout(1000).page.height / 1000;
+    // The width is the one whose shortest frame for the larger text (MIN_TILES_DOWN) fits.
+    const shortest = computePageLayout(1000, MIN_TILES_DOWN).page.height / 1000;
     const paperSize = () => styleOf(inPage().findByProps({ testID: 'mushaf-paper' }));
-    const reserved = 4 + 56 + 8 + 34; // gap to the bar, the bar, its margin, home indicator
+    const reserved = 4 + 34; // the gap under the ورد row, home indicator (no bar any more)
     // Phone: the width decides, 3 pt from each edge.
     await render({ width: 390, height: 761 });
     expect(paperSize().width).toBe(384);
-    expect(paperSize().height).toBeCloseTo(384 * aspect);
-    expect(paperSize().height).toBeLessThanOrEqual(761 - reserved);
+    expect(paperSize().height).toBeCloseTo(384 * aspect); // page 61 drawn from the Quran SVG here: the printed frame
+    expect(paperSize().height).toBeLessThanOrEqual(761 - reserved - 32);
     await act(async () => root.unmount());
     // Tablet: the height decides.
     await render({ width: 820, height: 1130 });
-    expect(paperSize().width).toBe(Math.floor((1130 - reserved - 32) / aspect)); // leaving the ورد row free
+    expect(paperSize().width).toBe(Math.floor((1130 - reserved - 32) / shortest)); // leaving the ورد row free
     expect(paperSize().width).toBeLessThan(820);
     // The SVG page keeps its own proportions inside.
     const { width, height } = Object.assign({}, ...[page().props.style].flat()) as { width: number; height: number };
@@ -380,14 +415,18 @@ describe('full-screen reading view', () => {
 
   it('fits iPhone, Android (gesture and 3-button navigation), a small phone and a tablet from their real safe areas', () => {
     const aspect = 1.6088532883642497;
+    // The shortest frame the larger text allows (31 tiles): 1.6088… + 2/20.
+    const shortest = aspect + 2 / 20;
     // area = screen − top inset − Back row; the bottom inset is passed separately.
     const fit = (w: number, h: number, top: number, bottom: number) => fitMushafPage({ width: w, height: h - top - BACK_BAR_HEIGHT }, bottom);
     const cases = [
       { name: 'iPhone 393 × 852 (Dynamic Island, home indicator)', size: fit(393, 852, 59, 34), width: 387 },
       { name: 'Android 412 × 915, gesture navigation', size: fit(412, 915, 24, 24), width: 406 },
       { name: 'Android 412 × 915, 3-button navigation', size: fit(412, 915, 24, 48), width: 406 },
-      { name: 'small phone 320 × 568: the height decides', size: fit(320, 568, 20, 0), width: Math.floor((568 - 20 - 36 - 68 - 32) / aspect) },
-      { name: 'iPad 820 × 1180', size: fit(820, 1180, 24, 20), width: Math.floor((1180 - 24 - 36 - 88 - 32) / aspect) },
+      // The height decides: (568 − 20 − 36 − 4 − 32) ÷ 1.7089 = 278 pt would bring the last line under the page selector's
+      // card; the widest page whose text ends 4 pt above it is 261 pt.
+      { name: 'small phone 320 × 568: the height decides', size: fit(320, 568, 20, 0), width: 261 },
+      { name: 'iPad 820 × 1180', size: fit(820, 1180, 24, 20), width: Math.floor((1180 - 24 - 36 - 4 - 20 - 32) / shortest) },
     ];
     for (const { name, size, width } of cases) {
       expect(size.page.width, name).toBe(width);
@@ -518,47 +557,43 @@ describe('full-screen reading', () => {
     return handled;
   };
 
-  it('Normal Mode is the default: Back on the left, a plain Expand icon on the right, the bar and the ورد pill', async () => {
+  it('Normal Mode is the default: Back on the left, a plain Expand icon on the right, and the ورد pill', async () => {
     await render();
     const bar = root.root.findByProps({ testID: 'mushaf-back-bar' });
     expect((bar.children as ReactTestInstance[]).map((child) => child.props.testID)).toEqual(['mushaf-back', 'mushaf-fullscreen-toggle']);
     expect(toggle().props.accessibilityLabel).toBe(copy().enterFullScreen);
-    expect(toggle().findAllByType('Maximize' as never)).toHaveLength(1);
-    expect(toggle().findByType('Maximize' as never).props.color).toBe(MUSHAF_PANEL_COLORS.light.icon);
+    expect(toggle().findAllByType('Maximize2' as never)).toHaveLength(1);
+    expect(toggle().findByType('Maximize2' as never).props.color).toBe(MUSHAF_PANEL_COLORS.light.icon);
     expect(toggle().findAllByType('Text' as never)).toHaveLength(0);
     const look = flat(toggle().props.style({ pressed: false }));
     for (const key of ['backgroundColor', 'borderWidth', 'borderRadius', 'shadowOpacity', 'elevation']) expect(look[key], key).toBeUndefined();
     expect(look.width).toBe(44);
     expect(look.height + toggle().props.hitSlop.top + toggle().props.hitSlop.bottom).toBe(44);
-    for (const id of ['mushaf-back', 'mushaf-panel', 'mushaf-wird-row']) expect(has(id), id).toBe(true);
+    for (const id of ['mushaf-back', 'mushaf-wird-row']) expect(has(id), id).toBe(true);
     expect(state.backHandlers).toHaveLength(0); // Android Back navigates as usual in Normal Mode
   });
 
   it('Expand shows only the page and a Collapse icon in the same place; Collapse restores every control', async () => {
     await render();
     await press(toggle());
-    for (const id of ['mushaf-back', 'mushaf-panel', 'mushaf-wird-row', 'mushaf-wird']) expect(has(id), id).toBe(false);
+    for (const id of ['mushaf-back', 'mushaf-wird-row', 'mushaf-wird']) expect(has(id), id).toBe(false);
     expect(has('mushaf-paper')).toBe(true);
     expect(texts()).toEqual(expect.arrayContaining(['سورة آل عمران', 'الجزء ٣', '٦١']));
     expect(toggle().props.accessibilityLabel).toBe(copy().exitFullScreen);
-    expect(toggle().findAllByType('Minimize' as never)).toHaveLength(1);
+    expect(toggle().findAllByType('Minimize2' as never)).toHaveLength(1);
     expect((root.root.findByProps({ testID: 'mushaf-back-bar' }).children as ReactTestInstance[]).at(-1)!.props.testID).toBe('mushaf-fullscreen-toggle');
     await press(toggle());
-    for (const id of ['mushaf-back', 'mushaf-panel', 'mushaf-wird-row']) expect(has(id), id).toBe(true);
-    expect(styleOf(root.root.findByType('KeyboardAvoidingView' as never)).bottom).toBe(34 + 8); // the bar back in its safe place
+    for (const id of ['mushaf-back', 'mushaf-wird-row']) expect(has(id), id).toBe(true);
   });
 
-  it('the page takes the reclaimed space where the screen allows, in its own proportions; on phones the width still decides', async () => {
-    const { computePageLayout } = await import('@/mushaf/pageGeometry');
-    const aspect = computePageLayout(1000).page.height / 1000;
-    // Tablet: the height decides, so the page grows.
+  it('full screen keeps Normal Mode`s page width, so the Quran text is the same size; its extra height is the viewport`s', async () => {
+    // Tablet: the height decides Normal Mode's width; full screen does not widen it (the text would grow).
     await render({ width: 820, height: 1130 });
     const normal = paperSize();
     await press(toggle());
     const full = paperSize();
-    expect(full.width).toBe(Math.floor((1130 - 34 - 4) / aspect));
-    expect(full.width).toBeGreaterThan(normal.width);
-    expect(full.height / full.width).toBeCloseTo(normal.height / normal.width);
+    expect(full.width).toBe(normal.width);
+    expect(full.height / full.width).toBeCloseTo(normal.height / normal.width); // page 61 from the Quran SVG: one frame
     expect(styleOf(root.root.findByProps({ testID: 'mushaf-zoom-viewport' })).height).toBe(1130 - 34 - 4);
     await act(async () => root.unmount());
     // Phone: as wide as before (3 pt from the sides), so the same size.
@@ -598,8 +633,9 @@ describe('full-screen reading', () => {
       { name: 'iPhone 393 × 852', size: fit(393, 852, 59, 34), width: 387 },
       { name: 'Android gesture navigation', size: fit(412, 915, 24, 24), width: 406 },
       { name: 'Android 3-button navigation', size: fit(412, 915, 24, 48), width: 406 },
-      { name: 'small phone 320 × 568', size: fit(320, 568, 20, 0), width: 314 },
-      { name: 'iPad 820 × 1180', size: fit(820, 1180, 24, 20), width: Math.floor((1180 - 24 - 36 - 20 - 4) / 1.6088532883642497) },
+      // Height-limited: Normal Mode's width (the same text size), not the wider page full screen alone would allow.
+      { name: 'small phone 320 × 568', size: fit(320, 568, 20, 0), width: 261 }, // Normal Mode's (the page selector's room kept)
+      { name: 'iPad 820 × 1180', size: fit(820, 1180, 24, 20), width: Math.floor((1180 - 24 - 36 - 4 - 20 - 32) / (1.6088532883642497 + 2 / 20)) },
     ];
     for (const { name, size, width } of cases) {
       expect(size.page.width, name).toBe(width);
@@ -607,7 +643,7 @@ describe('full-screen reading', () => {
     }
   });
 
-  it('keeps the page, the selected ayah and the active ورد; the reflection returns with the bar for the same ayah', async () => {
+  it('keeps the page, the selected ayah and the active ورد; Reflection opens from the ayah for the same ayah', async () => {
     state.storage.set(READING_STOPS_STORAGE_KEY, JSON.stringify([{ id: 'fajr', name: 'ورد الفجر', page: 61, updatedAt: '2026-10-01T00:00:00.000Z' }]));
     state.storage.set(ACTIVE_READING_STOP_STORAGE_KEY, 'fajr');
     await render();
@@ -617,13 +653,15 @@ describe('full-screen reading', () => {
     await press(toggle());
     expect(shownPageNumber()).toBe('٦١');
     expect(has('mushaf-selection')).toBe(true);
-    expect(has('mushaf-panel-reflect')).toBe(false); // hidden with the bar
+    expect(has('mushaf-panel')).toBe(false); // no bar in either mode (retired)
     await tapPage(100, 300); // selecting still works in full screen
     await press(toggle());
     expect(state.offline.readPage).not.toHaveBeenCalled(); // the page never reloaded
     expect(root.root.findByProps({ testID: 'mushaf-wird' }).findByType('Text' as never).props.children).toBe('ورد الفجر');
     expect([state.storage.get(READING_STOPS_STORAGE_KEY), state.storage.get(ACTIVE_READING_STOP_STORAGE_KEY)]).toEqual(stored);
-    await press(panelButton('reflect'));
+    await tapPage(100, 130);
+    await afterTapWindow();
+    await press(hosts('mushaf-ayah-reflection')[0]);
     const sheet = root.root.findByType('ReflectionSheet' as never).props;
     expect(sheet.visible).toBe(true);
     expect(sheet.verseKey).toMatch(/^3:\d+$/);
@@ -653,7 +691,7 @@ describe('full-screen reading', () => {
     await press(toggle());
     expect(state.backHandlers).toHaveLength(1);
     expect(await pressBack()).toBe(true);
-    expect(has('mushaf-panel')).toBe(true);
+    expect(has('mushaf-wird-row')).toBe(true); // Normal Mode's controls are back (the bar is retired)
     expect(router.back).not.toHaveBeenCalled();
     expect(router.replace).not.toHaveBeenCalled();
     expect(state.backHandlers).toHaveLength(0); // the system handles the next Back
@@ -675,7 +713,7 @@ describe('full-screen reading', () => {
     expect(has('mushaf-panel')).toBe(false);
     await swipe(-120);
     await swipeDown(160);
-    for (const id of ['mushaf-back', 'mushaf-panel', 'mushaf-wird-row']) expect(has(id), id).toBe(true);
+    for (const id of ['mushaf-back', 'mushaf-wird-row']) expect(has(id), id).toBe(true);
     expect(shownPageNumber()).toBe('٦١');
   });
 
@@ -691,16 +729,16 @@ describe('full-screen reading', () => {
     expect(zoom()).toEqual({ scale: 1, x: 0, y: 0 });
     expect(has('mushaf-panel')).toBe(false); // double-tap never changes the mode
     await swipeDown(160);
-    expect(has('mushaf-panel')).toBe(true);
+    expect(has('mushaf-wird-row')).toBe(true); // Normal Mode's controls are back (the bar is retired)
   });
 
   it('the Collapse icon stays as a backup exit and works at any zoom', async () => {
     await render();
     await press(toggle());
     await pinch(3);
-    expect(toggle().findAllByType('Minimize' as never)).toHaveLength(1);
+    expect(toggle().findAllByType('Minimize2' as never)).toHaveLength(1);
     await press(toggle());
-    expect(has('mushaf-panel')).toBe(true);
+    expect(has('mushaf-wird-row')).toBe(true); // Normal Mode's controls are back (the bar is retired)
     expect(zoom()).toEqual({ scale: 1, x: 0, y: 0 });
   });
 
@@ -717,7 +755,7 @@ describe('full-screen reading', () => {
     await press(toggle());
     await act(async () => root.unmount());
     await render();
-    expect(has('mushaf-panel')).toBe(true);
+    expect(has('mushaf-wird-row')).toBe(true); // Normal Mode's controls are back (the bar is retired)
     expect(toggle().props.accessibilityLabel).toBe(copy().enterFullScreen);
   });
 
@@ -725,7 +763,7 @@ describe('full-screen reading', () => {
     state.theme = 'dark';
     await render();
     await press(toggle());
-    expect(toggle().findByType('Minimize' as never).props.color).toBe(MUSHAF_PANEL_COLORS.dark.icon);
+    expect(toggle().findByType('Minimize2' as never).props.color).toBe(MUSHAF_PANEL_COLORS.dark.icon);
     expect(styleOf(inPage().findByProps({ testID: 'mushaf-paper' })).backgroundColor).toBe('#222820');
     const fills = inPage().findByProps({ testID: 'mushaf-frame' }).findAllByType('Path' as never).map((node) => node.props.fill);
     expect(new Set(fills)).toEqual(new Set(Object.values(MUSHAF_BORDER_STYLES.midnight.inks)));
@@ -745,7 +783,7 @@ describe('full-screen reading', () => {
 
 describe('one background: the screen is the page`s paper', () => {
   for (const [theme, paper] of [['light', '#F9EFD2'], ['dark', '#222820']] as const) {
-    it(`${theme}: the screen, the safe areas and the space around the page are ${paper}, in both modes; the bar stays distinct`, async () => {
+    it(`${theme}: the screen, the safe areas and the space around the page are ${paper}, in both modes; no bar`, async () => {
       state.theme = theme;
       await render();
       const screen = () => styleOf(root.root.findByType('GestureHandlerRootView' as never));
@@ -755,7 +793,7 @@ describe('one background: the screen is the page`s paper', () => {
       await press(root.root.findByProps({ testID: 'mushaf-fullscreen-toggle' }));
       expect(screen().backgroundColor).toBe(paper);
       await press(root.root.findByProps({ testID: 'mushaf-fullscreen-toggle' }));
-      expect(styleOf(root.root.findByProps({ testID: 'mushaf-panel' })).backgroundColor).not.toContain(theme === 'dark' ? '34, 40, 32' : '249, 239, 210');
+      expect(hosts('mushaf-panel')).toHaveLength(0); // the retired bar
       // The border: the approved inks on the light page, the midnight gold and sage inks on the dark one.
       const fills = inPage().findByProps({ testID: 'mushaf-frame' }).findAllByType('Path' as never).map((node) => node.props.fill);
       expect(new Set(fills)).toEqual(new Set(Object.values(theme === 'dark' ? MUSHAF_BORDER_STYLES.midnight.inks : BORDER_INKS)));
@@ -763,34 +801,19 @@ describe('one background: the screen is the page`s paper', () => {
   }
 });
 
-describe('the bar and the ورد pill blend with the page', () => {
+describe('the ورد pill blends with the page (unchanged); the retired bar is gone', () => {
   const PILL = {
     light: { backgroundColor: 'rgba(62, 107, 75, 0.10)', borderColor: 'rgba(62, 107, 75, 0.22)', text: '#2B2A26', chevron: '#3E6B4B' },
     dark: { backgroundColor: 'rgba(181, 201, 169, 0.12)', borderColor: 'rgba(181, 201, 169, 0.26)', text: '#F1E9D6', chevron: '#B5C9A9' },
   };
   // The approved bar (Option A).
-  for (const [theme, paper, surface, border, icon] of [['light', '#F9EFD2', '#E9DBB9', '#DBCCA8', '#596F49'], ['dark', '#222820', '#343D31', '#475243', '#B5C9A9']] as const) {
-    it(`${theme}: Option A — a gently ${theme === 'light' ? 'darker cream' : 'lighter olive'} than the page, sage icons, a faint border, a light shadow; the ورد pill keeps its own sage tint`, async () => {
+  for (const [theme, paper] of [['light', '#F9EFD2'], ['dark', '#222820']] as const) {
+    it(`${theme}: the ورد pill keeps its own sage tint, shape and size on the page; no bar`, async () => {
       state.theme = theme;
       state.storage.set(READING_STOPS_STORAGE_KEY, JSON.stringify([{ id: 'fajr', name: 'ورد الفجر', page: 61, updatedAt: '2026-10-01T00:00:00.000Z' }]));
       state.storage.set(ACTIVE_READING_STOP_STORAGE_KEY, 'fajr');
       await render();
-      const bar = styleOf(root.root.findByProps({ testID: 'mushaf-panel' }));
-      expect(bar).toMatchObject({ backgroundColor: surface, borderColor: border });
-      expect(bar.backgroundColor).not.toBe(paper);
-      expect(bar.shadowOpacity).toBeLessThanOrEqual(0.06);
-      expect(bar.elevation).toBeLessThanOrEqual(1);
-      // Same shape, size and place as before.
-      expect(bar).toMatchObject({ height: 56, borderRadius: 28, maxWidth: 360 });
-      const buttons = root.root.findByProps({ testID: 'mushaf-panel' }).findAllByType('Pressable' as never);
-      expect(buttons).toHaveLength(5);
-      for (const button of buttons) expect(flat(button.props.style({ pressed: false }))).toMatchObject({ width: 44, height: 44 });
-      for (const key of ['previous', 'search', 'next']) {
-        const iconNode = panelButton(key).children[0] as ReactTestInstance;
-        expect(iconNode.props.color, key).toBe(icon);
-      }
-      // Page 61 is ورد الفجر's saved page: the whole bookmark, outline and fill, is bright yellow (no green left).
-      expect((panelButton('save').children[0] as ReactTestInstance).props).toMatchObject({ color: '#FFC000', fill: '#FFC000' });
+      expect(hosts('mushaf-panel')).toHaveLength(0);
       // The ورد pill: its original sage-green style restored (not the bar's colour), same shape and size.
       const pill = root.root.findByProps({ testID: 'mushaf-wird' });
       const own = PILL[theme];
@@ -802,7 +825,7 @@ describe('the bar and the ورد pill blend with the page', () => {
   }
 });
 
-describe('Taller full screen: every page, every build; Normal Mode always Traditional', () => {
+describe('Taller in both modes (larger text, candidate C): every page, every build; full screen only adds tiles', () => {
   const MEASURE_WIDTH = 900;
   const setDev = (on: boolean) => { (globalThis as { __DEV__?: boolean }).__DEV__ = on; };
   afterEach(() => setDev(false));
@@ -829,7 +852,7 @@ describe('Taller full screen: every page, every build; Normal Mode always Tradit
 
   const fullScreenOn = async () => { await press(root.root.findByProps({ testID: 'mushaf-fullscreen-toggle' })); };
 
-  it('page 61: Normal Mode is Traditional, full screen is Taller automatically; the reading position is kept', async () => {
+  it('page 61: Normal Mode fills its height with whole tiles, full screen adds more at the same width; the reading position is kept', async () => {
     setDev(true);
     state.storage.set(READING_STOPS_STORAGE_KEY, JSON.stringify([{ id: 'fajr', name: 'ورد الفجر', page: 61, updatedAt: '2026-10-01T00:00:00.000Z' }]));
     state.storage.set(ACTIVE_READING_STOP_STORAGE_KEY, 'fajr');
@@ -838,22 +861,26 @@ describe('Taller full screen: every page, every build; Normal Mode always Tradit
     await renderQpc({}, { width: 393, height: 852 - 59 - BACK_BAR_HEIGHT });
     const paper = () => styleOf(inPage().findByProps({ testID: 'mushaf-paper' }));
     const glyphSize = () => styleOf(inPage().findByProps({ testID: 'qpc-line-1' }).findAllByType('Text' as never)[0]).fontSize;
-    expect(Math.round(paper().height)).toBe(623);
-    expect(frameTiles()).toBe(29);
+    // Normal Mode: 393 − 6 = 387 pt wide; 757 − 4 − 34 − 32 = 687 pt for the page would hold 32 tiles (680.7 pt), but
+    // their last line would end at 621.5 pt, under where the page selector's card opens (its top at 625 pt, the text
+    // 4 pt clear of it: 617); 31 tiles end it at 602.2 pt (661.3 pt page).
+    expect(paper()).toMatchObject({ width: 387 });
+    expect(Math.round(paper().height)).toBe(661);
+    expect(frameTiles()).toBe(31);
     const size = glyphSize();
     { const row = inPage().findByProps({ testID: 'qpc-line-2' }); const locationY = await drawnLineY(row); await act(async () => row.props.onPress({ nativeEvent: { locationX: 405, locationY } })); }
     state.offline.readPage.mockClear();
     await fullScreenOn();
-    expect(paper()).toMatchObject({ width: 387 });
-    expect(Math.round(paper().height)).toBe(700); // +77 pt on this iPhone
+    expect(paper()).toMatchObject({ width: 387 }); // the same width
+    expect(Math.round(paper().height)).toBe(700); // 757 − 4 − 34 = 719 pt: 33 tiles (+19 pt on this iPhone)
     expect(frameTiles()).toBe(33);
     expect(glyphSize()).toBe(size); // the same letter size
     expect(inPage().findAllByProps({ testID: 'qpc-highlight-2' }).length).toBeGreaterThan(0); // the selection is kept
     expect(state.offline.readPage).not.toHaveBeenCalled(); // no reload, same page
     expect(state.storage.get(READING_STOPS_STORAGE_KEY)).toBe(stored);
     await fullScreenOn();
-    expect(Math.round(paper().height)).toBe(623);
-    expect(frameTiles()).toBe(29);
+    expect(Math.round(paper().height)).toBe(661);
+    expect(frameTiles()).toBe(31);
     expect(shownPageNumber()).toBe('٦١');
   });
 
@@ -905,16 +932,19 @@ describe('Taller full screen: every page, every build; Normal Mode always Tradit
     expect(frameTiles()).toBeGreaterThan(29);
   });
 
-  it('Normal Mode is Traditional on every device, even where there is spare height (Android 412)', async () => {
+  it('Normal Mode is Taller too, never shorter than the larger text allows (31 tiles); full screen never narrower or shorter (Android 412)', async () => {
+    const { MIN_TILES_DOWN } = await import('@/mushaf/pageGeometry');
     setDev(true);
     await renderQpc({}, { width: 412, height: 855 });
-    expect(frameTiles()).toBe(29);
+    const normal = frameTiles();
+    expect(normal).toBeGreaterThanOrEqual(MIN_TILES_DOWN);
     expect(styleOf(inPage().findByProps({ testID: 'mushaf-paper' })).width).toBe(406);
     await fullScreenOn();
-    expect(frameTiles()).toBeGreaterThan(29); // Taller in full screen
+    expect(frameTiles()).toBeGreaterThanOrEqual(normal);
+    expect(styleOf(inPage().findByProps({ testID: 'mushaf-paper' })).width).toBe(406);
   });
 
-  it('pages other than 61, in release builds (preview, production) as in development: Normal Traditional, full screen Taller', async () => {
+  it('pages other than 61 (1–2 included), in release builds (preview, production) as in development: Normal 31 tiles, full screen 33 on this iPhone', async () => {
     for (const dev of [false, true]) {
       for (const n of [1, 2, 62, 187, 604]) {
         setDev(dev);
@@ -924,12 +954,12 @@ describe('Taller full screen: every page, every build; Normal Mode always Tradit
         // An iPhone 393 × 852 (insets 59 / 34).
         await render({ width: 393, height: 852 - 59 - BACK_BAR_HEIGHT });
         const label = `${dev ? 'development' : 'release'} page ${n}`;
-        expect(frameTiles(), label).toBe(29);
+        expect(frameTiles(), label).toBe(31);
         await fullScreenOn();
         expect(frameTiles(), label).toBe(33); // as page 61 on this iPhone
         expect(Math.round(styleOf(inPage().findByProps({ testID: 'mushaf-paper' })).height), label).toBe(700);
         await fullScreenOn();
-        expect(frameTiles(), label).toBe(29);
+        expect(frameTiles(), label).toBe(31);
         await act(async () => root.unmount());
       }
     }
@@ -986,18 +1016,19 @@ describe('Taller full screen: every page, every build; Normal Mode always Tradit
     expect(frameTiles()).toBeGreaterThan(29);
   });
 
-  it('Taller: a taller frame of the same tiles, the same glyphs at the same size, the 15 lines further apart', async () => {
-    await renderQpc({});
-    // Normal Mode (Traditional) at the same width.
+  it('full screen: a taller frame of the same tiles than Normal Mode`s, the same glyphs at the same size, the 15 lines further apart', async () => {
+    // An iPhone 393 × 852 (insets 59 / 34): Normal Mode 31 tiles, full screen 33 (a tall Android reaches the cap in both).
+    await renderQpc({}, { width: 393, height: 852 - 59 - BACK_BAR_HEIGHT });
+    // Normal Mode at the same width.
     const traditional = { tiles: frameTiles(), paper: styleOf(inPage().findByProps({ testID: 'mushaf-paper' })), pitch: lineRows()[0].height, glyphs: glyphs() };
     await fullScreenOn();
     const mobile = { tiles: frameTiles(), paper: styleOf(inPage().findByProps({ testID: 'mushaf-paper' })), pitch: lineRows()[0].height, glyphs: glyphs() };
-    expect(traditional.tiles).toBe(29);
-    expect(mobile.tiles).toBeGreaterThan(29);
+    expect(traditional.tiles).toBe(31);
+    expect(mobile.tiles).toBe(33);
     expect(Number.isInteger(mobile.tiles)).toBe(true); // whole tiles: repeated, never stretched
     expect(mobile.paper.width).toBe(traditional.paper.width); // the width (and so the text size) is the device's
     expect(mobile.paper.height).toBeGreaterThan(traditional.paper.height);
-    expect(mobile.paper.height).toBeLessThanOrEqual(855 - 4 - 34); // still the whole page, inside the safe area
+    expect(mobile.paper.height).toBeLessThanOrEqual(852 - 59 - BACK_BAR_HEIGHT - 4 - 34); // still the whole page, inside the safe area
     expect(mobile.pitch).toBeGreaterThan(traditional.pitch);
     expect(mobile.glyphs).toEqual(traditional.glyphs); // every glyph, in order, at the same size
     const { QCF_V1_LINE_BOX_EM } = await import('@/mushaf/ayahMarkers');
@@ -1037,8 +1068,9 @@ describe('Taller full screen: every page, every build; Normal Mode always Tradit
     expect(sizes[0]).toBe(sizes[1]);
     expect(sizes[2]).toBe(sizes[3]);
     expect(sizes[4]).toBe(sizes[5]);
-    // The narrow phone: height-limited in Normal Mode, so full screen (more height) gives a wider page and, with it, larger letters.
-    expect(sizes[7]).toBeGreaterThan(sizes[6]);
+    // The narrow phone too: height-limited in Normal Mode, full screen keeps that width, so the letters are the same size
+    // (its extra height goes to the frame and the line spacing).
+    expect(sizes[7]).toBe(sizes[6]);
   });
 
   it('Taller: the selection highlight keeps the printed band height; taps select as before', async () => {
@@ -1053,15 +1085,20 @@ describe('Taller full screen: every page, every build; Normal Mode always Tradit
     expect(band.height).toBeCloseTo(printedPitch * 0.92);
     expect(band.top + band.height / 2).toBeCloseTo(await drawnLineY(inPage().findByProps({ testID: 'qpc-line-2' }))); // centred on its line as drawn
     expect(pitch).toBeGreaterThan(band.height);
-    await fullScreenOn();
-    await press(panelButton('reflect'));
+    await afterTapWindow();
+    await press(hosts('mushaf-ayah-reflection')[0]);
     expect(root.root.findByType('ReflectionSheet' as never).props.verseKey).toBe('3:84');
   });
 
-  it('where the height already limits the page (small phones in landscape-like ratios, tablets), full screen falls back to Traditional automatically', async () => {
+  it('where the height limits the page (tablets), Normal Mode has the shortest frame the larger text allows; full screen adds what its height fits, at the same width', async () => {
+    // 820 × 1130 (bottom inset 34): (1130 − 4 − 34 − 32) ÷ (31 tiles' 1.7089) → 620 pt wide, 31 tiles (1059.5 pt of 1060);
+    // full screen: 1092 pt, 32 tiles (1090.5 pt).
     await renderQpc({}, { width: 820, height: 1130 });
+    expect(frameTiles()).toBe(31);
+    expect(styleOf(inPage().findByProps({ testID: 'mushaf-paper' })).width).toBe(620);
     await fullScreenOn();
-    expect(frameTiles()).toBe(29);
+    expect(frameTiles()).toBe(32);
+    expect(styleOf(inPage().findByProps({ testID: 'mushaf-paper' })).width).toBe(620);
   });
 
   it('very tall phones: the line spacing grows at most TALLER_MAX_LINE_SPACING; the rest of the height stays paper around the centred page', async () => {
@@ -1077,6 +1114,25 @@ describe('Taller full screen: every page, every build; Normal Mode always Tradit
     expect(styleOf(inPage().parent!)).toMatchObject({ justifyContent: 'center' });
   });
 
+  it('Normal Mode: the Quran text always ends at least 4 pt above where the page selector`s card opens; full screen keeps Normal Mode`s width', async () => {
+    const { computePageLayout, MUSHAF_TEXT_LIFT_PT } = await import('@/mushaf/pageGeometry');
+    const { PAGE_SELECTOR_BOTTOM_MARGIN, PAGE_SELECTOR_CARD_HEIGHT } = await import('@/components/MushafPageSelector');
+    const devices = [[375, 667, 20, 0], [375, 812, 50, 34], [390, 844, 47, 34], [393, 852, 59, 34], [402, 874, 62, 34], [430, 932, 59, 34], [440, 956, 62, 34],
+      [320, 568, 20, 0], [320, 640, 24, 48], [360, 640, 24, 48], [360, 800, 24, 24], [412, 915, 24, 24], [412, 915, 24, 48], [448, 998, 28, 24], [820, 1180, 24, 20]] as const;
+    for (const [w, h, top, bottom] of devices) {
+      const area = { width: w, height: h - top - BACK_BAR_HEIGHT };
+      const normal = fitMushafPage(area, bottom, false, true);
+      const { text } = computePageLayout(normal.page.width, normal.tilesDown);
+      const textBottom = text.y + text.height - MUSHAF_TEXT_LIFT_PT; // the page sits at the top of the reading area
+      const cardTop = area.height - bottom - PAGE_SELECTOR_BOTTOM_MARGIN - PAGE_SELECTOR_CARD_HEIGHT;
+      expect(cardTop - textBottom, `${w} × ${h}`).toBeGreaterThanOrEqual(4);
+      expect(normal.tilesDown, `${w} × ${h}`).toBeGreaterThanOrEqual(31);
+      const full = fitMushafPage(area, bottom, true, true);
+      expect(full.page.width, `${w} × ${h} full screen`).toBe(normal.page.width); // the same Quran text size
+      expect(full.tilesDown, `${w} × ${h} full screen`).toBeGreaterThanOrEqual(normal.tilesDown);
+    }
+  });
+
   it('fits each device from its actual space: as many extra tiles as its spare height allows, never more than the cap', () => {
     const fit = (w: number, h: number, top: number, bottom: number, full = false) => fitMushafPage({ width: w, height: h - top - BACK_BAR_HEIGHT }, bottom, full, true);
     const cases = [
@@ -1090,131 +1146,48 @@ describe('Taller full screen: every page, every build; Normal Mode always Tradit
       ['iPad 820', fit(820, 1180, 24, 20)],
     ] as const;
     for (const [name, size] of cases) {
-      expect(size.tilesDown, name).toBeGreaterThanOrEqual(29);
+      expect(size.tilesDown, name).toBeGreaterThanOrEqual(31); // MIN_TILES_DOWN: QPC pages are never shorter
       expect(size.tilesDown, name).toBeLessThanOrEqual(TALLER_MAX_TILES_DOWN);
       expect(size.page.height, name).toBeLessThanOrEqual(size.viewport.height);
     }
     const tiles = Object.fromEntries(cases.map(([name, size]) => [name, size.tilesDown]));
     expect(tiles).toEqual({
-      'iPhone 393, Normal': 29, // (direct calls with taller on, for the fit alone; the reader passes it only in full screen)
-      'iPhone 393, full screen': 33,
-      'iPhone 320': 29,
-      'Android 412 gesture': 32,
-      'Android 412 3-button': 31,
-      'Android 412 full screen': 35, // 37 fit: capped
-      'large Android 448 × 998': 33,
-      'iPad 820': 29,
+      // Each from its own room, at Normal Mode's width (page height = width × (0.15886 + tiles ÷ 20)):
+      'iPhone 393, Normal': 31, // 387 pt wide, 687 pt: 32 would fit (680.7), but its text would reach under the page selector
+      'iPhone 393, full screen': 33, // 719 pt: 33 (700.1)
+      'iPhone 320': 31, // 261 pt wide (the page selector's room kept), 31
+      'Android 412 gesture': 35, // 406 pt, 795 pt: 35 (775.0)
+      'Android 412 3-button': 34, // 771 pt: 34 (754.7)
+      'Android 412 full screen': 35, // capped
+      'large Android 448 × 998': 35, // 442 pt, 874 pt: 35 (843.7)
+      'iPad 820': 31, // 622 pt wide (1064 ÷ 1.7089), 31 (1062.9)
     });
   });
 });
 
-describe('the floating bar', () => {
-  it('is icon-only, in the fixed order arrow-left · lightbulb · bookmark (centre) · search · arrow-right, above the bottom inset', async () => {
-    await render();
-    const bar = root.root.findByProps({ testID: 'mushaf-panel' });
-    const buttons = bar.findAllByType('Pressable' as never);
-    // Right to left: the left arrow is "next page", the right arrow "previous page".
-    expect(buttons.map((node) => node.props.testID)).toEqual(['mushaf-panel-next', 'mushaf-panel-reflect', 'mushaf-panel-save', 'mushaf-panel-search', 'mushaf-panel-previous']);
-    expect(buttons.findIndex((node) => node.props.testID === 'mushaf-panel-save')).toBe(Math.floor(buttons.length / 2)); // the centre of five
-    expect(bar.findAllByType('Text' as never)).toHaveLength(0); // no labels under the icons
-    expect(buttons.map((node) => node.props.accessibilityLabel)).toEqual([copy().nextPage, MESSAGES.en.reflection.writeAction, copy().saveStopAction, copy().searchPage, copy().previousPage]);
-    const icons = buttons.map((node) => node.children[0] as ReactTestInstance);
-    expect(icons.map(typeName)).toEqual(['ArrowLeft', 'ReflectionBulbIcon', 'Bookmark', 'Search', 'ArrowRight']);
-    expect(new Set(icons.map((icon) => icon.props.size)).size).toBe(1); // one icon size
-    // The bookmark: lucide's plain outline (no plus, check or fill).
-    expect(icons[3].props).not.toHaveProperty('fill');
-    const dock = root.root.findByType('KeyboardAvoidingView' as never);
-    expect(styleOf(dock).bottom).toBe(34 + 8);
-  });
-
-  it('respects Android`s button navigation bar (a larger bottom inset)', async () => {
-    state.insets = { top: 24, bottom: 48, left: 0, right: 0 };
-    await render();
-    expect(styleOf(root.root.findByType('KeyboardAvoidingView' as never)).bottom).toBe(48 + 8);
-  });
-
-  it('reflection is disabled until an ayah is selected, then opens the existing sheet for exactly that ayah', async () => {
-    await render();
-    expect(panelButton('reflect').props.disabled).toBe(true);
-    expect(root.root.findByType('ReflectionSheet' as never).props.visible).toBe(false);
-    await tapPage(100, 130); // line 4: 3:85
-    expect(inPage().findByProps({ testID: 'mushaf-selection' })).toBeDefined();
-    expect(panelButton('reflect').props.disabled).toBe(false);
-    await press(panelButton('reflect'));
-    expect(root.root.findByType('ReflectionSheet' as never).props).toMatchObject({ visible: true, verseKey: '3:85' });
-  });
-
-  it('the lightbulb: a grey outline without rays until an ayah is selected, then the save button`s green outline and rays filled with bright yellow; clearing the selection unlights it', async () => {
-    await render();
-    const bulb = () => panelButton('reflect').findByType(ReflectionBulbIcon as never);
-    const rays = () => panelButton('reflect').findAllByProps({ testID: 'reflection-bulb-rays' });
-    const glassFill = () => panelButton('reflect').findByProps({ testID: 'reflection-bulb-glass' }).props.fill;
-    expect(bulb().props).toMatchObject({ lit: false, color: MUSHAF_PANEL_COLORS.light.bulbOff });
-    expect(glassFill()).toBe('none');
-    expect(rays()).toHaveLength(0);
-    const unlitSize = bulb().props.size;
-    await tapPage(100, 130);
-    // The saved bookmark's colour: the same token fills the save button's icon.
-    expect(bulb().props).toMatchObject({ lit: true, color: MUSHAF_PANEL_COLORS.light.saved, size: unlitSize });
-    // The green outline and rays, the glass bright yellow.
-    expect(glassFill()).toBe('#FFC000');
-    expect(panelButton('reflect').findByProps({ testID: 'reflection-bulb-lit' }).props.stroke).toBe(MUSHAF_PANEL_COLORS.light.saved);
-    // One warm golden yellow for both active icons, the same token in Light and Dark; the Mushaf's gold ornament ink is separate.
-    expect(MUSHAF_PANEL_COLORS.light.activeFill).toBe('#FFC000');
-    expect(MUSHAF_PANEL_COLORS.dark.activeFill).toBe('#FFC000');
-    expect(rays()).toHaveLength(1);
-    // The same bulb shape in both states: only the fill and the rays are added.
-    expect(panelButton('reflect').findByProps({ testID: 'reflection-bulb-lit' }).findAllByType('Path' as never)).toHaveLength(4);
-    await tapPage(100, 130); // the selected ayah again: cleared
-    expect(bulb().props.lit).toBe(false);
-    expect(glassFill()).toBe('none');
-    expect(panelButton('reflect').props.disabled).toBe(true);
-    expect(panelButton('reflect').findByProps({ testID: 'reflection-bulb-unlit' }).findAllByType('Path' as never)).toHaveLength(3);
-  });
-
-  it('a tap in the margin selects nothing', async () => {
-    await render();
-    await tapPage(343, 300); // right of every ayah polygon (they span x 0–338)
-    expect(inPage().findAllByProps({ testID: 'mushaf-selection' })).toHaveLength(0);
-    expect(panelButton('reflect').props.disabled).toBe(true);
-  });
-});
-
-describe('page direction: arrows (left = next) and swipes (finger left to right = next)', () => {
-  const left = () => root.root.findByProps({ testID: 'mushaf-panel' }).findAllByType('Pressable' as never)[0];
-  const right = () => root.root.findByProps({ testID: 'mushaf-panel' }).findAllByType('Pressable' as never).at(-1)!;
+describe('page direction: swipes (finger left to right = next) and the page`s screen-reader actions', () => {
   const shown = () => currentPage();
+  const actions = () => inPage().findAll((node) => typeof node.type === 'string' && Array.isArray(node.props.accessibilityActions))[0].props.accessibilityActions;
 
   for (const locale of ['en', 'ar'] as const) {
     for (const mode of ['normal', 'full'] as const) {
-      it(`${locale}, ${mode === 'normal' ? 'Normal Mode' : 'full screen'}: left arrow and a left-to-right swipe = next page; right arrow and a right-to-left swipe = previous page`, async () => {
+      it(`${locale}, ${mode === 'normal' ? 'Normal Mode' : 'full screen'}: a left-to-right swipe and the page’s own "next page" action = next; right to left and "previous page" = previous`, async () => {
         state.locale = locale;
         await render();
-        if (mode === 'full') {
-          await press(root.root.findByProps({ testID: 'mushaf-fullscreen-toggle' }));
-          // The arrows are hidden in full screen: there, the swipes turn the page.
-          expect(root.root.findAllByProps({ testID: 'mushaf-panel' })).toHaveLength(0);
-        } else {
-          // The physical left arrow is the left one, spoken as "next page" in the app's language.
-          expect(left().findAllByType('ArrowLeft' as never)).toHaveLength(1);
-          expect(right().findAllByType('ArrowRight' as never)).toHaveLength(1);
-          expect(left().props.accessibilityLabel).toBe(copy().nextPage);
-          expect(right().props.accessibilityLabel).toBe(copy().previousPage);
-          await press(left());
-          await flush();
-          expect(shown()).toBe(62);
-          await press(right());
-          await flush();
-          await flush();
-          expect(shownPageNumber()).toBe('٦١');
-          await press(right());
-          await flush();
-          expect(shown()).toBe(60);
-          await press(left());
-          await flush();
-          await flush();
-          expect(shownPageNumber()).toBe('٦١');
-        }
+        if (mode === 'full') await press(root.root.findByProps({ testID: 'mushaf-fullscreen-toggle' }));
+        expect(root.root.findAllByProps({ testID: 'mushaf-panel' })).toHaveLength(0); // no arrow bar (retired)
+        // Spoken in the app's language, in both modes.
+        expect(actions()).toEqual([{ name: 'nextPage', label: copy().nextPage }, { name: 'previousPage', label: copy().previousPage }]);
+        await turnPage(1);
+        expect(shown()).toBe(62);
+        await turnPage(-1);
+        await flush();
+        expect(shownPageNumber()).toBe('٦١');
+        await turnPage(-1);
+        expect(shown()).toBe(60);
+        await turnPage(1);
+        await flush();
+        expect(shownPageNumber()).toBe('٦١');
         await swipe(120); // finger left to right: next
         expect(shown()).toBe(62);
         await swipe(-120); // right to left: previous
@@ -1226,22 +1199,22 @@ describe('page direction: arrows (left = next) and swipes (finger left to right 
     }
   }
 
-  it('never before page 1 or after page 604, by arrow or swipe', async () => {
+  it('never before page 1 or after page 604, by swipe or page action', async () => {
     state.params = { page: '1' };
     await render();
-    expect(right().props).toMatchObject({ accessibilityLabel: copy().previousPage, disabled: true });
-    expect(left().props.disabled).toBe(false);
     state.offline.readPage.mockClear();
     await swipe(-120); // previous: nothing before page 1
+    await turnPage(-1);
     expect(state.offline.readPage).not.toHaveBeenCalled();
+    expect(currentPage()).toBe(1);
     await act(async () => root.unmount());
     state.params = { page: '604' };
     await render();
-    expect(left().props).toMatchObject({ accessibilityLabel: copy().nextPage, disabled: true });
-    expect(right().props.disabled).toBe(false);
     state.offline.readPage.mockClear();
     await swipe(120); // next: nothing after page 604
+    await turnPage(1);
     expect(state.offline.readPage).not.toHaveBeenCalled();
+    expect(currentPage()).toBe(604);
   });
 
   it('turning keeps the active ورد and saves nothing', async () => {
@@ -1249,8 +1222,7 @@ describe('page direction: arrows (left = next) and swipes (finger left to right 
     state.storage.set(ACTIVE_READING_STOP_STORAGE_KEY, 'fajr');
     await render();
     const before = state.storage.get(READING_STOPS_STORAGE_KEY);
-    await press(left());
-    await flush();
+    await turnPage(1);
     expect(shown()).toBe(62);
     expect(root.root.findByProps({ testID: 'mushaf-wird' }).findByType('Text' as never).props.children).toBe('ورد الفجر');
     expect(state.storage.get(ACTIVE_READING_STOP_STORAGE_KEY)).toBe('fajr');
@@ -1269,16 +1241,17 @@ describe('page direction: arrows (left = next) and swipes (finger left to right 
 });
 
 describe('turning pages', () => {
-  it('the arrows and swipes move together; turning clears the selection', async () => {
+  it('the page actions and swipes move together; turning clears the selection and any waiting popup', async () => {
     await render();
     expect(shownPageNumber()).toBe('٦١');
     await tapPage(100, 130);
-    await press(panelButton('next'));
+    await turnPage(1);
     await flush();
     expect(currentPage()).toBe(62);
     expect(inPage().findByProps({ testID: 'mushaf-page-missing' })).toBeDefined(); // not downloaded
-    expect(panelButton('reflect').props.disabled).toBe(true);
-    await press(panelButton('previous'));
+    await afterTapWindow();
+    expect(hosts('mushaf-ayah-actions')).toHaveLength(0); // the tap's popup never opened over another page
+    await turnPage(-1);
     await flush();
     await flush();
     expect(shownPageNumber()).toBe('٦١');
@@ -1297,11 +1270,13 @@ describe('turning pages', () => {
   it('cannot go before page 1 or after page 604', async () => {
     state.params = { page: '1' };
     await render();
-    expect(panelButton('previous').props.disabled).toBe(true);
+    await turnPage(-1);
+    expect(currentPage()).toBe(1);
     await act(async () => root.unmount());
     state.params = { page: '604' };
     await render();
-    expect(panelButton('next').props.disabled).toBe(true);
+    await turnPage(1);
+    expect(currentPage()).toBe(604);
   });
 
   it('a downloaded page draws from the device with its own font (stored, else Quran Foundation`s CDN)', async () => {
@@ -1372,7 +1347,7 @@ describe('pinch-to-zoom', () => {
     expect(pushed.x).toBeCloseTo((width - 390) / 2);
     expect(pulled.y).toBeLessThan(0);
     expect(pushed.y).toBeGreaterThan(0);
-    await press(panelButton('next'));
+    await turnPage(1);
     await flush();
     expect(currentPage()).toBe(62);
     expect(zoom()).toEqual({ scale: 1, x: 0, y: 0 }); // a new page starts at 1×
@@ -1408,7 +1383,7 @@ describe('pinch-to-zoom', () => {
     await tapPage(100, 300);
     clock.mockRestore();
     expect(zoom()).toEqual({ scale: 1, x: 0, y: 0 });
-    await press(panelButton('reflect'));
+    // The selection is 3:85 again (the Reflection sheet always holds the selected ayah).
     expect(root.root.findByType('ReflectionSheet' as never).props.verseKey).toBe('3:85');
     expect(enabled(doubleTapGesture())).toBe(false); // nothing to reset at 1×
   });
@@ -1419,7 +1394,9 @@ describe('pinch-to-zoom', () => {
     await tapPage(100, 130);
     expect(inPage().findByProps({ testID: 'mushaf-selection' })).toBeDefined();
     expect(zoom().scale).toBe(2.4); // selecting doesn't change the zoom
-    await press(panelButton('reflect'));
+    await afterTapWindow();
+    await press(hosts('mushaf-ayah-reflection')[0]);
+    expect(zoom().scale).toBe(2.4); // nor does its popup
     expect(root.root.findByType('ReflectionSheet' as never).props).toMatchObject({ visible: true, verseKey: '3:85' });
   });
 
@@ -1428,173 +1405,6 @@ describe('pinch-to-zoom', () => {
     await render();
     expect(enabled(pinchGesture())).toBe(false);
     expect(enabled(swipeGesture())).toBe(true);
-  });
-});
-
-describe('search (one button, two modes)', () => {
-  const sheet = () => root.root.findAllByProps({ testID: 'mushaf-search-sheet' });
-  const byId = (id: string) => root.root.findByProps({ testID: id });
-  const surahRows = () => root.root.findAll((node) => typeof node.props.testID === 'string' && /^mushaf-surah-\d+$/.test(node.props.testID) && String(node.type) === 'Pressable');
-  const openSearch = async () => { await press(panelButton('search')); };
-  const typeInto = async (id: string, text: string) => { await act(async () => byId(id).props.onChangeText(text)); };
-
-  it('the bar`s search button opens one keyboard-aware sheet with Page Number and Surah Name', async () => {
-    await render();
-    expect(sheet()).toHaveLength(0);
-    await openSearch();
-    expect(sheet()).toHaveLength(1);
-    const tabs = ['page', 'surah'].map((mode) => byId(`mushaf-search-mode-${mode}`));
-    expect(tabs.map((tab) => tab.props.accessibilityLabel)).toEqual([copy().searchByPage, copy().searchBySurah]);
-    expect(tabs[0].props.accessibilityState).toEqual({ selected: true });
-    // Keyboard-aware like the app's other sheets; the old inline field above the bar is gone.
-    const avoider = root.root.findByType('Modal' as never).findByType('KeyboardAvoidingView' as never);
-    expect(avoider.props.behavior).toBe('padding');
-    expect(root.root.findAllByProps({ testID: 'mushaf-popup-search' })).toHaveLength(0);
-    // Still exactly five bar buttons; search is fourth (the bookmark is in the centre).
-    expect(root.root.findByProps({ testID: 'mushaf-panel' }).findAllByType('Pressable' as never).map((node) => node.props.testID)[3]).toBe('mushaf-panel-search');
-  });
-
-  it('Page Number: a numeric field; Western or Arabic-Indic digits go straight there and close the sheet', async () => {
-    await render();
-    await openSearch();
-    expect(byId('mushaf-search-page-input').props).toMatchObject({ keyboardType: 'number-pad', accessibilityLabel: copy().pageNumberPlaceholder });
-    // iOS: no extra "Go" bar above the number pad (React Native adds one for any other return key type); the green arrow is the action.
-    expect(byId('mushaf-search-page-input').props.returnKeyType).toBe('none');
-    for (const prop of ['enterKeyHint', 'inputAccessoryViewID', 'inputAccessoryViewButtonLabel']) expect(byId('mushaf-search-page-input').props[prop]).toBeUndefined();
-    await typeInto('mushaf-search-page-input', '٣٠٠');
-    await press(byId('mushaf-search-go'));
-    await flush();
-    expect(currentPage()).toBe(300);
-    expect(sheet()).toHaveLength(0);
-    await openSearch();
-    await typeInto('mushaf-search-page-input', '61');
-    await act(async () => byId('mushaf-search-page-input').props.onSubmitEditing());
-    await flush();
-    expect(shownPageNumber()).toBe('٦١');
-  });
-
-  it('Page Number: a wide field and a compact, icon-only arrow (its label spoken), mirrored in Arabic; Surah mode untouched', async () => {
-    for (const locale of ['en', 'ar'] as const) {
-      state.locale = locale;
-      await render();
-      await openSearch();
-      const go = byId('mushaf-search-go');
-      // No visible text: just the arrow, with the existing spoken label.
-      expect(go.findAll((node) => String(node.type) === 'Text')).toHaveLength(0);
-      expect(go.props.accessibilityLabel).toBe(copy().goToPage);
-      const style = Object.assign({}, ...[go.props.style({ pressed: false })].flat(3).filter(Boolean));
-      expect(style).toMatchObject({ width: 46, height: 46 }); // compact, still a full touch target
-      // The field takes the rest of the row.
-      expect(Object.assign({}, ...[byId('mushaf-search-page-input').props.style].flat(3).filter(Boolean)).flex).toBe(1);
-      // The arrow points forward in the reading direction: a left arrow right to left, drawn as is (a mirroring
-      // transform on the SVG flipped it out of view on the web).
-      const arrow = go.children[0] as ReactTestInstance;
-      expect(String(arrow.type)).toBe(locale === 'ar' ? 'ArrowLeft' : 'ArrowRight');
-      expect(arrow.props.style?.transform).toBeUndefined();
-      // Surah mode keeps its own layout (no go button).
-      await press(byId('mushaf-search-mode-surah'));
-      expect(root.root.findAllByProps({ testID: 'mushaf-search-go' })).toHaveLength(0);
-      await act(async () => root.unmount());
-    }
-    state.locale = 'en';
-  });
-
-  it('Page Number: refuses a page outside 1–604 with an explanation, and stays open', async () => {
-    await render();
-    await openSearch();
-    for (const bad of ['700', '0', 'abc']) {
-      await typeInto('mushaf-search-page-input', bad);
-      await press(byId('mushaf-search-go'));
-      expect(texts()).toContain(copy().pageOutOfRange);
-      expect(sheet()).toHaveLength(1);
-    }
-    expect(parsePageNumber('604')).toBe(604);
-    expect(parsePageNumber('۶۱')).toBe(61);
-  });
-
-  it('Surah Name: all 114 Surahs in Quran order, each with its number, Arabic and English name and first page', async () => {
-    await render();
-    await openSearch();
-    await press(byId('mushaf-search-mode-surah'));
-    const rows = surahRows();
-    expect(rows).toHaveLength(114);
-    expect(rows.map((row) => row.props.testID)).toEqual(Array.from({ length: 114 }, (_, i) => `mushaf-surah-${i + 1}`));
-    const rowTexts = (row: ReactTestInstance) => row.findAllByType('Text' as never).map((node) => [node.props.children].flat().join(''));
-    expect(rowTexts(rows[0])).toEqual(['1', 'الفاتحة', 'Al-Faatiha', 'Page 1']);
-    expect(rowTexts(rows[1])).toEqual(['2', 'البقرة', 'Al-Baqara', 'Page 2']);
-    expect(rowTexts(rows[2])).toEqual(['3', 'آل عمران', 'Aal-i-Imraan', 'Page 50']);
-    expect(rowTexts(rows[113])).toEqual(['114', 'الناس', 'An-Naas', 'Page 604']);
-    // Scrollable and tappable with the keyboard open.
-    expect(byId('mushaf-surah-list').props).toMatchObject({ keyboardShouldPersistTaps: 'handled', keyboardDismissMode: 'on-drag' });
-  });
-
-  it('Surah Name: filters as the reader types: Arabic with or without diacritics or hamza, English spellings, partial names', async () => {
-    await render();
-    await openSearch();
-    await press(byId('mushaf-search-mode-surah'));
-    const first = () => surahRows()[0]?.props.testID;
-    for (const [query, surah] of [['البقرة', 2], ['بقره', 2], ['ٱلْكَهْف', 18], ['اسراء', 17], ['إبراهيم', 14], ['سورة يس', 36], ['baqarah', 2], ['FATIHA', 1], ['imran', 3], ['Yasin', 36], ['ya-sin', 36], ['kahf', 18], ['rahman', 55], ['36', 36], ['٣٦', 36]] as const) {
-      await typeInto('mushaf-search-surah-input', query);
-      expect(first(), query).toBe(`mushaf-surah-${surah}`);
-    }
-    await typeInto('mushaf-search-surah-input', 'xyzzy');
-    expect(surahRows()).toHaveLength(0);
-    expect(byId('mushaf-surah-empty').props.children).toBe(copy().surahNoResults);
-    await typeInto('mushaf-search-surah-input', '');
-    expect(surahRows()).toHaveLength(114);
-  });
-
-  it('choosing a Surah opens the page with its first ayah and closes the sheet', async () => {
-    await render();
-    await openSearch();
-    await press(byId('mushaf-search-mode-surah'));
-    await typeInto('mushaf-search-surah-input', 'Imran');
-    await press(byId('mushaf-surah-3'));
-    await flush();
-    expect(currentPage()).toBe(50);
-    expect(shownPageNumber()).toBe('50'); // not downloaded in this test: its download offer shows
-    expect(sheet()).toHaveLength(0);
-    // Surahs that begin partway down a page open that page (Al-Falaq and An-Naas share 604 with Al-Ikhlas).
-    expect([SURAH_START_PAGES[111], SURAH_START_PAGES[112], SURAH_START_PAGES[113]]).toEqual([604, 604, 604]);
-  });
-
-  it('searching only navigates: no reading stop is created, moved or made active', async () => {
-    state.storage.set(READING_STOPS_STORAGE_KEY, JSON.stringify([{ id: 'a', name: 'Fajr', page: 61, updatedAt: '2026-10-01T00:00:00.000Z' }]));
-    state.storage.set(ACTIVE_READING_STOP_STORAGE_KEY, 'a');
-    await render();
-    const before = [state.storage.get(READING_STOPS_STORAGE_KEY), state.storage.get(ACTIVE_READING_STOP_STORAGE_KEY)];
-    await openSearch();
-    await typeInto('mushaf-search-page-input', '300');
-    await press(byId('mushaf-search-go'));
-    await openSearch();
-    await press(byId('mushaf-search-mode-surah'));
-    await press(byId('mushaf-surah-18'));
-    await flush();
-    expect(currentPage()).toBe(293);
-    expect([state.storage.get(READING_STOPS_STORAGE_KEY), state.storage.get(ACTIVE_READING_STOP_STORAGE_KEY)]).toEqual(before);
-  });
-
-  it('closes on its close button or the dimmed backdrop, leaving nothing over the page', async () => {
-    await render();
-    await openSearch();
-    await press(byId('mushaf-search-close'));
-    expect(sheet()).toHaveLength(0);
-    await openSearch();
-    await press(byId('mushaf-search-backdrop'));
-    expect(sheet()).toHaveLength(0);
-    expect(root.root.findAllByType('Modal' as never)).toHaveLength(0);
-  });
-
-  it('in Arabic: Arabic labels, right-to-left rows and Arabic-Indic numbers', async () => {
-    state.locale = 'ar';
-    await render();
-    await openSearch();
-    expect(byId('mushaf-search-mode-page').props.accessibilityLabel).toBe('رقم الصفحة');
-    expect(byId('mushaf-search-mode-surah').props.accessibilityLabel).toBe('اسم السورة');
-    await press(byId('mushaf-search-mode-surah'));
-    const row = byId('mushaf-surah-3');
-    expect(flat(row.props.style({ pressed: false })).flexDirection).toBe('row-reverse');
-    expect(row.findAllByType('Text' as never).map((node) => [node.props.children].flat().join(''))).toEqual(['٣', 'آل عمران', 'Aal-i-Imraan', 'صفحة ٥٠']);
   });
 });
 
@@ -1688,7 +1498,7 @@ describe('the active reading stop (ورد)', () => {
     expect(styleOf(row).top).toBeCloseTo(paper.height, 0);
     expect(styleOf(row).height).toBeGreaterThanOrEqual(32);
     expect(paper.width).toBe(384); // as before: the width still decides on phones
-    expect(root.root.findByProps({ testID: 'mushaf-panel' }).findAllByProps({ testID: 'mushaf-wird' })).toHaveLength(0);
+    expect(hosts('mushaf-panel')).toHaveLength(0); // the pill stands on its own (the bar is retired)
     expect(pillText()).toBe('ورد الفجر');
     expect(pill().props.accessibilityLabel).toBe(`${copy().wirdSelectorLabel}: ورد الفجر`);
     // A 44-pt target around the small pill.
@@ -1825,7 +1635,7 @@ describe('the active reading stop (ورد)', () => {
   it('the bookmark`s name field starts with the active stop`s name, so saving moves that stop to this page', async () => {
     seed(THREE, 'tadabbur');
     await render();
-    await press(panelButton('save'));
+    await openNameField();
     const field = root.root.findByProps({ testID: 'mushaf-popup-save' }).findByType('TextInput' as never);
     expect(field.props).toMatchObject({ value: 'ورد التدبر', selectTextOnFocus: true });
   });
@@ -1836,7 +1646,7 @@ describe('the active reading stop (ورد)', () => {
     await pinch(2);
     expect(styleOf(root.root.findByProps({ testID: 'mushaf-wird-row' }))).toMatchObject({ opacity: 0 });
     expect(root.root.findByProps({ testID: 'mushaf-wird-row' }).props.pointerEvents).toBe('none');
-    await press(panelButton('next'));
+    await turnPage(1);
     expect(styleOf(root.root.findByProps({ testID: 'mushaf-wird-row' }))).toMatchObject({ opacity: 1 });
   });
 
@@ -1861,36 +1671,35 @@ describe('save a reading stop', () => {
   it('opens a name field and saves the current page — never the selected ayah', async () => {
     await render();
     await tapPage(100, 130);
-    await press(panelButton('save'));
+    await openNameField();
     await act(async () => root.root.findByProps({ testID: 'mushaf-popup-save' }).findByType('TextInput' as never).props.onChangeText('Ramadan'));
     await press(button(copy().confirmStop));
     expect(stored()).toEqual([expect.objectContaining({ name: 'Ramadan', page: 61 })]);
     expect(JSON.stringify(stored())).not.toMatch(/3:85|verseKey|ayah/);
   });
 
-  it('once saved, the keyboard and the whole save field close, back to the page with a working bar', async () => {
+  it('once saved, the keyboard and the whole save field close, back to the page', async () => {
     const { Keyboard } = await import('react-native');
     vi.mocked(Keyboard.dismiss).mockClear();
     await render();
-    await press(panelButton('save'));
+    await openNameField();
     await act(async () => root.root.findByProps({ testID: 'mushaf-popup-save' }).findByType('TextInput' as never).props.onChangeText('Ramadan'));
     await press(button(copy().confirmStop));
     expect(root.root.findAllByProps({ testID: 'mushaf-popup-save' })).toHaveLength(0);
     expect(Keyboard.dismiss).toHaveBeenCalled();
-    expect(panelButton('save').props.accessibilityState.selected).toBe(false);
     expect(stored()).toEqual([expect.objectContaining({ name: 'Ramadan', page: 61 })]);
-    // The bar works as before: next page, and the field opens again, empty of the old notice.
-    await press(panelButton('next'));
+    // The reader works as before: next page, and the field opens again, empty of the old notice.
+    await turnPage(1);
     await flush();
     expect(currentPage()).toBe(62);
-    await press(panelButton('save'));
+    await openNameField();
     expect(root.root.findByProps({ testID: 'mushaf-popup-save' }).findAllByType('Text' as never)).toHaveLength(0);
   });
 
   it('if saving fails, the field stays open with the reason so the reader can retry', async () => {
     const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
     await render();
-    await press(panelButton('save'));
+    await openNameField();
     await act(async () => root.root.findByProps({ testID: 'mushaf-popup-save' }).findByType('TextInput' as never).props.onChangeText('Ramadan'));
     vi.mocked(AsyncStorage.setItem).mockRejectedValueOnce(new Error('disk full'));
     await press(button(copy().confirmStop));
@@ -1906,7 +1715,7 @@ describe('save a reading stop', () => {
   it('saves the page being read after turning', async () => {
     state.params = { page: '300' };
     await render();
-    await press(panelButton('save'));
+    await openNameField();
     await act(async () => root.root.findByProps({ testID: 'mushaf-popup-save' }).findByType('TextInput' as never).props.onChangeText('Family'));
     await press(button(copy().confirmStop));
     expect(stored()).toEqual([expect.objectContaining({ name: 'Family', page: 300 })]);
@@ -1914,7 +1723,7 @@ describe('save a reading stop', () => {
 
   it('an empty name explains what is needed and saves nothing', async () => {
     await render();
-    await press(panelButton('save'));
+    await openNameField();
     await press(button(copy().confirmStop));
     expect(texts()).toContain(copy().stopNameInvalid);
     expect(root.root.findAllByProps({ testID: 'mushaf-popup-save' })).toHaveLength(1); // stays open to retry
@@ -1924,11 +1733,11 @@ describe('save a reading stop', () => {
 
 describe('languages', () => {
   for (const locale of ['ar', 'ar-EG'] as const) {
-    it(`${locale}: the bar is spoken in the language; the printed page is unchanged`, async () => {
+    it(`${locale}: the page's controls are spoken in the language; the printed page is unchanged`, async () => {
       state.locale = locale;
       await render();
-      const labels = root.root.findByProps({ testID: 'mushaf-panel' }).findAllByType('Pressable' as never).map((node) => node.props.accessibilityLabel);
-      expect(labels).toEqual([copy().nextPage, MESSAGES[locale].reflection.writeAction, copy().saveStopAction, copy().searchPage, copy().previousPage]);
+      const labels = ['mushaf-nav-surah', 'mushaf-nav-juz', 'mushaf-nav-page'].map((id) => hosts(id)[0].props.accessibilityLabel);
+      expect(labels).toEqual([copy().openSurahs, copy().openJuz, copy().openPageSelector]);
       expect(labels.every((label) => /[؀-ۿ]/.test(label))).toBe(true);
       expect(texts()).toEqual(expect.arrayContaining(['سورة آل عمران', 'الجزء ٣', '٦١']));
     });
@@ -2074,7 +1883,7 @@ describe('QPC V1 (1405 AH) renderer', () => {
     for (const { glyph } of markerGlyphs(layout)) expect(styleOf(glyph).color).toBe('#3E7D57');
   });
 
-  it('every ayah 3:84–3:91 can be selected (words or medallions), enabling reflection for exactly that ayah', async () => {
+  it('every ayah 3:84–3:91 can be selected by its words; Reflection opens for exactly that ayah', { timeout: 30_000 }, async () => {
     const layout = syntheticQpcPage61();
     await renderQpc(layout);
     await layOut(layout);
@@ -2082,19 +1891,21 @@ describe('QPC V1 (1405 AH) renderer', () => {
       const line = layout.lines.find((candidate) => candidate.words.some((word) => word.verseKey === verseKey))!;
       const index = line.words.findIndex((word) => word.verseKey === verseKey);
       await tapLine(line.line, 400 - index * 30 + 5);
-      await press(panelButton('reflect'));
+      await afterTapWindow();
+    await press(hosts('mushaf-ayah-reflection')[0]);
       expect(root.root.findByType('ReflectionSheet' as never).props).toMatchObject({ visible: true, verseKey });
       await act(async () => root.root.findByType('ReflectionSheet' as never).props.onClose());
-      await tapLine(line.line, 400 - index * 30 + 5); // the same ayah again clears it
-      expect(panelButton('reflect').props.disabled).toBe(true);
     }
     // Under zoom the line's own touch target scales with the page: the same local point picks the same ayah.
     await pinch(3, { x: 300, y: 400 });
     await tapLine(4, 405);
-    await press(panelButton('reflect'));
+    await afterTapWindow();
+    await press(hosts('mushaf-ayah-reflection')[0]);
     expect(root.root.findByType('ReflectionSheet' as never).props.verseKey).toBe(layout.lines[3].words[0].verseKey);
     await act(async () => root.root.findByType('ReflectionSheet' as never).props.onClose());
     await tapLine(4, 405);
+    await afterTapWindow();
+    await press(hosts('mushaf-ayah-actions-backdrop')[0]); // dismissed: the ayah is no longer selected
     // 3:84 runs over lines 1–4: a highlight on each.
     await tapLine(2, 405);
     for (const n of [1, 2, 3, 4]) expect(root.root.findAllByProps({ testID: `qpc-highlight-${n}` })).toHaveLength(1);
@@ -2158,7 +1969,6 @@ describe('Dark Mode', () => {
     expect(styleOf(root.root.findAllByType('Text' as never).find((node) => node.props.children === 'سورة آل عمران')!).color).toBe('#F1E9D6');
     const frame = () => inPage().findByProps({ testID: 'mushaf-frame' }).findAllByType('Path' as never);
     expect(new Set(frame().map((node) => node.props.fill))).toEqual(new Set(Object.values(MUSHAF_BORDER_STYLES.midnight.inks)));
-    expect(styleOf(root.root.findByProps({ testID: 'mushaf-panel' })).backgroundColor).toBe(MUSHAF_PANEL_COLORS.dark.surface.backgroundColor);
     // Only the inks differ from the light page: the same paths, in the same order and fill rules.
     const shape = () => frame().map((node) => [node.props.d, node.props.fillRule]);
     const dark = shape();
@@ -2169,17 +1979,16 @@ describe('Dark Mode', () => {
     expect(new Set(frame().map((node) => node.props.fill))).toEqual(new Set(Object.values(BORDER_INKS)));
   });
 
-  it('Dark Mode: the lit lightbulb keeps the dark save-button green outline, filled with the same bright yellow; unlit it is a muted grey outline', async () => {
+  it('Dark Mode: the ayah popup`s lamp is the lit lamp in the dark green outline, filled with the same bright yellow', async () => {
     state.theme = 'dark';
     await render();
-    const bulb = () => panelButton('reflect').findByType(ReflectionBulbIcon as never);
-    const glassFill = () => panelButton('reflect').findByProps({ testID: 'reflection-bulb-glass' }).props.fill;
-    expect(bulb().props).toMatchObject({ lit: false, color: MUSHAF_PANEL_COLORS.dark.bulbOff });
-    expect(glassFill()).toBe('none');
     await tapPage(100, 130);
-    expect(bulb().props).toMatchObject({ lit: true, color: MUSHAF_PANEL_COLORS.dark.saved });
-    expect(glassFill()).toBe('#FFC000');
-    expect(panelButton('reflect').findByProps({ testID: 'reflection-bulb-lit' }).props.stroke).toBe(MUSHAF_PANEL_COLORS.dark.saved);
+    await afterTapWindow();
+    const popup = hosts('mushaf-ayah-actions')[0];
+    expect(popup.findByType(ReflectionBulbIcon as never).props).toMatchObject({ lit: true, color: MUSHAF_PANEL_COLORS.dark.saved, fill: MUSHAF_PANEL_COLORS.dark.activeFill });
+    expect(popup.findByProps({ testID: 'reflection-bulb-glass' }).props.fill).toBe('#FFC000');
+    expect(popup.findByProps({ testID: 'reflection-bulb-lit' }).props.stroke).toBe(MUSHAF_PANEL_COLORS.dark.saved);
+    expect(styleOf(popup)).toMatchObject({ backgroundColor: MUSHAF_PANEL_COLORS.dark.sheet.backgroundColor });
   });
 
   it('the Quran SVG fallback is recoloured; Light Mode keeps its ink', async () => {
@@ -2365,8 +2174,9 @@ describe('دعاء ختم القرآن after page 604', () => {
       expect(link()[0].props.accessibilityLabel).toBe('دعاء ختم القرآن');
       await press(link()[0]);
       expect(router.push).toHaveBeenLastCalledWith('/khatm-dua');
-      // Not a page 605: the next-page arrow stays disabled, and nothing was saved.
-      expect(panelButton('next').props.disabled).toBe(true);
+      // Not a page 605: there is no next page, and nothing was saved.
+      await turnPage(1);
+      expect(currentPage()).toBe(604);
       expect(state.storage.get(READING_STOPS_STORAGE_KEY)).toBe(stored);
       expect(state.storage.get(ACTIVE_READING_STOP_STORAGE_KEY)).toBe('fajr');
       await act(async () => root.unmount());
@@ -2705,7 +2515,7 @@ describe('Page 604: a cycle just restarted by a confirmed Khatma is never comple
 
   /** The bookmark's own save, as the reader does it: the save button, the name, confirm. */
   async function bookmarkSave(name: string) {
-    await press(panelButton('save'));
+    await openNameField();
     await act(async () => root.root.findByProps({ testID: 'mushaf-popup-save' }).findByType('TextInput' as never).props.onChangeText(name));
     await press(button(copy().confirmStop));
     await flush();
@@ -2811,7 +2621,7 @@ describe('Khatma: reaching page 604 through the saved ورد (mushaf/khatmas.ts)
     state.storage.set(ACTIVE_READING_STOP_STORAGE_KEY, 'fajr');
   };
   async function saveAs(name: string) {
-    await press(panelButton('save'));
+    await openNameField();
     await act(async () => root.root.findByProps({ testID: 'mushaf-popup-save' }).findByType('TextInput' as never).props.onChangeText(name));
     await press(button(copy().confirmStop));
     await flush();
@@ -2821,9 +2631,10 @@ describe('Khatma: reaching page 604 through the saved ورد (mushaf/khatmas.ts)
     fajrAt(300);
     state.params = { page: '603' };
     await render();
-    await press(panelButton('next'));
+    await turnPage(1);
     await flush();
-    expect(panelButton('next').props.disabled).toBe(true); // page 604, the last
+    await turnPage(1);
+    expect(currentPage()).toBe(604); // the last page
     expect(sheet()).toHaveLength(0);
     expect(records()).toHaveLength(0);
     expect(stops()[0].page).toBe(300);
@@ -2899,13 +2710,14 @@ describe('the Mushaf tab', () => {
     for (const name of ['index', 'my-reading', 'reflections']) expect(tabsLayout).toMatch(new RegExp(`<Tabs\\.Screen name="${name}" \\/>`));
   });
 
-  it('keeps the approved page size: the same fit as before the tabs, the bar on the bottom safe area, in both modes', async () => {
+  it('keeps the approved page width where the width decides, and takes the retired bar`s space where the height decides', async () => {
     // iPhone 15 (393 × 852, insets 59 / 34) below its 36-pt Back row: the approved 387-pt page (not 354 above a tab bar).
     expect(fitMushafPage({ width: 393, height: 852 - 59 - 36 }, 34).page.width).toBe(387);
-    // iPhone SE: 317 (not 280).
-    expect(fitMushafPage({ width: 375, height: 667 - 20 - 36 }, 0).page.width).toBe(317);
+    // iPhone SE: 324 (317 with the bar's space reserved; 280 above a tab bar). (611 − 4 − 32) ÷ 1.7089 = 336 would bring
+    // its last line under the page selector's card; 324 is the widest whose text ends 4 pt above it.
+    expect(fitMushafPage({ width: 375, height: 667 - 20 - 36 }, 0).page.width).toBe(324);
     await render();
-    expect(flat(root.root.findByProps({ testID: 'mushaf-panel' }).parent!.props.style).bottom).toBe(state.insets.bottom + 8);
+    expect(hosts('mushaf-panel')).toHaveLength(0);
     // Normal Mode keeps its Back arrow (back, or Home when opened directly).
     expect(root.root.findAllByProps({ testID: 'mushaf-back' }).length).toBeGreaterThan(0);
   });
@@ -2917,7 +2729,7 @@ describe('the Mushaf tab', () => {
     await act(async () => root.update(createElement(MushafScreen)));
     await flush();
     expect(pageNow()).toBe(300);
-    await press(panelButton('next'));
+    await turnPage(1);
     await act(async () => root.update(createElement(MushafScreen)));
     await flush();
     expect(pageNow()).toBe(301);
@@ -2954,78 +2766,21 @@ describe('opening without a page (the Mushaf tab, a first launch)', () => {
   });
 });
 
-describe('the bookmark shows whether this page is the selected ورد`s saved page', () => {
+describe('the ورد name field (the ورد list`s Add): "Saved" after a save; ورد data per owner; page 604', () => {
   const stop = (id: string, name: string, page: number, day: number) => ({ id, name, page, updatedAt: `2026-10-0${day}T00:00:00.000Z` });
   const seed = (stops: ReturnType<typeof stop>[], active?: string) => {
     state.storage.set(READING_STOPS_STORAGE_KEY, JSON.stringify(stops));
     if (active) state.storage.set(ACTIVE_READING_STOP_STORAGE_KEY, active);
   };
-  const icon = () => panelButton('save').children[0] as ReactTestInstance;
-  const isSaved = () => icon().props.testID === 'mushaf-bookmark-saved';
   const toast = () => root.root.findAllByProps({ testID: 'mushaf-saved-toast' }).filter((node) => String(node.type) === 'View');
-  const goToPage = async (page: number) => {
-    await press(panelButton('search'));
-    await act(async () => root.root.findByProps({ testID: 'mushaf-search-page-input' }).props.onChangeText(String(page)));
-    await press(root.root.findByProps({ testID: 'mushaf-search-go' }));
-    await flush();
-  };
   const saveHere = async (name?: string) => {
-    await press(panelButton('save'));
+    await openNameField();
     if (name !== undefined) await act(async () => root.root.findByProps({ testID: 'mushaf-popup-save' }).findByType('TextInput' as never).props.onChangeText(name));
     await press(button(copy().confirmStop));
     await flush();
   };
   const savedStops = () => JSON.parse(state.storage.get(READING_STOPS_STORAGE_KEY) ?? '[]') as { id: string; name: string; page: number }[];
-
-  it('no ورد or no saved page here: the plain outline in the bar`s own colour', async () => {
-    await render();
-    expect(isSaved()).toBe(false);
-    expect(icon().props).toMatchObject({ color: '#596F49', fill: 'none' });
-    expect(panelButton('save').props.accessibilityLabel).toBe(copy().saveStopAction);
-    // A ورد saved on another page, or another ورد saved on this one, is not this page's saved state.
-    await act(async () => root.unmount());
-    seed([stop('fajr', 'ورد الفجر', 100, 2), stop('isha', 'ورد العشاء', 61, 1)], 'fajr');
-    await render();
-    expect(isSaved()).toBe(false);
-  });
-
-  it('save 100 → green; 150 → outline; save 150 → green; back to 100 → outline; 150 → green — one position per ورد', async () => {
-    seed([stop('fajr', 'ورد الفجر', 20, 1)], 'fajr');
-    state.params = { page: '100' };
-    await render();
-    expect(isSaved()).toBe(false);
-    await saveHere();
-    expect(isSaved()).toBe(true);
-    // Saved: the whole bookmark bright yellow, outline and fill.
-    expect(icon().props).toMatchObject({ color: '#FFC000', fill: '#FFC000' });
-    expect(panelButton('save').props.accessibilityLabel).toBe(`${copy().saveStopAction}, ${copy().stopSaved}`);
-    await goToPage(150);
-    expect(isSaved()).toBe(false);
-    await saveHere();
-    expect(isSaved()).toBe(true);
-    await goToPage(100);
-    expect(isSaved()).toBe(false);
-    await goToPage(150);
-    expect(isSaved()).toBe(true);
-    expect(savedStops()).toEqual([expect.objectContaining({ id: 'fajr', page: 150 })]);
-  });
-
-  it('switching ورد shows that ورد`s own saved page, never another`s', async () => {
-    seed([stop('fajr', 'ورد الفجر', 61, 2), stop('isha', 'ورد العشاء', 300, 1)], 'fajr');
-    await render();
-    expect(isSaved()).toBe(true);
-    await press(root.root.findByProps({ testID: 'mushaf-wird' }));
-    await press(root.root.findAllByProps({ testID: 'mushaf-wird-isha' }).find((node) => String(node.type) === 'Pressable')!);
-    await flush();
-    // ورد العشاء's page (300) opened: its bookmark is saved there…
-    expect(currentPage()).toBe(300);
-    expect(isSaved()).toBe(true);
-    // …and on page 61 (ورد الفجر's), it is not ورد العشاء's.
-    await goToPage(61);
-    expect(isSaved()).toBe(false);
-    // Neither ورد moved.
-    expect(savedStops().map((s) => [s.id, s.page]).sort()).toEqual([['fajr', 61], ['isha', 300]]);
-  });
+  const pillName = () => root.root.findByProps({ testID: 'mushaf-wird' }).findByType('Text' as never).props.children;
 
   it('"Saved" appears briefly only after the page is saved on the device — once for repeated saves, never on failure', async () => {
     const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
@@ -3033,19 +2788,19 @@ describe('the bookmark shows whether this page is the selected ورد`s saved pa
     await render();
     expect(toast()).toHaveLength(0);
     // A failed save: the reason in the field, no "Saved", the bookmark unchanged.
-    await press(panelButton('save'));
+    await openNameField();
     vi.mocked(AsyncStorage.setItem).mockRejectedValueOnce(new Error('disk full'));
     await press(button(copy().confirmStop));
     expect(texts()).toContain(copy().stopSaveFailed);
     expect(toast()).toHaveLength(0);
-    expect(isSaved()).toBe(false);
-    // The retry saves: the field closes and "Saved" shows, without blocking the bar.
+    expect(savedStops()).toEqual([expect.objectContaining({ id: 'fajr', page: 20 })]);
+    // The retry saves: the field closes and "Saved" shows, without blocking the page.
     await press(button(copy().confirmStop));
     await flush();
     expect(toast()).toHaveLength(1);
     expect(toast()[0].props.pointerEvents).toBe('none');
     expect(texts().filter((text) => text === 'Saved')).toEqual(['Saved']);
-    expect(isSaved()).toBe(true);
+    expect(savedStops()).toEqual([expect.objectContaining({ id: 'fajr', page: 61 })]);
     // Saving the same page again: the same one stop, still one message.
     await saveHere();
     expect(savedStops()).toEqual([expect.objectContaining({ id: 'fajr', page: 61 })]);
@@ -3059,14 +2814,14 @@ describe('the bookmark shows whether this page is the selected ورد`s saved pa
   });
 
   it('the message is gone shortly after, and nothing else changes', async () => {
-    const { SAVED_TOAST_MS } = await import('@/components/MushafControlPanel');
+    const { SAVED_TOAST_MS } = await import('@/components/MushafStopNameField');
     seed([stop('fajr', 'ورد الفجر', 20, 1)], 'fajr');
     await render();
     await saveHere();
     expect(toast()).toHaveLength(1);
     await act(async () => { await new Promise((done) => setTimeout(done, SAVED_TOAST_MS + 50)); });
     expect(toast()).toHaveLength(0);
-    expect(isSaved()).toBe(true);
+    expect(savedStops()).toEqual([expect.objectContaining({ id: 'fajr', page: 61 })]);
   });
 
   for (const locale of ['ar', 'ar-EG'] as const) {
@@ -3077,9 +2832,6 @@ describe('the bookmark shows whether this page is the selected ورد`s saved pa
       await saveHere();
       expect(MESSAGES[locale].mushaf.stopSaved).toBe('تم الحفظ');
       expect(texts()).toContain('تم الحفظ');
-      // The bar's order is the same in every language.
-      expect(root.root.findByProps({ testID: 'mushaf-panel' }).findAllByType('Pressable' as never).map((node) => node.props.testID))
-        .toEqual(['mushaf-panel-next', 'mushaf-panel-reflect', 'mushaf-panel-save', 'mushaf-panel-search', 'mushaf-panel-previous']);
     });
   }
 
@@ -3087,39 +2839,27 @@ describe('the bookmark shows whether this page is the selected ورد`s saved pa
     expect(MESSAGES.en.mushaf.stopSaved).toBe('Saved');
   });
 
-  it('dark: the outline in the dark bar`s colour, the saved page filled with the dark palette`s green', async () => {
-    state.theme = 'dark';
-    seed([stop('fajr', 'ورد الفجر', 100, 1)], 'fajr');
-    await render();
-    expect(icon().props).toMatchObject({ color: '#B5C9A9', fill: 'none' });
-    await act(async () => root.unmount());
-    seed([stop('fajr', 'ورد الفجر', 61, 1)], 'fajr');
-    await render();
-    expect(icon().props).toMatchObject({ color: '#FFC000', fill: '#FFC000' });
-  });
-
-  it('the guest`s and an account`s أوراد are separate: switching owner shows that owner`s saved page', async () => {
+  it('the guest`s and an account`s أوراد are separate: switching owner shows that owner`s own ورد', async () => {
     const { setLocalDataOwnerState } = await import('@/storage/localDataOwner');
     seed([stop('fajr', 'ورد الفجر', 61, 1)], 'fajr');
     state.storage.set(`${READING_STOPS_STORAGE_KEY}:account:user-a`, JSON.stringify([stop('acct', 'Account ورد', 300, 1)]));
     state.storage.set(`${ACTIVE_READING_STOP_STORAGE_KEY}:account:user-a`, 'acct');
     await render();
-    expect(isSaved()).toBe(true); // the guest's ورد on 61
+    expect(pillName()).toBe('ورد الفجر'); // the guest's ورد
     await act(async () => setLocalDataOwnerState({ activeUserId: 'user-a', keptSeparate: [], resolved: true }));
     await flush();
-    expect(isSaved()).toBe(false); // the account's ورد is on 300, not 61
+    expect(pillName()).toBe('Account ورد'); // the account's own
     await act(async () => setLocalDataOwnerState({ activeUserId: null, keptSeparate: [], resolved: true }));
     await flush();
-    expect(isSaved()).toBe(true);
+    expect(pillName()).toBe('ورد الفجر');
   });
 
   it('page 604: saving still asks to confirm the Khatma (never automatic); once confirmed, the ورد starts again on page 1, so 604 is no longer its saved page', async () => {
     seed([stop('fajr', 'ورد الفجر', 600, 1)], 'fajr');
     state.params = { page: '604' };
     await render();
-    expect(isSaved()).toBe(false);
     await saveHere();
-    expect(isSaved()).toBe(true);
+    expect(savedStops()).toEqual([expect.objectContaining({ id: 'fajr', page: 604 })]);
     const sheet = root.root.findAllByProps({ testID: 'khatma-reached' }).filter((node) => String(node.type) === 'View');
     expect(sheet).toHaveLength(1);
     expect(JSON.parse(state.storage.get('quran-heals:mushaf-khatmas:v1') ?? '{"records":[]}').records).toHaveLength(0);
@@ -3127,7 +2867,6 @@ describe('the bookmark shows whether this page is the selected ورد`s saved pa
     await flush();
     expect(JSON.parse(state.storage.get('quran-heals:mushaf-khatmas:v1')!).records).toHaveLength(1);
     expect(savedStops()).toEqual([expect.objectContaining({ id: 'fajr', page: 1 })]);
-    expect(isSaved()).toBe(false);
   });
 });
 
@@ -3377,13 +3116,13 @@ describe('finger-following page turns', () => {
     await tap();
     expect(currentPage()).toBe(61);
     expect(x(61)).toBe(0);
-    await press(panelButton('next'));
+    await turnPage(1);
     await flush();
     expect(currentPage()).toBe(62);
     expect([x(63), x(62), x(61)]).toEqual([-W, 0, W]);
     await pinch(2);
     expect(zoom().scale).toBe(2);
-    await press(panelButton('previous'));
+    await turnPage(-1);
     await flush();
     expect(currentPage()).toBe(61);
     expect(x(61)).toBe(0);
@@ -3471,5 +3210,642 @@ describe('the page`s heads: digits and inset', () => {
     }
     // Pages 1–2 (the approved opening design): their heads as approved.
     for (const n of [1, 2]) expect((await draw(n, true)).header.paddingHorizontal, `page ${n}`).toBe(0);
+  });
+});
+
+/**
+ * The 2026-10-14 navigation and interaction redesign (the earlier bar: design-archive/mushaf-navigation-v1/):
+ * the running heads and page number as navigation, the compact page selector, the ayah's two actions, the
+ * separator's Apply-to-ورد, the diagonal full-screen toggle. Through the real reader, as above.
+ */
+describe('the redesigned navigation and ayah actions', () => {
+  const MEASURE_WIDTH = 900;
+  const seedWird = (name = 'Fajr', page = 20) => {
+    state.storage.set(READING_STOPS_STORAGE_KEY, JSON.stringify([{ id: 'fajr', name, page, updatedAt: '2026-10-01T00:00:00.000Z' }]));
+    state.storage.set(ACTIVE_READING_STOP_STORAGE_KEY, 'fajr');
+  };
+  const stops = () => JSON.parse(state.storage.get(READING_STOPS_STORAGE_KEY) ?? '[]') as { id: string; name: string; page: number }[];
+  const khatmaRecords = () => (JSON.parse(state.storage.get('quran-heals:mushaf-khatmas:v1') ?? '{"records":[]}') as { records: unknown[] }).records;
+  /** Every page drawn from the device (page 61's verified lines under each page's own number), so any page has its heads. */
+  const everyPageDrawn = () => state.offline.readPage.mockImplementation(async (n: number) => ({ ...syntheticQpcPage61(), page: n, fontFamily: `QCF_P${String(n).padStart(3, '0')}` }));
+  async function renderQpc(layout = syntheticQpcPage61()) {
+    state.fetch.mockResolvedValue(layoutResponse(200, { success: true, data: layout }));
+    await render();
+  }
+  async function layOut(layout = syntheticQpcPage61()) {
+    await act(async () => {
+      for (const line of layout.lines) {
+        root.root.findByProps({ testID: `qpc-measure-${line.line}` }).props.onLayout({ nativeEvent: { layout: { x: 0, y: 0, width: line.line === 1 ? MEASURE_WIDTH : 800, height: 100 } } });
+      }
+    });
+    await act(async () => {
+      for (const line of layout.lines) {
+        const row = root.root.findByProps({ testID: `qpc-line-${line.line}` });
+        row.findAll((node) => node.props.onLayout && node.parent === row).forEach((wordView, index) => {
+          wordView.props.onLayout({ nativeEvent: { layout: { x: 400 - index * 30, y: 0, width: 20, height: 30 } } });
+        });
+      }
+    });
+  }
+  /** A tap on line `line` at `locationX`, as on a phone (pageX / pageY: where the popup is placed). */
+  const tapLine = async (line: number, locationX: number) => {
+    const row = root.root.findByProps({ testID: `qpc-line-${line}` });
+    const locationY = await drawnLineY(row);
+    await act(async () => row.props.onPress({ nativeEvent: { locationX, locationY, pageX: 200, pageY: 420 } }));
+  };
+  /** The x of a word on its line after layOut (words 20 pt wide, right to left from 400). */
+  const xOfWord = (index: number, inset = 10) => 400 - index * 30 + inset;
+  /** Where on the synthetic page 61 a verse's separator medallion (its 'end' word) is. */
+  const markerOf = (layout: ReturnType<typeof syntheticQpcPage61>, verseKey: string) => {
+    for (const line of layout.lines) {
+      const index = line.words.findIndex((word) => word.kind === 'end' && word.verseKey === verseKey);
+      if (index >= 0) return { line: line.line, x: xOfWord(index) };
+    }
+    throw new Error(`no marker for ${verseKey}`);
+  };
+  const wordOf = (layout: ReturnType<typeof syntheticQpcPage61>, verseKey: string) => {
+    for (const line of layout.lines) {
+      const index = line.words.findIndex((word) => word.kind === 'word' && word.verseKey === verseKey);
+      if (index >= 0) return { line: line.line, x: xOfWord(index) };
+    }
+    throw new Error(`no word for ${verseKey}`);
+  };
+  const onlyHost = (testID: string) => {
+    const nodes = hosts(testID);
+    expect(nodes, testID).toHaveLength(1);
+    return nodes[0];
+  };
+  const textOf = (node: ReactTestInstance) => node.findAllByType('Text' as never).map((t) => [t.props.children].flat().join('')).join('|');
+
+  describe('Surah, juz` and Hizb lists from the running heads', () => {
+    it('the Surah name opens all 114 Surahs; a Surah that begins partway down a page opens that page; first and last Surahs', async () => {
+      everyPageDrawn();
+      state.params = { page: '61' };
+      await render();
+      await press(onlyHost('mushaf-nav-surah'));
+      const sheet = onlyHost('mushaf-index-sheet');
+      expect(textOf(sheet)).toContain(copy().navSurahTitle);
+      const list = () => root.root.findByProps({ testID: 'mushaf-index-list' });
+      expect(list().props.data).toHaveLength(114);
+      // Opened at the current Surah (page 61 is in Āl ʿImrān).
+      expect(list().props.data[list().props.initialScrollIndex].number).toBe(3);
+      // Al-Māʾidah begins partway down page 106: that page opens; the page itself is unchanged.
+      await act(async () => root.root.findByProps({ testID: 'mushaf-index-search' }).props.onChangeText('المائدة'));
+      expect(list().props.data.map((r: { number: number }) => r.number)).toEqual([5]);
+      await press(onlyHost('mushaf-index-surah-5'));
+      await flush();
+      expect(currentPage()).toBe(SURAH_START_PAGES[4]);
+      expect(currentPage()).toBe(106);
+      expect(hosts('mushaf-index-sheet')).toHaveLength(0);
+      for (const [query, surah, page] of [['Fatiha', 1, 1], ['nas', 114, 604]] as const) {
+        await press(onlyHost('mushaf-nav-surah'));
+        await act(async () => root.root.findByProps({ testID: 'mushaf-index-search' }).props.onChangeText(query));
+        await press(onlyHost(`mushaf-index-surah-${surah}`));
+        await flush();
+        expect(currentPage(), query).toBe(page);
+      }
+    });
+
+    it('the juz` label opens the 30 juz`, searchable by number in either digits; each opens its first page', async () => {
+      everyPageDrawn();
+      await render();
+      await press(onlyHost('mushaf-nav-juz'));
+      const list = () => root.root.findByProps({ testID: 'mushaf-index-list' });
+      expect(list().props.data).toHaveLength(30);
+      expect(list().props.data[list().props.initialScrollIndex].number).toBe(3); // page 61: juz' 3
+      expect(textOf(onlyHost('mushaf-index-juz-1'))).toContain("Juz' 1");
+      await act(async () => root.root.findByProps({ testID: 'mushaf-index-search' }).props.onChangeText('٣٠'));
+      expect(list().props.data.map((r: { number: number }) => r.number)).toEqual([30]);
+      await press(onlyHost('mushaf-index-juz-30'));
+      await flush();
+      expect(currentPage()).toBe(582);
+    });
+
+    it('the Hizb label (where one is printed) opens the 60 whole Hizbs, never quarter markers', async () => {
+      const { HIZB_QUARTER_STARTS } = await import('@/mushaf/generated/hizbQuarters');
+      everyPageDrawn();
+      // A page whose label is a quarter marker (ربع الحزب …), not a Hizb start.
+      const quarterPage = HIZB_QUARTER_STARTS.find(([quarter]) => (quarter - 1) % 4 === 1)![2];
+      state.params = { page: String(quarterPage) };
+      await render();
+      expect(inPage().findByProps({ testID: 'mushaf-hizb-label' }).props.children).toMatch(/^ربع الحزب/);
+      await press(onlyHost('mushaf-nav-hizb'));
+      const list = root.root.findByProps({ testID: 'mushaf-index-list' });
+      expect(list.props.data).toHaveLength(60);
+      expect(list.props.data.every((r: { primary: string }) => /^Hizb \d+$/.test(r.primary))).toBe(true);
+      await press(onlyHost('mushaf-index-hizb-2'));
+      await flush();
+      expect(currentPage()).toBe(HIZB_QUARTER_STARTS[4][2]); // Hizb 2 = quarter 5
+      // No Hizb printed on the page: no Hizb touch area.
+      await act(async () => root.unmount());
+      state.params = { page: '61' };
+      await render();
+      expect(hosts('mushaf-nav-hizb')).toHaveLength(0);
+    });
+
+    it('Arabic: the lists in Arabic, the digits Arabic-Indic; the field in the reader`s own field colours, light and dark', async () => {
+      for (const theme of ['light', 'dark'] as const) {
+        state.locale = 'ar';
+        state.theme = theme;
+        everyPageDrawn();
+        await render();
+        await press(onlyHost('mushaf-nav-juz'));
+        expect(textOf(onlyHost('mushaf-index-juz-12'))).toContain('الجزء ١٢');
+        const field = root.root.findByProps({ testID: 'mushaf-index-search' });
+        expect(field.props.placeholder).toBe(MESSAGES.ar.mushaf.juzSearchPlaceholder);
+        expect(styleOf(field)).toMatchObject({ backgroundColor: MUSHAF_PANEL_COLORS[theme].input.backgroundColor, borderColor: MUSHAF_PANEL_COLORS[theme].input.borderColor });
+        await act(async () => root.unmount());
+      }
+    });
+
+    it('the heads`s touch areas lie over the printed heads and the frame`s band, never over the Quran text, and draw nothing', async () => {
+      everyPageDrawn();
+      await render();
+      const textArea = styleOf(inPage().findByProps({ testID: 'mushaf-text-area' }));
+      const numberTop = (node: ReactTestInstance) => styleOf(node).top as number;
+      for (const id of ['mushaf-nav-surah', 'mushaf-nav-juz']) {
+        const area = onlyHost(id);
+        const bottom = (styleOf(area).top as number) + (styleOf(area).height as number) + area.props.hitSlop.bottom;
+        expect(bottom, id).toBeLessThan(textArea.top as number);
+        expect(styleOf(area).height + area.props.hitSlop.bottom, id).toBeCloseTo(44, 0);
+        expect(area.children, id).toHaveLength(0);
+      }
+      const pageArea = onlyHost('mushaf-nav-page');
+      expect(numberTop(pageArea) - pageArea.props.hitSlop.top).toBeGreaterThan((textArea.top as number) + (textArea.height as number));
+      expect(pageArea.children).toHaveLength(0);
+      // The page number stays where it was printed: below the frame (outside it).
+      const frame = inPage().findByProps({ testID: 'mushaf-frame' });
+      expect(numberTop(pageArea)).toBeGreaterThan(frame.props.height);
+    });
+
+    it('only the page being read is touchable: its neighbours, drawn beside it for a swipe, have no touch areas', async () => {
+      everyPageDrawn();
+      await render();
+      expect(hosts('mushaf-nav-page')).toHaveLength(1);
+      expect(hosts('mushaf-nav-surah')).toHaveLength(1);
+    });
+  });
+
+  describe('the compact page selector (the page number)', () => {
+    const slider = () => onlyHost('mushaf-page-slider');
+    const W = 300;
+    const at = async (x: number, phase: 'onResponderGrant' | 'onResponderMove' = 'onResponderMove') => {
+      await act(async () => slider().props[phase]({ nativeEvent: { locationX: x } }));
+    };
+    async function open() {
+      await press(onlyHost('mushaf-nav-page'));
+      await act(async () => slider().props.onLayout({ nativeEvent: { layout: { x: 0, y: 0, width: W, height: 36 } } }));
+    }
+    const shownSelected = () => onlyHost('mushaf-page-selector-number').findByType('Text' as never).props.children;
+    const centre = () => onlyHost('mushaf-page-selector').findAll((n) => typeof n.type === 'string' && /^mushaf-page-(go-left|go-right|selector-number|selector-input)$/.test(String(n.props.testID))).map((n) => n.props.testID);
+
+    it('opens at the page being read, compact: Surah on the left, the number in the centre, the juz` on the right; no arrow', async () => {
+      everyPageDrawn();
+      await render();
+      await open();
+      const card = onlyHost('mushaf-page-selector');
+      expect(styleOf(card)).toMatchObject({ left: 14, right: 14, position: 'absolute', borderRadius: 18 });
+      expect(shownSelected()).toBe('61');
+      expect(onlyHost('mushaf-page-selector-surah').props.children).toBe('Aal-i-Imraan');
+      expect(onlyHost('mushaf-page-selector-juz').props.children).toBe("Juz' 3");
+      expect(centre()).toEqual(['mushaf-page-selector-number']);
+      // Physically fixed: the top row never mirrors.
+      const row = onlyHost('mushaf-page-selector-surah').parent!;
+      expect(styleOf(row).flexDirection).toBe('row');
+      expect(row.children.map((c) => (c as ReactTestInstance).props.testID ?? 'centre')).toEqual(['mushaf-page-selector-surah', 'centre', 'mushaf-page-selector-juz']);
+    });
+
+    it('the RTL slider with a circular olive thumb: right end page 1, left end 604; dragging left raises the page; the preview updates live; the Mushaf stays', async () => {
+      everyPageDrawn();
+      await render();
+      await open();
+      const thumb = () => styleOf(onlyHost('mushaf-page-slider-thumb'));
+      expect(thumb()).toMatchObject({ width: 22, height: 22, borderRadius: 11, backgroundColor: MUSHAF_PANEL_COLORS.light.accent });
+      expect(slider().props.accessibilityRole).toBe('adjustable');
+      state.offline.readPage.mockClear();
+      await at(W, 'onResponderGrant');
+      expect(shownSelected()).toBe('1');
+      expect(onlyHost('mushaf-page-selector-surah').props.children).toBe('Al-Faatiha');
+      expect(thumb().left).toBeCloseTo(W - 11);
+      await at(0);
+      expect(shownSelected()).toBe('604');
+      expect(onlyHost('mushaf-page-selector-juz').props.children).toBe("Juz' 30");
+      expect(onlyHost('mushaf-page-selector-surah').props.children).toBe('Al-Ikhlaas'); // page 604 begins with Al-Ikhlāṣ
+      expect(thumb().left).toBeCloseTo(-11);
+      // Moving left raises the page, step by step; whole pages only.
+      const seen: number[] = [];
+      for (let x = W; x >= 0; x -= 7) {
+        await at(x);
+        seen.push(Number(shownSelected()));
+      }
+      expect(seen.every((n, i) => Number.isInteger(n) && (i === 0 || n >= seen[i - 1]))).toBe(true);
+      // Only a preview: the Mushaf never moved, and no page was read while sliding.
+      expect(currentPage()).toBe(61);
+      expect(state.offline.readPage).not.toHaveBeenCalled();
+      // Screen readers: increment raises the page by one.
+      await at(W / 2);
+      const before = Number(shownSelected());
+      await act(async () => slider().props.onAccessibilityAction({ nativeEvent: { actionName: 'increment' } }));
+      expect(Number(shownSelected())).toBe(before + 1);
+    });
+
+    it('a later page: a left arrow on the number`s left ("← 200"); an earlier: a right arrow on its right ("60 →"); the same page: none — in English and Arabic alike', async () => {
+      for (const locale of ['en', 'ar'] as const) {
+        state.locale = locale;
+        everyPageDrawn();
+        state.params = { page: '125' };
+        await render();
+        await open();
+        const pageAt = (page: number) => W - ((page - 1) / 603) * W;
+        await at(pageAt(200));
+        expect(centre(), locale).toEqual(['mushaf-page-go-left', 'mushaf-page-selector-number']);
+        expect(onlyHost('mushaf-page-go-left').findAllByType('ArrowLeft' as never)).toHaveLength(1);
+        await at(pageAt(60));
+        expect(centre(), locale).toEqual(['mushaf-page-selector-number', 'mushaf-page-go-right']);
+        expect(onlyHost('mushaf-page-go-right').findAllByType('ArrowRight' as never)).toHaveLength(1);
+        await at(pageAt(125));
+        expect(centre(), locale).toEqual(['mushaf-page-selector-number']);
+        await act(async () => root.unmount());
+      }
+    });
+
+    it('the arrow goes to exactly that page and closes; dismissing goes nowhere', async () => {
+      everyPageDrawn();
+      await render();
+      await open();
+      await at(W - (199 / 603) * W);
+      expect(shownSelected()).toBe('200');
+      await press(onlyHost('mushaf-page-go-left'));
+      await flush();
+      expect(currentPage()).toBe(200);
+      expect(hosts('mushaf-page-selector')).toHaveLength(0);
+      // Dismissed after choosing another page: nothing changes.
+      await open();
+      await at(W);
+      await press(onlyHost('mushaf-page-selector-backdrop'));
+      await flush();
+      expect(currentPage()).toBe(200);
+      expect(hosts('mushaf-page-selector')).toHaveLength(0);
+    });
+
+    it('typing a page: Western or Arabic-Indic digits; the preview and arrow follow; anything not 1–604 shows the reason and cannot go', async () => {
+      everyPageDrawn();
+      await render();
+      await open();
+      await press(onlyHost('mushaf-page-selector-number'));
+      const field = () => onlyHost('mushaf-page-selector-input');
+      // The reader's own field colours (the same in the reader everywhere), a number pad.
+      expect(styleOf(field())).toMatchObject({ backgroundColor: MUSHAF_PANEL_COLORS.light.input.backgroundColor, borderColor: MUSHAF_PANEL_COLORS.light.input.borderColor });
+      expect(field().props.keyboardType).toBe('number-pad');
+      await act(async () => field().props.onChangeText('٢٠٠'));
+      expect(onlyHost('mushaf-page-selector-juz').props.children).toBe("Juz' 10");
+      expect(centre()).toEqual(['mushaf-page-go-left', 'mushaf-page-selector-input']);
+      for (const bad of ['700', '0']) {
+        await act(async () => field().props.onChangeText(bad));
+        expect(centre(), bad).toEqual(['mushaf-page-selector-input']); // no arrow: nothing to go to
+        expect(texts(), bad).toContain(copy().pageOutOfRange);
+        await act(async () => field().props.onSubmitEditing());
+        expect(currentPage(), bad).toBe(61);
+      }
+      await act(async () => field().props.onChangeText('45'));
+      expect(centre()).toEqual(['mushaf-page-selector-input', 'mushaf-page-go-right']);
+      await press(onlyHost('mushaf-page-go-right')); // the arrow works with the keyboard open
+      await flush();
+      expect(currentPage()).toBe(45);
+    });
+
+    it('dark: the card and its field in the reader`s dark colours', async () => {
+      state.theme = 'dark';
+      everyPageDrawn();
+      await render();
+      await open();
+      expect(styleOf(onlyHost('mushaf-page-selector'))).toMatchObject({ backgroundColor: MUSHAF_PANEL_COLORS.dark.sheet.backgroundColor });
+      await press(onlyHost('mushaf-page-selector-number'));
+      expect(styleOf(onlyHost('mushaf-page-selector-input'))).toMatchObject({ backgroundColor: MUSHAF_PANEL_COLORS.dark.input.backgroundColor });
+    });
+  });
+
+  describe('an ayah`s words: exactly Reflection, Save and Share', () => {
+    const ayah = (verseKey: string) => ({
+      id: verseKey, verseKey, referenceKey: verseKey, surahNumber: 3, surahNameArabic: 'آل عمران', surahNameEnglish: 'Aal-i-Imraan',
+      ayahNumber: Number(verseKey.split(':')[1]), arabicText: '', englishTranslation: 'Say…', emotions: [], quranTextSource: 'tanzil', translationSource: 'pickthall',
+    });
+
+    it('opens after the double-tap window, near the ayah, with exactly three actions in order: the lit lamp, the heart, Share', async () => {
+      await render();
+      await tapPage(100, 130); // 3:85
+      expect(hosts('mushaf-ayah-actions')).toHaveLength(0); // not yet: it may still be a double-tap
+      await afterTapWindow();
+      const popup = onlyHost('mushaf-ayah-actions');
+      const actions = popup.findAll((n) => typeof n.type === 'string' && n.props.accessibilityRole === 'button');
+      expect(actions.map((n) => n.props.testID)).toEqual(['mushaf-ayah-reflection', 'mushaf-ayah-save', 'mushaf-ayah-share']);
+      expect(textOf(popup)).toBe(`${copy().actionReflection}|${copy().actionSave}|${MESSAGES.en.ayah.share}`);
+      // Share: the ayah screen's own icon (lucide share-2) and spoken label.
+      expect(onlyHost('mushaf-ayah-share').findAllByType('Share2' as never)).toHaveLength(1);
+      expect(onlyHost('mushaf-ayah-share').props.accessibilityLabel).toBe(MESSAGES.en.ayah.shareAyah);
+      expect(textOf(popup)).not.toMatch(/Listen|Audio|Tafs|Soon/i);
+      // The retired bar's enabled lamp, exactly: lit, its size, the saved green outline, the bright yellow glass.
+      const lamp = popup.findByType(ReflectionBulbIcon as never).props;
+      expect(lamp).toEqual({ lit: true, size: 23, color: MUSHAF_PANEL_COLORS.light.saved, fill: MUSHAF_PANEL_COLORS.light.activeFill });
+      expect(popup.findByProps({ testID: 'reflection-bulb-glass' }).props.fill).toBe('#FFC000');
+      expect(popup.findAllByProps({ testID: 'reflection-bulb-rays' }).length).toBeGreaterThan(0);
+      // The Favorites heart (not a bookmark), outline while unsaved.
+      expect(popup.findAllByType('Heart' as never)).toHaveLength(1);
+      expect(popup.findAllByType('Bookmark' as never)).toHaveLength(0);
+      // Small, rounded, light-theme sheet colours.
+      expect(styleOf(popup)).toMatchObject({ borderRadius: 14, maxWidth: 300, backgroundColor: MUSHAF_PANEL_COLORS.light.sheet.backgroundColor });
+    });
+
+    it('Reflection opens the existing editor for exactly that ayah; nothing is saved to a ورد', async () => {
+      seedWird();
+      await render();
+      const before = state.storage.get(READING_STOPS_STORAGE_KEY);
+      await tapPage(100, 130);
+      await afterTapWindow();
+      await press(onlyHost('mushaf-ayah-reflection'));
+      expect(root.root.findByType('ReflectionSheet' as never).props).toMatchObject({ visible: true, verseKey: '3:85' });
+      expect(hosts('mushaf-ayah-actions')).toHaveLength(0);
+      expect(state.storage.get(READING_STOPS_STORAGE_KEY)).toBe(before);
+    });
+
+    it('Save adds the ayah to Favorites (the heart then filled), Save again removes it; never a ورد or a Khatma', async () => {
+      seedWird();
+      state.fetch.mockImplementation(async (url: string) => (String(url).includes('/api/ayahs/') ? layoutResponse(200, { success: true, data: ayah(decodeURIComponent(String(url).split('/').pop()!)) }) : layoutResponse(503, { success: false })));
+      await render();
+      const before = state.storage.get(READING_STOPS_STORAGE_KEY);
+      await tapPage(100, 130);
+      await afterTapWindow();
+      await press(onlyHost('mushaf-ayah-save'));
+      await flush();
+      expect(hosts('mushaf-ayah-actions')).toHaveLength(0); // done: closed
+      const favoritesStored = [...state.storage.entries()].find(([key]) => /favorites/.test(key));
+      expect(favoritesStored?.[1]).toMatch(/3:85/);
+      await tapPage(100, 130);
+      await afterTapWindow();
+      expect(onlyHost('mushaf-ayah-save').props.accessibilityState.selected).toBe(true);
+      expect(hosts('mushaf-ayah-heart-saved')).not.toHaveLength(0);
+      expect(texts()).toContain(copy().actionSaved);
+      expect(onlyHost('mushaf-ayah-save').props.accessibilityLabel).toBe(MESSAGES.en.favoriteButton.removeLabel);
+      await press(onlyHost('mushaf-ayah-save'));
+      await flush();
+      await tapPage(100, 130);
+      await afterTapWindow();
+      expect(onlyHost('mushaf-ayah-save').props.accessibilityState.selected).toBe(false);
+      expect(state.storage.get(READING_STOPS_STORAGE_KEY)).toBe(before);
+      expect(khatmaRecords()).toHaveLength(0);
+    });
+
+    it('Save without a connection: the reason in the popup, nothing saved', async () => {
+      await render();
+      await tapPage(100, 130);
+      await afterTapWindow();
+      await press(onlyHost('mushaf-ayah-save'));
+      await flush();
+      expect(hosts('mushaf-ayah-actions')).toHaveLength(1);
+      expect(textOf(onlyHost('mushaf-ayah-actions'))).toMatch(new RegExp(`${copy().actionReflection}\\|${copy().actionSave}\\|.+`));
+    });
+
+    it('a tap outside dismisses it and the ayah is no longer selected; a double-tap never opens it', async () => {
+      await render();
+      await tapPage(100, 130);
+      await afterTapWindow();
+      await press(onlyHost('mushaf-ayah-actions-backdrop'));
+      expect(hosts('mushaf-ayah-actions')).toHaveLength(0);
+      expect(inPage().findAllByProps({ testID: 'mushaf-selection' })).toHaveLength(0);
+      // A double-tap (the zoom reset): its taps open nothing.
+      await pinch(2);
+      await tapPage(100, 130);
+      await act(async () => gesture((g) => g.kind === 'tap' && g.config.numberOfTaps === 2).handlers.onEnd?.({}, true));
+      await afterTapWindow();
+      expect(hosts('mushaf-ayah-actions')).toHaveLength(0);
+    });
+
+    it('Arabic: the actions in Arabic, read right to left', async () => {
+      state.locale = 'ar';
+      await render();
+      await tapPage(100, 130);
+      await afterTapWindow();
+      expect(textOf(onlyHost('mushaf-ayah-actions'))).toBe('خاطرة|حفظ|مشاركة');
+      expect(flat(onlyHost('mushaf-ayah-reflection').props.style({ pressed: false })).flexDirection).toBe('row-reverse');
+    });
+
+    /** The fake API's ayah for a key, as the ayah screens receive it (the Arabic is then resolved from the verified local text). */
+    const serveAyahs = () => state.fetch.mockImplementation(async (url: string) => (String(url).includes('/api/ayahs/')
+      ? layoutResponse(200, { success: true, data: ayah(decodeURIComponent(String(url).split('/').pop()!)) })
+      : layoutResponse(503, { success: false })));
+    const shareSheet = () => root.root.findByType('ShareAyahSheet' as never);
+
+    it('Share opens the ayah screens` Share Ayah sheet for exactly the selected ayah: its verified text and reference, no emotion; nothing else changes', async () => {
+      const { getVerseByKey } = await import('@/services/quran');
+      const { formatAyahReference } = await import('@/utils/ayahReference');
+      seedWird();
+      serveAyahs();
+      await render();
+      const before = [state.storage.get(READING_STOPS_STORAGE_KEY), state.storage.get(ACTIVE_READING_STOP_STORAGE_KEY)];
+      expect(shareSheet().props).toMatchObject({ visible: false, ayah: null });
+      await tapPage(100, 130); // 3:85
+      await afterTapWindow();
+      await press(onlyHost('mushaf-ayah-share'));
+      await flush();
+      expect(hosts('mushaf-ayah-actions')).toHaveLength(0);
+      const shared = shareSheet().props.ayah;
+      expect(shareSheet().props.visible).toBe(true);
+      // Exactly 3:85 (the tapped ayah), with the verified Tanzil Arabic, resolved locally as the ayah screens do.
+      expect(shared).toMatchObject({ verseKey: '3:85', surahNumber: 3, ayahNumber: 85 });
+      expect(shared.arabicText).toBe((await getVerseByKey('3:85')).arabicText);
+      expect(shared.arabicText.length).toBeGreaterThan(0);
+      // The card's reference, from the same helper the sheet uses.
+      expect(formatAyahReference(shared.surahNumber, shared.ayahNumber)).toBe('Aal-i-Imraan · 3:85 · آل عمران');
+      // The sheet takes only the ayah: no emotion or connection text reaches it.
+      expect(Object.keys(shareSheet().props).sort()).toEqual(['ayah', 'onClose', 'visible']);
+      expect(shared.emotions).toEqual([]);
+      // It stays selected while sharing; closing the sheet changes nothing else.
+      expect(root.root.findByType('ReflectionSheet' as never).props.verseKey).toBe('3:85');
+      await act(async () => shareSheet().props.onClose());
+      expect(shareSheet().props).toMatchObject({ visible: false, ayah: null });
+      expect([state.storage.get(READING_STOPS_STORAGE_KEY), state.storage.get(ACTIVE_READING_STOP_STORAGE_KEY)]).toEqual(before);
+      expect(khatmaRecords()).toHaveLength(0);
+      expect(root.root.findByType('ReflectionSheet' as never).props.visible).toBe(false);
+    });
+
+    it('Share on a QPC page shares the ayah whose words were tapped (3:90), in Arabic and Dark Mode alike', async () => {
+      state.locale = 'ar';
+      state.theme = 'dark';
+      const layout = syntheticQpcPage61();
+      await renderQpc(layout);
+      await layOut(layout);
+      serveAyahs(); // after the page's own layout response
+      const word = wordOf(layout, '3:90');
+      await tapLine(word.line, word.x);
+      await afterTapWindow();
+      const popup = onlyHost('mushaf-ayah-actions');
+      expect(styleOf(popup)).toMatchObject({ backgroundColor: MUSHAF_PANEL_COLORS.dark.sheet.backgroundColor });
+      expect(onlyHost('mushaf-ayah-share').findByType('Share2' as never).props.color).toBe(MUSHAF_PANEL_COLORS.dark.icon);
+      expect(onlyHost('mushaf-ayah-share').props.accessibilityLabel).toBe(MESSAGES.ar.ayah.shareAyah);
+      await press(onlyHost('mushaf-ayah-share'));
+      await flush();
+      expect(shareSheet().props).toMatchObject({ visible: true, ayah: expect.objectContaining({ verseKey: '3:90', surahNumber: 3, ayahNumber: 90 }) });
+    });
+
+    it('Share without a connection: the reason in the popup, no sheet', async () => {
+      await render();
+      await tapPage(100, 130);
+      await afterTapWindow();
+      await press(onlyHost('mushaf-ayah-share'));
+      await flush();
+      expect(hosts('mushaf-ayah-actions')).toHaveLength(1);
+      expect(textOf(onlyHost('mushaf-ayah-actions')).split('|').length).toBe(4); // the three actions and the reason
+      expect(shareSheet().props.visible).toBe(false);
+    });
+  });
+
+  describe('an ayah`s number (the separator): Apply to the active ورد', () => {
+    it('a tap on the medallion opens only Apply and X — never the ayah`s actions; a tap on its words opens those instead', async () => {
+      seedWird('Morning');
+      const layout = syntheticQpcPage61();
+      await renderQpc(layout);
+      await layOut(layout);
+      const marker = markerOf(layout, '3:85');
+      await tapLine(marker.line, marker.x);
+      await afterTapWindow();
+      const popup = onlyHost('mushaf-wird-apply');
+      expect(hosts('mushaf-ayah-actions')).toHaveLength(0);
+      const buttons = popup.findAll((n) => typeof n.type === 'string' && n.props.accessibilityRole === 'button');
+      expect(buttons.map((n) => n.props.testID)).toEqual(['mushaf-wird-apply-button', 'mushaf-wird-apply-close']);
+      expect(popup.findAllByType('Share2' as never)).toHaveLength(0);
+      expect(textOf(popup).replace(/[⁨⁩]/g, '')).toBe('Apply to Morning Wird');
+      expect(flat(onlyHost('mushaf-wird-apply-button').props.style({ pressed: false })).backgroundColor).toBe(MUSHAF_PANEL_COLORS.light.go.backgroundColor);
+      // The selected ayah is the medallion's.
+      expect(root.root.findByType('ReflectionSheet' as never).props.verseKey).toBe('3:85');
+      await press(onlyHost('mushaf-wird-apply-close'));
+      // Its words: the two actions.
+      const word = wordOf(layout, '3:85');
+      await tapLine(word.line, word.x);
+      await afterTapWindow();
+      expect(hosts('mushaf-ayah-actions')).toHaveLength(1);
+      expect(hosts('mushaf-wird-apply')).toHaveLength(0);
+    });
+
+    it('Apply saves this page to the active ورد (and only it), closes, and shows nothing more; X changes nothing', async () => {
+      seedWird('Morning', 20);
+      const layout = syntheticQpcPage61();
+      await renderQpc(layout);
+      await layOut(layout);
+      const marker = markerOf(layout, '3:86');
+      await tapLine(marker.line, marker.x);
+      await afterTapWindow();
+      await press(onlyHost('mushaf-wird-apply-close'));
+      expect(stops()).toEqual([expect.objectContaining({ id: 'fajr', page: 20 })]);
+      expect(hosts('mushaf-wird-apply')).toHaveLength(0);
+      await tapLine(marker.line, marker.x);
+      await afterTapWindow();
+      await press(onlyHost('mushaf-wird-apply-button'));
+      await flush();
+      expect(stops()).toEqual([expect.objectContaining({ id: 'fajr', name: 'Morning', page: 61 })]);
+      expect(hosts('mushaf-wird-apply')).toHaveLength(0);
+      expect(hosts('mushaf-saved-toast')).toHaveLength(0); // no success message
+      expect(khatmaRecords()).toHaveLength(0);
+      // The ورد pill (unchanged) still shows the same ورد.
+      expect(root.root.findByProps({ testID: 'mushaf-wird' }).findByType('Text' as never).props.children).toBe('Morning');
+    });
+
+    it('a failed save keeps the popup open with the reason (nothing pretends it worked)', async () => {
+      const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
+      seedWird('Morning', 20);
+      const layout = syntheticQpcPage61();
+      await renderQpc(layout);
+      await layOut(layout);
+      const marker = markerOf(layout, '3:86');
+      await tapLine(marker.line, marker.x);
+      await afterTapWindow();
+      vi.mocked(AsyncStorage.setItem).mockRejectedValueOnce(new Error('disk full'));
+      await press(onlyHost('mushaf-wird-apply-button'));
+      await flush();
+      expect(hosts('mushaf-wird-apply')).toHaveLength(1);
+      expect(texts()).toContain(copy().stopSaveFailed);
+      expect(stops()).toEqual([expect.objectContaining({ page: 20 })]);
+    });
+
+    it('follows the ورد chosen in the (unchanged) ورد list: never a stale one', async () => {
+      state.storage.set(READING_STOPS_STORAGE_KEY, JSON.stringify([
+        { id: 'fajr', name: 'Fajr', page: 20, updatedAt: '2026-10-02T00:00:00.000Z' },
+        { id: 'isha', name: 'ورد العشاء', page: 61, updatedAt: '2026-10-01T00:00:00.000Z' },
+      ]));
+      state.storage.set(ACTIVE_READING_STOP_STORAGE_KEY, 'fajr');
+      const layout = syntheticQpcPage61();
+      await renderQpc(layout);
+      await layOut(layout);
+      // Switch the active ورد in its list (it opens that ورد's saved page, 61).
+      await press(root.root.findByProps({ testID: 'mushaf-wird' }));
+      await press(root.root.findAllByProps({ testID: 'mushaf-wird-isha' }).find((node) => String(node.type) === 'Pressable')!);
+      await flush();
+      expect(root.root.findByProps({ testID: 'mushaf-wird' }).findByType('Text' as never).props.children).toBe('ورد العشاء');
+      const marker = markerOf(layout, '3:90');
+      await tapLine(marker.line, marker.x);
+      await afterTapWindow();
+      // The name already says ورد: not doubled; isolated in its own direction.
+      expect(textOf(onlyHost('mushaf-wird-apply'))).toBe('Apply to ⁨ورد العشاء⁩');
+      await press(onlyHost('mushaf-wird-apply-button'));
+      await flush();
+      expect(stops().find((s) => s.id === 'isha')?.page).toBe(61);
+      expect(stops().find((s) => s.id === 'fajr')?.page).toBe(20); // untouched
+    });
+
+    it('Arabic: the wording in Arabic around the user`s own name', async () => {
+      state.locale = 'ar';
+      seedWird('الفجر');
+      const layout = syntheticQpcPage61();
+      await renderQpc(layout);
+      await layOut(layout);
+      const marker = markerOf(layout, '3:85');
+      await tapLine(marker.line, marker.x);
+      await afterTapWindow();
+      expect(textOf(onlyHost('mushaf-wird-apply')).replace(/[⁨⁩]/g, '')).toBe('تطبيق على ورد الفجر');
+    });
+
+    it('no active ورد: Apply offers the existing new-ورد name field instead (nothing guessed)', async () => {
+      const layout = syntheticQpcPage61();
+      await renderQpc(layout);
+      await layOut(layout);
+      const marker = markerOf(layout, '3:85');
+      await tapLine(marker.line, marker.x);
+      await afterTapWindow();
+      expect(textOf(onlyHost('mushaf-wird-apply'))).toBe(copy().wirdNew);
+      await press(onlyHost('mushaf-wird-apply-button'));
+      await flush();
+      expect(hosts('mushaf-popup-save')).toHaveLength(1);
+      expect(stops()).toEqual([]);
+    });
+  });
+
+  it('the full-screen toggle: outward diagonal arrows to expand, inward to collapse, in the same place', async () => {
+    await render();
+    const toggle = () => root.root.findByProps({ testID: 'mushaf-fullscreen-toggle' });
+    expect(toggle().findAllByType('Maximize2' as never)).toHaveLength(1);
+    expect(toggle().props.accessibilityLabel).toBe(copy().enterFullScreen);
+    const place = flat(toggle().props.style({ pressed: false }));
+    await press(toggle());
+    expect(toggle().findAllByType('Minimize2' as never)).toHaveLength(1);
+    expect(toggle().props.accessibilityLabel).toBe(copy().exitFullScreen);
+    expect(flat(toggle().props.style({ pressed: false }))).toEqual(place);
+  });
+});
+
+describe('Keep Screen Awake in the reader', () => {
+  it('the reader, focused and in the foreground with the default (ON), holds its own keep-awake tag once (entering and leaving full screen never re-acquire it), and unmounting releases that same tag', async () => {
+    const { MUSHAF_KEEP_AWAKE_TAG } = await import('@/mushaf/useMushafKeepAwake');
+    keepAwake.activate.mockClear();
+    keepAwake.deactivate.mockClear();
+    await render();
+    expect(keepAwake.activate.mock.calls).toEqual([[MUSHAF_KEEP_AWAKE_TAG]]);
+    await act(async () => root.root.findByProps({ testID: 'mushaf-fullscreen-toggle' }).props.onPress());
+    await flush();
+    await act(async () => root.root.findByProps({ testID: 'mushaf-fullscreen-toggle' }).props.onPress());
+    await flush();
+    expect(keepAwake.activate).toHaveBeenCalledTimes(1);
+    expect(keepAwake.deactivate).not.toHaveBeenCalled();
+    await act(async () => root.unmount());
+    expect(keepAwake.deactivate.mock.calls).toEqual([[MUSHAF_KEEP_AWAKE_TAG]]);
+    root = undefined as never;
   });
 });

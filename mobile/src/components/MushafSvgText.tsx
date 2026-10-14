@@ -14,9 +14,13 @@ type MushafSvgTextProps = {
   /** The page's text area. */
   area: Box;
   selectedVerseKey: string | null;
-  onSelectVerse: (verseKey: string) => void;
+  /** A tap on an ayah; `at`: where, in window coordinates. (This fallback page has no separate marker taps.) */
+  onSelectVerse: (verseKey: string, at?: { x: number; y: number }) => void;
   accessibilityLabel: string;
   accessibilityHint: string;
+  /** Screen-reader actions on the page (e.g. next / previous page). */
+  accessibilityActions?: readonly { name: string; label?: string }[];
+  onAccessibilityAction?: (actionName: string) => void;
   /** Selected-ayah highlight (MUSHAF_PAGE_FURNITURE). */
   highlight?: { color: string; opacity: number };
 };
@@ -28,7 +32,7 @@ type MushafSvgTextProps = {
  * through the page's ayah polygons (ayahAtPoint).
  */
 export function MushafSvgText({
-  page, svg, area, selectedVerseKey, onSelectVerse, accessibilityLabel, accessibilityHint,
+  page, svg, area, selectedVerseKey, onSelectVerse, accessibilityLabel, accessibilityHint, accessibilityActions, onAccessibilityAction,
   highlight = { color: MUSHAF_PAPER.highlight, opacity: MUSHAF_PAPER.highlightOpacity },
 }: MushafSvgTextProps) {
   const box = fitInside(area, page.viewBox.height / page.viewBox.width);
@@ -39,7 +43,9 @@ export function MushafSvgText({
     const tap = pressLocation(event);
     const point = toPageCoordinates(page, box.width, box.height, tap.x, tap.y);
     const ayah = ayahAtPoint(page, point.x, point.y);
-    if (ayah) onSelectVerse(ayah.verseKey);
+    const native = event.nativeEvent as { pageX?: number; pageY?: number };
+    const at = Number.isFinite(native.pageX) && Number.isFinite(native.pageY) ? { x: native.pageX as number, y: native.pageY as number } : undefined;
+    if (ayah) onSelectVerse(ayah.verseKey, at);
   };
 
   return (
@@ -47,6 +53,8 @@ export function MushafSvgText({
       accessibilityRole="image"
       accessibilityLabel={accessibilityLabel}
       accessibilityHint={accessibilityHint}
+      accessibilityActions={accessibilityActions}
+      onAccessibilityAction={onAccessibilityAction ? (event) => onAccessibilityAction(event.nativeEvent.actionName) : undefined}
       onPress={onPress}
       style={[styles.absolute, { height: box.height, left: box.x, top: box.y, width: box.width }]}>
       <PageArtwork svg={svg} width={box.width} height={box.height} />

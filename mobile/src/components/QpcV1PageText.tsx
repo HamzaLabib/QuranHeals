@@ -8,9 +8,9 @@ import { SURAH_HEADING_DECORATION, type HeadingDecoration } from '@/mushaf/decor
 import { MUSHAF_PAPER } from '@/constants/mushafTheme';
 import { MUSHAF_MARKER_STYLES, type MushafMarkerStyleId } from '@/mushaf/appearance';
 import { cssBaseline, getAyahMarker, markerOverlayBox, QCF_V1_INK_OVERFLOW_EM, QCF_V1_INK_ROOM_V_EM, QCF_V1_LINE_BOX_EM, qcfV1AndroidRowShiftEm, qcfV1DrawnLineShiftEm } from '@/mushaf/ayahMarkers';
-import { MUSHAF_TEXT_LIFT_PT, pageWidthOfText, textSideInset } from '@/mushaf/pageGeometry';
+import { MUSHAF_TEXT_LIFT_PT, pageWidthOfText, PRINTED_TEXT_WIDTH_SHARE, textSideInset } from '@/mushaf/pageGeometry';
 import { pressLocation } from '@/mushaf/pressLocation';
-import { ayahAtLineX, lineAtY, selectionSpan, type QpcV1PageLayout, type WordBox } from '@/mushaf/qpcV1Layout';
+import { lineAtY, pressTargetAtLineX, selectionSpan, type QpcV1PageLayout, type WordBox } from '@/mushaf/qpcV1Layout';
 import { withSelectionInk } from '@/mushaf/qpcV1Selection';
 import { placeSurahHeading } from '@/mushaf/surahHeadingPlacement';
 import { BASMALA_GLYPHS, isOpeningPage, surahOpeningSlots } from '@/mushaf/surahOpenings';
@@ -22,9 +22,18 @@ type QpcV1PageTextProps = {
   width: number;
   height: number;
   selectedVerseKey: string | null;
-  onSelectVerse: (verseKey: string) => void;
+  /** A tap on an ayah's words; `at`: where, in window coordinates (to place a popup near it). */
+  onSelectVerse: (verseKey: string, at?: { x: number; y: number }) => void;
+  /**
+   * A tap on an ayah's end marker (the separator medallion) itself; without it, such a tap selects the ayah as any
+   * other (onSelectVerse).
+   */
+  onPressMarker?: (verseKey: string, at?: { x: number; y: number }) => void;
   accessibilityLabel: string;
   accessibilityHint: string;
+  /** Screen-reader actions on the page (e.g. next / previous page). */
+  accessibilityActions?: readonly { name: string; label?: string }[];
+  onAccessibilityAction?: (actionName: string) => void;
   /** How ayah-end markers are drawn (mushaf/appearance.ts); the font's own glyph by default. */
   markerStyle?: MushafMarkerStyleId;
   /** Quran ink colour (mushaf/appearance.ts MUSHAF_INKS). */
@@ -55,11 +64,15 @@ const MEASURE_SIZE = 100;
 /** A hair under the measured fit, so rounding never pushes a glyph past the margin. */
 const FIT = 0.985;
 /**
- * Pages 1–2: the regular pages' letter size, as a fraction of the text width
+ * Pages 1–2: the regular pages' letter size, as a fraction of the PRINTED text width
  * (the median over pages 3–604, which range 0.065–0.073). Fitting their
- * short lines to the full width made them 1.5× too large.
+ * short lines to the full width made them 1.5× too large. Taken on the printed
+ * text width, so the approved opening composition keeps its size while the
+ * regular pages' text area is wider (QURAN_TEXT_SCALE).
  */
 const OPENING_PAGE_SIZE_PER_WIDTH = 0.0692;
+/** Pages 1–2's letter size for a text area `width` wide: on the page's printed text width, as approved. */
+const openingPageSize = (width: number) => pageWidthOfText(width) * PRINTED_TEXT_WIDTH_SHARE * OPENING_PAGE_SIZE_PER_WIDTH;
 /** Between words on a centred line: the median justified gap on regular pages (the glyphs carry their own spacing). */
 const WORD_GAP_EM = 0.033;
 /** A Surah heading's name, relative to the Quran text size. */
@@ -98,7 +111,7 @@ const OPENING_NAME_MAX_EM = 3.95;
  * ornament confined to the existing empty heading line.
  */
 export function QpcV1PageText({
-  layout, width, height, selectedVerseKey, onSelectVerse, accessibilityLabel, accessibilityHint,
+  layout, width, height, selectedVerseKey, onSelectVerse, onPressMarker, accessibilityLabel, accessibilityHint, accessibilityActions, onAccessibilityAction,
   markerStyle = 'qpc-glyph', ink = MUSHAF_PAPER.ink,
   highlight = { color: MUSHAF_PAPER.highlight, opacity: MUSHAF_PAPER.highlightOpacity },
   printedPitch,
@@ -119,7 +132,7 @@ export function QpcV1PageText({
   // Pages 1–2 (their ornamental circle, OpeningPageOrnament, centred in the frame): the block is centred on the frame's
   // centre as drawn — the text area's MUSHAF_TEXT_LIFT_PT taken back, less the platform's drawn drop (iOS draws the
   // glyphs lower; Android's rows move by the same; the web neither).
-  const openingDrop = opening ? (qcfV1DrawnLineShiftEm(layout.page, Platform.OS) + qcfV1AndroidRowShiftEm(layout.page, Platform.OS)) * width * OPENING_PAGE_SIZE_PER_WIDTH : 0;
+  const openingDrop = opening ? (qcfV1DrawnLineShiftEm(layout.page, Platform.OS) + qcfV1AndroidRowShiftEm(layout.page, Platform.OS)) * openingPageSize(width) : 0;
   const blockTop = opening && used.length ? (height - (Math.max(...used) - Math.min(...used) + 1) * rowPitch) / 2 - (Math.min(...used) - 1) * rowPitch + MUSHAF_TEXT_LIFT_PT - openingDrop : 0;
   const rowTop = (line: number) => blockTop + (line - 1) * rowPitch;
   // The highlight band: 92% of the line pitch, as printed — no taller when the lines are spaced wider.
@@ -127,7 +140,7 @@ export function QpcV1PageText({
   const measured = useRef(new Map<number, number>());
   const [measuredSize, setFontSize] = useState<number | null>(null);
   // Pages 1–2 take the regular size (no measuring: their lines are short by design).
-  const fontSize = opening ? width * OPENING_PAGE_SIZE_PER_WIDTH : measuredSize;
+  const fontSize = opening ? openingPageSize(width) : measuredSize;
   // Rendered word positions per line (from onLayout); highlights and taps use them.
   const [boxes, setBoxes] = useState<Record<number, Record<number, WordBox>>>({});
   const lineBoxes = (line: number) => Object.values(boxes[line] ?? {});
@@ -160,9 +173,9 @@ export function QpcV1PageText({
   const basmalaRowShift = fontSize === null ? 0 : qcfV1AndroidRowShiftEm(1, Platform.OS) * fontSize;
   const quranRowTop = (line: number) => rowTop(line) + quranRowShift;
   const drawnCentre = (line: number) => quranRowTop(line) + rowPitch / 2 + drawnShift;
-  const onWordLayout = (line: number, index: number, verseKey: string) => (event: LayoutChangeEvent) => {
+  const onWordLayout = (line: number, index: number, verseKey: string, kind: QpcV1PageLayout['lines'][number]['words'][number]['kind']) => (event: LayoutChangeEvent) => {
     const { x, width: wordWidth } = event.nativeEvent.layout;
-    setBoxes((current) => ({ ...current, [line]: { ...current[line], [index]: { x, width: wordWidth, verseKey } } }));
+    setBoxes((current) => ({ ...current, [line]: { ...current[line], [index]: { x, width: wordWidth, verseKey, kind } } }));
   };
   /** A line's rendered word boxes with each word's ink past its box (a medallion: its own box). */
   const selectionBoxes = (line: QpcV1PageLayout['lines'][number]): WordBox[] => Object.entries(boxes[line.line] ?? {}).map(([index, box]) => {
@@ -173,8 +186,12 @@ export function QpcV1PageText({
   const onLinePress = (line: number) => (event: GestureResponderEvent) => {
     const { x, y } = pressLocation(event);
     const target = lineAtY(line, quranRowTop(line) + y, layout.lines.map((l) => l.line), drawnCentre);
-    const verseKey = ayahAtLineX(lineBoxes(target), x);
-    if (verseKey) onSelectVerse(verseKey);
+    const hit = pressTargetAtLineX(lineBoxes(target), x);
+    if (!hit) return;
+    const native = event.nativeEvent as { pageX?: number; pageY?: number };
+    const at = Number.isFinite(native.pageX) && Number.isFinite(native.pageY) ? { x: native.pageX as number, y: native.pageY as number } : undefined;
+    if (hit.onMarker && onPressMarker) onPressMarker(hit.verseKey, at);
+    else onSelectVerse(hit.verseKey, at);
   };
 
   const glyphStyle = (size: number, kind: string) => ({
@@ -228,6 +245,8 @@ export function QpcV1PageText({
       accessibilityRole="image"
       accessibilityLabel={accessibilityLabel}
       accessibilityHint={accessibilityHint}
+      accessibilityActions={accessibilityActions}
+      onAccessibilityAction={onAccessibilityAction ? (event) => onAccessibilityAction(event.nativeEvent.actionName) : undefined}
       testID="qpc-v1-text"
       style={{ height, width }}>
       {/* Hidden measuring pass at a fixed size. */}
@@ -264,7 +283,7 @@ export function QpcV1PageText({
               const baseline = reportedBaseline ?? cssBaseline(fontSize, fontSize * QCF_V1_LINE_BOX_EM);
               return (
                 // pointerEvents none: taps land on the line, so the press location is line-relative.
-                <View key={index} pointerEvents="none" onLayout={onWordLayout(line.line, index, word.verseKey)}>
+                <View key={index} pointerEvents="none" onLayout={onWordLayout(line.line, index, word.verseKey, word.kind)}>
                   <Text
                     allowFontScaling={false}
                     onTextLayout={marker ? onMarkerTextLayout : undefined}

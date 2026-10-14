@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { MushafBorder } from '@/components/MushafBorder';
 import { OpeningPageOrnament } from '@/components/OpeningPageOrnament';
@@ -51,7 +51,25 @@ type MushafPageViewProps = {
   headerColor?: string;
   /** The border's colours (MUSHAF_BORDER_STYLES); the approved ones by default. */
   borderInks?: Readonly<Record<BorderInk, string>>;
+  /**
+   * The page being read only: taps on the Surah name, juz', Hizb label and page number (the reader's navigation).
+   * Transparent touch areas laid over the printed furniture: nothing is moved, resized or redrawn.
+   */
+  navigation?: PageNavigation;
 };
+
+export type PageNavigation = {
+  onSurah: () => void;
+  onJuz: () => void;
+  /** Only where a Hizb label is printed (a Hizb or one of its quarters starts here). */
+  onHizb: () => void;
+  onPageNumber: () => void;
+  /** Spoken labels: "Choose a Surah", "Choose a juz'", "Choose a Hizb", "Go to a page". */
+  labels: { surah: string; juz: string; hizb: string; page: string };
+};
+
+/** A 44-pt touch target, as far as the decorative band allows: never over the Quran text. */
+const TOUCH_TARGET = 44;
 
 /**
  * One printed page laid out with the reference print's measured geometry
@@ -70,6 +88,7 @@ export function MushafPageView({
   hizbLabels,
   openingOrnament = false,
   openingDecoration = OPENING_PAGES_DECORATION,
+  navigation,
 }: MushafPageViewProps) {
   const layout = computePageLayout(width, tilesDown);
   const printedLinePitch = tilesDown === undefined ? layout.linePitch : computePageLayout(width).linePitch;
@@ -133,7 +152,50 @@ export function MushafPageView({
         }]}>
         {toArabicIndicDigits(pageNumber)}
       </Text>
+
+      {navigation && <FurnitureTouchAreas layout={layout} navigation={navigation} hasHizb={Boolean(hizbLabels && hizbLabels.length > 0)} />}
     </View>
+  );
+}
+
+/**
+ * The running heads' and page number's touch areas, over the printed furniture (they draw nothing). Physical, as
+ * printed in every language: the Surah's on the LEFT, the juz' on the RIGHT, the Hizb label's in the middle. Their
+ * extra reach stays in the paper and the decorative band: at most up to the text area, never over the Quran text.
+ */
+function FurnitureTouchAreas({ layout, navigation, hasHizb }: { layout: ReturnType<typeof computePageLayout>; navigation: PageNavigation; hasHizb: boolean }) {
+  const headerHeight = layout.header.height;
+  // Below the heads: the frame's top band down to (not into) the text area.
+  const headerBelow = Math.max(0, Math.min(TOUCH_TARGET - headerHeight, layout.text.y - MUSHAF_TEXT_LIFT_PT - headerHeight - 2));
+  const sideWidth = layout.page.width * 0.4;
+  const head = (testID: string, label: string, onPress: () => void, box: { left: number; width: number }) => (
+    <Pressable
+      testID={testID}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={onPress}
+      hitSlop={{ top: 0, bottom: headerBelow, left: 0, right: 0 }}
+      style={[styles.absolute, { height: headerHeight, top: 0, ...box }]}
+    />
+  );
+  // Above the page number: the frame's bottom band up to (not into) the text area; below it, the paper's edge.
+  const numberTop = layout.pageNumber.y;
+  const numberAbove = Math.max(0, Math.min(TOUCH_TARGET - layout.pageNumber.height, numberTop - (layout.text.y + layout.text.height) - 2));
+  const numberWidth = Math.min(layout.page.width, Math.max(TOUCH_TARGET * 2, layout.page.width * 0.3));
+  return (
+    <>
+      {head('mushaf-nav-surah', navigation.labels.surah, navigation.onSurah, { left: 0, width: sideWidth })}
+      {head('mushaf-nav-juz', navigation.labels.juz, navigation.onJuz, { left: layout.page.width - sideWidth, width: sideWidth })}
+      {hasHizb && head('mushaf-nav-hizb', navigation.labels.hizb, navigation.onHizb, { left: sideWidth, width: layout.page.width - 2 * sideWidth })}
+      <Pressable
+        testID="mushaf-nav-page"
+        accessibilityRole="button"
+        accessibilityLabel={navigation.labels.page}
+        onPress={navigation.onPageNumber}
+        hitSlop={{ top: numberAbove, bottom: 0, left: 0, right: 0 }}
+        style={[styles.absolute, { height: layout.pageNumber.height, left: (layout.page.width - numberWidth) / 2, top: numberTop, width: numberWidth }]}
+      />
+    </>
   );
 }
 

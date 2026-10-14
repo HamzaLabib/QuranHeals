@@ -1,0 +1,442 @@
+{
+ "referenceTightestOriginalClearance": {
+  "small-iphone-se": 4.24,
+  "standard-iphone-14": 5.48,
+  "large-iphone-16-pro-max": 6.15,
+  "android-pixel": 5.5
+ },
+ "summary": [
+  {
+   "page": 4,
+   "viewport": "small-iphone-se",
+   "candidate": "A-original",
+   "scale": 0,
+   "minClearance": 4.24,
+   "pitchPerEm": 1.5258,
+   "verdict": "PASS"
+  },
+  {
+   "page": 4,
+   "viewport": "small-iphone-se",
+   "candidate": "B-3pct",
+   "scale": 16,
+   "minClearance": 4.91,
+   "pitchPerEm": 1.4813,
+   "verdict": "MARGINAL (lines closer, relative to glyph size)"
+  },
+  {
+   "page": 4,
+   "viewport": "small-iphone-se",
+   "candidate": "C-5pct",
+   "scale": 18.2,
+   "minClearance": 4.41,
+   "pitchPerEm": 1.4531,
+   "verdict": "MARGINAL (lines closer, relative to glyph size)"
+  },
+  {
+   "page": 4,
+   "viewport": "small-iphone-se",
+   "candidate": "E-6pct-balanced",
+   "scale": 19.6,
+   "minClearance": 2.91,
+   "pitchPerEm": 1.4367,
+   "verdict": "MARGINAL (tighter than anywhere in the original)"
+  },
+  {
+   "page": 4,
+   "viewport": "small-iphone-se",
+   "candidate": "D-8pct",
+   "scale": 21.6,
+   "minClearance": 1.15,
+   "pitchPerEm": 1.4128,
+   "verdict": "FAIL (ink < 2 pt from the rule)"
+  },
+  {
+   "page": 4,
+   "viewport": "small-iphone-se",
+   "candidate": "F-frame-only",
+   "scale": 12.6,
+   "minClearance": 5.41,
+   "pitchPerEm": 1.5258,
+   "verdict": "PASS"
+  },
+  {
+   "page": 4,
+   "viewport": "standard-iphone-14",
+   "candidate": "A-original",
+   "scale": 0,
+   "minClearance": 5.48,
+   "pitchPerEm": 1.5258,
+   "verdict": "PASS"
+  },
+  {
+   "page": 4,
+   "viewport": "standard-iphone-14",
+   "candidate": "B-3pct",
+   "scale": 3,
+   "minClearance": 7.81,
+   "pitchPerEm": 1.6502,
+   "verdict": "PASS"
+  },
+  {
+   "page": 4,
+   "viewport": "standard-iphone-14",
+   "candidate": "C-5pct",
+   "scale": 5,
+   "minClearance": 5.47,
+   "pitchPerEm": 1.6187,
+   "verdict": "PASS"
+  },
+  {
+   "page": 4,
+   "viewport": "standard-iphone-14",
+   "candidate": "E-6pct-balanced",
+   "scale": 6.2,
+   "minClearance": 3.8,
+   "pitchPerEm": 1.6004,
+   "verdict": "MARGINAL (tighter than anywhere in the original)"
+  },
+  {
+   "page": 4,
+   "viewport": "standard-iphone-14",
+   "candidate": "D-8pct",
+   "scale": 8,
+   "minClearance": 0.8,
+   "pitchPerEm": 1.5738,
+   "verdict": "FAIL (ink < 2 pt from the rule)"
+  },
+  {
+   "page": 4,
+   "viewport": "standard-iphone-14",
+   "candidate": "F-frame-only",
+   "scale": 0,
+   "minClearance": 7.48,
+   "pitchPerEm": 1.6997,
+   "verdict": "PASS"
+  },
+  {
+   "page": 4,
+   "viewport": "large-iphone-16-pro-max",
+   "candidate": "A-original",
+   "scale": 0,
+   "minClearance": 6.15,
+   "pitchPerEm": 1.5258,
+   "verdict": "PASS"
+  },
+  {
+   "page": 4,
+   "viewport": "large-iphone-16-pro-max",
+   "candidate": "B-3pct",
+   "scale": 3,
+   "minClearance": 9.63,
+   "pitchPerEm": 1.7064,
+   "verdict": "PASS"
+  },
+  {
+   "page": 4,
+   "viewport": "large-iphone-16-pro-max",
+   "candidate": "C-5pct",
+   "scale": 5,
+   "minClearance": 5.97,
+   "pitchPerEm": 1.6739,
+   "verdict": "PASS"
+  },
+  {
+   "page": 4,
+   "viewport": "large-iphone-16-pro-max",
+   "candidate": "E-6pct-balanced",
+   "scale": 6.2,
+   "minClearance": 3.97,
+   "pitchPerEm": 1.655,
+   "verdict": "MARGINAL (tighter than anywhere in the original)"
+  },
+  {
+   "page": 4,
+   "viewport": "large-iphone-16-pro-max",
+   "candidate": "D-8pct",
+   "scale": 8,
+   "minClearance": 0.97,
+   "pitchPerEm": 1.6274,
+   "verdict": "FAIL (ink < 2 pt from the rule)"
+  },
+  {
+   "page": 4,
+   "viewport": "large-iphone-16-pro-max",
+   "candidate": "F-frame-only",
+   "scale": 0,
+   "minClearance": 9.15,
+   "pitchPerEm": 1.7576,
+   "verdict": "PASS"
+  },
+  {
+   "page": 4,
+   "viewport": "android-pixel",
+   "candidate": "A-original",
+   "scale": 0,
+   "minClearance": 5.5,
+   "pitchPerEm": 1.5258,
+   "verdict": "PASS"
+  },
+  {
+   "page": 4,
+   "viewport": "android-pixel",
+   "candidate": "B-3pct",
+   "scale": 3,
+   "minClearance": 9.27,
+   "pitchPerEm": 1.819,
+   "verdict": "PASS"
+  },
+  {
+   "page": 4,
+   "viewport": "android-pixel",
+   "candidate": "C-5pct",
+   "scale": 5,
+   "minClearance": 5.84,
+   "pitchPerEm": 1.7843,
+   "verdict": "PASS"
+  },
+  {
+   "page": 4,
+   "viewport": "android-pixel",
+   "candidate": "E-6pct-balanced",
+   "scale": 6.2,
+   "minClearance": 3.94,
+   "pitchPerEm": 1.7641,
+   "verdict": "MARGINAL (tighter than anywhere in the original)"
+  },
+  {
+   "page": 4,
+   "viewport": "android-pixel",
+   "candidate": "D-8pct",
+   "scale": 8,
+   "minClearance": 0.89,
+   "pitchPerEm": 1.7347,
+   "verdict": "FAIL (ink < 2 pt from the rule)"
+  },
+  {
+   "page": 4,
+   "viewport": "android-pixel",
+   "candidate": "F-frame-only",
+   "scale": 0,
+   "minClearance": 9.31,
+   "pitchPerEm": 1.8735,
+   "verdict": "PASS"
+  },
+  {
+   "page": 604,
+   "viewport": "small-iphone-se",
+   "candidate": "A-original",
+   "scale": 0,
+   "minClearance": 12.15,
+   "pitchPerEm": 1.517,
+   "verdict": "PASS"
+  },
+  {
+   "page": 604,
+   "viewport": "small-iphone-se",
+   "candidate": "B-3pct",
+   "scale": 16,
+   "minClearance": 9.15,
+   "pitchPerEm": 1.4729,
+   "verdict": "MARGINAL (lines closer, relative to glyph size)"
+  },
+  {
+   "page": 604,
+   "viewport": "small-iphone-se",
+   "candidate": "C-5pct",
+   "scale": 18.2,
+   "minClearance": 7.15,
+   "pitchPerEm": 1.4448,
+   "verdict": "MARGINAL (lines closer, relative to glyph size)"
+  },
+  {
+   "page": 604,
+   "viewport": "small-iphone-se",
+   "candidate": "E-6pct-balanced",
+   "scale": 19.6,
+   "minClearance": 5.15,
+   "pitchPerEm": 1.4285,
+   "verdict": "MARGINAL (lines closer, relative to glyph size)"
+  },
+  {
+   "page": 604,
+   "viewport": "small-iphone-se",
+   "candidate": "D-8pct",
+   "scale": 21.6,
+   "minClearance": 2.15,
+   "pitchPerEm": 1.4047,
+   "verdict": "MARGINAL (tighter than anywhere in the original)"
+  },
+  {
+   "page": 604,
+   "viewport": "small-iphone-se",
+   "candidate": "F-frame-only",
+   "scale": 12.6,
+   "minClearance": 14.54,
+   "pitchPerEm": 1.517,
+   "verdict": "PASS"
+  },
+  {
+   "page": 604,
+   "viewport": "standard-iphone-14",
+   "candidate": "A-original",
+   "scale": 0,
+   "minClearance": 14.47,
+   "pitchPerEm": 1.517,
+   "verdict": "PASS"
+  },
+  {
+   "page": 604,
+   "viewport": "standard-iphone-14",
+   "candidate": "B-3pct",
+   "scale": 3,
+   "minClearance": 9.8,
+   "pitchPerEm": 1.6407,
+   "verdict": "PASS"
+  },
+  {
+   "page": 604,
+   "viewport": "standard-iphone-14",
+   "candidate": "C-5pct",
+   "scale": 5,
+   "minClearance": 6.8,
+   "pitchPerEm": 1.6095,
+   "verdict": "PASS"
+  },
+  {
+   "page": 604,
+   "viewport": "standard-iphone-14",
+   "candidate": "E-6pct-balanced",
+   "scale": 6.2,
+   "minClearance": 4.8,
+   "pitchPerEm": 1.5912,
+   "verdict": "MARGINAL (tighter than anywhere in the original)"
+  },
+  {
+   "page": 604,
+   "viewport": "standard-iphone-14",
+   "candidate": "D-8pct",
+   "scale": 8,
+   "minClearance": 2.13,
+   "pitchPerEm": 1.5648,
+   "verdict": "MARGINAL (tighter than anywhere in the original)"
+  },
+  {
+   "page": 604,
+   "viewport": "standard-iphone-14",
+   "candidate": "F-frame-only",
+   "scale": 0,
+   "minClearance": 14.47,
+   "pitchPerEm": 1.6899,
+   "verdict": "PASS"
+  },
+  {
+   "page": 604,
+   "viewport": "large-iphone-16-pro-max",
+   "candidate": "A-original",
+   "scale": 0,
+   "minClearance": 15.75,
+   "pitchPerEm": 1.517,
+   "verdict": "PASS"
+  },
+  {
+   "page": 604,
+   "viewport": "large-iphone-16-pro-max",
+   "candidate": "B-3pct",
+   "scale": 3,
+   "minClearance": 10.97,
+   "pitchPerEm": 1.6966,
+   "verdict": "PASS"
+  },
+  {
+   "page": 604,
+   "viewport": "large-iphone-16-pro-max",
+   "candidate": "C-5pct",
+   "scale": 5,
+   "minClearance": 7.97,
+   "pitchPerEm": 1.6643,
+   "verdict": "PASS"
+  },
+  {
+   "page": 604,
+   "viewport": "large-iphone-16-pro-max",
+   "candidate": "E-6pct-balanced",
+   "scale": 6.2,
+   "minClearance": 5.63,
+   "pitchPerEm": 1.6455,
+   "verdict": "MARGINAL (tighter than anywhere in the original)"
+  },
+  {
+   "page": 604,
+   "viewport": "large-iphone-16-pro-max",
+   "candidate": "D-8pct",
+   "scale": 8,
+   "minClearance": 2.63,
+   "pitchPerEm": 1.6181,
+   "verdict": "MARGINAL (tighter than anywhere in the original)"
+  },
+  {
+   "page": 604,
+   "viewport": "large-iphone-16-pro-max",
+   "candidate": "F-frame-only",
+   "scale": 0,
+   "minClearance": 16.97,
+   "pitchPerEm": 1.7475,
+   "verdict": "PASS"
+  },
+  {
+   "page": 604,
+   "viewport": "android-pixel",
+   "candidate": "A-original",
+   "scale": 0,
+   "minClearance": 15.37,
+   "pitchPerEm": 1.5171,
+   "verdict": "PASS"
+  },
+  {
+   "page": 604,
+   "viewport": "android-pixel",
+   "candidate": "B-3pct",
+   "scale": 3,
+   "minClearance": 11.18,
+   "pitchPerEm": 1.8085,
+   "verdict": "PASS"
+  },
+  {
+   "page": 604,
+   "viewport": "android-pixel",
+   "candidate": "C-5pct",
+   "scale": 5,
+   "minClearance": 6.99,
+   "pitchPerEm": 1.7741,
+   "verdict": "PASS"
+  },
+  {
+   "page": 604,
+   "viewport": "android-pixel",
+   "candidate": "E-6pct-balanced",
+   "scale": 6.2,
+   "minClearance": 5.84,
+   "pitchPerEm": 1.754,
+   "verdict": "PASS"
+  },
+  {
+   "page": 604,
+   "viewport": "android-pixel",
+   "candidate": "D-8pct",
+   "scale": 8,
+   "minClearance": 2.03,
+   "pitchPerEm": 1.7248,
+   "verdict": "MARGINAL (tighter than anywhere in the original)"
+  },
+  {
+   "page": 604,
+   "viewport": "android-pixel",
+   "candidate": "F-frame-only",
+   "scale": 0,
+   "minClearance": 15.37,
+   "pitchPerEm": 1.8628,
+   "verdict": "PASS"
+  }
+ ]
+}
