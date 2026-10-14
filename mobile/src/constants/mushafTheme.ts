@@ -23,9 +23,10 @@ export const MUSHAF_PAPER = {
 } as const;
 
 /**
- * The reader's floating action bar (MushafControlPanel): translucent,
- * frosted-looking surfaces over the page, in the Light and the Warm Midnight
- * Olive (Dark) appearance.
+ * The reader's own surfaces over the page (first the floating bar's, retired
+ * 2026-10-14 and archived in design-archive/mushaf-navigation-v1/; now its
+ * popups, lists, page selector, ورد pill and name field), in the Light and the
+ * Warm Midnight Olive (Dark) appearance.
  */
 export const MUSHAF_PANEL_COLORS = {
   light: {

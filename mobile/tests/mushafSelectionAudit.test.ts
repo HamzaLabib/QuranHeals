@@ -30,7 +30,7 @@ vi.mock('react-native-svg', () => ({ default: 'Svg', ClipPath: 'ClipPath', Rect:
 vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem: vi.fn(), setItem: vi.fn(), removeItem: vi.fn() } }));
 
 const { QpcV1PageText } = await import('@/components/QpcV1PageText');
-const { computePageLayout, MUSHAF_TEXT_LIFT_PT, PAGE_GEOMETRY, textSideInset } = await import('@/mushaf/pageGeometry');
+const { computePageLayout, MIN_TILES_DOWN, MUSHAF_TEXT_LIFT_PT, PAGE_GEOMETRY, QURAN_TEXT_SCALE, textSideInset } = await import('@/mushaf/pageGeometry');
 const { getAyahMarker, markerOverlayBox, qcfV1DrawnLineShiftEm, QCF_V1_NORMAL_BOX_MARGIN_EM } = await import('@/mushaf/ayahMarkers');
 const { QPC_V1_SELECTION_INK } = await import('@/mushaf/generated/qpcV1SelectionInk');
 
@@ -47,7 +47,8 @@ const styleOf = (node: ReactTestInstance) => Object.assign({}, ...[node.props.st
 const E = 1e-6;
 
 type Mode = { name: string; tiles: number; margin: number };
-const NORMAL: Mode = { name: 'Normal', tiles: 29, margin: QCF_V1_NORMAL_BOX_MARGIN_EM };
+// Normal Mode's shortest frame with the larger text (MIN_TILES_DOWN: the iPhone SE, small Android); Full-Screen's tall one.
+const NORMAL: Mode = { name: 'Normal', tiles: MIN_TILES_DOWN, margin: QCF_V1_NORMAL_BOX_MARGIN_EM };
 const FULL: Mode = { name: 'Full-Screen', tiles: 34, margin: 0 };
 
 type Tally = { ayahs: number; lines: number; taps: number; inkLimited: string[]; failures: string[] };
@@ -79,7 +80,8 @@ async function auditPage(page: number, lines: Advances[string], pageWidth: numbe
       }
     });
   }
-  const fontSize = opening ? width * OPENING_SIZE : (width * FIT) / (Math.max(...sums.values()) / UPM);
+  // Pages 1–2: the printed letter size, on the printed text width (this text area is QURAN_TEXT_SCALE wider).
+  const fontSize = opening ? (width / QURAN_TEXT_SCALE) * OPENING_SIZE : (width * FIT) / (Math.max(...sums.values()) / UPM);
   // Word boxes as the platform lays them out (row-reverse: reading order from the right).
   const boxes = new Map<number, { x: number; width: number; verseKey: string; kind: string; position: number }[]>();
   for (const [line, words] of lines) {
@@ -168,8 +170,8 @@ async function audit(pages: Advances, widths: number[]) {
 }
 
 describe('ayah selection follows the drawn words (fixture pages 1, 2, 5, 50, 61, 237, 466)', () => {
-  it('every ayah, every line, both modes, iOS, Android and the web, three page widths', async () => {
-    const tally = await audit(fixture, [317, 396, 434]);
+  it('every ayah, every line, both modes, iOS, Android and the web, four page widths', async () => {
+    const tally = await audit(fixture, [261, 324, 387, 434]);
     expect(tally.failures).toEqual([]);
     expect(tally.inkLimited).toEqual([]);
     expect(tally.ayahs).toBeGreaterThan(0);

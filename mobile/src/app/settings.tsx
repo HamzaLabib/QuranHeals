@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { ArrowLeft, ArrowRight, Check, ChevronLeft, ChevronRight, Flag } from 'lucide-react-native';
 import { useCallback, useRef, useState } from 'react';
-import { LayoutAnimation, Linking, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { LayoutAnimation, Linking, Pressable, RefreshControl, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/useAuth';
@@ -10,13 +10,14 @@ import { OfflineMushafPanel } from '@/components/OfflineMushafPanel';
 import { ReportIssueSheet } from '@/components/ReportIssueSheet';
 import { SettingsAccordion } from '@/components/SettingsAccordion';
 import { getLegalLinks } from '@/constants/legalLinks';
-import { radii, spacing, typography, type Palette } from '@/constants/theme';
+import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { EMOTIONS_LANGUAGES, type EmotionsLanguage } from '@/localization/emotionsLanguage';
 import { APP_LANGUAGES, APP_LOCALE_DISPLAY_NAMES, getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { QURAN_READING_MODES, useQuranReadingMode } from '@/localization/quranLanguage';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { useEmotionsLanguage } from '@/localization/useEmotionsLanguage';
+import { useKeepAwakePreference } from '@/mushaf/useKeepAwakePreference';
 import type { AppearanceMode } from '@/theme/appearancePreference';
 import { useAppearancePreference } from '@/theme/useAppearancePreference';
 import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
@@ -43,6 +44,7 @@ export default function SettingsScreen() {
   const { preference: emotionsLanguage, setPreference: setEmotionsLanguage } = useEmotionsLanguage();
   const { mode: quranMode, setMode: setQuranMode } = useQuranReadingMode();
   const { mode, setMode } = useAppearancePreference();
+  const { enabled: keepAwake, setEnabled: setKeepAwake } = useKeepAwakePreference();
   const { refreshSync } = useAuth();
   const direction = getDirectionStyle(locale);
   // A "back" arrow should point toward where the previous screen visually
@@ -189,6 +191,26 @@ export default function SettingsScreen() {
               />
             ))}
           </SettingsAccordion>
+
+          {/* Keep Screen Awake: a local switch (mushaf/keepAwakePreference.ts), applied at once; the Mushaf reads it. */}
+          <View style={[styles.switchCard, isRtl && styles.optionRowRtl]}>
+            <View style={styles.optionTextWrap}>
+              <Text style={[styles.optionLabel, direction]}>{messages.settings.keepAwakeTitle}</Text>
+              <Text style={[styles.optionHint, direction]}>{messages.settings.keepAwakeDescription}</Text>
+            </View>
+            <Switch
+              testID="settings-keep-awake"
+              accessibilityRole="switch"
+              accessibilityLabel={messages.settings.keepAwakeTitle}
+              accessibilityHint={messages.settings.keepAwakeDescription}
+              accessibilityState={{ checked: keepAwake }}
+              value={keepAwake}
+              onValueChange={setKeepAwake}
+              trackColor={{ false: colors.border, true: colors.accentFill }}
+              ios_backgroundColor={colors.border}
+              thumbColor={colors.onAccentFill}
+            />
+          </View>
 
           <SettingsAccordion
             title={messages.appearance.sectionLabel}
@@ -390,6 +412,20 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   },
   optionRowSelected: {
     backgroundColor: colors.accentSoft,
+  },
+  /** The same card as a SettingsAccordion (components/SettingsAccordion.tsx), its header row holding a switch. */
+  switchCard: {
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    flexDirection: 'row',
+    gap: spacing.md,
+    minHeight: 56,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    ...shadows.soft,
   },
   reportCard: {
     alignItems: 'center',

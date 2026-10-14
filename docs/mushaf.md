@@ -35,26 +35,33 @@ The complete offline Mushaf (all 604 pages, Quran Foundation Content Sync `musha
 
 `/mushaf` (or `/mushaf?page=N`) is a full-screen reader:
 - **Back arrow:** a plain `arrow-left` in a 36-pt row under the status bar, always shown, with no circle, background or label. Its touch target reaches 44 × 44 pt (8 pt up into the status-bar area, never down onto the page). It goes back to the previous screen, or to Home if there is none (`utils/goBackOrHome.ts`). Android's own Back works as before.
-- **Page:** directly under that row, at the largest size that fits above the floating bar, in its own proportions (never cropped or stretched), 3 pt from the screen's sides. The surah and juz heads, the border and the page number all stay. On phones the width decides the size, so any spare height sits between the page and the bar. Examples:
+- **Page:** directly under that row, at the largest size that fits above the space reserved at the bottom (where the retired floating bar was: 56 + 8 pt, kept so the page and the ورد pill don't move), in its own proportions (never cropped or stretched), 3 pt from the screen's sides. The surah and juz heads, the border and the page number all stay. On phones the width decides the size, so any spare height sits below the page. Examples:
   - iPhone 393 pt: 387 × 623 pt, with 27 pt above the bar.
   - Android 412 dp: 406 × 653.
   - Small phones and tablets: the height decides.
 - **No credit under the page:** the sources are credited at the bottom of Home and in full on `/credits` (see "Authorization and terms").
-- **Floating bar** (`MushafControlPanel`): icon-only, rounded and translucent, 8 pt above the home indicator or Android navigation bar. All icons share one size and stroke. Its order is fixed left to right in every language:
+- **Navigation and actions (2026-10-14 redesign).** The floating bar (next/previous page, Reflection, ورد save, search) is retired; its code, tests and maths are preserved, verified and restorable in `design-archive/mushaf-navigation-v1/`. Everything now happens on the page itself, through transparent touch areas over the printed furniture (`MushafPageView` `navigation`), which move, resize or redraw nothing and never reach over the Quran text:
 
-| Button | Icon | Action |
+| Tap | Opens | Notes |
 |---|---|---|
-| Next page | `arrow-left` (the left end) | Next page (right to left, as the Mushaf is read) |
-| Reflection | lightbulb (`ReflectionBulbIcon`) | Grey, without rays and disabled until an ayah is selected. Then lit with rays (olive in Light Mode, warm ivory in Dark Mode) and opens the existing Reflection sheet for that ayah. |
-| Search | `search` | Opens the search sheet: a page number or a Surah (below) |
-| Reading stop | `bookmark` (outline) | Save a page-based reading stop under a name. The field starts with the active stop's name, so saving moves that stop to this page unless renamed. Once saved, the keyboard and the field close; if saving fails, the field stays open with the reason. |
-| Previous page | `arrow-right` (the right end) | Previous page |
+| Surah name (top left) | Surah list (`MushafIndexSheet`) | All 114, searchable in Arabic or English (`mushaf/surahSearch.ts`); opens the Surah's first page (one beginning partway down a page opens that page) |
+| juz' (top right) | juz' list | 30, searchable by number (Western or Arabic-Indic digits); each opens its first page |
+| Hizb label (top centre, where printed) | Hizb list | 60 whole Hizbs only, never the quarter markers; each opens its first page |
+| Page number (under the frame) | Compact page selector (`MushafPageSelector`) | See below |
+| An ayah's words | Reflection · Save (`MushafAyahActions`) | Exactly two. Reflection: the retired bar's lit lamp exactly (`ReflectionBulbIcon` lit, size 23, the `saved` green outline, the `activeFill` #FFC000 glass) and the existing Reflection editor. Save: the Favorites heart (filled when saved) and the existing Favorites toggle (the ayah fetched with `getAyah`, as on the ayah screens). Neither touches a ورد or a Khatma. |
+| An ayah's number (the separator medallion) | Apply to [ورد] · X (`MushafWirdApply`) | Saves **this page** to the active ورد (read from storage at the tap, the ورد list's own source of truth), through the reader's one save path (page 604's Khatma rules included). Closes when saved; on failure it stays open with the reason. No active ورد: the button is "New reading stop on this page" and opens the ورد name field. Wirds store pages, not ayahs (`docs/auth-and-sync/reading-sync.md`). |
 
-- **Full-screen reading:** a plain `maximize` icon at the top right, opposite Back, with a 44-pt target.
-  - **Hidden:** Back, the five-icon bar and the ورد pill. Only the page and a `minimize` icon in the same place remain.
+  - **Ayah popups open 350 ms after the tap** (`DOUBLE_TAP_MS`): a double-tap (the zoom reset) opens none, and a popup never opens over another page. A tap outside dismisses it (the ayah is then no longer selected). Placed above the tap when there is room, otherwise below, inside the safe areas.
+  - **Page selector:** a slim card 14 pt from the screen's sides, at the bottom. Top row, physically fixed in every language: the selected page's Surah on the LEFT, the page number in the CENTRE (tap to type one: Western or Arabic-Indic digits, 1–604), its juz' on the RIGHT, both from the page's first ayah (`mushaf/navigation.ts`, `generated/pageStarts.ts`; a page belongs to the Surah and juz' at its top, the running heads' rule). Below, one RTL slider with a 22-pt olive thumb: page 1 at the right end, 604 at the left; dragging left raises the page; whole pages only; a screen reader's increment / decrement step one page. Sliding and typing only preview (no page is read or drawn). The one way to go is the arrow beside the number: a later page shows a left arrow on the number's left (← 200), an earlier one a right arrow on its right (60 →), the same page none (`mushaf/pageSelector.ts`). A tap outside closes it and changes nothing.
+  - **Screen readers:** the page has next / previous page actions (also on a page not yet downloaded), replacing the bar's arrows.
+  - **The ورد name field** (`MushafStopNameField`, the retired bar's, unchanged): opened by the ورد list's "New reading stop on this page" (or the pill when there are none). It saves this page to the ورد of that name, creating it when new; "Saved" shows briefly.
+  - **Colours:** every popup uses the reader's own panel colours (`MUSHAF_PANEL_COLORS`), Light and Dark; its fields keep the reader's cream / olive field colours (`MUSHAF_FIELD_COLORS`).
+  - **Not changed:** the page geometry, the Quran text and its line breaks, the opening pages and the Surah headings, the ورد pill, swipes and zoom. The investigated text enlargement (2–4 %) and extra bottom space (8–12 pt) were not applied: the vertical audit leaves 0.6 pt above the text at 387 pt (negative on narrow pages), so either would need native-device checks first (`design-archive/design-ideas/README.md`).
+- **Full-screen reading:** a plain `maximize-2` icon (outward diagonal arrows) at the top right, opposite Back, with a 44-pt target.
+  - **Hidden:** Back and the ورد pill. Only the page and a `minimize-2` icon (inward arrows) in the same place remain.
   - **Fitting (approved: fit the entire page):** at 1× the whole page shows, centred in the space between the Collapse row and the bottom safe area, at the largest size that fits without cropping or stretching. It is never zoomed to fill. Pinch to 3× and pan for closer reading; double-tap returns to the fitted page.
   - **Sizes:** the page is refitted down to the bottom safe area. On phones the width already limits it, so it stays the same size (iPhone 393 pt: 387 × 623), but a zoomed page can use the freed space. On tablets it grows (iPad 820 pt: 621 → 681 pt wide).
-  - **Kept:** zoom, pan, double-tap, 1× swipes and ayah taps all work as usual. Switching modes first returns the zoom to 1× and keeps the page, the selected ayah and the active ورد. Reflection is reached again from the bar in Normal Mode.
+  - **Kept:** zoom, pan, double-tap, 1× swipes and ayah taps all work as usual. Switching modes first returns the zoom to 1× and keeps the page, the selected ayah and the active ورد; an open popup closes. The heads, page number and ayah popups work in both modes.
   - **Leaving full screen:**
     - The `minimize` icon at the top right stays as a permanent exit and works at any zoom.
     - A clear one-finger swipe down at 1× (at least 80 pt, mostly vertical) also exits. It is ignored when it starts within 24 pt of the top safe area (Notification Centre, the status bar) and while the Reflection sheet is open.
@@ -63,50 +70,53 @@ The complete offline Mushaf (all 604 pages, Quran Foundation Content Sync `musha
   - **Back:** Android's Back leaves full screen first; the next Back navigates as usual.
   - **Persistence:** none. The reader always opens in Normal Mode.
 - **One background:** the whole reading screen, including the safe areas and the space around the page, is the page's own paper colour from the appearance preset (`#F9EFD2` Warm Cream, `#222820` Warm Midnight Olive). The page has no visible edge, and the border keeps its approved inks in both themes.
-  - **The bar and the ورد pill** are matching parts of the page: solid, a shade off the paper, with a faint border and an almost invisible shadow.
+  - **The ورد pill** is a matching part of the page: solid, a shade off the paper, with a faint border and an almost invisible shadow. (These were also the retired bar's colours.)
   - **Light:** `#F3E8CB` on `#F9EFD2`, border `#E5D8B9`, dark-olive icons and pill text `#3B4630`.
   - **Dark:** `#30382F` on `#222820`, border `#434D40`, ivory icons and text `#F1E9D6`.
-  - **Lightbulb:** lit olive `#4F6B32` or ivory `#F6E7B8`; unlit grey.
-- **Taller in full screen (approved design):**
-  - **Normal Mode** always uses the Traditional page.
-  - **Full screen** automatically uses the Taller page whenever there is spare height: more of the same border tiles down the sides, with the lines spread evenly. The frame grows from 29 tiles up to `TALLER_MAX_TILES_DOWN` (35). The letter size still comes from the width. Where there is no spare height (small phones, tablets), it falls back to Traditional.
+  - **Reflection lamp** (in the ayah popup): always lit, outlined in the panel's `saved` green (Light `#3E6B4B`, Dark `#8EA68A`) with the `#FFC000` glass.
+- **Larger Quran text (candidate C, approved 2026-10-14; experiment and evidence in `design-archive/experiments/larger-text-mushaf/`, review in `docs/mushaf-larger-text-review/`):**
+  - **Glyphs 5% larger** (`QURAN_TEXT_SCALE` = 1.05, `pageGeometry.ts`): the text area is 1.05 × the print's on the same page width. The extra width comes only from the plain paper margin between the frame's inner rule and the text (`textInsetX`: 16.2 → 8.4 pt on a 384-pt page). The page width, border tiles, inner edge, top and bottom margins, running heads and page number are unchanged. `QURAN_TEXT_SCALE` = 1 restores the printed proportions; the original geometry is archived in `design-archive/mushaf-page-layout-v1/`.
+  - **Line spacing never tighter than the print, relative to the glyphs:** QPC pages always have at least `MIN_TILES_DOWN` (31) tiles, the first frame whose pitch is ≥ 1.05 × the printed pitch. Where the height is short (iPhone SE, small Android), the page is narrowed until that frame fits.
+  - **The retired bar's 64 pt is reclaimed:** Normal Mode's page reaches down to the ورد row, 4 pt above the bottom safe area.
+  - **The page selector never covers the text in Normal Mode** (as before): the text ends at least 4 pt above where its card opens (`SELECTOR_TEXT_CLEARANCE`, `PAGE_SELECTOR_CARD_HEIGHT`). Where the reclaimed height would bring it lower, the frame has a tile less, and on the shortest screens the page is a little narrower. In full screen the card opens over the last lines, as it always has.
+  - **Normal Mode and full screen show the glyphs at the same size** on a device: both use Normal Mode's page width. Full screen's extra height goes only to more tiles and wider line spacing.
+  - **Pages 1–2** keep their approved composition exactly: their letter size is taken on the printed text width (`openingPageSize`, `QpcV1PageText.tsx`), so it does not grow; the ornamental circle and cartouche are sized from the frame and page width as before.
+  - **Glyph size against the previous layout:** +5.0% on every width-limited phone (all current iPhones but the SE, Pixel-size and 360×800 Android). Height-limited phones gain more in Normal Mode, because the reclaimed band widens their page: iPhone SE +7.3% (324-pt page, was 317), 320/360×640 Android +7.4% (274, was 268). There, full screen is smaller than the previous full screen, which was wider than Normal Mode (SE 369 pt, small Android 314–328 pt); it now matches Normal Mode.
+- **Taller, in both modes (approved design; Normal Mode since candidate C):**
+  - **Normal Mode** uses the tallest whole-tile frame that fits above the ورد row (31–35 tiles).
+  - **Full screen** uses the tallest that fits down to the bottom safe area, at the same width: the same tiles repeated further, the lines spread evenly. The frame grows up to `TALLER_MAX_TILES_DOWN` (35).
   - **Where it applies:** all 604 pages, in every build (development, preview, production). Approved 2026-10-12; the page-61 / development-only gate (`TALLER_FULL_SCREEN_PAGES`) was removed.
   - **Cap on very tall screens:** the line spacing grows at most 25% over the printed page's (`TALLER_MAX_LINE_SPACING` = 1.25, giving 35 tiles). The approved reference, page 61 on a 393-pt iPhone, is +15%. Before the cap, a tall 412-pt Android reached 40 tiles (+42%) and showed large gaps. Height beyond the cap is plain paper around the centred page. The cap is a ratio, not a phone size, so it carries over to tablets unchanged.
   - **No layout choice:** there is no selector, measurement readout or setting in any build. The layout follows the mode and the space available.
-- **Bar colours:** Option A is final (see "One background"). The A/B comparison was removed.
 - **Development aid:** `?source=online`, in development builds only, reads any page straight from the backend's Content Sync relay. The chunk is verified like a download and kept in memory only (`mushaf/offline/devRelayPage.ts`), so pages can be checked where the offline store doesn't exist, such as a browser.
-- **How the Taller page is built** (every page, QPC renderer, full screen only):
+- **How the Taller page is built** (every page, QPC renderer, both modes):
   - **What changes:** the same page with a taller frame. Whole border tiles are repeated down the sides (`computePageLayout(width, tilesDown)`, never stretched), and the 15 lines are spaced to fill it.
   - **What doesn't:** the glyphs, line breaks, word order, medallions, heads and page number. The highlight keeps the printed band height.
-  - **How tall:** computed from the actual space (`fitMushafPage`). The width sets the page; then the tallest whole-tile frame (29–35) that still shows the whole page above the bottom safe area. No device height or line position is hard-coded.
+  - **How tall:** computed from the actual space (`fitMushafPage`). Normal Mode's room sets the page width (at least a 31-tile frame must fit); then, in each mode, the tallest whole-tile frame (31–35) that still shows the whole page. No device height or line position is hard-coded. The Quran SVG page (page 61 before its font loads) keeps the printed 29-tile frame.
   - **Line spacing:** the text area's height ÷ 15 is the pitch. Every row is exactly one pitch tall, and each glyph's full font box (`QCF_V1_LINE_BOX_EM`) is centred in its row, so baselines are exactly one pitch apart on every page. Headings and Basmalas take their own line slots in the same grid; pages 1–2 keep their own centred block.
-  - **Finding:** the text is no larger, because the page width sets glyph size; only the line spacing grows. Example results:
-    - iPhone 393 pt: unchanged in Normal Mode; 33 tiles in full screen, lines +15%.
-    - Android 412 dp (gesture navigation): 35 tiles in full screen, +23% (37 would fit; capped).
-    - Tall Android 412 × 1000: 35 tiles (40 would fit; capped).
-    - Narrow phones and tablets, where the height limits the page: Traditional.
-- **Selecting:** tap an ayah to select it; tap it again to clear the selection. Turning the page also clears it.
-- **Active reading stop (ورد)** (`MushafWirdSelector`): a small pill, "ورد الفجر ⌄", centred between the page and the bar.
+  - **Results** (frame tiles, Normal / full screen):
+    - iPhone 15/16 (393 pt) and 16 Pro: 31 / 33–34. iPhone 14 (390 pt): 32 / 34. iPhone 15/16 Plus and 16 Pro Max: 32 / 34. iPhone 13 mini: 31 / 34.
+    - Android 412 dp: 35 / 35 (gesture navigation; capped), 34 / 35 (3-button). Android 360 × 800: 34 / 35.
+    - iPhone SE: 31 / 34 on a 324-pt page. 320/360 × 640 Android (3-button): 31 / 35 on a 274-pt page. Tablets (where the height limits the page): 31, plus what full screen's height fits.
+- **Selecting:** a tap on an ayah selects it and opens its popup (above); dismissing the popup clears the selection, and so does turning the page.
+- **Active reading stop (ورد)** (`MushafWirdSelector`): a small pill, "ورد الفجر ⌄", centred in the row under the page.
   - **Space:** the page always leaves a 32-pt row free for it (`WIRD_ROW_HEIGHT`). On phones the width limits the page, so this costs nothing there; on tablets and small phones the page is slightly smaller. While zoomed the pill is hidden.
-  - **The list:** tapping the pill lists every stop with its page, the active one checked. The list scrolls, stays on screen, and closes on a choice, a tap outside or Back. A last row opens the bookmark's name field for a new stop. With no stops, the pill itself opens that field.
-  - **Switching:** choosing a stop makes it active and opens its saved page. **No stop's page changes**: a page is saved only by the bookmark's explicit save, so each stop keeps its own page.
-  - **Persistence:** the active stop's id is stored on the device (`quran-heals:mushaf-active-reading-stop:v1`, `readingStops.ts`). On opening without `?page=`, the reader opens the active stop's page. A stop saved with the bookmark becomes the active one, and removing the active stop clears it. The list re-reads the stops each time it opens.
-  - **Progress and Khatmas (2026-10-13):** each stop's saved page is its progress, and its cycles and completed Khatmas are kept beside it (`mushaf/khatmas.ts`, `docs/khatma.md`). A bookmark save that takes the active ورد from an earlier page to 604 offers «ما شاء الله، أتممت ختم القرآن» (إتمام الختمة / ليس الآن); showing page 604 never does. The list's last row opens أورادي وختماتي.
-- **Search** (`MushafSearchSheet`): one keyboard-aware sheet, the same pattern as the app's other sheets, with two modes:
-  - **Page Number:** a numeric field accepting 1–604 in Western or Arabic-Indic digits, and a Go button. A wrong number is explained and the sheet stays open.
-  - **Surah Name:** a search field over the 114 Surahs in Quran order, each with its number, Arabic and English name, and first page. The list is virtualised and stays scrollable and tappable with the keyboard open.
-  - **Matching** (`mushaf/surahSearch.ts`):
-    - Arabic ignores diacritics and tatweel, unifies alef and hamza forms, and treats ى as ي and ة as ه.
-    - English ignores case, hyphens and apostrophes, and treats Tanzil-spelling variants as the same ("baqarah", "Imran", "Yasin").
-    - Partial names match, and a Surah number matches.
-  - **First pages:** generated from Tanzil's 604-page table (`tools/quran-import/generate-surah-pages.mjs` → `mushaf/generated/surahStartPages.ts`). It matches Quran Foundation's QCF V1 (1405 AH) pages on every page start and every Surah's first page (checked 2026-10-11).
-  - **Navigation only:** a search just opens the page. No stop, progress or Khatma is touched.
+  - **The list:** tapping the pill lists every stop with its page, the active one checked. The list scrolls, stays on screen, and closes on a choice, a tap outside or Back. A last row opens the ورد name field for a new stop. With no stops, the pill itself opens that field.
+  - **Switching:** choosing a stop makes it active and opens its saved page. **No stop's page changes**: a page is saved only by an explicit save (Apply on a separator, or the ورد name field), so each stop keeps its own page.
+  - **Persistence:** the active stop's id is stored on the device (`quran-heals:mushaf-active-reading-stop:v1`, `readingStops.ts`). On opening without `?page=`, the reader opens the active stop's page. A stop saved with the name field becomes the active one, and removing the active stop clears it. The list re-reads the stops each time it opens.
+  - **Progress and Khatmas (2026-10-13):** each stop's saved page is its progress, and its cycles and completed Khatmas are kept beside it (`mushaf/khatmas.ts`, `docs/khatma.md`). A save (Apply, or the name field) that takes the active ورد from an earlier page to 604 offers «ما شاء الله، أتممت ختم القرآن» (إتمام الختمة / ليس الآن); showing page 604 never does. The list's last row opens أورادي وختماتي.
+- **Search** (retired with the bar; archived): page numbers are now typed in the page selector, and Surahs are searched in the Surah list, with the same matching (`mushaf/surahSearch.ts`):
+  - Arabic ignores diacritics and tatweel, unifies alef and hamza forms, and treats ى as ي and ة as ه.
+  - English ignores case, hyphens and apostrophes, and treats Tanzil-spelling variants as the same ("baqarah", "Imran", "Yasin").
+  - Partial names match, and a Surah number matches.
+  - **First pages:** generated from Tanzil's 604-page table (`tools/quran-import/generate-surah-pages.mjs` → `mushaf/generated/surahStartPages.ts`; page starts `generate-page-starts.mjs` → `generated/pageStarts.ts`). They match Quran Foundation's QCF V1 (1405 AH) pages on every page start and every Surah's first page (checked 2026-10-11 and, for all 604 page starts, 2026-10-14 in `mushafNavigation.test.ts`).
+  - **Navigation only:** opening a page never touches a stop, progress or Khatma.
 - **Pinch-to-zoom** (`MushafZoomView`, geometry in `mushaf/pageZoom.ts`):
   - **What scales:** the whole drawn page, as one picture, from 1× (fitted) to 3×. The QPC V1 text is never resized or reflowed: glyphs, line breaks, medallions, the border and the touch areas all scale together.
   - **Gestures:** a pinch zooms toward the fingers' midpoint. Zoomed in, one finger pans the page, which can never leave the screen. A double-tap returns to 1× and leaves the selection as it was. A pinch released near 1× snaps back.
   - **Taps and turning:** taps select the same ayah at any zoom. A new page always starts at 1×.
   - **Implementation:** React Native Gesture Handler and Reanimated, both already native dependencies, so no new build is needed. Pinch and pan run as UI-thread worklets; only page turns and the zoomed/not-zoomed state reach React.
-- **Swiping:** at 1× only, one page per swipe. A finger moving **left to right** goes to the **next** page; **right to left** goes to the **previous** one. This is the same in every language and is never inverted for RTL. It deliberately differs from the toolbar, where the left arrow is next (`mobile/src/mushaf/pageZoom.ts`, `swipeTurn`).
+- **Swiping:** at 1× only, one page per swipe. A finger moving **left to right** goes to the **next** page; **right to left** goes to the **previous** one. This is the same in every language and is never inverted for RTL (`mobile/src/mushaf/pageZoom.ts`, `swipeTurn`).
   - **What turns:** a mostly horizontal drag of at least 50 pt, or a quick flick of at least 30 pt released at 500 pt/s or faster.
   - **What doesn't:** taps (they keep selecting ayahs), small or slow movements, mostly vertical drags, and a touch the system cancels. A second finger cancels the swipe and starts a pinch.
   - **Zoomed:** a drag moves the page instead.

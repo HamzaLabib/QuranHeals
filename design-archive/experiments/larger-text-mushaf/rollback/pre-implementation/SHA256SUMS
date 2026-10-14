@@ -1,0 +1,8 @@
+03fb34b2566ed78fb82ed2a878c31ca3e26c9f4263951d0b2e2e28dc1e866835 *./mobile/src/app/(tabs)/mushaf.tsx
+f811152697cfc2c22e4ef88bacfe7f882726f4f50f3ff011bdf3ac7f2a408edf *./mobile/src/components/MushafPageSelector.tsx
+d967a39e9c4247b9363e4ea392b3bb03cc6926b9f331fd14acddd11153ff7529 *./mobile/src/components/MushafPageView.tsx
+79ebfb327f25338ad92ef62619ef7b055ea58e22eec3b7ffff71818fd5284c6b *./mobile/src/components/MushafStopNameField.tsx
+dfc268f5774d9a3395cdf5b75776a59473f3b7ce22db10987700ab1936a2656b *./mobile/src/components/MushafWirdSelector.tsx
+0f64edfea52f92289babcab377508e1735e3c933601b20e37785e012aaa69a47 *./mobile/src/components/QpcV1PageText.tsx
+d9f5f13ea3f2e0c732356cafcf21734a3260aef20dba5ef018f885d045be35a1 *./mobile/src/mushaf/pageGeometry.ts
+1576ab848cf74067bd2baa4ab0ec132bebf6e60bd0baf98094c31590e7c3efd0 *./mobile/tests/mushafScreen.test.ts

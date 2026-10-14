@@ -231,6 +231,27 @@ export type Messages = {
     wirdAdd: string;
     wirdNew: string;
     wirdClose: string;
+    /** The 2026-10-14 navigation: Surah / juz' / Hizb selectors, the page selector, the ayah and separator popups. */
+    navSurahTitle: string;
+    navJuzTitle: string;
+    navHizbTitle: string;
+    juzSearchPlaceholder: string;
+    hizbSearchPlaceholder: string;
+    juzName: string;
+    hizbName: string;
+    divisionNoResults: string;
+    openSurahs: string;
+    openJuz: string;
+    openHizb: string;
+    openPageSelector: string;
+    pageSlider: string;
+    goToSelected: string;
+    editPage: string;
+    actionReflection: string;
+    actionSave: string;
+    actionSaved: string;
+    applyToWird: string;
+    applyToNamedWird: string;
     searchTitle: string;
     searchByPage: string;
     searchBySurah: string;
@@ -417,6 +438,9 @@ export type Messages = {
     /** Quran Language (localization/quranLanguage.ts) and its one current mode. */
     quranLanguageSection: string;
     quranTextOption: string;
+    /** Keep Screen Awake (mushaf/keepAwakePreference.ts): a local switch, directly below Quran Language. */
+    keepAwakeTitle: string;
+    keepAwakeDescription: string;
     quranTranslationSection: string;
     translationDisplayAlways: string;
     translationDisplayOnDemand: string;
@@ -816,6 +840,26 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       wirdAdd: 'Add a reading stop',
       wirdNew: 'New reading stop on this page',
       wirdClose: 'Close',
+      navSurahTitle: "Surahs",
+      navJuzTitle: "Juz'",
+      navHizbTitle: "Hizb",
+      juzSearchPlaceholder: "Search by juz' number (1–30)",
+      hizbSearchPlaceholder: "Search by Hizb number (1–60)",
+      juzName: "Juz' {n}",
+      hizbName: "Hizb {n}",
+      divisionNoResults: "No match for that number.",
+      openSurahs: "Choose a Surah",
+      openJuz: "Choose a juz'",
+      openHizb: "Choose a Hizb",
+      openPageSelector: "Go to a page",
+      pageSlider: "Page",
+      goToSelected: "Go to page {page}",
+      editPage: "Type a page number",
+      actionReflection: "Reflection",
+      actionSave: "Save",
+      actionSaved: "Saved",
+      applyToWird: "Apply to {name} Wird",
+      applyToNamedWird: "Apply to {name}",
       searchTitle: 'Go to',
       searchByPage: 'Page Number',
       searchBySurah: 'Surah Name',
@@ -972,6 +1016,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       emotionsArabicEgyptian: 'العربية المصرية',
       quranLanguageSection: 'Quran Language',
       quranTextOption: 'The Quranic Text',
+      keepAwakeTitle: 'Keep Screen Awake',
+      keepAwakeDescription: 'Prevent automatic screen locking while reading the Mushaf.',
       quranTranslationSection: 'Quran Translation',
       translationDisplayAlways: 'Always',
       translationDisplayOnDemand: 'On demand',
@@ -1342,6 +1388,26 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       wirdAdd: 'أضف وردًا',
       wirdNew: 'ورد جديد في هذه الصفحة',
       wirdClose: 'إغلاق',
+      navSurahTitle: "السور",
+      navJuzTitle: "الأجزاء",
+      navHizbTitle: "الأحزاب",
+      juzSearchPlaceholder: "ابحث برقم الجزء (١–٣٠)",
+      hizbSearchPlaceholder: "ابحث برقم الحزب (١–٦٠)",
+      juzName: "الجزء {n}",
+      hizbName: "الحزب {n}",
+      divisionNoResults: "لا يوجد رقم مطابق.",
+      openSurahs: "اختيار سورة",
+      openJuz: "اختيار جزء",
+      openHizb: "اختيار حزب",
+      openPageSelector: "الانتقال إلى صفحة",
+      pageSlider: "الصفحة",
+      goToSelected: "الانتقال إلى الصفحة {page}",
+      editPage: "اكتب رقم الصفحة",
+      actionReflection: "خاطرة",
+      actionSave: "حفظ",
+      actionSaved: "محفوظة",
+      applyToWird: "تطبيق على ورد {name}",
+      applyToNamedWird: "تطبيق على {name}",
       searchTitle: 'انتقل إلى',
       searchByPage: 'رقم الصفحة',
       searchBySurah: 'اسم السورة',
@@ -1498,6 +1564,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       emotionsArabicEgyptian: 'العربية المصرية',
       quranLanguageSection: 'لغة القرآن',
       quranTextOption: 'النص القرآني',
+      keepAwakeTitle: 'إبقاء الشاشة مضاءة',
+      keepAwakeDescription: 'منع قفل الشاشة تلقائيًا أثناء قراءة المصحف.',
       quranTranslationSection: 'ترجمة القرآن',
       translationDisplayAlways: 'دائمًا',
       translationDisplayOnDemand: 'عند الطلب',
@@ -1882,6 +1950,26 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       wirdAdd: 'ضيف ورد',
       wirdNew: 'ورد جديد في الصفحة دي',
       wirdClose: 'اقفل',
+      navSurahTitle: "السور",
+      navJuzTitle: "الأجزاء",
+      navHizbTitle: "الأحزاب",
+      juzSearchPlaceholder: "دوّر برقم الجزء (١–٣٠)",
+      hizbSearchPlaceholder: "دوّر برقم الحزب (١–٦٠)",
+      juzName: "الجزء {n}",
+      hizbName: "الحزب {n}",
+      divisionNoResults: "مفيش رقم زي ده.",
+      openSurahs: "اختار سورة",
+      openJuz: "اختار جزء",
+      openHizb: "اختار حزب",
+      openPageSelector: "روح لصفحة",
+      pageSlider: "الصفحة",
+      goToSelected: "روح للصفحة {page}",
+      editPage: "اكتب رقم الصفحة",
+      actionReflection: "خاطرة",
+      actionSave: "حفظ",
+      actionSaved: "محفوظة",
+      applyToWird: "طبّق على ورد {name}",
+      applyToNamedWird: "طبّق على {name}",
       searchTitle: 'روح لـ',
       searchByPage: 'رقم الصفحة',
       searchBySurah: 'اسم السورة',
@@ -2039,6 +2127,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       emotionsArabicEgyptian: 'العربية المصرية',
       quranLanguageSection: 'لغة القرآن',
       quranTextOption: 'النص القرآني',
+      keepAwakeTitle: 'إبقاء الشاشة مضاءة',
+      keepAwakeDescription: 'منع قفل الشاشة تلقائيًا أثناء قراءة المصحف.',
       quranTranslationSection: 'ترجمة القرآن',
       translationDisplayAlways: 'دائمًا',
       translationDisplayOnDemand: 'عند الطلب',

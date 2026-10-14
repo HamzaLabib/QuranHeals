@@ -311,7 +311,8 @@ describe('دعاء ختم القرآن', () => {
   it('is not Quran: not in the Quran dataset, search or page count', () => {
     const source = (path: string) => readFileSync(resolve(__dirname, '..', path), 'utf8');
     expect(source('src/mushaf/mushafPage.ts')).toMatch(/MUSHAF_PAGE_COUNT = 604/);
-    for (const path of ['src/services/quran.ts', 'src/mushaf/surahSearch.ts', 'src/components/MushafSearchSheet.tsx']) expect(source(path)).not.toMatch(/khatm|KHATM/);
+    // Nor in the reader's navigation: the Surah / juz' / Hizb lists, the page selector and their metadata.
+    for (const path of ['src/services/quran.ts', 'src/mushaf/surahSearch.ts', 'src/mushaf/navigation.ts', 'src/mushaf/generated/pageStarts.ts', 'src/components/MushafIndexSheet.tsx', 'src/components/MushafPageSelector.tsx']) expect(source(path)).not.toMatch(/khatm|KHATM/);
   });
 });
 

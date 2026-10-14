@@ -169,7 +169,19 @@ export function describeLineBreaks(layout: QpcV1PageLayout) {
  * A rendered word on its line (from onLayout): its advance box, its ayah, and how far its drawn ink reaches past the
  * box on the left and right (points; QPC V1 glyphs draw outside their advance; for an ayah-end marker, its medallion).
  */
-export type WordBox = { x: number; width: number; verseKey: string; inkLeft?: number; inkRight?: number };
+export type WordBox = { x: number; width: number; verseKey: string; inkLeft?: number; inkRight?: number; kind?: QpcV1Word['kind'] };
+
+/**
+ * What a tap at `x` on one line reaches: the ayah (exactly as ayahAtLineX decides it) and whether the tap is on that
+ * ayah's end marker, the separator medallion (its drawn box), rather than on its words. Only taps within the
+ * medallion's box count as the marker; a tap in a gap beside it is a tap on the ayah.
+ */
+export function pressTargetAtLineX(boxes: readonly WordBox[], x: number): { verseKey: string; onMarker: boolean } | null {
+  const verseKey = ayahAtLineX(boxes, x);
+  if (!verseKey) return null;
+  const onMarker = boxes.some((box) => box.kind === 'end' && box.verseKey === verseKey && x >= box.x && x <= box.x + box.width);
+  return { verseKey, onMarker };
+}
 
 /**
  * The ayah under a tap at `x` on one line (boxes from the rendered words).

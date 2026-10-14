@@ -1,0 +1,8 @@
+3c6a632adbd67cc6c53194b9773ddcd46802bc2a34680f25783171f89405e368 *./fitMushafPage.excerpt.ts
+f71131da2354e56b839cb535a0575971da4e3c667026644f59d6af9b5939f583 *./mobile/src/components/MushafBorder.tsx
+d967a39e9c4247b9363e4ea392b3bb03cc6926b9f331fd14acddd11153ff7529 *./mobile/src/components/MushafPageView.tsx
+0f64edfea52f92289babcab377508e1735e3c933601b20e37785e012aaa69a47 *./mobile/src/components/QpcV1PageText.tsx
+24ea32cbf4708516435fa733865956f0c38c6846259e99fbc831ec30ff6be1bf *./mobile/src/components/SurahHeadingTraditional.tsx
+29f5bc00d5260f47cbbd7374a965d1ebc81f9d9b4f770a0147e9c47824b2652b *./mobile/src/mushaf/ayahMarkers.ts
+d9f5f13ea3f2e0c732356cafcf21734a3260aef20dba5ef018f885d045be35a1 *./mobile/src/mushaf/pageGeometry.ts
+f993fdb814836d81de943f69bd671350f6680b9fe86e7a8f4f05b5d2e46bef6b *./mobile/src/mushaf/surahHeadingPlacement.ts

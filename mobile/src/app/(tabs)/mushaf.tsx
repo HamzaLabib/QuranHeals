@@ -1,7 +1,7 @@
 import * as Font from 'expo-font';
 import { useFonts } from 'expo-font';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft, Maximize, Minimize } from 'lucide-react-native';
+import { ArrowLeft, Maximize2, Minimize2 } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { BackHandler, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -10,31 +10,40 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ConfirmSheet } from '@/components/ConfirmSheet';
 import { KhatmaReachedSheet } from '@/components/KhatmaReachedSheet';
 import { OfflineMushafPanel } from '@/components/OfflineMushafPanel';
-import { MushafControlPanel, MUSHAF_PANEL_HEIGHT, MUSHAF_PANEL_MARGIN, type MushafPopup } from '@/components/MushafControlPanel';
+import { MushafAyahActions, MushafWirdApply, type PopupAnchor } from '@/components/MushafAyahPopups';
+import { MushafIndexSheet, type MushafIndexMode } from '@/components/MushafIndexSheet';
+import { MushafPageSelector, PAGE_SELECTOR_BOTTOM_MARGIN, PAGE_SELECTOR_CARD_HEIGHT } from '@/components/MushafPageSelector';
 import { MushafPageView } from '@/components/MushafPageView';
-import { MushafSearchSheet } from '@/components/MushafSearchSheet';
+import { MushafStopNameField } from '@/components/MushafStopNameField';
 import { MushafSvgText } from '@/components/MushafSvgText';
 import { MushafWirdSelector, WIRD_PILL_HEIGHT } from '@/components/MushafWirdSelector';
 import { MushafZoomView, type MushafZoomHandle } from '@/components/MushafZoomView';
 import { QpcV1PageText } from '@/components/QpcV1PageText';
 import { ReflectionSheet } from '@/components/ReflectionSheet';
+import { ShareAyahSheet } from '@/components/ShareAyahSheet';
 import { MUSHAF_PANEL_COLORS, MUSHAF_PAPER } from '@/constants/mushafTheme';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
 import { isRtlLocale } from '@/localization/locales';
+import { fill } from '@/localization/fill';
 import { useAppLocale } from '@/localization/useAppLocale';
+import { useFavorites } from '@/hooks/useFavorites';
 import { MUSHAF_BACKGROUNDS, MUSHAF_BORDER_STYLES, MUSHAF_INKS, MUSHAF_PAGE_FURNITURE, resolveMushafAppearance } from '@/mushaf/appearance';
 import { QCF_V1_NORMAL_BOX_MARGIN_EM } from '@/mushaf/ayahMarkers';
 import { HAFS_KFQC_PAGE_061 } from '@/mushaf/generated/hafsKfqcPage061';
 import { KHATM_DUA } from '@/mushaf/khatmDua';
 import { MUSHAF_HEADER_FONT_FAMILY, MUSHAF_HEADER_FONTS } from '@/mushaf/headerFonts';
 import { MUSHAF_PAGE_COUNT, parseMushafPage, tintAyahMarkers, tintSvgInk, toArabicIndicDigits } from '@/mushaf/mushafPage';
+import { HIZB_START_PAGES, pageInfo } from '@/mushaf/navigation';
+import { useMushafKeepAwake } from '@/mushaf/useMushafKeepAwake';
+import type { Ayah } from '@/types/domain';
+import { applyToWirdLabel } from '@/mushaf/pageSelector';
 import { offlineMushaf } from '@/mushaf/offline';
 import { readRelayPageForDev } from '@/mushaf/offline/devRelayPage';
 import { useMushafAutoDownload } from '@/mushaf/offline/useMushafAutoDownload';
 import { qcfFontUrl } from '@/mushaf/offline/fonts';
 import { resolveDecorations } from '@/mushaf/decorations';
 import { hizbLabelsForPage } from '@/mushaf/hizbQuarters';
-import { BORDER_TILES_DOWN, computePageLayout } from '@/mushaf/pageGeometry';
+import { BORDER_TILES_DOWN, computePageLayout, MIN_TILES_DOWN, MUSHAF_TEXT_LIFT_PT } from '@/mushaf/pageGeometry';
 import { QPC_V1_FONTS } from '@/mushaf/qpcV1Fonts';
 import { checkAgainstTanzil, loadQpcV1PageLayout, type QpcV1PageLayout } from '@/mushaf/qpcV1Layout';
 import { confirmKhatma, loadReadingData, saveWirdPage, type ReadingCycle } from '@/mushaf/khatmas';
@@ -51,25 +60,35 @@ import {
 } from '@/mushaf/readingStops';
 import { subscribeToLocalDataOwner } from '@/storage/localDataOwner';
 import { BASMALA_FONT_PAGE, surahOpeningSlots } from '@/mushaf/surahOpenings';
+import { getApiErrorMessage, getAyah } from '@/services/api';
 import { getVerseByKey } from '@/services/quran';
+import { getSurahName } from '@/services/surahNames';
 import { useThemedStyles, useThemeName } from '@/theme/useTheme';
 import { devLog } from '@/utils/devLog';
 import { goBackOrHome } from '@/utils/goBackOrHome';
 
 /**
  * The Mushaf reader (/mushaf): a plain Back arrow in a slim row under the
- * status bar, then the printed QPC V1 page as large as the screen allows,
- * with one floating, icon-only action bar at the bottom (previous page,
- * reflection, search, save a reading stop, next page). Swiping the page
- * turns it too, in step with the arrows, the page following the finger with
- * its neighbour beside it (both drawn ahead); pinching zooms it
- * (MushafZoomView).
- * The active reading stop (ورد) sits between the page and the bar
- * (MushafWirdSelector); search opens a sheet for a page number or a Surah
- * (MushafSearchSheet). The sources are credited on Home and in /credits.
+ * status bar, then the printed QPC V1 page as large as the screen allows.
+ * Swiping turns the page, following the finger with its neighbour beside it
+ * (both drawn ahead); pinching zooms it (MushafZoomView). The active reading
+ * stop (ورد) sits under the page (MushafWirdSelector, unchanged). The sources
+ * are credited on Home and in /credits.
  *
- * Navigating (arrows, swipes, search) only shows a page: no stop is ever
- * saved or moved except by the bookmark's explicit save.
+ * Navigation and actions live on the page itself (2026-10-14 redesign; the
+ * earlier floating bar is preserved in design-archive/mushaf-navigation-v1/):
+ *  - the Surah name, juz' and Hizb label in the running heads open searchable
+ *    lists (MushafIndexSheet);
+ *  - the page number under the frame opens the compact page selector, an RTL
+ *    slider with a contextual arrow (MushafPageSelector);
+ *  - a tap on an ayah's words: Reflection or Save (to Favorites), nothing else;
+ *  - a tap on its number (the separator medallion): Apply to the active ورد,
+ *    saving this page to it (MushafAyahPopups).
+ * Screen readers turn pages with the page's own next / previous actions.
+ *
+ * Navigating (swipes, the lists, the selector) only shows a page: no stop is
+ * ever saved or moved except by an explicit save (Apply, or the ورد list's
+ * Add and its name field).
  *
  * Full-screen reading (the top-right Expand / Collapse icon): only the page
  * and the Collapse icon stay; the Back arrow, the bar and the ورد pill hide,
@@ -84,12 +103,12 @@ import { goBackOrHome } from '@/utils/goBackOrHome';
  * `paper`), so the page has no visible edge against it.
  *
  * Taller (Mobile-Optimized; approved for full-screen reading on all 604
- * pages, in every build): in full screen, the same page with a taller frame —
- * more of the same border tiles down its sides — and the lines spaced evenly
- * further apart, filling the height the device has to spare, up to
- * TALLER_MAX_LINE_SPACING (none to spare: the Traditional page). Normal Mode
- * is always Traditional. It is automatic: there is no layout choice or
- * setting.
+ * pages, in every build, and with the larger text (candidate C, 2026-10-14) in
+ * Normal Mode too): the same page with a taller frame — more of the same
+ * border tiles down its sides — and the lines spaced evenly further apart,
+ * filling the height the device has to spare, up to TALLER_MAX_LINE_SPACING
+ * (none to spare: the Traditional page). It is automatic: there is no layout
+ * choice or setting.
  *
  * Pages: every page comes from the offline Mushaf when it is installed (its
  * layout and page font); page 61 also works online (our backend's layout and
@@ -114,8 +133,6 @@ import { goBackOrHome } from '@/utils/goBackOrHome';
 const DEFAULT_PAGE = 61;
 /** Where a reader with no saved position starts: the first page of the Mushaf. */
 const FIRST_PAGE = 1;
-/** Page height ÷ width (headers, frame and page number), from the measured geometry. */
-const PAGE_ASPECT = computePageLayout(1000).page.height / 1000;
 /**
  * Just enough to keep the frame and the running heads off the screen's edge
  * (curved edges included). On phones the width is what limits the page's size.
@@ -123,8 +140,20 @@ const PAGE_ASPECT = computePageLayout(1000).page.height / 1000;
 const SIDE_MARGIN = 3;
 /** The slim row for the Back arrow, under the status bar (its touch target reaches 44 pt upward). */
 export const BACK_BAR_HEIGHT = 36;
-/** Between the bottom of the page and the floating bar. */
+/**
+ * Normal Mode: between the ورد row and the bottom safe area. The retired floating bar's reserved 56 + 8 pt
+ * (design-archive/mushaf-navigation-v1/) was reclaimed for the larger text (candidate C, 2026-10-14): the page takes
+ * that height (a taller frame; on height-limited phones a wider page), and the ورد pill stays directly under it.
+ */
 const PAGE_PANEL_GAP = 4;
+/**
+ * Normal Mode: the Quran text ends at least this far above the page-number selector's card when it opens (its top:
+ * PAGE_SELECTOR_CARD_HEIGHT + PAGE_SELECTOR_BOTTOM_MARGIN above the bottom safe area), so the card never covers it, as
+ * when the retired bar's space was reserved. Where the reclaimed height would bring the text lower, the frame has a tile
+ * less, or on the shortest screens the page is a little narrower. Full screen is unchanged (its card has always opened
+ * over the page's last lines).
+ */
+const SELECTOR_TEXT_CLEARANCE = 4;
 /** Kept free under the page for the ورد pill: on phones the page is narrower than it could be tall, so this costs nothing there. */
 export const WIRD_ROW_HEIGHT = 32;
 /**
@@ -165,19 +194,28 @@ const isDevBuild = () => typeof __DEV__ !== 'undefined' && __DEV__;
 /**
  * The largest page that fits the reading area, in its own proportions (never
  * cropped or stretched). Normal Mode leaves at least the ورد row free under
- * it, and the zoom viewport is the whole area above the bar. Full screen
- * has no bar or ورد row: the page and the viewport reach down to the
- * bottom safe area. `taller` (full-screen reading): at that width, the
- * tallest whole-tile frame that fits, up to TALLER_MAX_TILES_DOWN; computed
+ * it, and the zoom viewport reaches down to PAGE_PANEL_GAP above the bottom
+ * safe area. Full screen has no ورد row: the page and the viewport reach down
+ * to the bottom safe area. `taller` (QPC pages, both modes): at that width,
+ * the tallest whole-tile frame that fits, up to TALLER_MAX_TILES_DOWN; computed
  * from the actual space, so any phone (or, later, tablet) gets its own.
  */
 export function fitMushafPage(area: { width: number; height: number }, bottomInset: number, fullScreen = false, taller = false) {
-  const viewportHeight = Math.max(0, area.height - (fullScreen ? FULL_SCREEN_BOTTOM_GAP + bottomInset : PAGE_PANEL_GAP + MUSHAF_PANEL_HEIGHT + MUSHAF_PANEL_MARGIN + bottomInset));
+  const viewportHeight = Math.max(0, area.height - (fullScreen ? FULL_SCREEN_BOTTOM_GAP : PAGE_PANEL_GAP) - bottomInset);
   const available = viewportHeight - (fullScreen ? 0 : WIRD_ROW_HEIGHT);
-  const width = Math.floor(Math.max(0, Math.min(area.width - SIDE_MARGIN * 2, available / PAGE_ASPECT)));
-  // Taller: at that same width, the tallest whole-tile frame that still fits.
-  let tilesDown = BORDER_TILES_DOWN;
-  while (taller && width > 0 && tilesDown < TALLER_MAX_TILES_DOWN && pageHeightFor(width, tilesDown + 1) <= available) tilesDown += 1;
+  // The page width (and so the Quran glyphs' size) is Normal Mode's in both modes: full screen never enlarges the
+  // text, its extra height goes to a taller frame and wider line spacing (Taller) instead.
+  // Its height is that of the shortest frame the larger text allows (MIN_TILES_DOWN), and Normal Mode's text ends above
+  // the page selector's card (SELECTOR_TEXT_CLEARANCE).
+  const normalViewport = Math.max(0, area.height - PAGE_PANEL_GAP - bottomInset);
+  const normalAvailable = normalViewport - WIRD_ROW_HEIGHT;
+  const textBottomLimit = normalViewport + PAGE_PANEL_GAP - PAGE_SELECTOR_BOTTOM_MARGIN - PAGE_SELECTOR_CARD_HEIGHT - SELECTOR_TEXT_CLEARANCE;
+  const clearOfSelector = (w: number, tiles: number) => textBottomFor(w, tiles) <= textBottomLimit;
+  let width = Math.floor(Math.max(0, Math.min(area.width - SIDE_MARGIN * 2, normalAvailable / (pageHeightFor(1000, MIN_TILES_DOWN) / 1000))));
+  while (width > 0 && !clearOfSelector(width, MIN_TILES_DOWN)) width -= 1;
+  // Taller: at that same width, the tallest whole-tile frame that still fits, from the shortest one allowed.
+  let tilesDown = taller && width > 0 ? MIN_TILES_DOWN : BORDER_TILES_DOWN;
+  while (taller && width > 0 && tilesDown < TALLER_MAX_TILES_DOWN && pageHeightFor(width, tilesDown + 1) <= available && (fullScreen || clearOfSelector(width, tilesDown + 1))) tilesDown += 1;
   return {
     viewport: { width: Math.max(0, area.width), height: viewportHeight },
     page: { width, height: width > 0 ? pageHeightFor(width, tilesDown) : 0 },
@@ -189,6 +227,21 @@ export function fitMushafPage(area: { width: number; height: number }, bottomIns
 function pageHeightFor(width: number, tilesDown: number) {
   return (computePageLayout(1000, tilesDown).page.height / 1000) * width;
 }
+
+/** Where the Quran text ends on that page (from its top), as drawn: the text area, MUSHAF_TEXT_LIFT_PT up. */
+function textBottomFor(width: number, tilesDown: number) {
+  const { text } = computePageLayout(width, tilesDown);
+  return text.y + text.height - MUSHAF_TEXT_LIFT_PT;
+}
+
+/** The reader's one open popup (or none). */
+type Overlay =
+  | { kind: 'stopName' }
+  | { kind: 'index'; mode: MushafIndexMode }
+  | { kind: 'pageSelector' }
+  | { kind: 'ayah'; verseKey: string; anchor: PopupAnchor }
+  | { kind: 'wird'; verseKey: string; anchor: PopupAnchor }
+  | null;
 
 type PageState =
   | { status: 'loading' }
@@ -268,6 +321,8 @@ const LOADING: PageState = { status: 'loading' };
 const ignoreVerse = () => undefined;
 
 export default function MushafScreen() {
+  // Keep Screen Awake (Settings): held only while this reader is focused, the app active and the setting ON.
+  useMushafKeepAwake();
   const styles = useThemedStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const { locale, messages } = useAppLocale();
@@ -307,7 +362,16 @@ export default function MushafScreen() {
   const [headerFontLoaded] = useFonts(MUSHAF_HEADER_FONTS);
   const [selectedVerseKey, setSelectedVerseKey] = useState<string | null>(null);
   const [isReflectionVisible, setIsReflectionVisible] = useState(false);
-  const [popup, setPopup] = useState<MushafPopup>(null);
+  // At most one of the reader's popups at a time: the ورد name field, a Surah / juz' / Hizb list, the page selector,
+  // an ayah's actions (its words) or its Apply-to-ورد (its separator). Closing it never changes the page or a ورد.
+  const [overlay, setOverlay] = useState<Overlay>(null);
+  // An ayah tap waits DOUBLE_TAP_MS before its popup opens, so a double-tap (the zoom reset) never opens one.
+  const pendingAyahPopup = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [ayahBusy, setAyahBusy] = useState(false);
+  const [ayahError, setAyahError] = useState<string | null>(null);
+  const { isFavorite, toggleFavorite } = useFavorites();
+  // Share: the ayah being shared in the existing Share Ayah sheet (the same one as the ayah screens), or none.
+  const [sharing, setSharing] = useState<Ayah | null>(null);
   // Measured, not the window size: right on tablets, split screen and web.
   const [area, setArea] = useState({ width: 0, height: 0 });
   // The selection before the latest tap, so a double-tap (zoom reset) can put it back.
@@ -394,25 +458,43 @@ export default function MushafScreen() {
     };
   }, [page, reloadKey, onlineInDev]);
 
-  /** Shows a page — and only that: nothing is saved (search, stops and links all use it). */
+  /** Closes whatever popup is open, and an ayah popup still waiting to open. Changes nothing else. */
+  const closeOverlay = useCallback(() => {
+    if (pendingAyahPopup.current) {
+      clearTimeout(pendingAyahPopup.current);
+      pendingAyahPopup.current = null;
+    }
+    setOverlay(null);
+    setAyahError(null);
+  }, []);
+  useEffect(() => () => {
+    if (pendingAyahPopup.current) clearTimeout(pendingAyahPopup.current);
+  }, []);
+  // The page shown, for a waiting ayah popup: it never opens over another page.
+  const pageRef = useRef(page);
+  useEffect(() => {
+    pageRef.current = page;
+  }, [page]);
+
+  /** Shows a page — and only that: nothing is saved (the lists, the selector, stops and links all use it). */
   const goTo = useCallback((next: number) => {
     if (next < 1 || next > MUSHAF_PAGE_COUNT) return;
     hasNavigated.current = true;
     setPage(next);
     setSelectedVerseKey(null);
-    setPopup(null);
+    closeOverlay();
     setZoomed(false); // a new page opens at 1×
-  }, []);
-  /** One page back (-1) or forward (+1); the arrows and swipes share it. */
+  }, [closeOverlay]);
+  /** One page back (-1) or forward (+1): swipes, and the page's screen-reader actions. */
   const turn = useCallback((delta: -1 | 1) => {
     hasNavigated.current = true;
     setPage((current) => Math.min(MUSHAF_PAGE_COUNT, Math.max(1, current + delta)));
     setSelectedVerseKey(null);
-    setPopup(null);
+    closeOverlay();
     setZoomed(false);
-  }, []);
-  // Left arrow = next page, right arrow = previous; a finger swipe left to right = next, right to left = previous
-  // (the same in every language; swipes at 1× only — mushaf/pageZoom.ts swipeTurn).
+  }, [closeOverlay]);
+  // A finger swipe left to right = next, right to left = previous (the same in every language; swipes at 1× only —
+  // mushaf/pageZoom.ts swipeTurn).
 
   // A later /mushaf?page=N&at=… (Home's Continue Reciting, أورادي وختماتي) while the reader is already open:
   // applied while rendering (React's "adjust state when a prop changes"), once per request.
@@ -423,7 +505,7 @@ export default function MushafScreen() {
     if (requestedPage !== null) {
       setPage(requestedPage);
       setSelectedVerseKey(null);
-      setPopup(null);
+      setOverlay(null);
       setZoomed(false);
     }
   }
@@ -432,27 +514,126 @@ export default function MushafScreen() {
     if (handledRequest !== initialRequest.current) hasNavigated.current = true;
   }, [handledRequest]);
 
-  /** A tap on an ayah selects it; a tap on the selected ayah clears the selection. */
-  const selectVerse = (verseKey: string) => {
+  /** Where a popup goes when a tap's position isn't known (the web): the middle of the reading area. */
+  const middle = (): PopupAnchor => ({ x: area.width / 2, y: insets.top + BACK_BAR_HEIGHT + area.height / 2 });
+  /**
+   * A tap on an ayah: it is selected (highlighted) at once, and its popup opens DOUBLE_TAP_MS later, unless the tap
+   * turns out to be half of a double-tap (onDoubleTap cancels it) or the page has changed meanwhile.
+   */
+  const tapAyah = (kind: 'ayah' | 'wird', verseKey: string, at?: PopupAnchor) => {
     const now = Date.now();
     // A tap of a double-tap that arrives after the double-tap itself (the web's click comes late).
     if (now < lastTap.current.ignoreUntil) return;
     if (now - lastTap.current.at > DOUBLE_TAP_MS) lastTap.current.before = selectedVerseKey;
     lastTap.current.at = now;
-    setSelectedVerseKey(verseKey === selectedVerseKey ? null : verseKey);
+    setSelectedVerseKey(verseKey);
+    if (pendingAyahPopup.current) clearTimeout(pendingAyahPopup.current);
+    const forPage = page;
+    const anchor = at ?? middle();
+    pendingAyahPopup.current = setTimeout(() => {
+      pendingAyahPopup.current = null;
+      if (pageRef.current !== forPage) return;
+      setAyahError(null);
+      setOverlay({ kind, verseKey, anchor });
+    }, DOUBLE_TAP_MS);
   };
-  /** A double-tap resets the zoom; its two taps leave the selection as it was. */
+  /** A tap on an ayah's words: Reflection or Save. */
+  const selectVerse = (verseKey: string, at?: PopupAnchor) => tapAyah('ayah', verseKey, at);
+  /** A tap on an ayah's number (the separator medallion): Apply to the active ورد. */
+  const pressMarker = (verseKey: string, at?: PopupAnchor) => tapAyah('wird', verseKey, at);
+  /** A double-tap resets the zoom; its two taps leave the selection as it was and open no popup. */
   const onDoubleTap = () => {
     const now = Date.now();
+    if (pendingAyahPopup.current) {
+      clearTimeout(pendingAyahPopup.current);
+      pendingAyahPopup.current = null;
+    }
     if (now - lastTap.current.at <= DOUBLE_TAP_MS * 2) setSelectedVerseKey(lastTap.current.before);
     lastTap.current.ignoreUntil = now + DOUBLE_TAP_MS;
   };
-
-  const onGoToPage = (input: string) => {
-    const target = parsePageNumber(input);
-    if (target === null) return copy.pageOutOfRange;
-    goTo(target);
-    return null;
+  /** An ayah popup dismissed without an action: its ayah is no longer selected. */
+  const dismissAyahPopup = () => {
+    closeOverlay();
+    setSelectedVerseKey(null);
+  };
+  /** Reflection: the existing Reflection editor for the selected ayah (it stays selected). */
+  const openReflection = () => {
+    closeOverlay();
+    setIsReflectionVisible(true);
+  };
+  /** Save: the existing Favorites toggle for this ayah (as on the ayah screens: the full ayah, then the toggle). */
+  const toggleSaved = async () => {
+    if (overlay?.kind !== 'ayah' || ayahBusy) return;
+    setAyahBusy(true);
+    setAyahError(null);
+    try {
+      await toggleFavorite(await getAyah(overlay.verseKey));
+      dismissAyahPopup();
+    } catch (error) {
+      setAyahError(getApiErrorMessage(error, messages.ayah.genericError));
+    } finally {
+      setAyahBusy(false);
+    }
+  };
+  /**
+   * Share: the existing Share Ayah sheet for exactly this ayah, as the ayah screens open it (getAyah, then the sheet,
+   * which takes only the ayah: no emotion reaches the card). It stays selected while the sheet is open.
+   */
+  const shareSelected = async () => {
+    if (overlay?.kind !== 'ayah' || ayahBusy) return;
+    setAyahBusy(true);
+    setAyahError(null);
+    try {
+      const ayah = await getAyah(overlay.verseKey);
+      closeOverlay();
+      setSharing(ayah);
+    } catch (error) {
+      setAyahError(getApiErrorMessage(error, messages.ayah.genericError));
+    } finally {
+      setAyahBusy(false);
+    }
+  };
+  /**
+   * Apply: this page saved to the active ورد, read from storage now (the ورد list's own source of truth, so never a
+   * stale one), through the reader's one save path (onSaveStop: page 604's Khatma rules included). No active ورد:
+   * the ورد name field instead (the existing way to create one). Saved: the popup closes, nothing else is shown.
+   */
+  const applyToWird = async () => {
+    if (overlay?.kind !== 'wird' || ayahBusy) return;
+    setAyahBusy(true);
+    setAyahError(null);
+    try {
+      const [list, id] = await Promise.all([loadReadingStops(), loadActiveReadingStopId()]);
+      const target = activeReadingStop(list, id);
+      if (!target) {
+        setSelectedVerseKey(null);
+        setOverlay({ kind: 'stopName' });
+        return;
+      }
+      const result = await onSaveStop(target.name);
+      if (result.tone === 'info') dismissAyahPopup();
+      else setAyahError(result.text);
+    } catch {
+      setAyahError(copy.stopSaveFailed);
+    } finally {
+      setAyahBusy(false);
+    }
+  };
+  /** The Hizb holding the top of this page (its list's current row). */
+  const currentHizb = HIZB_START_PAGES.filter((start) => start <= page).length;
+  /** The running heads and the page number of the page being read: the lists and the page selector. */
+  const pageNavigation = {
+    onSurah: () => setOverlay({ kind: 'index', mode: 'surah' }),
+    onJuz: () => setOverlay({ kind: 'index', mode: 'juz' }),
+    onHizb: () => setOverlay({ kind: 'index', mode: 'hizb' }),
+    onPageNumber: () => setOverlay({ kind: 'pageSelector' }),
+    labels: { surah: copy.openSurahs, juz: copy.openJuz, hizb: copy.openHizb, page: copy.openPageSelector },
+  } as const;
+  /** Screen readers: next / previous page, as the retired bar's arrows were (swipes need sight). */
+  const pageActions = [{ name: 'nextPage', label: copy.nextPage }, { name: 'previousPage', label: copy.previousPage }] as const;
+  const onPageAction = (name: string) => {
+    if (name === 'nextPage') turn(1);
+    else if (name === 'previousPage') turn(-1);
   };
   /**
    * The reader's explicit save of this whole page to the ورد named `name` — the bookmark's save, also used by page
@@ -477,7 +658,7 @@ export default function MushafScreen() {
         const target = normalizeReadingStopName(name)?.toLocaleLowerCase();
         const wird = (await loadReadingData()).wirds.find((w) => w.stop.name.toLocaleLowerCase() === target);
         if (wird && restartedWithoutProgress(wird.cycle)) {
-          setPopup(null);
+          closeOverlay();
           setKhatmaNotice('newCycle');
           return { tone: 'error' as const, text: messages.khatma.newCycleTitle };
         }
@@ -496,10 +677,10 @@ export default function MushafScreen() {
    */
   const switchReadingMode = useCallback((next: boolean) => {
     zoomView.current?.reset();
-    setPopup(null);
+    closeOverlay();
     setIsWirdOpen(false);
     setFullScreen(next);
-  }, []);
+  }, [closeOverlay]);
   // Android Back in full screen returns to Normal Mode; the next Back navigates as usual.
   useEffect(() => {
     if (!fullScreen) return undefined;
@@ -512,7 +693,7 @@ export default function MushafScreen() {
 
   /** Opens the ورد list, re-read from storage so renamed or removed stops show as they are now. */
   const openWird = async () => {
-    setPopup(null);
+    closeOverlay();
     const [list, id] = await Promise.all([loadReadingStops(), loadActiveReadingStopId()]);
     setStops(list);
     setActiveStopId(id);
@@ -528,7 +709,7 @@ export default function MushafScreen() {
   /** The existing way to create a stop: the bookmark's name field. */
   const addStop = () => {
     setIsWirdOpen(false);
-    setPopup('save');
+    setOverlay({ kind: 'stopName' });
   };
   /** أورادي وختماتي: create, rename, delete and follow every ورد. */
   const manageWirds = () => {
@@ -607,11 +788,11 @@ export default function MushafScreen() {
   const svg = svgPage61();
   const qpcShown = (state: PageState) => state.status === 'qpc' && (state.layout.page !== DEFAULT_PAGE || (fontsLoaded && !fontError));
   const showQpc = qpcShown(content);
-  // Automatic, on every page: Taller in full screen wherever the whole page fits (fitMushafPage falls back to
-  // Traditional otherwise); Normal Mode is always Traditional. It needs the QPC lines (the Quran SVG page keeps
-  // its own fixed line positions). There is no layout choice anywhere.
-  const taller = fullScreen && showQpc;
-  // The largest page that fits between the Back row and the floating bar, never cropped. No tab bar on this tab.
+  // Automatic, on every page and in both modes (with the larger text, candidate C): Taller wherever the whole page
+  // fits (fitMushafPage falls back to Traditional otherwise). It needs the QPC lines (the Quran SVG page keeps its own
+  // fixed line positions). There is no layout choice anywhere.
+  const taller = showQpc;
+  // The largest page that fits between the Back row and the ورد row (Normal Mode), never cropped. No tab bar on this tab.
   const fit = fitMushafPage(area, insets.bottom, fullScreen, taller);
   const { width: pageWidth, height: pageHeight } = fit.page;
   /** What a page shows: its QPC lines, page 61's Quran SVG, or neither (yet); and its first ayah (the page's heads). */
@@ -651,7 +832,8 @@ export default function MushafScreen() {
           onPress={() => switchReadingMode(!fullScreen)}
           hitSlop={{ top: 44 - BACK_BAR_HEIGHT, bottom: 0, left: 0, right: 0 }}
           style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}>
-          {fullScreen ? <Minimize size={22} color={iconColor} /> : <Maximize size={22} color={iconColor} />}
+          {/* The next action: inward arrows to collapse (Minimize2), outward to expand (Maximize2). */}
+          {fullScreen ? <Minimize2 size={22} color={iconColor} /> : <Maximize2 size={22} color={iconColor} />}
         </Pressable>
       </View>
 
@@ -683,6 +865,7 @@ export default function MushafScreen() {
                   paperColor={MUSHAF_BACKGROUNDS[appearance.background].paper}
                   headerColor={furniture.header}
                   borderInks={MUSHAF_BORDER_STYLES[appearance.border ?? 'original'].inks}
+                  navigation={isCurrent ? pageNavigation : undefined}
                   renderText={(textArea, { printedLinePitch }) => (parts.qpc && state.status === 'qpc' ? (
                     <QpcV1PageText
                       key={`qpc-${n}-${textArea.width}`}
@@ -691,8 +874,11 @@ export default function MushafScreen() {
                       height={textArea.height}
                       selectedVerseKey={isCurrent ? selectedVerseKey : null}
                       onSelectVerse={isCurrent ? selectVerse : ignoreVerse}
+                      onPressMarker={isCurrent ? pressMarker : undefined}
                       accessibilityLabel={`${copy.pageLabel} ${n}`}
                       accessibilityHint={copy.tapHint}
+                      accessibilityActions={isCurrent ? pageActions : undefined}
+                      onAccessibilityAction={isCurrent ? onPageAction : undefined}
                       markerStyle={appearance.markers}
                       printedPitch={printedLinePitch}
                       boxMarginEm={fullScreen ? 0 : QCF_V1_NORMAL_BOX_MARGIN_EM}
@@ -713,19 +899,32 @@ export default function MushafScreen() {
                       onSelectVerse={isCurrent ? selectVerse : ignoreVerse}
                       accessibilityLabel={`${copy.pageLabel} ${n}`}
                       accessibilityHint={copy.tapHint}
+                      accessibilityActions={isCurrent ? pageActions : undefined}
+                      onAccessibilityAction={isCurrent ? onPageAction : undefined}
                     />
                   ))}
                 />
               ) : state.status === 'missing' || state.status === 'unavailable' ? (
                 <View testID={isCurrent ? 'mushaf-page-missing' : undefined} style={[styles.missingPage, { width: pageWidth, height: pageHeight, backgroundColor: MUSHAF_BACKGROUNDS[appearance.background].paper }]}>
-                  <Text style={[styles.missingNumber, { color: furniture.header }]}>{String(n)}</Text>
+                  {/* The page actions here too: a screen reader can turn past a page that isn't downloaded. */}
+                  <Text
+                    accessibilityActions={isCurrent ? pageActions : undefined}
+                    onAccessibilityAction={isCurrent ? (event) => onPageAction(event.nativeEvent.actionName) : undefined}
+                    style={[styles.missingNumber, { color: furniture.header }]}>
+                    {String(n)}
+                  </Text>
                   <Text style={[styles.missingText, { color: furniture.header }]}>
                     {state.status === 'missing' ? copy.pageNotDownloaded : copy.pageUnavailable}
                   </Text>
                   {isCurrent && <OfflineMushafPanel />}
                 </View>
               ) : (
-                <View style={{ height: pageHeight }} accessibilityLabel={copy.qpcLoading} />
+                <View
+                  style={{ height: pageHeight }}
+                  accessibilityLabel={copy.qpcLoading}
+                  accessibilityActions={isCurrent ? pageActions : undefined}
+                  onAccessibilityAction={isCurrent ? (event) => onPageAction(event.nativeEvent.actionName) : undefined}
+                />
               );
             }}
           />
@@ -757,7 +956,7 @@ export default function MushafScreen() {
               onSelect={selectStop}
               onAdd={addStop}
               onManage={manageWirds}
-              anchorBottom={insets.bottom + MUSHAF_PANEL_MARGIN + MUSHAF_PANEL_HEIGHT + PAGE_PANEL_GAP + (fit.viewport.height - pageHeight + WIRD_PILL_HEIGHT) / 2}
+              anchorBottom={insets.bottom + PAGE_PANEL_GAP + (fit.viewport.height - pageHeight + WIRD_PILL_HEIGHT) / 2}
               // Page 604 shares the row with إتمام الختمة and the du'a (each at most END_LINK_MAX_WIDTH): the name
               // keeps the middle, never reaching them.
               pillMaxWidth={page === MUSHAF_PAGE_COUNT ? PAGE_604_PILL_MAX_WIDTH : undefined}
@@ -794,55 +993,90 @@ export default function MushafScreen() {
         )}
       </View>
 
-      {!fullScreen && (
-      <MushafControlPanel
+      {/* The ورد list's Add: the ورد name field (kept from the retired bar), docked at the bottom over the ورد row. */}
+      <MushafStopNameField
+        visible={overlay?.kind === 'stopName'}
+        labels={{ stopName: copy.stopNameLabel, confirmStop: copy.confirmStop }}
         dark={dark}
         bottomInset={insets.bottom}
-        labels={{
-          previousPage: copy.previousPage,
-          nextPage: copy.nextPage,
-          reflect: messages.reflection.writeAction,
-          searchPage: copy.searchPage,
-          saveStop: copy.saveStopAction,
-          stopName: copy.stopNameLabel,
-          confirmStop: copy.confirmStop,
-          saved: copy.stopSaved,
-        }}
-        canGoPrevious={page > 1}
-        canGoNext={page < MUSHAF_PAGE_COUNT}
-        onPrevious={() => turn(-1)}
-        onNext={() => turn(1)}
-        reflectionEnabled={selectedVerseKey !== null}
-        onReflect={() => setIsReflectionVisible(true)}
-        popup={popup}
-        onPopup={setPopup}
         defaultStopName={activeStop?.name}
-        onSaveStop={onSaveStop}
-        // The selected ورد's own saved page, from the stored stops (updated after every save, switch and sync).
-        pageSaved={activeStop !== null && activeStop.page === page}
+        onSave={onSaveStop}
+        onClose={closeOverlay}
       />
-      )}
 
-      <MushafSearchSheet
-        visible={popup === 'search'}
+      {/* The running heads' Surah name, juz' and Hizb label: their searchable lists. */}
+      <MushafIndexSheet
+        mode={overlay?.kind === 'index' ? overlay.mode : null}
         labels={{
-          title: copy.searchTitle,
           close: copy.wirdClose,
-          byPage: copy.searchByPage,
-          bySurah: copy.searchBySurah,
-          pageNumber: copy.pageNumberPlaceholder,
-          go: copy.goAction,
-          goToPage: copy.goToPage,
-          surahSearch: copy.surahSearchPlaceholder,
-          noResults: copy.surahNoResults,
           page: copy.pageShort,
+          noResults: copy.surahNoResults,
+          surahTitle: copy.navSurahTitle,
+          juzTitle: copy.navJuzTitle,
+          hizbTitle: copy.navHizbTitle,
+          surahSearch: copy.surahSearchPlaceholder,
+          juzSearch: copy.juzSearchPlaceholder,
+          hizbSearch: copy.hizbSearchPlaceholder,
+          juzName: copy.juzName,
+          hizbName: copy.hizbName,
         }}
         dark={dark}
         rtl={rtl}
         formatNumber={formatNumber}
-        onClose={() => setPopup(null)}
-        onGoToPage={onGoToPage}
-        onSelectSurah={(surah) => goTo(surah.startPage)}
+        current={overlay?.kind === 'index' ? (overlay.mode === 'surah' ? pageInfo(page)?.surah : overlay.mode === 'juz' ? pageInfo(page)?.juz : currentHizb) : undefined}
+        onSelectPage={goTo}
+        onClose={closeOverlay}
+      />
+
+      {/* The page number under the frame: the compact page selector. */}
+      <MushafPageSelector
+        visible={overlay?.kind === 'pageSelector'}
+        currentPage={page}
+        labels={{ pageSlider: copy.pageSlider, goToSelected: copy.goToSelected, editPage: copy.editPage, pageOutOfRange: copy.pageOutOfRange, close: copy.wirdClose }}
+        dark={dark}
+        bottomInset={insets.bottom}
+        formatNumber={formatNumber}
+        surahName={(surah) => (rtl ? getSurahName(surah).nameArabic : getSurahName(surah).nameEnglish)}
+        juzLabel={(juz) => fill(copy.juzName, { n: formatNumber(juz) })}
+        onGo={goTo}
+        onClose={closeOverlay}
+      />
+
+      {/* An ayah's words: Reflection or Save. */}
+      <MushafAyahActions
+        anchor={overlay?.kind === 'ayah' ? overlay.anchor : null}
+        dark={dark}
+        rtl={rtl}
+        saved={overlay?.kind === 'ayah' && isFavorite(overlay.verseKey)}
+        busy={ayahBusy}
+        error={overlay?.kind === 'ayah' ? ayahError : null}
+        labels={{
+          reflection: copy.actionReflection,
+          save: copy.actionSave,
+          saved: copy.actionSaved,
+          saveHint: messages.favoriteButton.saveLabel,
+          removeHint: messages.favoriteButton.removeLabel,
+          share: messages.ayah.share,
+          shareHint: messages.ayah.shareAyah,
+          close: copy.wirdClose,
+        }}
+        onReflect={openReflection}
+        onToggleSave={() => void toggleSaved()}
+        onShare={() => void shareSelected()}
+        onClose={dismissAyahPopup}
+      />
+
+      {/* An ayah's number: Apply to the active ورد. */}
+      <MushafWirdApply
+        anchor={overlay?.kind === 'wird' ? overlay.anchor : null}
+        dark={dark}
+        rtl={rtl}
+        label={activeStop ? applyToWirdLabel(activeStop.name, copy) : copy.wirdNew}
+        busy={ayahBusy}
+        error={overlay?.kind === 'wird' ? ayahError : null}
+        closeLabel={copy.wirdClose}
+        onApply={() => void applyToWird()}
+        onClose={dismissAyahPopup}
       />
 
       <ReflectionSheet
@@ -852,6 +1086,9 @@ export default function MushafScreen() {
         // In the reader's own window colours, light or dark with the page.
         mushaf={{ dark }}
       />
+
+      {/* Share: the ayah screens' own sheet, unchanged. */}
+      <ShareAyahSheet visible={sharing !== null} ayah={sharing} onClose={() => setSharing(null)} />
 
       <KhatmaReachedSheet
         visible={reached !== null}

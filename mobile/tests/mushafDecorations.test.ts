@@ -20,7 +20,7 @@ const { OpeningPageOrnament } = await import('@/components/OpeningPageOrnament')
 const { traditionalHeadingGeometry, SurahHeadingTraditional } = await import('@/components/SurahHeadingTraditional');
 const { openingCircleGeometry } = await import('@/components/OpeningPageOrnament');
 const { OpeningPageOrnamentRich } = await import('@/components/OpeningPageOrnamentRich');
-const { computePageLayout, textSideInset } = await import('@/mushaf/pageGeometry');
+const { computePageLayout, MIN_TILES_DOWN, textSideInset } = await import('@/mushaf/pageGeometry');
 
 const source = (path: string) => readFileSync(resolve(__dirname, '..', path), 'utf8');
 type Heading = { surah: number; page: number; sizePerTextWidth: number; inkEm: { left: number; right: number; ascent: number; descent: number; advance: number } };
@@ -75,7 +75,8 @@ describe('decorations: the new designs by default, the earlier ones a configurat
 describe('traditional Surah heading: a clear opening for every name (the original heading`s own test)', () => {
   for (const pageWidth of [251, 317, 354, 387, 396, 434]) {
     it(`no name touches the ornament: ${pageWidth}-pt page, Normal (the shortest rows)`, () => {
-      const layout = computePageLayout(pageWidth);
+      // QPC pages' shortest rows: the shortest frame the larger text allows (MIN_TILES_DOWN, Normal Mode on the shortest screens).
+      const layout = computePageLayout(pageWidth, MIN_TILES_DOWN);
       const width = layout.text.width;
       const P = layout.linePitch;
       const W = (width + 2 * textSideInset(width)) * SPAN;

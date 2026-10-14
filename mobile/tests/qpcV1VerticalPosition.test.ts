@@ -87,7 +87,9 @@ describe('rows on the printed grid, no correction of their own (Normal and Full-
     const page1 = { ...page61, page: 1, fontFamily: 'QCF_P001', verseKeys: ['1:1'], lines: [{ line: 2, words: [{ verseKey: '1:1', position: 1, kind: 'word', glyph: 'ﭑ' }] }] } as unknown as Layout;
     const root = await render(page1, QCF_V1_NORMAL_BOX_MARGIN_EM);
     const { surahHeadingShift } = await import('@/mushaf/ayahMarkers');
-    const fontSize = 315 * 0.0692;
+    // Pages 1–2: the printed letter size, on the printed text width (the 315-pt text area is QURAN_TEXT_SCALE wider).
+    const { QURAN_TEXT_SCALE } = await import('@/mushaf/pageGeometry');
+    const fontSize = (315 / QURAN_TEXT_SCALE) * 0.0692;
     // Each row's grid position (a heading row is drawn surahHeadingShift lower than its grid position).
     const rows = rowNodes(root).map((row) => {
       const s = styleOf(row) as { top: number; height: number };

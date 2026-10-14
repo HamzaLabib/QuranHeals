@@ -19,6 +19,19 @@
 export const BORDER_TILES_ACROSS = 20;
 export const BORDER_TILES_DOWN = 29;
 
+/** The printed page's plain margin between the inner rule and the text, each side (reference ink margins, rounded up). */
+export const PRINTED_TEXT_INSET_X = 25 / 593;
+/** The printed page's text width, as a share of the page width (the 1405 print's own proportions). */
+export const PRINTED_TEXT_WIDTH_SHARE = 1 - 2 / BORDER_TILES_ACROSS - 2 * PRINTED_TEXT_INSET_X;
+/**
+ * Larger Quran text (approved 2026-10-14, candidate C: design-archive/experiments/larger-text-mushaf/): the text area,
+ * and with it every QPC V1 glyph (the widest line fills the width), is this much wider than the print's, on the same
+ * page width. The extra width comes only from the plain paper margin inside the frame (textInsetX below); the border
+ * tiles, the page width and every line's words are unchanged. 1 restores the printed proportions (the original
+ * geometry: design-archive/mushaf-page-layout-v1/).
+ */
+export const QURAN_TEXT_SCALE = 1.05;
+
 /** Frame outer height ÷ width (29/20; the scan measures 1.4435). */
 export const FRAME_ASPECT = BORDER_TILES_DOWN / BORDER_TILES_ACROSS;
 
@@ -27,8 +40,8 @@ export const PAGE_GEOMETRY = {
   tile: 1 / BORDER_TILES_ACROSS,
   /** Each brown rule, as a fraction of the frame width (≈ 4 px of 593). */
   rule: 4 / 593,
-  /** Text safe area inside the inner rule (reference ink margins, rounded up). */
-  textInsetX: 25 / 593,
+  /** Text safe area inside the inner rule: the print's (PRINTED_TEXT_INSET_X), narrowed for QURAN_TEXT_SCALE. */
+  textInsetX: (1 - 2 / BORDER_TILES_ACROSS - QURAN_TEXT_SCALE * PRINTED_TEXT_WIDTH_SHARE) / 2,
   textInsetY: 10 / 593,
   lineCount: 15,
   /** Header text: size, and the gap below its line box (heads centred 35 px above the frame). */
@@ -160,3 +173,16 @@ export function fitInside(box: Box, aspect: number): Box {
   const height = width * aspect;
   return { x: box.x + (box.width - width) / 2, y: box.y + (box.height - height) / 2, width, height };
 }
+
+/**
+ * The shortest frame, in tiles, for QPC pages: the first whose line pitch is at least QURAN_TEXT_SCALE times the
+ * printed one (31 tiles for 1.05), so the larger glyphs (candidate C) are never closer together, relative to their
+ * size, than the print's: every line, heading, Basmala and medallion keeps at least the printed proportional
+ * clearance. Where the height is short (iPhone SE, small Android), the page is narrowed until this frame fits.
+ */
+export const MIN_TILES_DOWN = (() => {
+  const printedPitch = computePageLayout(1000).linePitch;
+  let tiles = BORDER_TILES_DOWN;
+  while (computePageLayout(1000, tiles).linePitch < printedPitch * QURAN_TEXT_SCALE) tiles += 1;
+  return tiles;
+})();

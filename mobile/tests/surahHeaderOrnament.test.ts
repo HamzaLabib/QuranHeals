@@ -16,7 +16,7 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('react-native-svg', () => ({ default: 'Svg', Path: 'Path', G: 'G', Circle: 'Circle', Defs: 'Defs', ClipPath: 'ClipPath', Rect: 'Rect' }));
 
 const { SurahHeaderOrnament, surahHeaderGeometry } = await import('@/components/SurahHeaderOrnament');
-const { computePageLayout, textSideInset } = await import('@/mushaf/pageGeometry');
+const { computePageLayout, MIN_TILES_DOWN, textSideInset } = await import('@/mushaf/pageGeometry');
 
 type Heading = { surah: number; page: number; sizePerTextWidth: number; inkEm: { left: number; right: number; ascent: number; descent: number; advance: number } };
 const headings = JSON.parse(readFileSync(new URL('./fixtures/surahHeadings.json', import.meta.url), 'utf8')) as Heading[];
@@ -33,7 +33,8 @@ describe('Surah heading ornament: a clear opening for every name', () => {
 
   for (const pageWidth of [251, 317, 354, 387, 396, 434]) {
     it(`no name touches the ornament: ${pageWidth}-pt page, Normal (the shortest rows)`, () => {
-      const layout = computePageLayout(pageWidth);
+      // QPC pages' shortest rows: the shortest frame the larger text allows (MIN_TILES_DOWN, Normal Mode on the shortest screens).
+      const layout = computePageLayout(pageWidth, MIN_TILES_DOWN);
       const width = layout.text.width;
       const P = layout.linePitch;
       const inner = width + 2 * textSideInset(width);

@@ -1,0 +1,9281 @@
+{
+ "liftPt": 4.0,
+ "referenceWidthPt": 387.0,
+ "deviceBaselineUnits": 3311.0,
+ "glyphsChecked": 77433,
+ "highestInk": {
+  "units": 2540.0,
+  "where": "page 322 line 15"
+ },
+ "lowestInk": {
+  "units": -1377,
+  "where": "page 466 line 7"
+ },
+ "normal": {
+  "intended": [
+   {
+    "widthPt": 268,
+    "minTopPt": -0.81,
+    "minTopPage": 307,
+    "minBottomPt": 6.21,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [
+     6,
+     17,
+     42,
+     44,
+     49,
+     55,
+     130,
+     131,
+     183,
+     212,
+     213,
+     221,
+     223,
+     225,
+     235,
+     236,
+     247,
+     279,
+     289,
+     304,
+     306,
+     307,
+     337,
+     351,
+     353,
+     357,
+     424,
+     427,
+     429,
+     430,
+     431,
+     439,
+     478,
+     492,
+     509,
+     566,
+     573
+    ],
+    "pagesTouchingBottom": []
+   },
+   {
+    "widthPt": 317,
+    "minTopPt": -0.23,
+    "minTopPage": 307,
+    "minBottomPt": 6.61,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [
+     44,
+     49,
+     236,
+     307
+    ],
+    "pagesTouchingBottom": []
+   },
+   {
+    "widthPt": 354,
+    "minTopPt": 0.21,
+    "minTopPage": 307,
+    "minBottomPt": 6.92,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "widthPt": 367,
+    "minTopPt": 0.36,
+    "minTopPage": 307,
+    "minBottomPt": 7.02,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "widthPt": 378,
+    "minTopPt": 0.5,
+    "minTopPage": 307,
+    "minBottomPt": 7.12,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "widthPt": 387,
+    "minTopPt": 0.6,
+    "minTopPage": 307,
+    "minBottomPt": 7.19,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "widthPt": 396,
+    "minTopPt": 0.71,
+    "minTopPage": 307,
+    "minBottomPt": 7.26,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "widthPt": 406,
+    "minTopPt": 0.83,
+    "minTopPage": 307,
+    "minBottomPt": 7.35,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "widthPt": 424,
+    "minTopPt": 1.04,
+    "minTopPage": 307,
+    "minBottomPt": 7.49,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "widthPt": 434,
+    "minTopPt": 1.16,
+    "minTopPage": 307,
+    "minBottomPt": 7.58,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "widthPt": 442,
+    "minTopPt": 1.26,
+    "minTopPage": 307,
+    "minBottomPt": 7.64,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "widthPt": 467,
+    "minTopPt": 1.55,
+    "minTopPage": 307,
+    "minBottomPt": 7.85,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "widthPt": 681,
+    "minTopPt": 4.1,
+    "minTopPage": 307,
+    "minBottomPt": 9.61,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   }
+  ],
+  "iphone": [
+   {
+    "widthPt": 268,
+    "minTopPt": 2.98,
+    "minTopPage": 604,
+    "minBottomPt": 0.47,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "widthPt": 317,
+    "minTopPt": 4.25,
+    "minTopPage": 604,
+    "minBottomPt": -0.18,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     560
+    ]
+   },
+   {
+    "widthPt": 354,
+    "minTopPt": 5.22,
+    "minTopPage": 604,
+    "minBottomPt": -0.67,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     553,
+     560
+    ]
+   },
+   {
+    "widthPt": 367,
+    "minTopPt": 5.55,
+    "minTopPage": 604,
+    "minBottomPt": -0.84,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     459,
+     553,
+     560
+    ]
+   },
+   {
+    "widthPt": 378,
+    "minTopPt": 5.84,
+    "minTopPage": 604,
+    "minBottomPt": -0.98,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     381,
+     459,
+     553,
+     556,
+     560
+    ]
+   },
+   {
+    "widthPt": 387,
+    "minTopPt": 6.07,
+    "minTopPage": 604,
+    "minBottomPt": -1.1,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     142,
+     202,
+     381,
+     459,
+     553,
+     556,
+     560
+    ]
+   },
+   {
+    "widthPt": 396,
+    "minTopPt": 6.31,
+    "minTopPage": 604,
+    "minBottomPt": -1.22,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     142,
+     202,
+     381,
+     459,
+     553,
+     556,
+     560
+    ]
+   },
+   {
+    "widthPt": 406,
+    "minTopPt": 6.57,
+    "minTopPage": 604,
+    "minBottomPt": -1.35,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     5,
+     142,
+     202,
+     381,
+     459,
+     553,
+     556,
+     560
+    ]
+   },
+   {
+    "widthPt": 424,
+    "minTopPt": 7.04,
+    "minTopPage": 604,
+    "minBottomPt": -1.59,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     5,
+     26,
+     142,
+     202,
+     381,
+     459,
+     467,
+     553,
+     556,
+     560
+    ]
+   },
+   {
+    "widthPt": 434,
+    "minTopPt": 7.3,
+    "minTopPage": 604,
+    "minBottomPt": -1.72,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     5,
+     26,
+     142,
+     202,
+     381,
+     459,
+     467,
+     550,
+     553,
+     556,
+     560
+    ]
+   },
+   {
+    "widthPt": 442,
+    "minTopPt": 7.51,
+    "minTopPage": 604,
+    "minBottomPt": -1.83,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     5,
+     26,
+     142,
+     202,
+     381,
+     459,
+     467,
+     550,
+     553,
+     556,
+     560
+    ]
+   },
+   {
+    "widthPt": 467,
+    "minTopPt": 8.16,
+    "minTopPage": 604,
+    "minBottomPt": -2.16,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     5,
+     26,
+     65,
+     142,
+     202,
+     381,
+     459,
+     467,
+     550,
+     553,
+     556,
+     560
+    ]
+   },
+   {
+    "widthPt": 681,
+    "minTopPt": 13.73,
+    "minTopPage": 604,
+    "minBottomPt": -4.98,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     5,
+     26,
+     42,
+     58,
+     65,
+     120,
+     142,
+     186,
+     196,
+     202,
+     218,
+     251,
+     334,
+     350,
+     368,
+     381,
+     384,
+     394,
+     411,
+     422,
+     428,
+     431,
+     448,
+     459,
+     462,
+     467,
+     492,
+     541,
+     550,
+     553,
+     554,
+     556,
+     560,
+     587
+    ]
+   }
+  ]
+ },
+ "fullScreen": {
+  "intended": [
+   {
+    "tiles": 29,
+    "widthPt": 268,
+    "minTopPt": -0.81,
+    "minTopPage": 307,
+    "minBottomPt": 6.21,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [
+     6,
+     17,
+     42,
+     44,
+     49,
+     55,
+     130,
+     131,
+     183,
+     212,
+     213,
+     221,
+     223,
+     225,
+     235,
+     236,
+     247,
+     279,
+     289,
+     304,
+     306,
+     307,
+     337,
+     351,
+     353,
+     357,
+     424,
+     427,
+     429,
+     430,
+     431,
+     439,
+     478,
+     492,
+     509,
+     566,
+     573
+    ],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 29,
+    "widthPt": 317,
+    "minTopPt": -0.23,
+    "minTopPage": 307,
+    "minBottomPt": 6.61,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [
+     44,
+     49,
+     236,
+     307
+    ],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 29,
+    "widthPt": 354,
+    "minTopPt": 0.21,
+    "minTopPage": 307,
+    "minBottomPt": 6.92,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 29,
+    "widthPt": 367,
+    "minTopPt": 0.36,
+    "minTopPage": 307,
+    "minBottomPt": 7.02,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 29,
+    "widthPt": 378,
+    "minTopPt": 0.5,
+    "minTopPage": 307,
+    "minBottomPt": 7.12,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 29,
+    "widthPt": 387,
+    "minTopPt": 0.6,
+    "minTopPage": 307,
+    "minBottomPt": 7.19,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 29,
+    "widthPt": 396,
+    "minTopPt": 0.71,
+    "minTopPage": 307,
+    "minBottomPt": 7.26,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 29,
+    "widthPt": 406,
+    "minTopPt": 0.83,
+    "minTopPage": 307,
+    "minBottomPt": 7.35,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 29,
+    "widthPt": 424,
+    "minTopPt": 1.04,
+    "minTopPage": 307,
+    "minBottomPt": 7.49,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 29,
+    "widthPt": 434,
+    "minTopPt": 1.16,
+    "minTopPage": 307,
+    "minBottomPt": 7.58,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 29,
+    "widthPt": 442,
+    "minTopPt": 1.26,
+    "minTopPage": 307,
+    "minBottomPt": 7.64,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 29,
+    "widthPt": 467,
+    "minTopPt": 1.55,
+    "minTopPage": 307,
+    "minBottomPt": 7.85,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 29,
+    "widthPt": 681,
+    "minTopPt": 4.1,
+    "minTopPage": 307,
+    "minBottomPt": 9.61,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 30,
+    "widthPt": 268,
+    "minTopPt": -0.37,
+    "minTopPage": 307,
+    "minBottomPt": 6.66,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [
+     44,
+     49,
+     183,
+     212,
+     236,
+     304,
+     307,
+     424,
+     439
+    ],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 30,
+    "widthPt": 317,
+    "minTopPt": 0.3,
+    "minTopPage": 307,
+    "minBottomPt": 7.14,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 30,
+    "widthPt": 354,
+    "minTopPt": 0.8,
+    "minTopPage": 307,
+    "minBottomPt": 7.51,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 30,
+    "widthPt": 367,
+    "minTopPt": 0.98,
+    "minTopPage": 307,
+    "minBottomPt": 7.64,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 30,
+    "widthPt": 378,
+    "minTopPt": 1.13,
+    "minTopPage": 307,
+    "minBottomPt": 7.75,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 30,
+    "widthPt": 387,
+    "minTopPt": 1.25,
+    "minTopPage": 307,
+    "minBottomPt": 7.83,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 30,
+    "widthPt": 396,
+    "minTopPt": 1.37,
+    "minTopPage": 307,
+    "minBottomPt": 7.92,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 30,
+    "widthPt": 406,
+    "minTopPt": 1.51,
+    "minTopPage": 307,
+    "minBottomPt": 8.02,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 30,
+    "widthPt": 424,
+    "minTopPt": 1.75,
+    "minTopPage": 307,
+    "minBottomPt": 8.2,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 30,
+    "widthPt": 434,
+    "minTopPt": 1.89,
+    "minTopPage": 307,
+    "minBottomPt": 8.3,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 30,
+    "widthPt": 442,
+    "minTopPt": 1.99,
+    "minTopPage": 307,
+    "minBottomPt": 8.38,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 30,
+    "widthPt": 467,
+    "minTopPt": 2.33,
+    "minTopPage": 307,
+    "minBottomPt": 8.63,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 30,
+    "widthPt": 681,
+    "minTopPt": 5.23,
+    "minTopPage": 307,
+    "minBottomPt": 10.75,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 31,
+    "widthPt": 268,
+    "minTopPt": 0.08,
+    "minTopPage": 307,
+    "minBottomPt": 7.1,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 31,
+    "widthPt": 317,
+    "minTopPt": 0.83,
+    "minTopPage": 307,
+    "minBottomPt": 7.67,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 31,
+    "widthPt": 354,
+    "minTopPt": 1.39,
+    "minTopPage": 307,
+    "minBottomPt": 8.1,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 31,
+    "widthPt": 367,
+    "minTopPt": 1.59,
+    "minTopPage": 307,
+    "minBottomPt": 8.25,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 31,
+    "widthPt": 378,
+    "minTopPt": 1.76,
+    "minTopPage": 307,
+    "minBottomPt": 8.38,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 31,
+    "widthPt": 387,
+    "minTopPt": 1.89,
+    "minTopPage": 307,
+    "minBottomPt": 8.48,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 31,
+    "widthPt": 396,
+    "minTopPt": 2.03,
+    "minTopPage": 307,
+    "minBottomPt": 8.58,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 31,
+    "widthPt": 406,
+    "minTopPt": 2.18,
+    "minTopPage": 307,
+    "minBottomPt": 8.7,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 31,
+    "widthPt": 424,
+    "minTopPt": 2.46,
+    "minTopPage": 307,
+    "minBottomPt": 8.91,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 31,
+    "widthPt": 434,
+    "minTopPt": 2.61,
+    "minTopPage": 307,
+    "minBottomPt": 9.02,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 31,
+    "widthPt": 442,
+    "minTopPt": 2.73,
+    "minTopPage": 307,
+    "minBottomPt": 9.12,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 31,
+    "widthPt": 467,
+    "minTopPt": 3.11,
+    "minTopPage": 307,
+    "minBottomPt": 9.41,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 31,
+    "widthPt": 681,
+    "minTopPt": 6.37,
+    "minTopPage": 307,
+    "minBottomPt": 11.88,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 268,
+    "minTopPt": 0.53,
+    "minTopPage": 307,
+    "minBottomPt": 7.55,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 317,
+    "minTopPt": 1.36,
+    "minTopPage": 307,
+    "minBottomPt": 8.2,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 354,
+    "minTopPt": 1.98,
+    "minTopPage": 307,
+    "minBottomPt": 8.69,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 367,
+    "minTopPt": 2.2,
+    "minTopPage": 307,
+    "minBottomPt": 8.86,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 378,
+    "minTopPt": 2.39,
+    "minTopPage": 307,
+    "minBottomPt": 9.01,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 387,
+    "minTopPt": 2.54,
+    "minTopPage": 307,
+    "minBottomPt": 9.12,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 396,
+    "minTopPt": 2.69,
+    "minTopPage": 307,
+    "minBottomPt": 9.24,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 406,
+    "minTopPt": 2.86,
+    "minTopPage": 307,
+    "minBottomPt": 9.38,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 424,
+    "minTopPt": 3.16,
+    "minTopPage": 307,
+    "minBottomPt": 9.61,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 434,
+    "minTopPt": 3.33,
+    "minTopPage": 307,
+    "minBottomPt": 9.75,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 442,
+    "minTopPt": 3.47,
+    "minTopPage": 307,
+    "minBottomPt": 9.85,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 467,
+    "minTopPt": 3.89,
+    "minTopPage": 307,
+    "minBottomPt": 10.18,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 681,
+    "minTopPt": 7.5,
+    "minTopPage": 307,
+    "minBottomPt": 13.02,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 268,
+    "minTopPt": 0.97,
+    "minTopPage": 307,
+    "minBottomPt": 8.0,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 317,
+    "minTopPt": 1.88,
+    "minTopPage": 307,
+    "minBottomPt": 8.73,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 354,
+    "minTopPt": 2.57,
+    "minTopPage": 307,
+    "minBottomPt": 9.28,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 367,
+    "minTopPt": 2.81,
+    "minTopPage": 307,
+    "minBottomPt": 9.47,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 378,
+    "minTopPt": 3.02,
+    "minTopPage": 307,
+    "minBottomPt": 9.64,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 387,
+    "minTopPt": 3.18,
+    "minTopPage": 307,
+    "minBottomPt": 9.77,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 396,
+    "minTopPt": 3.35,
+    "minTopPage": 307,
+    "minBottomPt": 9.9,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 406,
+    "minTopPt": 3.54,
+    "minTopPage": 307,
+    "minBottomPt": 10.05,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 424,
+    "minTopPt": 3.87,
+    "minTopPage": 307,
+    "minBottomPt": 10.32,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 434,
+    "minTopPt": 4.06,
+    "minTopPage": 307,
+    "minBottomPt": 10.47,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 442,
+    "minTopPt": 4.2,
+    "minTopPage": 307,
+    "minBottomPt": 10.59,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 467,
+    "minTopPt": 4.67,
+    "minTopPage": 307,
+    "minBottomPt": 10.96,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 681,
+    "minTopPt": 8.64,
+    "minTopPage": 307,
+    "minBottomPt": 14.15,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 268,
+    "minTopPt": 1.42,
+    "minTopPage": 307,
+    "minBottomPt": 8.44,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 317,
+    "minTopPt": 2.41,
+    "minTopPage": 307,
+    "minBottomPt": 9.25,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 354,
+    "minTopPt": 3.16,
+    "minTopPage": 307,
+    "minBottomPt": 9.87,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 367,
+    "minTopPt": 3.42,
+    "minTopPage": 307,
+    "minBottomPt": 10.08,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 378,
+    "minTopPt": 3.65,
+    "minTopPage": 307,
+    "minBottomPt": 10.27,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 387,
+    "minTopPt": 3.83,
+    "minTopPage": 307,
+    "minBottomPt": 10.41,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 396,
+    "minTopPt": 4.01,
+    "minTopPage": 307,
+    "minBottomPt": 10.56,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 406,
+    "minTopPt": 4.21,
+    "minTopPage": 307,
+    "minBottomPt": 10.73,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 424,
+    "minTopPt": 4.58,
+    "minTopPage": 307,
+    "minBottomPt": 11.03,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 434,
+    "minTopPt": 4.78,
+    "minTopPage": 307,
+    "minBottomPt": 11.19,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 442,
+    "minTopPt": 4.94,
+    "minTopPage": 307,
+    "minBottomPt": 11.33,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 467,
+    "minTopPt": 5.45,
+    "minTopPage": 307,
+    "minBottomPt": 11.74,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 681,
+    "minTopPt": 9.77,
+    "minTopPage": 307,
+    "minBottomPt": 15.29,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 268,
+    "minTopPt": 1.87,
+    "minTopPage": 307,
+    "minBottomPt": 8.89,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 317,
+    "minTopPt": 2.94,
+    "minTopPage": 307,
+    "minBottomPt": 9.78,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 354,
+    "minTopPt": 3.75,
+    "minTopPage": 307,
+    "minBottomPt": 10.46,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 367,
+    "minTopPt": 4.03,
+    "minTopPage": 307,
+    "minBottomPt": 10.69,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 378,
+    "minTopPt": 4.28,
+    "minTopPage": 307,
+    "minBottomPt": 10.9,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 387,
+    "minTopPt": 4.47,
+    "minTopPage": 307,
+    "minBottomPt": 11.06,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 396,
+    "minTopPt": 4.67,
+    "minTopPage": 307,
+    "minBottomPt": 11.22,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 406,
+    "minTopPt": 4.89,
+    "minTopPage": 307,
+    "minBottomPt": 11.41,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 424,
+    "minTopPt": 5.28,
+    "minTopPage": 307,
+    "minBottomPt": 11.73,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 434,
+    "minTopPt": 5.5,
+    "minTopPage": 307,
+    "minBottomPt": 11.92,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 442,
+    "minTopPt": 5.68,
+    "minTopPage": 307,
+    "minBottomPt": 12.06,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 467,
+    "minTopPt": 6.22,
+    "minTopPage": 307,
+    "minBottomPt": 12.52,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 681,
+    "minTopPt": 10.91,
+    "minTopPage": 307,
+    "minBottomPt": 16.42,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   }
+  ],
+  "iphone": [
+   {
+    "tiles": 29,
+    "widthPt": 268,
+    "minTopPt": 2.98,
+    "minTopPage": 604,
+    "minBottomPt": 0.47,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 29,
+    "widthPt": 317,
+    "minTopPt": 4.25,
+    "minTopPage": 604,
+    "minBottomPt": -0.18,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     560
+    ]
+   },
+   {
+    "tiles": 29,
+    "widthPt": 354,
+    "minTopPt": 5.22,
+    "minTopPage": 604,
+    "minBottomPt": -0.67,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     553,
+     560
+    ]
+   },
+   {
+    "tiles": 29,
+    "widthPt": 367,
+    "minTopPt": 5.55,
+    "minTopPage": 604,
+    "minBottomPt": -0.84,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     459,
+     553,
+     560
+    ]
+   },
+   {
+    "tiles": 29,
+    "widthPt": 378,
+    "minTopPt": 5.84,
+    "minTopPage": 604,
+    "minBottomPt": -0.98,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     381,
+     459,
+     553,
+     556,
+     560
+    ]
+   },
+   {
+    "tiles": 29,
+    "widthPt": 387,
+    "minTopPt": 6.07,
+    "minTopPage": 604,
+    "minBottomPt": -1.1,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     142,
+     202,
+     381,
+     459,
+     553,
+     556,
+     560
+    ]
+   },
+   {
+    "tiles": 29,
+    "widthPt": 396,
+    "minTopPt": 6.31,
+    "minTopPage": 604,
+    "minBottomPt": -1.22,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     142,
+     202,
+     381,
+     459,
+     553,
+     556,
+     560
+    ]
+   },
+   {
+    "tiles": 29,
+    "widthPt": 406,
+    "minTopPt": 6.57,
+    "minTopPage": 604,
+    "minBottomPt": -1.35,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     5,
+     142,
+     202,
+     381,
+     459,
+     553,
+     556,
+     560
+    ]
+   },
+   {
+    "tiles": 29,
+    "widthPt": 424,
+    "minTopPt": 7.04,
+    "minTopPage": 604,
+    "minBottomPt": -1.59,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     5,
+     26,
+     142,
+     202,
+     381,
+     459,
+     467,
+     553,
+     556,
+     560
+    ]
+   },
+   {
+    "tiles": 29,
+    "widthPt": 434,
+    "minTopPt": 7.3,
+    "minTopPage": 604,
+    "minBottomPt": -1.72,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     5,
+     26,
+     142,
+     202,
+     381,
+     459,
+     467,
+     550,
+     553,
+     556,
+     560
+    ]
+   },
+   {
+    "tiles": 29,
+    "widthPt": 442,
+    "minTopPt": 7.51,
+    "minTopPage": 604,
+    "minBottomPt": -1.83,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     5,
+     26,
+     142,
+     202,
+     381,
+     459,
+     467,
+     550,
+     553,
+     556,
+     560
+    ]
+   },
+   {
+    "tiles": 29,
+    "widthPt": 467,
+    "minTopPt": 8.16,
+    "minTopPage": 604,
+    "minBottomPt": -2.16,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     5,
+     26,
+     65,
+     142,
+     202,
+     381,
+     459,
+     467,
+     550,
+     553,
+     556,
+     560
+    ]
+   },
+   {
+    "tiles": 29,
+    "widthPt": 681,
+    "minTopPt": 13.73,
+    "minTopPage": 604,
+    "minBottomPt": -4.98,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     5,
+     26,
+     42,
+     58,
+     65,
+     120,
+     142,
+     186,
+     196,
+     202,
+     218,
+     251,
+     334,
+     350,
+     368,
+     381,
+     384,
+     394,
+     411,
+     422,
+     428,
+     431,
+     448,
+     459,
+     462,
+     467,
+     492,
+     541,
+     550,
+     553,
+     554,
+     556,
+     560,
+     587
+    ]
+   },
+   {
+    "tiles": 30,
+    "widthPt": 268,
+    "minTopPt": 3.42,
+    "minTopPage": 604,
+    "minBottomPt": 0.91,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 30,
+    "widthPt": 317,
+    "minTopPt": 4.78,
+    "minTopPage": 604,
+    "minBottomPt": 0.35,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 30,
+    "widthPt": 354,
+    "minTopPt": 5.81,
+    "minTopPage": 604,
+    "minBottomPt": -0.08,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     560
+    ]
+   },
+   {
+    "tiles": 30,
+    "widthPt": 367,
+    "minTopPt": 6.17,
+    "minTopPage": 604,
+    "minBottomPt": -0.23,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     560
+    ]
+   },
+   {
+    "tiles": 30,
+    "widthPt": 378,
+    "minTopPt": 6.47,
+    "minTopPage": 604,
+    "minBottomPt": -0.35,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     560
+    ]
+   },
+   {
+    "tiles": 30,
+    "widthPt": 387,
+    "minTopPt": 6.72,
+    "minTopPage": 604,
+    "minBottomPt": -0.46,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     560
+    ]
+   },
+   {
+    "tiles": 30,
+    "widthPt": 396,
+    "minTopPt": 6.97,
+    "minTopPage": 604,
+    "minBottomPt": -0.56,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     553,
+     560
+    ]
+   },
+   {
+    "tiles": 30,
+    "widthPt": 406,
+    "minTopPt": 7.25,
+    "minTopPage": 604,
+    "minBottomPt": -0.68,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     553,
+     560
+    ]
+   },
+   {
+    "tiles": 30,
+    "widthPt": 424,
+    "minTopPt": 7.74,
+    "minTopPage": 604,
+    "minBottomPt": -0.88,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     553,
+     560
+    ]
+   },
+   {
+    "tiles": 30,
+    "widthPt": 434,
+    "minTopPt": 8.02,
+    "minTopPage": 604,
+    "minBottomPt": -1.0,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     459,
+     553,
+     560
+    ]
+   },
+   {
+    "tiles": 30,
+    "widthPt": 442,
+    "minTopPt": 8.24,
+    "minTopPage": 604,
+    "minBottomPt": -1.09,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     459,
+     553,
+     560
+    ]
+   },
+   {
+    "tiles": 30,
+    "widthPt": 467,
+    "minTopPt": 8.94,
+    "minTopPage": 604,
+    "minBottomPt": -1.38,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     142,
+     202,
+     381,
+     459,
+     553,
+     556,
+     560
+    ]
+   },
+   {
+    "tiles": 30,
+    "widthPt": 681,
+    "minTopPt": 14.86,
+    "minTopPage": 604,
+    "minBottomPt": -3.84,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     5,
+     26,
+     58,
+     65,
+     142,
+     202,
+     218,
+     381,
+     411,
+     431,
+     459,
+     462,
+     467,
+     492,
+     541,
+     550,
+     553,
+     556,
+     560
+    ]
+   },
+   {
+    "tiles": 31,
+    "widthPt": 268,
+    "minTopPt": 3.87,
+    "minTopPage": 604,
+    "minBottomPt": 1.36,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 31,
+    "widthPt": 317,
+    "minTopPt": 5.31,
+    "minTopPage": 604,
+    "minBottomPt": 0.88,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 31,
+    "widthPt": 354,
+    "minTopPt": 6.4,
+    "minTopPage": 604,
+    "minBottomPt": 0.51,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 31,
+    "widthPt": 367,
+    "minTopPt": 6.78,
+    "minTopPage": 604,
+    "minBottomPt": 0.38,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 31,
+    "widthPt": 378,
+    "minTopPt": 7.1,
+    "minTopPage": 604,
+    "minBottomPt": 0.28,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 31,
+    "widthPt": 387,
+    "minTopPt": 7.36,
+    "minTopPage": 604,
+    "minBottomPt": 0.19,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 31,
+    "widthPt": 396,
+    "minTopPt": 7.63,
+    "minTopPage": 604,
+    "minBottomPt": 0.1,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 31,
+    "widthPt": 406,
+    "minTopPt": 7.92,
+    "minTopPage": 604,
+    "minBottomPt": -0.0,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     560
+    ]
+   },
+   {
+    "tiles": 31,
+    "widthPt": 424,
+    "minTopPt": 8.45,
+    "minTopPage": 604,
+    "minBottomPt": -0.18,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     560
+    ]
+   },
+   {
+    "tiles": 31,
+    "widthPt": 434,
+    "minTopPt": 8.74,
+    "minTopPage": 604,
+    "minBottomPt": -0.28,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     560
+    ]
+   },
+   {
+    "tiles": 31,
+    "widthPt": 442,
+    "minTopPt": 8.98,
+    "minTopPage": 604,
+    "minBottomPt": -0.35,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     560
+    ]
+   },
+   {
+    "tiles": 31,
+    "widthPt": 467,
+    "minTopPt": 9.71,
+    "minTopPage": 604,
+    "minBottomPt": -0.6,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     560
+    ]
+   },
+   {
+    "tiles": 31,
+    "widthPt": 681,
+    "minTopPt": 16.0,
+    "minTopPage": 604,
+    "minBottomPt": -2.71,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     5,
+     26,
+     142,
+     202,
+     381,
+     459,
+     467,
+     550,
+     553,
+     556,
+     560
+    ]
+   },
+   {
+    "tiles": 32,
+    "widthPt": 268,
+    "minTopPt": 4.32,
+    "minTopPage": 604,
+    "minBottomPt": 1.81,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 317,
+    "minTopPt": 5.84,
+    "minTopPage": 604,
+    "minBottomPt": 1.41,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 354,
+    "minTopPt": 6.99,
+    "minTopPage": 604,
+    "minBottomPt": 1.1,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 367,
+    "minTopPt": 7.39,
+    "minTopPage": 604,
+    "minBottomPt": 1.0,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 378,
+    "minTopPt": 7.73,
+    "minTopPage": 604,
+    "minBottomPt": 0.91,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 387,
+    "minTopPt": 8.01,
+    "minTopPage": 604,
+    "minBottomPt": 0.83,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 396,
+    "minTopPt": 8.29,
+    "minTopPage": 604,
+    "minBottomPt": 0.76,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 406,
+    "minTopPt": 8.6,
+    "minTopPage": 604,
+    "minBottomPt": 0.68,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 424,
+    "minTopPt": 9.16,
+    "minTopPage": 604,
+    "minBottomPt": 0.53,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 434,
+    "minTopPt": 9.47,
+    "minTopPage": 604,
+    "minBottomPt": 0.45,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 442,
+    "minTopPt": 9.72,
+    "minTopPage": 604,
+    "minBottomPt": 0.38,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 467,
+    "minTopPt": 10.49,
+    "minTopPage": 604,
+    "minBottomPt": 0.18,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 32,
+    "widthPt": 681,
+    "minTopPt": 17.13,
+    "minTopPage": 604,
+    "minBottomPt": -1.57,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     459,
+     553,
+     560
+    ]
+   },
+   {
+    "tiles": 33,
+    "widthPt": 268,
+    "minTopPt": 4.76,
+    "minTopPage": 604,
+    "minBottomPt": 2.25,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 317,
+    "minTopPt": 6.37,
+    "minTopPage": 604,
+    "minBottomPt": 1.93,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 354,
+    "minTopPt": 7.58,
+    "minTopPage": 604,
+    "minBottomPt": 1.69,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 367,
+    "minTopPt": 8.0,
+    "minTopPage": 604,
+    "minBottomPt": 1.61,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 378,
+    "minTopPt": 8.36,
+    "minTopPage": 604,
+    "minBottomPt": 1.54,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 387,
+    "minTopPt": 8.65,
+    "minTopPage": 604,
+    "minBottomPt": 1.48,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 396,
+    "minTopPt": 8.95,
+    "minTopPage": 604,
+    "minBottomPt": 1.42,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 406,
+    "minTopPt": 9.28,
+    "minTopPage": 604,
+    "minBottomPt": 1.35,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 424,
+    "minTopPt": 9.86,
+    "minTopPage": 604,
+    "minBottomPt": 1.24,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 434,
+    "minTopPt": 10.19,
+    "minTopPage": 604,
+    "minBottomPt": 1.17,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 442,
+    "minTopPt": 10.45,
+    "minTopPage": 604,
+    "minBottomPt": 1.12,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 467,
+    "minTopPt": 11.27,
+    "minTopPage": 604,
+    "minBottomPt": 0.96,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 33,
+    "widthPt": 681,
+    "minTopPt": 18.27,
+    "minTopPage": 604,
+    "minBottomPt": -0.44,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": [
+     560
+    ]
+   },
+   {
+    "tiles": 34,
+    "widthPt": 268,
+    "minTopPt": 5.21,
+    "minTopPage": 604,
+    "minBottomPt": 2.7,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 317,
+    "minTopPt": 6.89,
+    "minTopPage": 604,
+    "minBottomPt": 2.46,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 354,
+    "minTopPt": 8.17,
+    "minTopPage": 604,
+    "minBottomPt": 2.28,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 367,
+    "minTopPt": 8.61,
+    "minTopPage": 604,
+    "minBottomPt": 2.22,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 378,
+    "minTopPt": 8.99,
+    "minTopPage": 604,
+    "minBottomPt": 2.17,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 387,
+    "minTopPt": 9.3,
+    "minTopPage": 604,
+    "minBottomPt": 2.12,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 396,
+    "minTopPt": 9.61,
+    "minTopPage": 604,
+    "minBottomPt": 2.08,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 406,
+    "minTopPt": 9.95,
+    "minTopPage": 604,
+    "minBottomPt": 2.03,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 424,
+    "minTopPt": 10.57,
+    "minTopPage": 604,
+    "minBottomPt": 1.94,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 434,
+    "minTopPt": 10.91,
+    "minTopPage": 604,
+    "minBottomPt": 1.89,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 442,
+    "minTopPt": 11.19,
+    "minTopPage": 604,
+    "minBottomPt": 1.86,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 467,
+    "minTopPt": 12.05,
+    "minTopPage": 604,
+    "minBottomPt": 1.73,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 34,
+    "widthPt": 681,
+    "minTopPt": 19.4,
+    "minTopPage": 604,
+    "minBottomPt": 0.7,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 268,
+    "minTopPt": 5.66,
+    "minTopPage": 604,
+    "minBottomPt": 3.15,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 317,
+    "minTopPt": 7.42,
+    "minTopPage": 604,
+    "minBottomPt": 2.99,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 354,
+    "minTopPt": 8.76,
+    "minTopPage": 604,
+    "minBottomPt": 2.87,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 367,
+    "minTopPt": 9.22,
+    "minTopPage": 604,
+    "minBottomPt": 2.83,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 378,
+    "minTopPt": 9.62,
+    "minTopPage": 604,
+    "minBottomPt": 2.8,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 387,
+    "minTopPt": 9.94,
+    "minTopPage": 604,
+    "minBottomPt": 2.77,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 396,
+    "minTopPt": 10.27,
+    "minTopPage": 604,
+    "minBottomPt": 2.74,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 406,
+    "minTopPt": 10.63,
+    "minTopPage": 604,
+    "minBottomPt": 2.71,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 424,
+    "minTopPt": 11.28,
+    "minTopPage": 604,
+    "minBottomPt": 2.65,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 434,
+    "minTopPt": 11.64,
+    "minTopPage": 604,
+    "minBottomPt": 2.62,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 442,
+    "minTopPt": 11.93,
+    "minTopPage": 604,
+    "minBottomPt": 2.59,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 467,
+    "minTopPt": 12.83,
+    "minTopPage": 604,
+    "minBottomPt": 2.51,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   },
+   {
+    "tiles": 35,
+    "widthPt": 681,
+    "minTopPt": 20.54,
+    "minTopPage": 604,
+    "minBottomPt": 1.83,
+    "minBottomPage": 560,
+    "pagesTouchingTop": [],
+    "pagesTouchingBottom": []
+   }
+  ]
+ },
+ "clipping": {
+  "normal": {
+   "paintableRoomUnits": 1536.0,
+   "safeBaselineUnits": [
+    1004.0,
+    4078.0
+   ],
+   "intended": {
+    "baselineUnits": 2541,
+    "topClearUnits": 1537.0,
+    "bottomClearUnits": 1537.0,
+    "clipped": false
+   },
+   "iphone": {
+    "baselineUnits": 3311.0,
+    "topClearUnits": 2307.0,
+    "bottomClearUnits": 767.0,
+    "clipped": false
+   }
+  },
+  "fullScreen": {
+   "paintableRoomUnits": 1024.0,
+   "safeBaselineUnits": [
+    1516.0,
+    3566.0
+   ],
+   "intended": {
+    "baselineUnits": 2541,
+    "topClearUnits": 1025.0,
+    "bottomClearUnits": 1025.0,
+    "clipped": false
+   },
+   "iphone": {
+    "baselineUnits": 3311.0,
+    "topClearUnits": 1795.0,
+    "bottomClearUnits": 255.0,
+    "clipped": false
+   }
+  }
+ },
+ "keyPages396": {
+  "1": {
+   "intended": [
+    110.89,
+    119.89
+   ],
+   "iphone": [
+    110.89,
+    111.48
+   ]
+  },
+  "2": {
+   "intended": [
+    128.26,
+    135.72
+   ],
+   "iphone": [
+    128.26,
+    127.32
+   ]
+  },
+  "5": {
+   "intended": [
+    5.64,
+    8.6
+   ],
+   "iphone": [
+    14.19,
+    0.05
+   ]
+  },
+  "13": {
+   "intended": [
+    4.93,
+    10.94
+   ],
+   "iphone": [
+    13.69,
+    2.18
+   ]
+  },
+  "61": {
+   "intended": [
+    4.29,
+    12.53
+   ],
+   "iphone": [
+    12.76,
+    4.06
+   ]
+  },
+  "307": {
+   "intended": [
+    0.71,
+    10.95
+   ],
+   "iphone": [
+    9.32,
+    2.33
+   ]
+  },
+  "431": {
+   "intended": [
+    1.66,
+    8.93
+   ],
+   "iphone": [
+    9.91,
+    0.69
+   ]
+  },
+  "466": {
+   "intended": [
+    5.51,
+    10.68
+   ],
+   "iphone": [
+    13.94,
+    2.26
+   ]
+  },
+  "560": {
+   "intended": [
+    6.51,
+    7.26
+   ],
+   "iphone": [
+    6.51,
+    -1.22
+   ]
+  }
+ },
+ "pages387NoLift": [
+  {
+   "page": 1,
+   "intended": [
+    112.277,
+    113.253
+   ],
+   "iphone": [
+    112.277,
+    105.04
+   ]
+  },
+  {
+   "page": 2,
+   "intended": [
+    129.257,
+    128.729
+   ],
+   "iphone": [
+    129.257,
+    120.516
+   ]
+  },
+  {
+   "page": 3,
+   "intended": [
+    10.175,
+    8.084
+   ],
+   "iphone": [
+    18.834,
+    -0.575
+   ]
+  },
+  {
+   "page": 4,
+   "intended": [
+    10.23,
+    8.719
+   ],
+   "iphone": [
+    18.599,
+    0.35
+   ]
+  },
+  {
+   "page": 5,
+   "intended": [
+    9.416,
+    4.497
+   ],
+   "iphone": [
+    17.778,
+    -3.865
+   ]
+  },
+  {
+   "page": 6,
+   "intended": [
+    5.768,
+    7.191
+   ],
+   "iphone": [
+    13.707,
+    -0.748
+   ]
+  },
+  {
+   "page": 7,
+   "intended": [
+    7.907,
+    7.569
+   ],
+   "iphone": [
+    16.059,
+    -0.583
+   ]
+  },
+  {
+   "page": 8,
+   "intended": [
+    10.97,
+    7.092
+   ],
+   "iphone": [
+    19.196,
+    -1.133
+   ]
+  },
+  {
+   "page": 9,
+   "intended": [
+    12.1,
+    9.62
+   ],
+   "iphone": [
+    20.366,
+    1.353
+   ]
+  },
+  {
+   "page": 10,
+   "intended": [
+    9.416,
+    7.369
+   ],
+   "iphone": [
+    17.582,
+    -0.798
+   ]
+  },
+  {
+   "page": 11,
+   "intended": [
+    9.64,
+    6.509
+   ],
+   "iphone": [
+    17.812,
+    -1.663
+   ]
+  },
+  {
+   "page": 12,
+   "intended": [
+    9.363,
+    7.672
+   ],
+   "iphone": [
+    17.604,
+    -0.569
+   ]
+  },
+  {
+   "page": 13,
+   "intended": [
+    8.724,
+    6.778
+   ],
+   "iphone": [
+    17.285,
+    -1.783
+   ]
+  },
+  {
+   "page": 14,
+   "intended": [
+    10.404,
+    7.363
+   ],
+   "iphone": [
+    18.738,
+    -0.971
+   ]
+  },
+  {
+   "page": 15,
+   "intended": [
+    9.787,
+    6.791
+   ],
+   "iphone": [
+    18.148,
+    -1.57
+   ]
+  },
+  {
+   "page": 16,
+   "intended": [
+    6.117,
+    9.085
+   ],
+   "iphone": [
+    14.137,
+    1.065
+   ]
+  },
+  {
+   "page": 17,
+   "intended": [
+    5.765,
+    8.728
+   ],
+   "iphone": [
+    13.632,
+    0.861
+   ]
+  },
+  {
+   "page": 18,
+   "intended": [
+    11.627,
+    9.165
+   ],
+   "iphone": [
+    19.798,
+    0.995
+   ]
+  },
+  {
+   "page": 19,
+   "intended": [
+    6.716,
+    8.628
+   ],
+   "iphone": [
+    15.033,
+    0.311
+   ]
+  },
+  {
+   "page": 20,
+   "intended": [
+    10.704,
+    6.261
+   ],
+   "iphone": [
+    19.047,
+    -2.083
+   ]
+  },
+  {
+   "page": 21,
+   "intended": [
+    6.333,
+    7.09
+   ],
+   "iphone": [
+    14.658,
+    -1.234
+   ]
+  },
+  {
+   "page": 22,
+   "intended": [
+    9.422,
+    7.864
+   ],
+   "iphone": [
+    17.755,
+    -0.468
+   ]
+  },
+  {
+   "page": 23,
+   "intended": [
+    8.143,
+    9.559
+   ],
+   "iphone": [
+    16.338,
+    1.364
+   ]
+  },
+  {
+   "page": 24,
+   "intended": [
+    6.16,
+    9.788
+   ],
+   "iphone": [
+    14.448,
+    1.499
+   ]
+  },
+  {
+   "page": 25,
+   "intended": [
+    9.434,
+    9.685
+   ],
+   "iphone": [
+    17.792,
+    1.327
+   ]
+  },
+  {
+   "page": 26,
+   "intended": [
+    9.038,
+    4.563
+   ],
+   "iphone": [
+    17.343,
+    -3.742
+   ]
+  },
+  {
+   "page": 27,
+   "intended": [
+    9.3,
+    6.922
+   ],
+   "iphone": [
+    17.436,
+    -1.214
+   ]
+  },
+  {
+   "page": 28,
+   "intended": [
+    8.501,
+    7.539
+   ],
+   "iphone": [
+    16.913,
+    -0.873
+   ]
+  },
+  {
+   "page": 29,
+   "intended": [
+    9.267,
+    9.605
+   ],
+   "iphone": [
+    17.672,
+    1.2
+   ]
+  },
+  {
+   "page": 30,
+   "intended": [
+    7.428,
+    9.764
+   ],
+   "iphone": [
+    15.679,
+    1.513
+   ]
+  },
+  {
+   "page": 31,
+   "intended": [
+    6.444,
+    8.0
+   ],
+   "iphone": [
+    14.796,
+    -0.352
+   ]
+  },
+  {
+   "page": 32,
+   "intended": [
+    10.177,
+    9.159
+   ],
+   "iphone": [
+    18.518,
+    0.818
+   ]
+  },
+  {
+   "page": 33,
+   "intended": [
+    8.431,
+    7.509
+   ],
+   "iphone": [
+    16.684,
+    -0.744
+   ]
+  },
+  {
+   "page": 34,
+   "intended": [
+    7.311,
+    7.922
+   ],
+   "iphone": [
+    15.561,
+    -0.328
+   ]
+  },
+  {
+   "page": 35,
+   "intended": [
+    8.315,
+    8.866
+   ],
+   "iphone": [
+    16.643,
+    0.538
+   ]
+  },
+  {
+   "page": 36,
+   "intended": [
+    7.632,
+    7.762
+   ],
+   "iphone": [
+    16.018,
+    -0.624
+   ]
+  },
+  {
+   "page": 37,
+   "intended": [
+    10.302,
+    6.133
+   ],
+   "iphone": [
+    18.285,
+    -1.85
+   ]
+  },
+  {
+   "page": 38,
+   "intended": [
+    9.861,
+    7.727
+   ],
+   "iphone": [
+    18.29,
+    -0.702
+   ]
+  },
+  {
+   "page": 39,
+   "intended": [
+    9.628,
+    9.65
+   ],
+   "iphone": [
+    18.006,
+    1.272
+   ]
+  },
+  {
+   "page": 40,
+   "intended": [
+    10.819,
+    8.045
+   ],
+   "iphone": [
+    19.23,
+    -0.365
+   ]
+  },
+  {
+   "page": 41,
+   "intended": [
+    10.673,
+    8.739
+   ],
+   "iphone": [
+    19.086,
+    0.326
+   ]
+  },
+  {
+   "page": 42,
+   "intended": [
+    5.236,
+    5.963
+   ],
+   "iphone": [
+    13.475,
+    -2.276
+   ]
+  },
+  {
+   "page": 43,
+   "intended": [
+    7.262,
+    8.147
+   ],
+   "iphone": [
+    15.676,
+    -0.268
+   ]
+  },
+  {
+   "page": 44,
+   "intended": [
+    4.704,
+    7.877
+   ],
+   "iphone": [
+    13.158,
+    -0.577
+   ]
+  },
+  {
+   "page": 45,
+   "intended": [
+    9.294,
+    8.417
+   ],
+   "iphone": [
+    17.632,
+    0.08
+   ]
+  },
+  {
+   "page": 46,
+   "intended": [
+    9.986,
+    7.939
+   ],
+   "iphone": [
+    18.412,
+    -0.487
+   ]
+  },
+  {
+   "page": 47,
+   "intended": [
+    7.66,
+    8.041
+   ],
+   "iphone": [
+    16.043,
+    -0.342
+   ]
+  },
+  {
+   "page": 48,
+   "intended": [
+    9.67,
+    9.039
+   ],
+   "iphone": [
+    18.056,
+    0.653
+   ]
+  },
+  {
+   "page": 49,
+   "intended": [
+    4.692,
+    8.986
+   ],
+   "iphone": [
+    13.083,
+    0.595
+   ]
+  },
+  {
+   "page": 50,
+   "intended": [
+    10.408,
+    9.455
+   ],
+   "iphone": [
+    10.408,
+    1.249
+   ]
+  },
+  {
+   "page": 51,
+   "intended": [
+    10.198,
+    9.734
+   ],
+   "iphone": [
+    18.526,
+    1.406
+   ]
+  },
+  {
+   "page": 52,
+   "intended": [
+    11.243,
+    9.653
+   ],
+   "iphone": [
+    19.573,
+    1.322
+   ]
+  },
+  {
+   "page": 53,
+   "intended": [
+    9.809,
+    9.311
+   ],
+   "iphone": [
+    18.15,
+    0.971
+   ]
+  },
+  {
+   "page": 54,
+   "intended": [
+    8.871,
+    8.464
+   ],
+   "iphone": [
+    17.111,
+    0.223
+   ]
+  },
+  {
+   "page": 55,
+   "intended": [
+    5.325,
+    8.25
+   ],
+   "iphone": [
+    13.606,
+    -0.031
+   ]
+  },
+  {
+   "page": 56,
+   "intended": [
+    9.246,
+    9.764
+   ],
+   "iphone": [
+    17.555,
+    1.455
+   ]
+  },
+  {
+   "page": 57,
+   "intended": [
+    10.539,
+    7.923
+   ],
+   "iphone": [
+    18.863,
+    -0.401
+   ]
+  },
+  {
+   "page": 58,
+   "intended": [
+    6.629,
+    5.174
+   ],
+   "iphone": [
+    14.867,
+    -3.064
+   ]
+  },
+  {
+   "page": 59,
+   "intended": [
+    11.41,
+    8.505
+   ],
+   "iphone": [
+    19.82,
+    0.095
+   ]
+  },
+  {
+   "page": 60,
+   "intended": [
+    10.168,
+    9.578
+   ],
+   "iphone": [
+    18.59,
+    1.156
+   ]
+  },
+  {
+   "page": 61,
+   "intended": [
+    8.104,
+    8.341
+   ],
+   "iphone": [
+    16.383,
+    0.062
+   ]
+  },
+  {
+   "page": 62,
+   "intended": [
+    9.754,
+    7.368
+   ],
+   "iphone": [
+    18.108,
+    -0.987
+   ]
+  },
+  {
+   "page": 63,
+   "intended": [
+    10.615,
+    8.365
+   ],
+   "iphone": [
+    18.946,
+    0.035
+   ]
+  },
+  {
+   "page": 64,
+   "intended": [
+    8.682,
+    7.686
+   ],
+   "iphone": [
+    17.017,
+    -0.649
+   ]
+  },
+  {
+   "page": 65,
+   "intended": [
+    9.298,
+    4.897
+   ],
+   "iphone": [
+    17.665,
+    -3.47
+   ]
+  },
+  {
+   "page": 66,
+   "intended": [
+    6.695,
+    8.664
+   ],
+   "iphone": [
+    15.071,
+    0.289
+   ]
+  },
+  {
+   "page": 67,
+   "intended": [
+    11.901,
+    6.935
+   ],
+   "iphone": [
+    20.248,
+    -1.412
+   ]
+  },
+  {
+   "page": 68,
+   "intended": [
+    8.69,
+    8.897
+   ],
+   "iphone": [
+    17.1,
+    0.487
+   ]
+  },
+  {
+   "page": 69,
+   "intended": [
+    8.011,
+    7.989
+   ],
+   "iphone": [
+    16.422,
+    -0.422
+   ]
+  },
+  {
+   "page": 70,
+   "intended": [
+    8.914,
+    10.026
+   ],
+   "iphone": [
+    17.065,
+    1.875
+   ]
+  },
+  {
+   "page": 71,
+   "intended": [
+    9.468,
+    6.723
+   ],
+   "iphone": [
+    17.648,
+    -1.457
+   ]
+  },
+  {
+   "page": 72,
+   "intended": [
+    10.903,
+    7.917
+   ],
+   "iphone": [
+    19.117,
+    -0.297
+   ]
+  },
+  {
+   "page": 73,
+   "intended": [
+    9.328,
+    9.1
+   ],
+   "iphone": [
+    17.691,
+    0.738
+   ]
+  },
+  {
+   "page": 74,
+   "intended": [
+    9.445,
+    8.755
+   ],
+   "iphone": [
+    17.745,
+    0.455
+   ]
+  },
+  {
+   "page": 75,
+   "intended": [
+    9.411,
+    8.33
+   ],
+   "iphone": [
+    17.731,
+    0.011
+   ]
+  },
+  {
+   "page": 76,
+   "intended": [
+    8.321,
+    10.144
+   ],
+   "iphone": [
+    16.622,
+    2.445
+   ]
+  },
+  {
+   "page": 77,
+   "intended": [
+    10.339,
+    7.494
+   ],
+   "iphone": [
+    10.339,
+    -0.755
+   ]
+  },
+  {
+   "page": 78,
+   "intended": [
+    11.093,
+    8.886
+   ],
+   "iphone": [
+    19.423,
+    0.557
+   ]
+  },
+  {
+   "page": 79,
+   "intended": [
+    9.365,
+    9.125
+   ],
+   "iphone": [
+    17.777,
+    0.714
+   ]
+  },
+  {
+   "page": 80,
+   "intended": [
+    11.005,
+    9.572
+   ],
+   "iphone": [
+    19.43,
+    1.147
+   ]
+  },
+  {
+   "page": 81,
+   "intended": [
+    9.88,
+    9.641
+   ],
+   "iphone": [
+    18.264,
+    1.258
+   ]
+  },
+  {
+   "page": 82,
+   "intended": [
+    6.662,
+    6.573
+   ],
+   "iphone": [
+    15.136,
+    -1.902
+   ]
+  },
+  {
+   "page": 83,
+   "intended": [
+    8.018,
+    8.583
+   ],
+   "iphone": [
+    16.39,
+    0.211
+   ]
+  },
+  {
+   "page": 84,
+   "intended": [
+    10.607,
+    8.518
+   ],
+   "iphone": [
+    19.071,
+    0.054
+   ]
+  },
+  {
+   "page": 85,
+   "intended": [
+    10.161,
+    8.453
+   ],
+   "iphone": [
+    18.431,
+    0.183
+   ]
+  },
+  {
+   "page": 86,
+   "intended": [
+    6.917,
+    9.801
+   ],
+   "iphone": [
+    15.203,
+    1.515
+   ]
+  },
+  {
+   "page": 87,
+   "intended": [
+    6.875,
+    8.949
+   ],
+   "iphone": [
+    15.065,
+    0.759
+   ]
+  },
+  {
+   "page": 88,
+   "intended": [
+    7.748,
+    7.42
+   ],
+   "iphone": [
+    16.166,
+    -0.998
+   ]
+  },
+  {
+   "page": 89,
+   "intended": [
+    10.39,
+    8.449
+   ],
+   "iphone": [
+    18.651,
+    0.188
+   ]
+  },
+  {
+   "page": 90,
+   "intended": [
+    10.601,
+    9.284
+   ],
+   "iphone": [
+    18.844,
+    1.041
+   ]
+  },
+  {
+   "page": 91,
+   "intended": [
+    6.818,
+    8.251
+   ],
+   "iphone": [
+    15.176,
+    -0.107
+   ]
+  },
+  {
+   "page": 92,
+   "intended": [
+    7.474,
+    6.948
+   ],
+   "iphone": [
+    15.745,
+    -1.323
+   ]
+  },
+  {
+   "page": 93,
+   "intended": [
+    6.937,
+    9.674
+   ],
+   "iphone": [
+    15.3,
+    1.311
+   ]
+  },
+  {
+   "page": 94,
+   "intended": [
+    9.056,
+    9.301
+   ],
+   "iphone": [
+    17.264,
+    1.092
+   ]
+  },
+  {
+   "page": 95,
+   "intended": [
+    8.966,
+    9.703
+   ],
+   "iphone": [
+    17.312,
+    1.357
+   ]
+  },
+  {
+   "page": 96,
+   "intended": [
+    9.277,
+    7.233
+   ],
+   "iphone": [
+    17.562,
+    -1.052
+   ]
+  },
+  {
+   "page": 97,
+   "intended": [
+    9.562,
+    8.789
+   ],
+   "iphone": [
+    17.947,
+    0.404
+   ]
+  },
+  {
+   "page": 98,
+   "intended": [
+    9.417,
+    8.687
+   ],
+   "iphone": [
+    17.683,
+    0.422
+   ]
+  },
+  {
+   "page": 99,
+   "intended": [
+    9.544,
+    9.674
+   ],
+   "iphone": [
+    17.907,
+    1.311
+   ]
+  },
+  {
+   "page": 100,
+   "intended": [
+    8.674,
+    6.797
+   ],
+   "iphone": [
+    16.794,
+    -1.322
+   ]
+  },
+  {
+   "page": 101,
+   "intended": [
+    10.516,
+    7.669
+   ],
+   "iphone": [
+    18.698,
+    -0.513
+   ]
+  },
+  {
+   "page": 102,
+   "intended": [
+    7.168,
+    7.555
+   ],
+   "iphone": [
+    15.426,
+    -0.703
+   ]
+  },
+  {
+   "page": 103,
+   "intended": [
+    8.393,
+    7.746
+   ],
+   "iphone": [
+    16.69,
+    -0.552
+   ]
+  },
+  {
+   "page": 104,
+   "intended": [
+    10.352,
+    9.329
+   ],
+   "iphone": [
+    18.556,
+    1.124
+   ]
+  },
+  {
+   "page": 105,
+   "intended": [
+    10.594,
+    6.822
+   ],
+   "iphone": [
+    18.661,
+    -1.245
+   ]
+  },
+  {
+   "page": 106,
+   "intended": [
+    6.901,
+    8.974
+   ],
+   "iphone": [
+    15.089,
+    0.785
+   ]
+  },
+  {
+   "page": 107,
+   "intended": [
+    10.494,
+    8.944
+   ],
+   "iphone": [
+    18.449,
+    0.989
+   ]
+  },
+  {
+   "page": 108,
+   "intended": [
+    9.191,
+    7.623
+   ],
+   "iphone": [
+    17.408,
+    -0.594
+   ]
+  },
+  {
+   "page": 109,
+   "intended": [
+    8.915,
+    7.574
+   ],
+   "iphone": [
+    17.24,
+    -0.752
+   ]
+  },
+  {
+   "page": 110,
+   "intended": [
+    9.4,
+    9.569
+   ],
+   "iphone": [
+    17.545,
+    1.423
+   ]
+  },
+  {
+   "page": 111,
+   "intended": [
+    6.343,
+    8.315
+   ],
+   "iphone": [
+    14.463,
+    0.194
+   ]
+  },
+  {
+   "page": 112,
+   "intended": [
+    7.632,
+    8.08
+   ],
+   "iphone": [
+    15.849,
+    -0.137
+   ]
+  },
+  {
+   "page": 113,
+   "intended": [
+    11.028,
+    8.136
+   ],
+   "iphone": [
+    19.243,
+    -0.08
+   ]
+  },
+  {
+   "page": 114,
+   "intended": [
+    6.015,
+    9.904
+   ],
+   "iphone": [
+    14.24,
+    1.679
+   ]
+  },
+  {
+   "page": 115,
+   "intended": [
+    10.086,
+    7.504
+   ],
+   "iphone": [
+    18.375,
+    -0.785
+   ]
+  },
+  {
+   "page": 116,
+   "intended": [
+    10.667,
+    9.575
+   ],
+   "iphone": [
+    18.985,
+    1.256
+   ]
+  },
+  {
+   "page": 117,
+   "intended": [
+    8.755,
+    7.213
+   ],
+   "iphone": [
+    16.889,
+    -0.92
+   ]
+  },
+  {
+   "page": 118,
+   "intended": [
+    8.522,
+    9.813
+   ],
+   "iphone": [
+    16.802,
+    1.534
+   ]
+  },
+  {
+   "page": 119,
+   "intended": [
+    8.698,
+    7.363
+   ],
+   "iphone": [
+    16.988,
+    -0.926
+   ]
+  },
+  {
+   "page": 120,
+   "intended": [
+    10.328,
+    5.441
+   ],
+   "iphone": [
+    18.508,
+    -2.739
+   ]
+  },
+  {
+   "page": 121,
+   "intended": [
+    10.724,
+    9.856
+   ],
+   "iphone": [
+    18.977,
+    1.602
+   ]
+  },
+  {
+   "page": 122,
+   "intended": [
+    9.731,
+    7.664
+   ],
+   "iphone": [
+    18.021,
+    -0.625
+   ]
+  },
+  {
+   "page": 123,
+   "intended": [
+    11.065,
+    8.195
+   ],
+   "iphone": [
+    19.249,
+    0.011
+   ]
+  },
+  {
+   "page": 124,
+   "intended": [
+    6.894,
+    8.459
+   ],
+   "iphone": [
+    15.144,
+    0.209
+   ]
+  },
+  {
+   "page": 125,
+   "intended": [
+    10.137,
+    9.304
+   ],
+   "iphone": [
+    18.259,
+    1.183
+   ]
+  },
+  {
+   "page": 126,
+   "intended": [
+    5.83,
+    7.754
+   ],
+   "iphone": [
+    14.157,
+    -0.573
+   ]
+  },
+  {
+   "page": 127,
+   "intended": [
+    9.758,
+    8.737
+   ],
+   "iphone": [
+    17.948,
+    0.547
+   ]
+  },
+  {
+   "page": 128,
+   "intended": [
+    10.3,
+    9.822
+   ],
+   "iphone": [
+    10.3,
+    1.548
+   ]
+  },
+  {
+   "page": 129,
+   "intended": [
+    10.363,
+    5.948
+   ],
+   "iphone": [
+    18.574,
+    -2.264
+   ]
+  },
+  {
+   "page": 130,
+   "intended": [
+    5.412,
+    9.19
+   ],
+   "iphone": [
+    13.654,
+    0.949
+   ]
+  },
+  {
+   "page": 131,
+   "intended": [
+    5.41,
+    8.722
+   ],
+   "iphone": [
+    13.827,
+    0.306
+   ]
+  },
+  {
+   "page": 132,
+   "intended": [
+    5.902,
+    7.659
+   ],
+   "iphone": [
+    14.303,
+    -0.742
+   ]
+  },
+  {
+   "page": 133,
+   "intended": [
+    6.568,
+    8.977
+   ],
+   "iphone": [
+    14.81,
+    0.735
+   ]
+  },
+  {
+   "page": 134,
+   "intended": [
+    9.713,
+    8.038
+   ],
+   "iphone": [
+    17.823,
+    -0.073
+   ]
+  },
+  {
+   "page": 135,
+   "intended": [
+    9.332,
+    8.645
+   ],
+   "iphone": [
+    17.354,
+    0.623
+   ]
+  },
+  {
+   "page": 136,
+   "intended": [
+    9.083,
+    8.648
+   ],
+   "iphone": [
+    17.442,
+    0.288
+   ]
+  },
+  {
+   "page": 137,
+   "intended": [
+    5.94,
+    6.247
+   ],
+   "iphone": [
+    14.11,
+    -1.923
+   ]
+  },
+  {
+   "page": 138,
+   "intended": [
+    8.517,
+    9.857
+   ],
+   "iphone": [
+    16.77,
+    1.604
+   ]
+  },
+  {
+   "page": 139,
+   "intended": [
+    9.731,
+    7.806
+   ],
+   "iphone": [
+    18.106,
+    -0.569
+   ]
+  },
+  {
+   "page": 140,
+   "intended": [
+    9.025,
+    7.283
+   ],
+   "iphone": [
+    16.964,
+    -0.656
+   ]
+  },
+  {
+   "page": 141,
+   "intended": [
+    6.053,
+    8.217
+   ],
+   "iphone": [
+    14.351,
+    -0.081
+   ]
+  },
+  {
+   "page": 142,
+   "intended": [
+    7.68,
+    4.344
+   ],
+   "iphone": [
+    16.047,
+    -4.022
+   ]
+  },
+  {
+   "page": 143,
+   "intended": [
+    8.632,
+    9.715
+   ],
+   "iphone": [
+    16.971,
+    1.377
+   ]
+  },
+  {
+   "page": 144,
+   "intended": [
+    8.637,
+    8.94
+   ],
+   "iphone": [
+    16.973,
+    0.604
+   ]
+  },
+  {
+   "page": 145,
+   "intended": [
+    6.565,
+    8.788
+   ],
+   "iphone": [
+    14.914,
+    0.439
+   ]
+  },
+  {
+   "page": 146,
+   "intended": [
+    8.47,
+    9.591
+   ],
+   "iphone": [
+    16.69,
+    1.371
+   ]
+  },
+  {
+   "page": 147,
+   "intended": [
+    8.723,
+    7.47
+   ],
+   "iphone": [
+    17.041,
+    -0.848
+   ]
+  },
+  {
+   "page": 148,
+   "intended": [
+    8.349,
+    8.775
+   ],
+   "iphone": [
+    16.76,
+    0.363
+   ]
+  },
+  {
+   "page": 149,
+   "intended": [
+    6.133,
+    9.912
+   ],
+   "iphone": [
+    14.352,
+    1.693
+   ]
+  },
+  {
+   "page": 150,
+   "intended": [
+    9.538,
+    6.301
+   ],
+   "iphone": [
+    17.604,
+    -1.764
+   ]
+  },
+  {
+   "page": 151,
+   "intended": [
+    10.328,
+    9.508
+   ],
+   "iphone": [
+    10.328,
+    1.251
+   ]
+  },
+  {
+   "page": 152,
+   "intended": [
+    6.106,
+    9.899
+   ],
+   "iphone": [
+    14.333,
+    1.672
+   ]
+  },
+  {
+   "page": 153,
+   "intended": [
+    9.717,
+    8.32
+   ],
+   "iphone": [
+    17.745,
+    0.291
+   ]
+  },
+  {
+   "page": 154,
+   "intended": [
+    10.046,
+    7.366
+   ],
+   "iphone": [
+    18.268,
+    -0.857
+   ]
+  },
+  {
+   "page": 155,
+   "intended": [
+    9.125,
+    7.022
+   ],
+   "iphone": [
+    17.473,
+    -1.326
+   ]
+  },
+  {
+   "page": 156,
+   "intended": [
+    9.929,
+    10.16
+   ],
+   "iphone": [
+    17.999,
+    2.09
+   ]
+  },
+  {
+   "page": 157,
+   "intended": [
+    10.914,
+    7.097
+   ],
+   "iphone": [
+    19.262,
+    -1.251
+   ]
+  },
+  {
+   "page": 158,
+   "intended": [
+    7.941,
+    9.732
+   ],
+   "iphone": [
+    16.102,
+    1.571
+   ]
+  },
+  {
+   "page": 159,
+   "intended": [
+    8.03,
+    8.126
+   ],
+   "iphone": [
+    16.32,
+    -0.163
+   ]
+  },
+  {
+   "page": 160,
+   "intended": [
+    10.195,
+    8.641
+   ],
+   "iphone": [
+    18.62,
+    0.216
+   ]
+  },
+  {
+   "page": 161,
+   "intended": [
+    9.617,
+    7.636
+   ],
+   "iphone": [
+    17.685,
+    -0.433
+   ]
+  },
+  {
+   "page": 162,
+   "intended": [
+    8.268,
+    8.279
+   ],
+   "iphone": [
+    16.374,
+    0.173
+   ]
+  },
+  {
+   "page": 163,
+   "intended": [
+    9.091,
+    9.563
+   ],
+   "iphone": [
+    17.522,
+    1.132
+   ]
+  },
+  {
+   "page": 164,
+   "intended": [
+    5.876,
+    9.391
+   ],
+   "iphone": [
+    13.789,
+    1.479
+   ]
+  },
+  {
+   "page": 165,
+   "intended": [
+    9.823,
+    9.605
+   ],
+   "iphone": [
+    17.796,
+    1.632
+   ]
+  },
+  {
+   "page": 166,
+   "intended": [
+    8.755,
+    7.91
+   ],
+   "iphone": [
+    16.995,
+    -0.33
+   ]
+  },
+  {
+   "page": 167,
+   "intended": [
+    10.939,
+    9.798
+   ],
+   "iphone": [
+    19.227,
+    1.51
+   ]
+  },
+  {
+   "page": 168,
+   "intended": [
+    11.102,
+    9.401
+   ],
+   "iphone": [
+    19.29,
+    1.213
+   ]
+  },
+  {
+   "page": 169,
+   "intended": [
+    12.297,
+    9.196
+   ],
+   "iphone": [
+    20.42,
+    1.073
+   ]
+  },
+  {
+   "page": 170,
+   "intended": [
+    10.014,
+    9.082
+   ],
+   "iphone": [
+    18.262,
+    0.834
+   ]
+  },
+  {
+   "page": 171,
+   "intended": [
+    6.534,
+    8.521
+   ],
+   "iphone": [
+    14.744,
+    0.312
+   ]
+  },
+  {
+   "page": 172,
+   "intended": [
+    6.705,
+    7.988
+   ],
+   "iphone": [
+    14.87,
+    -0.177
+   ]
+  },
+  {
+   "page": 173,
+   "intended": [
+    8.766,
+    7.694
+   ],
+   "iphone": [
+    16.934,
+    -0.474
+   ]
+  },
+  {
+   "page": 174,
+   "intended": [
+    10.818,
+    10.256
+   ],
+   "iphone": [
+    18.829,
+    2.245
+   ]
+  },
+  {
+   "page": 175,
+   "intended": [
+    6.809,
+    7.238
+   ],
+   "iphone": [
+    14.847,
+    -0.799
+   ]
+  },
+  {
+   "page": 176,
+   "intended": [
+    6.447,
+    9.468
+   ],
+   "iphone": [
+    14.608,
+    1.306
+   ]
+  },
+  {
+   "page": 177,
+   "intended": [
+    10.421,
+    8.521
+   ],
+   "iphone": [
+    10.421,
+    0.323
+   ]
+  },
+  {
+   "page": 178,
+   "intended": [
+    10.539,
+    8.386
+   ],
+   "iphone": [
+    18.549,
+    0.376
+   ]
+  },
+  {
+   "page": 179,
+   "intended": [
+    7.447,
+    7.776
+   ],
+   "iphone": [
+    15.639,
+    -0.416
+   ]
+  },
+  {
+   "page": 180,
+   "intended": [
+    10.469,
+    7.837
+   ],
+   "iphone": [
+    18.574,
+    -0.268
+   ]
+  },
+  {
+   "page": 181,
+   "intended": [
+    8.877,
+    7.674
+   ],
+   "iphone": [
+    17.151,
+    -0.599
+   ]
+  },
+  {
+   "page": 182,
+   "intended": [
+    9.938,
+    8.057
+   ],
+   "iphone": [
+    18.259,
+    -0.264
+   ]
+  },
+  {
+   "page": 183,
+   "intended": [
+    5.029,
+    8.279
+   ],
+   "iphone": [
+    13.342,
+    -0.034
+   ]
+  },
+  {
+   "page": 184,
+   "intended": [
+    9.986,
+    5.91
+   ],
+   "iphone": [
+    18.116,
+    -2.22
+   ]
+  },
+  {
+   "page": 185,
+   "intended": [
+    7.988,
+    7.767
+   ],
+   "iphone": [
+    16.081,
+    -0.326
+   ]
+  },
+  {
+   "page": 186,
+   "intended": [
+    10.515,
+    5.636
+   ],
+   "iphone": [
+    18.578,
+    -2.427
+   ]
+  },
+  {
+   "page": 187,
+   "intended": [
+    10.445,
+    8.059
+   ],
+   "iphone": [
+    10.445,
+    -0.124
+   ]
+  },
+  {
+   "page": 188,
+   "intended": [
+    10.093,
+    9.998
+   ],
+   "iphone": [
+    18.261,
+    1.83
+   ]
+  },
+  {
+   "page": 189,
+   "intended": [
+    10.885,
+    6.335
+   ],
+   "iphone": [
+    18.619,
+    -1.4
+   ]
+  },
+  {
+   "page": 190,
+   "intended": [
+    8.577,
+    9.109
+   ],
+   "iphone": [
+    16.602,
+    1.084
+   ]
+  },
+  {
+   "page": 191,
+   "intended": [
+    8.948,
+    9.169
+   ],
+   "iphone": [
+    17.068,
+    1.049
+   ]
+  },
+  {
+   "page": 192,
+   "intended": [
+    9.824,
+    6.458
+   ],
+   "iphone": [
+    17.95,
+    -1.668
+   ]
+  },
+  {
+   "page": 193,
+   "intended": [
+    7.48,
+    8.283
+   ],
+   "iphone": [
+    15.408,
+    0.354
+   ]
+  },
+  {
+   "page": 194,
+   "intended": [
+    10.071,
+    9.306
+   ],
+   "iphone": [
+    18.032,
+    1.346
+   ]
+  },
+  {
+   "page": 195,
+   "intended": [
+    7.505,
+    8.197
+   ],
+   "iphone": [
+    15.705,
+    -0.004
+   ]
+  },
+  {
+   "page": 196,
+   "intended": [
+    7.997,
+    5.78
+   ],
+   "iphone": [
+    16.182,
+    -2.405
+   ]
+  },
+  {
+   "page": 197,
+   "intended": [
+    8.981,
+    6.906
+   ],
+   "iphone": [
+    17.088,
+    -1.201
+   ]
+  },
+  {
+   "page": 198,
+   "intended": [
+    9.098,
+    10.216
+   ],
+   "iphone": [
+    16.997,
+    2.317
+   ]
+  },
+  {
+   "page": 199,
+   "intended": [
+    9.707,
+    6.438
+   ],
+   "iphone": [
+    17.827,
+    -1.683
+   ]
+  },
+  {
+   "page": 200,
+   "intended": [
+    11.212,
+    6.602
+   ],
+   "iphone": [
+    19.39,
+    -1.576
+   ]
+  },
+  {
+   "page": 201,
+   "intended": [
+    9.106,
+    6.907
+   ],
+   "iphone": [
+    17.286,
+    -1.273
+   ]
+  },
+  {
+   "page": 202,
+   "intended": [
+    7.801,
+    4.283
+   ],
+   "iphone": [
+    16.109,
+    -4.025
+   ]
+  },
+  {
+   "page": 203,
+   "intended": [
+    9.845,
+    7.385
+   ],
+   "iphone": [
+    18.19,
+    -0.96
+   ]
+  },
+  {
+   "page": 204,
+   "intended": [
+    7.722,
+    6.293
+   ],
+   "iphone": [
+    15.998,
+    -1.983
+   ]
+  },
+  {
+   "page": 205,
+   "intended": [
+    12.148,
+    9.354
+   ],
+   "iphone": [
+    20.325,
+    1.177
+   ]
+  },
+  {
+   "page": 206,
+   "intended": [
+    8.618,
+    6.641
+   ],
+   "iphone": [
+    16.851,
+    -1.592
+   ]
+  },
+  {
+   "page": 207,
+   "intended": [
+    8.599,
+    10.209
+   ],
+   "iphone": [
+    16.86,
+    2.548
+   ]
+  },
+  {
+   "page": 208,
+   "intended": [
+    10.246,
+    9.637
+   ],
+   "iphone": [
+    10.246,
+    1.33
+   ]
+  },
+  {
+   "page": 209,
+   "intended": [
+    9.902,
+    8.104
+   ],
+   "iphone": [
+    17.811,
+    0.195
+   ]
+  },
+  {
+   "page": 210,
+   "intended": [
+    8.835,
+    8.997
+   ],
+   "iphone": [
+    16.655,
+    1.177
+   ]
+  },
+  {
+   "page": 211,
+   "intended": [
+    11.184,
+    6.898
+   ],
+   "iphone": [
+    19.235,
+    -1.153
+   ]
+  },
+  {
+   "page": 212,
+   "intended": [
+    5.021,
+    7.728
+   ],
+   "iphone": [
+    13.328,
+    -0.578
+   ]
+  },
+  {
+   "page": 213,
+   "intended": [
+    5.765,
+    6.968
+   ],
+   "iphone": [
+    13.747,
+    -1.014
+   ]
+  },
+  {
+   "page": 214,
+   "intended": [
+    9.731,
+    9.854
+   ],
+   "iphone": [
+    17.741,
+    1.844
+   ]
+  },
+  {
+   "page": 215,
+   "intended": [
+    9.604,
+    7.224
+   ],
+   "iphone": [
+    17.785,
+    -0.957
+   ]
+  },
+  {
+   "page": 216,
+   "intended": [
+    11.138,
+    10.548
+   ],
+   "iphone": [
+    18.973,
+    2.713
+   ]
+  },
+  {
+   "page": 217,
+   "intended": [
+    8.781,
+    9.727
+   ],
+   "iphone": [
+    17.06,
+    1.448
+   ]
+  },
+  {
+   "page": 218,
+   "intended": [
+    9.43,
+    5.254
+   ],
+   "iphone": [
+    17.632,
+    -2.947
+   ]
+  },
+  {
+   "page": 219,
+   "intended": [
+    9.661,
+    8.737
+   ],
+   "iphone": [
+    17.833,
+    0.565
+   ]
+  },
+  {
+   "page": 220,
+   "intended": [
+    8.143,
+    9.934
+   ],
+   "iphone": [
+    16.35,
+    1.728
+   ]
+  },
+  {
+   "page": 221,
+   "intended": [
+    5.259,
+    7.58
+   ],
+   "iphone": [
+    13.459,
+    -0.62
+   ]
+  },
+  {
+   "page": 222,
+   "intended": [
+    9.293,
+    9.102
+   ],
+   "iphone": [
+    17.469,
+    0.926
+   ]
+  },
+  {
+   "page": 223,
+   "intended": [
+    5.198,
+    7.014
+   ],
+   "iphone": [
+    13.425,
+    -1.213
+   ]
+  },
+  {
+   "page": 224,
+   "intended": [
+    10.184,
+    8.939
+   ],
+   "iphone": [
+    18.041,
+    1.081
+   ]
+  },
+  {
+   "page": 225,
+   "intended": [
+    5.228,
+    6.157
+   ],
+   "iphone": [
+    13.451,
+    -2.066
+   ]
+  },
+  {
+   "page": 226,
+   "intended": [
+    7.713,
+    8.328
+   ],
+   "iphone": [
+    15.872,
+    0.169
+   ]
+  },
+  {
+   "page": 227,
+   "intended": [
+    6.36,
+    9.585
+   ],
+   "iphone": [
+    14.777,
+    1.168
+   ]
+  },
+  {
+   "page": 228,
+   "intended": [
+    8.043,
+    7.997
+   ],
+   "iphone": [
+    16.242,
+    -0.202
+   ]
+  },
+  {
+   "page": 229,
+   "intended": [
+    10.075,
+    9.707
+   ],
+   "iphone": [
+    18.418,
+    1.363
+   ]
+  },
+  {
+   "page": 230,
+   "intended": [
+    6.485,
+    6.817
+   ],
+   "iphone": [
+    14.479,
+    -1.177
+   ]
+  },
+  {
+   "page": 231,
+   "intended": [
+    10.151,
+    9.062
+   ],
+   "iphone": [
+    18.29,
+    0.923
+   ]
+  },
+  {
+   "page": 232,
+   "intended": [
+    10.265,
+    8.716
+   ],
+   "iphone": [
+    18.544,
+    0.437
+   ]
+  },
+  {
+   "page": 233,
+   "intended": [
+    5.829,
+    9.333
+   ],
+   "iphone": [
+    14.056,
+    1.106
+   ]
+  },
+  {
+   "page": 234,
+   "intended": [
+    6.985,
+    7.968
+   ],
+   "iphone": [
+    15.205,
+    -0.252
+   ]
+  },
+  {
+   "page": 235,
+   "intended": [
+    5.618,
+    7.238
+   ],
+   "iphone": [
+    13.666,
+    -0.81
+   ]
+  },
+  {
+   "page": 236,
+   "intended": [
+    4.75,
+    9.712
+   ],
+   "iphone": [
+    13.091,
+    1.371
+   ]
+  },
+  {
+   "page": 237,
+   "intended": [
+    7.135,
+    7.889
+   ],
+   "iphone": [
+    15.426,
+    -0.402
+   ]
+  },
+  {
+   "page": 238,
+   "intended": [
+    9.483,
+    7.565
+   ],
+   "iphone": [
+    17.779,
+    -0.731
+   ]
+  },
+  {
+   "page": 239,
+   "intended": [
+    10.339,
+    7.148
+   ],
+   "iphone": [
+    18.585,
+    -1.099
+   ]
+  },
+  {
+   "page": 240,
+   "intended": [
+    8.329,
+    8.554
+   ],
+   "iphone": [
+    16.591,
+    0.292
+   ]
+  },
+  {
+   "page": 241,
+   "intended": [
+    8.211,
+    7.511
+   ],
+   "iphone": [
+    16.502,
+    -0.78
+   ]
+  },
+  {
+   "page": 242,
+   "intended": [
+    9.137,
+    9.865
+   ],
+   "iphone": [
+    17.384,
+    1.618
+   ]
+  },
+  {
+   "page": 243,
+   "intended": [
+    8.019,
+    9.478
+   ],
+   "iphone": [
+    16.344,
+    1.154
+   ]
+  },
+  {
+   "page": 244,
+   "intended": [
+    10.814,
+    10.165
+   ],
+   "iphone": [
+    18.881,
+    2.098
+   ]
+  },
+  {
+   "page": 245,
+   "intended": [
+    9.933,
+    8.576
+   ],
+   "iphone": [
+    18.166,
+    0.343
+   ]
+  },
+  {
+   "page": 246,
+   "intended": [
+    10.223,
+    9.936
+   ],
+   "iphone": [
+    18.428,
+    1.73
+   ]
+  },
+  {
+   "page": 247,
+   "intended": [
+    5.35,
+    9.562
+   ],
+   "iphone": [
+    13.561,
+    1.351
+   ]
+  },
+  {
+   "page": 248,
+   "intended": [
+    8.852,
+    9.057
+   ],
+   "iphone": [
+    17.17,
+    0.739
+   ]
+  },
+  {
+   "page": 249,
+   "intended": [
+    10.563,
+    7.798
+   ],
+   "iphone": [
+    10.563,
+    -0.311
+   ]
+  },
+  {
+   "page": 250,
+   "intended": [
+    10.813,
+    7.257
+   ],
+   "iphone": [
+    19.085,
+    -1.016
+   ]
+  },
+  {
+   "page": 251,
+   "intended": [
+    7.306,
+    5.553
+   ],
+   "iphone": [
+    15.388,
+    -2.528
+   ]
+  },
+  {
+   "page": 252,
+   "intended": [
+    7.342,
+    8.624
+   ],
+   "iphone": [
+    15.501,
+    0.465
+   ]
+  },
+  {
+   "page": 253,
+   "intended": [
+    9.661,
+    7.74
+   ],
+   "iphone": [
+    17.833,
+    -0.433
+   ]
+  },
+  {
+   "page": 254,
+   "intended": [
+    5.906,
+    9.183
+   ],
+   "iphone": [
+    13.89,
+    1.199
+   ]
+  },
+  {
+   "page": 255,
+   "intended": [
+    5.951,
+    8.211
+   ],
+   "iphone": [
+    14.043,
+    0.119
+   ]
+  },
+  {
+   "page": 256,
+   "intended": [
+    11.558,
+    7.279
+   ],
+   "iphone": [
+    19.653,
+    -0.817
+   ]
+  },
+  {
+   "page": 257,
+   "intended": [
+    9.037,
+    10.003
+   ],
+   "iphone": [
+    17.202,
+    1.838
+   ]
+  },
+  {
+   "page": 258,
+   "intended": [
+    7.875,
+    9.997
+   ],
+   "iphone": [
+    16.043,
+    1.829
+   ]
+  },
+  {
+   "page": 259,
+   "intended": [
+    7.346,
+    7.835
+   ],
+   "iphone": [
+    15.351,
+    -0.17
+   ]
+  },
+  {
+   "page": 260,
+   "intended": [
+    7.128,
+    7.18
+   ],
+   "iphone": [
+    15.107,
+    -0.8
+   ]
+  },
+  {
+   "page": 261,
+   "intended": [
+    6.414,
+    9.915
+   ],
+   "iphone": [
+    14.51,
+    1.818
+   ]
+  },
+  {
+   "page": 262,
+   "intended": [
+    10.665,
+    8.016
+   ],
+   "iphone": [
+    10.665,
+    -0.029
+   ]
+  },
+  {
+   "page": 263,
+   "intended": [
+    9.646,
+    7.852
+   ],
+   "iphone": [
+    17.722,
+    -0.224
+   ]
+  },
+  {
+   "page": 264,
+   "intended": [
+    9.408,
+    5.966
+   ],
+   "iphone": [
+    17.417,
+    -2.043
+   ]
+  },
+  {
+   "page": 265,
+   "intended": [
+    9.744,
+    8.431
+   ],
+   "iphone": [
+    17.763,
+    0.412
+   ]
+  },
+  {
+   "page": 266,
+   "intended": [
+    9.696,
+    10.009
+   ],
+   "iphone": [
+    17.743,
+    1.962
+   ]
+  },
+  {
+   "page": 267,
+   "intended": [
+    9.663,
+    7.63
+   ],
+   "iphone": [
+    17.729,
+    -0.436
+   ]
+  },
+  {
+   "page": 268,
+   "intended": [
+    9.011,
+    6.684
+   ],
+   "iphone": [
+    17.084,
+    -1.389
+   ]
+  },
+  {
+   "page": 269,
+   "intended": [
+    9.375,
+    9.417
+   ],
+   "iphone": [
+    17.396,
+    1.395
+   ]
+  },
+  {
+   "page": 270,
+   "intended": [
+    9.847,
+    9.05
+   ],
+   "iphone": [
+    17.824,
+    1.073
+   ]
+  },
+  {
+   "page": 271,
+   "intended": [
+    8.762,
+    9.221
+   ],
+   "iphone": [
+    16.968,
+    1.015
+   ]
+  },
+  {
+   "page": 272,
+   "intended": [
+    9.209,
+    7.508
+   ],
+   "iphone": [
+    17.248,
+    -0.53
+   ]
+  },
+  {
+   "page": 273,
+   "intended": [
+    6.133,
+    10.221
+   ],
+   "iphone": [
+    14.023,
+    2.331
+   ]
+  },
+  {
+   "page": 274,
+   "intended": [
+    7.304,
+    7.49
+   ],
+   "iphone": [
+    15.293,
+    -0.499
+   ]
+  },
+  {
+   "page": 275,
+   "intended": [
+    10.77,
+    9.002
+   ],
+   "iphone": [
+    19.021,
+    0.75
+   ]
+  },
+  {
+   "page": 276,
+   "intended": [
+    10.406,
+    6.519
+   ],
+   "iphone": [
+    18.537,
+    -1.612
+   ]
+  },
+  {
+   "page": 277,
+   "intended": [
+    9.591,
+    10.087
+   ],
+   "iphone": [
+    17.705,
+    1.973
+   ]
+  },
+  {
+   "page": 278,
+   "intended": [
+    8.07,
+    10.157
+   ],
+   "iphone": [
+    16.142,
+    2.085
+   ]
+  },
+  {
+   "page": 279,
+   "intended": [
+    5.294,
+    9.494
+   ],
+   "iphone": [
+    13.545,
+    1.243
+   ]
+  },
+  {
+   "page": 280,
+   "intended": [
+    7.516,
+    6.766
+   ],
+   "iphone": [
+    15.76,
+    -1.478
+   ]
+  },
+  {
+   "page": 281,
+   "intended": [
+    9.321,
+    6.868
+   ],
+   "iphone": [
+    17.291,
+    -1.101
+   ]
+  },
+  {
+   "page": 282,
+   "intended": [
+    10.543,
+    8.903
+   ],
+   "iphone": [
+    10.543,
+    0.782
+   ]
+  },
+  {
+   "page": 283,
+   "intended": [
+    6.046,
+    7.351
+   ],
+   "iphone": [
+    14.221,
+    -0.824
+   ]
+  },
+  {
+   "page": 284,
+   "intended": [
+    9.424,
+    8.733
+   ],
+   "iphone": [
+    17.477,
+    0.68
+   ]
+  },
+  {
+   "page": 285,
+   "intended": [
+    9.289,
+    9.549
+   ],
+   "iphone": [
+    17.283,
+    1.555
+   ]
+  },
+  {
+   "page": 286,
+   "intended": [
+    7.817,
+    10.12
+   ],
+   "iphone": [
+    15.911,
+    2.025
+   ]
+  },
+  {
+   "page": 287,
+   "intended": [
+    9.668,
+    9.165
+   ],
+   "iphone": [
+    17.731,
+    1.101
+   ]
+  },
+  {
+   "page": 288,
+   "intended": [
+    6.46,
+    7.259
+   ],
+   "iphone": [
+    14.629,
+    -0.91
+   ]
+  },
+  {
+   "page": 289,
+   "intended": [
+    5.605,
+    7.223
+   ],
+   "iphone": [
+    13.644,
+    -0.816
+   ]
+  },
+  {
+   "page": 290,
+   "intended": [
+    8.208,
+    7.549
+   ],
+   "iphone": [
+    16.263,
+    -0.505
+   ]
+  },
+  {
+   "page": 291,
+   "intended": [
+    10.003,
+    7.723
+   ],
+   "iphone": [
+    17.871,
+    -0.145
+   ]
+  },
+  {
+   "page": 292,
+   "intended": [
+    10.003,
+    9.547
+   ],
+   "iphone": [
+    18.154,
+    1.396
+   ]
+  },
+  {
+   "page": 293,
+   "intended": [
+    6.324,
+    10.281
+   ],
+   "iphone": [
+    14.32,
+    2.284
+   ]
+  },
+  {
+   "page": 294,
+   "intended": [
+    9.344,
+    5.849
+   ],
+   "iphone": [
+    17.354,
+    -2.16
+   ]
+  },
+  {
+   "page": 295,
+   "intended": [
+    8.481,
+    6.725
+   ],
+   "iphone": [
+    16.671,
+    -1.465
+   ]
+  },
+  {
+   "page": 296,
+   "intended": [
+    8.958,
+    9.651
+   ],
+   "iphone": [
+    17.173,
+    1.435
+   ]
+  },
+  {
+   "page": 297,
+   "intended": [
+    8.485,
+    9.793
+   ],
+   "iphone": [
+    16.542,
+    1.735
+   ]
+  },
+  {
+   "page": 298,
+   "intended": [
+    9.489,
+    8.703
+   ],
+   "iphone": [
+    17.451,
+    0.74
+   ]
+  },
+  {
+   "page": 299,
+   "intended": [
+    7.456,
+    6.595
+   ],
+   "iphone": [
+    15.643,
+    -1.592
+   ]
+  },
+  {
+   "page": 300,
+   "intended": [
+    10.317,
+    6.517
+   ],
+   "iphone": [
+    18.537,
+    -1.702
+   ]
+  },
+  {
+   "page": 301,
+   "intended": [
+    10.938,
+    9.232
+   ],
+   "iphone": [
+    19.15,
+    1.02
+   ]
+  },
+  {
+   "page": 302,
+   "intended": [
+    8.449,
+    6.694
+   ],
+   "iphone": [
+    16.739,
+    -1.596
+   ]
+  },
+  {
+   "page": 303,
+   "intended": [
+    8.74,
+    9.915
+   ],
+   "iphone": [
+    16.958,
+    1.696
+   ]
+  },
+  {
+   "page": 304,
+   "intended": [
+    4.993,
+    9.031
+   ],
+   "iphone": [
+    13.283,
+    0.74
+   ]
+  },
+  {
+   "page": 305,
+   "intended": [
+    10.075,
+    6.682
+   ],
+   "iphone": [
+    10.075,
+    -1.732
+   ]
+  },
+  {
+   "page": 306,
+   "intended": [
+    5.611,
+    8.83
+   ],
+   "iphone": [
+    13.985,
+    0.456
+   ]
+  },
+  {
+   "page": 307,
+   "intended": [
+    4.603,
+    6.789
+   ],
+   "iphone": [
+    13.019,
+    -1.627
+   ]
+  },
+  {
+   "page": 308,
+   "intended": [
+    10.813,
+    9.97
+   ],
+   "iphone": [
+    18.828,
+    1.956
+   ]
+  },
+  {
+   "page": 309,
+   "intended": [
+    7.053,
+    9.825
+   ],
+   "iphone": [
+    15.325,
+    1.553
+   ]
+  },
+  {
+   "page": 310,
+   "intended": [
+    10.052,
+    9.214
+   ],
+   "iphone": [
+    18.443,
+    0.822
+   ]
+  },
+  {
+   "page": 311,
+   "intended": [
+    7.82,
+    6.577
+   ],
+   "iphone": [
+    15.935,
+    -1.537
+   ]
+  },
+  {
+   "page": 312,
+   "intended": [
+    9.567,
+    7.534
+   ],
+   "iphone": [
+    17.763,
+    -0.663
+   ]
+  },
+  {
+   "page": 313,
+   "intended": [
+    9.709,
+    9.426
+   ],
+   "iphone": [
+    17.748,
+    1.387
+   ]
+  },
+  {
+   "page": 314,
+   "intended": [
+    8.027,
+    7.241
+   ],
+   "iphone": [
+    16.1,
+    -0.831
+   ]
+  },
+  {
+   "page": 315,
+   "intended": [
+    8.48,
+    7.695
+   ],
+   "iphone": [
+    16.648,
+    -0.474
+   ]
+  },
+  {
+   "page": 316,
+   "intended": [
+    9.434,
+    9.273
+   ],
+   "iphone": [
+    17.634,
+    1.074
+   ]
+  },
+  {
+   "page": 317,
+   "intended": [
+    10.304,
+    9.623
+   ],
+   "iphone": [
+    18.369,
+    1.558
+   ]
+  },
+  {
+   "page": 318,
+   "intended": [
+    8.354,
+    7.339
+   ],
+   "iphone": [
+    16.579,
+    -0.886
+   ]
+  },
+  {
+   "page": 319,
+   "intended": [
+    8.413,
+    7.352
+   ],
+   "iphone": [
+    16.664,
+    -0.9
+   ]
+  },
+  {
+   "page": 320,
+   "intended": [
+    6.446,
+    8.739
+   ],
+   "iphone": [
+    14.508,
+    0.677
+   ]
+  },
+  {
+   "page": 321,
+   "intended": [
+    6.319,
+    8.168
+   ],
+   "iphone": [
+    14.552,
+    -0.064
+   ]
+  },
+  {
+   "page": 322,
+   "intended": [
+    10.286,
+    7.054
+   ],
+   "iphone": [
+    10.286,
+    -1.228
+   ]
+  },
+  {
+   "page": 323,
+   "intended": [
+    9.692,
+    7.302
+   ],
+   "iphone": [
+    17.592,
+    -0.598
+   ]
+  },
+  {
+   "page": 324,
+   "intended": [
+    8.573,
+    7.228
+   ],
+   "iphone": [
+    16.6,
+    -0.799
+   ]
+  },
+  {
+   "page": 325,
+   "intended": [
+    7.977,
+    7.224
+   ],
+   "iphone": [
+    16.255,
+    -1.054
+   ]
+  },
+  {
+   "page": 326,
+   "intended": [
+    7.0,
+    9.658
+   ],
+   "iphone": [
+    15.155,
+    1.503
+   ]
+  },
+  {
+   "page": 327,
+   "intended": [
+    6.647,
+    9.982
+   ],
+   "iphone": [
+    14.824,
+    1.804
+   ]
+  },
+  {
+   "page": 328,
+   "intended": [
+    8.234,
+    9.364
+   ],
+   "iphone": [
+    16.443,
+    1.155
+   ]
+  },
+  {
+   "page": 329,
+   "intended": [
+    9.942,
+    9.791
+   ],
+   "iphone": [
+    18.234,
+    1.499
+   ]
+  },
+  {
+   "page": 330,
+   "intended": [
+    8.056,
+    7.655
+   ],
+   "iphone": [
+    16.413,
+    -0.702
+   ]
+  },
+  {
+   "page": 331,
+   "intended": [
+    9.12,
+    10.125
+   ],
+   "iphone": [
+    17.433,
+    2.415
+   ]
+  },
+  {
+   "page": 332,
+   "intended": [
+    10.549,
+    7.266
+   ],
+   "iphone": [
+    10.549,
+    -0.852
+   ]
+  },
+  {
+   "page": 333,
+   "intended": [
+    8.164,
+    6.604
+   ],
+   "iphone": [
+    16.337,
+    -1.568
+   ]
+  },
+  {
+   "page": 334,
+   "intended": [
+    8.017,
+    5.906
+   ],
+   "iphone": [
+    16.268,
+    -2.344
+   ]
+  },
+  {
+   "page": 335,
+   "intended": [
+    9.465,
+    8.146
+   ],
+   "iphone": [
+    17.652,
+    -0.042
+   ]
+  },
+  {
+   "page": 336,
+   "intended": [
+    10.098,
+    6.854
+   ],
+   "iphone": [
+    17.928,
+    -0.976
+   ]
+  },
+  {
+   "page": 337,
+   "intended": [
+    5.541,
+    10.139
+   ],
+   "iphone": [
+    13.623,
+    2.057
+   ]
+  },
+  {
+   "page": 338,
+   "intended": [
+    5.817,
+    6.872
+   ],
+   "iphone": [
+    13.785,
+    -1.095
+   ]
+  },
+  {
+   "page": 339,
+   "intended": [
+    6.016,
+    8.822
+   ],
+   "iphone": [
+    14.2,
+    0.637
+   ]
+  },
+  {
+   "page": 340,
+   "intended": [
+    8.614,
+    8.722
+   ],
+   "iphone": [
+    16.938,
+    0.398
+   ]
+  },
+  {
+   "page": 341,
+   "intended": [
+    7.432,
+    10.282
+   ],
+   "iphone": [
+    15.648,
+    2.662
+   ]
+  },
+  {
+   "page": 342,
+   "intended": [
+    10.687,
+    7.084
+   ],
+   "iphone": [
+    10.687,
+    -0.948
+   ]
+  },
+  {
+   "page": 343,
+   "intended": [
+    8.502,
+    6.424
+   ],
+   "iphone": [
+    16.752,
+    -1.825
+   ]
+  },
+  {
+   "page": 344,
+   "intended": [
+    9.57,
+    8.071
+   ],
+   "iphone": [
+    17.815,
+    -0.174
+   ]
+  },
+  {
+   "page": 345,
+   "intended": [
+    5.884,
+    6.818
+   ],
+   "iphone": [
+    13.785,
+    -1.082
+   ]
+  },
+  {
+   "page": 346,
+   "intended": [
+    7.799,
+    8.322
+   ],
+   "iphone": [
+    15.859,
+    0.262
+   ]
+  },
+  {
+   "page": 347,
+   "intended": [
+    9.685,
+    10.228
+   ],
+   "iphone": [
+    17.714,
+    2.199
+   ]
+  },
+  {
+   "page": 348,
+   "intended": [
+    8.418,
+    7.119
+   ],
+   "iphone": [
+    16.551,
+    -1.014
+   ]
+  },
+  {
+   "page": 349,
+   "intended": [
+    8.245,
+    10.6
+   ],
+   "iphone": [
+    16.264,
+    3.163
+   ]
+  },
+  {
+   "page": 350,
+   "intended": [
+    10.403,
+    5.526
+   ],
+   "iphone": [
+    10.403,
+    -2.683
+   ]
+  },
+  {
+   "page": 351,
+   "intended": [
+    5.218,
+    7.847
+   ],
+   "iphone": [
+    13.412,
+    -0.348
+   ]
+  },
+  {
+   "page": 352,
+   "intended": [
+    9.162,
+    8.037
+   ],
+   "iphone": [
+    17.414,
+    -0.215
+   ]
+  },
+  {
+   "page": 353,
+   "intended": [
+    5.621,
+    10.159
+   ],
+   "iphone": [
+    13.691,
+    2.089
+   ]
+  },
+  {
+   "page": 354,
+   "intended": [
+    7.312,
+    7.772
+   ],
+   "iphone": [
+    15.375,
+    -0.291
+   ]
+  },
+  {
+   "page": 355,
+   "intended": [
+    7.715,
+    8.626
+   ],
+   "iphone": [
+    15.873,
+    0.469
+   ]
+  },
+  {
+   "page": 356,
+   "intended": [
+    6.846,
+    8.996
+   ],
+   "iphone": [
+    15.168,
+    0.674
+   ]
+  },
+  {
+   "page": 357,
+   "intended": [
+    5.134,
+    6.947
+   ],
+   "iphone": [
+    13.395,
+    -1.314
+   ]
+  },
+  {
+   "page": 358,
+   "intended": [
+    10.125,
+    8.196
+   ],
+   "iphone": [
+    18.378,
+    -0.057
+   ]
+  },
+  {
+   "page": 359,
+   "intended": [
+    9.823,
+    8.611
+   ],
+   "iphone": [
+    18.006,
+    0.428
+   ]
+  },
+  {
+   "page": 360,
+   "intended": [
+    8.816,
+    9.746
+   ],
+   "iphone": [
+    17.136,
+    1.426
+   ]
+  },
+  {
+   "page": 361,
+   "intended": [
+    9.288,
+    8.749
+   ],
+   "iphone": [
+    17.573,
+    0.464
+   ]
+  },
+  {
+   "page": 362,
+   "intended": [
+    8.468,
+    9.239
+   ],
+   "iphone": [
+    16.713,
+    0.995
+   ]
+  },
+  {
+   "page": 363,
+   "intended": [
+    9.349,
+    8.931
+   ],
+   "iphone": [
+    17.598,
+    0.682
+   ]
+  },
+  {
+   "page": 364,
+   "intended": [
+    8.744,
+    7.306
+   ],
+   "iphone": [
+    16.883,
+    -0.834
+   ]
+  },
+  {
+   "page": 365,
+   "intended": [
+    9.585,
+    8.427
+   ],
+   "iphone": [
+    17.69,
+    0.321
+   ]
+  },
+  {
+   "page": 366,
+   "intended": [
+    9.088,
+    10.055
+   ],
+   "iphone": [
+    17.445,
+    2.305
+   ]
+  },
+  {
+   "page": 367,
+   "intended": [
+    10.7,
+    9.476
+   ],
+   "iphone": [
+    10.7,
+    1.453
+   ]
+  },
+  {
+   "page": 368,
+   "intended": [
+    9.749,
+    5.137
+   ],
+   "iphone": [
+    17.765,
+    -2.88
+   ]
+  },
+  {
+   "page": 369,
+   "intended": [
+    9.911,
+    7.791
+   ],
+   "iphone": [
+    17.833,
+    -0.131
+   ]
+  },
+  {
+   "page": 370,
+   "intended": [
+    8.676,
+    10.04
+   ],
+   "iphone": [
+    16.818,
+    1.898
+   ]
+  },
+  {
+   "page": 371,
+   "intended": [
+    9.474,
+    9.984
+   ],
+   "iphone": [
+    17.65,
+    1.807
+   ]
+  },
+  {
+   "page": 372,
+   "intended": [
+    7.367,
+    10.302
+   ],
+   "iphone": [
+    15.351,
+    2.318
+   ]
+  },
+  {
+   "page": 373,
+   "intended": [
+    9.667,
+    7.038
+   ],
+   "iphone": [
+    17.731,
+    -1.025
+   ]
+  },
+  {
+   "page": 374,
+   "intended": [
+    8.299,
+    10.201
+   ],
+   "iphone": [
+    16.344,
+    2.156
+   ]
+  },
+  {
+   "page": 375,
+   "intended": [
+    9.268,
+    7.828
+   ],
+   "iphone": [
+    17.362,
+    -0.266
+   ]
+  },
+  {
+   "page": 376,
+   "intended": [
+    9.265,
+    10.589
+   ],
+   "iphone": [
+    17.289,
+    3.147
+   ]
+  },
+  {
+   "page": 377,
+   "intended": [
+    10.643,
+    8.387
+   ],
+   "iphone": [
+    10.643,
+    0.328
+   ]
+  },
+  {
+   "page": 378,
+   "intended": [
+    6.506,
+    6.645
+   ],
+   "iphone": [
+    14.7,
+    -1.549
+   ]
+  },
+  {
+   "page": 379,
+   "intended": [
+    8.968,
+    6.269
+   ],
+   "iphone": [
+    17.214,
+    -1.978
+   ]
+  },
+  {
+   "page": 380,
+   "intended": [
+    10.128,
+    7.076
+   ],
+   "iphone": [
+    18.432,
+    -1.228
+   ]
+  },
+  {
+   "page": 381,
+   "intended": [
+    9.355,
+    4.193
+   ],
+   "iphone": [
+    17.67,
+    -4.121
+   ]
+  },
+  {
+   "page": 382,
+   "intended": [
+    9.189,
+    7.795
+   ],
+   "iphone": [
+    17.512,
+    -0.529
+   ]
+  },
+  {
+   "page": 383,
+   "intended": [
+    9.77,
+    7.476
+   ],
+   "iphone": [
+    18.101,
+    -0.855
+   ]
+  },
+  {
+   "page": 384,
+   "intended": [
+    9.439,
+    5.851
+   ],
+   "iphone": [
+    17.636,
+    -2.346
+   ]
+  },
+  {
+   "page": 385,
+   "intended": [
+    9.36,
+    6.469
+   ],
+   "iphone": [
+    17.603,
+    -1.774
+   ]
+  },
+  {
+   "page": 386,
+   "intended": [
+    10.042,
+    8.272
+   ],
+   "iphone": [
+    18.352,
+    -0.039
+   ]
+  },
+  {
+   "page": 387,
+   "intended": [
+    9.053,
+    7.451
+   ],
+   "iphone": [
+    17.28,
+    -0.776
+   ]
+  },
+  {
+   "page": 388,
+   "intended": [
+    11.065,
+    9.711
+   ],
+   "iphone": [
+    19.406,
+    1.37
+   ]
+  },
+  {
+   "page": 389,
+   "intended": [
+    8.534,
+    9.795
+   ],
+   "iphone": [
+    16.825,
+    1.504
+   ]
+  },
+  {
+   "page": 390,
+   "intended": [
+    8.982,
+    7.536
+   ],
+   "iphone": [
+    17.226,
+    -0.708
+   ]
+  },
+  {
+   "page": 391,
+   "intended": [
+    9.523,
+    7.09
+   ],
+   "iphone": [
+    17.847,
+    -1.234
+   ]
+  },
+  {
+   "page": 392,
+   "intended": [
+    8.532,
+    9.793
+   ],
+   "iphone": [
+    16.824,
+    1.501
+   ]
+  },
+  {
+   "page": 393,
+   "intended": [
+    8.562,
+    7.553
+   ],
+   "iphone": [
+    16.864,
+    -0.749
+   ]
+  },
+  {
+   "page": 394,
+   "intended": [
+    9.934,
+    6.112
+   ],
+   "iphone": [
+    18.441,
+    -2.395
+   ]
+  },
+  {
+   "page": 395,
+   "intended": [
+    7.493,
+    9.342
+   ],
+   "iphone": [
+    15.821,
+    1.014
+   ]
+  },
+  {
+   "page": 396,
+   "intended": [
+    8.714,
+    9.093
+   ],
+   "iphone": [
+    17.043,
+    0.764
+   ]
+  },
+  {
+   "page": 397,
+   "intended": [
+    9.982,
+    7.524
+   ],
+   "iphone": [
+    18.356,
+    -0.851
+   ]
+  },
+  {
+   "page": 398,
+   "intended": [
+    10.84,
+    7.081
+   ],
+   "iphone": [
+    19.158,
+    -1.238
+   ]
+  },
+  {
+   "page": 399,
+   "intended": [
+    10.212,
+    9.382
+   ],
+   "iphone": [
+    18.504,
+    1.09
+   ]
+  },
+  {
+   "page": 400,
+   "intended": [
+    9.872,
+    7.471
+   ],
+   "iphone": [
+    18.201,
+    -0.858
+   ]
+  },
+  {
+   "page": 401,
+   "intended": [
+    9.913,
+    9.135
+   ],
+   "iphone": [
+    18.011,
+    1.037
+   ]
+  },
+  {
+   "page": 402,
+   "intended": [
+    8.014,
+    7.133
+   ],
+   "iphone": [
+    16.289,
+    -1.142
+   ]
+  },
+  {
+   "page": 403,
+   "intended": [
+    9.969,
+    10.207
+   ],
+   "iphone": [
+    17.953,
+    2.223
+   ]
+  },
+  {
+   "page": 404,
+   "intended": [
+    6.163,
+    8.57
+   ],
+   "iphone": [
+    14.254,
+    0.479
+   ]
+  },
+  {
+   "page": 405,
+   "intended": [
+    6.114,
+    10.046
+   ],
+   "iphone": [
+    14.252,
+    1.908
+   ]
+  },
+  {
+   "page": 406,
+   "intended": [
+    7.154,
+    9.862
+   ],
+   "iphone": [
+    15.397,
+    1.619
+   ]
+  },
+  {
+   "page": 407,
+   "intended": [
+    8.642,
+    6.998
+   ],
+   "iphone": [
+    16.604,
+    -0.964
+   ]
+  },
+  {
+   "page": 408,
+   "intended": [
+    8.123,
+    6.295
+   ],
+   "iphone": [
+    16.306,
+    -1.888
+   ]
+  },
+  {
+   "page": 409,
+   "intended": [
+    8.113,
+    8.479
+   ],
+   "iphone": [
+    16.157,
+    0.435
+   ]
+  },
+  {
+   "page": 410,
+   "intended": [
+    8.66,
+    10.178
+   ],
+   "iphone": [
+    16.719,
+    2.119
+   ]
+  },
+  {
+   "page": 411,
+   "intended": [
+    10.541,
+    5.104
+   ],
+   "iphone": [
+    10.541,
+    -3.019
+   ]
+  },
+  {
+   "page": 412,
+   "intended": [
+    6.193,
+    10.076
+   ],
+   "iphone": [
+    14.237,
+    2.032
+   ]
+  },
+  {
+   "page": 413,
+   "intended": [
+    9.837,
+    6.696
+   ],
+   "iphone": [
+    17.82,
+    -1.286
+   ]
+  },
+  {
+   "page": 414,
+   "intended": [
+    8.702,
+    10.244
+   ],
+   "iphone": [
+    16.941,
+    2.603
+   ]
+  },
+  {
+   "page": 415,
+   "intended": [
+    10.292,
+    6.255
+   ],
+   "iphone": [
+    10.292,
+    -2.024
+   ]
+  },
+  {
+   "page": 416,
+   "intended": [
+    10.053,
+    6.968
+   ],
+   "iphone": [
+    18.187,
+    -1.166
+   ]
+  },
+  {
+   "page": 417,
+   "intended": [
+    8.729,
+    10.438
+   ],
+   "iphone": [
+    16.847,
+    2.908
+   ]
+  },
+  {
+   "page": 418,
+   "intended": [
+    10.636,
+    10.066
+   ],
+   "iphone": [
+    10.636,
+    2.003
+   ]
+  },
+  {
+   "page": 419,
+   "intended": [
+    9.271,
+    9.993
+   ],
+   "iphone": [
+    17.442,
+    1.822
+   ]
+  },
+  {
+   "page": 420,
+   "intended": [
+    9.796,
+    8.755
+   ],
+   "iphone": [
+    18.008,
+    0.543
+   ]
+  },
+  {
+   "page": 421,
+   "intended": [
+    9.004,
+    9.862
+   ],
+   "iphone": [
+    17.254,
+    1.612
+   ]
+  },
+  {
+   "page": 422,
+   "intended": [
+    6.949,
+    5.349
+   ],
+   "iphone": [
+    15.166,
+    -2.868
+   ]
+  },
+  {
+   "page": 423,
+   "intended": [
+    9.423,
+    10.089
+   ],
+   "iphone": [
+    17.307,
+    2.205
+   ]
+  },
+  {
+   "page": 424,
+   "intended": [
+    5.023,
+    6.962
+   ],
+   "iphone": [
+    13.319,
+    -1.334
+   ]
+  },
+  {
+   "page": 425,
+   "intended": [
+    6.028,
+    8.213
+   ],
+   "iphone": [
+    14.277,
+    -0.036
+   ]
+  },
+  {
+   "page": 426,
+   "intended": [
+    9.038,
+    10.137
+   ],
+   "iphone": [
+    17.173,
+    2.003
+   ]
+  },
+  {
+   "page": 427,
+   "intended": [
+    5.363,
+    9.991
+   ],
+   "iphone": [
+    13.535,
+    1.819
+   ]
+  },
+  {
+   "page": 428,
+   "intended": [
+    10.281,
+    5.509
+   ],
+   "iphone": [
+    10.281,
+    -2.776
+   ]
+  },
+  {
+   "page": 429,
+   "intended": [
+    5.223,
+    9.314
+   ],
+   "iphone": [
+    13.449,
+    1.089
+   ]
+  },
+  {
+   "page": 430,
+   "intended": [
+    5.519,
+    6.675
+   ],
+   "iphone": [
+    13.616,
+    -1.422
+   ]
+  },
+  {
+   "page": 431,
+   "intended": [
+    5.532,
+    4.82
+   ],
+   "iphone": [
+    13.59,
+    -3.238
+   ]
+  },
+  {
+   "page": 432,
+   "intended": [
+    7.076,
+    8.826
+   ],
+   "iphone": [
+    15.299,
+    0.603
+   ]
+  },
+  {
+   "page": 433,
+   "intended": [
+    9.359,
+    7.714
+   ],
+   "iphone": [
+    17.325,
+    -0.252
+   ]
+  },
+  {
+   "page": 434,
+   "intended": [
+    8.166,
+    10.187
+   ],
+   "iphone": [
+    16.27,
+    2.083
+   ]
+  },
+  {
+   "page": 435,
+   "intended": [
+    6.403,
+    7.699
+   ],
+   "iphone": [
+    14.382,
+    -0.28
+   ]
+  },
+  {
+   "page": 436,
+   "intended": [
+    10.385,
+    9.554
+   ],
+   "iphone": [
+    18.697,
+    1.242
+   ]
+  },
+  {
+   "page": 437,
+   "intended": [
+    6.884,
+    5.941
+   ],
+   "iphone": [
+    14.952,
+    -2.126
+   ]
+  },
+  {
+   "page": 438,
+   "intended": [
+    8.508,
+    9.575
+   ],
+   "iphone": [
+    16.638,
+    1.445
+   ]
+  },
+  {
+   "page": 439,
+   "intended": [
+    5.063,
+    9.571
+   ],
+   "iphone": [
+    13.308,
+    1.326
+   ]
+  },
+  {
+   "page": 440,
+   "intended": [
+    11.398,
+    8.503
+   ],
+   "iphone": [
+    19.418,
+    0.483
+   ]
+  },
+  {
+   "page": 441,
+   "intended": [
+    9.795,
+    8.404
+   ],
+   "iphone": [
+    17.784,
+    0.415
+   ]
+  },
+  {
+   "page": 442,
+   "intended": [
+    9.47,
+    9.192
+   ],
+   "iphone": [
+    17.705,
+    0.958
+   ]
+  },
+  {
+   "page": 443,
+   "intended": [
+    6.747,
+    10.096
+   ],
+   "iphone": [
+    14.855,
+    1.987
+   ]
+  },
+  {
+   "page": 444,
+   "intended": [
+    9.7,
+    9.95
+   ],
+   "iphone": [
+    17.745,
+    1.905
+   ]
+  },
+  {
+   "page": 445,
+   "intended": [
+    9.793,
+    10.181
+   ],
+   "iphone": [
+    18.071,
+    2.504
+   ]
+  },
+  {
+   "page": 446,
+   "intended": [
+    10.966,
+    6.023
+   ],
+   "iphone": [
+    10.966,
+    -1.833
+   ]
+  },
+  {
+   "page": 447,
+   "intended": [
+    9.424,
+    7.696
+   ],
+   "iphone": [
+    17.531,
+    -0.412
+   ]
+  },
+  {
+   "page": 448,
+   "intended": [
+    9.482,
+    5.873
+   ],
+   "iphone": [
+    17.654,
+    -2.298
+   ]
+  },
+  {
+   "page": 449,
+   "intended": [
+    9.851,
+    9.21
+   ],
+   "iphone": [
+    17.808,
+    1.254
+   ]
+  },
+  {
+   "page": 450,
+   "intended": [
+    9.737,
+    6.663
+   ],
+   "iphone": [
+    17.76,
+    -1.361
+   ]
+  },
+  {
+   "page": 451,
+   "intended": [
+    9.698,
+    7.702
+   ],
+   "iphone": [
+    17.744,
+    -0.344
+   ]
+  },
+  {
+   "page": 452,
+   "intended": [
+    8.397,
+    10.658
+   ],
+   "iphone": [
+    16.379,
+    3.255
+   ]
+  },
+  {
+   "page": 453,
+   "intended": [
+    10.605,
+    9.088
+   ],
+   "iphone": [
+    10.605,
+    1.006
+   ]
+  },
+  {
+   "page": 454,
+   "intended": [
+    8.116,
+    6.827
+   ],
+   "iphone": [
+    16.383,
+    -1.44
+   ]
+  },
+  {
+   "page": 455,
+   "intended": [
+    6.215,
+    8.908
+   ],
+   "iphone": [
+    14.129,
+    0.995
+   ]
+  },
+  {
+   "page": 456,
+   "intended": [
+    10.573,
+    8.979
+   ],
+   "iphone": [
+    18.646,
+    0.906
+   ]
+  },
+  {
+   "page": 457,
+   "intended": [
+    9.06,
+    7.691
+   ],
+   "iphone": [
+    16.986,
+    -0.234
+   ]
+  },
+  {
+   "page": 458,
+   "intended": [
+    9.283,
+    7.894
+   ],
+   "iphone": [
+    17.571,
+    -0.394
+   ]
+  },
+  {
+   "page": 459,
+   "intended": [
+    9.398,
+    4.012
+   ],
+   "iphone": [
+    17.675,
+    -4.265
+   ]
+  },
+  {
+   "page": 460,
+   "intended": [
+    9.206,
+    9.246
+   ],
+   "iphone": [
+    17.465,
+    0.987
+   ]
+  },
+  {
+   "page": 461,
+   "intended": [
+    10.154,
+    6.444
+   ],
+   "iphone": [
+    18.291,
+    -1.693
+   ]
+  },
+  {
+   "page": 462,
+   "intended": [
+    8.48,
+    5.065
+   ],
+   "iphone": [
+    16.671,
+    -3.126
+   ]
+  },
+  {
+   "page": 463,
+   "intended": [
+    7.085,
+    6.72
+   ],
+   "iphone": [
+    15.368,
+    -1.563
+   ]
+  },
+  {
+   "page": 464,
+   "intended": [
+    10.606,
+    8.885
+   ],
+   "iphone": [
+    18.887,
+    0.604
+   ]
+  },
+  {
+   "page": 465,
+   "intended": [
+    9.583,
+    8.613
+   ],
+   "iphone": [
+    17.696,
+    0.499
+   ]
+  },
+  {
+   "page": 466,
+   "intended": [
+    9.293,
+    6.533
+   ],
+   "iphone": [
+    17.531,
+    -1.705
+   ]
+  },
+  {
+   "page": 467,
+   "intended": [
+    11.078,
+    4.623
+   ],
+   "iphone": [
+    19.388,
+    -3.688
+   ]
+  },
+  {
+   "page": 468,
+   "intended": [
+    8.717,
+    7.619
+   ],
+   "iphone": [
+    17.008,
+    -0.672
+   ]
+  },
+  {
+   "page": 469,
+   "intended": [
+    6.985,
+    6.845
+   ],
+   "iphone": [
+    15.232,
+    -1.402
+   ]
+  },
+  {
+   "page": 470,
+   "intended": [
+    7.337,
+    8.25
+   ],
+   "iphone": [
+    15.601,
+    -0.014
+   ]
+  },
+  {
+   "page": 471,
+   "intended": [
+    10.518,
+    6.109
+   ],
+   "iphone": [
+    18.739,
+    -2.112
+   ]
+  },
+  {
+   "page": 472,
+   "intended": [
+    10.942,
+    7.77
+   ],
+   "iphone": [
+    19.165,
+    -0.453
+   ]
+  },
+  {
+   "page": 473,
+   "intended": [
+    8.986,
+    9.733
+   ],
+   "iphone": [
+    17.314,
+    1.404
+   ]
+  },
+  {
+   "page": 474,
+   "intended": [
+    7.809,
+    8.445
+   ],
+   "iphone": [
+    16.258,
+    -0.004
+   ]
+  },
+  {
+   "page": 475,
+   "intended": [
+    8.327,
+    6.462
+   ],
+   "iphone": [
+    16.625,
+    -1.836
+   ]
+  },
+  {
+   "page": 476,
+   "intended": [
+    10.368,
+    9.975
+   ],
+   "iphone": [
+    18.549,
+    1.793
+   ]
+  },
+  {
+   "page": 477,
+   "intended": [
+    10.566,
+    10.098
+   ],
+   "iphone": [
+    10.566,
+    1.99
+   ]
+  },
+  {
+   "page": 478,
+   "intended": [
+    5.578,
+    7.598
+   ],
+   "iphone": [
+    13.851,
+    -0.676
+   ]
+  },
+  {
+   "page": 479,
+   "intended": [
+    5.936,
+    9.367
+   ],
+   "iphone": [
+    14.168,
+    1.135
+   ]
+  },
+  {
+   "page": 480,
+   "intended": [
+    8.229,
+    7.437
+   ],
+   "iphone": [
+    16.581,
+    -0.915
+   ]
+  },
+  {
+   "page": 481,
+   "intended": [
+    10.075,
+    9.162
+   ],
+   "iphone": [
+    18.158,
+    1.08
+   ]
+  },
+  {
+   "page": 482,
+   "intended": [
+    8.231,
+    8.411
+   ],
+   "iphone": [
+    16.39,
+    0.252
+   ]
+  },
+  {
+   "page": 483,
+   "intended": [
+    10.592,
+    7.288
+   ],
+   "iphone": [
+    10.592,
+    -0.803
+   ]
+  },
+  {
+   "page": 484,
+   "intended": [
+    10.094,
+    6.84
+   ],
+   "iphone": [
+    18.153,
+    -1.219
+   ]
+  },
+  {
+   "page": 485,
+   "intended": [
+    8.974,
+    6.681
+   ],
+   "iphone": [
+    17.151,
+    -1.495
+   ]
+  },
+  {
+   "page": 486,
+   "intended": [
+    8.174,
+    7.921
+   ],
+   "iphone": [
+    16.285,
+    -0.19
+   ]
+  },
+  {
+   "page": 487,
+   "intended": [
+    9.487,
+    7.589
+   ],
+   "iphone": [
+    17.558,
+    -0.483
+   ]
+  },
+  {
+   "page": 488,
+   "intended": [
+    6.83,
+    9.364
+   ],
+   "iphone": [
+    15.027,
+    1.167
+   ]
+  },
+  {
+   "page": 489,
+   "intended": [
+    7.034,
+    6.854
+   ],
+   "iphone": [
+    15.271,
+    -1.383
+   ]
+  },
+  {
+   "page": 490,
+   "intended": [
+    8.922,
+    6.419
+   ],
+   "iphone": [
+    17.021,
+    -1.68
+   ]
+  },
+  {
+   "page": 491,
+   "intended": [
+    9.133,
+    8.235
+   ],
+   "iphone": [
+    17.262,
+    0.107
+   ]
+  },
+  {
+   "page": 492,
+   "intended": [
+    5.681,
+    5.029
+   ],
+   "iphone": [
+    13.776,
+    -3.067
+   ]
+  },
+  {
+   "page": 493,
+   "intended": [
+    8.45,
+    10.122
+   ],
+   "iphone": [
+    16.543,
+    2.029
+   ]
+  },
+  {
+   "page": 494,
+   "intended": [
+    7.994,
+    9.75
+   ],
+   "iphone": [
+    16.234,
+    1.51
+   ]
+  },
+  {
+   "page": 495,
+   "intended": [
+    9.31,
+    7.053
+   ],
+   "iphone": [
+    17.582,
+    -1.219
+   ]
+  },
+  {
+   "page": 496,
+   "intended": [
+    10.473,
+    7.265
+   ],
+   "iphone": [
+    10.473,
+    -0.9
+   ]
+  },
+  {
+   "page": 497,
+   "intended": [
+    6.898,
+    8.393
+   ],
+   "iphone": [
+    14.893,
+    0.398
+   ]
+  },
+  {
+   "page": 498,
+   "intended": [
+    9.07,
+    10.047
+   ],
+   "iphone": [
+    17.431,
+    2.293
+   ]
+  },
+  {
+   "page": 499,
+   "intended": [
+    10.302,
+    9.255
+   ],
+   "iphone": [
+    10.302,
+    0.983
+   ]
+  },
+  {
+   "page": 500,
+   "intended": [
+    10.051,
+    6.343
+   ],
+   "iphone": [
+    18.186,
+    -1.792
+   ]
+  },
+  {
+   "page": 501,
+   "intended": [
+    9.405,
+    9.928
+   ],
+   "iphone": [
+    17.615,
+    1.718
+   ]
+  },
+  {
+   "page": 502,
+   "intended": [
+    9.342,
+    8.387
+   ],
+   "iphone": [
+    17.595,
+    0.133
+   ]
+  },
+  {
+   "page": 503,
+   "intended": [
+    9.427,
+    9.938
+   ],
+   "iphone": [
+    17.631,
+    1.735
+   ]
+  },
+  {
+   "page": 504,
+   "intended": [
+    5.867,
+    7.574
+   ],
+   "iphone": [
+    13.983,
+    -0.542
+   ]
+  },
+  {
+   "page": 505,
+   "intended": [
+    9.281,
+    8.819
+   ],
+   "iphone": [
+    17.563,
+    0.537
+   ]
+  },
+  {
+   "page": 506,
+   "intended": [
+    11.865,
+    10.202
+   ],
+   "iphone": [
+    20.13,
+    2.536
+   ]
+  },
+  {
+   "page": 507,
+   "intended": [
+    10.719,
+    8.03
+   ],
+   "iphone": [
+    10.719,
+    0.019
+   ]
+  },
+  {
+   "page": 508,
+   "intended": [
+    10.23,
+    8.008
+   ],
+   "iphone": [
+    18.34,
+    -0.102
+   ]
+  },
+  {
+   "page": 509,
+   "intended": [
+    5.294,
+    6.092
+   ],
+   "iphone": [
+    13.487,
+    -2.102
+   ]
+  },
+  {
+   "page": 510,
+   "intended": [
+    8.443,
+    8.723
+   ],
+   "iphone": [
+    16.748,
+    0.417
+   ]
+  },
+  {
+   "page": 511,
+   "intended": [
+    10.281,
+    8.662
+   ],
+   "iphone": [
+    10.281,
+    0.376
+   ]
+  },
+  {
+   "page": 512,
+   "intended": [
+    8.767,
+    9.9
+   ],
+   "iphone": [
+    16.994,
+    1.672
+   ]
+  },
+  {
+   "page": 513,
+   "intended": [
+    8.66,
+    9.86
+   ],
+   "iphone": [
+    16.911,
+    1.609
+   ]
+  },
+  {
+   "page": 514,
+   "intended": [
+    8.282,
+    8.357
+   ],
+   "iphone": [
+    16.569,
+    0.069
+   ]
+  },
+  {
+   "page": 515,
+   "intended": [
+    7.339,
+    8.952
+   ],
+   "iphone": [
+    15.564,
+    0.727
+   ]
+  },
+  {
+   "page": 516,
+   "intended": [
+    8.048,
+    7.74
+   ],
+   "iphone": [
+    16.237,
+    -0.449
+   ]
+  },
+  {
+   "page": 517,
+   "intended": [
+    6.596,
+    9.864
+   ],
+   "iphone": [
+    14.845,
+    1.615
+   ]
+  },
+  {
+   "page": 518,
+   "intended": [
+    10.575,
+    7.677
+   ],
+   "iphone": [
+    10.575,
+    -0.425
+   ]
+  },
+  {
+   "page": 519,
+   "intended": [
+    6.812,
+    8.243
+   ],
+   "iphone": [
+    14.854,
+    0.201
+   ]
+  },
+  {
+   "page": 520,
+   "intended": [
+    10.803,
+    8.038
+   ],
+   "iphone": [
+    18.688,
+    0.152
+   ]
+  },
+  {
+   "page": 521,
+   "intended": [
+    9.1,
+    10.384
+   ],
+   "iphone": [
+    17.009,
+    2.475
+   ]
+  },
+  {
+   "page": 522,
+   "intended": [
+    8.925,
+    9.726
+   ],
+   "iphone": [
+    16.912,
+    1.739
+   ]
+  },
+  {
+   "page": 523,
+   "intended": [
+    9.804,
+    8.158
+   ],
+   "iphone": [
+    17.824,
+    0.138
+   ]
+  },
+  {
+   "page": 524,
+   "intended": [
+    9.437,
+    8.096
+   ],
+   "iphone": [
+    17.628,
+    -0.096
+   ]
+  },
+  {
+   "page": 525,
+   "intended": [
+    6.237,
+    10.522
+   ],
+   "iphone": [
+    14.303,
+    3.041
+   ]
+  },
+  {
+   "page": 526,
+   "intended": [
+    10.996,
+    8.63
+   ],
+   "iphone": [
+    10.996,
+    0.793
+   ]
+  },
+  {
+   "page": 527,
+   "intended": [
+    9.194,
+    10.399
+   ],
+   "iphone": [
+    17.119,
+    2.473
+   ]
+  },
+  {
+   "page": 528,
+   "intended": [
+    8.112,
+    6.674
+   ],
+   "iphone": [
+    16.135,
+    -1.348
+   ]
+  },
+  {
+   "page": 529,
+   "intended": [
+    9.703,
+    9.065
+   ],
+   "iphone": [
+    17.746,
+    1.022
+   ]
+  },
+  {
+   "page": 530,
+   "intended": [
+    5.926,
+    7.821
+   ],
+   "iphone": [
+    14.078,
+    -0.331
+   ]
+  },
+  {
+   "page": 531,
+   "intended": [
+    9.476,
+    6.811
+   ],
+   "iphone": [
+    17.651,
+    -1.364
+   ]
+  },
+  {
+   "page": 532,
+   "intended": [
+    9.753,
+    10.252
+   ],
+   "iphone": [
+    17.767,
+    2.238
+   ]
+  },
+  {
+   "page": 533,
+   "intended": [
+    9.761,
+    10.26
+   ],
+   "iphone": [
+    17.77,
+    2.251
+   ]
+  },
+  {
+   "page": 534,
+   "intended": [
+    9.616,
+    8.759
+   ],
+   "iphone": [
+    17.667,
+    0.709
+   ]
+  },
+  {
+   "page": 535,
+   "intended": [
+    9.223,
+    10.387
+   ],
+   "iphone": [
+    17.155,
+    2.455
+   ]
+  },
+  {
+   "page": 536,
+   "intended": [
+    8.812,
+    6.43
+   ],
+   "iphone": [
+    17.074,
+    -1.832
+   ]
+  },
+  {
+   "page": 537,
+   "intended": [
+    9.03,
+    6.556
+   ],
+   "iphone": [
+    17.134,
+    -1.547
+   ]
+  },
+  {
+   "page": 538,
+   "intended": [
+    9.229,
+    8.387
+   ],
+   "iphone": [
+    17.548,
+    0.068
+   ]
+  },
+  {
+   "page": 539,
+   "intended": [
+    10.614,
+    7.869
+   ],
+   "iphone": [
+    19.066,
+    -0.583
+   ]
+  },
+  {
+   "page": 540,
+   "intended": [
+    6.303,
+    9.465
+   ],
+   "iphone": [
+    14.585,
+    1.184
+   ]
+  },
+  {
+   "page": 541,
+   "intended": [
+    9.428,
+    5.414
+   ],
+   "iphone": [
+    17.821,
+    -2.98
+   ]
+  },
+  {
+   "page": 542,
+   "intended": [
+    10.164,
+    7.857
+   ],
+   "iphone": [
+    10.164,
+    -0.503
+   ]
+  },
+  {
+   "page": 543,
+   "intended": [
+    10.236,
+    8.049
+   ],
+   "iphone": [
+    18.414,
+    -0.129
+   ]
+  },
+  {
+   "page": 544,
+   "intended": [
+    10.026,
+    9.365
+   ],
+   "iphone": [
+    18.235,
+    1.157
+   ]
+  },
+  {
+   "page": 545,
+   "intended": [
+    10.139,
+    8.543
+   ],
+   "iphone": [
+    18.443,
+    0.239
+   ]
+  },
+  {
+   "page": 546,
+   "intended": [
+    5.813,
+    7.129
+   ],
+   "iphone": [
+    14.118,
+    -1.176
+   ]
+  },
+  {
+   "page": 547,
+   "intended": [
+    9.772,
+    8.617
+   ],
+   "iphone": [
+    18.083,
+    0.307
+   ]
+  },
+  {
+   "page": 548,
+   "intended": [
+    7.976,
+    10.069
+   ],
+   "iphone": [
+    16.324,
+    2.328
+   ]
+  },
+  {
+   "page": 549,
+   "intended": [
+    10.354,
+    9.846
+   ],
+   "iphone": [
+    10.354,
+    1.606
+   ]
+  },
+  {
+   "page": 550,
+   "intended": [
+    8.296,
+    4.811
+   ],
+   "iphone": [
+    16.682,
+    -3.576
+   ]
+  },
+  {
+   "page": 551,
+   "intended": [
+    8.728,
+    6.707
+   ],
+   "iphone": [
+    17.049,
+    -1.614
+   ]
+  },
+  {
+   "page": 552,
+   "intended": [
+    11.393,
+    6.405
+   ],
+   "iphone": [
+    19.6,
+    -1.802
+   ]
+  },
+  {
+   "page": 553,
+   "intended": [
+    10.094,
+    3.813
+   ],
+   "iphone": [
+    10.094,
+    -4.59
+   ]
+  },
+  {
+   "page": 554,
+   "intended": [
+    9.598,
+    5.373
+   ],
+   "iphone": [
+    17.877,
+    -2.906
+   ]
+  },
+  {
+   "page": 555,
+   "intended": [
+    9.232,
+    9.954
+   ],
+   "iphone": [
+    17.651,
+    2.146
+   ]
+  },
+  {
+   "page": 556,
+   "intended": [
+    10.195,
+    4.211
+   ],
+   "iphone": [
+    10.195,
+    -4.128
+   ]
+  },
+  {
+   "page": 557,
+   "intended": [
+    6.499,
+    9.814
+   ],
+   "iphone": [
+    15.005,
+    1.925
+   ]
+  },
+  {
+   "page": 558,
+   "intended": [
+    10.618,
+    6.669
+   ],
+   "iphone": [
+    10.618,
+    -1.405
+   ]
+  },
+  {
+   "page": 559,
+   "intended": [
+    10.302,
+    9.398
+   ],
+   "iphone": [
+    18.394,
+    1.307
+   ]
+  },
+  {
+   "page": 560,
+   "intended": [
+    10.27,
+    3.19
+   ],
+   "iphone": [
+    10.27,
+    -5.103
+   ]
+  },
+  {
+   "page": 561,
+   "intended": [
+    8.256,
+    8.115
+   ],
+   "iphone": [
+    16.581,
+    -0.21
+   ]
+  },
+  {
+   "page": 562,
+   "intended": [
+    10.331,
+    7.903
+   ],
+   "iphone": [
+    10.331,
+    -0.351
+   ]
+  },
+  {
+   "page": 563,
+   "intended": [
+    9.203,
+    9.722
+   ],
+   "iphone": [
+    17.538,
+    1.388
+   ]
+  },
+  {
+   "page": 564,
+   "intended": [
+    9.12,
+    9.152
+   ],
+   "iphone": [
+    17.377,
+    0.894
+   ]
+  },
+  {
+   "page": 565,
+   "intended": [
+    9.696,
+    9.288
+   ],
+   "iphone": [
+    17.743,
+    1.24
+   ]
+  },
+  {
+   "page": 566,
+   "intended": [
+    5.502,
+    7.8
+   ],
+   "iphone": [
+    13.616,
+    -0.314
+   ]
+  },
+  {
+   "page": 567,
+   "intended": [
+    9.911,
+    10.405
+   ],
+   "iphone": [
+    17.833,
+    2.483
+   ]
+  },
+  {
+   "page": 568,
+   "intended": [
+    9.204,
+    9.468
+   ],
+   "iphone": [
+    17.34,
+    1.331
+   ]
+  },
+  {
+   "page": 569,
+   "intended": [
+    9.016,
+    8.786
+   ],
+   "iphone": [
+    17.08,
+    0.722
+   ]
+  },
+  {
+   "page": 570,
+   "intended": [
+    9.462,
+    8.845
+   ],
+   "iphone": [
+    17.645,
+    0.662
+   ]
+  },
+  {
+   "page": 571,
+   "intended": [
+    9.167,
+    8.438
+   ],
+   "iphone": [
+    17.422,
+    0.182
+   ]
+  },
+  {
+   "page": 572,
+   "intended": [
+    10.291,
+    8.34
+   ],
+   "iphone": [
+    10.291,
+    0.061
+   ]
+  },
+  {
+   "page": 573,
+   "intended": [
+    5.7,
+    6.874
+   ],
+   "iphone": [
+    13.913,
+    -1.339
+   ]
+  },
+  {
+   "page": 574,
+   "intended": [
+    10.438,
+    9.858
+   ],
+   "iphone": [
+    10.438,
+    1.671
+   ]
+  },
+  {
+   "page": 575,
+   "intended": [
+    10.362,
+    10.424
+   ],
+   "iphone": [
+    18.272,
+    2.514
+   ]
+  },
+  {
+   "page": 576,
+   "intended": [
+    9.548,
+    9.105
+   ],
+   "iphone": [
+    17.675,
+    0.978
+   ]
+  },
+  {
+   "page": 577,
+   "intended": [
+    9.91,
+    8.283
+   ],
+   "iphone": [
+    17.832,
+    0.361
+   ]
+  },
+  {
+   "page": 578,
+   "intended": [
+    8.946,
+    9.868
+   ],
+   "iphone": [
+    16.928,
+    1.886
+   ]
+  },
+  {
+   "page": 579,
+   "intended": [
+    9.613,
+    6.574
+   ],
+   "iphone": [
+    17.708,
+    -1.521
+   ]
+  },
+  {
+   "page": 580,
+   "intended": [
+    9.06,
+    9.218
+   ],
+   "iphone": [
+    17.17,
+    1.107
+   ]
+  },
+  {
+   "page": 581,
+   "intended": [
+    7.813,
+    7.834
+   ],
+   "iphone": [
+    15.877,
+    -0.229
+   ]
+  },
+  {
+   "page": 582,
+   "intended": [
+    10.711,
+    8.072
+   ],
+   "iphone": [
+    10.711,
+    0.056
+   ]
+  },
+  {
+   "page": 583,
+   "intended": [
+    9.658,
+    8.798
+   ],
+   "iphone": [
+    17.727,
+    0.728
+   ]
+  },
+  {
+   "page": 584,
+   "intended": [
+    9.869,
+    10.716
+   ],
+   "iphone": [
+    17.815,
+    3.346
+   ]
+  },
+  {
+   "page": 585,
+   "intended": [
+    11.096,
+    8.536
+   ],
+   "iphone": [
+    11.096,
+    0.761
+   ]
+  },
+  {
+   "page": 586,
+   "intended": [
+    10.836,
+    10.729
+   ],
+   "iphone": [
+    10.836,
+    3.367
+   ]
+  },
+  {
+   "page": 587,
+   "intended": [
+    10.501,
+    5.385
+   ],
+   "iphone": [
+    10.501,
+    -2.763
+   ]
+  },
+  {
+   "page": 588,
+   "intended": [
+    9.665,
+    8.69
+   ],
+   "iphone": [
+    17.73,
+    0.625
+   ]
+  },
+  {
+   "page": 589,
+   "intended": [
+    9.482,
+    6.83
+   ],
+   "iphone": [
+    17.556,
+    -1.244
+   ]
+  },
+  {
+   "page": 590,
+   "intended": [
+    10.545,
+    10.435
+   ],
+   "iphone": [
+    10.545,
+    2.905
+   ]
+  },
+  {
+   "page": 591,
+   "intended": [
+    10.702,
+    9.342
+   ],
+   "iphone": [
+    10.702,
+    1.32
+   ]
+  },
+  {
+   "page": 592,
+   "intended": [
+    9.538,
+    7.159
+   ],
+   "iphone": [
+    17.677,
+    -0.981
+   ]
+  },
+  {
+   "page": 593,
+   "intended": [
+    10.399,
+    8.485
+   ],
+   "iphone": [
+    10.399,
+    0.273
+   ]
+  },
+  {
+   "page": 594,
+   "intended": [
+    9.039,
+    10.451
+   ],
+   "iphone": [
+    17.149,
+    2.93
+   ]
+  },
+  {
+   "page": 595,
+   "intended": [
+    10.687,
+    10.224
+   ],
+   "iphone": [
+    10.687,
+    2.192
+   ]
+  },
+  {
+   "page": 596,
+   "intended": [
+    8.809,
+    8.711
+   ],
+   "iphone": [
+    17.189,
+    0.332
+   ]
+  },
+  {
+   "page": 597,
+   "intended": [
+    10.926,
+    10.113
+   ],
+   "iphone": [
+    10.926,
+    2.232
+   ]
+  },
+  {
+   "page": 598,
+   "intended": [
+    10.23,
+    8.939
+   ],
+   "iphone": [
+    10.23,
+    0.621
+   ]
+  },
+  {
+   "page": 599,
+   "intended": [
+    11.139,
+    8.641
+   ],
+   "iphone": [
+    19.219,
+    0.56
+   ]
+  },
+  {
+   "page": 600,
+   "intended": [
+    9.282,
+    8.96
+   ],
+   "iphone": [
+    17.564,
+    0.678
+   ]
+  },
+  {
+   "page": 601,
+   "intended": [
+    10.843,
+    7.664
+   ],
+   "iphone": [
+    10.843,
+    -0.27
+   ]
+  },
+  {
+   "page": 602,
+   "intended": [
+    10.297,
+    9.82
+   ],
+   "iphone": [
+    10.297,
+    1.544
+   ]
+  },
+  {
+   "page": 603,
+   "intended": [
+    10.248,
+    6.586
+   ],
+   "iphone": [
+    10.248,
+    -1.72
+   ]
+  },
+  {
+   "page": 604,
+   "intended": [
+    10.074,
+    9.589
+   ],
+   "iphone": [
+    10.074,
+    1.174
+   ]
+  }
+ ]
+}

@@ -72,7 +72,7 @@ describe.skipIf(!snapshot)('all 604 pages (local Content Sync snapshot)', async 
     expect(refusedBefore).toBe(99); // every page with a Surah opening (some hold several)
   });
 
-  it('every page renders: each text line, heading and Basmala drawn once, rows inside the page and never on top of each other (Traditional and Taller, several phones)', async () => {
+  it('every page renders: each text line, heading and Basmala drawn once, rows inside the page and never on top of each other (the larger-text frames, several phones)', async () => {
     (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
     const { QpcV1PageText } = await import('@/components/QpcV1PageText');
     const styleOf = (node: ReactTestInstance) => Object.assign({}, ...[node.props.style].flat(3).filter(Boolean));
@@ -80,14 +80,17 @@ describe.skipIf(!snapshot)('all 604 pages (local Content Sync snapshot)', async 
     let separators = 0;
     let glyphsChecked = 0;
     let totalGlyphs = 0;
-    const { computePageLayout } = await import('@/mushaf/pageGeometry');
+    const { computePageLayout, QURAN_TEXT_SCALE } = await import('@/mushaf/pageGeometry');
     const { QCF_V1_INK_OVERFLOW_EM, QCF_V1_INK_ROOM_V_EM, QCF_V1_LINE_BOX_EM, QCF_V1_NORMAL_BOX_MARGIN_EM } = await import('@/mushaf/ayahMarkers');
     const { AYAH_MARKER_ARTWORK } = await import('@/mushaf/generated/ayahMarkerArtwork');
     let medallions = 0;
-    // The text areas the reader really uses (MushafPageView): a 387-pt page (iPhone 393) in Normal Mode (Traditional)
-    // and Full-Screen (Taller), the tallest Taller frame (35 tiles, a tall 412-pt Android), and the iPhone SE's page in
-    // Normal Mode and in Full-Screen (where Taller doesn't fit, so Traditional). Normal Mode's glyph containers are taller.
-    for (const [pageWidth, tiles, mode] of [[387, 29, 'normal'], [387, 33, 'full'], [406, 35, 'full'], [314, 29, 'normal'], [314, 29, 'full']] as const) {
+    // The text areas the reader really uses with the larger text (candidate C; fitMushafPage, MushafPageView): a 387-pt
+    // page (iPhone 393) in Normal Mode (31 tiles) and Full-Screen (33), the tallest frame (35 tiles, a tall 412-pt Android)
+    // in both modes, the iPhone SE's 324-pt page (31 tiles, the shortest frame; 34 in full screen), a small Android's
+    // 274-pt page and a 320 × 568 phone's 261-pt one (31: the shortest frame on the narrowest pages), and the 16 Pro Max's
+    // 434-pt page (32). Normal Mode's glyph
+    // containers are taller.
+    for (const [pageWidth, tiles, mode] of [[387, 31, 'normal'], [387, 33, 'full'], [406, 35, 'normal'], [406, 35, 'full'], [324, 31, 'normal'], [324, 34, 'full'], [274, 31, 'normal'], [261, 31, 'normal'], [434, 32, 'normal']] as const) {
       const marginEm = mode === 'normal' ? QCF_V1_NORMAL_BOX_MARGIN_EM : 0;
       const { text } = computePageLayout(pageWidth, tiles);
       const { width, height } = text;
@@ -199,7 +202,8 @@ describe.skipIf(!snapshot)('all 604 pages (local Content Sync snapshot)', async 
         totalGlyphs += expected.length;
         if (page <= 2) {
           const size = styleOf(lines[0].findAllByType('Text' as never)[0]).fontSize;
-          if (Math.abs(size - width * 0.0692) > 0.01) problems.push(`page ${page}: letter size ${size}`);
+          // The printed letter size: on the printed text width (this text area is QURAN_TEXT_SCALE wider).
+          if (Math.abs(size - (width / QURAN_TEXT_SCALE) * 0.0692) > 0.01) problems.push(`page ${page}: letter size ${size}`);
           // The block (heading, Basmala, lines) centred: from the line rows' grid, with the heading's grid row.
           const firstLine = lines[0];
           const blockTop = (styleOf(firstLine).top as number) - (Number(String(firstLine.props.testID).split('-').pop()) - 1) * rowPitch;
@@ -214,10 +218,10 @@ describe.skipIf(!snapshot)('all 604 pages (local Content Sync snapshot)', async 
       }
     }
     expect(problems).toEqual([]);
-    expect(separators).toBe(6236 * 5); // every ayah's separator, at each of the five sizes
-    expect(medallions).toBe(6236 * 5); // each one the approved medallion
+    expect(separators).toBe(6236 * 9); // every ayah's separator, in each of the nine frames
+    expect(medallions).toBe(6236 * 9); // each one the approved medallion
     expect(glyphsChecked).toBe(totalGlyphs);
-    expect(totalGlyphs / 5).toBe(records.filter((r) => r.record_type === 'mushaf_word' && r.mushaf_id === 2).length); // all of the dataset's glyphs
+    expect(totalGlyphs / 9).toBe(records.filter((r) => r.record_type === 'mushaf_word' && r.mushaf_id === 2).length); // all of the dataset's glyphs
   }, 1_200_000);
 
   it('114 headings, 112 Basmalas, every empty line one of them', () => {

@@ -86,7 +86,8 @@ describe('text field colours', () => {
       'src/components/ReportIssueSheet.tsx': 'input',
       'src/components/SyncPasswordField.tsx': 'row',
     };
-    const mushafFields = ['src/components/MushafControlPanel.tsx', 'src/components/MushafSearchSheet.tsx'];
+    // The reader's fields (2026-10-14: the Surah / juz' / Hizb lists, the page selector, the ورد name field).
+    const mushafFields = ['src/components/MushafIndexSheet.tsx', 'src/components/MushafPageSelector.tsx', 'src/components/MushafStopNameField.tsx'];
     expect(withFields).toEqual([...Object.keys(fieldStyles), ...mushafFields].sort());
     for (const [path, name] of Object.entries(fieldStyles)) {
       const block = styleBlock(source(path), name);

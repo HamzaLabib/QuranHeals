@@ -31,7 +31,7 @@ vi.mock('react-native', () => {
     useColorScheme: () => state.scheme,
     Platform: { OS: 'ios', select: (values: { ios: unknown }) => values.ios },
     StyleSheet: { create: (value: unknown) => value },
-    Pressable: 'Pressable', ScrollView: 'ScrollView', Text: 'Text', View: 'View', RefreshControl: 'RefreshControl',
+    Pressable: 'Pressable', ScrollView: 'ScrollView', Switch: 'Switch', Text: 'Text', View: 'View', RefreshControl: 'RefreshControl',
     Linking: { openURL: (url: string) => { state.openedUrls.push(url); return state.openURL(url); } },
     LayoutAnimation: { configureNext: () => { state.layoutAnimations += 1; }, Presets: { easeInEaseOut: {} } },
     Animated: { Value: AnimatedValue, View: 'Animated.View', timing: () => ({ start: () => undefined }) },
@@ -65,6 +65,7 @@ import SettingsScreen from '@/app/settings';
 import { AppLocaleProvider } from '@/localization/useAppLocale';
 import { EmotionsLanguageProvider } from '@/localization/useEmotionsLanguage';
 import { QuranTranslationPreferenceProvider } from '@/localization/useQuranTranslationPreference';
+import { KeepAwakePreferenceProvider } from '@/mushaf/useKeepAwakePreference';
 import { AppearancePreferenceProvider } from '@/theme/useAppearancePreference';
 
 const LOCALE_KEY = 'quran-heals:app-locale:v1';
@@ -101,7 +102,7 @@ async function renderSettings() {
     createElement(AppLocaleProvider, null,
       createElement(EmotionsLanguageProvider, null,
         createElement(QuranTranslationPreferenceProvider, null,
-          createElement(AppearancePreferenceProvider, null, children))));
+          createElement(AppearancePreferenceProvider, null, createElement(KeepAwakePreferenceProvider, null, children)))));
   await act(async () => { root = create(tree(createElement(SettingsScreen))); });
 }
 
@@ -393,8 +394,9 @@ describe('Settings: theming', () => {
   const cardBackgrounds = () =>
     all('View').map((node) => resolveStyle(node)).flat().filter((style) => style.borderRadius !== undefined && style.backgroundColor !== undefined).map((style) => style.backgroundColor);
 
-  // The five accordions, then the offline Mushaf card (components/OfflineMushafPanel.tsx), in the same palette card.
-  const CARDS = 6;
+  // The five accordions, the Keep Screen Awake card (after Quran Language), then the offline Mushaf card
+  // (components/OfflineMushafPanel.tsx), in the same palette card.
+  const CARDS = 7;
 
   it('uses the light palette card for every accordion in Light', async () => {
     await renderSettings();
@@ -480,5 +482,74 @@ describe('Settings: Report an issue', () => {
     await renderSettings();
     expect(texts(reportRow())).toEqual([ar.issueReport.action, ar.issueReport.settingsDescription]);
     expect(resolveStyle(reportRow())).toContainEqual({ flexDirection: 'row-reverse' });
+  });
+});
+
+describe('Settings: Keep Screen Awake', () => {
+  const KEEP_AWAKE_KEY = 'quran-heals:mushaf-keep-awake:v1';
+  const toggle = () => root!.root.findByProps({ testID: 'settings-keep-awake' });
+  /** The card holding the switch: its title and description, in screen order. */
+  const card = () => toggle().parent!;
+
+  it('sits directly below Quran Language (before Appearance), as a card of its own, ON by default with nothing saved', async () => {
+    await renderSettings();
+    const order = root!.root
+      .findAll((node) => node === toggle() || headers().includes(node))
+      .map((node) => (node === toggle() ? 'switch' : node.props.accessibilityLabel.split(', ')[0]));
+    expect(order).toEqual(['App Language', 'Emotions Language', 'Quran Language', 'switch', 'Appearance', 'Legal & Privacy']);
+    expect(texts(card())).toEqual([en.settings.keepAwakeTitle, en.settings.keepAwakeDescription]);
+    expect(en.settings.keepAwakeTitle).toBe('Keep Screen Awake');
+    expect(en.settings.keepAwakeDescription).toBe('Prevent automatic screen locking while reading the Mushaf.');
+    expect(toggle().props).toMatchObject({ value: true, accessibilityRole: 'switch', accessibilityLabel: 'Keep Screen Awake', accessibilityState: { checked: true } });
+    expect(state.storage.has(KEEP_AWAKE_KEY)).toBe(false);
+    // Still exactly the five accordion sections: the switch is not one of them, and opens nothing.
+    expect(headers().map((node) => node.props.accessibilityLabel.split(', ')[0])).toEqual(EN_HEADERS);
+  });
+
+  it('switching OFF and back ON applies and saves at once, with no other preference written and no network', async () => {
+    await renderSettings();
+    const before = new Map(state.storage);
+    await act(async () => toggle().props.onValueChange(false));
+    expect(toggle().props.value).toBe(false);
+    expect(state.storage.get(KEEP_AWAKE_KEY)).toBe('false');
+    await act(async () => toggle().props.onValueChange(true));
+    expect(toggle().props.value).toBe(true);
+    expect(state.storage.get(KEEP_AWAKE_KEY)).toBe('true');
+    expect([...state.storage.keys()].filter((key) => !before.has(key))).toEqual([KEEP_AWAKE_KEY]);
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(state.layoutAnimations).toBe(0);
+  });
+
+  it('a saved OFF is shown OFF after a restart', async () => {
+    state.storage.set(KEEP_AWAKE_KEY, 'false');
+    await renderSettings();
+    expect(toggle().props.value).toBe(false);
+  });
+
+  it('Arabic: the Modern Standard Arabic title and description, right to left', async () => {
+    state.storage.set(LOCALE_KEY, 'ar');
+    await renderSettings();
+    expect(ar.settings.keepAwakeTitle).toBe('إبقاء الشاشة مضاءة');
+    expect(ar.settings.keepAwakeDescription).toBe('منع قفل الشاشة تلقائيًا أثناء قراءة المصحف.');
+    expect(texts(card())).toEqual([ar.settings.keepAwakeTitle, ar.settings.keepAwakeDescription]);
+    expect(toggle().props.accessibilityLabel).toBe(ar.settings.keepAwakeTitle);
+    expect(resolveStyle(card())).toContainEqual({ flexDirection: 'row-reverse' });
+    for (const text of card().findAll(isType('Text'))) expect(resolveStyle(text)).toContainEqual({ writingDirection: 'rtl', textAlign: 'right' });
+  });
+
+  it.each([['light', lightPalette], ['dark', darkPalette]] as const)('%s mode: the same card as the accordions, in the theme colours', async (scheme, palette) => {
+    state.storage.set(APPEARANCE_KEY, JSON.stringify(scheme));
+    await renderSettings();
+    const accordionCard = header('Quran Language').parent!;
+    const pick = (styles: object[]) => Object.assign({}, ...styles) as Record<string, unknown>;
+    const mine = pick(resolveStyle(card()));
+    const theirs = pick(resolveStyle(accordionCard));
+    for (const key of ['backgroundColor', 'borderColor', 'borderRadius', 'borderWidth']) expect(mine[key]).toBe(theirs[key]);
+    expect(mine.backgroundColor).toBe(palette.card);
+    expect(toggle().props.trackColor).toEqual({ false: palette.border, true: palette.accentFill });
+    expect(toggle().props.thumbColor).toBe(palette.onAccentFill);
+    const [title, description] = card().findAll(isType('Text')).map((text) => pick(resolveStyle(text)));
+    expect(title.color).toBe(palette.textPrimary);
+    expect(description.color).toBe(palette.textSecondary);
   });
 });

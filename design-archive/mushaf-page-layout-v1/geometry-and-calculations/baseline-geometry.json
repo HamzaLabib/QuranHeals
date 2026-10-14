@@ -1,0 +1,800 @@
+{
+  "revision": "529a7241d9d79717df9ead4ac85e814be00cb3b1",
+  "source": "original-source/mobile/src/mushaf/pageGeometry.ts (archived copy)",
+  "constants": {
+    "BORDER_TILES_ACROSS": 20,
+    "BORDER_TILES_DOWN": 29,
+    "FRAME_ASPECT": 1.45,
+    "MUSHAF_TEXT_LIFT_PT": 4,
+    "PAGE_GEOMETRY": {
+      "tile": 0.05,
+      "rule": 0.007,
+      "textInsetX": 0.042,
+      "textInsetY": 0.017,
+      "lineCount": 15,
+      "headerFontSize": 0.03,
+      "headerGap": 0.035,
+      "pageNumberFontSize": 0.03,
+      "pageNumberGap": 0.027
+    },
+    "PAGE_ASPECT": 1.609,
+    "readerFit": {
+      "SIDE_MARGIN": 3,
+      "BACK_BAR_HEIGHT": 36,
+      "PAGE_PANEL_GAP": 4,
+      "MUSHAF_PANEL_HEIGHT": 56,
+      "MUSHAF_PANEL_MARGIN": 8,
+      "WIRD_ROW_HEIGHT": 32
+    }
+  },
+  "layoutAtWidth": {
+    "300": {
+      "page": {
+        "width": 300,
+        "height": 482.656
+      },
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 300,
+        "height": 14.57
+      },
+      "frame": {
+        "x": 0,
+        "y": 24.992,
+        "width": 300,
+        "height": 435
+      },
+      "tile": 15,
+      "rule": 2.024,
+      "inner": {
+        "x": 15,
+        "y": 39.992,
+        "width": 270,
+        "height": 405
+      },
+      "text": {
+        "x": 27.648,
+        "y": 45.051,
+        "width": 244.705,
+        "height": 394.882
+      },
+      "linePitch": 26.325,
+      "pageNumber": {
+        "x": 0,
+        "y": 468.086,
+        "width": 300,
+        "height": 14.57
+      },
+      "headerFontSize": 9.106,
+      "pageNumberFontSize": 9.106
+    },
+    "320": {
+      "page": {
+        "width": 320,
+        "height": 514.833
+      },
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 320,
+        "height": 15.541
+      },
+      "frame": {
+        "x": 0,
+        "y": 26.658,
+        "width": 320,
+        "height": 464
+      },
+      "tile": 16,
+      "rule": 2.159,
+      "inner": {
+        "x": 16,
+        "y": 42.658,
+        "width": 288,
+        "height": 432
+      },
+      "text": {
+        "x": 29.491,
+        "y": 48.054,
+        "width": 261.019,
+        "height": 421.207
+      },
+      "linePitch": 28.08,
+      "pageNumber": {
+        "x": 0,
+        "y": 499.292,
+        "width": 320,
+        "height": 15.541
+      },
+      "headerFontSize": 9.713,
+      "pageNumberFontSize": 9.713
+    },
+    "354": {
+      "page": {
+        "width": 354,
+        "height": 569.534
+      },
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 354,
+        "height": 17.193
+      },
+      "frame": {
+        "x": 0,
+        "y": 29.49,
+        "width": 354,
+        "height": 513.3
+      },
+      "tile": 17.7,
+      "rule": 2.388,
+      "inner": {
+        "x": 17.7,
+        "y": 47.19,
+        "width": 318.6,
+        "height": 477.9
+      },
+      "text": {
+        "x": 32.624,
+        "y": 53.16,
+        "width": 288.752,
+        "height": 465.961
+      },
+      "linePitch": 31.064,
+      "pageNumber": {
+        "x": 0,
+        "y": 552.341,
+        "width": 354,
+        "height": 17.193
+      },
+      "headerFontSize": 10.745,
+      "pageNumberFontSize": 10.745
+    },
+    "369": {
+      "page": {
+        "width": 369,
+        "height": 593.667
+      },
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 369,
+        "height": 17.921
+      },
+      "frame": {
+        "x": 0,
+        "y": 30.74,
+        "width": 369,
+        "height": 535.05
+      },
+      "tile": 18.45,
+      "rule": 2.489,
+      "inner": {
+        "x": 18.45,
+        "y": 49.19,
+        "width": 332.1,
+        "height": 498.15
+      },
+      "text": {
+        "x": 34.006,
+        "y": 55.412,
+        "width": 300.987,
+        "height": 485.705
+      },
+      "linePitch": 32.38,
+      "pageNumber": {
+        "x": 0,
+        "y": 575.746,
+        "width": 369,
+        "height": 17.921
+      },
+      "headerFontSize": 11.201,
+      "pageNumberFontSize": 11.201
+    },
+    "384": {
+      "page": {
+        "width": 384,
+        "height": 617.8
+      },
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 384,
+        "height": 18.65
+      },
+      "frame": {
+        "x": 0,
+        "y": 31.989,
+        "width": 384,
+        "height": 556.8
+      },
+      "tile": 19.2,
+      "rule": 2.59,
+      "inner": {
+        "x": 19.2,
+        "y": 51.189,
+        "width": 345.6,
+        "height": 518.4
+      },
+      "text": {
+        "x": 35.389,
+        "y": 57.665,
+        "width": 313.222,
+        "height": 505.449
+      },
+      "linePitch": 33.697,
+      "pageNumber": {
+        "x": 0,
+        "y": 599.15,
+        "width": 384,
+        "height": 18.65
+      },
+      "headerFontSize": 11.656,
+      "pageNumberFontSize": 11.656
+    },
+    "396": {
+      "page": {
+        "width": 396,
+        "height": 637.106
+      },
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 396,
+        "height": 19.232
+      },
+      "frame": {
+        "x": 0,
+        "y": 32.989,
+        "width": 396,
+        "height": 574.2
+      },
+      "tile": 19.8,
+      "rule": 2.671,
+      "inner": {
+        "x": 19.8,
+        "y": 52.789,
+        "width": 356.4,
+        "height": 534.6
+      },
+      "text": {
+        "x": 36.495,
+        "y": 59.467,
+        "width": 323.01,
+        "height": 521.244
+      },
+      "linePitch": 34.75,
+      "pageNumber": {
+        "x": 0,
+        "y": 617.874,
+        "width": 396,
+        "height": 19.232
+      },
+      "headerFontSize": 12.02,
+      "pageNumberFontSize": 12.02
+    },
+    "406": {
+      "page": {
+        "width": 406,
+        "height": 653.194
+      },
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 406,
+        "height": 19.718
+      },
+      "frame": {
+        "x": 0,
+        "y": 33.822,
+        "width": 406,
+        "height": 588.7
+      },
+      "tile": 20.3,
+      "rule": 2.739,
+      "inner": {
+        "x": 20.3,
+        "y": 54.122,
+        "width": 365.4,
+        "height": 548.1
+      },
+      "text": {
+        "x": 37.416,
+        "y": 60.968,
+        "width": 331.167,
+        "height": 534.407
+      },
+      "linePitch": 35.627,
+      "pageNumber": {
+        "x": 0,
+        "y": 633.476,
+        "width": 406,
+        "height": 19.718
+      },
+      "headerFontSize": 12.324,
+      "pageNumberFontSize": 12.324
+    },
+    "434": {
+      "page": {
+        "width": 434,
+        "height": 698.242
+      },
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 434,
+        "height": 21.078
+      },
+      "frame": {
+        "x": 0,
+        "y": 36.154,
+        "width": 434,
+        "height": 629.3
+      },
+      "tile": 21.7,
+      "rule": 2.927,
+      "inner": {
+        "x": 21.7,
+        "y": 57.854,
+        "width": 390.6,
+        "height": 585.9
+      },
+      "text": {
+        "x": 39.997,
+        "y": 65.173,
+        "width": 354.006,
+        "height": 571.263
+      },
+      "linePitch": 38.084,
+      "pageNumber": {
+        "x": 0,
+        "y": 677.164,
+        "width": 434,
+        "height": 21.078
+      },
+      "headerFontSize": 13.174,
+      "pageNumberFontSize": 13.174
+    }
+  },
+  "tallerFrames": {
+    "29": {
+      "page": {
+        "width": 384,
+        "height": 617.8
+      },
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 384,
+        "height": 18.65
+      },
+      "frame": {
+        "x": 0,
+        "y": 31.989,
+        "width": 384,
+        "height": 556.8
+      },
+      "tile": 19.2,
+      "rule": 2.59,
+      "inner": {
+        "x": 19.2,
+        "y": 51.189,
+        "width": 345.6,
+        "height": 518.4
+      },
+      "text": {
+        "x": 35.389,
+        "y": 57.665,
+        "width": 313.222,
+        "height": 505.449
+      },
+      "linePitch": 33.697,
+      "pageNumber": {
+        "x": 0,
+        "y": 599.15,
+        "width": 384,
+        "height": 18.65
+      },
+      "headerFontSize": 11.656,
+      "pageNumberFontSize": 11.656
+    },
+    "31": {
+      "page": {
+        "width": 384,
+        "height": 656.2
+      },
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 384,
+        "height": 18.65
+      },
+      "frame": {
+        "x": 0,
+        "y": 31.989,
+        "width": 384,
+        "height": 595.2
+      },
+      "tile": 19.2,
+      "rule": 2.59,
+      "inner": {
+        "x": 19.2,
+        "y": 51.189,
+        "width": 345.6,
+        "height": 556.8
+      },
+      "text": {
+        "x": 35.389,
+        "y": 57.665,
+        "width": 313.222,
+        "height": 543.849
+      },
+      "linePitch": 36.257,
+      "pageNumber": {
+        "x": 0,
+        "y": 637.55,
+        "width": 384,
+        "height": 18.65
+      },
+      "headerFontSize": 11.656,
+      "pageNumberFontSize": 11.656
+    },
+    "33": {
+      "page": {
+        "width": 384,
+        "height": 694.6
+      },
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 384,
+        "height": 18.65
+      },
+      "frame": {
+        "x": 0,
+        "y": 31.989,
+        "width": 384,
+        "height": 633.6
+      },
+      "tile": 19.2,
+      "rule": 2.59,
+      "inner": {
+        "x": 19.2,
+        "y": 51.189,
+        "width": 345.6,
+        "height": 595.2
+      },
+      "text": {
+        "x": 35.389,
+        "y": 57.665,
+        "width": 313.222,
+        "height": 582.249
+      },
+      "linePitch": 38.817,
+      "pageNumber": {
+        "x": 0,
+        "y": 675.95,
+        "width": 384,
+        "height": 18.65
+      },
+      "headerFontSize": 11.656,
+      "pageNumberFontSize": 11.656
+    },
+    "35": {
+      "page": {
+        "width": 384,
+        "height": 733
+      },
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 384,
+        "height": 18.65
+      },
+      "frame": {
+        "x": 0,
+        "y": 31.989,
+        "width": 384,
+        "height": 672
+      },
+      "tile": 19.2,
+      "rule": 2.59,
+      "inner": {
+        "x": 19.2,
+        "y": 51.189,
+        "width": 345.6,
+        "height": 633.6
+      },
+      "text": {
+        "x": 35.389,
+        "y": 57.665,
+        "width": 313.222,
+        "height": 620.649
+      },
+      "linePitch": 41.377,
+      "pageNumber": {
+        "x": 0,
+        "y": 714.35,
+        "width": 384,
+        "height": 18.65
+      },
+      "headerFontSize": 11.656,
+      "pageNumberFontSize": 11.656
+    }
+  },
+  "normalModeFit": [
+    {
+      "device": "iPhone SE (3rd gen)",
+      "screen": "375 × 667",
+      "area": {
+        "width": 375,
+        "height": 611
+      },
+      "viewportHeight": 543,
+      "available": 511,
+      "width": 317,
+      "height": 510.006,
+      "limitedBy": "height",
+      "frame": {
+        "x": 0,
+        "y": 26.408,
+        "width": 317,
+        "height": 459.65
+      },
+      "text": {
+        "x": 29.214,
+        "y": 47.603,
+        "width": 258.572,
+        "height": 417.259
+      },
+      "pageNumber": {
+        "x": 0,
+        "y": 494.611,
+        "width": 317,
+        "height": 15.396
+      },
+      "linePitch": 27.817,
+      "frameBottomToPageNumberTop": 8.553,
+      "textBottomToFrameBottom": 21.196
+    },
+    {
+      "device": "iPhone 13 mini",
+      "screen": "375 × 812",
+      "area": {
+        "width": 375,
+        "height": 726
+      },
+      "viewportHeight": 624,
+      "available": 592,
+      "width": 367,
+      "height": 590.449,
+      "limitedBy": "height",
+      "frame": {
+        "x": 0,
+        "y": 30.573,
+        "width": 367,
+        "height": 532.15
+      },
+      "text": {
+        "x": 33.822,
+        "y": 55.112,
+        "width": 299.356,
+        "height": 483.072
+      },
+      "pageNumber": {
+        "x": 0,
+        "y": 572.625,
+        "width": 367,
+        "height": 17.824
+      },
+      "linePitch": 32.205,
+      "frameBottomToPageNumberTop": 9.902,
+      "textBottomToFrameBottom": 24.539
+    },
+    {
+      "device": "iPhone 16 / 15 / 14",
+      "screen": "390 × 844",
+      "area": {
+        "width": 390,
+        "height": 761
+      },
+      "viewportHeight": 659,
+      "available": 627,
+      "width": 384,
+      "height": 617.8,
+      "limitedBy": "width",
+      "frame": {
+        "x": 0,
+        "y": 31.989,
+        "width": 384,
+        "height": 556.8
+      },
+      "text": {
+        "x": 35.389,
+        "y": 57.665,
+        "width": 313.222,
+        "height": 505.449
+      },
+      "pageNumber": {
+        "x": 0,
+        "y": 599.15,
+        "width": 384,
+        "height": 18.65
+      },
+      "linePitch": 33.697,
+      "frameBottomToPageNumberTop": 10.361,
+      "textBottomToFrameBottom": 25.676
+    },
+    {
+      "device": "iPhone 16 Pro",
+      "screen": "402 × 874",
+      "area": {
+        "width": 402,
+        "height": 776
+      },
+      "viewportHeight": 674,
+      "available": 642,
+      "width": 396,
+      "height": 637.106,
+      "limitedBy": "width",
+      "frame": {
+        "x": 0,
+        "y": 32.989,
+        "width": 396,
+        "height": 574.2
+      },
+      "text": {
+        "x": 36.495,
+        "y": 59.467,
+        "width": 323.01,
+        "height": 521.244
+      },
+      "pageNumber": {
+        "x": 0,
+        "y": 617.874,
+        "width": 396,
+        "height": 19.232
+      },
+      "linePitch": 34.75,
+      "frameBottomToPageNumberTop": 10.685,
+      "textBottomToFrameBottom": 26.478
+    },
+    {
+      "device": "iPhone 16 Pro Max",
+      "screen": "440 × 956",
+      "area": {
+        "width": 440,
+        "height": 858
+      },
+      "viewportHeight": 756,
+      "available": 724,
+      "width": 434,
+      "height": 698.242,
+      "limitedBy": "width",
+      "frame": {
+        "x": 0,
+        "y": 36.154,
+        "width": 434,
+        "height": 629.3
+      },
+      "text": {
+        "x": 39.997,
+        "y": 65.173,
+        "width": 354.006,
+        "height": 571.263
+      },
+      "pageNumber": {
+        "x": 0,
+        "y": 677.164,
+        "width": 434,
+        "height": 21.078
+      },
+      "linePitch": 38.084,
+      "frameBottomToPageNumberTop": 11.71,
+      "textBottomToFrameBottom": 29.019
+    },
+    {
+      "device": "Android small (360 × 640)",
+      "screen": "360 × 640",
+      "area": {
+        "width": 360,
+        "height": 580
+      },
+      "viewportHeight": 464,
+      "available": 432,
+      "width": 268,
+      "height": 431.173,
+      "limitedBy": "height",
+      "frame": {
+        "x": 0,
+        "y": 22.326,
+        "width": 268,
+        "height": 388.6
+      },
+      "text": {
+        "x": 24.698,
+        "y": 40.245,
+        "width": 218.603,
+        "height": 352.761
+      },
+      "pageNumber": {
+        "x": 0,
+        "y": 418.157,
+        "width": 268,
+        "height": 13.016
+      },
+      "linePitch": 23.517,
+      "frameBottomToPageNumberTop": 7.231,
+      "textBottomToFrameBottom": 17.919
+    },
+    {
+      "device": "Android Pixel-size (412 × 915)",
+      "screen": "412 × 915",
+      "area": {
+        "width": 412,
+        "height": 855
+      },
+      "viewportHeight": 763,
+      "available": 731,
+      "width": 406,
+      "height": 653.194,
+      "limitedBy": "width",
+      "frame": {
+        "x": 0,
+        "y": 33.822,
+        "width": 406,
+        "height": 588.7
+      },
+      "text": {
+        "x": 37.416,
+        "y": 60.968,
+        "width": 331.167,
+        "height": 534.407
+      },
+      "pageNumber": {
+        "x": 0,
+        "y": 633.476,
+        "width": 406,
+        "height": 19.718
+      },
+      "linePitch": 35.627,
+      "frameBottomToPageNumberTop": 10.954,
+      "textBottomToFrameBottom": 27.147
+    },
+    {
+      "device": "Android narrow (320 × 640)",
+      "screen": "320 × 640",
+      "area": {
+        "width": 320,
+        "height": 580
+      },
+      "viewportHeight": 464,
+      "available": 432,
+      "width": 268,
+      "height": 431.173,
+      "limitedBy": "height",
+      "frame": {
+        "x": 0,
+        "y": 22.326,
+        "width": 268,
+        "height": 388.6
+      },
+      "text": {
+        "x": 24.698,
+        "y": 40.245,
+        "width": 218.603,
+        "height": 352.761
+      },
+      "pageNumber": {
+        "x": 0,
+        "y": 418.157,
+        "width": 268,
+        "height": 13.016
+      },
+      "linePitch": 23.517,
+      "frameBottomToPageNumberTop": 7.231,
+      "textBottomToFrameBottom": 17.919
+    }
+  ]
+}

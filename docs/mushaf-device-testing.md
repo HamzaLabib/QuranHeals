@@ -211,3 +211,35 @@ Nothing below has run on Android yet: the audits are geometry and source reading
 - Turning pages, zoom, Normal ⇄ Full-Screen, and rotation locked: no glyph flickers or shifts after it first appears.
 - TalkBack reads the page, not the hidden copies.
 - Changing Font size / Display size does not change the Quran page.
+
+## Navigation redesign (2026-10-14): device checks — UNVERIFIED
+
+Not yet run on any device: verified only by the automated suite (the reader under a test renderer, its gestures simulated) and the geometry audits. The earlier floating bar is archived in `design-archive/mushaf-navigation-v1/`. On iPhone and on Android (small and Pixel-size), Light and Dark, English and Arabic:
+
+| # | Check | Pass when |
+|---|---|---|
+| N1 | Tap the Surah name, the juz' and (on a page with one) the Hizb label | Each opens its list at the current one; searching works with the keyboard open; a row opens its first page (Al-Māʾidah: page 106) |
+| N2 | Tap the page number under the frame | The slim card opens near the bottom, nearly full width, without covering the Quran text |
+| N3 | Drag the olive thumb | 1 at the right end, 604 at the left; the number, Surah and juz' follow the finger smoothly; the page behind does not change |
+| N4 | The arrow | A later page: ← on the number's left; an earlier one: → on its right; the same page: none. Tapping it goes there and closes; a tap outside goes nowhere |
+| N5 | Tap the number and type ٢٠٠ / 200 / 700 | 200 previews; 700 shows "Enter a page from 1 to 604" and no arrow; the arrow can be tapped with the keyboard open |
+| N6 | Tap an ayah's words | After a moment, a small card near it with exactly Reflection (the lit yellow lamp) and Save (heart); a double-tap zoom never opens it; swipes still turn pages |
+| N7 | Tap an ayah's number medallion | Only "Apply to [ورد] Wird" and ×; Apply saves the page to the active ورد, closes, shows nothing else |
+| N8 | Collapse / expand | Outward diagonal arrows in Normal Mode, inward in full screen, same place |
+| N9 | VoiceOver / TalkBack on the page | "Next page" / "Previous page" actions turn pages, also on a page not yet downloaded |
+| N10 | Small phones (320–375 pt), large text | The card's Surah and juz' truncate before overlapping the number; popups stay on screen |
+
+## Larger Quran text (candidate C, 2026-10-14): native checks — UNVERIFIED
+
+Implemented and audited in a browser only (Expo Web in headless Chrome; `docs/mushaf-larger-text-review/`). Native rendering, clipping and glyph positions on iOS and Android are **not verified**. It needs a new development or preview build (no OTA: this changes JavaScript only, but test on the same native runtime the release will use). Use an iPhone SE (or another 4.7-inch iPhone), a 6.1-inch iPhone, a Pro Max, a small Android (360 dp, 3-button navigation) and a Pixel-size Android, Light and Dark.
+
+| # | Check | Pass when |
+|---|---|---|
+| C1 | Pages 3, 4, 125 and 604 in Normal Mode; compare with the review's browser screenshots | Same lines, same words on each line, glyphs about 5% larger than the previous build on the same phone; the frame taller (31–35 tiles); the page number under the frame, the ورد pill under it |
+| C2 | Pages 1 and 2 | The approved circle, cartouche and text exactly as in the previous build (same size); only the frame may be taller |
+| C3 | The most constrained pages from the audit (see the review README: the tightest line, heading and border clearances) | No glyph touches the frame's inner rule, a neighbouring line, a medallion or a Surah heading band; nothing cut at the right or left edge |
+| C4 | Bottoms of م غ ع خ ح ج and deep marks on the last line of a page, and above/below Surah headings | Nothing clipped (iOS: the glyph boxes; Android: the unclipped copies) |
+| C5 | Normal ⇄ full screen on the same page | The glyphs are the same size in both; full screen only adds tiles and line spacing; the selection is kept |
+| C6 | Tap the page number (Normal Mode) on the iPhone SE and the small Android | The selector card opens below the last Quran line, not over it |
+| C7 | Ayah taps and medallion taps on the first and last words of lines | The popup and the Apply-to-ورد popup open for the right ayah, as before |
+| C8 | Pinch, double-tap and swipe on a page | As before: the whole page scales; swipes turn one page |
