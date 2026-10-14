@@ -103,3 +103,13 @@ export const SURAH_HEADER_INKS = {
   gold: '#C9A34A',
   goldDeep: '#93702B',
 } as const;
+
+/**
+ * The traditional Surah heading's panel inks (components/SurahHeadingTraditional.tsx, the default heading;
+ * mushaf/decorations.ts), with SURAH_HEADER_INKS' gold: a dark olive ground and a muted green for its florets, after
+ * the reference print. SURAH_HEADER_INKS above stays as it is: the original heading and pages 1–2 use it.
+ */
+export const SURAH_HEADING_TRADITIONAL_INKS = {
+  olive: '#46552F',
+  mutedGreen: '#7C9461',
+} as const;

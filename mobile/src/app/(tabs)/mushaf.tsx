@@ -30,6 +30,7 @@ import { MUSHAF_PAGE_COUNT, parseMushafPage, tintAyahMarkers, tintSvgInk, toArab
 import { offlineMushaf, OfflineMushafError, type DownloadProgress, type OfflineStatus } from '@/mushaf/offline';
 import { readRelayPageForDev } from '@/mushaf/offline/devRelayPage';
 import { qcfFontUrl } from '@/mushaf/offline/fonts';
+import { resolveDecorations } from '@/mushaf/decorations';
 import { hizbLabelsForPage } from '@/mushaf/hizbQuarters';
 import { BORDER_TILES_DOWN, computePageLayout } from '@/mushaf/pageGeometry';
 import { QPC_V1_FONTS } from '@/mushaf/qpcV1Fonts';
@@ -304,6 +305,8 @@ export default function MushafScreen() {
   const [zoomed, setZoomed] = useState(false);
   // Development builds only: read any page straight from the relay (?source=online), to check it without installing.
   const onlineInDev = isDevBuild() && params.source === 'online';
+  // Which design each decoration draws (mushaf/decorations.ts): the constants; previews in development builds.
+  const decorations = resolveDecorations(params, isDevBuild());
   const zoomView = useRef<MushafZoomHandle>(null);
   // Full-screen reading: off whenever the reader opens.
   const [fullScreen, setFullScreen] = useState(false);
@@ -665,6 +668,7 @@ export default function MushafScreen() {
                   tilesDown={fit.tilesDown === BORDER_TILES_DOWN ? undefined : fit.tilesDown}
                   hizbLabels={hizbLabelsForPage(n)}
                   openingOrnament={parts.qpc && n <= 2}
+                  openingDecoration={decorations.opening}
                   headerFontFamily={headerFontLoaded ? MUSHAF_HEADER_FONT_FAMILY : undefined}
                   paperColor={MUSHAF_BACKGROUNDS[appearance.background].paper}
                   headerColor={furniture.header}
@@ -687,6 +691,7 @@ export default function MushafScreen() {
                       headingColor={furniture.header}
                       ink={ink}
                       highlight={highlight}
+                      headingDecoration={decorations.heading}
                     />
                   ) : (
                     <MushafSvgText

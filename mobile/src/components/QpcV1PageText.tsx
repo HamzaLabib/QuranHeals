@@ -3,6 +3,8 @@ import { Platform, Pressable, StyleSheet, Text, View, type GestureResponderEvent
 
 import { AyahMarkerOrnament } from '@/components/AyahMarkerOrnament';
 import { SurahHeaderOrnament } from '@/components/SurahHeaderOrnament';
+import { SurahHeadingTraditional } from '@/components/SurahHeadingTraditional';
+import { SURAH_HEADING_DECORATION, type HeadingDecoration } from '@/mushaf/decorations';
 import { MUSHAF_PAPER } from '@/constants/mushafTheme';
 import { MUSHAF_MARKER_STYLES, type MushafMarkerStyleId } from '@/mushaf/appearance';
 import { cssBaseline, getAyahMarker, markerOverlayBox, QCF_V1_INK_OVERFLOW_EM, QCF_V1_INK_ROOM_V_EM, QCF_V1_LINE_BOX_EM, qcfV1AndroidRowShiftEm, qcfV1DrawnLineShiftEm } from '@/mushaf/ayahMarkers';
@@ -41,6 +43,8 @@ type QpcV1PageTextProps = {
   /** Font and colour for a Surah heading's name (the running heads' font). */
   headingFontFamily?: string;
   headingColor?: string;
+  /** Which ornament Surah headings draw (mushaf/decorations.ts; pages 1–2 keep their own): the traditional band by default, or the original. */
+  headingDecoration?: HeadingDecoration;
 };
 
 /** Android draws each glyph through an unclipped copy (see androidInk). */
@@ -102,6 +106,7 @@ export function QpcV1PageText({
   basmalaFontFamily = null,
   headingFontFamily,
   headingColor,
+  headingDecoration = SURAH_HEADING_DECORATION,
 }: QpcV1PageTextProps) {
   const lineCount = Math.max(15, layout.lines.length);
   const pitch = height / lineCount;
@@ -315,6 +320,16 @@ export function QpcV1PageText({
                 left={(width - pageWidthOfText(width) * OPENING_CARTOUCHE.width) / 2}
                 top={(rowPitch * (1 - OPENING_CARTOUCHE.height)) / 2}
                 nameWidth={fontSize * HEADING_SIZE * OPENING_NAME_MAX_EM}
+              />
+            ) : headingDecoration === 'traditional' ? (
+              // The traditional band (mushaf/decorations.ts); the original cartouche below, in the very same box.
+              <SurahHeadingTraditional
+                testID={`qpc-header-ornament-${slot.line}`}
+                width={(width + 2 * textSideInset(width)) * HEADING_ORNAMENT_SPAN}
+                height={rowPitch}
+                left={(width - (width + 2 * textSideInset(width)) * HEADING_ORNAMENT_SPAN) / 2}
+                top={0}
+                nameWidth={fontSize * HEADING_SIZE * HEADING_NAME_MAX_EM}
               />
             ) : (
               <SurahHeaderOrnament

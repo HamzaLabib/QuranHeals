@@ -129,4 +129,40 @@ describe('drawing them', () => {
     expect(root.root.findAllByProps({ testID: 'qpc-basmala-7' })).toHaveLength(0);
     expect(root.root.findAllByProps({ testID: 'qpc-heading-6' })).toHaveLength(1);
   });
+
+  describe('heading ornament: the traditional band by default, the original one setting away', () => {
+    // Two Surahs open on this page: 5 (heading line 6, Basmala 7) and 6 (heading 14, Basmala 15).
+    const lines = [...[1, 2, 3, 4, 5].map((n) => line(n, ['4:176', n])), ...[8, 9, 10, 11, 12, 13].map((n) => line(n, [`5:${n - 7}`, 1]))];
+    const layout = { page: 106, fontFamily: 'QCF_P106', lines };
+    const headings = () => root.root.findAll((n) => typeof n.type === 'string' && /^qpc-heading-\d+$/.test(String(n.props.testID))).map((row) => ({
+      id: row.props.testID as string,
+      row: styleOf(row),
+      name: row.findAllByType('Text' as never).map((t) => ({ text: t.props.children, style: styleOf(t) })),
+      ornament: (({ width, height, style }) => ({ width, height, style: styleOf({ props: { style } } as never) }))(row.findByType('Svg' as never).props),
+      design: row.findAll((n) => String(n.type) === 'ClipPath').map((n) => String(n.props.id).replace(/^.*-/, '')).sort().join(','),
+    }));
+    const drawAndMeasure = async (props: Record<string, unknown>) => {
+      await draw(layout, { basmalaFontFamily: 'QCF_P001', headingFontFamily: 'Amiri_700Bold', headingColor: '#2B2A26', ...props });
+      await act(async () => { for (const l of lines) root.root.findByProps({ testID: `qpc-measure-${l.line}` }).props.onLayout({ nativeEvent: { layout: { width: 400 } } }); });
+      const out = headings();
+      await act(async () => root.unmount());
+      return out;
+    };
+
+    it('both headings on a two-Surah page draw the traditional band by default (its side panels), not the original cartouche', async () => {
+      const shown = await drawAndMeasure({});
+      expect(shown.map((h) => h.id)).toEqual(['qpc-heading-6', 'qpc-heading-14']);
+      expect(shown.map((h) => h.name.map((n) => n.text))).toEqual([['سورة المائدة'], ['سورة الأنعام']]);
+      for (const h of shown) expect(h.design).toBe('panels'); // SurahHeadingTraditional
+    });
+
+    it('set to `original`, the original cartouche draws instead, in the same rows: the same names, font, colour, size and places', async () => {
+      const traditional = await drawAndMeasure({ headingDecoration: 'traditional' });
+      const original = await drawAndMeasure({ headingDecoration: 'original' });
+      for (const h of original) expect(h.design).toBe('ends,lobes'); // SurahHeaderOrnament
+      const shared = (list: typeof original) => list.map(({ design: _design, ...rest }) => rest);
+      expect(shared(original)).toEqual(shared(traditional));
+      expect(await drawAndMeasure({})).toEqual(traditional);
+    });
+  });
 });
