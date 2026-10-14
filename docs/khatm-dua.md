@@ -4,8 +4,8 @@
 
 ## What is built
 
-- **Screen:** `/khatm-dua` (`mobile/src/app/khatm-dua.tsx`), titled دعاء ختم القرآن in every app language, with a subtitle and note in the app's language.
-- **Note:** above the du'a, saying it is a traditional supplication as printed in many Mushafs, not part of the Quran, not a supplication prescribed by the Prophet ﷺ, optional, and that reading it records no khatma.
+- **Screen:** `/khatm-dua` (`mobile/src/app/khatm-dua.tsx`), titled دعاء ختم القرآن in every app language, with nothing under the title. Framed by an emerald-and-gold arch, divider and inner rule (shapes only, `components/KhatmDuaOrnament.tsx`).
+- **No note or subtitle (owner's decision, 2026-10-13):** the screen shows the title and the du'a only. The earlier explanatory note (not part of the Quran, not prescribed by the Prophet ﷺ, optional, records no khatma), the subtitle and its English translation were removed in every language, and the confirmation card was removed from this screen (see below).
 - **Text:** always right to left and right-aligned (the title alone is centred), in the device's own Arabic system font (deliberately not the Mushaf's QPC glyphs), with no ayah markers. It is selectable, in comfortable paragraphs, and scrolls.
 - **Title:** «دُعَاءُ خَتْمِ الْقُرْآنِ», centred on the screen (a spacer balances the Back button), with room for its vowel marks.
 - **Controls:** text size smaller and larger (20–34 pt; line height 1.9 × size, wider spacing between paragraphs) and a Back button. Light and Dark follow the app. VoiceOver reads the du'a as Arabic (`accessibilityLanguage="ar"`) in every app language.
@@ -20,7 +20,7 @@ This is the **approved traditional Mushaf du'a**: the wording printed at the end
 - **Stored in** `mobile/src/mushaf/khatmDua.ts` (`KHATM_DUA`: the title and one string per paragraph).
 - **Reference:** `mobile/tests/fixtures/khatmDuaApproved.txt` holds the approved text exactly as supplied (UTF-8, LF line endings pinned in `.gitattributes`). `mobile/tests/khatmDua.test.ts` compares the app text with it character by character and pins the reference's SHA-256, so neither can change unnoticed.
 - **Never edit, correct or normalize it**, and never replace it with a hadith narration's wording, without the owner's approval.
-- **What it is:** a compilation. Some paragraphs come from prophetic supplications (for example Muslim 2720, Tirmidhī 3502), one is Quranic (البقرة ٢:٢٠١, in ordinary spelling), and others are traditional wording. The on-screen note says it is not Quran (though it includes supplications from the Quran and the Sunnah), and that no wording is prescribed by the Prophet ﷺ for a khatm. It is never presented as one hadith.
+- **What it is:** a compilation. Some paragraphs come from prophetic supplications (for example Muslim 2720, Tirmidhī 3502), one is Quranic (البقرة ٢:٢٠١, in ordinary spelling), and others are traditional wording. It is never presented as Quran or as one hadith.
 - **No source line:** the approved text names no printed edition, so the screen shows none.
 
 **Intentional differences from the hadith narrations** (confirmed by the owner on 2026-10-13: keep the traditional Mushaf wording; do not "correct" them):
@@ -36,7 +36,7 @@ Background research (kept for reference): the long du'a is popularly attributed 
 
 ## Khatma completion (built 2026-10-13, see `docs/khatma.md`)
 
-The du'a screen stays optional and records nothing by being opened, read or scrolled. Opened from أورادي وختماتي for a ورد whose completion is pending (`/khatm-dua?wird=<id>`), it also shows **تأكيد إتمام الختمة**, a separate, deliberate tap, shown below the du'a (it also works without a text, under the not-available note). It opens from three places: page 604, the permanent row in أورادي وختماتي, and «قراءة دعاء ختم القرآن» on the completion screen. Back now reads «رجوع»/"Back" (it returns to wherever it was opened from; opened directly, to page 604 as before).
+The du'a screen has no Khatma action (owner's decision, 2026-10-13): it shows the title, the du'a, its ornaments, the text-size controls and Back, and it reads or writes no reading data, so opening, reading, scrolling or leaving it never records a Khatma. A completed Khatma is confirmed only on the ورد's own card in أورادي وختماتي. The screen opens from three places: page 604, the permanent row in أورادي وختماتي, and «قراءة دعاء ختم القرآن» on the completion screen, always as plain `/khatm-dua`. Back reads «رجوع»/"Back" (it returns to wherever it was opened from; opened directly, to page 604).
 
 The original plan, kept for reference:
 

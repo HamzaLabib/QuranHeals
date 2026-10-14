@@ -149,7 +149,11 @@ export function MushafSearchSheet(props: MushafSearchSheetProps) {
                     placeholderTextColor={theme.placeholder}
                     accessibilityLabel={labels.pageNumber}
                     keyboardType="number-pad"
-                    returnKeyType="go"
+                    // iOS: a number pad has no return key, so for any other return key type React Native adds its own
+                    // toolbar above the keyboard holding a button for it (a redundant grey "Go"). 'none' maps to the
+                    // system default key, so none is added: the green arrow beside the field is the one action.
+                    // Android keeps 'go' (its keypad's own action key, no toolbar).
+                    returnKeyType={Platform.OS === 'ios' ? 'none' : 'go'}
                     maxLength={4}
                     autoFocus
                     onSubmitEditing={go}

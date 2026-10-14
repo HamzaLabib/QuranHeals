@@ -14,13 +14,14 @@ type ConfirmSheetProps = {
   body?: string;
   /** Shown above the title (e.g. an ornament). */
   header?: ReactNode;
-  confirmLabel: string;
+  /** Without a confirm label (or onConfirm) the sheet only informs: just its close button. */
+  confirmLabel?: string;
   cancelLabel: string;
   destructive?: boolean;
   /** While true the confirm button is disabled: a second tap can never start a second action. */
   busy?: boolean;
   error?: string | null;
-  onConfirm: () => void;
+  onConfirm?: () => void;
   onCancel: () => void;
 };
 
@@ -54,6 +55,7 @@ export function ConfirmSheet(props: ConfirmSheetProps) {
             style={({ pressed }) => [styles.button, styles.secondary, pressed && styles.pressed]}>
             <Text style={styles.secondaryText}>{props.cancelLabel}</Text>
           </Pressable>
+          {props.confirmLabel !== undefined && props.onConfirm && (
           <Pressable
             testID={`${props.testID}-confirm`}
             accessibilityRole="button"
@@ -65,6 +67,7 @@ export function ConfirmSheet(props: ConfirmSheetProps) {
               <Text style={props.destructive ? styles.dangerText : styles.primaryText}>{props.confirmLabel}</Text>
             )}
           </Pressable>
+          )}
         </View>
       </View>
     </Modal>

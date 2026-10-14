@@ -42,11 +42,10 @@ describe('Reflection (خواطر) and Report an Issue are completely separate (P
     expect(ayahScreenSource).toMatch(/messages\.issueReport\.action/);
   });
 
-  it('the issue report context only ever includes the documented safe fields (Part I §37), and never invents an emotionKey for general-mode ayahs', () => {
-    expect(ayahScreenSource).toMatch(
-      /context=\{\{[\s\S]*?verseKey: ayah\?\.verseKey,[\s\S]*?surahNumber: ayah\?\.surahNumber,[\s\S]*?ayahNumber: ayah\?\.ayahNumber,[\s\S]*?emotionKey: source\.mode === 'emotion' \? source\.emotionKey : undefined,[\s\S]*?\}\}/,
-    );
-    expect(ayahScreenSource).not.toMatch(/emotionKey:\s*'(random|general|quran)'/);
+  it('the issue report context is the ayah reference only — never the emotion that led to it, in any flow', () => {
+    const context = ayahScreenSource.match(/<ReportIssueSheet\b[\s\S]*?context=\{\{([\s\S]*?)\}\}/)?.[1] ?? '';
+    expect(context.match(/^\s*(\w+):/gm)?.map((field) => field.trim())).toEqual(['verseKey:', 'surahNumber:', 'ayahNumber:']);
+    expect(context).not.toMatch(/emotion/i);
   });
 });
 
@@ -126,12 +125,14 @@ describe('ReportIssueSheet exposes exactly the five approved categories', () => 
     expect(reportIssueSheetSource).toMatch(/'other'/);
   });
 
-  it('disables the submit button while a request is in flight', () => {
+  it('disables the submit button while a request is in flight, guarded synchronously against a double tap', () => {
     expect(reportIssueSheetSource).toMatch(/disabled=\{isSubmitting\}/);
-    expect(reportIssueSheetSource).toMatch(/if \(isSubmitting\) return;/);
+    expect(reportIssueSheetSource).toMatch(/if \(sendingRef\.current\) return;/);
+    expect(reportIssueSheetSource).toMatch(/sendingRef\.current = true;/);
   });
 
   it('email is optional — trimmed to undefined when empty, never required', () => {
-    expect(reportIssueSheetSource).toMatch(/email: email\.trim\(\)\.length > 0 \? email\.trim\(\) : undefined/);
+    expect(reportIssueSheetSource).toMatch(/const contact = email\.trim\(\);/);
+    expect(reportIssueSheetSource.match(/email: contact \|\| undefined/g)).toHaveLength(3);
   });
 });

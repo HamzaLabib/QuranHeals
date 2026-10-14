@@ -120,8 +120,9 @@ describe('Interface message dictionary (messages.ts)', () => {
   });
 
   it('general Arabic UI copy (eyebrow, disclaimer, kicker) uses Standard Arabic in both ar and ar-EG, unlike the Egyptian home heading/subtitle', () => {
-    expect(MESSAGES.ar.home.eyebrow).toBe('تأمّل مع آية');
-    expect(MESSAGES['ar-EG'].home.eyebrow).toBe('تأمّل مع آية');
+    // Shown under the app's name (it swapped places with the tagline).
+    expect(MESSAGES.ar.home.eyebrow).toBe('تدبّر وتفكّر مع القرآن');
+    expect(MESSAGES['ar-EG'].home.eyebrow).toBe('تدبّر وتفكّر مع القرآن');
 
     expect(MESSAGES.ar.home.disclaimer).toBe(
       'تطبيق Quran Heals يقدّم تأملًا روحيًا، وليس بديلًا عن الرعاية المتخصصة.',
@@ -207,7 +208,7 @@ describe('Interface message dictionary (messages.ts)', () => {
     });
 
     expect(MESSAGES.en.issueReport).toMatchObject({
-      action: 'Report an issue',
+      action: 'Report an Issue',
       description: 'Tell us what seems wrong. Your report helps us improve Quran Heals.',
       categoryAyahNotRelevant: "Ayah doesn't feel relevant",
       categoryQuranTextDisplay: 'Quran text display issue',

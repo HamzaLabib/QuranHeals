@@ -36,7 +36,7 @@ type Dialog =
  *
  * Progress is the ورد's saved page (mushaf/khatmas.ts): an estimate of the
  * reading position, changed only by an explicit save. A Khatma is counted
- * only by a confirmation here, in the reader or on the du'a screen.
+ * only by a confirmation here or in the reader.
  */
 export default function MyReadingScreen() {
   const colors = usePalette();
@@ -120,7 +120,6 @@ export default function MyReadingScreen() {
   const signedIn = data !== null && data.owner !== null;
   const syncLine = syncStatus.state === 'syncing' ? copy.syncSyncing : syncStatus.state === 'synced' ? copy.syncSynced : syncStatus.state === 'pending' ? copy.syncPending : null;
   const nameOf = (record: KhatmaRecord) => data?.wirds.find((w) => w.stop.id === record.stopId)?.stop.name ?? record.stopName;
-  const pendingWird = data?.wirds.find((w) => w.stop.id === data.activeStopId && w.status === 'pending') ?? data?.wirds.find((w) => w.status === 'pending');
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
@@ -252,17 +251,16 @@ export default function MyReadingScreen() {
           );
         })}
 
-        {/* Always here, with or without a Khatma; opened for a pending ورد, it also offers that ورد's confirmation. */}
+        {/* Always here, with or without a Khatma. Only the du'a: a pending ورد is confirmed on its own card above. */}
         <Pressable
           testID="my-reading-dua"
           accessibilityRole="button"
           accessibilityLabel={copy.duaEntry}
-          onPress={() => router.push(pendingWird ? { pathname: '/khatm-dua', params: { wird: pendingWird.stop.id } } : '/khatm-dua')}
+          onPress={() => router.push('/khatm-dua')}
           style={({ pressed }) => [styles.duaRow, rtl && styles.rowRtl, pressed && styles.pressed]}>
           <BookOpenText size={22} color={colors.accent} />
           <View style={styles.flex}>
-            <Text style={[styles.duaTitle, styles.arabicRight]}>{copy.duaEntry}</Text>
-            {copy.duaEntryBody !== copy.duaEntry && <Text style={[styles.muted, direction]}>{copy.duaEntryBody}</Text>}
+            <Text style={[styles.duaTitle, direction]}>{copy.duaEntry}</Text>
           </View>
         </Pressable>
 
@@ -513,8 +511,6 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   },
   flex: { flex: 1, gap: 2 },
   duaTitle: { color: colors.textPrimary, fontSize: typography.bodyLarge, fontWeight: '800' },
-  // دعاء ختم القرآن is Arabic in every language.
-  arabicRight: { textAlign: 'right', writingDirection: 'rtl' },
   historyRow: {
     alignItems: 'center', backgroundColor: colors.card, borderColor: colors.border, borderRadius: radii.sm, borderWidth: 1,
     flexDirection: 'row', gap: spacing.sm, padding: spacing.md,

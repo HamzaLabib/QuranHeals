@@ -7,6 +7,7 @@ import { BackHandler, Platform, Pressable, StyleSheet, Text, View } from 'react-
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ConfirmSheet } from '@/components/ConfirmSheet';
 import { KhatmaReachedSheet } from '@/components/KhatmaReachedSheet';
 import { MushafControlPanel, MUSHAF_PANEL_HEIGHT, MUSHAF_PANEL_MARGIN, type MushafPopup } from '@/components/MushafControlPanel';
 import { MushafPageView } from '@/components/MushafPageView';
@@ -33,12 +34,13 @@ import { hizbLabelsForPage } from '@/mushaf/hizbQuarters';
 import { BORDER_TILES_DOWN, computePageLayout } from '@/mushaf/pageGeometry';
 import { QPC_V1_FONTS } from '@/mushaf/qpcV1Fonts';
 import { checkAgainstTanzil, loadQpcV1PageLayout, type QpcV1PageLayout } from '@/mushaf/qpcV1Layout';
-import { confirmKhatma, saveWirdPage } from '@/mushaf/khatmas';
+import { confirmKhatma, loadReadingData, saveWirdPage, type ReadingCycle } from '@/mushaf/khatmas';
 import { parsePageNumber } from '@/mushaf/pageNumber';
 import {
   activeReadingStop,
   loadActiveReadingStopId,
   loadReadingStops,
+  normalizeReadingStopName,
   ReadingStopError,
   setActiveReadingStopId,
   subscribeToReadingData,
@@ -120,6 +122,17 @@ export const BACK_BAR_HEIGHT = 36;
 const PAGE_PANEL_GAP = 4;
 /** Kept free under the page for the ورد pill: on phones the page is narrower than it could be tall, so this costs nothing there. */
 export const WIRD_ROW_HEIGHT = 32;
+/**
+ * A cycle a confirmed Khatma has just restarted, with no reading progress saved in it since (its persisted, synced
+ * startedByKhatmaId and savedSinceStart): page 604 never completes it — neither إتمام الختمة nor the bookmark.
+ */
+export const restartedWithoutProgress = (cycle: ReadingCycle) => cycle.startedByKhatmaId !== null && !cycle.savedSinceStart;
+/**
+ * Page 604's row: إتمام الختمة | ورد name | دعاء ختم القرآن. Each link at most 29% of the row (inset spacing.md), the
+ * name at most 30%, centred: on a 320 pt phone that leaves about 5 pt between each link and the name.
+ */
+export const END_LINK_MAX_WIDTH = '29%';
+export const PAGE_604_PILL_MAX_WIDTH = '30%';
 /** Two taps this close together are a double-tap, which resets the zoom rather than selecting. */
 const DOUBLE_TAP_MS = 350;
 
@@ -268,6 +281,10 @@ export default function MushafScreen() {
   const initialRequest = useRef(`${String(params.page ?? '')}|${String(params.at ?? '')}`);
   // «ما شاء الله، أتممت ختم القرآن»: after a save took this ورد's cycle to page 604.
   const [reached, setReached] = useState<{ stopId: string; cycleId: string; name: string } | null>(null);
+  // Page 604's إتمام الختمة when it cannot open the confirmation: why (nothing recorded).
+  const [khatmaNotice, setKhatmaNotice] = useState<'noWird' | 'newCycle' | 'notReady' | 'saveFailed' | null>(null);
+  // One إتمام الختمة at a time: a second tap while it saves does nothing (a ref: it is seen in the same frame).
+  const completingRef = useRef(false);
   const [isConfirming, setIsConfirming] = useState(false);
   const confirmingRef = useRef(false);
   const [confirmFailed, setConfirmFailed] = useState(false);
@@ -396,17 +413,35 @@ export default function MushafScreen() {
     goTo(target);
     return null;
   };
+  /**
+   * The reader's explicit save of this whole page to the ورد named `name` — the bookmark's save, also used by page
+   * 604's إتمام الختمة. Never the selected ayah. The stop just saved is the one being read (saveWirdPage makes it
+   * active). Only a save that took this ورد from an earlier page to 604 offers the Khatma; showing 604 never does.
+   */
+  const savePage = async (name: string) => {
+    const result = await saveWirdPage({ name, page });
+    setStops(result.stops);
+    setActiveStopId(result.stop.id);
+    if (result.reachedEnd) {
+      setConfirmFailed(false);
+      setReached({ stopId: result.stop.id, cycleId: result.cycleId, name: result.stop.name });
+    }
+    return result;
+  };
   const onSaveStop = async (name: string) => {
     try {
-      // The whole page — never the selected ayah. The stop just saved is the one being read (saveWirdPage makes it active).
-      const result = await saveWirdPage({ name, page });
-      setStops(result.stops);
-      setActiveStopId(result.stop.id);
-      // Only a save that took this ورد from an earlier page to 604 offers the Khatma; showing 604 never does.
-      if (result.reachedEnd) {
-        setConfirmFailed(false);
-        setReached({ stopId: result.stop.id, cycleId: result.cycleId, name: result.stop.name });
+      // Page 604: never for a ورد whose cycle a confirmed Khatma has just restarted (checked before saving, so the
+      // save itself cannot count as its progress). The field closes and the new-cycle notice explains why.
+      if (page === MUSHAF_PAGE_COUNT) {
+        const target = normalizeReadingStopName(name)?.toLocaleLowerCase();
+        const wird = (await loadReadingData()).wirds.find((w) => w.stop.name.toLocaleLowerCase() === target);
+        if (wird && restartedWithoutProgress(wird.cycle)) {
+          setPopup(null);
+          setKhatmaNotice('newCycle');
+          return { tone: 'error' as const, text: messages.khatma.newCycleTitle };
+        }
       }
+      await savePage(name);
       return { tone: 'info' as const, text: copy.stopSaved };
     } catch (error) {
       const kind = error instanceof ReadingStopError ? error.kind : null;
@@ -476,6 +511,53 @@ export default function MushafScreen() {
     } finally {
       confirmingRef.current = false;
       setIsConfirming(false);
+    }
+  };
+
+  /**
+   * Page 604's إتمام الختمة (left of the ورد name), for the ورد selected below the page — never another:
+   *  - already awaiting confirmation (saved through to 604 in its recorded cycle): the confirmation sheet at once;
+   *  - not yet at 604: first the bookmark's own save of this page (savePage), which, exactly as when saved by hand,
+   *    opens that sheet when it takes the ورد to 604;
+   *  - a cycle just restarted by a confirmed Khatma, with nothing saved in it since (its persisted, synced
+   *    `startedByKhatmaId` and `savedSinceStart`): blocked — no save, no confirmation — so staying on, reopening or
+   *    re-tapping page 604 can never complete it; any save of reading progress in the new cycle lifts this;
+   *  - no ورد selected: asks for one; the save failing: says so; anything else (e.g. a ورد saved at 604 before
+   *    Khatmas were tracked, whose own wording is in أورادي وختماتي): explains.
+   * Nothing is ever recorded here: only the sheet's confirmation does (onConfirmKhatma, once). Cancelling it keeps
+   * the saved page and the pending completion.
+   */
+  const completeKhatma = async () => {
+    if (reached || confirmingRef.current || completingRef.current) return;
+    completingRef.current = true;
+    try {
+      if (!activeStop) {
+        setKhatmaNotice('noWird');
+        return;
+      }
+      const wird = (await loadReadingData()).wirds.find((w) => w.stop.id === activeStop.id);
+      if (!wird) {
+        setKhatmaNotice('noWird');
+        return;
+      }
+      if (wird.status === 'pending') {
+        setConfirmFailed(false);
+        setReached({ stopId: wird.stop.id, cycleId: wird.cycle.id, name: wird.stop.name });
+        return;
+      }
+      if (restartedWithoutProgress(wird.cycle)) {
+        setKhatmaNotice('newCycle');
+        return;
+      }
+      if (wird.stop.page < MUSHAF_PAGE_COUNT) {
+        const result = await savePage(wird.stop.name);
+        if (result.reachedEnd) return; // savePage has opened the confirmation
+      }
+      setKhatmaNotice('notReady');
+    } catch {
+      setKhatmaNotice('saveFailed');
+    } finally {
+      completingRef.current = false;
     }
   };
 
@@ -622,8 +704,16 @@ export default function MushafScreen() {
               onAdd={addStop}
               onManage={manageWirds}
               anchorBottom={insets.bottom + MUSHAF_PANEL_MARGIN + MUSHAF_PANEL_HEIGHT + PAGE_PANEL_GAP + (fit.viewport.height - pageHeight + WIRD_PILL_HEIGHT) / 2}
+              // Page 604 shares the row with إتمام الختمة and the du'a (each at most END_LINK_MAX_WIDTH): the name
+              // keeps the middle, never reaching them.
+              pillMaxWidth={page === MUSHAF_PAGE_COUNT ? PAGE_604_PILL_MAX_WIDTH : undefined}
             />
-            {/* After the last page: the optional دعاء ختم القرآن (its own screen, not a page 605), once a verified text is approved. */}
+            {/*
+              Page 604 only, either side of the ورد name, in every language (the row never mirrors) and always in
+              Standard Arabic: on the left إتمام الختمة, on the right the optional دعاء ختم القرآن (its own screen,
+              not a page 605, once a verified text is approved). The same link design; each at most
+              END_LINK_MAX_WIDTH of the row, one line, its text shrinking slightly rather than clipping.
+            */}
             {page === MUSHAF_PAGE_COUNT && KHATM_DUA && (
               <Pressable
                 testID="mushaf-khatm-dua"
@@ -631,8 +721,19 @@ export default function MushafScreen() {
                 accessibilityLabel={messages.khatmDua.open}
                 onPress={() => router.push('/khatm-dua')}
                 hitSlop={8}
-                style={({ pressed }) => [styles.duaLink, rtl ? { left: spacing.md } : { right: spacing.md }, pressed && styles.pressed]}>
-                <Text style={[styles.duaLinkText, { color: iconColor }]}>{messages.khatmDua.open}</Text>
+                style={({ pressed }) => [styles.duaLink, styles.endLink, { right: spacing.md }, pressed && styles.pressed]}>
+                <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} style={[styles.duaLinkText, styles.textRight, { color: iconColor }]}>{messages.khatmDua.open}</Text>
+              </Pressable>
+            )}
+            {page === MUSHAF_PAGE_COUNT && (
+              <Pressable
+                testID="mushaf-complete-khatma"
+                accessibilityRole="button"
+                accessibilityLabel={messages.khatma.completeAction}
+                onPress={() => void completeKhatma()}
+                hitSlop={8}
+                style={({ pressed }) => [styles.duaLink, styles.endLink, { left: spacing.md }, pressed && styles.pressed]}>
+                <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} style={[styles.duaLinkText, styles.textLeft, { color: iconColor }]}>{messages.khatma.completeAction}</Text>
               </Pressable>
             )}
           </View>
@@ -705,6 +806,16 @@ export default function MushafScreen() {
         onConfirm={() => void onConfirmKhatma()}
         // ليس الآن: nothing is counted; the completion stays pending in أورادي وختماتي.
         onNotNow={() => setReached(null)}
+      />
+
+      {/* إتمام الختمة on page 604 when it cannot open the confirmation: why. Nothing has been recorded. */}
+      <ConfirmSheet
+        visible={khatmaNotice !== null}
+        testID={`mushaf-khatma-${khatmaNotice ?? 'notice'}`}
+        title={khatmaNotice === 'noWird' ? messages.khatma.noWirdTitle : khatmaNotice === 'newCycle' ? messages.khatma.newCycleTitle : khatmaNotice === 'saveFailed' ? messages.khatma.saveFailedTitle : messages.khatma.notReadyTitle}
+        body={khatmaNotice === 'noWird' ? messages.khatma.noWirdBody : khatmaNotice === 'newCycle' ? messages.khatma.newCycleBody : khatmaNotice === 'saveFailed' ? messages.khatma.saveFailedBody : messages.khatma.notReadyBody}
+        cancelLabel={messages.khatma.notReadyOk}
+        onCancel={() => setKhatmaNotice(null)}
       />
     </GestureHandlerRootView>
   );
@@ -874,6 +985,16 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   },
   duaLink: {
     position: 'absolute',
+  },
+  // Page 604's two links share the row with the centred ورد name (PAGE_604_PILL_MAX_WIDTH): side by side they never meet.
+  endLink: {
+    maxWidth: END_LINK_MAX_WIDTH,
+  },
+  textLeft: {
+    textAlign: 'left',
+  },
+  textRight: {
+    textAlign: 'right',
   },
   duaLinkText: {
     fontSize: typography.body,

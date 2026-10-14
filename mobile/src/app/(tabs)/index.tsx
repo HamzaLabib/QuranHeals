@@ -1,11 +1,12 @@
 import { Link, router } from 'expo-router';
-import { BookOpen, ChevronLeft, ChevronRight, Heart, RefreshCw, Settings } from 'lucide-react-native';
+import { BookOpen, ChevronLeft, ChevronRight, Heart, MessageSquare, RefreshCw, Settings } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ContinueReadingCard } from '@/components/ContinueReadingCard';
 import { EmotionCard } from '@/components/EmotionCard';
+import { ReportIssueSheet } from '@/components/ReportIssueSheet';
 import { StateView } from '@/components/StateView';
 import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
@@ -34,6 +35,7 @@ const FOREGROUND_REVALIDATE_AFTER_MS = 60_000;
  *     first), filled from the catalog's own order (storage/recentEmotions.ts),
  *     slightly shorter cards; "View All" opens every emotion (/emotions).
  *  3. رسالة من القرآن / A Message from the Quran, unchanged.
+ *  4. شاركنا رأيك / Share Feedback: one discreet action (opens the feedback sheet).
  * The spiritual disclaimer is on the emotion list (/emotions), under every emotion.
  */
 export default function HomeScreen() {
@@ -169,6 +171,7 @@ export default function HomeScreen() {
   // `isPullRefreshing` state below.
   const refreshGuardRef = useRef<RefreshInFlightRef>({ current: false });
   const [isPullRefreshing, setIsPullRefreshing] = useState(false);
+  const [isFeedbackVisible, setIsFeedbackVisible] = useState(false);
 
   const onPullToRefresh = useCallback(async () => {
     await runGuardedRefresh(refreshGuardRef.current, async () => {
@@ -204,7 +207,8 @@ export default function HomeScreen() {
         <View style={[styles.header, isRtl && styles.headerRtl]}>
           <View style={styles.headerTitleBlock}>
             <Text style={[styles.wordmark, direction]}>{messages.appName}</Text>
-            <Text style={[styles.subtitle, direction]}>{messages.home.subtitle}</Text>
+            {/* Under the name: Text B (home.eyebrow), «تدبّر وتفكّر مع القرآن». It and Text A swapped places; each place keeps its own style. */}
+            <Text testID="home-subtitle" style={[styles.subtitle, direction]}>{messages.home.eyebrow}</Text>
           </View>
           {/* Favorites and Settings. Reflections and أورادي وختماتي are bottom tabs (app/(tabs)/_layout.tsx). */}
           <View style={[styles.headerActions, isRtl && styles.headerActionsRtl]}>
@@ -230,7 +234,8 @@ export default function HomeScreen() {
         <ContinueReadingCard />
 
         <View style={styles.prompt}>
-          <Text style={[styles.eyebrow, direction]}>{messages.home.eyebrow}</Text>
+          {/* Above the emotions question: Text A (home.subtitle), «هداية قرآنية لكل شعور». */}
+          <Text testID="home-eyebrow" style={[styles.eyebrow, direction]}>{messages.home.subtitle}</Text>
           <Text style={[styles.title, direction]}>{messages.home.title}</Text>
         </View>
 
@@ -306,6 +311,25 @@ export default function HomeScreen() {
           </Text>
         </Pressable>
 
+        {/*
+          Share Feedback: one discreet action directly after A Message from the
+          Quran, styled exactly like the ayah screen's Report an Issue
+          (AyahExperience's tertiary action). Opens the reporting sheet as
+          general feedback; nothing about the reader is attached.
+        */}
+        <View testID="home-feedback" style={styles.feedbackActions}>
+          <Pressable
+            testID="home-feedback-action"
+            accessibilityRole="button"
+            accessibilityLabel={messages.feedback.action}
+            onPress={() => setIsFeedbackVisible(true)}
+            hitSlop={4}
+            style={({ pressed }) => [styles.feedbackButton, isRtl && styles.feedbackButtonRtl, pressed && styles.feedbackPressed]}>
+            <MessageSquare size={14} color={colors.textSecondary} strokeWidth={2} />
+            <Text style={styles.feedbackButtonText}>{messages.feedback.action}</Text>
+          </Pressable>
+        </View>
+
         {/* Quran sources: Tanzil requires its name and a link, Quran Foundation a credit within the app (constants/quranSources.ts). */}
         <View testID="home-sources" style={styles.sources}>
           <Text style={[styles.sourcesCredit, direction]}>{messages.home.sourcesCredit}</Text>
@@ -320,6 +344,7 @@ export default function HomeScreen() {
           </Link>
         </View>
       </ScrollView>
+      <ReportIssueSheet visible={isFeedbackVisible} onClose={() => setIsFeedbackVisible(false)} variant="feedback" />
     </SafeAreaView>
   );
 }
@@ -398,7 +423,6 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     fontSize: typography.small,
     fontWeight: '700',
     letterSpacing: 0,
-    textTransform: 'uppercase',
   },
   title: {
     color: colors.textPrimary,
@@ -455,6 +479,33 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.bodyLarge,
     fontWeight: '700',
+  },
+  // Share Feedback: the same values as AyahExperience's tertiaryActions / tertiaryButton / tertiaryButtonText / pressed.
+  feedbackActions: {
+    flexDirection: 'row',
+    gap: spacing.lg,
+    justifyContent: 'center',
+    paddingTop: spacing.xs,
+  },
+  feedbackButton: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: spacing.xs,
+    minHeight: 40,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  feedbackButtonRtl: {
+    flexDirection: 'row-reverse',
+  },
+  feedbackButtonText: {
+    color: colors.textSecondary,
+    fontSize: typography.caption,
+    fontWeight: '600',
+  },
+  feedbackPressed: {
+    opacity: 0.78,
+    transform: [{ scale: 0.99 }],
   },
   sources: {
     borderTopColor: colors.divider,

@@ -1,5 +1,5 @@
 import { BookMarked, Check, ChevronDown, Plus } from 'lucide-react-native';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View, type DimensionValue } from 'react-native';
 
 import { MUSHAF_PANEL_COLORS } from '@/constants/mushafTheme';
 import type { ReadingStop } from '@/mushaf/readingStops';
@@ -34,6 +34,8 @@ type MushafWirdSelectorProps = {
   onManage: () => void;
   /** Distance from the screen's bottom edge to the pill's top, so the list opens just above it. */
   anchorBottom: number;
+  /** Narrower than the default (72% of the row) where other controls share the row: page 604's du'a and Complete Khatma. A longer name ends in “…”. */
+  pillMaxWidth?: DimensionValue;
 };
 
 /** Height of the pill itself; its touch target is 44 pt. */
@@ -68,7 +70,7 @@ export function MushafWirdSelector(props: MushafWirdSelectorProps) {
         accessibilityState={{ expanded: props.open }}
         onPress={empty ? props.onAdd : props.onOpen}
         hitSlop={{ top: (44 - WIRD_PILL_HEIGHT) / 2, bottom: (44 - WIRD_PILL_HEIGHT) / 2, left: 8, right: 8 }}
-        style={({ pressed }) => [styles.pill, row, theme.pill, pressed && styles.pressed]}>
+        style={({ pressed }) => [styles.pill, props.pillMaxWidth !== undefined && { maxWidth: props.pillMaxWidth }, row, theme.pill, pressed && styles.pressed]}>
         {empty && <Plus size={14} color={theme.accent} />}
         <Text numberOfLines={1} ellipsizeMode="tail" style={[styles.pillText, { color: active ? theme.text : theme.accent, writingDirection: rtl ? 'rtl' : 'ltr' }]}>
           {title}

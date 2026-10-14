@@ -10,7 +10,9 @@ import type { AppLocale } from './locales';
 export type Messages = {
   appName: string;
   home: {
+    /** The tagline («هداية قرآنية لكل شعور»): shown above the emotions question, in the eyebrow style. */
     subtitle: string;
+    /** «تدبّر وتفكّر مع القرآن»: shown under the app's name, in the subtitle style. */
     eyebrow: string;
     title: string;
     loadingTitle: string;
@@ -244,9 +246,6 @@ export type Messages = {
   khatmDua: {
     /** Always Arabic: the screen's name. */
     title: string;
-    subtitle: string;
-    /** Shown above the du'a: what it is, and what it is not. */
-    note: string;
     /** Opened by URL before a verified text is approved. */
     unavailable: string;
     smaller: string;
@@ -254,9 +253,6 @@ export type Messages = {
     /** The link on page 604. */
     open: string;
     back: string;
-    /** Opened for a ورد whose completion awaits confirmation (?wird=): a separate, explicit action. */
-    confirmFor: string;
-    confirm: string;
   };
   /** The four bottom tabs (app/(tabs)/_layout.tsx). */
   tabs: {
@@ -318,8 +314,8 @@ export type Messages = {
     recordUnconfirmed: string;
     unconfirmedConfirmTitle: string;
     unconfirmedConfirmBody: string;
+    /** أورادي وختماتي's du'a button, in the App Language (the Mushaf's page-604 link is always Arabic: khatmDua.open). */
     duaEntry: string;
-    duaEntryBody: string;
     historyTitle: string;
     historyEmpty: string;
     ramadanTag: string;
@@ -352,7 +348,22 @@ export type Messages = {
     completeBody: string;
     readDua: string;
     backToKhatmas: string;
+    /** The completion screen: the Mushaf, at the completed ورد's new cycle (page 1). */
+    backToMushaf: string;
     failed: string;
+    /** Mushaf page 604, left of the ورد name, always in Standard Arabic (like the du'a link): opens this sheet's confirmation for the selected ورد when it awaits one. */
+    completeAction: string;
+    /** …or, when it cannot open the confirmation: a ورد that cannot be completed here, no ورد selected, or the save failing. */
+    notReadyTitle: string;
+    notReadyBody: string;
+    noWirdTitle: string;
+    noWirdBody: string;
+    /** A cycle just restarted by a confirmed Khatma, nothing saved in it yet: not completable until progress is saved. */
+    newCycleTitle: string;
+    newCycleBody: string;
+    saveFailedTitle: string;
+    saveFailedBody: string;
+    notReadyOk: string;
   };
   credits: {
     title: string;
@@ -559,6 +570,32 @@ export type Messages = {
     done: string;
     successMessage: string;
     failureMessage: string;
+    /** The ayah screen's discreet flag action (accessibility label). */
+    flagAction: string;
+    /** The sheet opened from Settings: general and technical issues, no ayah attached. */
+    settingsDescription: string;
+    /** Above the reported ayah's reference, so the user sees what is attached. */
+    aboutAyah: string;
+    commentLabel: string;
+    commentRequired: string;
+    emailInvalid: string;
+  };
+  /**
+   * Home's Share Feedback action and its feedback sheet:
+   * sent through the issue-report endpoint as type 'feedback'. General UI
+   * text: ar-EG uses the same Standard Arabic as ar.
+   */
+  feedback: {
+    action: string;
+    sheetTitle: string;
+    sheetDescription: string;
+    messageLabel: string;
+    messageRequired: string;
+    /** What is (and is never) sent with feedback. */
+    privacyNote: string;
+    submit: string;
+    successMessage: string;
+    failureMessage: string;
   };
   syncStatus: {
     savedOnDevice: string;
@@ -572,8 +609,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
   en: {
     appName: 'Quran Heals',
     home: {
-      subtitle: "Qur'anic guidance for every emotion.",
-      eyebrow: 'Reflect with an ayah',
+      subtitle: 'Quranic guidance for every emotion',
+      eyebrow: 'Reflect with the Quran',
       title: 'How are you feeling?',
       loadingTitle: 'Loading emotions',
       loadingMessage: 'Preparing the emotion list.',
@@ -769,15 +806,11 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     khatmDua: {
       title: 'دعاء ختم القرآن',
-      subtitle: 'Supplication on completing the Quran',
-      note: 'A traditional supplication, as printed at the end of many Mushafs. It is not part of the Quran, although it includes some supplications from the Quran and the Sunnah, and it is not a supplication prescribed by the Prophet ﷺ for completing the Quran; saying it is optional. Reading it does not record a completed khatma.',
       unavailable: 'This supplication is not available yet.',
       smaller: 'Smaller text',
       larger: 'Larger text',
       open: 'دعاء ختم القرآن',
       back: 'Back',
-      confirmFor: '“{name}” has reached page 604. When you have completed your recitation, confirm the Khatma. Reading this supplication does not record it.',
-      confirm: 'Confirm Khatma completion',
     },
     tabs: {
       home: 'Home',
@@ -788,7 +821,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     continueReading: {
       title: 'Continue Reciting',
       mushaf: 'Mushaf',
-      myReading: 'My Recitations & Khatmas',
+      myReading: 'My Recitations',
       pageOf: 'Page {page} of {total}',
       activeWird: 'Current Wird',
       lastSaved: 'Last saved Wird',
@@ -829,8 +862,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       recordUnconfirmed: 'I completed a Khatma with this Wird',
       unconfirmedConfirmTitle: 'Record a completed Khatma?',
       unconfirmedConfirmBody: 'Only if you have read the whole Quran with “{name}”. It will be counted once, and the Wird will start again from page 1.',
-      duaEntry: 'دعاء ختم القرآن',
-      duaEntryBody: 'Supplication on completing the Quran (optional)',
+      duaEntry: "Quran Completion Du'a",
       historyTitle: 'Completed Khatmas',
       historyEmpty: 'Completed Khatmas will appear here.',
       ramadanTag: 'Ramadan {year} AH',
@@ -862,7 +894,18 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       completeBody: 'We ask Allah to make the Quran a light for your heart and an intercessor for you.',
       readDua: 'Read the Khatma Du’a',
       backToKhatmas: 'Back to My Recitations & Khatmas',
+      backToMushaf: 'Back to Mushaf',
       failed: 'The Khatma could not be recorded. Please try again.',
+      completeAction: 'إتمام الختمة',
+      notReadyTitle: "This Wird can't be completed here",
+      notReadyBody: 'Review it in My Recitations. Nothing has been changed.',
+      noWirdTitle: 'Select a Wird first',
+      noWirdBody: 'Choose the Wird you have completed from the Wird name below the page, then try again.',
+      newCycleTitle: 'This Khatma is already recorded',
+      newCycleBody: 'This Wird has started a new reading cycle. Save your progress as you read; you can complete the new cycle when you reach page 604 again. Nothing has been changed.',
+      saveFailedTitle: 'The page could not be saved',
+      saveFailedBody: 'Nothing was recorded. Please try again.',
+      notReadyOk: 'OK',
     },
     credits: {
       title: 'Quran Sources & Credits',
@@ -896,7 +939,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       emotionsArabicStandard: 'العربية الفصحى',
       emotionsArabicEgyptian: 'العربية المصرية',
       quranLanguageSection: 'Quran Language',
-      quranTextOption: 'Quranic Text',
+      quranTextOption: 'The Quranic Text',
       quranTranslationSection: 'Quran Translation',
       translationDisplayAlways: 'Always',
       translationDisplayOnDemand: 'On demand',
@@ -1036,7 +1079,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       verifying: "Verifying…",
     },
     issueReport: {
-      action: 'Report an issue',
+      action: 'Report an Issue',
       description: 'Tell us what seems wrong. Your report helps us improve Quran Heals.',
       categoryAyahNotRelevant: "Ayah doesn't feel relevant",
       categoryQuranTextDisplay: 'Quran text display issue',
@@ -1049,6 +1092,23 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       done: 'Done',
       successMessage: 'Thank you. Your report has been received.',
       failureMessage: "We couldn't send your report. Please try again.",
+      flagAction: 'Report an issue with this ayah',
+      settingsDescription: "Let us know if something isn't working properly.",
+      aboutAyah: 'This report includes the ayah:',
+      commentLabel: 'Describe the problem...',
+      commentRequired: 'Please describe the problem.',
+      emailInvalid: 'Please enter a valid email address.',
+    },
+    feedback: {
+      action: 'Share Feedback',
+      sheetTitle: 'Share Feedback',
+      sheetDescription: 'Share your ideas to help us improve Quran Heals.',
+      messageLabel: 'Share your thoughts or suggestions...',
+      messageRequired: 'Please enter your feedback.',
+      privacyNote: "Please don't include sensitive personal information.",
+      submit: 'Send Feedback',
+      successMessage: 'Thank you for your feedback!',
+      failureMessage: "Couldn't send your feedback. Please try again.",
     },
     syncStatus: {
       savedOnDevice: 'Saved on device',
@@ -1061,7 +1121,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     appName: 'Quran Heals',
     home: {
       subtitle: 'هداية قرآنية لكل شعور.',
-      eyebrow: 'تأمّل مع آية',
+      eyebrow: 'تدبّر وتفكّر مع القرآن',
       title: 'بماذا تشعر الآن؟',
       loadingTitle: 'جارٍ تحميل المشاعر',
       loadingMessage: 'جارٍ إعداد قائمة المشاعر.',
@@ -1257,15 +1317,11 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     khatmDua: {
       title: 'دعاء ختم القرآن',
-      subtitle: 'دعاء يُقرأ بعد ختم القرآن الكريم',
-      note: 'دعاء متداول كما يُطبع في آخر كثير من المصاحف، وليس من القرآن الكريم وإن تضمّن أدعية من القرآن والسنة، ولا هو دعاء ثابت عن النبي ﷺ لختم القرآن، وقراءته اختيارية. وقراءته لا تسجّل ختمة مكتملة.',
       unavailable: 'هذا الدعاء غير متاح بعد.',
       smaller: 'تصغير الخط',
       larger: 'تكبير الخط',
       open: 'دعاء ختم القرآن',
       back: 'رجوع',
-      confirmFor: 'بلغ «{name}» الصفحة ٦٠٤. إذا أتممت القراءة فأكّد إتمام الختمة. قراءة هذا الدعاء لا تسجّل الختمة.',
-      confirm: 'تأكيد إتمام الختمة',
     },
     tabs: {
       home: 'الرئيسية',
@@ -1318,7 +1374,6 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       unconfirmedConfirmTitle: 'تسجيل ختمة مكتملة؟',
       unconfirmedConfirmBody: 'فقط إذا قرأت القرآن كاملًا بورد «{name}». ستُحتسب مرة واحدة، ويبدأ الورد من جديد من الصفحة ١.',
       duaEntry: 'دعاء ختم القرآن',
-      duaEntryBody: 'دعاء يُقرأ بعد ختم القرآن الكريم (اختياري)',
       historyTitle: 'الختمات المكتملة',
       historyEmpty: 'ستظهر هنا ختماتك المكتملة.',
       ramadanTag: 'رمضان {year} هـ',
@@ -1350,7 +1405,18 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       completeBody: 'نسأل الله أن يجعل القرآن نورًا لقلبك وشفيعًا لك',
       readDua: 'قراءة دعاء ختم القرآن',
       backToKhatmas: 'العودة إلى ختماتي',
+      backToMushaf: 'العودة إلى المصحف',
       failed: 'تعذّر تسجيل الختمة. يُرجى المحاولة مرة أخرى.',
+      completeAction: 'إتمام الختمة',
+      notReadyTitle: 'لا يمكن إتمام ختمة هذا الورد من هنا',
+      notReadyBody: 'راجِعه في أورادي وختماتي. لم يتغيّر شيء.',
+      noWirdTitle: 'اختر وردًا أولًا',
+      noWirdBody: 'اختر الورد الذي أتممته من اسم الورد أسفل الصفحة، ثم حاول مرة أخرى.',
+      newCycleTitle: 'سُجِّلت هذه الختمة بالفعل',
+      newCycleBody: 'بدأ هذا الورد دورة قراءة جديدة. احفظ تقدّمك أثناء القراءة، ويمكنك إتمام الدورة الجديدة عند بلوغ الصفحة ٦٠٤ مجددًا. لم يتغيّر شيء.',
+      saveFailedTitle: 'تعذّر حفظ الصفحة',
+      saveFailedBody: 'لم يُسجَّل شيء. يُرجى المحاولة مرة أخرى.',
+      notReadyOk: 'حسنًا',
     },
     credits: {
       title: 'مصادر القرآن وحقوق النشر',
@@ -1541,6 +1607,23 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       done: 'تم',
       successMessage: 'شكرًا لك. تم استلام بلاغك.',
       failureMessage: 'تعذّر إرسال البلاغ. يُرجى المحاولة مرة أخرى.',
+      flagAction: 'الإبلاغ عن مشكلة في هذه الآية',
+      settingsDescription: 'أخبرنا إذا واجهتك مشكلة في التطبيق.',
+      aboutAyah: 'يتضمن هذا البلاغ الآية:',
+      commentLabel: 'ما هي المشكلة؟',
+      commentRequired: 'يُرجى وصف المشكلة.',
+      emailInvalid: 'يُرجى إدخال بريد إلكتروني صحيح.',
+    },
+    feedback: {
+      action: 'شاركنا رأيك',
+      sheetTitle: 'شاركنا رأيك',
+      sheetDescription: 'شاركنا أفكارك لنطوّر Quran Heals معًا.',
+      messageLabel: 'شاركنا رأيك أو اقتراحاتك...',
+      messageRequired: 'يُرجى كتابة رأيك أو اقتراحك.',
+      privacyNote: 'يُرجى عدم مشاركة معلومات شخصية هامة.',
+      submit: 'إرسال الملاحظات',
+      successMessage: 'شكرًا لمشاركتنا رأيك!',
+      failureMessage: 'تعذّر إرسال ملاحظاتك. يُرجى المحاولة مرة أخرى.',
     },
     syncStatus: {
       savedOnDevice: 'محفوظ على الجهاز',
@@ -1553,7 +1636,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     appName: 'Quran Heals',
     home: {
       subtitle: 'رسالة من القرآن لكل إحساس بتحسه',
-      eyebrow: 'تأمّل مع آية',
+      eyebrow: 'تدبّر وتفكّر مع القرآن',
       title: 'إيه إحساسك دلوقتي؟',
       loadingTitle: 'بنحمّل المشاعر',
       loadingMessage: 'بنجهّز قائمة المشاعر.',
@@ -1759,15 +1842,11 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     khatmDua: {
       title: 'دعاء ختم القرآن',
-      subtitle: 'دعاء بيتقري بعد ختم القرآن الكريم',
-      note: 'دعاء متداول زي ما بيتطبع في آخر مصاحف كتير، ومش من القرآن الكريم وإن كان فيه أدعية من القرآن والسنة، ولا هو دعاء ثابت عن النبي ﷺ لختم القرآن، وقرايته اختيارية. وقرايته مش بتسجّل ختمة مكتملة.',
       unavailable: 'الدعاء ده مش متاح لسه.',
       smaller: 'تصغير الخط',
       larger: 'تكبير الخط',
       open: 'دعاء ختم القرآن',
       back: 'رجوع',
-      confirmFor: '«{name}» وصل للصفحة ٦٠٤. لو خلّصت القراية أكّد إتمام الختمة. قراية الدعاء ده مش بتسجّل الختمة.',
-      confirm: 'تأكيد إتمام الختمة',
     },
     // Navigation and the Khatma flow keep the approved Standard Arabic wording (as generalQuran does).
     tabs: {
@@ -1821,7 +1900,6 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       unconfirmedConfirmTitle: 'تسجّل ختمة مكتملة؟',
       unconfirmedConfirmBody: 'بس لو قريت القرآن كله بورد «{name}». هتتحسب مرة واحدة، والورد هيبدأ من جديد من الصفحة ١.',
       duaEntry: 'دعاء ختم القرآن',
-      duaEntryBody: 'دعاء بيتقري بعد ختم القرآن الكريم (اختياري)',
       historyTitle: 'الختمات المكتملة',
       historyEmpty: 'ختماتك المكتملة هتظهر هنا.',
       ramadanTag: 'رمضان {year} هـ',
@@ -1853,7 +1931,18 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       completeBody: 'نسأل الله أن يجعل القرآن نورًا لقلبك وشفيعًا لك',
       readDua: 'قراءة دعاء ختم القرآن',
       backToKhatmas: 'العودة إلى ختماتي',
+      backToMushaf: 'العودة إلى المصحف',
       failed: 'ماعرفناش نسجّل الختمة. جرّب تاني.',
+      completeAction: 'إتمام الختمة',
+      notReadyTitle: 'لا يمكن إتمام ختمة هذا الورد من هنا',
+      notReadyBody: 'راجِعه في أورادي وختماتي. لم يتغيّر شيء.',
+      noWirdTitle: 'اختر وردًا أولًا',
+      noWirdBody: 'اختر الورد الذي أتممته من اسم الورد أسفل الصفحة، ثم حاول مرة أخرى.',
+      newCycleTitle: 'سُجِّلت هذه الختمة بالفعل',
+      newCycleBody: 'بدأ هذا الورد دورة قراءة جديدة. احفظ تقدّمك أثناء القراءة، ويمكنك إتمام الدورة الجديدة عند بلوغ الصفحة ٦٠٤ مجددًا. لم يتغيّر شيء.',
+      saveFailedTitle: 'تعذّر حفظ الصفحة',
+      saveFailedBody: 'لم يُسجَّل شيء. يُرجى المحاولة مرة أخرى.',
+      notReadyOk: 'حسنًا',
     },
     credits: {
       title: 'مصادر القرآن وحقوق النشر',
@@ -2051,6 +2140,23 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       done: 'تم',
       successMessage: 'شكرًا لك. تم استلام بلاغك.',
       failureMessage: 'تعذّر إرسال البلاغ. يُرجى المحاولة مرة أخرى.',
+      flagAction: 'الإبلاغ عن مشكلة في هذه الآية',
+      settingsDescription: 'أخبرنا إذا واجهتك مشكلة في التطبيق.',
+      aboutAyah: 'يتضمن هذا البلاغ الآية:',
+      commentLabel: 'ما هي المشكلة؟',
+      commentRequired: 'يُرجى وصف المشكلة.',
+      emailInvalid: 'يُرجى إدخال بريد إلكتروني صحيح.',
+    },
+    feedback: {
+      action: 'شاركنا رأيك',
+      sheetTitle: 'شاركنا رأيك',
+      sheetDescription: 'شاركنا أفكارك لنطوّر Quran Heals معًا.',
+      messageLabel: 'شاركنا رأيك أو اقتراحاتك...',
+      messageRequired: 'يُرجى كتابة رأيك أو اقتراحك.',
+      privacyNote: 'يُرجى عدم مشاركة معلومات شخصية هامة.',
+      submit: 'إرسال الملاحظات',
+      successMessage: 'شكرًا لمشاركتنا رأيك!',
+      failureMessage: 'تعذّر إرسال ملاحظاتك. يُرجى المحاولة مرة أخرى.',
     },
     syncStatus: {
       savedOnDevice: 'محفوظ على الجهاز',

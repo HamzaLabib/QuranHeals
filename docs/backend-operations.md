@@ -114,7 +114,7 @@ Never logged: request bodies, headers, tokens, connection strings, reflection co
 
 ### Gmail filter (once; needs approval)
 
-1. In Gmail's search options, enter **From** `onboarding@resend.dev` and **Subject** `New Issue Report`, then choose **Create filter**.
+1. In Gmail's search options, enter **From** `onboarding@resend.dev` and **Has the words** `subject:("New Issue Report" OR "New Feedback")`, then choose **Create filter**. Home feedback emails have their own subject (`Quran Heals — New Feedback [<id>]`); a filter created earlier with **Subject** `New Issue Report` only must be edited to match both.
 2. Tick **Apply the label** → new label `QH/Issue-report` (nested under `QH`) and **Never send it to Spam**. Leave Skip the inbox, Delete and Forward unticked.
 3. The first test email is the check: it must arrive in the inbox, labelled, and not in Spam.
 

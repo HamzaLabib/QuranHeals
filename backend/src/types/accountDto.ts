@@ -69,16 +69,30 @@ export type SyncKeyDto = {
   keyFingerprint?: string;
 };
 
-export type IssueReportInput = {
-  category: IssueReportCategory;
-  comment?: string;
+type SubmissionCommon = {
   email?: string;
-  verseKey?: string;
-  surahNumber?: number;
-  ayahNumber?: number;
-  emotionKey?: string;
   appLocale?: string;
-  translationDisplayMode?: TranslationDisplayMode;
   appVersion?: string;
   platform?: string;
 };
+
+/** A reported problem. `type` is absent from app versions before feedback existed. */
+export type IssueSubmissionInput = SubmissionCommon & {
+  type?: 'issue';
+  category: IssueReportCategory;
+  comment?: string;
+  source?: 'ayah' | 'settings';
+  verseKey?: string;
+  surahNumber?: number;
+  ayahNumber?: number;
+  translationDisplayMode?: TranslationDisplayMode;
+};
+
+/** General feedback from Home: a required message, no category and no ayah context. */
+export type FeedbackSubmissionInput = SubmissionCommon & {
+  type: 'feedback';
+  comment: string;
+  source?: 'home';
+};
+
+export type IssueReportInput = IssueSubmissionInput | FeedbackSubmissionInput;

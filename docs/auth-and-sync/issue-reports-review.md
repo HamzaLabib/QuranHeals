@@ -52,7 +52,7 @@ reaches the database:
 | `comment` | Optional, user-typed, max 2000 characters. |
 | `email` | Optional, only if the user typed one into the form — never the signed-in account's email. |
 | `verseKey`, `surahNumber`, `ayahNumber` | Optional Quran reference context, validated against the real verse range. |
-| `emotionKey` | Optional, only present for the 29-emotion flow. |
+| `emotionKey` | **No longer kept.** Earlier app versions sent it; the backend now discards it, never stores or emails it. Reports saved before this change may still hold one until the 12-month retention purge. |
 | `appLocale`, `translationDisplayMode` | The reporter's app settings at submission time. |
 | `appVersion`, `platform` | Automatic app/device context — never a device identifier. |
 | `status` | Always `"new"` on creation — there is no status-transition feature yet; a reviewer changes this by hand in Atlas if/when a workflow is added. |

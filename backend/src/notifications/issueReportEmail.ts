@@ -1,6 +1,6 @@
 import { issueReportDeadline } from '../retention/retentionPolicy';
 import type { NotifiableIssueReport } from '../services/IssueReportNotificationStore';
-import type { IssueReportCategory } from '../types/accountDomain';
+import type { IssueReportCategory, IssueReportSource, IssueReportType } from '../types/accountDomain';
 
 /**
  * The notification email for one saved issue report. Plain text only — no
@@ -13,10 +13,14 @@ import type { IssueReportCategory } from '../types/accountDomain';
  *
  * Deliberately left out: the reporter's contact email (only whether one was
  * given), and anything the report doesn't hold — no account, device, IP,
- * token or reflection data exists on a report to include.
+ * token, reflection or emotion data exists on a report to include (an
+ * emotion key stored by an earlier version is never read for the email:
+ * see CLAIM_PROJECTION).
  */
 
 export const ISSUE_REPORT_EMAIL_SUBJECT = 'Quran Heals — New Issue Report';
+/** General feedback from Home: its own subject, so it is never mistaken for a problem report. */
+export const FEEDBACK_EMAIL_SUBJECT = 'Quran Heals — New Feedback';
 
 /**
  * The report id makes every subject unique. Gmail's conversation view groups
@@ -25,8 +29,8 @@ export const ISSUE_REPORT_EMAIL_SUBJECT = 'Quran Heals — New Issue Report';
  * review would also delete newer reports that are not due yet. It also lets
  * the operator find one report's email by id (deletion requests, holds).
  */
-export function issueReportEmailSubject(reportId: string): string {
-  return `${ISSUE_REPORT_EMAIL_SUBJECT} [${sanitizeSingleLine(reportId)}]`;
+export function issueReportEmailSubject(reportId: string, type: IssueReportType = 'issue'): string {
+  return `${type === 'feedback' ? FEEDBACK_EMAIL_SUBJECT : ISSUE_REPORT_EMAIL_SUBJECT} [${sanitizeSingleLine(reportId)}]`;
 }
 
 const CATEGORY_LABELS: Record<IssueReportCategory, string> = {
@@ -38,6 +42,7 @@ const CATEGORY_LABELS: Record<IssueReportCategory, string> = {
 };
 
 const PLATFORM_LABELS: Record<string, string> = { ios: 'iOS', android: 'Android', web: 'Web' };
+const SOURCE_LABELS: Record<IssueReportSource, string> = { home: 'Home', ayah: 'Ayah screen', settings: 'Settings' };
 
 // C0 controls except tab/newline, DEL, C1 controls, line/paragraph
 // separators, and bidi embedding/override/isolate characters.
@@ -60,17 +65,17 @@ function formatUtc(date: Date): string {
 export type IssueReportEmail = { subject: string; text: string };
 
 export function buildIssueReportEmail(report: NotifiableIssueReport): IssueReportEmail {
+  const isFeedback = report.type === 'feedback';
   const fields: [string, string | undefined][] = [
     ['Report ID', report.id],
-    ['Type', CATEGORY_LABELS[report.category] ?? sanitizeSingleLine(report.category)],
+    ['Type', isFeedback ? 'Feedback' : report.category ? (CATEGORY_LABELS[report.category] ?? sanitizeSingleLine(report.category)) : undefined],
+    ['Sent from', report.source ? (SOURCE_LABELS[report.source] ?? sanitizeSingleLine(report.source)) : undefined],
     ['Submitted', formatUtc(report.createdAt)],
     ['Platform', report.platform ? (PLATFORM_LABELS[report.platform] ?? sanitizeSingleLine(report.platform)) : undefined],
     ['App version', report.appVersion ? sanitizeSingleLine(report.appVersion) : undefined],
     ['Verse', report.verseKey ? sanitizeSingleLine(report.verseKey) : report.surahNumber ? `Surah ${report.surahNumber}${report.ayahNumber ? `, ayah ${report.ayahNumber}` : ''}` : undefined],
-    ['Emotion', report.emotionKey ? sanitizeSingleLine(report.emotionKey) : undefined],
     ['App language', report.appLocale ? sanitizeSingleLine(report.appLocale) : undefined],
-    ['Translation display', report.translationDisplayMode ? sanitizeSingleLine(report.translationDisplayMode) : undefined],
-    ['Contact email', report.hasContactEmail ? 'provided (not included; see the report in the database)' : 'not provided'],
+    ['Translation display', report.translationDisplayMode ? sanitizeSingleLine(report.translationDisplayMode) : undefined],    ['Contact email', report.hasContactEmail ? 'provided (not included; see the report in the database)' : 'not provided'],
   ];
 
   const description = report.comment ? sanitizeMultiline(report.comment) : '';
@@ -78,11 +83,11 @@ export function buildIssueReportEmail(report: NotifiableIssueReport): IssueRepor
   const deleteAfter = issueReportDeadline(report.createdAt).toISOString().slice(0, 10);
 
   const text = [
-    'New issue report received',
+    isFeedback ? 'New feedback received' : 'New issue report received',
     '',
     ...fields.filter((field): field is [string, string] => Boolean(field[1])).map(([label, value]) => `${label}: ${value}`),
     '',
-    'Description:',
+    isFeedback ? 'Feedback:' : 'Description:',
     quoted,
     '',
     '--',
@@ -91,5 +96,5 @@ export function buildIssueReportEmail(report: NotifiableIssueReport): IssueRepor
     '',
   ].join('\n');
 
-  return { subject: issueReportEmailSubject(report.id), text };
+  return { subject: issueReportEmailSubject(report.id, report.type), text };
 }

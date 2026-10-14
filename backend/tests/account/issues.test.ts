@@ -131,7 +131,6 @@ describe('POST /api/issues', () => {
         'category',
         'comment',
         'email',
-        'emotionKey',
         'platform',
         'surahNumber',
         'translationDisplayMode',

@@ -217,7 +217,7 @@ describe('Shared reference link and action hierarchy', () => {
       'accessibilityLabel={messages.ayah.shareAyah}',
       'accessibilityLabel={messages.reflection.writeAction}',
       '<FavoriteButton',
-      'accessibilityLabel={messages.issueReport.action}',
+      'accessibilityLabel={messages.issueReport.flagAction}',
     ].map((needle) => experience.indexOf(needle));
     expect(ordered.every((position) => position >= 0)).toBe(true);
     expect(ordered).toEqual([...ordered].sort((a, b) => a - b));

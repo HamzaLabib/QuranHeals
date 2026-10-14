@@ -324,12 +324,13 @@ describe('أورادي وختماتي', () => {
     });
   }
 
-  it('the du`a entry passes a pending ورد along, so the du`a screen can offer its confirmation', async () => {
+  it('the du`a entry opens the du`a only, even for a pending ورد; the Khatma is confirmed here, on the ورد`s own card', async () => {
     await readTo('Fajr', 300, 604);
     const [w] = await wirds();
     await render();
     await press('my-reading-dua');
-    expect(router.push).toHaveBeenLastCalledWith({ pathname: '/khatm-dua', params: { wird: w.stop.id } });
+    expect(router.push).toHaveBeenLastCalledWith('/khatm-dua');
+    expect(byId(`wird-confirm-${w.stop.id}`)).toBeDefined();
   });
 
   it('Arabic: right to left, Arabic-Indic digits, and the approved wording', async () => {
@@ -342,4 +343,31 @@ describe('أورادي وختماتي', () => {
     expect(textOf(byId(`wird-card-${w.stop.id}`))).toContain('صفحة ٣٠٢ من ٦٠٤');
     expect(flat(byId('my-reading-stats').props.style).flexDirection).toBe('row-reverse');
   });
+});
+
+describe('no Complete Khatma here (it is on Mushaf page 604)', () => {
+  for (const locale of ['en', 'ar'] as const) {
+    it(`${locale}: only the du'a row, as before — no Complete Khatma button, chooser or notice`, async () => {
+      state.locale = locale;
+      await readTo('Fajr', 300, 604);
+      const [w] = await wirds();
+      await render();
+      expect(all('my-reading-complete-khatma')).toHaveLength(0);
+      expect(all('my-reading-dua-actions')).toHaveLength(0);
+      expect(all('complete-khatma-choose')).toHaveLength(0);
+      expect(all('complete-khatma-none')).toHaveLength(0);
+      // The du'a row: full width, its icon and title, opening the du'a only.
+      expect(flat(byId('my-reading-dua').props.style({ pressed: false }))).toMatchObject({ flexDirection: locale === 'ar' ? 'row-reverse' : 'row', padding: 14 });
+      expect(flat(byId('my-reading-dua').props.style({ pressed: false })).flex).toBeUndefined();
+      // Its label follows the App Language, in that language's direction.
+      expect(textOf(byId('my-reading-dua'))).toBe(locale === 'en' ? "Quran Completion Du'a" : 'دعاء ختم القرآن');
+      expect(byId('my-reading-dua').props.accessibilityLabel).toBe(locale === 'en' ? "Quran Completion Du'a" : 'دعاء ختم القرآن');
+      const title = byId('my-reading-dua').findAllByType('Text' as never)[0];
+      expect(flat(title.props.style)).toMatchObject(locale === 'en' ? { writingDirection: 'ltr', textAlign: 'left' } : { writingDirection: 'rtl', textAlign: 'right' });
+      await press('my-reading-dua');
+      expect(router.push).toHaveBeenLastCalledWith('/khatm-dua');
+      // The ورد's own confirmation is unchanged.
+      expect(byId(`wird-confirm-${w.stop.id}`)).toBeDefined();
+    });
+  }
 });

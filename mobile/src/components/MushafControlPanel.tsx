@@ -174,12 +174,12 @@ export function MushafControlPanel(props: MushafControlPanelProps) {
       */}
       <View testID="mushaf-panel" style={[styles.bar, theme.surface]}>
         {button('next', labels.nextPage, <ArrowLeft size={ICON_SIZE} color={iconColor} />, props.onNext, { disabled: !props.canGoNext })}
-        {button('reflect', labels.reflect, <ReflectionBulbIcon lit={props.reflectionEnabled} size={ICON_SIZE} color={props.reflectionEnabled ? theme.bulbOn : theme.bulbOff} />, props.onReflect, { disabled: !props.reflectionEnabled, greyed: false })}
+        {button('reflect', labels.reflect, <ReflectionBulbIcon lit={props.reflectionEnabled} size={ICON_SIZE} color={props.reflectionEnabled ? theme.saved : theme.bulbOff} fill={theme.activeFill} />, props.onReflect, { disabled: !props.reflectionEnabled, greyed: false })}
         {button(
           'save',
           props.pageSaved ? `${labels.saveStop}, ${labels.saved}` : labels.saveStop,
           props.pageSaved
-            ? <Bookmark testID="mushaf-bookmark-saved" size={ICON_SIZE} color={theme.saved} fill={theme.saved} />
+            ? <Bookmark testID="mushaf-bookmark-saved" size={ICON_SIZE} color={theme.activeFill} fill={theme.activeFill} />
             : <Bookmark testID="mushaf-bookmark-unsaved" size={ICON_SIZE} color={iconColor} fill="none" />,
           () => toggle('save'),
           { selected: popup === 'save' },

@@ -8,7 +8,7 @@ Settings has exactly three language settings, in this order, followed by Appeara
 |---|---|---|---|
 | 1 | **App Language — لغة التطبيق** | English (`en`), العربية (`ar`) | The whole interface: navigation, Settings, Home text, Favorites, Reflections, Mushaf controls, أورادي وختماتي, account, dialogs, accessibility labels, and headings such as "How this ayah connects". |
 | 2 | **Emotions Language — لغة المشاعر** | Follow App Language (default), English, العربية الفصحى, العربية المصرية (`follow`, `en`, `ar`, `ar-EG`) | Emotion content only: the 30 emotion names (Home, View All, the ayah screen's title) and the body of "How this ayah connects". |
-| 3 | **Quran Language — لغة القرآن** | Quranic Text — النص القرآني (`quran-text`) | The primary full-Quran reading mode: today, the traditional 604-page Arabic Mushaf, unchanged. |
+| 3 | **Quran Language — لغة القرآن** | The Quranic Text — النص القرآني (`quran-text`) | The primary full-Quran reading mode: today, the traditional 604-page Arabic Mushaf, unchanged. |
 
 The Quran itself is always Arabic and is rendered exactly as before.
 

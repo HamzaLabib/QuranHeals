@@ -20,63 +20,85 @@ import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { useQuranTranslationPreference } from '@/localization/useQuranTranslationPreference';
-import { submitIssueReport, type IssueReportCategory } from '@/services/issueReportApi';
+import { submitFeedback, submitIssueReport, type IssueReportCategory } from '@/services/issueReportApi';
+import { formatAyahReference } from '@/utils/ayahReference';
 
-const CATEGORIES: IssueReportCategory[] = [
-  'ayah_not_relevant',
-  'quran_text_display',
-  'translation_issue',
-  'app_technical_issue',
-  'other',
-];
+/**
+ * The one reporting sheet, opened from three places:
+ *  - 'ayah': the ayah screen's flag action — an issue with that ayah attached;
+ *  - 'settings': Settings' Report an issue — a general or technical issue;
+ *  - 'feedback': Home's Share Feedback — general feedback, no category.
+ */
+export type ReportSheetVariant = 'ayah' | 'settings' | 'feedback';
+
+const CATEGORIES: Record<Exclude<ReportSheetVariant, 'feedback'>, IssueReportCategory[]> = {
+  ayah: ['ayah_not_relevant', 'quran_text_display', 'translation_issue', 'app_technical_issue', 'other'],
+  // No ayah is attached from Settings, so "this ayah doesn't feel relevant" can't apply.
+  settings: ['app_technical_issue', 'quran_text_display', 'translation_issue', 'other'],
+};
+
+// Light client-side check so a typo is caught before sending; the backend validates again.
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const MESSAGE_MAX_LENGTH = 2000;
 
 type ReportIssueSheetProps = {
   visible: boolean;
   onClose: () => void;
-  context: {
+  /** Defaults to 'ayah', the original use. */
+  variant?: ReportSheetVariant;
+  /** The reported ayah's reference ('ayah' only). Never the emotion that led to it. */
+  context?: {
     verseKey?: string;
     surahNumber?: number;
     ayahNumber?: number;
-    emotionKey?: string;
   };
 };
 
 /**
  * Completely separate from ReflectionSheet/خواطر (Part I §34) — this
- * component never imports storage/ayahReflections.ts and its input type
- * (IssueReportInput) has no field that could carry reflection content
- * (Part I §38). Works with or without an account (§34/§37).
+ * component never imports storage/ayahReflections.ts, Khatma or reading
+ * data, and its input types (IssueReportInput, FeedbackInput) have no field
+ * that could carry reflection, reading or account content (Part I §38).
+ * Works with or without an account (§34/§37). Uses the App Language
+ * (useAppLocale), never the Emotions Language.
  */
-export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheetProps) {
+export function ReportIssueSheet({ visible, onClose, variant = 'ayah', context = {} }: ReportIssueSheetProps) {
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
   const { locale, messages } = useAppLocale();
   const { preference } = useQuranTranslationPreference();
   const direction = getDirectionStyle(locale);
   const isRtl = isRtlLocale(locale);
+  const isFeedback = variant === 'feedback';
+  const categories = variant === 'feedback' ? [] : CATEGORIES[variant];
 
-  const [category, setCategory] = useState<IssueReportCategory>('ayah_not_relevant');
+  const [category, setCategory] = useState<IssueReportCategory>(categories[0] ?? 'other');
   const [comment, setComment] = useState('');
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<'success' | 'failure' | null>(null);
+  const [invalid, setInvalid] = useState<'comment' | 'email' | null>(null);
   const scrollRef = useRef<ScrollView>(null);
   const commentFieldYRef = useRef(0);
   const emailFieldYRef = useRef(0);
   // Identifies the report being edited: a response for one that was closed
   // meanwhile never changes the next one.
   const reportIdRef = useRef(0);
+  // Set synchronously, so two taps in the same frame (before a re-render
+  // disables Submit) can never send twice.
+  const sendingRef = useRef(false);
 
   // Each opening is a new report: empty form, nothing sent yet.
   const [wasVisible, setWasVisible] = useState(visible);
   if (visible !== wasVisible) {
     setWasVisible(visible);
     if (visible) {
-      setCategory('ayah_not_relevant');
+      setCategory(categories[0] ?? 'other');
       setComment('');
       setEmail('');
       setIsSubmitting(false);
       setResult(null);
+      setInvalid(null);
     }
   }
 
@@ -98,38 +120,94 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
     other: messages.issueReport.categoryOther,
   };
 
+  const copy = isFeedback
+    ? {
+        title: messages.feedback.sheetTitle,
+        description: messages.feedback.sheetDescription,
+        commentLabel: messages.feedback.messageLabel,
+        commentRequired: messages.feedback.messageRequired,
+        submit: messages.feedback.submit,
+        success: messages.feedback.successMessage,
+        failure: messages.feedback.failureMessage,
+      }
+    : {
+        title: messages.issueReport.action,
+        description: variant === 'settings' ? messages.issueReport.settingsDescription : messages.issueReport.description,
+        commentLabel: messages.issueReport.commentLabel,
+        commentRequired: messages.issueReport.commentRequired,
+        submit: messages.issueReport.submit,
+        success: messages.issueReport.successMessage,
+        failure: messages.issueReport.failureMessage,
+      };
+  const ayahReference =
+    variant === 'ayah' && context.surahNumber && context.ayahNumber ? formatAyahReference(context.surahNumber, context.ayahNumber) : null;
+
   const close = () => {
     reportIdRef.current += 1;
+    sendingRef.current = false;
     setComment('');
     setEmail('');
     setIsSubmitting(false);
     setResult(null);
+    setInvalid(null);
     onClose();
   };
 
   const submit = async () => {
-    if (isSubmitting) return;
+    if (sendingRef.current) return;
+    const message = comment.trim();
+    const contact = email.trim();
+    // A description is required; nothing is sent without one.
+    if (message.length === 0) {
+      setInvalid('comment');
+      setResult(null);
+      return;
+    }
+    if (contact.length > 0 && !EMAIL_PATTERN.test(contact)) {
+      setInvalid('email');
+      setResult(null);
+      return;
+    }
     const reportId = reportIdRef.current;
+    sendingRef.current = true;
+    setInvalid(null);
     setIsSubmitting(true);
     setResult(null);
     try {
-      await submitIssueReport({
-        category,
-        comment: comment.trim().length > 0 ? comment.trim() : undefined,
-        email: email.trim().length > 0 ? email.trim() : undefined,
-        verseKey: context.verseKey,
-        surahNumber: context.surahNumber,
-        ayahNumber: context.ayahNumber,
-        emotionKey: context.emotionKey,
-        appLocale: locale,
-        translationDisplayMode: preference.displayMode,
-      });
+      if (variant === 'feedback') {
+        await submitFeedback({ comment: message, email: contact || undefined, appLocale: locale });
+      } else if (variant === 'settings') {
+        await submitIssueReport({
+          source: 'settings',
+          category,
+          comment: message,
+          email: contact || undefined,
+          appLocale: locale,
+          translationDisplayMode: preference.displayMode,
+        });
+      } else {
+        await submitIssueReport({
+          source: 'ayah',
+          category,
+          comment: message,
+          email: contact || undefined,
+          verseKey: context.verseKey,
+          surahNumber: context.surahNumber,
+          ayahNumber: context.ayahNumber,
+          appLocale: locale,
+          translationDisplayMode: preference.displayMode,
+        });
+      }
+      // Shown only once the backend has accepted it.
       if (reportId === reportIdRef.current) setResult('success');
     } catch {
       // The form stays as entered, so the user can simply try again.
       if (reportId === reportIdRef.current) setResult('failure');
     } finally {
-      if (reportId === reportIdRef.current) setIsSubmitting(false);
+      if (reportId === reportIdRef.current) {
+        sendingRef.current = false;
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -148,17 +226,25 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
             ref={scrollRef}
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={styles.content}>
-            <Text style={[styles.title, direction]}>
-              {messages.issueReport.action}
+            <Text accessibilityRole="header" style={[styles.title, direction]}>
+              {copy.title}
             </Text>
 
             {!isSent && <>
             <Text style={[styles.description, direction]}>
-              {messages.issueReport.description}
+              {copy.description}
             </Text>
 
+            {ayahReference && (
+              <View style={styles.reportedAyah}>
+                <Text style={[styles.reportedAyahLabel, direction]}>{messages.issueReport.aboutAyah}</Text>
+                <Text style={[styles.reportedAyahReference, direction, styles.ltr]}>{ayahReference}</Text>
+              </View>
+            )}
+
+            {categories.length > 0 && (
             <View style={styles.optionList}>
-              {CATEGORIES.map((option) => (
+              {categories.map((option) => (
                 <Pressable
                   key={option}
                   accessibilityRole="button"
@@ -185,6 +271,7 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
                 </Pressable>
               ))}
             </View>
+            )}
 
             <View
               onLayout={(e) => {
@@ -192,18 +279,26 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
               }}>
               <TextInput
                 value={comment}
-                onChangeText={setComment}
+                onChangeText={(value) => {
+                  setComment(value);
+                  if (invalid === 'comment') setInvalid(null);
+                }}
                 onFocus={() => scrollToField(commentFieldYRef.current)}
                 onContentSizeChange={() =>
                   scrollRef.current?.scrollToEnd({ animated: true })
                 }
                 multiline
-                maxLength={2000}
-                placeholder={messages.issueReport.description}
+                maxLength={MESSAGE_MAX_LENGTH}
+                placeholder={copy.commentLabel}
                 placeholderTextColor={colors.placeholder}
-                style={[styles.input, styles.commentInput, direction]}
-                accessibilityLabel={messages.issueReport.description}
+                style={[styles.input, styles.commentInput, invalid === 'comment' && styles.inputInvalid, direction]}
+                accessibilityLabel={copy.commentLabel}
               />
+              {invalid === 'comment' && (
+                <Text accessibilityLiveRegion="polite" accessibilityRole="alert" style={[styles.fieldError, direction]}>
+                  {copy.commentRequired}
+                </Text>
+              )}
             </View>
 
             <View
@@ -212,30 +307,45 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
               }}>
               <TextInput
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={(value) => {
+                  setEmail(value);
+                  if (invalid === 'email') setInvalid(null);
+                }}
                 onFocus={() => scrollToField(emailFieldYRef.current)}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
                 returnKeyType="done"
                 onSubmitEditing={() => Keyboard.dismiss()}
+                maxLength={254}
                 placeholder={messages.issueReport.emailLabel}
                 placeholderTextColor={colors.placeholder}
-                style={[styles.input, direction]}
+                style={[styles.input, invalid === 'email' && styles.inputInvalid, direction]}
                 accessibilityLabel={messages.issueReport.emailLabel}
               />
+              {invalid === 'email' && (
+                <Text accessibilityLiveRegion="polite" accessibilityRole="alert" style={[styles.fieldError, direction]}>
+                  {messages.issueReport.emailInvalid}
+                </Text>
+              )}
             </View>
+
+            {isFeedback && (
+              <Text style={[styles.description, direction]}>
+                {messages.feedback.privacyNote}
+              </Text>
+            )}
             </>}
 
             {isSent && (
               <Text accessibilityLiveRegion="polite" style={[styles.successText, direction]}>
-                {messages.issueReport.successMessage}
+                {copy.success}
               </Text>
             )}
 
             {result === 'failure' && (
-              <Text style={[styles.failureText, direction]}>
-                {messages.issueReport.failureMessage}
+              <Text accessibilityLiveRegion="polite" accessibilityRole="alert" style={[styles.failureText, direction]}>
+                {copy.failure}
               </Text>
             )}
 
@@ -268,7 +378,8 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
 
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={messages.issueReport.submit}
+                accessibilityLabel={copy.submit}
+                accessibilityState={{ disabled: isSubmitting, busy: isSubmitting }}
                 disabled={isSubmitting}
                 onPress={submit}
                 style={({ pressed }) => [
@@ -277,7 +388,7 @@ export function ReportIssueSheet({ visible, onClose, context }: ReportIssueSheet
                   pressed && styles.pressed,
                 ]}>
                 <Text style={styles.primaryButtonText}>
-                  {messages.issueReport.submit}
+                  {copy.submit}
                 </Text>
               </Pressable>
             </View>
@@ -363,6 +474,31 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     minHeight: 100,
     paddingTop: spacing.sm,
     textAlignVertical: 'top',
+  },
+  inputInvalid: {
+    borderColor: colors.danger,
+  },
+  fieldError: {
+    color: colors.danger,
+    fontSize: typography.caption,
+    fontWeight: '600',
+    marginTop: spacing.xs,
+  },
+  reportedAyah: {
+    gap: 2,
+  },
+  reportedAyahLabel: {
+    color: colors.textMuted,
+    fontSize: typography.caption,
+  },
+  reportedAyahReference: {
+    color: colors.accent,
+    fontSize: typography.body,
+    fontWeight: '700',
+  },
+  // The reference's fixed English · number · Arabic order (see formatAyahReference).
+  ltr: {
+    writingDirection: 'ltr',
   },
   successText: {
     color: colors.accent,

@@ -176,6 +176,18 @@ export const ISSUE_REPORT_CATEGORIES = [
 
 export type IssueReportCategory = (typeof ISSUE_REPORT_CATEGORIES)[number];
 
+/**
+ * One reporting system, two kinds of submission: 'issue' (a problem, with a
+ * category; the original kind, so a report without a type is an issue) and
+ * 'feedback' (general feedback from Home, no category or ayah context).
+ */
+export const ISSUE_REPORT_TYPES = ['issue', 'feedback'] as const;
+export type IssueReportType = (typeof ISSUE_REPORT_TYPES)[number];
+
+/** Where in the app it was sent from. Absent on reports from app versions before this field. */
+export const ISSUE_REPORT_SOURCES = ['home', 'ayah', 'settings'] as const;
+export type IssueReportSource = (typeof ISSUE_REPORT_SOURCES)[number];
+
 export type IssueReportStatus = 'new';
 
 /**
@@ -185,13 +197,16 @@ export type IssueReportStatus = 'new';
  * the fields listed here.
  */
 export type IssueReportEntity = {
-  category: IssueReportCategory;
+  /** 'issue' when absent (reports stored before feedback existed). */
+  type?: IssueReportType;
+  /** Always present on an issue; never on feedback. */
+  category?: IssueReportCategory;
+  source?: IssueReportSource;
   comment?: string;
   email?: string;
   verseKey?: string;
   surahNumber?: number;
   ayahNumber?: number;
-  emotionKey?: string;
   appLocale?: string;
   translationDisplayMode?: TranslationDisplayMode;
   appVersion?: string;

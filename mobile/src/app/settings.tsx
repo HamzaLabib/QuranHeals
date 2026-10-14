@@ -1,11 +1,12 @@
 import { router } from 'expo-router';
-import { ArrowLeft, ArrowRight, Check, ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { ArrowLeft, ArrowRight, Check, ChevronLeft, ChevronRight, Flag } from 'lucide-react-native';
 import { useCallback, useRef, useState } from 'react';
 import { LayoutAnimation, Linking, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/useAuth';
 import { AccountSection } from '@/components/AccountSection';
+import { ReportIssueSheet } from '@/components/ReportIssueSheet';
 import { SettingsAccordion } from '@/components/SettingsAccordion';
 import { getLegalLinks } from '@/constants/legalLinks';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
@@ -55,6 +56,7 @@ export default function SettingsScreen() {
   // Local UI state only: opening/closing a section never touches a
   // preference, storage, or the network.
   const [openSection, setOpenSection] = useState<SettingsSectionKey | null>(null);
+  const [isReportVisible, setIsReportVisible] = useState(false);
 
   const toggleSection = (section: SettingsSectionKey) => {
     animateNextLayout();
@@ -228,8 +230,24 @@ export default function SettingsScreen() {
           </SettingsAccordion>
         </View>
 
+        {/* General and technical issues: the same reporting sheet as the ayah screen, with no ayah attached. Signed in or not. */}
+        <Pressable
+          testID="settings-report-issue"
+          accessibilityRole="button"
+          accessibilityLabel={messages.issueReport.action}
+          accessibilityHint={messages.issueReport.settingsDescription}
+          onPress={() => setIsReportVisible(true)}
+          style={({ pressed }) => [styles.reportCard, isRtl && styles.optionRowRtl, pressed && styles.pressed]}>
+          <Flag size={18} color={colors.icon} strokeWidth={2} />
+          <View style={styles.optionTextWrap}>
+            <Text style={[styles.optionLabel, direction]}>{messages.issueReport.action}</Text>
+            <Text style={[styles.optionHint, direction]}>{messages.issueReport.settingsDescription}</Text>
+          </View>
+        </Pressable>
+
         <AccountSection locale={locale} messages={messages} direction={direction} isRtl={isRtl} />
       </ScrollView>
+      <ReportIssueSheet visible={isReportVisible} onClose={() => setIsReportVisible(false)} variant="settings" />
     </SafeAreaView>
   );
 }
@@ -368,6 +386,18 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   },
   optionRowSelected: {
     backgroundColor: colors.accentSoft,
+  },
+  reportCard: {
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    flexDirection: 'row',
+    gap: spacing.md,
+    minHeight: 56,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   optionTextWrap: {
     flex: 1,

@@ -16,16 +16,23 @@ export class MongooseIssueReportRepository implements IssueReportRepository {
   constructor(private readonly options: MongooseIssueReportRepositoryOptions = {}) {}
 
   async create(input: IssueReportInput): Promise<{ id: string }> {
+    // Feedback never carries a category or ayah context (the validator drops them); listed per type so nothing else is ever written.
+    const content = input.type === 'feedback'
+      ? { type: 'feedback' as const, comment: input.comment, source: input.source }
+      : {
+          type: 'issue' as const,
+          category: input.category,
+          comment: input.comment,
+          source: input.source,
+          verseKey: input.verseKey,
+          surahNumber: input.surahNumber,
+          ayahNumber: input.ayahNumber,
+          translationDisplayMode: input.translationDisplayMode,
+        };
     const doc = await IssueReportModel.create({
-      category: input.category,
-      comment: input.comment,
+      ...content,
       email: input.email,
-      verseKey: input.verseKey,
-      surahNumber: input.surahNumber,
-      ayahNumber: input.ayahNumber,
-      emotionKey: input.emotionKey,
       appLocale: input.appLocale,
-      translationDisplayMode: input.translationDisplayMode,
       appVersion: input.appVersion,
       platform: input.platform,
       status: 'new',

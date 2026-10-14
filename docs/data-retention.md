@@ -279,9 +279,9 @@ On the first working day of each month (see "Operator calendar"):
 
 **Status:** built and tested locally; **off** until `ISSUE_REPORT_EMAIL=resend` is set on Render (needs approval). Operations: `docs/backend-operations.md`.
 
-**What each email contains:** report ID, category, submission time (UTC), platform, app version, verse, emotion, app language, translation mode and the description, when present. The reporter's contact email is **never** included, only whether one was given. There are no reflections, tokens, passwords, keys, IPs or device IDs: reports don't hold them.
+**What each email contains:** report ID, category (or "Feedback"), where it was sent from (Home, Ayah screen or Settings), submission time (UTC), platform, app version, verse, emotion, app language, translation mode, and the description or feedback message, when present. The reporter's contact email is **never** included, only whether one was given. There are no reflections, tokens, passwords, keys, IPs or device IDs: reports don't hold them.
 
-**Identifying them:** sender `Quran Heals <onboarding@resend.dev>`. The subject is `Quran Heals — New Issue Report [<report id>]`. The report ID makes every subject unique, so Gmail never groups two reports into one thread. Each email ends with `Retention: delete this email on or after <date>`.
+**Identifying them:** sender `Quran Heals <onboarding@resend.dev>`. The subject is `Quran Heals — New Issue Report [<report id>]`, or `Quran Heals — New Feedback [<report id>]` for feedback sent from Home (same collection, same retention). The report ID makes every subject unique, so Gmail never groups two reports into one thread. Each email ends with `Retention: delete this email on or after <date>`.
 
 **Retention:** 12 months from submission, the same as the database copy. The email arrives at, or a few hours after, submission (failed sends are retried for up to about 14 hours). Deleting by received date therefore never deletes early.
 

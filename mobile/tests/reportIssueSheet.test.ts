@@ -31,7 +31,7 @@ const copy = () => MESSAGES[state.locale].issueReport;
 const button = (label: string) => root.root.findAllByType('Pressable' as never).find((node) => node.props.accessibilityLabel === label);
 const field = (label: string) => root.root.findAllByType('TextInput' as never).find((node) => node.props.accessibilityLabel === label);
 const text = () => JSON.stringify(root.toJSON());
-const context = { verseKey: '2:255', surahNumber: 2, ayahNumber: 255, emotionKey: 'sad' };
+const context = { verseKey: '2:255', surahNumber: 2, ayahNumber: 255 };
 
 async function render(visible = true) {
   await act(async () => { root = create(createElement(ReportIssueSheet, { visible, onClose, context })); });
@@ -41,7 +41,7 @@ async function setVisible(visible: boolean) {
 }
 async function fillForm() {
   await act(async () => button(copy().categoryTranslationIssue)!.props.onPress());
-  await act(async () => field(copy().description)!.props.onChangeText('  The translation is cut off.  '));
+  await act(async () => field(copy().commentLabel)!.props.onChangeText('  The translation is cut off.  '));
   await act(async () => field(copy().emailLabel)!.props.onChangeText('me@example.com'));
 }
 async function press(label: string) {
@@ -62,7 +62,7 @@ describe('before submission', () => {
   it('shows the categories, description, optional email and Cancel | Submit — no Done', async () => {
     await render();
     for (const label of [copy().categoryAyahNotRelevant, copy().categoryOther, copy().cancel, copy().submit]) expect(button(label)).toBeDefined();
-    expect(field(copy().description)).toBeDefined();
+    expect(field(copy().commentLabel)).toBeDefined();
     expect(field(copy().emailLabel)).toBeDefined();
     expect(button(copy().done)).toBeUndefined();
     expect(text()).not.toContain(copy().successMessage);
@@ -88,12 +88,12 @@ describe('submitting', () => {
     expect(button(copy().submit)!.props.disabled).toBe(true);
     // Not confirmed yet: no success message, the form is still there.
     expect(text()).not.toContain(copy().successMessage);
-    expect(field(copy().description)).toBeDefined();
+    expect(field(copy().commentLabel)).toBeDefined();
     await act(async () => { void button(copy().submit)!.props.onPress(); }); // a second tap sends nothing more
     expect(state.submit).toHaveBeenCalledTimes(1);
     expect(state.submit).toHaveBeenCalledWith(expect.objectContaining({
-      category: 'translation_issue', comment: 'The translation is cut off.', email: 'me@example.com',
-      verseKey: '2:255', surahNumber: 2, ayahNumber: 255, emotionKey: 'sad', appLocale: 'en', translationDisplayMode: 'off',
+      source: 'ayah', category: 'translation_issue', comment: 'The translation is cut off.', email: 'me@example.com',
+      verseKey: '2:255', surahNumber: 2, ayahNumber: 255, appLocale: 'en', translationDisplayMode: 'off',
     }));
 
     await act(async () => finish());
@@ -109,7 +109,7 @@ describe('submitting', () => {
     expect(text()).toContain(copy().failureMessage);
     expect(text()).not.toContain(copy().successMessage);
     expect(button(copy().done)).toBeUndefined();
-    expect(field(copy().description)!.props.value).toBe('  The translation is cut off.  ');
+    expect(field(copy().commentLabel)!.props.value).toBe('  The translation is cut off.  ');
     expect(field(copy().emailLabel)!.props.value).toBe('me@example.com');
     expect(button(copy().categoryTranslationIssue)!.props.accessibilityState).toEqual({ selected: true });
     expect(button(copy().submit)!.props.disabled).toBe(false);
@@ -129,7 +129,7 @@ describe('after a successful submission', () => {
 
     expect(text()).toContain(copy().successMessage);
     expect(text()).not.toContain(copy().description);
-    expect(field(copy().description)).toBeUndefined();
+    expect(field(copy().commentLabel)).toBeUndefined();
     expect(field(copy().emailLabel)).toBeUndefined();
     expect(button(copy().categoryTranslationIssue)).toBeUndefined();
     expect(button(copy().cancel)).toBeUndefined();
@@ -144,6 +144,7 @@ describe('after a successful submission', () => {
   it.each(['ar', 'ar-EG'] as const)('%s: the Arabic thank-you message and تم', async (locale) => {
     state.locale = locale;
     await render();
+    await act(async () => field(copy().commentLabel)!.props.onChangeText('نص الترجمة غير مكتمل.'));
     await press(copy().submit);
 
     expect(text()).toContain('شكرًا لك. تم استلام بلاغك.');
@@ -170,7 +171,7 @@ describe('opening the sheet again', () => {
     await setVisible(true);
 
     expect(text()).not.toContain(copy().successMessage);
-    expect(field(copy().description)!.props.value).toBe('');
+    expect(field(copy().commentLabel)!.props.value).toBe('');
     expect(field(copy().emailLabel)!.props.value).toBe('');
     expect(button(copy().categoryAyahNotRelevant)!.props.accessibilityState).toEqual({ selected: true });
     expect(button(copy().submit)!.props.disabled).toBe(false);
@@ -186,7 +187,7 @@ describe('opening the sheet again', () => {
     await setVisible(true);
 
     expect(text()).not.toContain(copy().failureMessage);
-    expect(field(copy().description)!.props.value).toBe('');
+    expect(field(copy().commentLabel)!.props.value).toBe('');
     expect(button(copy().categoryAyahNotRelevant)!.props.accessibilityState).toEqual({ selected: true });
   });
 
@@ -194,6 +195,7 @@ describe('opening the sheet again', () => {
     let finish!: () => void;
     state.submit.mockImplementationOnce(() => new Promise<void>((resolve) => { finish = resolve; }));
     await render();
+    await fillForm();
     await act(async () => { void button(copy().submit)!.props.onPress(); });
     await press(copy().cancel);
     await setVisible(false);

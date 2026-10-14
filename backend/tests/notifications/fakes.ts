@@ -52,24 +52,30 @@ export class InMemoryOutbox implements IssueReportRepository, IssueReportNotific
     n.attempts += 1;
     n.nextAttemptAt = new Date(now.getTime() + leaseMs);
     n.claimToken = claimToken;
+    const common = {
+      id: report.id,
+      type: report.type,
+      source: report.source,
+      comment: report.comment,
+      hasContactEmail: Boolean(report.email),
+      appLocale: report.appLocale,
+      appVersion: report.appVersion,
+      platform: report.platform,
+      createdAt: report.createdAt,
+    };
     return {
       claimToken,
       attempts: n.attempts,
-      report: {
-        id: report.id,
-        category: report.category,
-        comment: report.comment,
-        hasContactEmail: Boolean(report.email),
-        verseKey: report.verseKey,
-        surahNumber: report.surahNumber,
-        ayahNumber: report.ayahNumber,
-        emotionKey: report.emotionKey,
-        appLocale: report.appLocale,
-        translationDisplayMode: report.translationDisplayMode,
-        appVersion: report.appVersion,
-        platform: report.platform,
-        createdAt: report.createdAt,
-      },
+      report: report.type === 'feedback'
+        ? common
+        : {
+            ...common,
+            category: report.category,
+            verseKey: report.verseKey,
+            surahNumber: report.surahNumber,
+            ayahNumber: report.ayahNumber,
+            translationDisplayMode: report.translationDisplayMode,
+          },
     };
   }
 

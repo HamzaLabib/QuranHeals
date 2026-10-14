@@ -30,12 +30,13 @@ vi.mock('react-native', () => ({
 }));
 vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem: vi.fn(), setItem: state.setItem, removeItem: vi.fn() } }));
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView', useSafeAreaInsets: () => ({ top: 47, bottom: 34, left: 0, right: 0 }) }));
+vi.mock('react-native-svg', () => ({ default: 'Svg', Path: 'Path', Circle: 'Circle' }));
 vi.mock('lucide-react-native', () => ({ ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', AArrowDown: 'AArrowDown', AArrowUp: 'AArrowUp' }));
 vi.mock('expo-router', () => ({ router: { back: vi.fn(), replace: vi.fn(), canGoBack: () => state.canGoBack }, useLocalSearchParams: () => state.params }));
 vi.mock('@/theme/useTheme', async () => {
   const { darkPalette, lightPalette } = await import('@/constants/theme');
   const palette = () => (state.dark ? darkPalette : lightPalette);
-  return { usePalette: palette, useThemedStyles: (factory: (colors: unknown) => unknown) => factory(palette()) };
+  return { usePalette: palette, useThemeName: () => (state.dark ? 'dark' : 'light'), useThemedStyles: (factory: (colors: unknown) => unknown) => factory(palette()) };
 });
 vi.mock('@/localization/useAppLocale', () => ({ useAppLocale: () => ({ locale: state.locale, messages: MESSAGES[state.locale] }) }));
 
@@ -146,14 +147,17 @@ describe('دعاء ختم القرآن', () => {
   });
 
   for (const locale of APP_LOCALES) {
-    it(`${locale}: the approved title centred, the note, the whole du'a in order, right to left, right-aligned and selectable`, async () => {
+    it(`${locale}: the approved title centred, no note, the whole du'a in order, right to left, right-aligned and selectable`, async () => {
       state.locale = locale;
       await render();
       const copy = MESSAGES[locale].khatmDua;
       const title = root.root.findAll((node) => node.props.accessibilityRole === 'header')[0];
       expect(title.props.children).toBe('دُعَاءُ خَتْمِ الْقُرْآنِ');
       expect(styleOf(title)).toMatchObject({ textAlign: 'center', writingDirection: 'rtl' });
-      expect(byId('khatm-dua-note').props.children).toBe(copy.note);
+      expect(root.root.findAllByProps({ testID: 'khatm-dua-note' })).toHaveLength(0);
+      // English shows the title's translation under it; Arabic shows the title alone.
+      // The title alone: no subtitle or translation under it, in any language.
+      expect(title.parent!.findAll((node) => String(node.type) === 'Text')).toEqual([title]);
       const shown = paragraphs();
       expect(shown.map((node) => node.props.children)).toEqual(KHATM_DUA!.paragraphs);
       shown.forEach((node, i) => {
@@ -197,7 +201,9 @@ describe('دعاء ختم القرآن', () => {
       expect(style.lineHeight).toBeGreaterThanOrEqual(style.fontSize * 1.8);
       if (i < KHATM_DUA_SIZES.length - 1) await press('khatm-dua-larger');
     }
-    expect(styleOf(byId('khatm-dua-text')).gap).toBeGreaterThan(styleOf(byId('khatm-dua-note')).lineHeight / 2);
+    // A clear pause between paragraphs: wider than half a line at the default size.
+    await render();
+    expect(styleOf(byId('khatm-dua-text')).gap).toBeGreaterThan(styleOf(paragraphs()[0]).lineHeight / 2);
   });
 
   it('safe areas: the top inset by the SafeAreaView, the bottom by the scroll padding, so the last line clears the system controls', async () => {
@@ -217,7 +223,6 @@ describe('دعاء ختم القرآن', () => {
       expect(styleOf(safeArea).backgroundColor).toBe(palette.background);
       expect(styleOf(byId('khatm-dua-text'))).toMatchObject({ backgroundColor: palette.card, borderColor: palette.border });
       for (const node of paragraphs()) expect(styleOf(node).color).toBe(palette.textPrimary);
-      expect(styleOf(byId('khatm-dua-note')).color).toBe(palette.textSecondary);
     });
   }
   it('Light and Dark differ, so the du`a follows the app appearance', () => {
@@ -225,16 +230,22 @@ describe('دعاء ختم القرآن', () => {
     expect(darkPalette.card).not.toBe(lightPalette.card);
   });
 
-  it('the note never presents it as Quran, as a prescribed prophetic du`a or one hadith, or as recording a khatma', () => {
-    expect(MESSAGES.en.khatmDua.note).toMatch(/not part of the Quran/);
-    expect(MESSAGES.en.khatmDua.note).toMatch(/includes some supplications from the Quran and the Sunnah/);
-    expect(MESSAGES.en.khatmDua.note).toMatch(/not a supplication prescribed by the Prophet ﷺ for completing the Quran/);
-    expect(MESSAGES.en.khatmDua.note).toMatch(/does not record a completed khatma/);
-    for (const locale of ['ar', 'ar-EG'] as const) {
-      expect(MESSAGES[locale].khatmDua.note).toMatch(/القرآن الكريم/);
-      expect(MESSAGES[locale].khatmDua.note).toMatch(/من القرآن والسنة/);
-      expect(MESSAGES[locale].khatmDua.note).toMatch(/ﷺ لختم القرآن/);
+  it('no disclaimer, explanation, subtitle or "optional" statement on the screen, in any language; their keys are gone from the dictionary', async () => {
+    for (const locale of APP_LOCALES) {
+      state.locale = locale;
+      await render();
+      const shown = root.root.findAll((node) => String(node.type) === 'Text').map((node) => String(node.props.children));
+      expect(shown.join(' ')).not.toMatch(/Supplication on completing|not part of the Quran|optional|prescribed|ليس من القرآن|اختياري|اختيارية|يُقرأ بعد ختم|بيتقري/);
+      expect(MESSAGES[locale].khatmDua).not.toHaveProperty('note');
+      expect(MESSAGES[locale].khatmDua).not.toHaveProperty('subtitle');
     }
+    for (const locale of APP_LOCALES) expect(MESSAGES[locale].khatmDua).not.toHaveProperty('titleTranslation');
+    // No Khatma action on this screen: its confirmation keys are gone too (أورادي وختماتي keeps its own).
+    for (const locale of APP_LOCALES) {
+      expect(MESSAGES[locale].khatmDua).not.toHaveProperty('confirmFor');
+      expect(MESSAGES[locale].khatmDua).not.toHaveProperty('confirm');
+    }
+    expect(MESSAGES.ar.myReading.confirm.length).toBeGreaterThan(0);
   });
 
   it('text size: smaller and larger, within the sizes, the line height following', async () => {
@@ -275,5 +286,63 @@ describe('دعاء ختم القرآن', () => {
     const source = (path: string) => readFileSync(resolve(__dirname, '..', path), 'utf8');
     expect(source('src/mushaf/mushafPage.ts')).toMatch(/MUSHAF_PAGE_COUNT = 604/);
     for (const path of ['src/services/quran.ts', 'src/mushaf/surahSearch.ts', 'src/components/MushafSearchSheet.tsx']) expect(source(path)).not.toMatch(/khatm|KHATM/);
+  });
+});
+
+const { SURAH_HEADER_INKS } = await import('@/constants/mushafTheme');
+const texts = () => root.root.findAll((node) => String(node.type) === 'Text').map((node) => node.props.children);
+
+describe('the Islamic panel around the du`a (decoration only)', () => {
+  const hostSvg = (id: string) => root.root.findAll((node) => String(node.type) === 'Svg' && node.props.testID === id);
+
+  it('an arch over the du`a and a divider under it, inside the card; the 12 paragraphs stay in order between them', async () => {
+    await render();
+    const card = byId('khatm-dua-text');
+    const children = card.children.filter((child): child is ReactTestInstance => typeof child !== 'string');
+    const ids = children.map((child) => child.props.testID ?? String(child.type));
+    expect(hostSvg('khatm-dua-arch')).toHaveLength(1);
+    expect(hostSvg('khatm-dua-divider')).toHaveLength(1);
+    const first = ids.indexOf('khatm-dua-paragraph-0');
+    const last = ids.indexOf(`khatm-dua-paragraph-${KHATM_DUA!.paragraphs.length - 1}`);
+    expect(first).toBeGreaterThan(-1);
+    expect(last - first).toBe(KHATM_DUA!.paragraphs.length - 1);
+    expect(paragraphs().map((node) => node.props.children)).toEqual(APPROVED_PARAGRAPHS);
+  });
+
+  it('adds no words: shapes only, no text, calligraphy or verse inside any ornament, and hidden from screen readers', async () => {
+    await render();
+    for (const id of ['khatm-dua-arch', 'khatm-dua-divider']) {
+      const svg = hostSvg(id)[0];
+      expect(svg.props).toMatchObject({ accessible: false, importantForAccessibility: 'no-hide-descendants' });
+      expect(svg.findAll((node) => ['Text', 'TSpan', 'TextPath'].includes(String(node.type)))).toHaveLength(0);
+      expect(new Set(svg.findAll((node) => typeof node.type === 'string' && node !== svg).map((node) => String(node.type)))).toEqual(new Set(['Path', 'Circle']));
+    }
+    expect(texts()).toEqual(expect.not.arrayContaining([expect.stringMatching(/﷽|۞/)]));
+  });
+
+  for (const dark of [false, true]) {
+    it(`${dark ? 'Dark' : 'Light'}: the Mushaf's own emerald and gold, deep gold lines on the light card and gold on the dark one; a softened inner gold rule`, async () => {
+      state.dark = dark;
+      await render();
+      const line = dark ? SURAH_HEADER_INKS.gold : SURAH_HEADER_INKS.goldDeep;
+      const strokes = hostSvg('khatm-dua-arch')[0].findAll((node) => String(node.type) === 'Path').map((node) => node.props.stroke);
+      expect(strokes[0]).toBe(line);
+      expect(strokes).toContain(SURAH_HEADER_INKS.emeraldLight);
+      const frame = byId('khatm-dua-frame');
+      expect(styleOf(frame)).toMatchObject({ borderColor: line, position: 'absolute', opacity: 0.45 });
+      expect(frame.props.pointerEvents).toBe('none');
+    });
+  }
+
+  it('readable on every screen: full width on phones, a centred reading measure on iPad, clear of the inner rule', async () => {
+    await render();
+    expect(styleOf(byId('khatm-dua-text'))).toMatchObject({ width: '100%', maxWidth: 720, alignSelf: 'center' });
+    expect(styleOf(byId('khatm-dua-text')).paddingHorizontal).toBeGreaterThan(styleOf(byId('khatm-dua-frame')).left);
+  });
+
+  it('the screen keeps its title, size controls and Back', async () => {
+    await render();
+    for (const id of ['khatm-dua-smaller', 'khatm-dua-larger', 'khatm-dua-back']) expect(byId(id)).toBeDefined();
+    expect(texts()).toContain(KHATM_DUA!.title);
   });
 });

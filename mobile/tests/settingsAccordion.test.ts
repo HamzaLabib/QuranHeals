@@ -45,9 +45,14 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
 }));
 vi.mock('lucide-react-native', () => ({
   ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', Check: 'Check',
-  ChevronDown: 'ChevronDown', ChevronLeft: 'ChevronLeft', ChevronRight: 'ChevronRight',
+  ChevronDown: 'ChevronDown', ChevronLeft: 'ChevronLeft', ChevronRight: 'ChevronRight', Flag: 'Flag',
 }));
 vi.mock('expo-router', () => ({ router: { back: () => undefined } }));
+// Rendered for real in reportIssueSheet.test.ts and feedbackReporting.test.ts; here only how Settings opens it matters.
+vi.mock('@/components/ReportIssueSheet', async () => {
+  const { createElement: h } = await import('react');
+  return { ReportIssueSheet: (props: object) => h('ReportIssueSheet', props) };
+});
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView' }));
 vi.mock('@/auth/useAuth', () => ({ useAuth: () => ({ refreshSync: async () => { state.refreshSyncCalls += 1; } }) }));
 // Rendered for real in accountSectionRender.test.ts; here only its position matters.
@@ -148,7 +153,7 @@ describe('Settings: section order and initial state', () => {
     expect(headers().map((node) => node.props.accessibilityLabel)).toEqual([
       'App Language, English',
       'Emotions Language, Follow App Language',
-      'Quran Language, Quranic Text',
+      'Quran Language, The Quranic Text',
       'Appearance, Light',
       'Legal & Privacy',
     ]);
@@ -271,12 +276,13 @@ describe('Settings: Emotions Language', () => {
 });
 
 describe('Settings: Quran Language', () => {
-  it('exactly one option today — Quranic Text / النص القرآني — stored as a stable id, never a label; no unreleased languages', async () => {
+  it('exactly one option today — The Quranic Text / النص القرآني — stored as a stable id, never a label; no unreleased languages', async () => {
     await renderSettings();
     await pressHeader('Quran Language');
-    expect(optionRows().map((node) => [node.props.accessibilityLabel, node.props.accessibilityState.selected])).toEqual([['Quranic Text', true]]);
+    expect(optionRows().map((node) => [node.props.accessibilityLabel, node.props.accessibilityState.selected])).toEqual([['The Quranic Text', true]]);
+    expect(ar.settings.quranTextOption).toBe('النص القرآني');
     for (const unreleased of ['Turkish', 'French', 'Urdu', 'Coming soon']) expect(texts(root!.root)).not.toContain(unreleased);
-    await pressOption('Quranic Text');
+    await pressOption('The Quranic Text');
     expect(state.storage.get(QURAN_LANGUAGE_KEY)).toBe('quran-text');
     expect(expandedStates()).toEqual([false, false, false, false, false]);
   });
@@ -436,5 +442,40 @@ describe('Settings: accessibility', () => {
       expect(styles.some((style) => style.height !== undefined || style.maxHeight !== undefined)).toBe(false);
     }
     for (const text of all('Text')) expect(text.props.numberOfLines).toBeUndefined();
+  });
+});
+
+describe('Settings: Report an issue', () => {
+  const reportRow = () => all('Pressable').find((node) => node.props.testID === 'settings-report-issue')!;
+  const sheet = () => all('ReportIssueSheet')[0];
+
+  it('one row after the five sections and before Account, outside the accordion (the sections are unchanged)', async () => {
+    await renderSettings();
+    const order = root!.root
+      .findAll((node) => node.type === ('AccountSection' as never) || headers().includes(node) || node.props?.testID === 'settings-report-issue')
+      .filter((node) => typeof node.type === 'string')
+      .map((node) => (node.type === ('AccountSection' as never) ? 'Account' : node.props.testID === 'settings-report-issue' ? 'Report' : node.props.accessibilityLabel.split(', ')[0]));
+    expect(order).toEqual([...EN_HEADERS, 'Report', 'Account']);
+    expect(reportRow().props.accessibilityState).toBeUndefined();
+    expect(reportRow().props).toMatchObject({ accessibilityRole: 'button', accessibilityLabel: en.issueReport.action, accessibilityHint: en.issueReport.settingsDescription });
+    expect(texts(reportRow())).toEqual([en.issueReport.action, en.issueReport.settingsDescription]);
+  });
+
+  it('opens the shared reporting sheet for general issues (no ayah attached), and closes it', async () => {
+    await renderSettings();
+    expect(sheet().props).toMatchObject({ visible: false, variant: 'settings' });
+    expect(sheet().props.context).toBeUndefined();
+    await press(reportRow());
+    expect(sheet().props.visible).toBe(true);
+    await act(async () => sheet().props.onClose());
+    expect(sheet().props.visible).toBe(false);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it('Arabic: the row mirrors and uses the Standard Arabic copy', async () => {
+    state.storage.set(LOCALE_KEY, 'ar');
+    await renderSettings();
+    expect(texts(reportRow())).toEqual([ar.issueReport.action, ar.issueReport.settingsDescription]);
+    expect(resolveStyle(reportRow())).toContainEqual({ flexDirection: 'row-reverse' });
   });
 });

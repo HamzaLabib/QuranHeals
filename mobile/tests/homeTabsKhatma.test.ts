@@ -52,8 +52,10 @@ vi.mock('expo-router/tabs', async () => {
 });
 vi.mock('@/theme/useTheme', async () => {
   const { lightPalette } = await import('@/constants/theme');
-  return { usePalette: () => lightPalette, useThemedStyles: (factory: (colors: unknown) => unknown) => factory(lightPalette) };
+  return { usePalette: () => lightPalette, useThemeName: () => 'light', useThemedStyles: (factory: (colors: unknown) => unknown) => factory(lightPalette) };
 });
+// The du'a screen's ornament (components/KhatmDuaOrnament.tsx).
+vi.mock('react-native-svg', () => ({ default: 'Svg', Path: 'Path', Circle: 'Circle' }));
 vi.mock('@/localization/useAppLocale', () => ({ useAppLocale: () => ({ locale: state.locale, messages: MESSAGES[state.locale] }) }));
 vi.mock('@/services/api', () => ({ getEmotions: async () => state.emotions, getApiErrorMessage: () => 'error' }));
 vi.mock('@/storage/emotionsCache', () => ({ getCachedEmotions: async () => null, setCachedEmotions: async () => undefined }));
@@ -64,6 +66,7 @@ const { AppTabBar, APP_TABS } = await import('@/components/AppTabBar');
 const { ContinueReadingCard } = await import('@/components/ContinueReadingCard');
 const { default: AllEmotionsScreen } = await import('@/app/emotions');
 const { default: KhatmaCompleteScreen } = await import('@/app/khatma-complete');
+const { lightPalette } = await import('@/constants/theme');
 const { default: KhatmDuaScreen } = await import('@/app/khatm-dua');
 const { confirmKhatma, loadReadingData, saveWirdPage } = await import('@/mushaf/khatmas');
 const { RECENT_EMOTIONS_STORAGE_KEY } = await import('@/storage/recentEmotions');
@@ -207,6 +210,10 @@ describe('Home', () => {
     expect(MESSAGES.en.tabs.myReading).toBe('Recitations');
     expect(MESSAGES.ar.tabs.myReading).toBe('أورادي');
     expect(MESSAGES['ar-EG'].tabs.myReading).toBe('أورادي');
+    // The Continue Reciting card's button: shorter in English; Arabic unchanged.
+    expect(MESSAGES.en.continueReading.myReading).toBe('My Recitations');
+    expect(MESSAGES.ar.continueReading.myReading).toBe('أورادي وختماتي');
+    expect(MESSAGES['ar-EG'].continueReading.myReading).toBe('أورادي وختماتي');
   });
 });
 
@@ -304,65 +311,134 @@ describe('the Khatma completion screen (/khatma-complete)', () => {
     // Showing it again records nothing more.
     expect((await loadReadingData()).stats.total).toBe(1);
   });
-});
+  /** Fajr confirmed after a save at 604 (its new cycle at page 1); Isha selected meanwhile, unless `keepFajr`. */
+  async function confirmedFajr(options: { keepFajr?: boolean } = {}) {
+    await saveWirdPage({ name: 'Fajr', page: 300 });
+    await saveWirdPage({ name: 'Fajr', page: 604 });
+    const fajr = (await loadReadingData()).wirds.find((w) => w.stop.name === 'Fajr')!;
+    const { record } = await confirmKhatma(fajr.stop.id, fajr.cycle.id);
+    if (!options.keepFajr) await saveWirdPage({ name: 'Isha', page: 120 }); // another ورد becomes the selected one
+    state.params = { id: record.id };
+    return { fajr, record };
+  }
+  const actionIds = () => root.root.findByProps({ testID: 'khatma-complete-dua' }).parent!.children.map((child) => (child as ReactTestInstance).props.testID);
 
-describe('the du`a screen for a pending ورد (?wird=)', () => {
-  it('offers تأكيد إتمام الختمة as a separate tap (even with the du`a text still pending approval); it records once', async () => {
-    state.locale = 'ar';
-    await saveWirdPage({ name: 'ورد الفجر', page: 300 });
-    await saveWirdPage({ name: 'ورد الفجر', page: 604 });
-    const [w] = (await loadReadingData()).wirds;
-    state.params = { wird: w.stop.id };
-    await mount(createElement(KhatmDuaScreen, { dua: null }));
-    expect(byId('khatm-dua-unavailable')).toBeDefined();
-    expect(textOf(byId('khatm-dua-khatma'))).toContain('تأكيد إتمام الختمة');
-    // Opening it counted nothing.
-    expect((await loadReadingData()).stats.total).toBe(0);
-    await act(async () => {
-      byId('khatm-dua-confirm-khatma').props.onPress();
-      byId('khatm-dua-confirm-khatma').props.onPress();
+  for (const locale of ['en', 'ar', 'ar-EG'] as const) {
+    it(`${locale}: three stacked actions — Back to Mushaf, Back to My Recitations, the du\`a — in the App Language`, async () => {
+      state.locale = locale;
+      await confirmedFajr();
+      await mount(createElement(KhatmaCompleteScreen));
+      expect(actionIds()).toEqual(['khatma-complete-mushaf', 'khatma-complete-back', 'khatma-complete-dua']);
+      const en = locale === 'en';
+      expect(textOf(byId('khatma-complete-mushaf'))).toBe(en ? 'Back to Mushaf' : 'العودة إلى المصحف');
+      expect(textOf(byId('khatma-complete-back'))).toBe(en ? 'Back to My Recitations & Khatmas' : 'العودة إلى ختماتي');
+      expect(textOf(byId('khatma-complete-dua'))).toBe(en ? 'Read the Khatma Du’a' : 'قراءة دعاء ختم القرآن');
+      // Each a full-width, 54 pt button in the app's palette (Light and Dark follow from it); the icon side mirrors in Arabic.
+      const style = (id: string) => Object.assign({}, ...[byId(id).props.style({ pressed: false })].flat(3).filter(Boolean));
+      for (const id of ['khatma-complete-mushaf', 'khatma-complete-back', 'khatma-complete-dua']) expect(style(id).minHeight).toBe(54);
+      expect(style('khatma-complete-mushaf')).toMatchObject({ backgroundColor: lightPalette.secondaryButtonSurface, borderColor: lightPalette.secondaryButtonBorder, flexDirection: en ? 'row' : 'row-reverse' });
     });
+  }
+
+  it('Back to Mushaf: closes this screen to the Mushaf tab with the completed ورد selected, at its new cycle`s page 1 — never 604 — and records nothing', async () => {
+    const { fajr } = await confirmedFajr();
+    const { loadActiveReadingStopId } = await import('@/mushaf/readingStops');
+    expect(await loadActiveReadingStopId()).not.toBe(fajr.stop.id);
+    await mount(createElement(KhatmaCompleteScreen));
+    await press('khatma-complete-mushaf');
     await flush();
-    await flush();
+    expect(router.dismissTo).toHaveBeenCalledTimes(1);
+    expect(router.dismissTo).toHaveBeenLastCalledWith({ pathname: '/mushaf', params: { page: '1', at: expect.any(String) } });
+    expect(router.push).not.toHaveBeenCalled();
+    expect(await loadActiveReadingStopId()).toBe(fajr.stop.id);
     const data = await loadReadingData();
     expect(data.stats.total).toBe(1);
-    expect(router.replace).toHaveBeenCalledTimes(1);
-    expect(router.replace).toHaveBeenCalledWith({ pathname: '/khatma-complete', params: { id: data.records[0].id } });
+    expect(data.wirds.find((w) => w.stop.id === fajr.stop.id)).toMatchObject({ status: 'reading' });
+    expect(data.wirds.find((w) => w.stop.id === fajr.stop.id)!.stop.page).toBe(1);
   });
 
-  it('opening, scrolling, resizing and leaving the approved du`a never records a Khatma; the completion stays pending, confirmable without the du`a', async () => {
+  it('a double tap navigates once', async () => {
+    await confirmedFajr({ keepFajr: true });
+    await mount(createElement(KhatmaCompleteScreen));
+    await act(async () => {
+      byId('khatma-complete-mushaf').props.onPress();
+      byId('khatma-complete-mushaf').props.onPress();
+    });
+    await flush();
+    expect(router.dismissTo).toHaveBeenCalledTimes(1);
+  });
+
+  it('a ورد deleted meanwhile: the Mushaf at page 1, the selection left as it is, the Khatma kept in the history', async () => {
+    const { fajr } = await confirmedFajr();
+    const { deleteWird } = await import('@/mushaf/khatmas');
+    await deleteWird(fajr.stop.id);
+    const { loadActiveReadingStopId } = await import('@/mushaf/readingStops');
+    const selected = await loadActiveReadingStopId();
+    await mount(createElement(KhatmaCompleteScreen));
+    await press('khatma-complete-mushaf');
+    await flush();
+    expect(router.dismissTo).toHaveBeenLastCalledWith({ pathname: '/mushaf', params: { page: '1', at: expect.any(String) } });
+    expect(await loadActiveReadingStopId()).toBe(selected);
+    expect((await loadReadingData()).stats.total).toBe(1);
+  });
+
+  it('My Recitations and the du`a keep their navigation; nothing on this screen records or confirms a Khatma', async () => {
+    await confirmedFajr();
+    await mount(createElement(KhatmaCompleteScreen));
+    await press('khatma-complete-back');
+    expect(router.dismissTo).toHaveBeenLastCalledWith('/my-reading');
+    await press('khatma-complete-dua');
+    expect(router.push).toHaveBeenLastCalledWith('/khatm-dua');
+    expect((await loadReadingData()).stats.total).toBe(1);
+    expect(source('src/app/khatma-complete.tsx')).not.toMatch(/confirmKhatma|saveWirdPage|removeKhatma/);
+  });
+});
+
+describe('the du`a screen has no Khatma action', () => {
+  for (const locale of ['ar', 'en'] as const) {
+    it(`${locale}: only the title, the du\`a, its size controls and Back — no confirmation card or button, even for a pending ورد (an older ?wird= link)`, async () => {
+      state.locale = locale;
+      await saveWirdPage({ name: 'Fajr', page: 300 });
+      await saveWirdPage({ name: 'Fajr', page: 604 });
+      const [w] = (await loadReadingData()).wirds;
+      expect(w.status).toBe('pending');
+      state.params = { wird: w.stop.id };
+      await mount(createElement(KhatmDuaScreen));
+      expect(all('khatm-dua-khatma')).toHaveLength(0);
+      expect(all('khatm-dua-confirm-khatma')).toHaveLength(0);
+      expect(textOf(root.root)).not.toMatch(/تأكيد إتمام الختمة|Confirm Khatma|page 604|الصفحة ٦٠٤/);
+      const buttons = root.root.findAll((node) => String(node.type) === 'Pressable').map((node) => node.props.testID);
+      expect(buttons.sort()).toEqual(['khatm-dua-back', 'khatm-dua-larger', 'khatm-dua-smaller']);
+      expect(all('khatm-dua-text')).toHaveLength(1);
+    });
+  }
+
+  it('opening, scrolling, resizing and leaving the du`a never records a Khatma; the completion stays pending and is still confirmed manually', async () => {
     await saveWirdPage({ name: 'Fajr', page: 300 });
     await saveWirdPage({ name: 'Fajr', page: 604 });
     const before = await loadReadingData();
     const [w] = before.wirds;
-    state.params = { wird: w.stop.id };
     await mount(createElement(KhatmDuaScreen));
-    expect(all('khatm-dua-text')).toHaveLength(1); // the approved du`a, with the confirmation below it
-    expect(textOf(byId('khatm-dua-khatma'))).toContain('Confirm Khatma completion');
     // Scrolling is plain native scrolling: the screen listens to no scroll event, so it cannot save one.
     const scroll = byId('khatm-dua-scroll');
     expect(Object.keys(scroll.props).filter((key) => /^on/.test(key))).toEqual([]);
     await press('khatm-dua-larger');
+    await press('khatm-dua-smaller');
     await press('khatm-dua-back');
     await act(async () => root.unmount());
     const data = await loadReadingData();
     expect(data.stats.total).toBe(0);
     expect(data.wirds[0].status).toBe('pending');
-    // Reading progress is untouched: the ورد still stands on page 604, and nothing else changed.
+    // Reading progress, counts and everything else untouched.
     expect(data).toEqual(before);
-    // Confirmable directly (أورادي وختماتي's card uses this same call), no du'a involved.
+    expect(router.replace).not.toHaveBeenCalledWith(expect.objectContaining({ pathname: '/khatma-complete' }));
+    // Still confirmable by hand (أورادي وختماتي's card makes this same call), exactly once.
     expect((await confirmKhatma(w.stop.id, w.cycle.id)).alreadyRecorded).toBe(false);
+    expect((await loadReadingData()).stats.total).toBe(1);
   });
 
-  it('offers nothing for a ورد that is not pending, or without ?wird=', async () => {
-    await saveWirdPage({ name: 'Fajr', page: 300 });
-    const [w] = (await loadReadingData()).wirds;
-    state.params = { wird: w.stop.id };
-    await mount(createElement(KhatmDuaScreen, { dua: null }));
-    expect(all('khatm-dua-khatma')).toHaveLength(0);
-    await act(async () => root.unmount());
-    state.params = {};
-    await mount(createElement(KhatmDuaScreen, { dua: null }));
-    expect(all('khatm-dua-khatma')).toHaveLength(0);
+  it('the du`a screen reads and writes no reading data at all', () => {
+    const screen = source('src/app/khatm-dua.tsx');
+    expect(screen).not.toMatch(/@\/mushaf\/khatmas|confirmKhatma|loadReadingData|useLocalSearchParams|khatma-complete/);
   });
 });

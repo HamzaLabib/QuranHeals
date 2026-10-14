@@ -1,15 +1,18 @@
-import type { IssueReportCategory, IssueReportNotificationStateName } from '../types/accountDomain';
+import type { IssueReportCategory, IssueReportNotificationStateName, IssueReportSource, IssueReportType } from '../types/accountDomain';
 
 /** The report fields an email notification may use. Deliberately no contact email: only whether one was given. */
 export type NotifiableIssueReport = {
   id: string;
-  category: IssueReportCategory;
+  /** Absent: an issue (reports stored before feedback existed). */
+  type?: IssueReportType;
+  /** Present on issues only. */
+  category?: IssueReportCategory;
+  source?: IssueReportSource;
   comment?: string;
   hasContactEmail: boolean;
   verseKey?: string;
   surahNumber?: number;
   ayahNumber?: number;
-  emotionKey?: string;
   appLocale?: string;
   translationDisplayMode?: string;
   appVersion?: string;

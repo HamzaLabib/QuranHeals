@@ -148,6 +148,29 @@ describe('أورادي وختماتي sync: validation', () => {
     ]) expect((await a.push([old])).status).toBe(400);
     expect((await a.pull()).body.data.records).toEqual([expect.objectContaining({ recordId: 'stop-1', revision: 1, data: expect.objectContaining({ page: 250 }) })]);
   });
+
+  it('an old client`s batch is refused whole: a valid change sent alongside encrypted content, or content carrying ciphertext, changes nothing', async () => {
+    const t = buildAccountTestApp();
+    const a = await account(t, 'a');
+    await a.push([wird('stop-1', null, { page: 250 }), khatma('khatma-c1', 'c1')]);
+    const before = (await a.pull()).body.data.records;
+    const payload = { ciphertext: 'Y2lwaGVy', nonce: 'bm9uY2U=', encryptionVersion: 1, keyFingerprint: 'fp-1' };
+    for (const changes of [
+      [wird('stop-1', 1, { page: 10 }), { kind: 'wird', recordId: 'stop-2', action: 'upsert', baseRevision: null, payload }],
+      [remove('khatma', 'khatma-c1'), { kind: 'khatma', recordId: 'khatma-c2', action: 'upsert', payload }],
+      [{ ...wird('stop-1', 1, { page: 10 }), ...payload }],
+      [{ ...remove('khatma', 'khatma-c1'), keyFingerprint: 'fp-1' }],
+    ]) expect((await a.push(changes)).status).toBe(400);
+    expect((await a.pull()).body.data.records).toEqual(before);
+  });
+
+  it('a content-free deletion is accepted from any client: it carries no content and is the user`s own removal', async () => {
+    const t = buildAccountTestApp();
+    const a = await account(t, 'a');
+    await a.push([khatma('khatma-c1', 'c1')]);
+    expect(statuses(await a.push([remove('khatma', 'khatma-c1')]))).toEqual(['applied']);
+    expect((await a.pull()).body.data.records).toEqual([expect.objectContaining({ recordId: 'khatma-c1', deleted: true })]);
+  });
 });
 
 describe('أورادي وختماتي sync: rules', () => {

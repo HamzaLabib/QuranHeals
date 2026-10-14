@@ -1,7 +1,7 @@
 import { Schema, model, models } from 'mongoose';
 
 import { isValidVerseKey } from '../quran/referenceKeys';
-import { ISSUE_REPORT_CATEGORIES, ISSUE_REPORT_NOTIFICATION_STATES } from '../types/accountDomain';
+import { ISSUE_REPORT_CATEGORIES, ISSUE_REPORT_NOTIFICATION_STATES, ISSUE_REPORT_SOURCES, ISSUE_REPORT_TYPES } from '../types/accountDomain';
 import type { IssueReportEntity, IssueReportNotificationState } from '../types/accountDomain';
 
 const TRANSLATION_DISPLAY_MODES = ['always', 'on-demand', 'off'] as const;
@@ -37,10 +37,24 @@ const notificationSchema = new Schema<IssueReportNotificationState>(
  */
 const issueReportSchema = new Schema<IssueReportEntity>(
   {
-    category: {
+    // 'issue' by default, so reports stored before feedback existed stay issues.
+    type: {
       type: String,
       required: true,
+      enum: ISSUE_REPORT_TYPES,
+      default: 'issue',
+    },
+    // Required for an issue; feedback has none.
+    category: {
+      type: String,
+      required(this: IssueReportEntity) {
+        return this.type !== 'feedback';
+      },
       enum: ISSUE_REPORT_CATEGORIES,
+    },
+    source: {
+      type: String,
+      enum: ISSUE_REPORT_SOURCES,
     },
     comment: {
       type: String,
@@ -69,11 +83,6 @@ const issueReportSchema = new Schema<IssueReportEntity>(
     ayahNumber: {
       type: Number,
       min: 1,
-    },
-    emotionKey: {
-      type: String,
-      trim: true,
-      lowercase: true,
     },
     appLocale: {
       type: String,

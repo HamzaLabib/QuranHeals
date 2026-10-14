@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { ArrowLeft, ArrowRight, RefreshCw, Share2 } from 'lucide-react-native';
+import { ArrowLeft, ArrowRight, Flag, RefreshCw, Share2 } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -44,8 +44,8 @@ import { usePalette, useThemedStyles } from '@/theme/useTheme';
  * Callers (app/ayah/[emotion].tsx, app/ayah/general.tsx,
  * app/ayah/[surah]/[ayah].tsx) only parse route params and hand this
  * component a `source`; every behavioral difference between the flows
- * (selection, recent-history namespace, "Another ayah" scope, the issue
- * report's emotionKey) is decided from `source.mode` here, never from any
+ * (selection, recent-history namespace, "Another ayah" scope) is decided
+ * from `source.mode` here, never from any
  * localized text (Part 6 of the general-Quran-flow spec).
  */
 export type AyahSource =
@@ -383,12 +383,15 @@ export function AyahExperience({ source }: AyahExperienceProps) {
 
             {connectionText && <AyahConnectionAccordion text={connectionText} resetKey={ayahLoadId} />}
 
+            {/* The discreet flag action: below the primary row, never part of it (Share, Add Reflection, Save keep their order). */}
             <View style={styles.tertiaryActions}>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={messages.issueReport.action}
+                accessibilityLabel={messages.issueReport.flagAction}
                 onPress={() => setIsReportVisible(true)}
-                style={({ pressed }) => [styles.tertiaryButton, pressed && styles.pressed]}>
+                hitSlop={4}
+                style={({ pressed }) => [styles.tertiaryButton, isRtl && styles.tertiaryButtonRtl, pressed && styles.pressed]}>
+                <Flag size={14} color={colors.textSecondary} strokeWidth={2} />
                 <Text style={styles.tertiaryButtonText}>{messages.issueReport.action}</Text>
               </Pressable>
             </View>
@@ -405,13 +408,12 @@ export function AyahExperience({ source }: AyahExperienceProps) {
       <ReportIssueSheet
         visible={isReportVisible}
         onClose={() => setIsReportVisible(false)}
+        variant="ayah"
+        // The ayah's reference only: which emotion led here is never attached to a report.
         context={{
           verseKey: ayah?.verseKey,
           surahNumber: ayah?.surahNumber,
           ayahNumber: ayah?.ayahNumber,
-          // Never invented for general mode ("random"/"general"/"quran") —
-          // simply absent, per Part 12 of the general-Quran-flow spec.
-          emotionKey: source.mode === 'emotion' ? source.emotionKey : undefined,
         }}
       />
     </SafeAreaView>
@@ -530,9 +532,15 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     paddingTop: spacing.xs,
   },
   tertiaryButton: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: spacing.xs,
     minHeight: 40,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
+  },
+  tertiaryButtonRtl: {
+    flexDirection: 'row-reverse',
   },
   tertiaryButtonText: {
     color: colors.textSecondary,

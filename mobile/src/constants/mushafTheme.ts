@@ -30,8 +30,7 @@ export const MUSHAF_PANEL_COLORS = {
   light: {
     // Sage olive (4.0:1 on the bar): the bar's icons and the reader's top icons.
     icon: '#596F49',
-    // Reflection lightbulb: deep green when lit (5.9:1 on the bar), grey and unlit with no ayah selected (2.9:1).
-    bulbOn: '#2F5A22',
+    // Reflection lightbulb unlit (no ayah selected): grey outline (2.9:1). Lit, it is filled in `saved` (4.5:1), the save button's green.
     bulbOff: '#857F6C',
     text: '#2B2A26',
     error: '#A33A2B',
@@ -41,8 +40,10 @@ export const MUSHAF_PANEL_COLORS = {
     surface: { backgroundColor: '#E9DBB9', borderColor: '#DBCCA8', shadowColor: '#000000' },
     input: { backgroundColor: 'rgba(255, 255, 255, 0.9)', borderColor: 'rgba(43, 42, 38, 0.18)', color: '#231F20' },
     go: { backgroundColor: '#3E6B4B' },
-    // The bookmark, filled, when this page is the selected ورد's saved page: the palette's sage green (the save button's).
+    // The lit lightbulb's outline and rays: the palette's sage green.
     saved: '#3E6B4B',
+    // The active bookmark (outline and fill, this page being the selected ورد's saved page) and the lit lightbulb's glass: bright yellow, the same in Dark Mode.
+    activeFill: '#FFC000',
     selected: { backgroundColor: 'rgba(89, 111, 73, 0.16)' },
     // The ورد selector (a small pill under the page) and its list.
     accent: '#3E6B4B',
@@ -60,8 +61,7 @@ export const MUSHAF_PANEL_COLORS = {
   dark: {
     // Sage (6.4:1 on the bar): the bar's icons and the reader's top icons.
     icon: '#B5C9A9',
-    // Warm ivory when lit (9.2:1 on the bar), muted grey unlit (3.2:1).
-    bulbOn: '#F6E7B8',
+    // Lightbulb unlit: muted grey outline (3.2:1). Lit, it is filled in `saved` (4.3:1), the save button's green.
     bulbOff: '#868B7C',
     text: '#F1E9D6',
     error: '#F0A898',
@@ -71,8 +71,10 @@ export const MUSHAF_PANEL_COLORS = {
     surface: { backgroundColor: '#343D31', borderColor: '#475243', shadowColor: '#000000' },
     input: { backgroundColor: 'rgba(20, 24, 19, 0.85)', borderColor: 'rgba(241, 233, 214, 0.2)', color: '#F1E9D6' },
     go: { backgroundColor: '#8EA68A' },
-    // The filled bookmark on a saved page: the dark palette's green (the save button's).
+    // The lit lightbulb's outline and rays: the dark palette's green.
     saved: '#8EA68A',
+    // The active bookmark (outline and fill) and the lit lightbulb's glass: the same bright yellow as in Light Mode.
+    activeFill: '#FFC000',
     selected: { backgroundColor: 'rgba(181, 201, 169, 0.18)' },
     accent: '#B5C9A9',
     muted: '#A39C88',

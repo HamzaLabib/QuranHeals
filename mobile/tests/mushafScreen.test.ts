@@ -734,9 +734,8 @@ describe('the bar and the ورد pill blend with the page', () => {
         const iconNode = panelButton(key).children[0] as ReactTestInstance;
         expect(iconNode.props.color, key).toBe(icon);
       }
-      // Page 61 is ورد الفجر's saved page: the bookmark is filled with the palette's green.
-      const saved = theme === 'light' ? '#3E6B4B' : '#8EA68A';
-      expect((panelButton('save').children[0] as ReactTestInstance).props).toMatchObject({ color: saved, fill: saved });
+      // Page 61 is ورد الفجر's saved page: the whole bookmark, outline and fill, is bright yellow (no green left).
+      expect((panelButton('save').children[0] as ReactTestInstance).props).toMatchObject({ color: '#FFC000', fill: '#FFC000' });
       // The ورد pill: its original sage-green style restored (not the bar's colour), same shape and size.
       const pill = root.root.findByProps({ testID: 'mushaf-wird' });
       const own = PILL[theme];
@@ -1090,20 +1089,30 @@ describe('the floating bar', () => {
     expect(root.root.findByType('ReflectionSheet' as never).props).toMatchObject({ visible: true, verseKey: '3:85' });
   });
 
-  it('the lightbulb: grey without rays until an ayah is selected, then lit with rays (olive); clearing the selection unlights it', async () => {
+  it('the lightbulb: a grey outline without rays until an ayah is selected, then the save button`s green outline and rays filled with bright yellow; clearing the selection unlights it', async () => {
     await render();
     const bulb = () => panelButton('reflect').findByType(ReflectionBulbIcon as never);
     const rays = () => panelButton('reflect').findAllByProps({ testID: 'reflection-bulb-rays' });
+    const glassFill = () => panelButton('reflect').findByProps({ testID: 'reflection-bulb-glass' }).props.fill;
     expect(bulb().props).toMatchObject({ lit: false, color: MUSHAF_PANEL_COLORS.light.bulbOff });
+    expect(glassFill()).toBe('none');
     expect(rays()).toHaveLength(0);
     const unlitSize = bulb().props.size;
     await tapPage(100, 130);
-    expect(bulb().props).toMatchObject({ lit: true, color: MUSHAF_PANEL_COLORS.light.bulbOn, size: unlitSize });
+    // The saved bookmark's colour: the same token fills the save button's icon.
+    expect(bulb().props).toMatchObject({ lit: true, color: MUSHAF_PANEL_COLORS.light.saved, size: unlitSize });
+    // The green outline and rays, the glass bright yellow.
+    expect(glassFill()).toBe('#FFC000');
+    expect(panelButton('reflect').findByProps({ testID: 'reflection-bulb-lit' }).props.stroke).toBe(MUSHAF_PANEL_COLORS.light.saved);
+    // One warm golden yellow for both active icons, the same token in Light and Dark; the Mushaf's gold ornament ink is separate.
+    expect(MUSHAF_PANEL_COLORS.light.activeFill).toBe('#FFC000');
+    expect(MUSHAF_PANEL_COLORS.dark.activeFill).toBe('#FFC000');
     expect(rays()).toHaveLength(1);
-    // The same bulb outline in both states: only the rays are added.
+    // The same bulb shape in both states: only the fill and the rays are added.
     expect(panelButton('reflect').findByProps({ testID: 'reflection-bulb-lit' }).findAllByType('Path' as never)).toHaveLength(4);
     await tapPage(100, 130); // the selected ayah again: cleared
     expect(bulb().props.lit).toBe(false);
+    expect(glassFill()).toBe('none');
     expect(panelButton('reflect').props.disabled).toBe(true);
     expect(panelButton('reflect').findByProps({ testID: 'reflection-bulb-unlit' }).findAllByType('Path' as never)).toHaveLength(3);
   });
@@ -1394,6 +1403,9 @@ describe('search (one button, two modes)', () => {
     await render();
     await openSearch();
     expect(byId('mushaf-search-page-input').props).toMatchObject({ keyboardType: 'number-pad', accessibilityLabel: copy().pageNumberPlaceholder });
+    // iOS: no extra "Go" bar above the number pad (React Native adds one for any other return key type); the green arrow is the action.
+    expect(byId('mushaf-search-page-input').props.returnKeyType).toBe('none');
+    for (const prop of ['enterKeyHint', 'inputAccessoryViewID', 'inputAccessoryViewButtonLabel']) expect(byId('mushaf-search-page-input').props[prop]).toBeUndefined();
     await typeInto('mushaf-search-page-input', '٣٠٠');
     await press(byId('mushaf-search-go'));
     await flush();
@@ -2006,13 +2018,17 @@ describe('Dark Mode', () => {
     expect(styleOf(root.root.findByProps({ testID: 'mushaf-panel' })).backgroundColor).toBe(MUSHAF_PANEL_COLORS.dark.surface.backgroundColor);
   });
 
-  it('the lit lightbulb is warm ivory in Dark Mode; unlit it is a muted grey', async () => {
+  it('Dark Mode: the lit lightbulb keeps the dark save-button green outline, filled with the same bright yellow; unlit it is a muted grey outline', async () => {
     state.theme = 'dark';
     await render();
     const bulb = () => panelButton('reflect').findByType(ReflectionBulbIcon as never);
+    const glassFill = () => panelButton('reflect').findByProps({ testID: 'reflection-bulb-glass' }).props.fill;
     expect(bulb().props).toMatchObject({ lit: false, color: MUSHAF_PANEL_COLORS.dark.bulbOff });
+    expect(glassFill()).toBe('none');
     await tapPage(100, 130);
-    expect(bulb().props).toMatchObject({ lit: true, color: MUSHAF_PANEL_COLORS.dark.bulbOn });
+    expect(bulb().props).toMatchObject({ lit: true, color: MUSHAF_PANEL_COLORS.dark.saved });
+    expect(glassFill()).toBe('#FFC000');
+    expect(panelButton('reflect').findByProps({ testID: 'reflection-bulb-lit' }).props.stroke).toBe(MUSHAF_PANEL_COLORS.dark.saved);
   });
 
   it('the Quran SVG fallback is recoloured; Light Mode keeps its ink', async () => {
@@ -2201,6 +2217,432 @@ describe('دعاء ختم القرآن after page 604', () => {
       expect(state.storage.get(ACTIVE_READING_STOP_STORAGE_KEY)).toBe('fajr');
       await act(async () => root.unmount());
     }
+  });
+});
+
+describe('Page 604: إتمام الختمة | ورد name | دعاء ختم القرآن', () => {
+  const host = (id: string) => root.root.findAllByProps({ testID: id }).filter((node) => String(node.type) === 'Pressable');
+  const styleOf = (node: ReactTestInstance) => Object.assign({}, ...[node.props.style({ pressed: false })].flat(3).filter(Boolean));
+  const pillStyle = () => Object.assign({}, ...[root.root.findByProps({ testID: 'mushaf-wird' }).props.style({ pressed: false })].flat(3).filter(Boolean));
+  const label = (id: string) => host(id)[0].findByType('Text' as never);
+  const reachedSheet = () => root.root.findAllByProps({ testID: 'khatma-reached' }).filter((node) => String(node.type) === 'View');
+  const notice = (kind: string) => root.root.findAllByProps({ testID: `mushaf-khatma-${kind}` }).filter((node) => String(node.type) === 'View');
+  const sheetButton = (which: 'confirm' | 'cancel') => root.root.findAllByProps({ testID: `khatma-reached-${which}` }).find((node) => String(node.type) === 'Pressable')!;
+  const withDua = async () => { state.khatmDua = (await vi.importActual<typeof import('@/mushaf/khatmDua')>('@/mushaf/khatmDua')).KHATM_DUA; };
+  const reading = async () => (await import('@/mushaf/khatmas')).loadReadingData();
+  const tapComplete = async () => { await press(host('mushaf-complete-khatma')[0]); await flush(); await flush(); };
+  /** ورد saved through the real reading data at `page` (an earlier page, so a later save at 604 completes its cycle). */
+  async function wirdsAt(entries: [string, number][], active: string) {
+    const { saveWirdPage } = await import('@/mushaf/khatmas');
+    for (const [name, page] of entries) {
+      await saveWirdPage({ name, page: Math.min(page, 300) });
+      if (page > 300) await saveWirdPage({ name, page });
+    }
+    const wirds = (await reading()).wirds;
+    state.storage.set(ACTIVE_READING_STOP_STORAGE_KEY, wirds.find((w) => w.stop.name === active)!.stop.id);
+    return wirds;
+  }
+
+  for (const locale of ['en', 'ar'] as const) {
+    it(`${locale}: إتمام الختمة on the left, the existing ورد name centred, دعاء ختم القرآن on the right — always Standard Arabic, the same places in every language`, async () => {
+      await withDua();
+      state.locale = locale;
+      await wirdsAt([['ورد الفجر', 300]], 'ورد الفجر');
+      state.params = { page: '604' };
+      await render();
+      const complete = styleOf(host('mushaf-complete-khatma')[0]);
+      const dua = styleOf(host('mushaf-khatm-dua')[0]);
+      expect(complete).toMatchObject({ position: 'absolute', left: 14, maxWidth: '29%' });
+      expect(complete.right).toBeUndefined();
+      expect(dua).toMatchObject({ position: 'absolute', right: 14, maxWidth: '29%' });
+      expect(dua.left).toBeUndefined();
+      // The ورد name stays the centred pill, unchanged apart from its narrower width on this page.
+      const row = root.root.findByProps({ testID: 'mushaf-wird-row' });
+      expect(Object.assign({}, ...[row.props.style].flat(3).filter(Boolean))).toMatchObject({ alignItems: 'center', justifyContent: 'center' });
+      expect(root.root.findByProps({ testID: 'mushaf-wird' }).props.accessibilityLabel).toContain('ورد الفجر');
+      expect(pillStyle().maxWidth).toBe('30%');
+      // The same link design: identical styles except which edge each hugs.
+      const { left: _l, ...completeRest } = complete;
+      const { right: _r, ...duaRest } = dua;
+      expect(completeRest).toEqual(duaRest);
+      const textStyle = (id: string) => Object.assign({}, ...[label(id).props.style].flat(3).filter(Boolean));
+      expect({ ...textStyle('mushaf-complete-khatma'), textAlign: undefined }).toEqual({ ...textStyle('mushaf-khatm-dua'), textAlign: undefined });
+      expect(textStyle('mushaf-complete-khatma')).toMatchObject({ writingDirection: 'rtl', textAlign: 'left' });
+      expect(textStyle('mushaf-khatm-dua')).toMatchObject({ writingDirection: 'rtl', textAlign: 'right' });
+      expect(label('mushaf-complete-khatma').props.children).toBe('إتمام الختمة');
+      expect(label('mushaf-khatm-dua').props.children).toBe('دعاء ختم القرآن');
+      for (const id of ['mushaf-khatm-dua', 'mushaf-complete-khatma']) expect(label(id).props).toMatchObject({ numberOfLines: 1, adjustsFontSizeToFit: true, minimumFontScale: 0.7 });
+    });
+  }
+
+  it('never overlaps on narrow phones: each link and the centred name keep apart at 320, 375 and 430 pt', () => {
+    for (const width of [320, 375, 430]) {
+      const linkEnd = 14 + 0.29 * width; // the left link's far edge (the right link mirrors it)
+      const nameStart = width / 2 - (0.3 * width) / 2;
+      expect(nameStart - linkEnd, `${width} pt`).toBeGreaterThan(4);
+    }
+  });
+
+  it('pages 1–603 are unchanged: no إتمام الختمة, no du`a link, and the ورد name keeps its usual width', async () => {
+    await withDua();
+    for (const page of ['1', '300', '603']) {
+      state.params = { page };
+      await render();
+      expect(host('mushaf-complete-khatma')).toHaveLength(0);
+      expect(host('mushaf-khatm-dua')).toHaveLength(0);
+      expect(pillStyle().maxWidth).toBe('72%');
+      await act(async () => root.unmount());
+    }
+  });
+
+  it('not yet saved at 604: the bookmark`s own save of page 604, then the confirmation opens; nothing counted until confirmed', async () => {
+    state.locale = 'ar';
+    await wirdsAt([['ورد الفجر', 300], ['ورد العشاء', 120]], 'ورد الفجر');
+    state.params = { page: '604' };
+    await render();
+    expect(reachedSheet()).toHaveLength(0); // showing page 604 offers nothing by itself
+    await tapComplete();
+    const data = await reading();
+    const fajr = data.wirds.find((w) => w.stop.name === 'ورد الفجر')!;
+    // The same transition as a manual save at 604: the page saved, the completion pending, nothing recorded.
+    expect(fajr).toMatchObject({ status: 'pending' });
+    expect(fajr.stop.page).toBe(604);
+    expect(data.stats.total).toBe(0);
+    expect(data.wirds.find((w) => w.stop.name === 'ورد العشاء')!.stop.page).toBe(120); // only the selected ورد
+    expect(reachedSheet()).toHaveLength(1);
+    expect(texts()).toContain('ورد الفجر');
+    vi.mocked(router.push).mockClear();
+    await act(async () => { sheetButton('confirm').props.onPress(); sheetButton('confirm').props.onPress(); });
+    await flush();
+    await flush();
+    const after = await reading();
+    expect(after.records.map((r) => r.stopName)).toEqual(['ورد الفجر']); // once, even tapped twice
+    expect(router.push).toHaveBeenCalledTimes(1);
+    expect(router.push).toHaveBeenCalledWith({ pathname: '/khatma-complete', params: { id: after.records[0].id } });
+  });
+
+  it('already awaiting confirmation: the confirmation opens directly, without saving again', async () => {
+    await wirdsAt([['Fajr', 604], ['Isha', 604]], 'Fajr');
+    const before = await reading();
+    const stopsBefore = state.storage.get(READING_STOPS_STORAGE_KEY);
+    state.params = { page: '604' };
+    await render();
+    await tapComplete();
+    expect(reachedSheet()).toHaveLength(1);
+    expect(texts()).toContain('Fajr');
+    expect(state.storage.get(READING_STOPS_STORAGE_KEY)).toBe(stopsBefore); // no second save
+    expect(await reading()).toEqual(before);
+    await press(sheetButton('confirm'));
+    await flush();
+    const after = await reading();
+    expect(after.records.map((r) => r.stopName)).toEqual(['Fajr']);
+    expect(after.wirds.find((w) => w.stop.name === 'Isha')!.status).toBe('pending'); // the other ورد untouched
+  });
+
+  it('cancelling keeps the saved page and the pending completion, and counts nothing', async () => {
+    state.locale = 'ar';
+    await wirdsAt([['ورد الفجر', 300]], 'ورد الفجر');
+    state.params = { page: '604' };
+    await render();
+    await tapComplete();
+    await press(sheetButton('cancel'));
+    const data = await reading();
+    expect(data.stats.total).toBe(0);
+    expect(data.wirds[0]).toMatchObject({ status: 'pending' });
+    expect(data.wirds[0].stop.page).toBe(604);
+  });
+
+  it('a failed save: an error, no confirmation, nothing recorded', async () => {
+    const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
+    await wirdsAt([['Fajr', 300]], 'Fajr');
+    state.params = { page: '604' };
+    await render();
+    vi.mocked(AsyncStorage.setItem).mockRejectedValueOnce(new Error('disk full'));
+    await tapComplete();
+    expect(reachedSheet()).toHaveLength(0);
+    expect(notice('saveFailed')).toHaveLength(1);
+    expect(texts()).toContain('The page could not be saved');
+    expect((await reading()).stats.total).toBe(0);
+  });
+
+  it('no ورد selected: asks for one; nothing saved or recorded', async () => {
+    state.locale = 'ar';
+    const before = new Map(state.storage);
+    state.params = { page: '604' };
+    await render();
+    await tapComplete();
+    expect(reachedSheet()).toHaveLength(0);
+    expect(notice('noWird')).toHaveLength(1);
+    expect(texts()).toEqual(expect.arrayContaining(['اختر وردًا أولًا', 'اختر الورد الذي أتممته من اسم الورد أسفل الصفحة، ثم حاول مرة أخرى.']));
+    expect(root.root.findAllByProps({ testID: 'mushaf-khatma-noWird-confirm' })).toHaveLength(0);
+    await press(root.root.findAllByProps({ testID: 'mushaf-khatma-noWird-cancel' }).find((node) => String(node.type) === 'Pressable')!);
+    expect(notice('noWird')).toHaveLength(0);
+    for (const [key, value] of before) expect(state.storage.get(key), key).toBe(value);
+    expect([...state.storage.keys()].filter((key) => !before.has(key))).toEqual([]);
+  });
+
+  it('a genuine restriction is kept: a ورد saved at 604 before Khatmas were tracked is not completed here (its own wording is in أورادي وختماتي)', async () => {
+    state.storage.set(READING_STOPS_STORAGE_KEY, JSON.stringify([{ id: 'old', name: 'Mum', page: 604, updatedAt: '2026-09-01T08:00:00.000Z' }]));
+    state.storage.set(ACTIVE_READING_STOP_STORAGE_KEY, 'old');
+    const stopsBefore = state.storage.get(READING_STOPS_STORAGE_KEY);
+    state.params = { page: '604' };
+    await render();
+    await tapComplete();
+    expect(reachedSheet()).toHaveLength(0);
+    expect(notice('notReady')).toHaveLength(1);
+    expect(state.storage.get(READING_STOPS_STORAGE_KEY)).toBe(stopsBefore);
+    expect((await reading()).stats.total).toBe(0);
+  });
+
+  it('repeated taps while it saves start one operation; a completed Khatma is never counted again, and the restarted cycle is not offered', async () => {
+    await wirdsAt([['Fajr', 300]], 'Fajr');
+    state.params = { page: '604' };
+    await render();
+    await act(async () => {
+      host('mushaf-complete-khatma')[0].props.onPress();
+      host('mushaf-complete-khatma')[0].props.onPress();
+      host('mushaf-complete-khatma')[0].props.onPress();
+    });
+    await flush();
+    await flush();
+    expect(reachedSheet()).toHaveLength(1);
+    await press(sheetButton('confirm'));
+    await flush();
+    expect((await reading()).stats.total).toBe(1);
+    // The ورد restarted at page 1 by that confirmation: tapping again right away is blocked — no save, no sheet.
+    const recordsBefore = (await reading()).records;
+    const stopsBefore = state.storage.get(READING_STOPS_STORAGE_KEY);
+    await tapComplete();
+    expect(reachedSheet()).toHaveLength(0);
+    expect(notice('newCycle')).toHaveLength(1);
+    expect((await reading()).records).toEqual(recordsBefore);
+    expect(state.storage.get(READING_STOPS_STORAGE_KEY)).toBe(stopsBefore);
+  });
+
+  it('the du`a link still opens its own screen; the du`a screen offers no confirmation', async () => {
+    await withDua();
+    state.params = { page: '604' };
+    await render();
+    await press(host('mushaf-khatm-dua')[0]);
+    expect(router.push).toHaveBeenLastCalledWith('/khatm-dua');
+    const duaScreen = readFileSync(resolve(__dirname, '../src/app/khatm-dua.tsx'), 'utf8');
+    expect(duaScreen).not.toMatch(/confirmKhatma|@\/mushaf\/khatmas/);
+  });
+});
+
+describe('Page 604: a cycle just restarted by a confirmed Khatma is never completed again by accident', () => {
+  const host = (id: string) => root.root.findAllByProps({ testID: id }).filter((node) => String(node.type) === 'Pressable');
+  const reachedSheet = () => root.root.findAllByProps({ testID: 'khatma-reached' }).filter((node) => String(node.type) === 'View');
+  const notice = (kind: string) => root.root.findAllByProps({ testID: `mushaf-khatma-${kind}` }).filter((node) => String(node.type) === 'View');
+  const sheetButton = (which: 'confirm' | 'cancel') => root.root.findAllByProps({ testID: `khatma-reached-${which}` }).find((node) => String(node.type) === 'Pressable')!;
+  const khatmas = () => import('@/mushaf/khatmas');
+  const reading = async () => (await khatmas()).loadReadingData();
+  const tapComplete = async () => { await press(host('mushaf-complete-khatma')[0]); await flush(); await flush(); };
+  const KHATMAS_KEY = 'quran-heals:mushaf-khatmas:v1';
+  /** Everything the reading data persists (stops, cycles, Khatmas, the selected ورد). */
+  const persisted = () => [READING_STOPS_STORAGE_KEY, KHATMAS_KEY, ACTIVE_READING_STOP_STORAGE_KEY].map((key) => state.storage.get(key));
+
+  /** Fajr read from page 300, completed on page 604 through إتمام الختمة and confirmed: one Khatma, a new cycle at page 1. */
+  async function completeFirstKhatma(others: [string, number][] = []) {
+    const { saveWirdPage } = await khatmas();
+    for (const [name, page] of others) { await saveWirdPage({ name, page: Math.min(page, 300) }); if (page > 300) await saveWirdPage({ name, page }); }
+    await saveWirdPage({ name: 'Fajr', page: 300 });
+    state.params = { page: '604' };
+    await render();
+    await tapComplete();
+    expect(reachedSheet()).toHaveLength(1);
+    await press(sheetButton('confirm'));
+    await flush();
+    const data = await reading();
+    expect(data.records.map((r) => r.stopName)).toEqual(['Fajr']);
+    return data;
+  }
+  /** Blocked: the explanation only — no confirmation sheet, nothing saved or counted. */
+  async function expectBlocked() {
+    const before = persisted();
+    await tapComplete();
+    expect(reachedSheet()).toHaveLength(0);
+    expect(notice('newCycle')).toHaveLength(1);
+    expect(persisted()).toEqual(before);
+    await press(root.root.findAllByProps({ testID: 'mushaf-khatma-newCycle-cancel' }).find((node) => String(node.type) === 'Pressable')!);
+  }
+
+  it('the first, legitimate Khatma is recorded once, with its date and Ramadan classification; the new cycle is persisted as not yet progressed', async () => {
+    const data = await completeFirstKhatma();
+    const fajr = data.wirds.find((w) => w.stop.name === 'Fajr')!;
+    expect(fajr.stop.page).toBe(1);
+    expect(fajr.status).toBe('reading');
+    expect(data.records[0]).toMatchObject({ localDate: expect.any(String), ramadan: expect.any(Boolean) });
+    // Persisted on the device (and synced as part of the ورد): the cycle began with that Khatma, nothing saved since.
+    const doc = JSON.parse(state.storage.get(KHATMAS_KEY)!) as { cycles: Record<string, { startedByKhatmaId: string | null; savedSinceStart: boolean }> };
+    expect(doc.cycles[fajr.stop.id]).toMatchObject({ startedByKhatmaId: data.records[0].id, savedSinceStart: false });
+  });
+
+  it('an immediate second tap, and Arabic, are blocked: no save, no sheet, the count unchanged', async () => {
+    state.locale = 'ar';
+    await completeFirstKhatma();
+    const history = (await reading()).records;
+    await tapComplete();
+    expect(texts()).toEqual(expect.arrayContaining(['سُجِّلت هذه الختمة بالفعل']));
+    await press(root.root.findAllByProps({ testID: 'mushaf-khatma-newCycle-cancel' }).find((node) => String(node.type) === 'Pressable')!);
+    await expectBlocked();
+    expect((await reading()).records).toEqual(history);
+  });
+
+  it('reopening page 604, or a full restart (a fresh screen over the stored data), stays blocked: the state is persisted, not a screen flag', async () => {
+    await completeFirstKhatma();
+    await act(async () => root.unmount());
+    state.params = { page: '604' };
+    await render();
+    await expectBlocked();
+    await act(async () => root.unmount());
+    // "Restart": a fresh screen; the reading data is read back from storage (it keeps no state in memory).
+    state.params = { page: '604' };
+    await render();
+    await expectBlocked();
+    expect((await reading()).stats.total).toBe(1);
+  });
+
+  it('switching to another ورد and back: the other one completes normally, Fajr`s restarted cycle stays blocked', async () => {
+    await completeFirstKhatma([['Isha', 604]]);
+    const isha = (await reading()).wirds.find((w) => w.stop.name === 'Isha')!;
+    const fajr = (await reading()).wirds.find((w) => w.stop.name === 'Fajr')!;
+    await act(async () => root.unmount());
+    state.storage.set(ACTIVE_READING_STOP_STORAGE_KEY, isha.stop.id);
+    await render();
+    await tapComplete();
+    expect(reachedSheet()).toHaveLength(1);
+    await press(sheetButton('confirm'));
+    await flush();
+    expect((await reading()).records.map((r) => r.stopName).sort()).toEqual(['Fajr', 'Isha']);
+    await act(async () => root.unmount());
+    state.storage.set(ACTIVE_READING_STOP_STORAGE_KEY, fajr.stop.id);
+    await render();
+    await expectBlocked();
+  });
+
+  it('the restarted cycle syncs as data, so another device receives the same block; a stale device`s older cycle can never win over it', async () => {
+    const data = await completeFirstKhatma();
+    const fajr = data.wirds.find((w) => w.stop.name === 'Fajr')!;
+    const { wirdContent, wirdFromContent, mergeWird } = await import('@/sync/readingSyncModel');
+    const synced = wirdContent(fajr.stop, fajr.cycle);
+    // What another device stores on download: the same "started by that Khatma, nothing saved since".
+    expect(wirdFromContent(synced).cycle).toMatchObject({ startedByKhatmaId: data.records[0].id, savedSinceStart: false, seq: 1 });
+    // A device still holding the completed cycle (generation 0, pending at 604) merges to the newer generation.
+    const stale = { ...synced, page: 604, cycle: { ...synced.cycle, id: 'old-cycle', seq: 0, startedByKhatmaId: null, savedSinceStart: true, lastSavedPage: 604, reachedEndAt: '2026-10-01T00:00:00.000Z', undoneCycleId: null } };
+    expect(mergeWird(stale, synced, null).cycle).toMatchObject({ id: fajr.cycle.id, savedSinceStart: false });
+    expect(mergeWird(synced, stale, null).cycle).toMatchObject({ id: fajr.cycle.id, savedSinceStart: false });
+  });
+
+  it('genuine progress in the new cycle (any explicit save of its reading position) lifts the block: the next Khatma is completed and counted separately', async () => {
+    await completeFirstKhatma();
+    const { saveWirdPage } = await khatmas();
+    await saveWirdPage({ name: 'Fajr', page: 40 });
+    await tapComplete();
+    expect(notice('newCycle')).toHaveLength(0);
+    expect(reachedSheet()).toHaveLength(1);
+    await act(async () => { sheetButton('confirm').props.onPress(); sheetButton('confirm').props.onPress(); });
+    await flush();
+    await flush();
+    const data = await reading();
+    expect(data.stats.total).toBe(2);
+    expect(new Set(data.records.map((r) => r.cycleId)).size).toBe(2); // two different cycles, each once
+  });
+
+  /** The bookmark's own save, as the reader does it: the save button, the name, confirm. */
+  async function bookmarkSave(name: string) {
+    await press(panelButton('save'));
+    await act(async () => root.root.findByProps({ testID: 'mushaf-popup-save' }).findByType('TextInput' as never).props.onChangeText(name));
+    await press(button(copy().confirmStop));
+    await flush();
+    await flush();
+  }
+  const toast = () => root.root.findAllByProps({ testID: 'mushaf-saved-toast' }).filter((node) => String(node.type) === 'View');
+  const savePopup = () => root.root.findAllByProps({ testID: 'mushaf-popup-save' }).filter((node) => String(node.type) === 'View');
+
+  it('the bookmark, right after a confirmation: page 604 is not saved for the restarted cycle — the new-cycle notice, no "Saved", no sheet, nothing changed', async () => {
+    await completeFirstKhatma();
+    const before = persisted();
+    await bookmarkSave('Fajr');
+    expect(reachedSheet()).toHaveLength(0);
+    expect(notice('newCycle')).toHaveLength(1);
+    expect(savePopup()).toHaveLength(0); // the name field closed
+    expect(toast()).toHaveLength(0);
+    expect(persisted()).toEqual(before);
+    expect((await reading()).stats.total).toBe(1);
+    // And then إتمام الختمة is still blocked too: the bookmark did not count as progress.
+    await press(root.root.findAllByProps({ testID: 'mushaf-khatma-newCycle-cancel' }).find((node) => String(node.type) === 'Pressable')!);
+    await expectBlocked();
+  });
+
+  it('the bookmark stays blocked after reopening page 604 and after a restart (persisted cycle state)', async () => {
+    await completeFirstKhatma();
+    for (let i = 0; i < 2; i++) {
+      await act(async () => root.unmount());
+      state.params = { page: '604' };
+      await render();
+      const before = persisted();
+      await bookmarkSave('Fajr');
+      expect(notice('newCycle')).toHaveLength(1);
+      expect(reachedSheet()).toHaveLength(0);
+      expect(persisted()).toEqual(before);
+    }
+  });
+
+  it('on page 604 the bookmark still saves other ورد normally, and a new name as before (never offered a Khatma)', async () => {
+    await completeFirstKhatma([['Isha', 300]]);
+    await bookmarkSave('Isha');
+    expect(notice('newCycle')).toHaveLength(0);
+    expect(reachedSheet()).toHaveLength(1); // Isha legitimately reached 604: the usual Save → Confirm
+    await press(sheetButton('cancel'));
+    await bookmarkSave('Brand new');
+    expect(notice('newCycle')).toHaveLength(0);
+    expect(reachedSheet()).toHaveLength(0);
+    expect((await reading()).wirds.find((w) => w.stop.name === 'Brand new')!.stop.page).toBe(604);
+  });
+
+  it('pages 1–603 save as always — for the restarted ورد too — and that saved progress restores page 604`s Save → Confirm', async () => {
+    await completeFirstKhatma();
+    await act(async () => root.unmount());
+    state.params = { page: '40' };
+    await render();
+    await bookmarkSave('Fajr');
+    expect(notice('newCycle')).toHaveLength(0);
+    expect(toast()).toHaveLength(1);
+    expect((await reading()).wirds.find((w) => w.stop.name === 'Fajr')!.stop.page).toBe(40);
+    await act(async () => root.unmount());
+    state.params = { page: '604' };
+    await render();
+    await bookmarkSave('Fajr');
+    expect(notice('newCycle')).toHaveLength(0);
+    expect(reachedSheet()).toHaveLength(1);
+    await act(async () => { sheetButton('confirm').props.onPress(); sheetButton('confirm').props.onPress(); });
+    await flush();
+    await flush();
+    const data = await reading();
+    expect(data.stats.total).toBe(2);
+    expect(new Set(data.records.map((r) => r.cycleId)).size).toBe(2);
+  });
+
+  it('repeated bookmark saves on page 604 after a confirmation never count anything', async () => {
+    await completeFirstKhatma();
+    for (let i = 0; i < 3; i++) {
+      await bookmarkSave('Fajr');
+      expect(reachedSheet()).toHaveLength(0);
+      await press(root.root.findAllByProps({ testID: 'mushaf-khatma-newCycle-cancel' }).find((node) => String(node.type) === 'Pressable')!);
+    }
+    expect((await reading()).stats.total).toBe(1);
+  });
+
+  it('cancelling a confirmation counts nothing; the earlier Khatma history stays exactly as it was', async () => {
+    const first = await completeFirstKhatma();
+    const { saveWirdPage } = await khatmas();
+    await saveWirdPage({ name: 'Fajr', page: 40 });
+    await tapComplete();
+    await press(sheetButton('cancel'));
+    const data = await reading();
+    expect(data.records).toEqual(first.records);
+    expect(data.wirds.find((w) => w.stop.name === 'Fajr')!.status).toBe('pending');
   });
 });
 
@@ -2400,7 +2842,8 @@ describe('the bookmark shows whether this page is the selected ورد`s saved pa
     expect(isSaved()).toBe(false);
     await saveHere();
     expect(isSaved()).toBe(true);
-    expect(icon().props).toMatchObject({ color: '#3E6B4B', fill: '#3E6B4B' });
+    // Saved: the whole bookmark bright yellow, outline and fill.
+    expect(icon().props).toMatchObject({ color: '#FFC000', fill: '#FFC000' });
     expect(panelButton('save').props.accessibilityLabel).toBe(`${copy().saveStopAction}, ${copy().stopSaved}`);
     await goToPage(150);
     expect(isSaved()).toBe(false);
@@ -2498,7 +2941,7 @@ describe('the bookmark shows whether this page is the selected ورد`s saved pa
     await act(async () => root.unmount());
     seed([stop('fajr', 'ورد الفجر', 61, 1)], 'fajr');
     await render();
-    expect(icon().props).toMatchObject({ color: '#8EA68A', fill: '#8EA68A' });
+    expect(icon().props).toMatchObject({ color: '#FFC000', fill: '#FFC000' });
   });
 
   it('the guest`s and an account`s أوراد are separate: switching owner shows that owner`s saved page', async () => {
