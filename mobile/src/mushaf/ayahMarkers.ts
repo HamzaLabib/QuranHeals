@@ -140,10 +140,10 @@ export function qcfV1IntendedBaselineUnits(page: number): number {
 /**
  * Android: draw the Quran lines where the approved iPhone rendering draws them. Android places a QPC V1 glyph's
  * baseline where the layout means it (CustomLineHeightSpan centres the font's line in the box, as CSS does), 0.376 em
- * above the iPhone's (qcfV1DrawnLineShiftEm). The approved page (MUSHAF_TEXT_LIFT_PT included) was judged on the
+ * above the iPhone's (qcfV1DrawnLineShiftEm). The approved page (the text-area lift included) was judged on the
  * iPhone, so on Android the Quran rows (lines and Basmala; not the Amiri headings) move down by the iPhone's amount:
  * every glyph, mark, medallion, highlight and tap target then sits where it does on the iPhone, relative to the frame.
- * false: Android draws at the layout's own baseline (MUSHAF_TEXT_LIFT_PT above it).
+ * false: Android draws at the layout's own baseline (mushafTextLift above it).
  */
 export const ANDROID_MATCHES_IPHONE_BASELINE = true;
 

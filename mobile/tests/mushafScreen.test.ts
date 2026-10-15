@@ -464,10 +464,15 @@ describe('full-screen reading view', () => {
   });
 });
 
-describe('the whole Quran text area MUSHAF_TEXT_LIFT_PT above the printed one, the same on every page, in both modes', () => {
+describe('the whole Quran text area mushafTextLift above the printed one, the same on every page, in both modes', () => {
   it('Normal and Full-Screen: one lift, applied once; page, frame and text-area size unchanged; switching back restores it', async () => {
-    const { computePageLayout, MUSHAF_TEXT_LIFT_PT } = await import('@/mushaf/pageGeometry');
+    const { computePageLayout, mushafTextLift, MUSHAF_TEXT_LIFT_PT, NATIVE_TEXT_LIFT_EM, NOMINAL_LETTER_SIZE_PER_TEXT_WIDTH } = await import('@/mushaf/pageGeometry');
+    // iOS and Android: 0.26 × the nominal letter size (approved 2026-10-15); the web keeps the fixed 4 pt.
+    expect(NATIVE_TEXT_LIFT_EM).toBe(0.26);
     expect(MUSHAF_TEXT_LIFT_PT).toBe(4);
+    expect(mushafTextLift(300, 'web')).toBe(4);
+    expect(mushafTextLift(300, 'android')).toBeCloseTo(0.26 * NOMINAL_LETTER_SIZE_PER_TEXT_WIDTH * 300, 12);
+    const lift = (textWidth: number) => mushafTextLift(textWidth, 'ios'); // this file renders as iOS
     await render({ width: 393, height: 852 - 59 - BACK_BAR_HEIGHT });
     const area = () => styleOf(inPage().findByProps({ testID: 'mushaf-text-area' }));
     const paper = () => styleOf(inPage().findByProps({ testID: 'mushaf-paper' }));
@@ -476,14 +481,15 @@ describe('the whole Quran text area MUSHAF_TEXT_LIFT_PT above the printed one, t
     expect(paper().height).toBeCloseTo(printed.page.height, 9);
     expect(area().height).toBeCloseTo(printed.text.height, 9);
     expect(area().width).toBeCloseTo(printed.text.width, 9);
-    expect(area().top).toBeCloseTo(printed.text.y - MUSHAF_TEXT_LIFT_PT, 9);
+    expect(area().top).toBeCloseTo(printed.text.y - lift(printed.text.width), 9);
+    expect(lift(printed.text.width)).toBeGreaterThan(MUSHAF_TEXT_LIFT_PT);
     expect(area().left).toBeCloseTo(printed.text.x, 9);
     await press(root.root.findByProps({ testID: 'mushaf-fullscreen-toggle' }));
     const full = computePageLayout(paper().width, Math.round((paper().height - printed.page.height) / (width / 20)) + 29);
-    expect(area().top).toBeCloseTo(full.text.y - MUSHAF_TEXT_LIFT_PT, 9);
+    expect(area().top).toBeCloseTo(full.text.y - lift(full.text.width), 9);
     expect(area().height).toBeCloseTo(full.text.height, 9);
     await press(root.root.findByProps({ testID: 'mushaf-fullscreen-toggle' }));
-    expect(area().top).toBeCloseTo(printed.text.y - MUSHAF_TEXT_LIFT_PT, 9);
+    expect(area().top).toBeCloseTo(printed.text.y - lift(printed.text.width), 9);
   });
 });
 

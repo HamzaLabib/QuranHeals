@@ -102,17 +102,38 @@ export function textVerticalInset(textWidth: number): number {
 }
 
 /**
- * TEMPORARY visual adjustment (2026-10-12), pending verification on real devices: the whole Quran text area — every
- * line, Surah heading, Basmala, medallion, highlight and tap target (all are inside it), pages 1–2 included — is
- * drawn this many points higher than the printed layout's text area, on every page, in Normal and Full-Screen.
- * A fixed screen distance, not scaled with the page; the frame, page size, letter size and spacing are unchanged.
- *
- * Why: the iPhone draws QPC V1 glyphs about 8.4 pt below the layout's baseline (screenshots of pages 5, 61, 466), and
- * the device-measured correction did not take effect there. This is not that fix. It is the only vertical offset in
- * effect: no per-page shift, no other lift, no device baseline correction. Applied once, in MushafPageView. To revert,
- * set it to 0.
+ * The web's lift (2026-10-12): the whole Quran text area drawn this many points higher than the printed layout's
+ * text area. On iOS and Android the lift is proportional instead (mushafTextLift). Until 2026-10-15 this fixed lift
+ * applied on every platform.
  */
 export const MUSHAF_TEXT_LIFT_PT = 4;
+
+/**
+ * iOS and Android: the lift, as a share of the letter size (2026-10-15). The iPhone draws QPC V1 glyphs 0.376 em below
+ * the layout's baseline (qcfV1DrawnLineShiftEm; Android's rows follow it), a drop that grows with the letter size, so
+ * the fixed 4 pt lift left the last line's descenders across the frame's inner rule on 8 pages of current iPhones
+ * (docs/mushaf-verification/2026-10-15-final-604-page-verification.md, issue 1). Approved 2026-10-15.
+ */
+export const NATIVE_TEXT_LIFT_EM = 0.26;
+
+/**
+ * The regular pages' letter size, as a share of the text area's width: their median (pages 3–604), the size
+ * QpcV1PageText's OPENING_PAGE_SIZE_PER_WIDTH gives on the printed width, here on the QURAN_TEXT_SCALE-wider text area.
+ * Each page's own size is measured only once it is drawn; the lift uses this, so every page of a width sits alike.
+ */
+export const NOMINAL_LETTER_SIZE_PER_TEXT_WIDTH = 0.0692;
+
+/**
+ * How far the whole Quran text area — every line, Surah heading, Basmala, medallion, highlight and tap target (all are
+ * inside it), pages 1–2 included — is drawn above the printed layout's text area, on every page, in Normal and
+ * Full-Screen. Applied once, in MushafPageView; everything that needs the frame's edge in text-area coordinates uses
+ * this same value. The frame, page size, letter size, line spacing and horizontal positions are unchanged.
+ *  - iOS and Android: NATIVE_TEXT_LIFT_EM × the nominal letter size for a text area `textWidth` wide.
+ *  - Web (and any other platform): MUSHAF_TEXT_LIFT_PT; the web draws glyphs at the layout's own baseline.
+ */
+export function mushafTextLift(textWidth: number, os: string): number {
+  return os === 'ios' || os === 'android' ? NATIVE_TEXT_LIFT_EM * NOMINAL_LETTER_SIZE_PER_TEXT_WIDTH * textWidth : MUSHAF_TEXT_LIFT_PT;
+}
 
 /**
  * Lays out a printed page `width` points wide (the frame spans the full width).

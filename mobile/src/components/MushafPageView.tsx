@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { MushafBorder } from '@/components/MushafBorder';
 import { OpeningPageOrnament } from '@/components/OpeningPageOrnament';
@@ -10,7 +10,7 @@ import { MUSHAF_BACKGROUNDS, MUSHAF_APPEARANCE_DEFAULT } from '@/mushaf/appearan
 import { useGuideTarget } from '@/mushaf/guideTargets';
 import type { BorderInk } from '@/mushaf/borderPattern';
 import { juzOfAyah, juzTitle, toArabicIndicDigits } from '@/mushaf/mushafPage';
-import { computePageLayout, MUSHAF_TEXT_LIFT_PT, type Box } from '@/mushaf/pageGeometry';
+import { computePageLayout, mushafTextLift, type Box } from '@/mushaf/pageGeometry';
 import { getSurahName } from '@/services/surahNames';
 
 /** The Hizb label's size, relative to the running heads (modest: it never outweighs the Surah and juz'). */
@@ -135,10 +135,10 @@ export function MushafPageView({
           : <OpeningPageOrnamentRich testID="mushaf-opening-ornament-rich" width={layout.frame.width} height={layout.frame.height} left={0} top={0} />)}
       </View>
 
-      {/* The Quran text, MUSHAF_TEXT_LIFT_PT above the printed text area (a temporary, uniform adjustment). */}
+      {/* The Quran text, mushafTextLift above the printed text area (the same on every page of this width). */}
       <View
         testID="mushaf-text-area"
-        style={[styles.absolute, { height: layout.text.height, left: layout.text.x, top: layout.text.y - MUSHAF_TEXT_LIFT_PT, width: layout.text.width }]}>
+        style={[styles.absolute, { height: layout.text.height, left: layout.text.x, top: layout.text.y - mushafTextLift(layout.text.width, Platform.OS), width: layout.text.width }]}>
         {renderText({ x: 0, y: 0, width: layout.text.width, height: layout.text.height }, { printedLinePitch })}
       </View>
 
@@ -173,7 +173,7 @@ function FurnitureTouchAreas({ layout, navigation, hasHizb }: { layout: ReturnTy
   const pageTarget = useGuideTarget('page');
   const headerHeight = layout.header.height;
   // Below the heads: the frame's top band down to (not into) the text area.
-  const headerBelow = Math.max(0, Math.min(TOUCH_TARGET - headerHeight, layout.text.y - MUSHAF_TEXT_LIFT_PT - headerHeight - 2));
+  const headerBelow = Math.max(0, Math.min(TOUCH_TARGET - headerHeight, layout.text.y - mushafTextLift(layout.text.width, Platform.OS) - headerHeight - 2));
   const sideWidth = layout.page.width * 0.4;
   const head = (testID: string, label: string, onPress: () => void, box: { left: number; width: number }, guideTarget: (view: View | null) => void) => (
     <Pressable

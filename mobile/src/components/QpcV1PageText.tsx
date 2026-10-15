@@ -9,7 +9,7 @@ import { MUSHAF_PAPER } from '@/constants/mushafTheme';
 import { useGuideTarget } from '@/mushaf/guideTargets';
 import { MUSHAF_MARKER_STYLES, type AyahMarkerColors, type MushafMarkerStyleId } from '@/mushaf/appearance';
 import { cssBaseline, getAyahMarker, markerOverlayBox, QCF_V1_INK_OVERFLOW_EM, QCF_V1_INK_ROOM_V_EM, QCF_V1_LINE_BOX_EM, qcfV1AndroidRowShiftEm, qcfV1DrawnLineShiftEm } from '@/mushaf/ayahMarkers';
-import { MUSHAF_TEXT_LIFT_PT, pageWidthOfText, PRINTED_TEXT_WIDTH_SHARE, textSideInset } from '@/mushaf/pageGeometry';
+import { mushafTextLift, pageWidthOfText, PRINTED_TEXT_WIDTH_SHARE, textSideInset } from '@/mushaf/pageGeometry';
 import { pressLocation } from '@/mushaf/pressLocation';
 import { lineAtY, pressTargetAtLineX, selectionSpan, type QpcV1PageLayout, type WordBox } from '@/mushaf/qpcV1Layout';
 import { withSelectionInk } from '@/mushaf/qpcV1Selection';
@@ -165,10 +165,10 @@ export function QpcV1PageText({
   const rowPitch = opening ? Math.min(pitch, printedPitch ?? pitch) : pitch;
   const used = [...layout.lines.map((line) => line.line), ...slots.map((slot) => slot.line)];
   // Pages 1–2 (their ornamental circle, OpeningPageOrnament, centred in the frame): the block is centred on the frame's
-  // centre as drawn — the text area's MUSHAF_TEXT_LIFT_PT taken back, less the platform's drawn drop (iOS draws the
+  // centre as drawn — the text area's mushafTextLift taken back, less the platform's drawn drop (iOS draws the
   // glyphs lower; Android's rows move by the same; the web neither).
   const openingDrop = opening ? (qcfV1DrawnLineShiftEm(layout.page, Platform.OS) + qcfV1AndroidRowShiftEm(layout.page, Platform.OS)) * openingPageSize(width) : 0;
-  const blockTop = opening && used.length ? (height - (Math.max(...used) - Math.min(...used) + 1) * rowPitch) / 2 - (Math.min(...used) - 1) * rowPitch + MUSHAF_TEXT_LIFT_PT - openingDrop : 0;
+  const blockTop = opening && used.length ? (height - (Math.max(...used) - Math.min(...used) + 1) * rowPitch) / 2 - (Math.min(...used) - 1) * rowPitch + mushafTextLift(width, Platform.OS) - openingDrop : 0;
   const rowTop = (line: number) => blockTop + (line - 1) * rowPitch;
   // The highlight band: 92% of the line pitch, as printed — no taller when the lines are spaced wider.
   const band = Math.min(pitch, printedPitch ?? pitch) * 0.92;

@@ -11,7 +11,7 @@ import { describe, expect, it, vi } from 'vitest';
  * and the medallions; tools/mushaf-audit/generate_heading_neighbours.py), placed as each platform draws them:
  * - the line above: its lowest ink (letters, marks, medallions) clear of the heading's box (ornament and name);
  * - the row below: the Basmala's (or a line's) highest ink clear of the heading's box;
- * - the heading's box inside the frame's inner edge (the text area sits MUSHAF_TEXT_LIFT_PT up in the frame).
+ * - the heading's box inside the frame's inner edge (the text area sits mushafTextLift up in the frame).
  * The ornament fills its box (frame band at its top and bottom edge) and the name is inside it
  * (surahHeaderOrnament.test.ts), so the box is the ornament's and the name's ink limit.
  */
@@ -28,7 +28,7 @@ const { QpcV1PageText } = await import('@/components/QpcV1PageText');
 const { qcfV1DrawnLineShiftEm, surahHeadingShift, HEADING_CLEARANCE_PITCH } = await import('@/mushaf/ayahMarkers');
 const { placeSurahHeading, HEADING_INK_CLEARANCE_PT, IOS_MEDALLION_LIFT_UNITS } = await import('@/mushaf/surahHeadingPlacement');
 const { SURAH_HEADING_NEIGHBOURS } = await import('@/mushaf/generated/surahHeadingNeighbours');
-const { computePageLayout, MIN_TILES_DOWN, MUSHAF_TEXT_LIFT_PT, PAGE_GEOMETRY, QURAN_TEXT_SCALE } = await import('@/mushaf/pageGeometry');
+const { computePageLayout, MIN_TILES_DOWN, mushafTextLift, PAGE_GEOMETRY, QURAN_TEXT_SCALE } = await import('@/mushaf/pageGeometry');
 
 type Neighbour = { kind: 'line' | 'basmala' | 'heading' | 'none'; lowUnits?: number; highUnits?: number; medallionTopUnits?: number | null };
 type Heading = { page: number; line: number; surah: number; opening: boolean; sizePerTextWidth: number; usedLines: [number, number]; hhea: [number, number]; above: Neighbour; below: Neighbour };
@@ -85,8 +85,10 @@ function audit(os: string) {
       const belowTop = h.below.kind === 'basmala' ? baseline(h.line + 1, PAGE1_HHEA, 1) - h.below.highUnits! * em
         : h.below.kind === 'line' ? baseline(h.line + 1, h.hhea, h.page) - Math.max(h.below.highUnits!, os === 'ios' && h.below.medallionTopUnits != null ? h.below.medallionTopUnits + IOS_MEDALLION_LIFT_UNITS : -Infinity) * em
         : Infinity;
-      const frameTop = -(insetY - MUSHAF_TEXT_LIFT_PT);
-      const frameBottom = textH + insetY + MUSHAF_TEXT_LIFT_PT;
+      // The frame's inner edge in text-area coordinates: the text area is drawn mushafTextLift up (pageGeometry.ts).
+      const lift = mushafTextLift(textW, os);
+      const frameTop = -(insetY - lift);
+      const frameBottom = textH + insetY + lift;
       const room = Math.min(belowTop, frameBottom) - Math.max(above, frameTop) - rowPitch;
       const floor = h.page === 506 && room < 2 * MIN_PT ? PAGE_506_MIN_PT : MIN_PT;
       const check = (key: string, value: number) => {
