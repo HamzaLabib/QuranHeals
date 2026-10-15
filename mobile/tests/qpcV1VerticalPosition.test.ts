@@ -5,8 +5,9 @@ import { act, create, type ReactTestInstance } from 'react-test-renderer';
 import { describe, expect, it, vi } from 'vitest';
 
 /**
- * Vertical position of the Quran text (2026-10-12). The only vertical offset is MUSHAF_TEXT_LIFT_PT, a temporary,
- * uniform lift of the whole text area (MushafPageView; mushafScreen.test.ts). Inside it, QpcV1PageText lays the rows on
+ * Vertical position of the Quran text. The only vertical offset is mushafTextLift (pageGeometry.ts): a uniform lift of
+ * the whole text area (MushafPageView; mushafScreen.test.ts) — 0.26 × the nominal letter size on iOS and Android
+ * (2026-10-15), the fixed MUSHAF_TEXT_LIFT_PT on the web. Inside it, QpcV1PageText lays the rows on
  * the printed grid with no correction of its own: the device-measured baseline correction is removed (it had no effect
  * on the iPhone, so it is not stacked with the lift). Everything that belongs to a line is inside that line's row, so
  * it moves with the text: glyphs, medallions, highlight, tap target.
@@ -20,7 +21,7 @@ vi.mock('react-native-svg', () => ({ default: 'Svg', ClipPath: 'ClipPath', Rect:
 vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem: vi.fn(), setItem: vi.fn(), removeItem: vi.fn() } }));
 
 const { QpcV1PageText } = await import('@/components/QpcV1PageText');
-const { MUSHAF_TEXT_LIFT_PT } = await import('@/mushaf/pageGeometry');
+const { MIN_TILES_DOWN, MUSHAF_TEXT_LIFT_PT, NATIVE_TEXT_LIFT_EM, NOMINAL_LETTER_SIZE_PER_TEXT_WIDTH, QURAN_TEXT_SCALE, PAGE_GEOMETRY } = await import('@/mushaf/pageGeometry');
 const { QCF_V1_INK_ROOM_V_EM, QCF_V1_NORMAL_BOX_MARGIN_EM } = await import('@/mushaf/ayahMarkers');
 const styleOf = (node: ReactTestInstance) => Object.assign({}, ...[node.props.style].flat(5).filter(Boolean));
 const rowNodes = (root: ReturnType<typeof create>) =>
@@ -88,7 +89,6 @@ describe('rows on the printed grid, no correction of their own (Normal and Full-
     const root = await render(page1, QCF_V1_NORMAL_BOX_MARGIN_EM);
     const { surahHeadingShift } = await import('@/mushaf/ayahMarkers');
     // Pages 1–2: the printed letter size, on the printed text width (the 315-pt text area is QURAN_TEXT_SCALE wider).
-    const { QURAN_TEXT_SCALE } = await import('@/mushaf/pageGeometry');
     const fontSize = (315 / QURAN_TEXT_SCALE) * 0.0692;
     // Each row's grid position (a heading row is drawn surahHeadingShift lower than its grid position).
     const rows = rowNodes(root).map((row) => {
@@ -99,57 +99,81 @@ describe('rows on the printed grid, no correction of their own (Normal and Full-
     const blockBottom = Math.max(...rows.map((row) => row.top + row.height));
     // The rows' block centred on the frame (its ornamental circle) as drawn: the text area's lift taken back, less the
     // platform's drawn drop (iOS here).
-    const { MUSHAF_TEXT_LIFT_PT } = await import('@/mushaf/pageGeometry');
+    const { mushafTextLift } = await import('@/mushaf/pageGeometry');
     const { qcfV1DrawnLineShiftEm } = await import('@/mushaf/ayahMarkers');
-    expect((blockTop + blockBottom) / 2).toBeCloseTo(HEIGHT / 2 + MUSHAF_TEXT_LIFT_PT - qcfV1DrawnLineShiftEm(1, 'ios') * fontSize, 6);
+    expect((blockTop + blockBottom) / 2).toBeCloseTo(HEIGHT / 2 + mushafTextLift(315, 'ios') - qcfV1DrawnLineShiftEm(1, 'ios') * fontSize, 6);
     await act(async () => root.unmount());
   });
 });
 
 /**
- * All 604 pages (tools/mushaf-audit/audit_vertical_position.py; real outlines of every letter and mark, every
- * medallion, Surah heading and Basmala; report committed beside it). Pinned so that any change to the lift, the
- * layout or the font data shows here. Pages the lift does not clear are reported to the user, not adjusted.
+ * All 604 pages, the CURRENT layout (2026-10-15): tools/mushaf-audit/audit-current-layout.mts, which imports the app's
+ * own geometry (pageGeometry.ts mushafTextLift, ayahMarkers.ts, surahHeadingPlacement.ts) and measures every glyph's
+ * real outlines, every medallion, Basmala and Surah heading band against the frame's inner rule — web, iOS and Android
+ * placements, 17 page widths × MIN_TILES_DOWN…35 tiles, Normal and Full-Screen boxes. Its results are committed (no
+ * glyph codes): docs/mushaf-verification/results/2026-10-15-post-fix-layout-audit.json. Pinned to the app's constants,
+ * so any change to the lift, the scale, the frame or the boxes fails here until the audit is re-run (see
+ * tools/mushaf-audit/README.md). Replaces the 2026-10-12 report (vertical-position.report.json, kept as evidence),
+ * which described the printed 29-tile layout before the larger text.
  */
-const audit = JSON.parse(readFileSync(new URL('../../tools/mushaf-audit/vertical-position.report.json', import.meta.url), 'utf8'));
-const at = (placement: 'intended' | 'iphone', width: number, tiles = 29) =>
-  (tiles === 29 ? audit.normal[placement] : audit.fullScreen[placement]).find((r: { widthPt: number; tiles?: number }) => r.widthPt === width && (tiles === 29 || r.tiles === tiles));
+const audit = JSON.parse(readFileSync(new URL('../../docs/mushaf-verification/results/2026-10-15-post-fix-layout-audit.json', import.meta.url), 'utf8'));
+type Config = { os: 'web' | 'ios' | 'android'; width: number; tiles: number; minTopPt: number; minBottomPt: number; pagesTouching: { page: number; edge: string }[] };
+const configs = audit.vertical.configs as Config[];
+const native = configs.filter((c) => c.os !== 'web');
+const at = (os: Config['os'], width: number, tiles: number) => configs.find((c) => c.os === os && c.width === width && c.tiles === tiles)!;
 
-describe('604-page audit with the lift', () => {
-  it('was run with the app`s lift and constants, over every word glyph and the Basmala', () => {
-    expect(audit.liftPt).toBe(MUSHAF_TEXT_LIFT_PT);
-    expect(audit.glyphsChecked).toBe(77429 + 4);
-    expect(audit.pages387NoLift).toHaveLength(604);
-    expect(audit.clipping.normal.paintableRoomUnits).toBe((QCF_V1_INK_ROOM_V_EM + QCF_V1_NORMAL_BOX_MARGIN_EM) * 2048);
-    expect(audit.clipping.fullScreen.paintableRoomUnits).toBe(QCF_V1_INK_ROOM_V_EM * 2048);
+describe('604-page audit of the current layout (post-fix, 2026-10-15)', () => {
+  it('was run with the app`s own constants (the lift, the larger text, the frame, the boxes)', () => {
+    expect(audit.layout).toMatchObject({
+      liftEmOverride: null,
+      NATIVE_TEXT_LIFT_EM,
+      NOMINAL_LETTER_SIZE_PER_TEXT_WIDTH,
+      MUSHAF_TEXT_LIFT_PT,
+      QURAN_TEXT_SCALE,
+      MIN_TILES_DOWN,
+      TALLER_MAX_TILES_DOWN: 35,
+    });
+    expect(audit.layout.textInsetX).toBeCloseTo(PAGE_GEOMETRY.textInsetX, 12);
+    expect(audit.layout.tiles).toEqual([31, 32, 33, 34, 35]);
+    expect(audit.structure).toMatchObject({ pages: 604, wordRecords: 83665, ayahEnds: 6236, missingGlyphs: [], rowsNot15: [], layoutOrderErrors: [] });
+    expect(configs).toHaveLength(3 * 17 * 5);
   });
 
-  it('clipping: no letter or mark leaves its paintable box, at the intended and the iPhone placement, in both modes', () => {
-    for (const mode of [audit.clipping.normal, audit.clipping.fullScreen]) {
-      for (const placement of [mode.intended, mode.iphone]) expect(placement.clipped).toBe(false);
+  it('clipping: no letter or mark leaves its drawn Text, at the web and the native placement, in both modes', () => {
+    expect(audit.clipping.wordsChecked).toBe(77429);
+    expect(audit.clipping.horizontalOutside).toEqual([]);
+    for (const mode of ['normal/web', 'normal/native', 'fullScreen/web', 'fullScreen/native']) expect(audit.clipping.vertical[mode].outside, mode).toBe(0);
+    expect(audit.clipping.vertical['normal/native']).toBeDefined();
+    expect(QCF_V1_INK_ROOM_V_EM).toBe(0.5);
+    expect(QCF_V1_NORMAL_BOX_MARGIN_EM).toBe(0.25);
+  });
+
+  it('iOS and Android: no ink crosses the frame`s inner rule, top or bottom, at any page width and frame height', () => {
+    for (const c of native) expect(c.pagesTouching, `${c.os} ${c.width}/${c.tiles}`).toEqual([]);
+    expect(Math.min(...native.map((c) => c.minBottomPt))).toBeGreaterThanOrEqual(0.5);
+    expect(Math.min(...native.map((c) => c.minTopPt))).toBeGreaterThanOrEqual(4.4);
+    expect(audit.vertical.liftAsShareOfLetterSize.min).toBeGreaterThan(0.24);
+    expect(audit.vertical.liftAsShareOfLetterSize.max).toBeLessThan(0.28);
+  });
+
+  it('the pages that crossed the bottom rule before the fix now clear it on the iPhones that showed them', () => {
+    // Before (fixed 4 pt): iPhone 15/16 -1.24 pt and 16 Pro -1.37 pt on page 560; 8 pages across current iPhones.
+    expect(at('ios', 387, 31).minBottomPt).toBeGreaterThan(0.5); // iPhone 15/16, Normal
+    expect(at('ios', 396, 31).minBottomPt).toBeGreaterThan(0.5); // iPhone 16 Pro, Normal
+    expect(at('ios', 396, 33).minBottomPt).toBeGreaterThan(1); // iPhone 16 Pro, Full screen
+    expect(at('android', 681, 31).minBottomPt).toBeGreaterThan(1); // Android tablet, portrait
+  });
+
+  it('neighbouring lines: no outline intersections and no medallion overlaps at any frame height', () => {
+    for (const n of audit.neighbours) {
+      expect(n.outlineIntersections, `${n.tiles} tiles`).toBe(0);
+      expect(n.medallionOverlaps, `${n.tiles} tiles`).toBe(0);
     }
   });
 
-  it('intended placement (web; Android model): clear of the frame from a 354-pt page up; the smallest pages touch at the top', () => {
-    for (const width of [354, 387, 396, 434, 681]) {
-      expect(at('intended', width).pagesTouchingTop, `${width}`).toEqual([]);
-      expect(at('intended', width).pagesTouchingBottom, `${width}`).toEqual([]);
-    }
-    expect(at('intended', 317).pagesTouchingTop).toEqual([44, 49, 236, 307]); // iPhone SE page
-    expect(at('intended', 268).pagesTouchingTop).toHaveLength(37); // small Android page
-  });
-
-  it('iPhone placement: clear at the top everywhere; at the bottom, 7 pages still reach the frame on a 396-pt page', () => {
-    for (const row of audit.normal.iphone) expect(row.pagesTouchingTop).toEqual([]);
-    expect(at('iphone', 396).pagesTouchingBottom).toEqual([142, 202, 381, 459, 553, 556, 560]);
-    expect(at('iphone', 396).minBottomPt).toBeCloseTo(-1.22, 2); // page 560
-    expect(at('iphone', 317).pagesTouchingBottom).toEqual([560]);
-  });
-
-  it('the pages to check on the iPhone 16 Pro (396 pt): gaps above / below with the lift', () => {
-    expect(audit.keyPages396['5'].iphone).toEqual([14.19, 0.05]);
-    expect(audit.keyPages396['13'].iphone).toEqual([13.69, 2.18]);
-    expect(audit.keyPages396['61'].iphone).toEqual([12.76, 4.06]);
-    expect(audit.keyPages396['466'].iphone).toEqual([13.94, 2.26]);
+  it('the web keeps the fixed lift: unchanged, its known touches only at the two smallest page widths', () => {
+    const webTouching = configs.filter((c) => c.os === 'web' && c.pagesTouching.length > 0);
+    expect(new Set(webTouching.map((c) => c.width))).toEqual(new Set([268, 274]));
+    expect(webTouching.every((c) => c.pagesTouching.every((t) => t.edge === 'top'))).toBe(true);
   });
 });

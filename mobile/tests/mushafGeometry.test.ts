@@ -89,8 +89,9 @@ describe('page furniture and scaling', () => {
 });
 
 describe('text position: the printed layout, one lift for every page', () => {
-  // The only vertical offset is MUSHAF_TEXT_LIFT_PT, applied once where the text area is drawn (MushafPageView); the
-  // layout itself stays the printed one (no per-page shift, no other lift, no device baseline correction).
+  // The only vertical offset is mushafTextLift (4 pt on the web, proportional on iOS and Android), applied once where the
+  // text area is drawn (MushafPageView); the layout itself stays the printed one (no per-page shift, no other lift, no
+  // device baseline correction).
   it('the layout depends only on the width and the frame; the lift is a single constant', async () => {
     const geometry = await import('@/mushaf/pageGeometry');
     expect(geometry.MUSHAF_TEXT_LIFT_PT).toBe(4);

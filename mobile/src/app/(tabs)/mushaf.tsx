@@ -245,7 +245,11 @@ function pageHeightFor(width: number, tilesDown: number) {
   return (computePageLayout(1000, tilesDown).page.height / 1000) * width;
 }
 
-/** Where the Quran text ends on that page (from its top), as drawn: the text area, MUSHAF_TEXT_LIFT_PT up. */
+/**
+ * Where the Quran text ends on that page (from its top), for choosing the frame: the text area, MUSHAF_TEXT_LIFT_PT up.
+ * Deliberately the approved fixed lift on every platform, so the page width and tile count stay exactly as approved; on
+ * iOS and Android the text is drawn higher still (mushafTextLift), so it ends even further above the selector's card.
+ */
 function textBottomFor(width: number, tilesDown: number) {
   const { text } = computePageLayout(width, tilesDown);
   return text.y + text.height - MUSHAF_TEXT_LIFT_PT;

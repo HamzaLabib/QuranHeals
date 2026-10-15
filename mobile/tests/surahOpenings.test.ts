@@ -82,10 +82,10 @@ describe('drawing them', () => {
     // Block: heading (8), Basmala (9), lines 10–15 — 8 rows, centred: 3.5 rows of space above and below, then moved so
     // that, as drawn, it is centred on the frame (and its ornamental circle): the text area's lift taken back, less the
     // platform's drawn drop (iOS here). The heading placed by its neighbouring ink (surahHeadingPlacement.ts).
-    const { MUSHAF_TEXT_LIFT_PT } = await import('@/mushaf/pageGeometry');
+    const { mushafTextLift } = await import('@/mushaf/pageGeometry');
     const { qcfV1DrawnLineShiftEm } = await import('@/mushaf/ayahMarkers');
     const { placeSurahHeading } = await import('@/mushaf/surahHeadingPlacement');
-    const offset = MUSHAF_TEXT_LIFT_PT - qcfV1DrawnLineShiftEm(2, 'ios') * size;
+    const offset = mushafTextLift(300, 'ios') - qcfV1DrawnLineShiftEm(2, 'ios') * size;
     const blockTop = 3.5 * pitch - 7 * pitch + offset;
     expect(styleOf(root.root.findByProps({ testID: 'qpc-heading-8' })).top).toBeCloseTo(placeSurahHeading({ page: 2, line: 8, os: 'ios', fontSize: size, rowPitch: pitch, rowTop: (l) => blockTop + (l - 1) * pitch, textWidth: 300, textHeight: 450 }).top);
     expect(row(15).top + pitch).toBeCloseTo(450 - 3.5 * pitch + offset);

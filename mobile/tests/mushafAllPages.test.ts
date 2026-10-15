@@ -35,7 +35,7 @@ describe.skipIf(!snapshot)('all 604 pages (local Content Sync snapshot)', async 
   const { placeSurahHeading } = await import('@/mushaf/surahHeadingPlacement');
   const FIT = 0.985; // QpcV1PageText
   const headingPageSize = new Map((JSON.parse(readFileSync(new URL('./fixtures/headingNeighbours.json', import.meta.url), 'utf8')) as { page: number; sizePerTextWidth: number }[]).map((h) => [h.page, h.sizePerTextWidth]));
-  const { MUSHAF_TEXT_LIFT_PT, pageWidthOfText, textSideInset, textVerticalInset } = await import('@/mushaf/pageGeometry');
+  const { mushafTextLift, pageWidthOfText, textSideInset, textVerticalInset } = await import('@/mushaf/pageGeometry');
   const { qcfV1DrawnLineShiftEm } = await import('@/mushaf/ayahMarkers');
   const db = new DatabaseSync(fileURLToPath(new URL('../assets/quran/quran.sqlite', import.meta.url)), { readOnly: true });
   const verses = db.prepare('SELECT verse_key AS k, arabic_text AS t FROM verses ORDER BY surah, ayah').all() as { k: string; t: string }[];
@@ -146,7 +146,8 @@ describe.skipIf(!snapshot)('all 604 pages (local Content Sync snapshot)', async 
             // A Surah heading is placed by its neighbouring ink (surahHeadingPlacement.ts): it may reach past the text
             // area (a page's last line), but its ornament and name must stay inside the frame's inner edge, 0.5 pt clear.
             const inset = textVerticalInset(width);
-            if (top < -(inset - MUSHAF_TEXT_LIFT_PT) + 0.5 - 0.001 || top + h > height + inset + MUSHAF_TEXT_LIFT_PT - 0.5 + 0.001) problems.push(`page ${page}: ${r.props.testID} outside the frame's inner edge (top ${top.toFixed(1)})`);
+            const lift = mushafTextLift(width, 'ios'); // this test renders as iOS (react-native mock)
+            if (top < -(inset - lift) + 0.5 - 0.001 || top + h > height + inset + lift - 0.5 + 0.001) problems.push(`page ${page}: ${r.props.testID} outside the frame's inner edge (top ${top.toFixed(1)})`);
           } else if (top < -0.001 || top + h > height + 0.001) problems.push(`page ${page}: ${r.props.testID} outside the page (top ${top.toFixed(1)})`); // Quran and Basmala rows: inside the text area
         }
         // Regular pages: every Quran line and Basmala row exactly on its grid row (uniform baselines: every glyph box
@@ -211,7 +212,7 @@ describe.skipIf(!snapshot)('all 604 pages (local Content Sync snapshot)', async 
           const above = blockTop + (Math.min(...used) - 1) * rowPitch;
           const below = height - (blockTop + Math.max(...used) * rowPitch);
           // Centred on the frame (its ornamental circle) as drawn: the lift taken back, less iOS's drawn drop.
-          const offset = MUSHAF_TEXT_LIFT_PT - qcfV1DrawnLineShiftEm(page, 'ios') * size;
+          const offset = mushafTextLift(width, 'ios') - qcfV1DrawnLineShiftEm(page, 'ios') * size;
           if (Math.abs(above - below - 2 * offset) > 0.01) problems.push(`page ${page}: block not centred (${above.toFixed(1)} above, ${below.toFixed(1)} below)`);
         }
         await act(async () => renderer.unmount());

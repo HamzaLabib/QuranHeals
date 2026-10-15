@@ -57,13 +57,26 @@ The tightest are page 466 line 7 (the tail of م in 39:71, 1 font unit above the
 
 ## Vertical position of the text (2026-10-12)
 
-- **`audit_vertical_position.py`** (`<fonts dir> <records-*.json.gz> <report.json> [--lift PT] [--device-baseline UNITS]`): with the app's `MUSHAF_TEXT_LIFT_PT`, the outermost ink of every page against the frame's inner edges. It covers every page width the app shows, Normal and every Full-Screen frame, at the intended glyph placement and the iPhone's measured one (3311 units below the line box top), plus every word and Basmala glyph's ink against its paintable box. Its report, `vertical-position.report.json`, holds no glyph codes and is checked by `mobile/tests/qpcV1VerticalPosition.test.ts`. Results: `docs/mushaf.md`.
+- **`audit_vertical_position.py`** (`<fonts dir> <records-*.json.gz> <report.json> [--lift PT] [--device-baseline UNITS]`): with the app's `MUSHAF_TEXT_LIFT_PT`, the outermost ink of every page against the frame's inner edges. It covers every page width the app shows, Normal and every Full-Screen frame, at the intended glyph placement and the iPhone's measured one (3311 units below the line box top), plus every word and Basmala glyph's ink against its paintable box. Its report, `vertical-position.report.json`, holds no glyph codes. It describes the printed 29-tile layout before the larger text and the 2026-10-15 proportional lift, and is kept as evidence only; `mobile/tests/qpcV1VerticalPosition.test.ts` now checks `audit-current-layout.mts`'s results instead. Results: `docs/mushaf.md`.
 
 ## Ayah selection (2026-10-12)
 
 - **`generate_selection_ink.py`** (`<fonts dir> <records-*.json.gz>`): writes `mobile/src/mushaf/generated/qpcV1SelectionInk.ts`, the ink past the advance of the words where a selection can end.
 - **`export_word_advances.py`** (`<fonts dir> <records> <out.json> [--pages …]`): every word's advance, for `mobile/tests/mushafSelectionAudit.test.ts`. Keep the full export outside the repo; run the audit with `QPC_V1_ADVANCES=<path>`. With `--pages` it wrote the committed fixture `mobile/tests/fixtures/qpcV1WordAdvances.json`.
 - **`export-word-advances.mjs`** (same arguments and output): the Node equivalent, for machines without Python. Checked on 2026-10-14: with `--pages 1,2,5,50,61,237,466` its output equals the committed fixture byte for byte (page 237 included, the font with different metrics), and two full runs give the same file.
+
+## Current layout, in Node (2026-10-15)
+
+The Python audits above model the PRINTED geometry (29 tiles, the printed side margin). Since the larger text (`QURAN_TEXT_SCALE` 1.05, `MIN_TILES_DOWN` 31) their frame and spacing results no longer describe the app. **`audit-current-layout.mts`** imports the app's own geometry and placement code (`pageGeometry.ts`, `ayahMarkers.ts`, `surahHeadingPlacement.ts`, `surahOpenings.ts`), so it always measures what ships, and reads every glyph's real outlines (contours that enclose area) from the 604 fonts. No Python needed.
+
+```sh
+NODE_OPTIONS=--max-old-space-size=6144 npx tsx tools/mushaf-audit/audit-current-layout.mts /tmp/qcf backend/data/mushaf-sync/records-<seq>.json.gz <out.json> --calibrate [--lift-em X]
+```
+
+- **Checks:** structure (15 rows, glyph coverage, 6,236 ayah ends, order); horizontal ink against the inner rule (stray "speck" contours reported apart); clipping against each word's drawn Text; neighbouring-line outline intersections and medallion overlaps at 31–35 tiles; vertical ink of the first and last rows (letters, medallions, Basmala, heading band) against the inner rule on web, iOS and Android placements, for 17 page widths × 31–35 tiles.
+- **Calibration:** `--calibrate` also runs the neighbouring-line check on the printed layout. With `audit_line_collisions.py`'s own row pitch (its text height subtracts the vertical inset twice) it finds the published intersections on pages 98, 213 and 341, in the same order of size, plus four sub-device-pixel touches from its finer raster (128 px/em).
+- **`--lift-em X`:** evaluates a lift of X × the letter size instead of `MUSHAF_TEXT_LIFT_PT` (vertical check only); the app is unchanged.
+- Its output holds no glyph codes. Results of 2026-10-15: `docs/mushaf-verification/`.
 
 ## Running the six 604-page Mushaf tests (mobile)
 

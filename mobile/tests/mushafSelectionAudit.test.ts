@@ -30,7 +30,7 @@ vi.mock('react-native-svg', () => ({ default: 'Svg', ClipPath: 'ClipPath', Rect:
 vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem: vi.fn(), setItem: vi.fn(), removeItem: vi.fn() } }));
 
 const { QpcV1PageText } = await import('@/components/QpcV1PageText');
-const { computePageLayout, MIN_TILES_DOWN, MUSHAF_TEXT_LIFT_PT, PAGE_GEOMETRY, QURAN_TEXT_SCALE, textSideInset } = await import('@/mushaf/pageGeometry');
+const { computePageLayout, MIN_TILES_DOWN, mushafTextLift, PAGE_GEOMETRY, QURAN_TEXT_SCALE, textSideInset } = await import('@/mushaf/pageGeometry');
 const { getAyahMarker, markerOverlayBox, qcfV1DrawnLineShiftEm, QCF_V1_NORMAL_BOX_MARGIN_EM } = await import('@/mushaf/ayahMarkers');
 const { QPC_V1_SELECTION_INK } = await import('@/mushaf/generated/qpcV1SelectionInk');
 
@@ -134,12 +134,13 @@ async function auditPage(page: number, lines: Advances[string], pageWidth: numbe
       const limitR = hi < sorted.length - 1 ? sorted[hi + 1].x : width + side;
       if (inkL < left - E) { if (Math.abs(left - limitL) > E) fail(`${verseKey} line ${line}: ink left of the highlight`); else tally.inkLimited.push(`${label} ${verseKey} line ${line} left`); }
       if (inkR > right + E) { if (Math.abs(right - limitR) > E) fail(`${verseKey} line ${line}: ink right of the highlight`); else tally.inkLimited.push(`${label} ${verseKey} line ${line} right`); }
-      // Vertically: centred on the drawn line; inside the frame (the text area is MUSHAF_TEXT_LIFT_PT up); apart from the line above's band.
+      // Vertically: centred on the drawn line; inside the frame (the text area is mushafTextLift up, this platform's); apart from the line above's band.
       const row = rows.get(line)!;
       const top = row.top + (s.top as number);
       const bottom = top + (s.height as number);
       if (Math.abs((top + bottom) / 2 - (row.top + row.height / 2 + shift)) > E) fail(`${verseKey} line ${line}: band not on the drawn line`);
-      if (top < -(insetY - MUSHAF_TEXT_LIFT_PT) - E || bottom > height + insetY + MUSHAF_TEXT_LIFT_PT + E) fail(`${verseKey} line ${line}: band crosses the frame`);
+      const lift = mushafTextLift(width, os);
+      if (top < -(insetY - lift) - E || bottom > height + insetY + lift + E) fail(`${verseKey} line ${line}: band crosses the frame`);
       if (top < lastBottom - E) fail(`${verseKey} line ${line}: band overlaps the line above's`);
       lastBottom = bottom;
       // Taps on each word: at the drawn line's centre and near the band's top and bottom.

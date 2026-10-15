@@ -30,7 +30,7 @@ const { QURAN_TEXT_SCALE } = await import('@/mushaf/pageGeometry');
 const { openingCircleGeometry, OPENING_CIRCLE_RADIUS, OPENING_CIRCLE_BAND } = await import('@/components/OpeningPageOrnament');
 const { surahHeaderGeometry } = await import('@/components/SurahHeaderOrnament');
 const { getAyahMarker, qcfV1DrawnLineShiftEm } = await import('@/mushaf/ayahMarkers');
-const { computePageLayout, MUSHAF_TEXT_LIFT_PT } = await import('@/mushaf/pageGeometry');
+const { computePageLayout, mushafTextLift } = await import('@/mushaf/pageGeometry');
 const { withSelectionInk } = await import('@/mushaf/qpcV1Selection');
 
 type Advances = Record<string, [number, [string, number, string, number][]][]>;
@@ -72,10 +72,10 @@ async function audit(page: 1 | 2, os: string, w: number, tiles: number) {
   const fs = (textW / QURAN_TEXT_SCALE) * OPENING_SIZE;
   const em = fs / UPM;
   const pitch = Math.min(layout.linePitch, printed);
-  // The circle in text-area coordinates: the frame's centre, the text area drawn MUSHAF_TEXT_LIFT_PT up.
+  // The circle in text-area coordinates: the frame's centre, the text area drawn mushafTextLift up (this platform's).
   const circle = openingCircleGeometry(layout.frame.width, layout.frame.height);
   const cx = layout.frame.x + circle.cx - layout.text.x;
-  const cy = layout.frame.y + circle.cy - (layout.text.y - MUSHAF_TEXT_LIFT_PT);
+  const cy = layout.frame.y + circle.cy - (layout.text.y - mushafTextLift(textW, os));
   const reach = (x: number, y: number) => Math.hypot(x - cx, y - cy);
   const drop = os === 'ios' ? qcfV1DrawnLineShiftEm(page, 'ios') * fs : 0; // Android's rows already carry it
   const problems: string[] = [];

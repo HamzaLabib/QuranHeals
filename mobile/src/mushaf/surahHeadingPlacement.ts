@@ -1,6 +1,6 @@
 import { QCF_V1_LINE_BOX_EM, QCF_V1_METRICS, qcfV1AndroidRowShiftEm, qcfV1DrawnLineShiftEm, qcfV1IntendedBaselineUnits, surahHeadingShift } from './ayahMarkers';
 import { SURAH_HEADING_NEIGHBOURS } from './generated/surahHeadingNeighbours';
-import { MUSHAF_TEXT_LIFT_PT, textVerticalInset } from './pageGeometry';
+import { mushafTextLift, textVerticalInset } from './pageGeometry';
 
 /**
  * Where a Surah heading row (its ornament and name, which fill the row) is drawn, from the real ink next to it
@@ -10,7 +10,7 @@ import { MUSHAF_TEXT_LIFT_PT, textVerticalInset } from './pageGeometry';
  * (surahHeadingShift). Then it is kept inside its own gap, HEADING_INK_CLEARANCE_PT clear of:
  * - the lowest ink of the line above (letters, marks, medallions: generated/surahHeadingNeighbours.ts);
  * - the highest ink of the row below (the Basmala, or for Surahs 1 and 9 a Quran line);
- * - the frame's inner edge (the text area is MUSHAF_TEXT_LIFT_PT up in the frame), which a heading on a page's last
+ * - the frame's inner edge (the text area is mushafTextLift up in the frame), which a heading on a page's last
  *   line may reach past the text area towards.
  * Every neighbour is placed as the platform draws it (iOS draws QPC V1 glyphs lower; Android's rows move by the same;
  * the web neither). A gap narrower than the row plus both clearances: the heading is centred in it (page 506 on the
@@ -45,8 +45,9 @@ export function placeSurahHeading({ page, line, os, fontSize, rowPitch, rowTop, 
   const preferred = rowTop(line) + surahHeadingShift(page, os, fontSize, rowPitch);
   const neighbours = SURAH_HEADING_NEIGHBOURS[page]?.find((n) => n.line === line);
   const inset = textVerticalInset(textWidth);
-  const frameTop = -(inset - MUSHAF_TEXT_LIFT_PT);
-  const frameBottom = textHeight + inset + MUSHAF_TEXT_LIFT_PT;
+  const lift = mushafTextLift(textWidth, os);
+  const frameTop = -(inset - lift);
+  const frameBottom = textHeight + inset + lift;
   if (!neighbours) return { top: preferred, upper: frameTop, lower: frameBottom };
   const em = fontSize / UPM;
   const baseline = (row: number, fontPage: number) =>

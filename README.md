@@ -293,17 +293,11 @@ legacy seed metadata; no translations are added to the Arabic SQLite foundation.
 
 ## Future Roadmap
 
-- Arabic application interface
 - Additional translations and translation languages
 - Tafsir
 - Qur'an audio
-- User accounts and cloud favorites
-- Daily ayah
-- Push notifications
-- Emotional check-ins
 - Journaling
 - Search
-- Sharing cards
 - Dark mode polish
 - Premium subscription and RevenueCat
 - More emotion categories
