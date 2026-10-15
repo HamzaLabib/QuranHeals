@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { ArrowLeft, ArrowRight, RefreshCw } from 'lucide-react-native';
-import { useCallback, useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { EmotionCard } from '@/components/EmotionCard';
@@ -17,6 +17,7 @@ import { recordEmotionUse } from '@/storage/recentEmotions';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import type { Emotion } from '@/types/domain';
 import { goBackOrHome } from '@/utils/goBackOrHome';
+import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
 import { scrollBottomPadding } from '@/utils/safeAreaSpacing';
 
 /**
@@ -70,6 +71,25 @@ export default function AllEmotionsScreen() {
     };
   }, [load]);
 
+  // Pull-to-refresh, exactly as Home: guarded against a rapid repeated pull
+  // (see pullToRefresh.ts for why a ref, not just the state below).
+  const refreshGuardRef = useRef<RefreshInFlightRef>({ current: false });
+  const [isPullRefreshing, setIsPullRefreshing] = useState(false);
+  const hasShown = emotions.length > 0;
+  const onPullToRefresh = useCallback(async () => {
+    await runGuardedRefresh(refreshGuardRef.current, async () => {
+      setIsPullRefreshing(true);
+      try {
+        // The same fetch (retry, cache write, error handling) as opening and
+        // Try Again — never a duplicate path. A list already on screen is
+        // never blanked by a failed refresh.
+        await load(hasShown);
+      } finally {
+        setIsPullRefreshing(false);
+      }
+    });
+  }, [load, hasShown]);
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <View style={[styles.header, isRtl && styles.headerRtl]}>
@@ -87,7 +107,19 @@ export default function AllEmotionsScreen() {
         </View>
         <SettingsHeaderButton style={styles.iconButton} pressedStyle={styles.pressed} />
       </View>
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding(insets.bottom) }]}>
+      <ScrollView
+        testID="emotions-scroll"
+        style={styles.scroll}
+        contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding(insets.bottom) }]}
+        refreshControl={
+          <RefreshControl
+            refreshing={isPullRefreshing}
+            onRefresh={() => void onPullToRefresh()}
+            tintColor={colors.accent}
+            colors={[colors.accent]}
+            progressBackgroundColor={colors.surface}
+          />
+        }>
         {isLoading && (
           <StateView title={messages.home.loadingTitle} message={messages.home.loadingMessage} icon={<RefreshCw size={22} color={colors.accent} />} spin />
         )}
@@ -130,6 +162,8 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   titleBlock: { flex: 1, gap: 2 },
   title: { color: colors.textPrimary, fontSize: 26, fontWeight: '800' },
   subtitle: { color: colors.textSecondary, fontSize: typography.body, lineHeight: 22 },
+  // Fills the screen as Home's does, so the pull works however short the content is.
+  scroll: { flex: 1 },
   content: { gap: spacing.lg, paddingHorizontal: spacing.lg, paddingTop: spacing.sm },
   // Home's original grid: two columns, the same gaps.
   grid: { columnGap: spacing.md, flexDirection: 'row', flexWrap: 'wrap', rowGap: spacing.sm },

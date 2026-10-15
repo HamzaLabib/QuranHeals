@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
 import { ArrowLeft, ArrowRight, BookOpen, BookOpenText, Pencil, Plus, Trash2 } from 'lucide-react-native';
-import { useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useAuth } from '@/auth/useAuth';
 import { ConfirmSheet } from '@/components/ConfirmSheet';
 import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { MushafIcon } from '@/components/MushafIcon';
@@ -21,6 +22,7 @@ import { getReadingSyncStatus, subscribeToReadingSyncStatus, type ReadingSyncSta
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { formatCivilDate } from '@/utils/formatDate';
 import { goBackOrHome } from '@/utils/goBackOrHome';
+import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
 import { scrollBottomPadding } from '@/utils/safeAreaSpacing';
 
 type Dialog =
@@ -56,10 +58,12 @@ export default function MyReadingScreen() {
   const [busy, setBusy] = useState(false);
   const [dialogError, setDialogError] = useState<string | null>(null);
   const busyRef = useRef(false);
+  // The screen's own loader (below), for pull-to-refresh: resolves once the data on screen is the stored data.
+  const reloadRef = useRef<() => Promise<void>>(async () => undefined);
 
   useEffect(() => {
     let cancelled = false;
-    const reload = () => {
+    const reload = () =>
       loadReadingData()
         .then((next) => {
           if (cancelled) return;
@@ -69,13 +73,13 @@ export default function MyReadingScreen() {
         .catch(() => {
           if (!cancelled) setLoadFailed(true);
         });
-    };
-    reload();
-    const unsubscribeData = subscribeToReadingData(reload);
+    reloadRef.current = reload;
+    void reload();
+    const unsubscribeData = subscribeToReadingData(() => void reload());
     // Another account (or the guest) is now active: show its data, never the previous owner's.
     const unsubscribeOwner = subscribeToLocalDataOwner(() => {
       setData(null);
-      reload();
+      void reload();
     });
     return () => {
       cancelled = true;
@@ -85,6 +89,29 @@ export default function MyReadingScreen() {
   }, []);
   const [syncStatus, setSyncStatus] = useState<ReadingSyncStatus>(getReadingSyncStatus);
   useEffect(() => subscribeToReadingSyncStatus(setSyncStatus), []);
+
+  // Pull-to-refresh, exactly as Favorites and Reflections: guarded against a
+  // rapid repeated pull (see pullToRefresh.ts for why a ref, not just the
+  // state below), the spinner shown until both steps have finished.
+  const { refreshReading } = useAuth();
+  const refreshGuardRef = useRef<RefreshInFlightRef>({ current: false });
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const onPullToRefresh = useCallback(async () => {
+    await runGuardedRefresh(refreshGuardRef.current, async () => {
+      setIsRefreshing(true);
+      try {
+        // Signed in: the existing account reading sync (أوراد, the selected
+        // ورد, Khatmas), waiting for one already running; a no-op for a
+        // guest. Offline it simply fails quietly: everything stays on the device.
+        await refreshReading();
+        // Then the stored data — the selected ورد, progress, counters and
+        // history — through the screen's own loader (a guest: local only).
+        await reloadRef.current();
+      } finally {
+        setIsRefreshing(false);
+      }
+    });
+  }, [refreshReading]);
 
   const close = () => {
     if (busyRef.current) return;
@@ -141,7 +168,19 @@ export default function MyReadingScreen() {
         <SettingsHeaderButton style={styles.iconButton} pressedStyle={styles.pressed} />
       </View>
 
-      <ScrollView testID="my-reading-scroll" contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding(insets.bottom) }]}>
+      <ScrollView
+        testID="my-reading-scroll"
+        style={styles.scroll}
+        contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding(insets.bottom) }]}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={() => void onPullToRefresh()}
+            tintColor={colors.accent}
+            colors={[colors.accent]}
+            progressBackgroundColor={colors.surface}
+          />
+        }>
         {/* Two counters, both from the confirmed records: الختمات (every Khatma, Ramadan ones included) and ختمات رمضان. */}
         <View testID="my-reading-stats" style={[styles.stats, rtl && styles.rowRtl]}>
           {([['total', copy.statsTotal, stats.total], ['ramadan', copy.statsRamadan, stats.ramadan]] as const).map(([id, label, value]) => (
@@ -455,6 +494,8 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   titleBlock: { flex: 1, gap: 2 },
   title: { color: colors.textPrimary, fontSize: 26, fontWeight: '800' },
   subtitle: { color: colors.textSecondary, fontSize: typography.body, lineHeight: 22 },
+  // Fills the screen, so the pull works however short the content is.
+  scroll: { flex: 1 },
   content: { gap: spacing.lg, paddingHorizontal: spacing.lg, paddingTop: spacing.sm },
   stats: { flexDirection: 'row', gap: spacing.sm },
   stat: {
