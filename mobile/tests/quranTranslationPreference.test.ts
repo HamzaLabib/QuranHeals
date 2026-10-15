@@ -27,19 +27,44 @@ describe('Quran translation preference shape and defaults', () => {
     expect(PICKTHALL_TRANSLATION_ID).toBe('en.pickthall.gutenberg16955');
   });
 
-  it('defaults to displayMode "always", preserving the app`s pre-existing behavior of auto-showing the English translation', () => {
+  it('a new user (nothing saved): Show Translation OFF, its dropdown on On Demand', () => {
     expect(DEFAULT_QURAN_TRANSLATION_PREFERENCE).toEqual({
       translationId: 'en.pickthall.gutenberg16955',
-      displayMode: 'always',
+      displayMode: 'off',
+      enabledMode: 'on-demand',
     });
+  });
+});
+
+describe('Show Translation: switch and dropdown from the stored preference, and safe migration', () => {
+  it('the switch is ON for always / on-demand and OFF for off; the dropdown shows the active mode, or the kept one while OFF', async () => {
+    const { isShowTranslationOn, translationModeOf } = await import('@/localization/quranTranslationPreference');
+    expect(isShowTranslationOn({ displayMode: 'always' })).toBe(true);
+    expect(isShowTranslationOn({ displayMode: 'on-demand' })).toBe(true);
+    expect(isShowTranslationOn({ displayMode: 'off' })).toBe(false);
+    expect(translationModeOf({ displayMode: 'always', enabledMode: 'on-demand' })).toBe('always');
+    expect(translationModeOf({ displayMode: 'on-demand', enabledMode: 'always' })).toBe('on-demand');
+    expect(translationModeOf({ displayMode: 'off', enabledMode: 'always' })).toBe('always');
+  });
+
+  it('migrates every earlier saved value: always → ON + Always; on-demand → ON + On Demand; the original row`s off stays OFF; nothing saved → OFF + On Demand', () => {
+    const migrate = (stored: unknown) => parseQuranTranslationPreference(stored);
+    expect(migrate({ translationId: 'en.pickthall.gutenberg16955', displayMode: 'always' })).toMatchObject({ displayMode: 'always', enabledMode: 'always' });
+    expect(migrate({ translationId: 'en.pickthall.gutenberg16955', displayMode: 'on-demand' })).toMatchObject({ displayMode: 'on-demand', enabledMode: 'on-demand' });
+    expect(migrate({ translationId: 'en.pickthall.gutenberg16955', displayMode: 'off' })).toMatchObject({ displayMode: 'off', enabledMode: 'on-demand' });
+    expect(migrate(null)).toEqual(DEFAULT_QURAN_TRANSLATION_PREFERENCE);
+    // A saved dropdown choice is kept while OFF; an invalid one falls back safely.
+    expect(migrate({ translationId: 'x', displayMode: 'off', enabledMode: 'always' })).toMatchObject({ displayMode: 'off', enabledMode: 'always' });
+    expect(migrate({ translationId: 'x', displayMode: 'always', enabledMode: 'sometimes' })).toMatchObject({ enabledMode: 'always' });
   });
 });
 
 describe('parseQuranTranslationPreference: safe validation/migration of an arbitrary stored payload', () => {
   it('passes through a fully valid preference unchanged', () => {
-    expect(parseQuranTranslationPreference({ translationId: 'en.pickthall.gutenberg16955', displayMode: 'on-demand' })).toEqual({
+    expect(parseQuranTranslationPreference({ translationId: 'en.pickthall.gutenberg16955', displayMode: 'on-demand', enabledMode: 'on-demand' })).toEqual({
       translationId: 'en.pickthall.gutenberg16955',
       displayMode: 'on-demand',
+      enabledMode: 'on-demand',
     });
   });
 
@@ -50,15 +75,16 @@ describe('parseQuranTranslationPreference: safe validation/migration of an arbit
   });
 
   it('falls back to the default display mode when the stored mode is invalid/unrecognized, without throwing', () => {
-    expect(parseQuranTranslationPreference({ translationId: 'x', displayMode: 'sometimes' }).displayMode).toBe('always');
-    expect(parseQuranTranslationPreference({ translationId: 'x', displayMode: 42 }).displayMode).toBe('always');
-    expect(parseQuranTranslationPreference({ translationId: 'x' }).displayMode).toBe('always');
+    expect(parseQuranTranslationPreference({ translationId: 'x', displayMode: 'sometimes' }).displayMode).toBe('off');
+    expect(parseQuranTranslationPreference({ translationId: 'x', displayMode: 42 }).displayMode).toBe('off');
+    expect(parseQuranTranslationPreference({ translationId: 'x' }).displayMode).toBe('off');
   });
 
   it('falls back to the default translationId when missing/blank, but keeps a valid displayMode', () => {
     expect(parseQuranTranslationPreference({ displayMode: 'off' })).toEqual({
       translationId: 'en.pickthall.gutenberg16955',
       displayMode: 'off',
+      enabledMode: 'on-demand',
     });
     expect(parseQuranTranslationPreference({ translationId: '   ', displayMode: 'off' }).translationId).toBe(
       'en.pickthall.gutenberg16955',
@@ -85,8 +111,8 @@ describe('AsyncStorage-backed load/save round trip', () => {
 
   it('saveQuranTranslationPreference persists, and a subsequent load reads exactly what was saved', async () => {
     const { loadQuranTranslationPreference, saveQuranTranslationPreference } = await import('@/localization/quranTranslationPreference');
-    await saveQuranTranslationPreference({ translationId: 'en.pickthall.gutenberg16955', displayMode: 'off' });
-    expect(await loadQuranTranslationPreference()).toEqual({ translationId: 'en.pickthall.gutenberg16955', displayMode: 'off' });
+    await saveQuranTranslationPreference({ translationId: 'en.pickthall.gutenberg16955', displayMode: 'off', enabledMode: 'always' });
+    expect(await loadQuranTranslationPreference()).toEqual({ translationId: 'en.pickthall.gutenberg16955', displayMode: 'off', enabledMode: 'always' });
   });
 
   it('loadQuranTranslationPreference recovers safely (returns the default) from corrupted stored JSON', async () => {
@@ -97,7 +123,7 @@ describe('AsyncStorage-backed load/save round trip', () => {
 
   it('uses a versioned/namespaced storage key distinct from the app-locale key', async () => {
     const { saveQuranTranslationPreference } = await import('@/localization/quranTranslationPreference');
-    await saveQuranTranslationPreference({ translationId: 'en.pickthall.gutenberg16955', displayMode: 'on-demand' });
+    await saveQuranTranslationPreference({ translationId: 'en.pickthall.gutenberg16955', displayMode: 'on-demand', enabledMode: 'on-demand' });
     expect(asyncStorageState.has('quran-heals:quran-translation-preference:v1')).toBe(true);
     expect(asyncStorageState.has('quran-heals:app-locale:v1')).toBe(false);
   });
@@ -202,14 +228,20 @@ describe('Translation display-mode behavior in AyahCard.tsx (source-scan: no RN 
   });
 
   it('pressing the toggle flips isRevealed rather than only ever setting it (a real toggle, not a one-way reveal)', () => {
-    expect(source).toMatch(/setRevealedAyahId\(isRevealed \? null : ayah\.id\)/);
+    expect(source).toMatch(/setToggled\(\{ ayahId: ayah\.id, revealed: !isRevealed \}\)/);
   });
 
   it('reveal state is local per-ayah-id state, reset when a different ayah loads — never written to the persisted global preference', () => {
-    expect(source).toMatch(/useState<string \| null>\(null\)/);
+    expect(source).toMatch(/useState<\{ ayahId: string; revealed: boolean \} \| null>\(null\)/);
     expect(source).toMatch(/trackedAyahId\s*!==\s*ayah\.id/);
-    expect(source).toMatch(/setRevealedAyahId\(null\)/);
-    // The reveal state setter must never be passed to saveQuranTranslationPreference / setDisplayMode.
-    expect(source).not.toMatch(/setDisplayMode\([^)]*revealedAyahId/);
+    expect(source).toMatch(/setToggled\(null\)/);
+    // Only this ayah's own toggle counts; otherwise the Show Translation setting decides (never the other way round).
+    expect(source).toMatch(/const isRevealed = toggled\?\.ayahId === ayah\.id \? toggled\.revealed : startsRevealed;/);
+    // The reveal state must never be written to the stored preference.
+    expect(source).not.toMatch(/setDisplayMode|saveQuranTranslationPreference/);
+  });
+
+  it('the Show Translation setting decides only the starting state, on the standard (non-compact) ayah card', () => {
+    expect(source).toMatch(/const startsRevealed = !compact && displayMode === 'always';/);
   });
 });

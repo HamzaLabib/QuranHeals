@@ -6,8 +6,11 @@ import { darkPalette, lightPalette } from '@/constants/theme';
 import { MESSAGES } from '@/localization/messages';
 
 /**
- * The Settings accordion: App, Emotions and Quran Language, Appearance,
- * Legal & Privacy — rendered with the real locale / emotions / translation / appearance providers over an in-memory AsyncStorage, so a
+ * The Settings screen's five sections (App, Emotions, Quran, Support,
+ * Account) and their collapsible cards — App Language, Appearance, Emotions
+ * Language, Quran Language, Legal & Privacy — rendered with the real locale /
+ * emotions / translation / appearance / keep-awake / reminder providers over
+ * an in-memory AsyncStorage (and a fake notification platform), so a
  * selection is proven to go through the existing persisted preference
  * setters — not a parallel implementation.
  */
@@ -20,6 +23,12 @@ const state = vi.hoisted(() => ({
   openedUrls: [] as string[],
   layoutAnimations: 0,
   refreshSyncCalls: 0,
+  window: { width: 390, height: 844, fontScale: 1, scale: 3 },
+  permission: { status: 'undetermined', canAskAgain: true } as { status: 'granted' | 'denied' | 'undetermined'; canAskAgain: boolean },
+  permissionAfterRequest: { status: 'granted', canAskAgain: true } as { status: 'granted' | 'denied' | 'undetermined'; canAskAgain: boolean },
+  permissionRequests: 0,
+  settingsOpened: 0,
+  pending: new Map<string, { identifier: string; trigger: unknown; data: Record<string, unknown> }>(),
 }));
 
 vi.mock('react-native', () => {
@@ -30,8 +39,11 @@ vi.mock('react-native', () => {
   return {
     useColorScheme: () => state.scheme,
     Platform: { OS: 'ios', select: (values: { ios: unknown }) => values.ios },
-    StyleSheet: { create: (value: unknown) => value },
+    StyleSheet: { create: (value: unknown) => value, absoluteFill: {} },
     Pressable: 'Pressable', ScrollView: 'ScrollView', Switch: 'Switch', Text: 'Text', View: 'View', RefreshControl: 'RefreshControl',
+    Modal: 'Modal', ActivityIndicator: 'ActivityIndicator',
+    useWindowDimensions: () => state.window,
+    AppState: { currentState: 'active', addEventListener: () => ({ remove: () => undefined }) },
     Linking: { openURL: (url: string) => { state.openedUrls.push(url); return state.openURL(url); } },
     LayoutAnimation: { configureNext: () => { state.layoutAnimations += 1; }, Presets: { easeInEaseOut: {} } },
     Animated: { Value: AnimatedValue, View: 'Animated.View', timing: () => ({ start: () => undefined }) },
@@ -48,12 +60,17 @@ vi.mock('lucide-react-native', () => ({
   ChevronDown: 'ChevronDown', ChevronLeft: 'ChevronLeft', ChevronRight: 'ChevronRight', Flag: 'Flag',
 }));
 vi.mock('expo-router', () => ({ router: { back: () => undefined } }));
+// The system time picker is native-only; here only what the row asks of it, and what it does with the confirmed time, matter.
+vi.mock('@/components/ReminderTimePicker', async () => {
+  const { createElement: h } = await import('react');
+  return { ReminderTimePicker: (props: object) => h('ReminderTimePicker', props) };
+});
 // Rendered for real in reportIssueSheet.test.ts and feedbackReporting.test.ts; here only how Settings opens it matters.
 vi.mock('@/components/ReportIssueSheet', async () => {
   const { createElement: h } = await import('react');
   return { ReportIssueSheet: (props: object) => h('ReportIssueSheet', props) };
 });
-vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView' }));
+vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView', useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }) }));
 vi.mock('@/auth/useAuth', () => ({ useAuth: () => ({ refreshSync: async () => { state.refreshSyncCalls += 1; } }) }));
 // Rendered for real in accountSectionRender.test.ts; here only its position matters.
 vi.mock('@/components/AccountSection', async () => {
@@ -66,7 +83,32 @@ import { AppLocaleProvider } from '@/localization/useAppLocale';
 import { EmotionsLanguageProvider } from '@/localization/useEmotionsLanguage';
 import { QuranTranslationPreferenceProvider } from '@/localization/useQuranTranslationPreference';
 import { KeepAwakePreferenceProvider } from '@/mushaf/useKeepAwakePreference';
+import { NotificationsProvider } from '@/notifications/useNotifications';
+import type { NotificationsApi } from '@/notifications/api';
 import { AppearancePreferenceProvider } from '@/theme/useAppearancePreference';
+
+/** Reminders: a supported platform that has not been asked for permission yet (a fresh install). */
+const fakeNotificationsApi: NotificationsApi = {
+  supported: true,
+  getPermission: async () => state.permission,
+  requestPermission: async () => { state.permissionRequests += 1; state.permission = state.permissionAfterRequest; return state.permission; },
+  ensureChannels: async () => undefined,
+  getPending: async () => [...state.pending.values()].map(({ identifier, data }) => ({ identifier, data })),
+  schedule: async ({ identifier, trigger, content }) => { state.pending.set(identifier, { identifier, trigger, data: content.data }); },
+  cancel: async (identifier) => { state.pending.delete(identifier); },
+  getLastResponse: () => null,
+  clearLastResponse: () => undefined,
+  addResponseListener: () => ({ remove: () => undefined }),
+  setForegroundPresentation: () => undefined,
+  openSystemSettings: async () => { state.settingsOpened += 1; },
+};
+const NOTIFICATIONS_KEY = 'quran-heals:notification-preferences:v1';
+/** The Random Quran Ayah's verse source (the real one is checked against quran.sqlite in randomAyahNotification.test.ts). */
+let fakePick = 0;
+const fakeVerses = {
+  getVerseByKey: async (verseKey: string) => ({ surah: Number(verseKey.split(':')[0]), ayah: Number(verseKey.split(':')[1]), verseKey, arabicText: 'نص' }),
+  getRandomVerseKey: async () => `2:${(fakePick += 1)}`,
+};
 
 const LOCALE_KEY = 'quran-heals:app-locale:v1';
 const TRANSLATION_KEY = 'quran-heals:quran-translation-preference:v1';
@@ -88,6 +130,12 @@ beforeEach(() => {
   state.openedUrls = [];
   state.layoutAnimations = 0;
   state.refreshSyncCalls = 0;
+  state.window = { width: 390, height: 844, fontScale: 1, scale: 3 };
+  state.permission = { status: 'undetermined', canAskAgain: true };
+  state.permissionAfterRequest = { status: 'granted', canAskAgain: true };
+  state.permissionRequests = 0;
+  state.settingsOpened = 0;
+  state.pending.clear();
   fetchSpy.mockReset();
   vi.stubGlobal('fetch', fetchSpy);
 });
@@ -102,16 +150,17 @@ async function renderSettings() {
     createElement(AppLocaleProvider, null,
       createElement(EmotionsLanguageProvider, null,
         createElement(QuranTranslationPreferenceProvider, null,
-          createElement(AppearancePreferenceProvider, null, createElement(KeepAwakePreferenceProvider, null, children)))));
+          createElement(AppearancePreferenceProvider, null, createElement(KeepAwakePreferenceProvider, null,
+            createElement(NotificationsProvider, { api: fakeNotificationsApi, now: () => new Date(2026, 9, 14, 12, 0), verses: fakeVerses }, children))))));
   await act(async () => { root = create(tree(createElement(SettingsScreen))); });
 }
 
 const isType = (type: string) => (node: ReactTestInstance) => node.type === (type as never);
 const all = (type: string) => root!.root.findAll(isType(type));
 
-/** Accordion headers, in screen order. */
+/** Accordion headers, in screen order (the reminders' small frequency selectors also announce `expanded`, and carry a testID). */
 function headers() {
-  return all('Pressable').filter((node) => node.props.accessibilityState && 'expanded' in node.props.accessibilityState);
+  return all('Pressable').filter((node) => node.props.accessibilityState && 'expanded' in node.props.accessibilityState && !node.props.testID);
 }
 function header(title: string) {
   const match = headers().find((node) => node.props.accessibilityLabel === title || node.props.accessibilityLabel.startsWith(`${title}, `));
@@ -128,17 +177,42 @@ const pressOption = (label: string) => press(optionRows().find((node) => node.pr
 const resolveStyle = (node: ReactTestInstance) =>
   [typeof node.props.style === 'function' ? node.props.style({ pressed: false }) : node.props.style].flat(Infinity).filter(Boolean);
 
-const EN_HEADERS = ['App Language', 'Emotions Language', 'Quran Language', 'Appearance', 'Legal & Privacy'];
-const AR_HEADERS = ['لغة التطبيق', 'لغة المشاعر', 'لغة القرآن', 'المظهر', 'السياسات والشروط'];
+const EN_HEADERS = ['App Language', 'Appearance', 'Emotions Language', 'Quran Language', 'Legal & Privacy'];
+const AR_HEADERS = ['لغة التطبيق', 'المظهر', 'لغة المشاعر', 'لغة القرآن', 'السياسات والشروط'];
+const EN_SECTIONS = ['App', 'Emotions', 'Quran', 'Support'];
+const AR_SECTIONS = ['التطبيق', 'المشاعر', 'القرآن', 'الدعم'];
+/** The four section headings this screen draws (Account draws its own, inside AccountSection). */
+const sectionHeadings = () => root!.root
+  .findAll((node) => typeof node.type === 'string' && /^settings-section-/.test(node.props.testID ?? ''))
+  .map((section) => section.findAll((node) => node.type === ('Text' as never) && node.props.accessibilityRole === 'header')[0].props.children);
 
 describe('Settings: section order and initial state', () => {
-  it('exactly three language settings — App, Emotions, Quran — then Appearance, Legal & Privacy and the Account section; no Quran Translation row', async () => {
+  it('exactly five sections — App, Emotions, Quran, Support, Account — with no Notifications section', async () => {
     await renderSettings();
+    const sections = root!.root.findAll((node) => typeof node.type === 'string' && /^settings-section-/.test(node.props.testID ?? ''));
+    expect(sections.map((node) => node.props.testID)).toEqual(['settings-section-app', 'settings-section-emotions', 'settings-section-quran', 'settings-section-support']);
+    expect(sectionHeadings()).toEqual(EN_SECTIONS);
+    // Account is the fifth, last on the screen.
     const order = root!.root
-      .findAll((node) => node.type === ('AccountSection' as never) || headers().includes(node))
-      .map((node) => (node.type === ('AccountSection' as never) ? 'Account' : node.props.accessibilityLabel.split(', ')[0]));
-    expect(order).toEqual([...EN_HEADERS, 'Account']);
+      .findAll((node) => node.type === ('AccountSection' as never) || sections.includes(node))
+      .map((node) => (node.type === ('AccountSection' as never) ? 'Account' : node.props.testID));
+    expect(order).toEqual(['settings-section-app', 'settings-section-emotions', 'settings-section-quran', 'settings-section-support', 'Account']);
+    expect(texts()).not.toContain('Notifications');
     expect(texts()).not.toContain(en.settings.quranTranslationSection);
+  });
+
+  it('each section holds its own settings: App (App Language, Appearance), Emotions (Emotions Language, Show Translation, Emotional Check-in), Quran (Quran Language, Keep Screen Awake, Wird Reminder, Random Quran Ayah, offline Mushaf), Support (Report an Issue, Legal & Privacy)', async () => {
+    await renderSettings();
+    const section = (id: string) => root!.root.find((node) => node.props.testID === id && typeof node.type === 'string');
+    const headersIn = (id: string) => section(id).findAll((node) => headers().includes(node)).map((node) => node.props.accessibilityLabel.split(', ')[0]);
+    const idsIn = (id: string) => section(id).findAll((node) => typeof node.type === 'string' && typeof node.props.testID === 'string' && /^settings-(show-translation|keep-awake|report-issue|offline-mushaf|reminder-[a-zA-Z]+)$/.test(node.props.testID)).map((node) => node.props.testID);
+    expect(headersIn('settings-section-app')).toEqual(['App Language', 'Appearance']);
+    expect(headersIn('settings-section-emotions')).toEqual(['Emotions Language']);
+    expect(idsIn('settings-section-emotions')).toEqual(['settings-show-translation', 'settings-reminder-emotionCheckIn']);
+    expect(headersIn('settings-section-quran')).toEqual(['Quran Language']);
+    expect(idsIn('settings-section-quran')).toEqual(['settings-keep-awake', 'settings-reminder-wird', 'settings-reminder-randomAyah', 'settings-offline-mushaf']);
+    expect(headersIn('settings-section-support')).toEqual(['Legal & Privacy']);
+    expect(idsIn('settings-section-support')).toEqual(['settings-report-issue']);
     expect(en.settings.legalSection).toBe('Legal & Privacy');
   });
 
@@ -153,9 +227,9 @@ describe('Settings: section order and initial state', () => {
     await renderSettings();
     expect(headers().map((node) => node.props.accessibilityLabel)).toEqual([
       'App Language, English',
+      'Appearance, System',
       'Emotions Language, Follow App Language',
       'Quran Language, The Quranic Text',
-      'Appearance, Light',
       'Legal & Privacy',
     ]);
     expect(texts(header('Legal & Privacy'))).toEqual(['Legal & Privacy']);
@@ -178,7 +252,7 @@ describe('Settings: accordion behavior', () => {
     await renderSettings();
     await pressHeader('App Language');
     await pressHeader('Appearance');
-    expect(expandedStates()).toEqual([false, false, false, true, false]);
+    expect(expandedStates()).toEqual([false, true, false, false, false]);
     await pressHeader('Legal & Privacy');
     expect(expandedStates()).toEqual([false, false, false, false, true]);
     expect(optionRows()).toHaveLength(0);
@@ -306,38 +380,46 @@ describe('Settings: Appearance', () => {
   it('persists the unchanged internal value, updates the summary, and collapses', async () => {
     await renderSettings();
     await pressHeader('Appearance');
-    expect(optionRows().map((node) => node.props.accessibilityLabel)).toEqual(['Auto', 'Light', 'Dark']);
+    expect(optionRows().map((node) => node.props.accessibilityLabel)).toEqual(['System', 'Light', 'Dark']);
+    expect(optionRows().map((node) => node.props.accessibilityState.selected)).toEqual([true, false, false]);
     await pressOption('Dark');
     expect(JSON.parse(state.storage.get(APPEARANCE_KEY)!)).toBe('dark');
     expect(header('Appearance').props.accessibilityLabel).toBe('Appearance, Dark');
     expect(expandedStates()).toEqual([false, false, false, false, false]);
     await pressHeader('Appearance');
-    await pressOption('Auto');
+    await pressOption('System');
     expect(JSON.parse(state.storage.get(APPEARANCE_KEY)!)).toBe('system');
   });
 
   it('re-selecting the current option still collapses the section', async () => {
     await renderSettings();
     await pressHeader('Appearance');
-    await pressOption('Light');
+    await pressOption('System');
     expect(expandedStates()).toEqual([false, false, false, false, false]);
   });
 
-  it('saved choices are shown after a restart', async () => {
+  it('saved choices are shown after a restart — an existing Light or Dark is kept, never replaced by the new System default', async () => {
     state.storage.set(APPEARANCE_KEY, JSON.stringify('dark'));
     await renderSettings();
     expect(header('Appearance').props.accessibilityLabel).toBe('Appearance, Dark');
+    await act(async () => root!.unmount());
+    root = undefined;
+    state.storage.set(APPEARANCE_KEY, JSON.stringify('light'));
+    state.scheme = 'dark';
+    await renderSettings();
+    expect(header('Appearance').props.accessibilityLabel).toBe('Appearance, Light');
+    expect(JSON.parse(state.storage.get(APPEARANCE_KEY)!)).toBe('light');
   });
 });
 
 describe('Settings: Arabic labels', () => {
-  it('Appearance reads تلقائي / وضع النهار / وضع الليل, collapsed and expanded', async () => {
+  it('Appearance reads حسب النظام / وضع النهار / وضع الليل, collapsed and expanded', async () => {
     state.storage.set(LOCALE_KEY, 'ar');
     await renderSettings();
-    expect(header('المظهر').props.accessibilityLabel).toBe('المظهر, وضع النهار');
-    expect(texts(header('المظهر'))).toEqual(['المظهر', 'وضع النهار']);
+    expect(header('المظهر').props.accessibilityLabel).toBe('المظهر, حسب النظام');
+    expect(texts(header('المظهر'))).toEqual(['المظهر', 'حسب النظام']);
     await pressHeader('المظهر');
-    expect(optionRows().map((node) => node.props.accessibilityLabel)).toEqual(['تلقائي', 'وضع النهار', 'وضع الليل']);
+    expect(optionRows().map((node) => node.props.accessibilityLabel)).toEqual(['حسب النظام', 'وضع النهار', 'وضع الليل']);
     await pressOption('وضع الليل');
     expect(texts(header('المظهر'))).toEqual(['المظهر', 'وضع الليل']);
   });
@@ -346,6 +428,7 @@ describe('Settings: Arabic labels', () => {
     state.storage.set(LOCALE_KEY, 'ar');
     await renderSettings();
     expect(headers().map((node) => texts(node)[0])).toEqual(AR_HEADERS);
+    expect(sectionHeadings()).toEqual(AR_SECTIONS);
     await pressHeader('السياسات والشروط');
     expect(linkRows().map((node) => node.props.accessibilityLabel)).toEqual(['سياسة الخصوصية', 'شروط الخدمة', 'حذف الحساب والبيانات']);
     for (const row of linkRows()) expect(resolveStyle(row)).toContainEqual({ flexDirection: 'row-reverse' });
@@ -394,9 +477,10 @@ describe('Settings: theming', () => {
   const cardBackgrounds = () =>
     all('View').map((node) => resolveStyle(node)).flat().filter((style) => style.borderRadius !== undefined && style.backgroundColor !== undefined).map((style) => style.backgroundColor);
 
-  // The five accordions, the Keep Screen Awake card (after Quran Language), then the offline Mushaf card
-  // (components/OfflineMushafPanel.tsx), in the same palette card.
-  const CARDS = 7;
+  // The five accordions, the Show Translation and Keep Screen Awake cards, the three reminder cards
+  // (components/NotificationReminderRow.tsx) and the offline Mushaf row (components/OfflineMushafSettingsRow.tsx),
+  // all in the same palette card.
+  const CARDS = 11;
 
   it('uses the light palette card for every accordion in Light', async () => {
     await renderSettings();
@@ -412,12 +496,18 @@ describe('Settings: theming', () => {
     expect(resolveStyle(selected)).toContainEqual(expect.objectContaining({ backgroundColor: darkPalette.accentSoft }));
   });
 
-  it('Auto follows the device appearance', async () => {
+  it('System follows the device appearance — saved, and as the default when nothing is saved', async () => {
     state.storage.set(APPEARANCE_KEY, JSON.stringify('system'));
     state.scheme = 'dark';
     await renderSettings();
     expect(cardBackgrounds()).toEqual(Array(CARDS).fill(darkPalette.card));
-    expect(header('Appearance').props.accessibilityLabel).toBe('Appearance, Auto');
+    expect(header('Appearance').props.accessibilityLabel).toBe('Appearance, System');
+    await act(async () => root!.unmount());
+    root = undefined;
+    state.storage.delete(APPEARANCE_KEY);
+    await renderSettings();
+    expect(cardBackgrounds()).toEqual(Array(CARDS).fill(darkPalette.card));
+    expect(state.storage.has(APPEARANCE_KEY)).toBe(false);
   });
 });
 
@@ -454,13 +544,13 @@ describe('Settings: Report an issue', () => {
   const reportRow = () => all('Pressable').find((node) => node.props.testID === 'settings-report-issue')!;
   const sheet = () => all('ReportIssueSheet')[0];
 
-  it('one row after the five sections and before Account, outside the accordion (the sections are unchanged)', async () => {
+  it('in Support, before Legal & Privacy and the Account section, as a row of its own', async () => {
     await renderSettings();
     const order = root!.root
       .findAll((node) => node.type === ('AccountSection' as never) || headers().includes(node) || node.props?.testID === 'settings-report-issue')
-      .filter((node) => typeof node.type === 'string')
+      .filter((node) => typeof node.type === 'string' || node.type === ('AccountSection' as never))
       .map((node) => (node.type === ('AccountSection' as never) ? 'Account' : node.props.testID === 'settings-report-issue' ? 'Report' : node.props.accessibilityLabel.split(', ')[0]));
-    expect(order).toEqual([...EN_HEADERS, 'Report', 'Account']);
+    expect(order).toEqual(['App Language', 'Appearance', 'Emotions Language', 'Quran Language', 'Report', 'Legal & Privacy', 'Account']);
     expect(reportRow().props.accessibilityState).toBeUndefined();
     expect(reportRow().props).toMatchObject({ accessibilityRole: 'button', accessibilityLabel: en.issueReport.action, accessibilityHint: en.issueReport.settingsDescription });
     expect(texts(reportRow())).toEqual([en.issueReport.action, en.issueReport.settingsDescription]);
@@ -491,12 +581,12 @@ describe('Settings: Keep Screen Awake', () => {
   /** The card holding the switch: its title and description, in screen order. */
   const card = () => toggle().parent!;
 
-  it('sits directly below Quran Language (before Appearance), as a card of its own, ON by default with nothing saved', async () => {
+  it('sits in the Quran section directly below Quran Language, as a card of its own, ON by default with nothing saved', async () => {
     await renderSettings();
     const order = root!.root
       .findAll((node) => node === toggle() || headers().includes(node))
       .map((node) => (node === toggle() ? 'switch' : node.props.accessibilityLabel.split(', ')[0]));
-    expect(order).toEqual(['App Language', 'Emotions Language', 'Quran Language', 'switch', 'Appearance', 'Legal & Privacy']);
+    expect(order).toEqual(['App Language', 'Appearance', 'Emotions Language', 'Quran Language', 'switch', 'Legal & Privacy']);
     expect(texts(card())).toEqual([en.settings.keepAwakeTitle, en.settings.keepAwakeDescription]);
     expect(en.settings.keepAwakeTitle).toBe('Keep Screen Awake');
     expect(en.settings.keepAwakeDescription).toBe('Prevent automatic screen locking while reading the Mushaf.');
@@ -515,7 +605,7 @@ describe('Settings: Keep Screen Awake', () => {
     await act(async () => toggle().props.onValueChange(true));
     expect(toggle().props.value).toBe(true);
     expect(state.storage.get(KEEP_AWAKE_KEY)).toBe('true');
-    expect([...state.storage.keys()].filter((key) => !before.has(key))).toEqual([KEEP_AWAKE_KEY]);
+    expect([...state.storage.keys()].filter((key) => !before.has(key) && key !== NOTIFICATIONS_KEY)).toEqual([KEEP_AWAKE_KEY]);
     expect(fetchSpy).not.toHaveBeenCalled();
     expect(state.layoutAnimations).toBe(0);
   });
@@ -551,5 +641,379 @@ describe('Settings: Keep Screen Awake', () => {
     const [title, description] = card().findAll(isType('Text')).map((text) => pick(resolveStyle(text)));
     expect(title.color).toBe(palette.textPrimary);
     expect(description.color).toBe(palette.textSecondary);
+  });
+});
+
+describe('Settings: reminders (the compact rows)', () => {
+  const row = (kind: string) => root!.root.find((node) => typeof node.type === 'string' && node.props.testID === `settings-reminder-${kind}`);
+  const part = (kind: string, name: string) => root!.root.find((node) => typeof node.type === 'string' && node.props.testID === `settings-reminder-${kind}-${name}`);
+  const parts = (kind: string, name: string) => root!.root.findAll((node) => typeof node.type === 'string' && node.props.testID === `settings-reminder-${kind}-${name}`);
+  const stored = () => JSON.parse(state.storage.get(NOTIFICATIONS_KEY) ?? 'null');
+  const flush = () => act(async () => { await new Promise((done) => setTimeout(done, 0)); });
+  const openMenu = async (kind: string, name: string) => { await press(part(kind, name)); };
+  const menuOptions = (kind: string, name: string) => root!.root.findAll((node) => typeof node.type === 'string' && typeof node.props.testID === 'string' && node.props.testID.startsWith(`settings-reminder-${kind}-${name}-option-`));
+  const permissionSheet = () => root!.root.find((node) => node.props.testID === 'settings-notification-permission' && node.props.visible !== undefined);
+  const KINDS = ['emotionCheckIn', 'wird', 'randomAyah'];
+
+  it('exactly three reminders, each with its name, its time underneath, a frequency selector and a switch — all ON with the approved defaults', async () => {
+    await renderSettings();
+    const rows = root!.root.findAll((node) => typeof node.type === 'string' && /^settings-reminder-[a-zA-Z]+$/.test(node.props.testID ?? ''));
+    expect(rows.map((node) => node.props.testID)).toEqual(KINDS.map((k) => `settings-reminder-${k}`));
+    expect(texts(row('emotionCheckIn')).slice(0, 2)).toEqual(['You Deserve Peace', '9:00 PM']);
+    expect(texts(row('wird')).slice(0, 2)).toEqual(['Wird Reminder', '9:00 PM']);
+    expect(texts(row('randomAyah')).slice(0, 2)).toEqual(['Random Quran Ayah', '8:00 AM']);
+    expect(part('emotionCheckIn', 'frequency').props.accessibilityLabel).toBe('You Deserve Peace, Frequency, Daily');
+    expect(part('wird', 'frequency').props.accessibilityLabel).toBe('Wird Reminder, Frequency, Daily');
+    expect(part('randomAyah', 'frequency').props.accessibilityLabel).toBe('Random Quran Ayah, Frequency, Daily');
+    for (const kind of KINDS) {
+      expect(part(kind, 'switch').props).toMatchObject({ value: true, accessibilityRole: 'switch', accessibilityState: { checked: true } });
+      // The time under the name, then the frequency, then the switch at the far end.
+      const ids = [`settings-reminder-${kind}-time`, `settings-reminder-${kind}-frequency`, `settings-reminder-${kind}-switch`];
+      const order = row(kind).findAll((node) => typeof node.type === 'string' && ids.includes(node.props.testID)).map((node) => String(node.props.testID).split('-').pop());
+      expect(order).toEqual(['time', 'frequency', 'switch']);
+    }
+    // The OS has not been asked: nothing is scheduled and no prompt appears on its own.
+    expect(state.permissionRequests).toBe(0);
+    expect(state.pending.size).toBe(0);
+    expect(permissionSheet().props.visible).toBe(false);
+  });
+
+  it('the frequency menu offers exactly Daily, Every 3 days and Weekly (no Auto); there is no Save, Done or expandable panel', async () => {
+    await renderSettings();
+    await openMenu('wird', 'frequency');
+    expect(menuOptions('wird', 'frequency').map((node) => node.props.accessibilityLabel)).toEqual(['Daily', 'Every 3 days', 'Weekly']);
+    // Android: the menu's modal shares measureInWindow's coordinates (as ContinueReadingCard's menu), so it opens beside its selector.
+    const menuModal = root!.root.findAll((node) => node.type === ('Modal' as never) && node.props.visible === true)[0];
+    expect(menuModal.props).toMatchObject({ transparent: true, statusBarTranslucent: true });
+    for (const word of ['Auto', 'Done', 'Save', 'Repeat', 'Preferred Time']) expect(texts()).not.toContain(word);
+    expect(headers().map((node) => node.props.accessibilityLabel.split(', ')[0])).toEqual(EN_HEADERS);
+  });
+
+  it('choosing a frequency applies and saves at once, for that reminder only', async () => {
+    await renderSettings();
+    // A new install saves nothing until something is changed (the defaults need no cycle to be fixed).
+    expect(stored()).toBeNull();
+    await openMenu('randomAyah', 'frequency');
+    await press(part('randomAyah', 'frequency-option-every3days'));
+    await flush();
+    expect(stored().randomAyah).toMatchObject({ frequency: 'every3days', time: '08:00', enabled: true });
+    expect(stored().randomAyah.anchor).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(stored().wird).toEqual({ enabled: true, frequency: 'daily', time: '21:00', weekday: null, anchor: null });
+    expect(stored().emotionCheckIn).toMatchObject({ enabled: true, frequency: 'daily', time: '21:00', twice: { morning: '09:00', evening: '21:00' } });
+    expect(part('randomAyah', 'frequency').props.accessibilityLabel).toBe('Random Quran Ayah, Frequency, Every 3 days');
+  });
+
+  it('Weekly adds a small weekday selector before the time ("Wednesday · 9:00 PM"), stored per reminder', async () => {
+    await renderSettings();
+    expect(parts('wird', 'weekday')).toHaveLength(0);
+    await openMenu('wird', 'frequency');
+    await press(part('wird', 'frequency-option-weekly'));
+    await flush();
+    expect(texts(row('wird')).slice(0, 4)).toEqual(['Wird Reminder', 'Wednesday', '·', '9:00 PM']);
+    await openMenu('wird', 'weekday');
+    expect(menuOptions('wird', 'weekday').map((node) => node.props.accessibilityLabel)).toEqual(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']);
+    await press(part('wird', 'weekday-option-1'));
+    await flush();
+    expect(stored().wird).toMatchObject({ frequency: 'weekly', weekday: 1 });
+    expect(stored().emotionCheckIn.weekday).toBeNull();
+    expect(part('wird', 'switch').props.accessibilityHint).toContain('Weekly · Sunday · 9:00 PM');
+  });
+
+  it('tapping the time opens the picker; a confirmed time is saved and shown, a cancelled one changes nothing', async () => {
+    await renderSettings();
+    const picker = () => row('emotionCheckIn').findByType('ReminderTimePicker' as never);
+    expect(picker().props.visible).toBe(false);
+    await press(part('emotionCheckIn', 'time'));
+    expect(picker().props).toMatchObject({ visible: true, value: { hour: 21, minute: 0 } });
+    await act(async () => picker().props.onCancel());
+    expect(picker().props.visible).toBe(false);
+    expect(stored()).toBeNull(); // cancelled: nothing written
+    await press(part('emotionCheckIn', 'time'));
+    await act(async () => picker().props.onConfirm({ hour: 6, minute: 5 }));
+    await flush();
+    expect(stored().emotionCheckIn.time).toBe('06:05');
+    expect(texts(row('emotionCheckIn'))[1]).toBe('6:05 AM');
+  });
+
+  it('OFF keeps the frequency and time but disables and dims them; ON restores them as they were', async () => {
+    await renderSettings();
+    await press(part('randomAyah', 'time'));
+    await act(async () => row('randomAyah').findByType('ReminderTimePicker' as never).props.onConfirm({ hour: 7, minute: 30 }));
+    await act(async () => part('randomAyah', 'switch').props.onValueChange(false));
+    await flush();
+    expect(stored().randomAyah).toMatchObject({ enabled: false, time: '07:30', frequency: 'daily' });
+    expect(part('randomAyah', 'frequency').props.disabled).toBe(true);
+    expect(part('randomAyah', 'time').props.disabled).toBe(true);
+    expect(resolveStyle(part('randomAyah', 'frequency'))).toContainEqual(expect.objectContaining({ opacity: 0.5 }));
+    expect(stored().wird.enabled).toBe(true);
+    await act(async () => part('randomAyah', 'switch').props.onValueChange(true));
+    await flush();
+    expect(stored().randomAyah).toMatchObject({ enabled: true, time: '07:30', frequency: 'daily' });
+    expect(part('randomAyah', 'time').props.disabled).toBe(false);
+  });
+
+  it('turning a reminder back ON is the moment to explain and ask, if the OS was never asked', async () => {
+    await renderSettings();
+    await act(async () => part('wird', 'switch').props.onValueChange(false));
+    expect(permissionSheet().props.visible).toBe(false);
+    await act(async () => part('wird', 'switch').props.onValueChange(true));
+    expect(permissionSheet().props.visible).toBe(true);
+    expect(state.permissionRequests).toBe(0);
+  });
+
+  it('without OS permission: an honest "Permission required" line; tapping it explains first, then asks the OS, then schedules', async () => {
+    await renderSettings();
+    expect(texts(part('wird', 'permission'))).toEqual(['Permission required', 'Allow notifications']);
+    expect(permissionSheet().props.visible).toBe(false);
+    await press(part('wird', 'permission'));
+    expect(permissionSheet().props.visible).toBe(true);
+    expect(state.permissionRequests).toBe(0);
+    // The approved explanation, then its privacy note as a second paragraph, in the same sheet.
+    const sheet = root!.root.find((node) => typeof node.type === 'string' && node.props.testID === 'settings-notification-permission');
+    const body = MESSAGES.en.notifications.permissionSheetBody;
+    const note = MESSAGES.en.notifications.permissionSheetPrivacy;
+    expect(texts(sheet).slice(0, 3)).toEqual(['Allow notifications?', body, note]);
+    expect(note).toBe('Reminders are scheduled on your device and work offline.');
+    await act(async () => permissionSheet().props.onConfirm());
+    await flush();
+    expect(state.permissionRequests).toBe(1);
+    expect(parts('wird', 'permission')).toHaveLength(0);
+    expect([...state.pending.keys()].filter((id) => id.startsWith('quranheals.wird.'))).toEqual(['quranheals.wird.daily']);
+    expect([...state.pending.keys()].some((id) => id.startsWith('quranheals.checkin.'))).toBe(true);
+  });
+
+  it('"Not now" keeps everything as it is and asks nothing', async () => {
+    await renderSettings();
+    await press(part('wird', 'permission'));
+    await act(async () => permissionSheet().props.onCancel());
+    expect(state.permissionRequests).toBe(0);
+    expect(stored()).toBeNull(); // nothing changed, nothing written
+  });
+
+  it('denied for good: the line opens the device settings instead of asking again; frequency and time stay editable', async () => {
+    state.permission = { status: 'denied', canAskAgain: false };
+    await renderSettings();
+    await flush();
+    expect(texts(part('wird', 'permission'))).toEqual(['Permission required', 'Open device settings']);
+    await press(part('wird', 'permission'));
+    expect(state.settingsOpened).toBe(1);
+    expect(state.permissionRequests).toBe(0);
+    expect(part('wird', 'frequency').props.disabled).toBe(false);
+    expect(part('wird', 'time').props.disabled).toBe(false);
+  });
+
+  it('granted: turning one reminder OFF cancels only its own pending notifications', async () => {
+    state.permission = { status: 'granted', canAskAgain: true };
+    await renderSettings();
+    await flush();
+    const ofKind = (prefix: string) => [...state.pending.keys()].filter((id) => id.startsWith(prefix)).length;
+    expect(ofKind('quranheals.wird.')).toBe(1);
+    const checkIns = ofKind('quranheals.checkin.');
+    expect(checkIns).toBeGreaterThan(0);
+    await act(async () => part('wird', 'switch').props.onValueChange(false));
+    await flush();
+    expect(ofKind('quranheals.wird.')).toBe(0);
+    expect(ofKind('quranheals.checkin.')).toBe(checkIns);
+    expect(parts('wird', 'permission')).toHaveLength(0);
+  });
+
+  it('You Deserve Peace: Daily, Every 3 days, Weekly, then Twice Daily last — only here; the Wird and Random Ayah keep three', async () => {
+    await renderSettings();
+    await openMenu('emotionCheckIn', 'frequency');
+    expect(menuOptions('emotionCheckIn', 'frequency').map((node) => node.props.accessibilityLabel)).toEqual(['Daily', 'Every 3 days', 'Weekly', 'Twice Daily']);
+    await press(part('emotionCheckIn', 'frequency'));
+    for (const kind of ['wird', 'randomAyah']) {
+      await openMenu(kind, 'frequency');
+      expect(menuOptions(kind, 'frequency').map((node) => node.props.accessibilityLabel), kind).toEqual(['Daily', 'Every 3 days', 'Weekly']);
+      await press(part(kind, 'frequency'));
+    }
+  });
+
+  it('Twice Daily: two times instead of one (Morning 9:00 AM · Evening 9:00 PM), each changed on its own with the same picker, saved at once; the single time is kept', async () => {
+    await renderSettings();
+    const picker = () => row('emotionCheckIn').findByType('ReminderTimePicker' as never);
+    await openMenu('emotionCheckIn', 'frequency');
+    await press(part('emotionCheckIn', 'frequency-option-twiceDaily'));
+    await flush();
+    expect(parts('emotionCheckIn', 'time')).toHaveLength(0);
+    expect(texts(part('emotionCheckIn', 'time-morning'))).toEqual(['Morning 9:00 AM']);
+    expect(texts(part('emotionCheckIn', 'time-evening'))).toEqual(['Evening 9:00 PM']);
+    expect(part('emotionCheckIn', 'frequency').props.accessibilityLabel).toBe('You Deserve Peace, Frequency, Twice Daily');
+    expect(stored().emotionCheckIn).toMatchObject({ frequency: 'twiceDaily', time: '21:00', twice: { morning: '09:00', evening: '21:00' } });
+    // The morning time.
+    await press(part('emotionCheckIn', 'time-morning'));
+    expect(picker().props).toMatchObject({ visible: true, value: { hour: 9, minute: 0 } });
+    await act(async () => picker().props.onConfirm({ hour: 7, minute: 15 }));
+    await flush();
+    // The evening time.
+    await press(part('emotionCheckIn', 'time-evening'));
+    expect(picker().props).toMatchObject({ visible: true, value: { hour: 21, minute: 0 } });
+    await act(async () => picker().props.onConfirm({ hour: 22, minute: 30 }));
+    await flush();
+    expect(stored().emotionCheckIn).toMatchObject({ frequency: 'twiceDaily', time: '21:00', twice: { morning: '07:15', evening: '22:30' } });
+    expect(texts(part('emotionCheckIn', 'time-morning'))).toEqual(['Morning 7:15 AM']);
+    expect(texts(part('emotionCheckIn', 'time-evening'))).toEqual(['Evening 10:30 PM']);
+    // Back to Daily: the single time as it was; to Twice Daily again: both times as they were.
+    await openMenu('emotionCheckIn', 'frequency');
+    await press(part('emotionCheckIn', 'frequency-option-daily'));
+    await flush();
+    expect(texts(part('emotionCheckIn', 'time'))).toEqual(['9:00 PM']);
+    await openMenu('emotionCheckIn', 'frequency');
+    await press(part('emotionCheckIn', 'frequency-option-twiceDaily'));
+    await flush();
+    expect(texts(part('emotionCheckIn', 'time-morning'))).toEqual(['Morning 7:15 AM']);
+    expect(texts(part('emotionCheckIn', 'time-evening'))).toEqual(['Evening 10:30 PM']);
+    // The other reminders were never touched.
+    expect(stored().wird).toEqual({ enabled: true, frequency: 'daily', time: '21:00', weekday: null, anchor: null });
+  });
+
+  it('Twice Daily: the same time as the other one is refused with a note, and nothing is saved', async () => {
+    await renderSettings();
+    const picker = () => row('emotionCheckIn').findByType('ReminderTimePicker' as never);
+    await openMenu('emotionCheckIn', 'frequency');
+    await press(part('emotionCheckIn', 'frequency-option-twiceDaily'));
+    await flush();
+    const before = state.storage.get(NOTIFICATIONS_KEY);
+    await press(part('emotionCheckIn', 'time-morning'));
+    await act(async () => picker().props.onConfirm({ hour: 21, minute: 0 }));
+    await flush();
+    expect(state.storage.get(NOTIFICATIONS_KEY)).toBe(before);
+    expect(texts(part('emotionCheckIn', 'same-time'))).toEqual(['Choose two different times.']);
+    expect(texts(part('emotionCheckIn', 'time-morning'))).toEqual(['Morning 9:00 AM']);
+    // A different time clears the note and is saved.
+    await press(part('emotionCheckIn', 'time-morning'));
+    await act(async () => picker().props.onConfirm({ hour: 8, minute: 0 }));
+    await flush();
+    expect(parts('emotionCheckIn', 'same-time')).toHaveLength(0);
+    expect(stored().emotionCheckIn.twice).toEqual({ morning: '08:00', evening: '21:00' });
+  });
+
+  it('Twice Daily in Arabic: مرتين يوميًا last, the two times labelled صباحًا and مساءً with Arabic-Indic digits, mirrored', async () => {
+    state.storage.set(LOCALE_KEY, 'ar');
+    await renderSettings();
+    await openMenu('emotionCheckIn', 'frequency');
+    expect(menuOptions('emotionCheckIn', 'frequency').map((node) => node.props.accessibilityLabel)).toEqual(['يوميًا', 'كل ٣ أيام', 'أسبوعيًا', 'مرتين يوميًا']);
+    await press(part('emotionCheckIn', 'frequency-option-twiceDaily'));
+    await flush();
+    expect(texts(part('emotionCheckIn', 'time-morning'))).toEqual(['صباحًا ٠٩:٠٠']);
+    expect(texts(part('emotionCheckIn', 'time-evening'))).toEqual(['مساءً ٢١:٠٠']);
+    const firstRow = row('emotionCheckIn').children[0] as ReactTestInstance;
+    expect(resolveStyle(firstRow)).toContainEqual({ flexDirection: 'row-reverse' });
+  });
+
+  it('Arabic: the approved names, frequency words, mirrored rows and Arabic-Indic times', async () => {
+    state.storage.set(LOCALE_KEY, 'ar');
+    await renderSettings();
+    expect(texts(row('wird')).slice(0, 2)).toEqual(['تذكير الورد', '٢١:٠٠']);
+    expect(texts(row('randomAyah'))[0]).toBe('آية من القرآن');
+    expect(texts(row('emotionCheckIn'))[0]).toBe('تستحق الطمأنينة');
+    expect(part('emotionCheckIn', 'frequency').props.accessibilityLabel).toBe('تستحق الطمأنينة, التكرار, يوميًا');
+    await openMenu('wird', 'frequency');
+    expect(menuOptions('wird', 'frequency').map((node) => node.props.accessibilityLabel)).toEqual(['يوميًا', 'كل ٣ أيام', 'أسبوعيًا']);
+    const firstRow = row('wird').children[0] as ReactTestInstance;
+    expect(resolveStyle(firstRow)).toContainEqual({ flexDirection: 'row-reverse' });
+    expect(texts(part('wird', 'permission'))).toEqual(['يلزم السماح بالإشعارات', 'السماح بالإشعارات']);
+  });
+
+  it('narrow screens and large text: the frequency moves under the time instead of squeezing the row; no text is cut', async () => {
+    state.window = { width: 320, height: 568, fontScale: 1, scale: 2 };
+    await renderSettings();
+    const firstRow = row('emotionCheckIn').children[0] as ReactTestInstance;
+    expect(firstRow.findAll((node) => node.props.testID === 'settings-reminder-emotionCheckIn-frequency')).toHaveLength(0);
+    expect(parts('emotionCheckIn', 'frequency')).toHaveLength(1);
+    for (const text of row('emotionCheckIn').findAll(isType('Text'))) expect(text.props.numberOfLines).toBeUndefined();
+    await act(async () => root!.unmount());
+    root = undefined;
+    state.window = { width: 414, height: 896, fontScale: 1.5, scale: 3 };
+    await renderSettings();
+    const scaledRow = row('wird').children[0] as ReactTestInstance;
+    expect(scaledRow.findAll((node) => node.props.testID === 'settings-reminder-wird-frequency')).toHaveLength(0);
+  });
+
+  it.each([['light', lightPalette], ['dark', darkPalette]] as const)('%s mode: reminder cards and switches use the theme colours', async (scheme, palette) => {
+    state.storage.set(APPEARANCE_KEY, JSON.stringify(scheme));
+    await renderSettings();
+    for (const kind of KINDS) {
+      expect(Object.assign({}, ...resolveStyle(row(kind))).backgroundColor).toBe(palette.card);
+      expect(part(kind, 'switch').props.trackColor).toEqual({ false: palette.border, true: palette.accentFill });
+    }
+  });
+
+  it('touch targets: each control is a labelled button with room to tap', async () => {
+    await renderSettings();
+    for (const kind of KINDS) {
+      expect(part(kind, 'time').props).toMatchObject({ accessibilityRole: 'button', hitSlop: { top: 12, bottom: 12 } });
+      expect(part(kind, 'time').props.accessibilityLabel).toMatch(/Reminder time/);
+      expect(resolveStyle(part(kind, 'frequency'))).toContainEqual(expect.objectContaining({ minHeight: 36 }));
+    }
+  });
+});
+
+describe('Settings: Show Translation (switch + dropdown)', () => {
+  const part = (id: string) => root!.root.find((node) => typeof node.type === 'string' && node.props.testID === id);
+  const stored = () => JSON.parse(state.storage.get(TRANSLATION_KEY) ?? 'null');
+  const menuOptions = () => root!.root.findAll((node) => typeof node.type === 'string' && typeof node.props.testID === 'string' && node.props.testID.startsWith('settings-show-translation-mode-option-'));
+
+  it('a new user: OFF, the dropdown dimmed and disabled on On Demand; nothing is written until the user changes it', async () => {
+    await renderSettings();
+    expect(part('settings-show-translation').props).toMatchObject({ value: false, accessibilityState: { checked: false } });
+    const dropdown = part('settings-show-translation-mode');
+    expect(dropdown.props).toMatchObject({ disabled: true, accessibilityLabel: 'Show Translation, Translation display, On Demand' });
+    expect(resolveStyle(dropdown)).toContainEqual(expect.objectContaining({ opacity: 0.5 }));
+    expect(state.storage.has(TRANSLATION_KEY)).toBe(false);
+  });
+
+  it('exactly two choices — Always and On Demand; ON applies the dropdown`s choice, the dropdown applies at once while ON, and OFF keeps it', async () => {
+    await renderSettings();
+    await act(async () => part('settings-show-translation').props.onValueChange(true));
+    expect(stored()).toMatchObject({ displayMode: 'on-demand', enabledMode: 'on-demand' });
+    expect(part('settings-show-translation-mode').props.disabled).toBe(false);
+    await act(async () => part('settings-show-translation-mode').props.onPress());
+    expect(menuOptions().map((node) => node.props.accessibilityLabel)).toEqual(['Always', 'On Demand']);
+    await act(async () => part('settings-show-translation-mode-option-always').props.onPress());
+    expect(stored()).toMatchObject({ displayMode: 'always', enabledMode: 'always' });
+    await act(async () => part('settings-show-translation').props.onValueChange(false));
+    expect(stored()).toMatchObject({ displayMode: 'off', enabledMode: 'always' }); // the choice is kept
+    expect(part('settings-show-translation-mode').props.accessibilityLabel).toBe('Show Translation, Translation display, Always');
+    await act(async () => part('settings-show-translation').props.onValueChange(true));
+    expect(stored()).toMatchObject({ displayMode: 'always', enabledMode: 'always' }); // restored
+  });
+
+  it.each([
+    ['always', true, 'Always'],
+    ['on-demand', true, 'On Demand'],
+    ['off', false, 'On Demand'],
+  ] as const)('an earlier saved value %s is shown as ON=%s with %s', async (displayMode, on, label) => {
+    state.storage.set(TRANSLATION_KEY, JSON.stringify({ translationId: 'en.pickthall.gutenberg16955', displayMode }));
+    await renderSettings();
+    expect(part('settings-show-translation').props.value).toBe(on);
+    expect(part('settings-show-translation-mode').props.accessibilityLabel).toBe(`Show Translation, Translation display, ${label}`);
+    expect(stored()).toEqual({ translationId: 'en.pickthall.gutenberg16955', displayMode }); // nothing rewritten on open
+  });
+
+  it('Arabic: دائمًا / عند الطلب, mirrored', async () => {
+    state.storage.set(LOCALE_KEY, 'ar');
+    state.storage.set(TRANSLATION_KEY, JSON.stringify({ translationId: 'en.pickthall.gutenberg16955', displayMode: 'always' }));
+    await renderSettings();
+    const row = part('settings-show-translation-row');
+    expect(resolveStyle(row.children[0] as ReactTestInstance)).toContainEqual({ flexDirection: 'row-reverse' });
+    expect(texts(row)[0]).toBe('إظهار الترجمة');
+    await act(async () => part('settings-show-translation-mode').props.onPress());
+    expect(menuOptions().map((node) => node.props.accessibilityLabel)).toEqual(['دائمًا', 'عند الطلب']);
+  });
+
+  it.each([['light', lightPalette], ['dark', darkPalette]] as const)('%s mode: the same card and switch colours as the reminder rows', async (scheme, palette) => {
+    state.storage.set(APPEARANCE_KEY, JSON.stringify(scheme));
+    await renderSettings();
+    expect(Object.assign({}, ...resolveStyle(part('settings-show-translation-row'))).backgroundColor).toBe(palette.card);
+    expect(part('settings-show-translation').props.trackColor).toEqual({ false: palette.border, true: palette.accentFill });
+  });
+
+  it('small screens: the dropdown moves under the text instead of squeezing the row', async () => {
+    state.window = { width: 320, height: 568, fontScale: 1, scale: 2 };
+    await renderSettings();
+    const firstRow = part('settings-show-translation-row').children[0] as ReactTestInstance;
+    expect(firstRow.findAll((node) => node.props.testID === 'settings-show-translation-mode')).toHaveLength(0);
+    expect(root!.root.findAll((node) => typeof node.type === 'string' && node.props.testID === 'settings-show-translation-mode')).toHaveLength(1);
   });
 });

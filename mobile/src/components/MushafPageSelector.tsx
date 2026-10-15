@@ -1,6 +1,6 @@
 import { ArrowLeft, ArrowRight } from 'lucide-react-native';
-import { useState } from 'react';
-import { Keyboard, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View, type GestureResponderEvent } from 'react-native';
+import { useEffect, useState } from 'react';
+import { InputAccessoryView, Keyboard, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View, type GestureResponderEvent } from 'react-native';
 
 import { MUSHAF_PANEL_COLORS } from '@/constants/mushafTheme';
 import { fill } from '@/localization/fill';
@@ -18,6 +18,10 @@ type Labels = {
   /** Shown under a typed number that is not a page. */
   pageOutOfRange: string;
   close: string;
+  /** The Go button shown beside the arrow while a page is typed ("Go"). */
+  go: string;
+  /** The bar above the iOS number pad: hides the keyboard ("Done"). */
+  keyboardDone: string;
 };
 
 type Props = {
@@ -45,6 +49,11 @@ const SIDE_MARGIN = 14;
 /** Above the bottom safe area. */
 export const PAGE_SELECTOR_BOTTOM_MARGIN = 8;
 const BOTTOM_MARGIN = PAGE_SELECTOR_BOTTOM_MARGIN;
+/** The iOS number pad's Done bar (InputAccessoryView), tied to the field by this id. */
+const KEYBOARD_BAR_ID = 'mushaf-page-selector-keyboard';
+/** iOS reports the keyboard before it moves (so the card moves with it); Android only once it has. */
+const KEYBOARD_SHOW = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+const KEYBOARD_HIDE = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
 /**
  * The card's height (padding 8 + the 44-pt row + the slider row + padding 4, and its two hairline borders, rounded up):
  * the reader keeps Normal Mode's Quran text clear of it (fitMushafPage). An out-of-range typed page adds a line while the
@@ -61,6 +70,14 @@ export const PAGE_SELECTOR_CARD_HEIGHT = 8 + 44 + SLIDER_TOUCH + 4 + 2;
  * Moving the thumb or typing only previews: the Mushaf stays where it is. The one way to go is the arrow beside the
  * number (mushaf/pageSelector.ts navigationArrow): a later page, a left arrow on the number's left; an earlier one, a
  * right arrow on its right; the same page, none. A tap outside (or Back) closes it and changes nothing.
+ *
+ * Typing a page (tap the number): the card rides above the keyboard (it sits at the bottom of a KeyboardAvoidingView,
+ * in the layout, so the space the keyboard takes is subtracted from it; an absolutely positioned card would stay behind
+ * the keyboard on iOS, where the view makes room with padding, which absolute positions ignore). While a whole, valid
+ * page other than the current one is typed (or slid to: Go shows for the slider too), a labelled Go button joins the
+ * arrow on its outer side ("Go ← 200", "45 → Go"). The keyboard closes with the Done bar above the iOS number pad, a tap anywhere outside the field (the card
+ * or the dimmed screen: only the keyboard closes then, never the selector) or Android's own keys; the typed number stays
+ * in the field. Going (Go, the arrow, or Android's Go key) closes the keyboard and the selector.
  */
 export function MushafPageSelector({ visible, currentPage, labels, dark, bottomInset, formatNumber, surahName, juzLabel, onGo, onClose }: Props) {
   const theme = dark ? MUSHAF_PANEL_COLORS.dark : MUSHAF_PANEL_COLORS.light;
@@ -68,6 +85,17 @@ export function MushafPageSelector({ visible, currentPage, labels, dark, bottomI
   const [editing, setEditing] = useState(false);
   const [typed, setTyped] = useState('');
   const [trackWidth, setTrackWidth] = useState(0);
+  const [keyboardShown, setKeyboardShown] = useState(false);
+  useEffect(() => {
+    if (!visible) return undefined;
+    const shown = Keyboard.addListener(KEYBOARD_SHOW, () => setKeyboardShown(true));
+    const hidden = Keyboard.addListener(KEYBOARD_HIDE, () => setKeyboardShown(false));
+    return () => {
+      shown.remove();
+      hidden.remove();
+      setKeyboardShown(false);
+    };
+  }, [visible]);
   // Each opening starts at the page being read.
   const [openedAt, setOpenedAt] = useState<number | null>(null);
   const opening = visible ? currentPage : null;
@@ -90,6 +118,8 @@ export function MushafPageSelector({ visible, currentPage, labels, dark, bottomI
     Keyboard.dismiss();
     onClose();
   };
+  // Outside the field while the keyboard is up: only the keyboard closes (the typed number stays).
+  const outside = () => (keyboardShown ? Keyboard.dismiss() : close());
   const go = () => {
     const target = editing ? parseTypedPage(typed) : selected;
     if (target === null || target === currentPage) return;
@@ -104,6 +134,21 @@ export function MushafPageSelector({ visible, currentPage, labels, dark, bottomI
     setSelected(pageAtTrackX(event.nativeEvent.locationX, trackWidth));
   };
   const step = (delta: 1 | -1) => setSelected((page) => Math.min(MUSHAF_PAGE_COUNT, Math.max(1, page + delta)));
+
+  const goButton = (
+    <Pressable
+      testID="mushaf-page-go-button"
+      accessibilityRole="button"
+      accessibilityLabel={fill(labels.goToSelected, { page: formatNumber(selected) })}
+      onPress={go}
+      hitSlop={6}
+      style={({ pressed }) => [styles.goButton, { backgroundColor: theme.accent }, pressed && styles.pressed]}>
+      <Text numberOfLines={1} style={[styles.goText, { color: theme.sheet.backgroundColor }]}>{labels.go}</Text>
+    </Pressable>
+  );
+  // Whenever there is somewhere to go — a page typed or slid to that is not the one being read — beside the arrow, on
+  // its outer side. Never for the current page or a typed number that is not a page (no arrow then either).
+  const showGo = arrow !== null;
 
   const arrowButton = (side: 'left' | 'right') => (
     <Pressable
@@ -120,11 +165,17 @@ export function MushafPageSelector({ visible, currentPage, labels, dark, bottomI
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={close}>
       <KeyboardAvoidingView style={styles.fill} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <Pressable testID="mushaf-page-selector-backdrop" accessibilityLabel={labels.close} style={StyleSheet.absoluteFill} onPress={close} />
-        <View testID="mushaf-page-selector" style={[styles.card, theme.sheet, { bottom: bottomInset + BOTTOM_MARGIN }]}>
+        <Pressable testID="mushaf-page-selector-backdrop" accessibilityLabel={labels.close} style={StyleSheet.absoluteFill} onPress={outside} />
+        {/* In the layout (not absolute), at the bottom: lifted above the keyboard with the space it takes. A tap on the card outside its controls closes only the keyboard. */}
+        <View
+          testID="mushaf-page-selector"
+          onStartShouldSetResponder={() => keyboardShown}
+          onResponderRelease={() => Keyboard.dismiss()}
+          style={[styles.card, theme.sheet, { marginBottom: keyboardShown ? BOTTOM_MARGIN : bottomInset + BOTTOM_MARGIN }]}>
           <View style={[styles.topRow, FIXED_LTR]}>
             <Text testID="mushaf-page-selector-surah" numberOfLines={1} style={[styles.side, styles.left, { color: theme.text }]}>{surahName(info.surah)}</Text>
             <View style={[styles.centre, FIXED_LTR]}>
+              {showGo && arrow === 'left' && goButton}
               {arrow === 'left' && arrowButton('left')}
               {editing ? (
                 <TextInput
@@ -140,6 +191,7 @@ export function MushafPageSelector({ visible, currentPage, labels, dark, bottomI
                   accessibilityLabel={labels.editPage}
                   keyboardType="number-pad"
                   returnKeyType={Platform.OS === 'ios' ? 'none' : 'go'}
+                  inputAccessoryViewID={Platform.OS === 'ios' ? KEYBOARD_BAR_ID : undefined}
                   maxLength={3}
                   autoFocus
                   onSubmitEditing={go}
@@ -161,6 +213,7 @@ export function MushafPageSelector({ visible, currentPage, labels, dark, bottomI
                 </Pressable>
               )}
               {arrow === 'right' && arrowButton('right')}
+              {showGo && arrow === 'right' && goButton}
             </View>
             <Text testID="mushaf-page-selector-juz" numberOfLines={1} style={[styles.side, styles.right, { color: theme.text }]}>{juzLabel(info.juz)}</Text>
           </View>
@@ -189,6 +242,22 @@ export function MushafPageSelector({ visible, currentPage, labels, dark, bottomI
           </View>
         </View>
       </KeyboardAvoidingView>
+      {/* The iOS number pad has no return key: this bar's Done closes the keyboard (the typed number stays; Go goes). */}
+      {Platform.OS === 'ios' && (
+        <InputAccessoryView nativeID={KEYBOARD_BAR_ID} backgroundColor={theme.sheet.backgroundColor}>
+          <View style={[styles.keyboardBar, { borderTopColor: theme.divider }]}>
+            <Pressable
+              testID="mushaf-page-selector-done"
+              accessibilityRole="button"
+              accessibilityLabel={labels.keyboardDone}
+              onPress={() => Keyboard.dismiss()}
+              hitSlop={8}
+              style={({ pressed }) => [styles.doneButton, pressed && styles.pressed]}>
+              <Text style={[styles.doneText, { color: theme.accent }]}>{labels.keyboardDone}</Text>
+            </Pressable>
+          </View>
+        </InputAccessoryView>
+      )}
     </Modal>
   );
 }
@@ -199,17 +268,16 @@ const FIXED_LTR = Platform.OS === 'web' ? {} : { direction: 'ltr' as const };
 const styles = StyleSheet.create({
   fill: {
     flex: 1,
+    justifyContent: 'flex-end',
   },
   card: {
     borderRadius: 18,
     borderWidth: StyleSheet.hairlineWidth,
     elevation: 2,
-    left: SIDE_MARGIN,
+    marginHorizontal: SIDE_MARGIN,
     paddingBottom: 4,
     paddingHorizontal: 12 + THUMB / 2,
     paddingTop: 8,
-    position: 'absolute',
-    right: SIDE_MARGIN,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -231,12 +299,43 @@ const styles = StyleSheet.create({
   right: {
     textAlign: 'right',
   },
-  // A fixed width: the arrow appearing or moving never shifts the Surah or juz'.
+  // A fixed width, with room for Go beside the arrow on either side: the arrow and Go appearing, moving or going
+  // never shift the Surah or juz'.
   centre: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
-    width: 128,
+    width: 184,
+  },
+  goButton: {
+    alignItems: 'center',
+    borderRadius: 14,
+    height: 32,
+    justifyContent: 'center',
+    marginHorizontal: 2,
+    minWidth: 44,
+    paddingHorizontal: 10,
+  },
+  goText: {
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  keyboardBar: {
+    alignItems: 'center',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    minHeight: 44,
+    paddingHorizontal: 16,
+  },
+  doneButton: {
+    justifyContent: 'center',
+    minHeight: 36,
+    paddingHorizontal: 8,
+  },
+  doneText: {
+    fontSize: 17,
+    fontWeight: '700',
   },
   number: {
     alignItems: 'center',

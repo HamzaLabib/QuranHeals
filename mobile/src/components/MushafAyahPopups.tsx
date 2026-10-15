@@ -98,7 +98,8 @@ export function MushafAyahActions({ anchor, dark, rtl, saved, busy, error, label
         onPress={onToggleSave}
         style={({ pressed }) => [row, pressed && theme.selected, busy && styles.busy]}>
         <View style={styles.icon}>
-          <Heart testID={saved ? 'mushaf-ayah-heart-saved' : 'mushaf-ayah-heart'} size={20} color={saved ? theme.saved : theme.icon} fill={saved ? theme.saved : 'transparent'} />
+          {/* Red in both states (theme.savedHeart, the same in Dark): an outline while not in Favorites, filled once it is. No background or badge; only this popup's heart. */}
+          <Heart testID={saved ? 'mushaf-ayah-heart-saved' : 'mushaf-ayah-heart'} size={20} color={theme.savedHeart} fill={saved ? theme.savedHeart : 'transparent'} />
         </View>
         <Text style={text}>{saved ? labels.saved : labels.save}</Text>
       </Pressable>

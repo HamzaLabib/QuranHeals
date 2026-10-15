@@ -1,5 +1,5 @@
-import { BookMarked, BookOpen, House, NotebookPen, type LucideIcon } from 'lucide-react-native';
-import { useContext } from 'react';
+import { BookMarked, House, NotebookPen } from 'lucide-react-native';
+import { useContext, type ComponentType } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { BottomTabBarHeightCallbackContext, type BottomTabBarProps } from 'expo-router/tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,17 +9,21 @@ import { isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 
+import { HandsHeartIcon } from './HandsHeartIcon';
+import { MushafIcon } from './MushafIcon';
 import { MushafDownloadIndicator } from './MushafDownloadIndicator';
 
-/** The four tabs, in the approved order; the route names are app/(tabs)/<name>.tsx. */
-export const APP_TABS = ['index', 'mushaf', 'my-reading', 'reflections'] as const;
+/** The five tabs, in the approved order; the route names are app/(tabs)/<name>.tsx. */
+export const APP_TABS = ['index', 'emotions', 'mushaf', 'my-reading', 'reflections'] as const;
 type TabName = (typeof APP_TABS)[number];
 
-const ICONS: Record<TabName, LucideIcon> = { index: House, mushaf: BookOpen, 'my-reading': BookMarked, reflections: NotebookPen };
+type TabIcon = ComponentType<{ size?: number; color?: string; strokeWidth?: number }>;
+/** One-colour icons: lucide's, and the app's own Mushaf icon (MushafIcon); How I Feel draws its own two-colour icon (HandsHeartIcon) below. */
+const ICONS: Record<Exclude<TabName, 'emotions'>, TabIcon> = { index: House, mushaf: MushafIcon, 'my-reading': BookMarked, reflections: NotebookPen };
 
 /**
- * The bottom tab bar: Home, Mushaf, Recitations & Khatmas, Reflections
- * (الرئيسية، المصحف، أورادي وختماتي، خواطري). The app's own palette in Light and Dark, and
+ * The bottom tab bar: Home, How I Feel (the full emotion list), Mushaf, Wirds (أورادي وختماتي), Reflections
+ * (الرئيسية، مشاعري، المصحف، أورادي، خواطري). The app's own palette in Light and Dark, and
  * mirrored in Arabic (the app sets direction per component, never
  * I18nManager), so Home is always at the reading start. A screen hides it
  * with `tabBarStyle: { display: 'none' }` (the Mushaf's full-screen mode).
@@ -33,7 +37,7 @@ export function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps)
   const focused = state.routes[state.index];
   const hidden = (descriptors[focused.key]?.options.tabBarStyle as { display?: string } | undefined)?.display === 'none';
   if (hidden) return null;
-  const labels: Record<TabName, string> = { index: messages.tabs.home, mushaf: messages.tabs.mushaf, 'my-reading': messages.tabs.myReading, reflections: messages.tabs.reflections };
+  const labels: Record<TabName, string> = { index: messages.tabs.home, emotions: messages.tabs.howIFeel, mushaf: messages.tabs.mushaf, 'my-reading': messages.tabs.myReading, reflections: messages.tabs.reflections };
 
   const tabs = (
     <View
@@ -44,8 +48,14 @@ export function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps)
         const route = state.routes.find((r) => r.name === name);
         if (!route) return null;
         const isFocused = focused.key === route.key;
-        const Icon = ICONS[name];
         const color = isFocused ? colors.accent : colors.textMuted;
+        // How I Feel keeps its approved red heart and olive hands in both states (its label shows which tab is selected).
+        const icon = name === 'emotions'
+          ? <HandsHeartIcon size={24} heartColor={colors.howIFeelHeart} handsColor={colors.howIFeelHands} strokeWidth={isFocused ? 2.1 : 1.8} />
+          : (() => {
+              const Icon = ICONS[name];
+              return <Icon size={22} color={color} strokeWidth={isFocused ? 2.4 : 2} />;
+            })();
         return (
           <Pressable
             key={route.key}
@@ -59,8 +69,8 @@ export function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps)
               if (!isFocused && !event.defaultPrevented) navigation.navigate(route.name, route.params);
             }}
             style={({ pressed }) => [styles.tab, pressed && styles.pressed]}>
-            <Icon size={22} color={color} strokeWidth={isFocused ? 2.4 : 2} />
-            {/* One line on every phone: a long label (Recitations & Khatmas) shrinks a little rather than wrapping or clipping. */}
+            {icon}
+            {/* One line on every phone, five across: a long label (Reflections, How I Feel) shrinks a little rather than wrapping or clipping. */}
             <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75} style={[styles.label, { color }, isFocused && styles.labelFocused]}>{labels[name]}</Text>
           </Pressable>
         );

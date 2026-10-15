@@ -1,9 +1,11 @@
 import type { ConfigContext, ExpoConfig } from 'expo/config';
+import { withEntitlementsPlist, type ConfigPlugin } from 'expo/config-plugins';
 
 // app.json stays the source of truth for the app config. This file only adds
 // build-time guards on the backend URL and Google client IDs a build embeds,
 // so a bad preview/production EAS build fails before a binary exists (see
-// docs/release-builds.md), plus the Android Google sign-in redirect scheme.
+// docs/release-builds.md), plus the Android Google sign-in redirect scheme
+// and the removal of the unused iOS push entitlement (below).
 // Kept self-contained: Expo transpiles this file when it evaluates the
 // config but not other TypeScript files it imports. The helpers are
 // exported for tests/apiUrlPolicy.test.ts and tests/googleAuthConfig.test.ts.
@@ -141,8 +143,26 @@ export function withGoogleRedirectScheme(config: ExpoConfig): ExpoConfig {
   return { ...config, android: { ...config.android, scheme: [...schemes, androidPackage] } };
 }
 
+/**
+ * The reminders are local notifications only (docs/notifications.md): no
+ * push token is ever requested, and iOS needs no entitlement to schedule or
+ * show local notifications. The expo-notifications config plugin still adds
+ * `aps-environment` (the Push Notifications capability) to every build, even
+ * when it is not listed in app.json, so this removes it again: no unused
+ * capability, and no Push Notifications setting needed on the App ID. It must
+ * run after expo-notifications' entitlement change. A mod added later runs
+ * earlier (each runs its own change, then the ones added before it:
+ * @expo/config-plugins withMod), so it is applied here, before Expo applies
+ * the plugins listed in app.json. Remote push, if ever added, means deleting this.
+ */
+export const withoutPushEntitlement: ConfigPlugin = (config) =>
+  withEntitlementsPlist(config, (mod) => {
+    delete mod.modResults['aps-environment'];
+    return mod;
+  });
+
 export default ({ config }: ConfigContext): ExpoConfig => {
   assertApiUrlForBuild(process.env);
   assertGoogleClientIdsForBuild(process.env);
-  return withGoogleRedirectScheme(config as ExpoConfig);
+  return withoutPushEntitlement(withGoogleRedirectScheme(config as ExpoConfig));
 };

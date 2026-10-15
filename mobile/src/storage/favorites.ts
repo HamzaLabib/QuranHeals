@@ -249,6 +249,56 @@ export function putFavoriteTombstoneFromSync(tombstone: { verseKey: string; dele
 }
 
 /**
+ * Favorites saved while the backend couldn't be reached (services/ayahForAction.ts: the verified local Arabic, no
+ * translation yet) get their translation once it can be fetched: each one's English translation, its source, the
+ * Surah's English name and its emotions, from the backend's own ayah — never invented. Its Arabic (always the local
+ * text), id and savedAt (sync's last-write-wins instant) stay as they are. Fetched outside the storage lock; applied
+ * inside it only to a favorite that is still saved and still waiting, so a removal meanwhile is never undone.
+ * Returns how many were completed. Never throws: anything not fetched now waits for the next time.
+ */
+export async function completePendingFavoriteTranslations(fetchAyah: (verseKey: string) => Promise<Ayah>, ownerUserId?: string | null): Promise<number> {
+  let pending: string[];
+  try {
+    const resolved = await resolveFavorites(await readRawFavorites(await storageKey(ownerUserId)));
+    pending = resolved.filter(({ favorite }) => favorite.englishTranslation.trim() === '').map(({ favorite }) => favorite.verseKey);
+  } catch {
+    return 0;
+  }
+  if (pending.length === 0) return 0;
+  const fetched = new Map<string, Ayah>();
+  for (const verseKey of pending) {
+    try {
+      const ayah = await fetchAyah(verseKey);
+      if (resolveVerseKey(ayah) === verseKey && ayah.englishTranslation.trim() !== '') fetched.set(verseKey, ayah);
+    } catch {
+      // Still unreachable (or this one failed): it keeps waiting.
+    }
+  }
+  if (fetched.size === 0) return 0;
+  return mutateFavorites(async () => {
+    const key = await storageKey(ownerUserId);
+    const records = await readRawFavorites(key);
+    const resolved = await resolveFavorites(records);
+    let completed = 0;
+    const next = records.map((record, index) => {
+      const entry = resolved.find((item) => item.index === index);
+      const ayah = entry && fetched.get(entry.favorite.verseKey);
+      if (!entry || !ayah || entry.favorite.englishTranslation.trim() !== '') return record;
+      completed++;
+      return {
+        ...(record as FavoriteAyah),
+        englishTranslation: ayah.englishTranslation,
+        translationSource: ayah.translationSource,
+        surahNameEnglish: ayah.surahNameEnglish,
+        emotions: ayah.emotions,
+      } satisfies FavoriteAyah;
+    });
+    if (completed > 0) await AsyncStorage.setItem(key, JSON.stringify(next));
+    return completed;
+  });
+}
+
+/**
  * Wipes every locally-stored favorite on this device — used only by account
  * deletion (mobile/src/auth/useAuth.tsx's deleteAccount), never by ordinary
  * sign-out. Safe to call even if nothing is stored.

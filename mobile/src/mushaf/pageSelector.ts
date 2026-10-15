@@ -34,11 +34,11 @@ export function trackXOfPage(page: number, width: number): number {
 
 /** Unicode first-strong isolate: a ورد name in either script reads in its own direction inside the label. */
 const isolate = (text: string) => `⁨${text}⁩`;
-/** The name already says ورد / Wird: "Apply to Morning Wird", never "… Wird Wird". */
-const namesWird = (name: string) => /(^|[^\p{L}])(wird|(ال)?ورد)([^\p{L}]|$)/iu.test(name);
 
-/** The separator popup's button: "Apply to [name] Wird", or "Apply to [name]" when the name already names a ورد. */
-export function applyToWirdLabel(name: string, labels: { applyToWird: string; applyToNamedWird: string }): string {
-  const template = namesWird(name) ? labels.applyToNamedWird : labels.applyToWird;
-  return template.replace('{name}', isolate(name));
+/**
+ * The separator popup's button: "Apply to [name]" / «حفظ في [name]», with the ورد's own name exactly as saved. Nothing
+ * is added around it ("Wird" / «ورد» never), whatever the name says, so every ورد's button reads the same way.
+ */
+export function applyToWirdLabel(name: string, labels: { applyToWird: string }): string {
+  return labels.applyToWird.replace('{name}', isolate(name));
 }

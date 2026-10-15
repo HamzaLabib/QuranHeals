@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { getCurrentSessionToken } from '@/auth/useAuth';
+import { translationPending } from '@/services/ayahTranslation';
+import { getAyah } from '@/services/api';
 import { resolveVerseKey } from '@/services/quranReference';
-import { addFavorite, favoriteMatchesAyah, getFavoriteState, removeFavorite as removeStoredFavorite, type FavoriteReadResult } from '@/storage/favorites';
+import { addFavorite, completePendingFavoriteTranslations, favoriteMatchesAyah, getFavoriteState, removeFavorite as removeStoredFavorite, type FavoriteReadResult } from '@/storage/favorites';
 import { getLocalDataGeneration, getLocalDataOwnerState, subscribeToLocalDataOwner } from '@/storage/localDataOwner';
 import { addCloudFavorites, removeCloudFavorite } from '@/sync/syncApi';
 import type { Ayah, FavoriteAyah } from '@/types/domain';
@@ -66,6 +68,14 @@ export function useFavorites() {
       if (generation !== getLocalDataGeneration()) return;
       applyResult(result);
       setIsReady(true);
+      // Saved while offline: fetch their translations now if the backend can be reached, then show them.
+      if (result.favorites.some(translationPending)) {
+        void completePendingFavoriteTranslations(getAyah, active.owner).then(async (completed) => {
+          if (completed === 0 || generation !== getLocalDataGeneration()) return;
+          const updated = await getFavoriteState(active.owner);
+          if (generation === getLocalDataGeneration()) applyResult(updated);
+        }).catch(() => undefined);
+      }
     } catch {
       if (generation !== getLocalDataGeneration()) return;
       setError('Saved ayahs could not be read. Your stored data has been kept. Please try again.');

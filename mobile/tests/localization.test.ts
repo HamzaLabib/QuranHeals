@@ -121,8 +121,8 @@ describe('Interface message dictionary (messages.ts)', () => {
 
   it('general Arabic UI copy (eyebrow, disclaimer, kicker) uses Standard Arabic in both ar and ar-EG, unlike the Egyptian home heading/subtitle', () => {
     // Shown under the app's name (it swapped places with the tagline).
-    expect(MESSAGES.ar.home.eyebrow).toBe('تدبّر وتفكّر مع القرآن');
-    expect(MESSAGES['ar-EG'].home.eyebrow).toBe('تدبّر وتفكّر مع القرآن');
+    expect(MESSAGES.ar.home.eyebrow).toBe('عِشْ بالقرآن');
+    expect(MESSAGES['ar-EG'].home.eyebrow).toBe('عِشْ بالقرآن');
 
     expect(MESSAGES.ar.home.disclaimer).toBe(
       'تطبيق Quran Heals يقدّم تأملًا روحيًا، وليس بديلًا عن الرعاية المتخصصة.',
@@ -417,5 +417,15 @@ describe('AsyncStorage-backed locale round trip (simulated provider logic)', () 
     await AsyncStorage.setItem('quran-heals:app-locale:v1', 'fr');
     const stored = await AsyncStorage.getItem('quran-heals:app-locale:v1');
     expect(isAppLocale(stored)).toBe(false);
+  });
+});
+
+describe('Page subtitles (2026-10-15 wording)', () => {
+  it('خواطري / My Reflections keeps its title; its subtitle reads «تدبّر وتفكّر مع القرآن» / Reflect and Contemplate on the Quran', () => {
+    expect(MESSAGES.en.reflections.title).toBe('My Reflections');
+    expect(MESSAGES.ar.reflections.title).toBe('خواطري');
+    expect(MESSAGES.en.reflections.subtitle).toBe('Reflect and Contemplate on the Quran');
+    expect(MESSAGES.ar.reflections.subtitle).toBe('تدبّر وتفكّر مع القرآن');
+    expect(MESSAGES['ar-EG'].reflections.subtitle).toBe('تدبّر وتفكّر مع القرآن');
   });
 });

@@ -26,15 +26,15 @@ Keep every admin file in one folder **outside OneDrive and outside every reposit
 These are documented commands only: run them yourself, and nothing configures them automatically.
 
 ```powershell
-$admin = 'C:\Users\hamzalabib\OneDrive - McGill University\Documents\Personal\My App\QuranHealsAdmin'   # current location; see "Admin folder location" below
+$admin = '<secure-admin-directory>'   # your admin folder (outside this repository); see "Admin folder location" below
 New-Item -ItemType Directory -Path $admin
 # Remove inherited access; grant only your own account, SYSTEM and Administrators (SIDs, so it works in any Windows language).
 icacls $admin /inheritance:r /grant:r "${env:USERDOMAIN}\${env:USERNAME}:(OI)(CI)F" "*S-1-5-18:(OI)(CI)F" "*S-1-5-32-544:(OI)(CI)F"
 icacls $admin   # verify: only those three entries
 ```
 
-**Admin folder location.** Since 2026-10-09 the folder is `C:\Users\hamzalabib\OneDrive - McGill University\Documents\Personal\My App\QuranHealsAdmin`, which is **inside the McGill OneDrive**, against the recommendation above. What that means:
-- the production connection strings in the `.env` profiles are uploaded to McGill's Microsoft 365 tenant, which is managed by the university;
+**Admin folder location.** Since 2026-10-09 the folder (`<secure-admin-directory>`) has been **inside an organization-managed OneDrive**, against the recommendation above. What that means:
+- the production connection strings in the `.env` profiles are uploaded to that organization's Microsoft 365 tenant, which the organization manages;
 - holds, cases and audit lines that a cleanup removes can survive in OneDrive's version history and recycle bin, outside the approved retention periods;
 - the deletion tool prints a OneDrive warning for files there.
 

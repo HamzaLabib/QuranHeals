@@ -13,6 +13,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
  */
 const state = vi.hoisted(() => ({ storage: new Map<string, string>() }));
 
+vi.mock('expo-router', () => ({ router: { navigate: () => undefined, back: () => undefined, push: () => undefined } }));
 vi.mock('react-native', () => ({
   Platform: { OS: 'ios', select: (values: { ios?: unknown; default?: unknown }) => values.ios ?? values.default },
   StyleSheet: { create: (value: unknown) => value, hairlineWidth: 0.5 },
@@ -58,6 +59,7 @@ const { MESSAGES } = await import('@/localization/messages');
 const { resolveEmotionLocale, migrateLegacyAppLanguage } = await import('@/localization/emotionsLanguage');
 const { resolveConnectionText } = await import('@/utils/ayahConnection');
 const { AYAH_SCREEN_TRANSLATION_MODE, parseQuranTranslationPreference } = await import('@/localization/quranTranslationPreference');
+const { QuranTranslationPreferenceProvider } = await import('@/localization/useQuranTranslationPreference');
 type Emotion = import('@/types/domain').Emotion;
 type LocalizedText = import('@/types/domain').LocalizedText;
 
@@ -201,7 +203,7 @@ describe('migration of an Egyptian Arabic App Language', () => {
   });
 });
 
-describe('Show translation on the ayah screen (the Settings row removed)', () => {
+describe('Show translation on the ayah screen (Settings → Show Translation decides where it starts)', () => {
   const ayah = {
     id: '2:286', referenceKey: '2:286', surahNumber: 2, ayahNumber: 286, surahNameEnglish: 'Al-Baqarah', surahNameArabic: 'البقرة',
     arabicText: 'لَا يُكَلِّفُ ٱللَّهُ نَفْسًا إِلَّا وُسْعَهَا', englishTranslation: 'Allah tasketh not a soul beyond its scope.',
@@ -210,23 +212,68 @@ describe('Show translation on the ayah screen (the Settings row removed)', () =>
   const textValues = () => root!.root.findAll((node) => String(node.type) === 'Text').map((node) => [node.props.children].flat().join(''));
   const toggle = () => root!.root.findAll((node) => String(node.type) === 'Pressable' && [MESSAGES.en.translation.showTranslation, MESSAGES.en.translation.hideTranslation].includes(node.props.accessibilityLabel))[0];
 
-  for (const stored of ['always', 'on-demand', 'off', null] as const) {
-    it(`stored mode ${stored ?? '(none)'}: Arabic always shown; Show translation reveals it, Hide translation hides it; the stored preference is kept`, async () => {
+  const withTranslationProvider = (element: ReturnType<typeof createElement>) => createElement(QuranTranslationPreferenceProvider, null, element);
+
+  // ON + Always ('always'): shown at once, hideable for this ayah. ON + On Demand ('on-demand'): hidden, with the button.
+  for (const [stored, startsShown] of [['always', true], ['on-demand', false]] as const) {
+    it(`stored mode ${stored}: Arabic always shown; the translation starts ${startsShown ? 'shown' : 'hidden'}; the toggle works both ways; the stored preference is kept`, async () => {
       if (stored) state.storage.set(TRANSLATION_KEY, JSON.stringify({ translationId: 'en.pickthall.gutenberg16955', displayMode: stored }));
-      await render(createElement(AyahCard, { ayah }));
+      await render(withTranslationProvider(createElement(AyahCard, { ayah })));
       expect(textValues()).toContain(ayah.arabicText);
-      expect(textValues()).not.toContain(ayah.englishTranslation); // never automatic
-      expect(toggle().props.accessibilityLabel).toBe(MESSAGES.en.translation.showTranslation);
+      const shown = () => textValues().includes(ayah.englishTranslation);
+      expect(shown()).toBe(startsShown);
+      expect(toggle().props.accessibilityLabel).toBe(startsShown ? MESSAGES.en.translation.hideTranslation : MESSAGES.en.translation.showTranslation);
       await act(async () => toggle().props.onPress());
-      expect(textValues()).toContain(ayah.englishTranslation);
-      expect(textValues().join(' ')).toMatch(/Pickthall/); // attribution kept
-      expect(toggle().props.accessibilityLabel).toBe(MESSAGES.en.translation.hideTranslation);
+      expect(shown()).toBe(!startsShown);
       await act(async () => toggle().props.onPress());
-      expect(textValues()).not.toContain(ayah.englishTranslation);
+      expect(shown()).toBe(startsShown);
+      if (startsShown) expect(textValues().join(' ')).toMatch(/Pickthall/); // attribution kept
       expect(textValues()).toContain(ayah.arabicText);
       if (stored) expect(parseQuranTranslationPreference(JSON.parse(state.storage.get(TRANSLATION_KEY)!)).displayMode).toBe(stored);
+      else expect(state.storage.has(TRANSLATION_KEY)).toBe(false);
     });
   }
+
+  // OFF ('off', and a new user with nothing saved): no translation and no Show translation button at all.
+  for (const stored of ['off', null] as const) {
+    it(`stored mode ${stored ?? '(none: a new user)'}: Show Translation OFF — the Arabic alone, with no translation and no button`, async () => {
+      if (stored) state.storage.set(TRANSLATION_KEY, JSON.stringify({ translationId: 'en.pickthall.gutenberg16955', displayMode: stored }));
+      await render(withTranslationProvider(createElement(AyahCard, { ayah })));
+      expect(textValues()).toContain(ayah.arabicText);
+      expect(textValues()).not.toContain(ayah.englishTranslation);
+      expect(toggle()).toBeUndefined();
+      if (!stored) expect(state.storage.has(TRANSLATION_KEY)).toBe(false);
+    });
+  }
+
+  it('OFF hides the button on the compact card (Favorites) too', async () => {
+    state.storage.set(TRANSLATION_KEY, JSON.stringify({ translationId: 'en.pickthall.gutenberg16955', displayMode: 'off' }));
+    await render(withTranslationProvider(createElement(AyahCard, { ayah, compact: true })));
+    expect(toggle()).toBeUndefined();
+    expect(textValues()).not.toContain(ayah.englishTranslation);
+  });
+
+  it('the compact card (Favorites) starts hidden even when Show Translation is ON', async () => {
+    state.storage.set(TRANSLATION_KEY, JSON.stringify({ translationId: 'en.pickthall.gutenberg16955', displayMode: 'always' }));
+    await render(withTranslationProvider(createElement(AyahCard, { ayah, compact: true })));
+    expect(textValues()).not.toContain(ayah.englishTranslation);
+    expect(toggle().props.accessibilityLabel).toBe(MESSAGES.en.translation.showTranslation);
+  });
+
+  it('a reader\'s toggle applies to that ayah only: the next ayah starts again from the setting', async () => {
+    state.storage.set(TRANSLATION_KEY, JSON.stringify({ translationId: 'en.pickthall.gutenberg16955', displayMode: 'always' }));
+    await render(withTranslationProvider(createElement(AyahCard, { ayah })));
+    await act(async () => toggle().props.onPress());
+    expect(textValues()).not.toContain(ayah.englishTranslation);
+    const next = { ...ayah, id: '94:5', referenceKey: '94:5', surahNumber: 94, ayahNumber: 5, englishTranslation: 'But lo! with hardship goeth ease,' };
+    await act(async () => root!.update(createElement(AppLocaleProvider, null, createElement(EmotionsLanguageProvider, null, withTranslationProvider(createElement(AyahCard, { ayah: next }))))));
+    expect(textValues()).toContain(next.englishTranslation);
+  });
+
+  it('outside the preference provider (a card rendered alone) it starts hidden', async () => {
+    await render(createElement(AyahCard, { ayah }));
+    expect(textValues()).not.toContain(ayah.englishTranslation);
+  });
 
   it('the ayah screen`s mode is Show/Hide (on demand)', () => {
     expect(AYAH_SCREEN_TRANSLATION_MODE).toBe('on-demand');

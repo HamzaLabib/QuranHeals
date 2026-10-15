@@ -44,9 +44,9 @@ afterEach(() => {
 });
 
 describe('appearancePreference.ts: validation', () => {
-  it('defaults to Light, not System (a user who has never chosen an appearance gets Light)', async () => {
+  it('defaults to System (a user who has never chosen an appearance follows the device)', async () => {
     const { DEFAULT_APPEARANCE_MODE } = await import('@/theme/appearancePreference');
-    expect(DEFAULT_APPEARANCE_MODE).toBe('light');
+    expect(DEFAULT_APPEARANCE_MODE).toBe('system');
   });
 
   it('isValidAppearanceMode accepts exactly system/light/dark', async () => {
@@ -61,29 +61,29 @@ describe('appearancePreference.ts: validation', () => {
     expect(isValidAppearanceMode(1)).toBe(false);
   });
 
-  it('parseAppearanceMode falls back to Light for any invalid/malformed payload, without throwing', async () => {
+  it('parseAppearanceMode falls back to System for any invalid/malformed payload, without throwing', async () => {
     const { parseAppearanceMode } = await import('@/theme/appearancePreference');
     expect(parseAppearanceMode('light')).toBe('light');
     expect(parseAppearanceMode('dark')).toBe('dark');
     expect(parseAppearanceMode('system')).toBe('system');
-    expect(parseAppearanceMode('neon')).toBe('light');
-    expect(parseAppearanceMode(null)).toBe('light');
-    expect(parseAppearanceMode(undefined)).toBe('light');
-    expect(parseAppearanceMode({ mode: 'dark' })).toBe('light');
-    expect(parseAppearanceMode(42)).toBe('light');
+    expect(parseAppearanceMode('neon')).toBe('system');
+    expect(parseAppearanceMode(null)).toBe('system');
+    expect(parseAppearanceMode(undefined)).toBe('system');
+    expect(parseAppearanceMode({ mode: 'dark' })).toBe('system');
+    expect(parseAppearanceMode(42)).toBe('system');
   });
 });
 
 describe('appearancePreference.ts: AsyncStorage-backed load/save round trip', () => {
-  it('fresh install (storage key has never been written): loadAppearancePreference returns Light', async () => {
+  it('fresh install (storage key has never been written): loadAppearancePreference returns System', async () => {
     const { loadAppearancePreference } = await import('@/theme/appearancePreference');
-    expect(await loadAppearancePreference()).toBe('light');
+    expect(await loadAppearancePreference()).toBe('system');
   });
 
-  it('missing stored value (key explicitly absent) resolves to Light', async () => {
+  it('missing stored value (key explicitly absent) resolves to System', async () => {
     asyncStorageState.delete('quran-heals:appearance-preference:v1');
     const { loadAppearancePreference } = await import('@/theme/appearancePreference');
-    expect(await loadAppearancePreference()).toBe('light');
+    expect(await loadAppearancePreference()).toBe('system');
   });
 
   it('saveAppearancePreference persists, and a subsequent load reads exactly what was saved (system)', async () => {
@@ -104,22 +104,22 @@ describe('appearancePreference.ts: AsyncStorage-backed load/save round trip', ()
     expect(await loadAppearancePreference()).toBe('dark');
   });
 
-  it('corrupted stored value (unparsable JSON) recovers safely to Light', async () => {
+  it('corrupted stored value (unparsable JSON) recovers safely to System', async () => {
     asyncStorageState.set('quran-heals:appearance-preference:v1', '{not valid json');
     const { loadAppearancePreference } = await import('@/theme/appearancePreference');
-    expect(await loadAppearancePreference()).toBe('light');
+    expect(await loadAppearancePreference()).toBe('system');
   });
 
-  it('corrupted stored value (validly-parsed but not one of system/light/dark) recovers safely to Light', async () => {
+  it('corrupted stored value (validly-parsed but not one of system/light/dark) recovers safely to System', async () => {
     asyncStorageState.set('quran-heals:appearance-preference:v1', JSON.stringify('ultra-dark'));
     const { loadAppearancePreference } = await import('@/theme/appearancePreference');
-    expect(await loadAppearancePreference()).toBe('light');
+    expect(await loadAppearancePreference()).toBe('system');
   });
 
-  it('a storage read failure falls back to Light without throwing', async () => {
+  it('a storage read failure falls back to System without throwing', async () => {
     asyncStorageShouldFail.current = true;
     const { loadAppearancePreference } = await import('@/theme/appearancePreference');
-    await expect(loadAppearancePreference()).resolves.toBe('light');
+    await expect(loadAppearancePreference()).resolves.toBe('system');
   });
 
   it('a storage write failure is swallowed (non-fatal) without throwing', async () => {
@@ -174,25 +174,23 @@ describe('AppearancePreferenceProvider + useThemeName: resolves the effective th
     AppearancePreferenceProviderRef.current = appearance.AppearancePreferenceProvider;
   }
 
-  it('fresh install: defaults synchronously to Light and resolves immediately without waiting on the AsyncStorage load (never blocks startup, no full-screen loading state)', async () => {
+  it('fresh install: defaults synchronously to System (following a dark device) without waiting on the AsyncStorage load (never blocks startup, no full-screen loading state)', async () => {
     await loadRefs();
-    // The device being in dark mode must NOT affect the default — Light
-    // does not follow the device appearance.
     state.scheme = 'dark';
     const { latest } = mountProbe();
     // Synchronously after the first render — before any awaited microtask —
-    // the mode is already 'light' and the theme is already resolved.
-    expect(latest().mode).toBe('light');
-    expect(latest().theme).toBe('light');
+    // the mode is already 'system' and the theme already follows the device.
+    expect(latest().mode).toBe('system');
+    expect(latest().theme).toBe('dark');
   });
 
-  it('becomes isReady after the (empty) AsyncStorage load resolves, remaining on Light when nothing was saved', async () => {
+  it('becomes isReady after the (empty) AsyncStorage load resolves, remaining on System when nothing was saved', async () => {
     await loadRefs();
     const { latest } = mountProbe();
     expect(latest().isReady).toBe(false);
     await flushMicrotasks();
     expect(latest().isReady).toBe(true);
-    expect(latest().mode).toBe('light');
+    expect(latest().mode).toBe('system');
   });
 
   it('selecting Light (explicitly) forces the light theme and ignores the device being in dark mode', async () => {
@@ -215,12 +213,13 @@ describe('AppearancePreferenceProvider + useThemeName: resolves the effective th
     expect(latest().theme).toBe('dark');
   });
 
-  it('selecting System switches to following the device appearance (the default is Light, so this is no longer a no-op)', async () => {
+  it('a saved Light is kept on a dark device, and selecting System then follows the device appearance', async () => {
     await loadRefs();
     state.scheme = 'dark';
+    asyncStorageState.set('quran-heals:appearance-preference:v1', JSON.stringify('light'));
     const { latest } = mountProbe();
     await flushMicrotasks();
-    expect(latest().mode).toBe('light'); // still the default before any explicit choice
+    expect(latest().mode).toBe('light'); // an existing manual choice survives the new default
     expect(latest().theme).toBe('light');
     act(() => latest().setMode('system'));
     expect(latest().mode).toBe('system');
@@ -232,7 +231,7 @@ describe('AppearancePreferenceProvider + useThemeName: resolves the effective th
     state.scheme = 'light';
     const { latest, rerender } = mountProbe();
     await flushMicrotasks();
-    act(() => latest().setMode('system')); // must be explicitly selected — Light is the default
+    act(() => latest().setMode('system')); // the default; selecting it again changes nothing
     expect(latest().theme).toBe('light');
     state.scheme = 'dark';
     act(() => rerender());
@@ -249,7 +248,7 @@ describe('AppearancePreferenceProvider + useThemeName: resolves the effective th
     // Unmount (app closes) and mount a brand-new provider tree (app restarts).
     act(() => first.renderer.unmount());
     const second = mountProbe();
-    expect(second.latest().mode).toBe('light'); // default, not yet loaded
+    expect(second.latest().mode).toBe('system'); // default, not yet loaded
     await flushMicrotasks();
     expect(second.latest().isReady).toBe(true);
     expect(second.latest().mode).toBe('dark'); // restored from storage
@@ -287,17 +286,17 @@ describe('AppearancePreferenceProvider + useThemeName: resolves the effective th
     expect(second.latest().theme).toBe('light');
   });
 
-  it('a storage read failure during initialization falls back to Light and still becomes ready (never blocks/crashes)', async () => {
+  it('a storage read failure during initialization falls back to System and still becomes ready (never blocks/crashes)', async () => {
     await loadRefs();
     asyncStorageShouldFail.current = true;
     const { latest } = mountProbe();
-    expect(latest().mode).toBe('light');
+    expect(latest().mode).toBe('system');
     await flushMicrotasks();
     expect(latest().isReady).toBe(true);
-    expect(latest().mode).toBe('light');
+    expect(latest().mode).toBe('system');
   });
 
-  it('useAppearancePreference never throws when rendered without a provider (safe Light default, unlike the font-size preference hook)', async () => {
+  it('useAppearancePreference never throws when rendered without a provider (safe System default, unlike the font-size preference hook)', async () => {
     await loadRefs();
     let seenMode: string | undefined;
     function Probe() {
@@ -309,7 +308,7 @@ describe('AppearancePreferenceProvider + useThemeName: resolves the effective th
         create(createElement(Probe));
       });
     }).not.toThrow();
-    expect(seenMode).toBe('light');
+    expect(seenMode).toBe('system');
   });
 });
 
@@ -360,12 +359,14 @@ describe('Settings screen: Appearance selection (source-scan, matching the App L
     expect(source).toMatch(/APPEARANCE_MODES\.map\(/);
   });
 
-  it('is placed directly under the Quran Language section, and before the Account section', () => {
-    const quranLanguageIndex = source.indexOf('messages.settings.quranLanguageSection');
+  it('is in the App section, directly after App Language, and before the Emotions section and Account', () => {
+    const appLanguageIndex = source.indexOf('messages.settings.appLanguageSection');
     const appearanceIndex = source.indexOf('messages.appearance.sectionLabel');
+    const emotionsSectionIndex = source.indexOf('messages.settings.emotionsSection');
     const accountSectionIndex = source.indexOf('<AccountSection');
-    expect(quranLanguageIndex).toBeGreaterThanOrEqual(0);
-    expect(appearanceIndex).toBeGreaterThan(quranLanguageIndex);
+    expect(appLanguageIndex).toBeGreaterThanOrEqual(0);
+    expect(appearanceIndex).toBeGreaterThan(appLanguageIndex);
+    expect(emotionsSectionIndex).toBeGreaterThan(appearanceIndex);
     expect(accountSectionIndex).toBeGreaterThan(appearanceIndex);
   });
 
@@ -390,19 +391,19 @@ describe('Settings screen: Appearance selection (source-scan, matching the App L
 });
 
 describe('Appearance labels are localized correctly in every app locale', () => {
-  it('en: Auto / Light / Dark', async () => {
+  it('en: System / Light / Dark', async () => {
     const { MESSAGES } = await import('@/localization/messages');
-    expect(MESSAGES.en.appearance).toMatchObject({ system: 'Auto', light: 'Light', dark: 'Dark' });
+    expect(MESSAGES.en.appearance).toMatchObject({ system: 'System', light: 'Light', dark: 'Dark' });
   });
 
-  it('ar (Standard Arabic): تلقائي / وضع النهار / وضع الليل', async () => {
+  it('ar (Standard Arabic): حسب النظام / وضع النهار / وضع الليل', async () => {
     const { MESSAGES } = await import('@/localization/messages');
-    expect(MESSAGES.ar.appearance).toMatchObject({ system: 'تلقائي', light: 'وضع النهار', dark: 'وضع الليل' });
+    expect(MESSAGES.ar.appearance).toMatchObject({ system: 'حسب النظام', light: 'وضع النهار', dark: 'وضع الليل' });
   });
 
-  it('ar-EG (Egyptian Arabic): تلقائي / وضع النهار / وضع الليل', async () => {
+  it('ar-EG (Egyptian Arabic): حسب النظام / وضع النهار / وضع الليل', async () => {
     const { MESSAGES } = await import('@/localization/messages');
-    expect(MESSAGES['ar-EG'].appearance).toMatchObject({ system: 'تلقائي', light: 'وضع النهار', dark: 'وضع الليل' });
+    expect(MESSAGES['ar-EG'].appearance).toMatchObject({ system: 'حسب النظام', light: 'وضع النهار', dark: 'وضع الليل' });
   });
 
   it('never uses the superseded Arabic labels فاتح / داكن / الوضع النهاري / الوضع الليلي', async () => {

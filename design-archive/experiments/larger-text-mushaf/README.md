@@ -64,7 +64,7 @@ WebSocket and an installed Chrome.
 | [findings.md](findings.md) | Results, limits, evidence and the recommendation |
 | [calculations/measurements.md](calculations/measurements.md) | Every measurement per page × phone × candidate, with verdicts |
 | `calculations/measurements.json`, `verdicts.json`, `captures-raw.json`, `feasibility-by-phone.json` | Raw data (DOM geometry, per-line glyphs, the dataset lines) |
-| [screenshots/README.md](screenshots/README.md) | Index of the 54 captures |
+| `screenshots/` | The 54 captures and their index (`screenshots/README.md`): no longer in Git since 2026-10-15 (the previous commits hold them). Preserved locally, verified file by file, in `My App/Working progress/Audit Reports/larger-text-mushaf-screenshots/` |
 | `comparisons/` | 14 side-by-side images and 3 sets of 1:1 crops |
 | `source/` | The harness, the patch, and `current-renderer-snapshot/` (the live geometry files at the time, with `SHA256SUMS`; working-tree copies, not Git-verified) |
 

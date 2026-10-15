@@ -12,7 +12,7 @@ import { useThemedStyles } from '@/theme/useTheme';
 /**
  * The offline Mushaf's status and controls: progress, Pause, Download /
  * Continue / Try again, Check for updates and Remove. Shown on a page that
- * isn't downloaded yet and in Settings. Every action goes through the one
+ * isn't downloaded yet (Settings has its own compact row, OfflineMushafSettingsRow). Every action goes through the one
  * automatic-download controller (mushaf/offline/autoDownload.ts), so the
  * panel, the tab bar's indicator and the automatic start never compete.
  */

@@ -37,6 +37,8 @@ const state = vi.hoisted(() => ({
   deferRN: false,
   toRN: [] as (() => void)[],
   canGoBack: true,
+  /** Keyboard listeners (Keyboard mock), by event, so a test can show or hide the keyboard. */
+  keyboardListeners: new Map<string, Set<() => void>>(),
   /** Android hardware Back listeners currently subscribed (BackHandler mock). */
   backHandlers: [] as (() => boolean)[],
   loadFont: vi.fn(),
@@ -55,7 +57,16 @@ vi.mock('react-native', async () => {
     Platform: { OS: 'ios', select: (values: { ios: unknown }) => values.ios },
     StyleSheet: { create: (value: unknown) => value, absoluteFill: { position: 'absolute' }, hairlineWidth: 0.5 },
     KeyboardAvoidingView: 'KeyboardAvoidingView',
-    Keyboard: { dismiss: vi.fn() },
+    InputAccessoryView: 'InputAccessoryView',
+    Keyboard: {
+      dismiss: vi.fn(),
+      addListener: (event: string, listener: () => void) => {
+        const set = state.keyboardListeners.get(event) ?? new Set();
+        set.add(listener);
+        state.keyboardListeners.set(event, set);
+        return { remove: () => { set.delete(listener); } };
+      },
+    },
     BackHandler: {
       addEventListener: (_event: string, handler: () => boolean) => {
         state.backHandlers.push(handler);
@@ -74,10 +85,10 @@ vi.mock('react-native', async () => {
     ActivityIndicator: 'ActivityIndicator', Pressable: 'Pressable', ScrollView: 'ScrollView', Text: 'Text', TextInput: 'TextInput', View: 'View',
   };
 });
-vi.mock('react-native-svg', () => ({ default: 'Svg', ClipPath: 'ClipPath', Rect: 'Rect', Path: 'Path', Circle: 'Circle', SvgXml: 'SvgXml', Defs: 'Defs', Ellipse: 'Ellipse', G: 'G', LinearGradient: 'LinearGradient', Stop: 'Stop' }));
+vi.mock('react-native-svg', () => ({ default: 'Svg', ClipPath: 'ClipPath', Rect: 'Rect', Path: 'Path', Circle: 'Circle', SvgXml: 'SvgXml', Defs: 'Defs', Ellipse: 'Ellipse', G: 'G', Line: 'Line', LinearGradient: 'LinearGradient', Stop: 'Stop' }));
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView', useSafeAreaInsets: () => state.insets }));
 vi.mock('lucide-react-native', () => ({
-  ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', BookMarked: 'BookMarked', Bookmark: 'Bookmark', Check: 'Check', ChevronDown: 'ChevronDown', Heart: 'Heart', Maximize2: 'Maximize2', Minimize2: 'Minimize2', Plus: 'Plus', Search: 'Search', Share2: 'Share2', X: 'X',
+  ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', BookMarked: 'BookMarked', Bookmark: 'Bookmark', Check: 'Check', ChevronDown: 'ChevronDown', CircleHelp: 'CircleHelp', Heart: 'Heart', Maximize2: 'Maximize2', Minimize2: 'Minimize2', Plus: 'Plus', Search: 'Search', Share2: 'Share2', X: 'X',
 }));
 vi.mock('expo-router', () => ({ router: { back: vi.fn(), replace: vi.fn(), push: vi.fn(), navigate: vi.fn(), canGoBack: () => state.canGoBack }, useLocalSearchParams: () => state.params, useIsFocused: () => true }));
 // Keep Screen Awake: the reader holds its own tag while focused (lifecycle cases: mushafKeepAwake.test.ts).
@@ -194,6 +205,9 @@ const texts = () => root.root.findAllByType('Text' as never).map((node) => [node
 const page = () => pressables().find((node) => node.props.accessibilityRole === 'image')!;
 const flat = (style: unknown) => Object.assign({}, ...[style].flat(3).filter(Boolean));
 const styleOf = (node: ReactTestInstance) => flat(node.props.style);
+/** The top bar's controls in order: Back (or its empty slot), then the right-hand group (Help, Expand / Collapse). */
+const barItems = () => (root.root.findByProps({ testID: 'mushaf-back-bar' }).children as ReactTestInstance[])
+  .flatMap((child) => (child.props.testID !== undefined || !child.children.length ? [child.props.testID] : (child.children as ReactTestInstance[]).map((c) => c.props.testID)));
 /** Within a QPC V1 line's row: the drawn line's centre (iOS draws the glyphs lower than laid out: qcfV1DrawnLineShiftEm). */
 async function drawnLineY(line: ReactTestInstance) {
   const { qcfV1DrawnLineShiftEm } = await import('@/mushaf/ayahMarkers');
@@ -327,6 +341,8 @@ beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   state.locale = 'en';
   state.storage.clear();
+  // The reader's own tests: its first-time guide already seen (the guide's tests start fresh: 'the first-time guide').
+  state.storage.set('quran-heals:mushaf-guide:v1', JSON.stringify({ status: 'done' }));
   state.fontsLoaded = true;
   // Most tests draw page 61 (bundled: drawn before any download), so they open it explicitly; without ?page= the
   // reader opens the saved ورد's page, or page 1 (tests below).
@@ -559,8 +575,7 @@ describe('full-screen reading', () => {
 
   it('Normal Mode is the default: Back on the left, a plain Expand icon on the right, and the ورد pill', async () => {
     await render();
-    const bar = root.root.findByProps({ testID: 'mushaf-back-bar' });
-    expect((bar.children as ReactTestInstance[]).map((child) => child.props.testID)).toEqual(['mushaf-back', 'mushaf-fullscreen-toggle']);
+    expect(barItems()).toEqual(['mushaf-back', 'mushaf-guide-open', 'mushaf-fullscreen-toggle']);
     expect(toggle().props.accessibilityLabel).toBe(copy().enterFullScreen);
     expect(toggle().findAllByType('Maximize2' as never)).toHaveLength(1);
     expect(toggle().findByType('Maximize2' as never).props.color).toBe(MUSHAF_PANEL_COLORS.light.icon);
@@ -581,9 +596,11 @@ describe('full-screen reading', () => {
     expect(texts()).toEqual(expect.arrayContaining(['سورة آل عمران', 'الجزء ٣', '٦١']));
     expect(toggle().props.accessibilityLabel).toBe(copy().exitFullScreen);
     expect(toggle().findAllByType('Minimize2' as never)).toHaveLength(1);
-    expect((root.root.findByProps({ testID: 'mushaf-back-bar' }).children as ReactTestInstance[]).at(-1)!.props.testID).toBe('mushaf-fullscreen-toggle');
+    expect(barItems().at(-1)).toBe('mushaf-fullscreen-toggle');
+    expect(has('mushaf-guide-open')).toBe(false); // Help hides in full screen
     await press(toggle());
-    for (const id of ['mushaf-back', 'mushaf-wird-row']) expect(has(id), id).toBe(true);
+    for (const id of ['mushaf-back', 'mushaf-wird-row', 'mushaf-guide-open']) expect(has(id), id).toBe(true);
+    expect(barItems()).toEqual(['mushaf-back', 'mushaf-guide-open', 'mushaf-fullscreen-toggle']); // restored in place
   });
 
   it('full screen keeps Normal Mode`s page width, so the Quran text is the same size; its extra height is the viewport`s', async () => {
@@ -920,7 +937,7 @@ describe('Taller in both modes (larger text, candidate C): every page, every bui
           expect(shown, label).not.toMatch(/Traditional|Taller|tiles|lines \d|space \d|\d+×\d+/);
           expect(root.root.findAll((node) => typeof node.props.accessibilityLabel === 'string' && /Traditional|Taller|development/.test(node.props.accessibilityLabel)), label).toHaveLength(0);
           // The top row holds only Back (Normal Mode) and Expand / Collapse.
-          expect((root.root.findByProps({ testID: 'mushaf-back-bar' }).children as ReactTestInstance[]).map((child) => child.props.testID), label).toEqual(mode === 'normal' ? ['mushaf-back', 'mushaf-fullscreen-toggle'] : [undefined, 'mushaf-fullscreen-toggle']);
+          expect(barItems(), label).toEqual(mode === 'normal' ? ['mushaf-back', 'mushaf-guide-open', 'mushaf-fullscreen-toggle'] : [undefined, 'mushaf-fullscreen-toggle']);
         }
         await act(async () => root.unmount());
       }
@@ -2736,6 +2753,56 @@ describe('the Mushaf tab', () => {
   });
 });
 
+describe('an ayah`s reference on its card (/mushaf?page=N&ayah=S:A&at=…): its page, that ayah selected', () => {
+  const selection = () => inPage().findAllByProps({ testID: 'mushaf-selection' });
+  const reflectionVerse = () => root.root.findByType('ReflectionSheet' as never).props.verseKey;
+
+  it('opens the page holding the ayah with that ayah selected, as a tap would — no popup opens by itself', async () => {
+    state.params = { page: '61', ayah: '3:85', at: '1' };
+    await render();
+    await flush();
+    expect(currentPage()).toBe(61);
+    expect(selection().length).toBeGreaterThan(0);
+    expect(reflectionVerse()).toBe('3:85');
+    await afterTapWindow();
+    expect(hosts('mushaf-ayah-actions')).toHaveLength(0);
+    // It is an ordinary selection: a tap elsewhere on the page moves it, turning the page clears it.
+    await turnPage(1);
+    await flush();
+    expect(reflectionVerse()).toBeNull();
+  });
+
+  it('an ayah that is not on the requested page (or not an ayah) selects nothing; the page still opens', async () => {
+    for (const ayah of ['2:255', '1:8', 'garbage', '']) {
+      state.params = { page: '61', ayah, at: '1' };
+      await render();
+      await flush();
+      expect(currentPage(), ayah).toBe(61);
+      expect(selection(), ayah).toHaveLength(0);
+      expect(reflectionVerse(), ayah).toBeNull();
+      await act(async () => root.unmount());
+    }
+  });
+
+  it('a later reference while the reader is open moves it to that page and selects that ayah; each tap is a new request', async () => {
+    state.params = { page: '61' };
+    await render();
+    expect(reflectionVerse()).toBeNull();
+    state.params = { page: '61', ayah: '3:86', at: '1' };
+    await act(async () => root.update(createElement(MushafScreen)));
+    await flush();
+    expect(currentPage()).toBe(61);
+    expect(reflectionVerse()).toBe('3:86');
+    // Another ayah elsewhere: its page, not yet downloaded — the existing Offline Mushaf state, never a website.
+    state.params = { page: '465', ayah: '39:62', at: '2' };
+    await act(async () => root.update(createElement(MushafScreen)));
+    await flush();
+    expect(currentPage()).toBe(465);
+    expect(inPage().findByProps({ testID: 'mushaf-page-missing' })).toBeDefined();
+    expect(hosts('offline-mushaf').length).toBeGreaterThan(0);
+  });
+});
+
 describe('opening without a page (the Mushaf tab, a first launch)', () => {
   it('no saved position: page 1, not page 61', async () => {
     state.params = {};
@@ -3208,8 +3275,17 @@ describe('the page`s heads: digits and inset', () => {
       expect(inset, `width ${width}`).toBeCloseTo(sized.inner.x - sized.frame.x);
       expect(inset, `width ${width}`).toBeGreaterThan(7);
     }
-    // Pages 1–2 (the approved opening design): their heads as approved.
-    for (const n of [1, 2]) expect((await draw(n, true)).header.paddingHorizontal, `page ${n}`).toBe(0);
+    // Pages 1–2 (the opening design) line up with every other page: the same inset at every size, the heads on the
+    // same sides, the header's height and the page below unchanged.
+    for (const n of [1, 2]) {
+      for (const width of [251, 338, 384, 434]) {
+        const sized = computePageLayout(width);
+        const page = await draw(n, true, width);
+        expect(page.header.paddingHorizontal, `page ${n}, width ${width}`).toBeCloseTo(sized.inner.x - sized.frame.x);
+        expect(page.header.height, `page ${n}, width ${width}`).toBe(sized.header.height);
+        expect(page.heads, `page ${n}`).toEqual(['mushaf-header-surah', 'mushaf-header-juz']);
+      }
+    }
   });
 });
 
@@ -3404,7 +3480,11 @@ describe('the redesigned navigation and ayah actions', () => {
       await render();
       await open();
       const card = onlyHost('mushaf-page-selector');
-      expect(styleOf(card)).toMatchObject({ left: 14, right: 14, position: 'absolute', borderRadius: 18 });
+      // 14 pt from each side and just above the bottom safe area, as before; in the layout at the bottom of the
+      // KeyboardAvoidingView (not absolute), so the keyboard can lift it (see the keyboard tests below).
+      expect(styleOf(card)).toMatchObject({ marginHorizontal: 14, marginBottom: state.insets.bottom + 8, borderRadius: 18 });
+      expect(styleOf(card).position).toBeUndefined();
+      expect(styleOf(card.parent!)).toMatchObject({ flex: 1, justifyContent: 'flex-end' });
       expect(shownSelected()).toBe('61');
       expect(onlyHost('mushaf-page-selector-surah').props.children).toBe('Aal-i-Imraan');
       expect(onlyHost('mushaf-page-selector-juz').props.children).toBe("Juz' 3");
@@ -3523,6 +3603,207 @@ describe('the redesigned navigation and ayah actions', () => {
       await press(onlyHost('mushaf-page-selector-number'));
       expect(styleOf(onlyHost('mushaf-page-selector-input'))).toMatchObject({ backgroundColor: MUSHAF_PANEL_COLORS.dark.input.backgroundColor });
     });
+
+    describe('typing a page with the keyboard open', () => {
+      const keyboard = async (event: 'keyboardWillShow' | 'keyboardWillHide') => {
+        await act(async () => { state.keyboardListeners.get(event)?.forEach((listener) => listener()); });
+      };
+      const centreWithGo = () => onlyHost('mushaf-page-selector').findAll((n) => typeof n.type === 'string' && /^mushaf-page-(go-button|go-left|go-right|selector-number|selector-input)$/.test(String(n.props.testID))).map((n) => n.props.testID);
+      const field = () => onlyHost('mushaf-page-selector-input');
+      const dismissCalls = async () => (await import('react-native')).Keyboard.dismiss as unknown as { mock: { calls: unknown[] } };
+      async function typing() {
+        everyPageDrawn();
+        await render();
+        await open();
+        await press(onlyHost('mushaf-page-selector-number'));
+        await keyboard('keyboardWillShow');
+      }
+
+      it('the card rides above the keyboard: it sits at the bottom of the avoiding view, its bottom margin drops the safe area while the keyboard is up, and returns when it hides', async () => {
+        await typing();
+        const card = () => onlyHost('mushaf-page-selector');
+        expect(card().parent!.type).toBe('KeyboardAvoidingView');
+        expect(card().parent!.props.behavior).toBe('padding');
+        expect(styleOf(card())).toMatchObject({ marginBottom: 8 });
+        expect(field().props.value).toBe('');
+        await act(async () => field().props.onChangeText('12'));
+        expect(field().props.value).toBe('12'); // the digits being typed stay in the visible field
+        await keyboard('keyboardWillHide');
+        expect(styleOf(card())).toMatchObject({ marginBottom: state.insets.bottom + 8 });
+        expect(field().props.value).toBe('12');
+      });
+
+      it('Go appears only while a whole, valid, different page is typed, on the arrow`s outer side: "Go ← 200" for a later page, "45 → Go" for an earlier one', async () => {
+        await typing();
+        expect(centreWithGo()).toEqual(['mushaf-page-selector-input']); // nothing typed yet
+        await act(async () => field().props.onChangeText('200'));
+        expect(centreWithGo()).toEqual(['mushaf-page-go-button', 'mushaf-page-go-left', 'mushaf-page-selector-input']);
+        expect(texts()).toContain(copy().goToPageShort);
+        await act(async () => field().props.onChangeText('45'));
+        expect(centreWithGo()).toEqual(['mushaf-page-selector-input', 'mushaf-page-go-right', 'mushaf-page-go-button']);
+        for (const notAPage of ['0', '605', '700', '61']) {
+          await act(async () => field().props.onChangeText(notAPage));
+          expect(centreWithGo(), notAPage).toEqual(['mushaf-page-selector-input']);
+        }
+        // The slider too: the same Go beside the arrow.
+        await act(async () => onlyHost('mushaf-page-slider').props.onResponderGrant({ nativeEvent: { locationX: 0 } }));
+        expect(centreWithGo()).toEqual(['mushaf-page-go-button', 'mushaf-page-go-left', 'mushaf-page-selector-number']);
+      });
+
+      it('the centre is a fixed width while typing (room for Go on either side), so the Surah and juz` never move as Go switches sides', async () => {
+        await typing();
+        const centre = () => onlyHost('mushaf-page-go-button').parent!;
+        await act(async () => field().props.onChangeText('200'));
+        const later = styleOf(centre()).width;
+        await act(async () => field().props.onChangeText('45'));
+        expect(styleOf(centre()).width).toBe(later);
+        expect(later).toBe(184);
+      });
+
+      it('Go goes to exactly the typed page (the first and the last page too), then closes the keyboard and the selector', async () => {
+        for (const target of [604, 1]) {
+          await typing();
+          const dismiss = await dismissCalls();
+          const before = dismiss.mock.calls.length;
+          await act(async () => field().props.onChangeText(String(target)));
+          await press(onlyHost('mushaf-page-go-button'));
+          await flush();
+          expect(currentPage(), String(target)).toBe(target);
+          expect(hosts('mushaf-page-selector')).toHaveLength(0);
+          expect(dismiss.mock.calls.length).toBeGreaterThan(before);
+          await act(async () => root.unmount());
+        }
+      });
+
+      it('an invalid number never goes: neither Go (absent), nor the keyboard`s submit', async () => {
+        await typing();
+        for (const bad of ['0', '605', '999']) {
+          await act(async () => field().props.onChangeText(bad));
+          expect(hosts('mushaf-page-go-button'), bad).toHaveLength(0);
+          await act(async () => field().props.onSubmitEditing());
+          expect(currentPage(), bad).toBe(61);
+          expect(hosts('mushaf-page-selector'), bad).toHaveLength(1);
+        }
+      });
+
+      it('iOS: the number pad gets a Done bar (it has no return key); Done closes only the keyboard and keeps the number', async () => {
+        await typing();
+        await act(async () => field().props.onChangeText('300'));
+        const bar = root.root.findAllByType('InputAccessoryView' as never)[0];
+        expect(bar.props.nativeID).toBe(field().props.inputAccessoryViewID);
+        const done = onlyHost('mushaf-page-selector-done');
+        expect(done.props).toMatchObject({ accessibilityRole: 'button', accessibilityLabel: copy().keyboardDone });
+        const dismiss = await dismissCalls();
+        const before = dismiss.mock.calls.length;
+        await press(done);
+        await keyboard('keyboardWillHide');
+        expect(dismiss.mock.calls.length).toBe(before + 1);
+        expect(hosts('mushaf-page-selector')).toHaveLength(1);
+        expect(field().props.value).toBe('300');
+        expect(currentPage()).toBe(61);
+        // Go still goes once the keyboard is down.
+        await press(onlyHost('mushaf-page-go-button'));
+        await flush();
+        expect(currentPage()).toBe(300);
+      });
+
+      it('a tap outside the field while the keyboard is up closes only the keyboard (on the dimmed screen or the card); with the keyboard down, outside closes the selector as before', async () => {
+        await typing();
+        await act(async () => field().props.onChangeText('120'));
+        const dismiss = await dismissCalls();
+        const before = dismiss.mock.calls.length;
+        await press(onlyHost('mushaf-page-selector-backdrop'));
+        expect(dismiss.mock.calls.length).toBe(before + 1);
+        expect(hosts('mushaf-page-selector')).toHaveLength(1);
+        expect(field().props.value).toBe('120');
+        // The card itself, outside its controls.
+        const card = onlyHost('mushaf-page-selector');
+        expect(card.props.onStartShouldSetResponder()).toBe(true);
+        await act(async () => card.props.onResponderRelease());
+        expect(dismiss.mock.calls.length).toBe(before + 2);
+        await keyboard('keyboardWillHide');
+        expect(onlyHost('mushaf-page-selector').props.onStartShouldSetResponder()).toBe(false); // keyboard down: the card no longer catches taps
+        await press(onlyHost('mushaf-page-selector-backdrop'));
+        await flush();
+        expect(hosts('mushaf-page-selector')).toHaveLength(0);
+        expect(currentPage()).toBe(61);
+      });
+
+      it('Arabic: the same physical placement (never mirrored), with the Arabic Go and Done', async () => {
+        state.locale = 'ar';
+        await typing();
+        await act(async () => field().props.onChangeText('٢٠٠'));
+        expect(centreWithGo()).toEqual(['mushaf-page-go-button', 'mushaf-page-go-left', 'mushaf-page-selector-input']);
+        expect(texts()).toContain('اذهب');
+        expect(onlyHost('mushaf-page-selector-done').props.accessibilityLabel).toBe('تم');
+        await act(async () => field().props.onChangeText('٤٥'));
+        expect(centreWithGo()).toEqual(['mushaf-page-selector-input', 'mushaf-page-go-right', 'mushaf-page-go-button']);
+      });
+
+      it('the slider shows the same Go: dragging to a later or an earlier page shows it on the arrow`s outer side; back to the current page hides it; dragging alone never goes', async () => {
+        everyPageDrawn();
+        await render();
+        await press(onlyHost('mushaf-nav-page'));
+        const W = 300;
+        const slider = () => onlyHost('mushaf-page-slider');
+        await act(async () => slider().props.onLayout({ nativeEvent: { layout: { x: 0, y: 0, width: W, height: 36 } } }));
+        const pageAt = (page: number) => W - ((page - 1) / 603) * W;
+        const drag = async (page: number) => { await act(async () => slider().props.onResponderMove({ nativeEvent: { locationX: pageAt(page) } })); };
+        const shown = () => onlyHost('mushaf-page-selector-number').findByType('Text' as never).props.children;
+        expect(centreWithGo()).toEqual(['mushaf-page-selector-number']);
+        await drag(200);
+        expect(shown()).toBe('200');
+        expect(centreWithGo()).toEqual(['mushaf-page-go-button', 'mushaf-page-go-left', 'mushaf-page-selector-number']);
+        await drag(45);
+        expect(shown()).toBe('45');
+        expect(centreWithGo()).toEqual(['mushaf-page-selector-number', 'mushaf-page-go-right', 'mushaf-page-go-button']);
+        await drag(61);
+        expect(centreWithGo()).toEqual(['mushaf-page-selector-number']);
+        expect(currentPage()).toBe(61); // dragging never navigates
+        // The same centre width with or without Go, so the Surah and juz` never move.
+        const centre = () => styleOf(onlyHost('mushaf-page-selector-number').parent!).width;
+        const without = centre();
+        await drag(604);
+        expect(centre()).toBe(without);
+        expect(shown()).toBe('604');
+        await press(onlyHost('mushaf-page-go-button'));
+        await flush();
+        expect(currentPage()).toBe(604);
+        expect(hosts('mushaf-page-selector')).toHaveLength(0);
+      });
+
+      it('the slider`s first page: Go to page 1; and typing after sliding continues from the slid page (they stay in step)', async () => {
+        everyPageDrawn();
+        await render();
+        await press(onlyHost('mushaf-nav-page'));
+        const W = 300;
+        await act(async () => onlyHost('mushaf-page-slider').props.onLayout({ nativeEvent: { layout: { x: 0, y: 0, width: W, height: 36 } } }));
+        await act(async () => onlyHost('mushaf-page-slider').props.onResponderMove({ nativeEvent: { locationX: W } }));
+        expect(onlyHost('mushaf-page-selector-number').findByType('Text' as never).props.children).toBe('1');
+        // Typing starts from the slid page (the field's hint), and a typed page moves the slider's thumb.
+        await press(onlyHost('mushaf-page-selector-number'));
+        expect(field().props.placeholder).toBe('1');
+        await act(async () => field().props.onChangeText('300'));
+        expect(styleOf(onlyHost('mushaf-page-slider-thumb')).left).toBeCloseTo(W - (299 / 603) * W - 11);
+        await act(async () => field().props.onChangeText('1'));
+        await press(onlyHost('mushaf-page-go-button'));
+        await flush();
+        expect(currentPage()).toBe(1);
+      });
+
+      it('going to a typed page only shows it: no ورد page, active ورد, cycle or Khatma is written', async () => {
+        seedWird();
+        await flush();
+        const snapshot = () => [...state.storage.entries()].filter(([key]) => /reading-stop|khatma|active-reading/.test(key)).sort();
+        await typing();
+        const before = snapshot();
+        await act(async () => field().props.onChangeText('500'));
+        await press(onlyHost('mushaf-page-go-button'));
+        await flush();
+        expect(currentPage()).toBe(500);
+        expect(snapshot()).toEqual(before);
+      });
+    });
   });
 
   describe('an ayah`s words: exactly Reflection, Save and Share', () => {
@@ -3568,41 +3849,131 @@ describe('the redesigned navigation and ayah actions', () => {
       expect(state.storage.get(READING_STOPS_STORAGE_KEY)).toBe(before);
     });
 
-    it('Save adds the ayah to Favorites (the heart then filled), Save again removes it; never a ورد or a Khatma', async () => {
+    it('Save adds the ayah to Favorites and the popup stays open with the heart filled at once; Save again removes it and empties it; the state is kept when reopened; never a ورد or a Khatma', async () => {
       seedWird();
       state.fetch.mockImplementation(async (url: string) => (String(url).includes('/api/ayahs/') ? layoutResponse(200, { success: true, data: ayah(decodeURIComponent(String(url).split('/').pop()!)) }) : layoutResponse(503, { success: false })));
       await render();
       const before = state.storage.get(READING_STOPS_STORAGE_KEY);
       await tapPage(100, 130);
       await afterTapWindow();
+      const heart = () => onlyHost('mushaf-ayah-save').findByType('Heart' as never).props;
+      // Not yet saved: a red outline.
+      expect(heart()).toMatchObject({ color: '#E44855', fill: 'transparent' });
       await press(onlyHost('mushaf-ayah-save'));
       await flush();
-      expect(hosts('mushaf-ayah-actions')).toHaveLength(0); // done: closed
+      // Saved: still open, the heart filled red at once (fill and stroke), Saved and the remove hint.
+      expect(hosts('mushaf-ayah-actions')).toHaveLength(1);
       const favoritesStored = [...state.storage.entries()].find(([key]) => /favorites/.test(key));
       expect(favoritesStored?.[1]).toMatch(/3:85/);
-      await tapPage(100, 130);
-      await afterTapWindow();
       expect(onlyHost('mushaf-ayah-save').props.accessibilityState.selected).toBe(true);
       expect(hosts('mushaf-ayah-heart-saved')).not.toHaveLength(0);
+      expect(heart()).toMatchObject({ color: '#E44855', fill: '#E44855' });
       expect(texts()).toContain(copy().actionSaved);
       expect(onlyHost('mushaf-ayah-save').props.accessibilityLabel).toBe(MESSAGES.en.favoriteButton.removeLabel);
+      // Removed: still open, back to the red outline, Save and the add hint.
       await press(onlyHost('mushaf-ayah-save'));
       await flush();
+      expect(hosts('mushaf-ayah-actions')).toHaveLength(1);
+      expect(onlyHost('mushaf-ayah-save').props.accessibilityState.selected).toBe(false);
+      expect(heart()).toMatchObject({ color: '#E44855', fill: 'transparent' });
+      expect(texts()).toContain(copy().actionSave);
+      expect(onlyHost('mushaf-ayah-save').props.accessibilityLabel).toBe(MESSAGES.en.favoriteButton.saveLabel);
+      // Saved again, then closed and reopened: the popup shows the stored state.
+      await press(onlyHost('mushaf-ayah-save'));
+      await flush();
+      await press(onlyHost('mushaf-ayah-actions-backdrop'));
+      expect(hosts('mushaf-ayah-actions')).toHaveLength(0);
       await tapPage(100, 130);
       await afterTapWindow();
-      expect(onlyHost('mushaf-ayah-save').props.accessibilityState.selected).toBe(false);
+      expect(heart()).toMatchObject({ color: '#E44855', fill: '#E44855' });
+      await press(onlyHost('mushaf-ayah-save'));
+      await flush();
       expect(state.storage.get(READING_STOPS_STORAGE_KEY)).toBe(before);
       expect(khatmaRecords()).toHaveLength(0);
     });
 
-    it('Save without a connection: the reason in the popup, nothing saved', async () => {
+    it.each([['light', 'en'], ['dark', 'en'], ['light', 'ar'], ['dark', 'ar']] as const)('%s, %s: a red outline, then the same filled red heart and the Saved label as soon as it is saved; Reflection and Share keep their place', async (theme, locale) => {
+      state.theme = theme;
+      state.locale = locale;
+      state.fetch.mockImplementation(async (url: string) => (String(url).includes('/api/ayahs/') ? layoutResponse(200, { success: true, data: ayah(decodeURIComponent(String(url).split('/').pop()!)) }) : layoutResponse(503, { success: false })));
+      await render();
+      await tapPage(100, 130);
+      await afterTapWindow();
+      const outline = onlyHost('mushaf-ayah-save').findByType('Heart' as never).props;
+      expect(outline).toMatchObject({ color: '#E44855', fill: 'transparent' }); // the same red outline in Dark
+      await press(onlyHost('mushaf-ayah-save'));
+      await flush();
+      const popup = onlyHost('mushaf-ayah-actions');
+      expect(popup.findAll((n) => typeof n.type === 'string' && n.props.accessibilityRole === 'button').map((n) => n.props.testID)).toEqual(['mushaf-ayah-reflection', 'mushaf-ayah-save', 'mushaf-ayah-share']);
+      expect(onlyHost('mushaf-ayah-save').findByType('Heart' as never).props).toMatchObject({ color: '#E44855', fill: '#E44855' });
+      expect(textOf(onlyHost('mushaf-ayah-save'))).toBe(MESSAGES[locale].mushaf.actionSaved);
+      expect(onlyHost('mushaf-ayah-save').props.accessibilityLabel).toBe(MESSAGES[locale].favoriteButton.removeLabel);
+      // No background, circle or badge around the heart: only the icon in its slot.
+      const slot = onlyHost('mushaf-ayah-save').findByType('Heart' as never).parent!;
+      expect(styleOf(slot).backgroundColor).toBeUndefined();
+    });
+
+    /** No connection for ayahs (the request itself fails, as offline); everything else as before. */
+    const offline = () => state.fetch.mockImplementation(async (url: string) => {
+      if (String(url).includes('/api/ayahs/')) throw new TypeError('Network request failed');
+      return layoutResponse(503, { success: false });
+    });
+    const ayahRequests = () => state.fetch.mock.calls.filter(([url]) => String(url).includes('/api/ayahs/')).length;
+    const storedFavorites = () => JSON.parse([...state.storage.entries()].find(([key]) => /favorites/.test(key))?.[1] ?? '[]') as Record<string, unknown>[];
+
+    it('a refused save (the ayah isn`t found) never shows the saved heart: the reason in the popup, nothing saved', async () => {
+      state.fetch.mockImplementation(async (url: string) => (String(url).includes('/api/ayahs/') ? layoutResponse(404, { success: false }) : layoutResponse(503, { success: false })));
       await render();
       await tapPage(100, 130);
       await afterTapWindow();
       await press(onlyHost('mushaf-ayah-save'));
       await flush();
       expect(hosts('mushaf-ayah-actions')).toHaveLength(1);
+      expect(hosts('mushaf-ayah-heart-saved')).toHaveLength(0);
+      expect(onlyHost('mushaf-ayah-save').findByType('Heart' as never).props.fill).toBe('transparent');
       expect(textOf(onlyHost('mushaf-ayah-actions'))).toMatch(new RegExp(`${copy().actionReflection}\\|${copy().actionSave}\\|.+`));
+      expect(storedFavorites().filter((f) => !f.deleted)).toHaveLength(0);
+    });
+
+    it('Save without a connection: saved on the device with the verified local Arabic and no invented translation; Unsave needs no connection; kept across a restart; the translation arrives when the connection returns', async () => {
+      const { getVerseByKey } = await import('@/services/quran');
+      offline();
+      await render();
+      await tapPage(100, 130); // 3:85
+      await afterTapWindow();
+      await press(onlyHost('mushaf-ayah-save'));
+      await flush();
+      // Saved: the heart fills at once, no error.
+      expect(hosts('mushaf-ayah-actions')).toHaveLength(1);
+      expect(onlyHost('mushaf-ayah-save').findByType('Heart' as never).props).toMatchObject({ color: '#E44855', fill: '#E44855' });
+      expect(textOf(onlyHost('mushaf-ayah-actions'))).toBe(`${copy().actionReflection}|${copy().actionSaved}|${MESSAGES.en.ayah.share}`);
+      const [saved] = storedFavorites();
+      expect(saved).toMatchObject({ verseKey: '3:85', surahNumber: 3, ayahNumber: 85, surahNameEnglish: 'Aal-i-Imraan', surahNameArabic: 'آل عمران', englishTranslation: '', translationSource: '', emotions: [] });
+      expect(saved.arabicText).toBe((await getVerseByKey('3:85')).arabicText);
+      // Unsave: from the saved favorite itself, without asking the backend.
+      const requests = ayahRequests();
+      await press(onlyHost('mushaf-ayah-save'));
+      await flush();
+      expect(ayahRequests()).toBe(requests);
+      expect(onlyHost('mushaf-ayah-save').findByType('Heart' as never).props.fill).toBe('transparent');
+      expect(storedFavorites()).toEqual([expect.objectContaining({ verseKey: '3:85', deleted: true })]);
+      // Saved again, then the app restarts (still offline): it is still saved.
+      await press(onlyHost('mushaf-ayah-save'));
+      await flush();
+      const savedAt = storedFavorites()[0].savedAt;
+      await act(async () => root.unmount());
+      await render();
+      await tapPage(100, 130);
+      await afterTapWindow();
+      expect(onlyHost('mushaf-ayah-save').findByType('Heart' as never).props.fill).toBe('#E44855');
+      expect(storedFavorites()[0]).toMatchObject({ verseKey: '3:85', englishTranslation: '' });
+      // The connection returns: on the next load its translation is fetched and kept; the Arabic and savedAt are unchanged.
+      await act(async () => root.unmount());
+      state.fetch.mockImplementation(async (url: string) => (String(url).includes('/api/ayahs/') ? layoutResponse(200, { success: true, data: ayah(decodeURIComponent(String(url).split('/').pop()!)) }) : layoutResponse(503, { success: false })));
+      await render();
+      await flush();
+      expect(storedFavorites()).toEqual([expect.objectContaining({ verseKey: '3:85', englishTranslation: 'Say…', translationSource: 'pickthall', savedAt })]);
+      expect(storedFavorites()[0].arabicText).toBe((await getVerseByKey('3:85')).arabicText);
     });
 
     it('a tap outside dismisses it and the ayah is no longer selected; a double-tap never opens it', async () => {
@@ -3687,7 +4058,26 @@ describe('the redesigned navigation and ayah actions', () => {
       expect(shareSheet().props).toMatchObject({ visible: true, ayah: expect.objectContaining({ verseKey: '3:90', surahNumber: 3, ayahNumber: 90 }) });
     });
 
-    it('Share without a connection: the reason in the popup, no sheet', async () => {
+    it('Share without a connection: the same Share Ayah sheet, for exactly this ayah, with the verified local Arabic and no translation', async () => {
+      const { getVerseByKey } = await import('@/services/quran');
+      state.fetch.mockImplementation(async (url: string) => {
+        if (String(url).includes('/api/ayahs/')) throw new TypeError('Network request failed');
+        return layoutResponse(503, { success: false });
+      });
+      await render();
+      await tapPage(100, 130);
+      await afterTapWindow();
+      await press(onlyHost('mushaf-ayah-share'));
+      await flush();
+      expect(hosts('mushaf-ayah-actions')).toHaveLength(0);
+      expect(shareSheet().props.visible).toBe(true);
+      const shared = shareSheet().props.ayah;
+      expect(shared).toMatchObject({ verseKey: '3:85', surahNumber: 3, ayahNumber: 85, englishTranslation: '', emotions: [] });
+      expect(shared.arabicText).toBe((await getVerseByKey('3:85')).arabicText);
+    });
+
+    it('Share refused (the ayah isn`t found): the reason in the popup, no sheet', async () => {
+      state.fetch.mockImplementation(async (url: string) => (String(url).includes('/api/ayahs/') ? layoutResponse(404, { success: false }) : layoutResponse(503, { success: false })));
       await render();
       await tapPage(100, 130);
       await afterTapWindow();
@@ -3713,7 +4103,7 @@ describe('the redesigned navigation and ayah actions', () => {
       const buttons = popup.findAll((n) => typeof n.type === 'string' && n.props.accessibilityRole === 'button');
       expect(buttons.map((n) => n.props.testID)).toEqual(['mushaf-wird-apply-button', 'mushaf-wird-apply-close']);
       expect(popup.findAllByType('Share2' as never)).toHaveLength(0);
-      expect(textOf(popup).replace(/[⁨⁩]/g, '')).toBe('Apply to Morning Wird');
+      expect(textOf(popup).replace(/[⁨⁩]/g, '')).toBe('Apply to Morning');
       expect(flat(onlyHost('mushaf-wird-apply-button').props.style({ pressed: false })).backgroundColor).toBe(MUSHAF_PANEL_COLORS.light.go.backgroundColor);
       // The selected ayah is the medallion's.
       expect(root.root.findByType('ReflectionSheet' as never).props.verseKey).toBe('3:85');
@@ -3800,7 +4190,7 @@ describe('the redesigned navigation and ayah actions', () => {
       const marker = markerOf(layout, '3:85');
       await tapLine(marker.line, marker.x);
       await afterTapWindow();
-      expect(textOf(onlyHost('mushaf-wird-apply')).replace(/[⁨⁩]/g, '')).toBe('تطبيق على ورد الفجر');
+      expect(textOf(onlyHost('mushaf-wird-apply')).replace(/[⁨⁩]/g, '')).toBe('حفظ في الفجر');
     });
 
     it('no active ورد: Apply offers the existing new-ورد name field instead (nothing guessed)', async () => {
@@ -3847,5 +4237,244 @@ describe('Keep Screen Awake in the reader', () => {
     await act(async () => root.unmount());
     expect(keepAwake.deactivate.mock.calls).toEqual([[MUSHAF_KEEP_AWAKE_TAG]]);
     root = undefined as never;
+  });
+});
+
+describe('the first-time guide', () => {
+  const GUIDE_KEY = 'quran-heals:mushaf-guide:v1';
+  const onlyHost = (testID: string) => {
+    const nodes = hosts(testID);
+    expect(nodes, testID).toHaveLength(1);
+    return nodes[0];
+  };
+  const toggle = () => root.root.findByProps({ testID: 'mushaf-fullscreen-toggle' });
+  const MEASURE_WIDTH = 900;
+  /** Where each real control is drawn on this simulated 390 × 844 screen (measureInWindow, window coordinates). */
+  const BOXES: Record<string, { x: number; y: number; width: number; height: number }> = {
+    'mushaf-nav-surah': { x: 10, y: 70, width: 150, height: 22 },
+    'mushaf-nav-hizb': { x: 160, y: 70, width: 70, height: 22 },
+    'mushaf-nav-juz': { x: 230, y: 70, width: 150, height: 22 },
+    'mushaf-nav-page': { x: 150, y: 735, width: 90, height: 22 },
+    'qpc-guide-ayah': { x: 240, y: 300, width: 44, height: 30 },
+    'qpc-guide-marker': { x: 200, y: 300, width: 26, height: 30 },
+  };
+  async function renderFresh(area = { width: 390, height: 797 }) {
+    await act(async () => {
+      root = create(createElement(MushafScreen), {
+        createNodeMock: (element) => ({
+          measureInWindow: (callback: (x: number, y: number, width: number, height: number) => void) => {
+            const box = BOXES[String((element.props as { testID?: string }).testID)];
+            if (box) callback(box.x, box.y, box.width, box.height);
+          },
+        }),
+      });
+    });
+    await flush();
+    await act(async () => root.root.findByProps({ testID: 'mushaf-page-area' }).props.onLayout({ nativeEvent: { layout: { x: 0, y: 0, ...area } } }));
+    await flush();
+    await flush();
+    // The guide measures after the layout settles (a short timer).
+    await act(async () => { await new Promise((done) => setTimeout(done, 120)); });
+  }
+  const guide = () => hosts('mushaf-guide');
+  const guideText = () => onlyHost('mushaf-guide-text').props.children;
+  const hole = () => styleOf(onlyHost('mushaf-guide-highlight'));
+  const padded = (id: string) => ({ left: BOXES[id].x - 6, top: BOXES[id].y - 6, width: BOXES[id].width + 12, height: BOXES[id].height + 12 });
+  const next = async () => { await press(onlyHost('mushaf-guide-next')); await act(async () => { await new Promise((done) => setTimeout(done, 120)); }); };
+  const stored = () => JSON.parse(state.storage.get(GUIDE_KEY) ?? 'null');
+
+  beforeEach(() => {
+    state.storage.delete(GUIDE_KEY); // a new user
+  });
+
+  it('a new user: shown by itself once the page and its controls are drawn, at step 1 (the Surah name), its highlight on the real control and the arrow pointing up to it', async () => {
+    await renderFresh();
+    expect(guide()).toHaveLength(1);
+    expect(guideText()).toBe(copy().guideSurah);
+    expect(texts()).toContain('1 of 6');
+    expect(hole()).toMatchObject(padded('mushaf-nav-surah'));
+    // The card below the control; the arrow from the card's top edge up to the highlight, within the card.
+    const card = styleOf(onlyHost('mushaf-guide-card'));
+    const arrow = styleOf(onlyHost('mushaf-guide-arrow'));
+    expect(card.top).toBeGreaterThan(BOXES['mushaf-nav-surah'].y + BOXES['mushaf-nav-surah'].height);
+    expect(arrow.top).toBe(BOXES['mushaf-nav-surah'].y + BOXES['mushaf-nav-surah'].height + 6);
+    expect(arrow.top + arrow.height).toBe(card.top);
+    expect(arrow.left + arrow.width / 2).toBeGreaterThanOrEqual(card.left + 22);
+    // Nothing changed: the same page, no ورد, no Khatma.
+    expect(currentPage()).toBe(61);
+    expect([...state.storage.keys()].filter((key) => /reading-stop|khatma|favorite|reflection/.test(key))).toEqual([]);
+  });
+
+  it('all six steps in order, each pointing at its own real control: Surah, Hizb, page, Juz, an ayah, its number', async () => {
+    await renderFresh();
+    const order: string[] = [];
+    for (let step = 0; step < 6; step += 1) {
+      order.push(guideText());
+      const target = ['mushaf-nav-surah', 'mushaf-nav-hizb', 'mushaf-nav-page', 'mushaf-nav-juz', 'qpc-guide-ayah', 'qpc-guide-marker'][step];
+      if (hosts(target).length > 0) {
+        expect(hole(), target).toMatchObject(padded(target));
+        expect(hosts('mushaf-guide-not-on-page'), target).toHaveLength(0);
+      } else {
+        // Not on this page: no arrow anywhere wrong, the card centred, saying so.
+        expect(hosts('mushaf-guide-highlight'), target).toHaveLength(0);
+        expect(hosts('mushaf-guide-not-on-page'), target).toHaveLength(1);
+      }
+      if (step < 5) await next();
+    }
+    expect(order).toEqual([copy().guideSurah, copy().guideHizb, copy().guidePage, copy().guideJuz, copy().guideAyah, copy().guideMarker]);
+    // The page number is low on the screen: the card above it, the arrow pointing down.
+    expect(hosts('mushaf-guide-start')).toHaveLength(1);
+    expect(hosts('mushaf-guide-next')).toHaveLength(0);
+  });
+
+  it('with the page`s QPC words drawn: steps 5 and 6 point at a real ayah`s word and at that same ayah`s number, on the page being read', async () => {
+    state.fetch.mockResolvedValue(layoutResponse(200, { success: true, data: syntheticQpcPage61() }));
+    await renderFresh();
+    await act(async () => {
+      for (const line of syntheticQpcPage61().lines) root.root.findByProps({ testID: `qpc-measure-${line.line}` }).props.onLayout({ nativeEvent: { layout: { x: 0, y: 0, width: line.line === 1 ? MEASURE_WIDTH : 800, height: 100 } } });
+    });
+    await act(async () => { await new Promise((done) => setTimeout(done, 120)); });
+    const ayah = onlyHost('qpc-guide-ayah');
+    const marker = onlyHost('qpc-guide-marker');
+    // The same line; the word belongs to the ayah whose number is the marker (a word before it on that line).
+    expect(ayah.parent).toBe(marker.parent);
+    const words = (ayah.parent!.children as ReactTestInstance[]).filter((child) => typeof child !== 'string' && child.props.onLayout);
+    expect(words.indexOf(ayah)).toBeLessThan(words.indexOf(marker));
+    for (let step = 0; step < 4; step += 1) await next();
+    expect(guideText()).toBe(copy().guideAyah);
+    expect(hole()).toMatchObject(padded('qpc-guide-ayah'));
+    await next();
+    expect(guideText()).toBe(copy().guideMarker);
+    expect(hole()).toMatchObject(padded('qpc-guide-marker'));
+    // Only pointed at: nothing selected, no popup, no ورد saved.
+    expect(hosts('mushaf-ayah-actions')).toHaveLength(0);
+    expect(hosts('mushaf-wird-apply')).toHaveLength(0);
+    expect([...state.storage.keys()].filter((key) => /reading-stop|khatma/.test(key))).toEqual([]);
+  });
+
+  it('on a page with a Hizb mark (page 5), step 2 points at the real Hizb label', async () => {
+    state.params = { page: '5' };
+    state.offline.readPage.mockImplementation(async (n: number) => ({ ...syntheticQpcPage61(), page: n, fontFamily: `QCF_P${String(n).padStart(3, '0')}` }));
+    await renderFresh();
+    expect(currentPage()).toBe(5);
+    expect(hosts('mushaf-nav-hizb')).toHaveLength(1);
+    await next();
+    expect(guideText()).toBe(copy().guideHizb);
+    expect(hole()).toMatchObject(padded('mushaf-nav-hizb'));
+    expect(hosts('mushaf-guide-not-on-page')).toHaveLength(0);
+  });
+
+  it('the page number`s step: the card above, the arrow down to it', async () => {
+    await renderFresh();
+    await next();
+    await next();
+    expect(guideText()).toBe(copy().guidePage);
+    const card = styleOf(onlyHost('mushaf-guide-card'));
+    const arrow = styleOf(onlyHost('mushaf-guide-arrow'));
+    expect(card.bottom).toBe(844 - (BOXES['mushaf-nav-page'].y - 6 - 34));
+    expect(arrow.top + arrow.height).toBe(BOXES['mushaf-nav-page'].y - 6);
+  });
+
+  it('Back, Next, Close and Start Reading; never moves by itself; a tap outside or Android Back on the first step never closes it', async () => {
+    await renderFresh();
+    expect(hosts('mushaf-guide-back')).toHaveLength(0); // no Back on the first step
+    // Taps anywhere else land on the guide's layer, which does nothing.
+    expect(onlyHost('mushaf-guide').props.onStartShouldSetResponder()).toBe(true);
+    expect(onlyHost('mushaf-guide').props.onPress).toBeUndefined();
+    const modal = root.root.findAll((node) => node.type === ('Modal' as never) && node.findAll((n) => n.props.testID === 'mushaf-guide').length > 0)[0];
+    await act(async () => modal.props.onRequestClose());
+    expect(guide()).toHaveLength(1);
+    expect(guideText()).toBe(copy().guideSurah);
+    await act(async () => { await new Promise((done) => setTimeout(done, 3000)); });
+    expect(guideText()).toBe(copy().guideSurah); // no timer
+    await next();
+    await next();
+    expect(guideText()).toBe(copy().guidePage);
+    await press(onlyHost('mushaf-guide-back'));
+    expect(guideText()).toBe(copy().guideHizb);
+    await act(async () => modal.props.onRequestClose()); // Android Back: one step back
+    expect(guideText()).toBe(copy().guideSurah);
+    await press(onlyHost('mushaf-guide-close'));
+    expect(guide()).toHaveLength(0);
+    expect(stored()).toEqual({ status: 'done' });
+  });
+
+  it('closed once, it does not show by itself again; Help opens it again at step 1', async () => {
+    await renderFresh();
+    await press(onlyHost('mushaf-guide-close'));
+    await act(async () => root.unmount());
+    await renderFresh();
+    expect(guide()).toHaveLength(0);
+    await press(onlyHost('mushaf-guide-open'));
+    await act(async () => { await new Promise((done) => setTimeout(done, 120)); });
+    expect(guide()).toHaveLength(1);
+    expect(guideText()).toBe(copy().guideSurah);
+    expect(onlyHost('mushaf-guide-open').props.accessibilityLabel).toBe(copy().guideHelp);
+  });
+
+  it('Start Reading on the last step finishes it and records it as seen', async () => {
+    await renderFresh();
+    for (let step = 0; step < 5; step += 1) await next();
+    expect(guideText()).toBe(copy().guideMarker);
+    await press(onlyHost('mushaf-guide-start'));
+    expect(guide()).toHaveLength(0);
+    expect(stored()).toEqual({ status: 'done' });
+    expect(currentPage()).toBe(61);
+  });
+
+  it('interrupted (the app reloaded mid-way): it opens again at the step reached', async () => {
+    await renderFresh();
+    await next();
+    await next();
+    expect(stored()).toEqual({ status: 'unseen', step: 2 });
+    await act(async () => root.unmount());
+    await renderFresh();
+    expect(guideText()).toBe(copy().guidePage);
+  });
+
+  it('Arabic: the approved wording, mirrored buttons, «التالي / السابق / إغلاق / ابدأ القراءة»', async () => {
+    state.locale = 'ar';
+    await renderFresh();
+    expect(guideText()).toBe('اضغط على اسم السورة للانتقال إلى سورة');
+    expect(styleOf(onlyHost('mushaf-guide-text'))).toMatchObject({ writingDirection: 'rtl', textAlign: 'right' });
+    expect(texts()).toContain('التالي');
+    expect(texts()).toContain('إغلاق');
+    const actions = onlyHost('mushaf-guide-close').parent!;
+    expect(styleOf(actions)).toMatchObject({ flexDirection: 'row-reverse' });
+    for (let step = 0; step < 5; step += 1) await next();
+    expect(guideText()).toBe('اضغط على رقم الآية ثم «تطبيق» لحفظ موضع الورد');
+    expect(texts()).toContain('ابدأ القراءة');
+    expect(texts()).toContain('السابق');
+  });
+
+  it('Light and Dark: the reader`s panel colours, the highlight in its accent', async () => {
+    for (const theme of ['light', 'dark'] as const) {
+      state.theme = theme;
+      state.storage.delete(GUIDE_KEY);
+      await renderFresh();
+      expect(styleOf(onlyHost('mushaf-guide-card'))).toMatchObject({ backgroundColor: MUSHAF_PANEL_COLORS[theme].sheet.backgroundColor });
+      expect(hole()).toMatchObject({ borderColor: MUSHAF_PANEL_COLORS[theme].accent });
+      await act(async () => root.unmount());
+    }
+  });
+
+  it('full screen: no Help icon (Normal Mode only); a guide already open keeps pointing at the real control, measured again', async () => {
+    await renderFresh();
+    expect(guide()).toHaveLength(1);
+    await press(toggle());
+    expect(hosts('mushaf-guide-open')).toHaveLength(0);
+    await act(async () => { await new Promise((done) => setTimeout(done, 120)); });
+    expect(guide()).toHaveLength(1);
+    expect(hole()).toMatchObject(padded('mushaf-nav-surah'));
+    await press(toggle());
+    expect(hosts('mushaf-guide-open')).toHaveLength(1);
+  });
+
+  it('a small phone: the card fits the screen width with its margins', async () => {
+    await renderFresh({ width: 320, height: 548 });
+    const card = styleOf(onlyHost('mushaf-guide-card'));
+    // useWindowDimensions is 390 wide here; the card is never wider than the screen less 16 pt each side.
+    expect(card.width).toBeLessThanOrEqual(390 - 32);
+    expect(card.left).toBeGreaterThanOrEqual(16);
   });
 });

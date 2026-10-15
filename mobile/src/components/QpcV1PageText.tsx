@@ -6,6 +6,7 @@ import { SurahHeaderOrnament } from '@/components/SurahHeaderOrnament';
 import { SurahHeadingTraditional } from '@/components/SurahHeadingTraditional';
 import { SURAH_HEADING_DECORATION, type HeadingDecoration } from '@/mushaf/decorations';
 import { MUSHAF_PAPER } from '@/constants/mushafTheme';
+import { useGuideTarget } from '@/mushaf/guideTargets';
 import { MUSHAF_MARKER_STYLES, type MushafMarkerStyleId } from '@/mushaf/appearance';
 import { cssBaseline, getAyahMarker, markerOverlayBox, QCF_V1_INK_OVERFLOW_EM, QCF_V1_INK_ROOM_V_EM, QCF_V1_LINE_BOX_EM, qcfV1AndroidRowShiftEm, qcfV1DrawnLineShiftEm } from '@/mushaf/ayahMarkers';
 import { MUSHAF_TEXT_LIFT_PT, pageWidthOfText, PRINTED_TEXT_WIDTH_SHARE, textSideInset } from '@/mushaf/pageGeometry';
@@ -29,6 +30,11 @@ type QpcV1PageTextProps = {
    * other (onSelectVerse).
    */
   onPressMarker?: (verseKey: string, at?: { x: number; y: number }) => void;
+  /**
+   * The page being read: its first fully drawn ayah — a word and its number (medallion) on the same line — are the
+   * first-time guide's examples (mushaf/guideTargets.tsx). Measured only; they behave exactly as before.
+   */
+  guideTargets?: boolean;
   accessibilityLabel: string;
   accessibilityHint: string;
   /** Screen-reader actions on the page (e.g. next / previous page). */
@@ -110,8 +116,23 @@ const OPENING_NAME_MAX_EM = 3.95;
  * Surah's name in the running heads' font, with an original Quran Heals
  * ornament confined to the existing empty heading line.
  */
+/**
+ * The guide's example on this page: the first line (from the third, clear of the running heads) holding an ayah's
+ * number with a word of that same ayah before it on the line; else any such line. Null when the page has none.
+ */
+function guideExampleOf(layout: QpcV1PageLayout): { line: number; word: number; marker: number } | null {
+  const candidates = [...layout.lines.filter((line) => line.line >= 3), ...layout.lines.filter((line) => line.line < 3)];
+  for (const line of candidates) {
+    const marker = line.words.findIndex((word, index) => word.kind === 'end' && index > 0 && line.words.slice(0, index).some((w) => w.kind === 'word' && w.verseKey === word.verseKey));
+    if (marker < 0) continue;
+    const word = line.words.findIndex((w) => w.kind === 'word' && w.verseKey === line.words[marker].verseKey);
+    return { line: line.line, word, marker };
+  }
+  return null;
+}
+
 export function QpcV1PageText({
-  layout, width, height, selectedVerseKey, onSelectVerse, onPressMarker, accessibilityLabel, accessibilityHint, accessibilityActions, onAccessibilityAction,
+  layout, width, height, selectedVerseKey, onSelectVerse, onPressMarker, guideTargets = false, accessibilityLabel, accessibilityHint, accessibilityActions, onAccessibilityAction,
   markerStyle = 'qpc-glyph', ink = MUSHAF_PAPER.ink,
   highlight = { color: MUSHAF_PAPER.highlight, opacity: MUSHAF_PAPER.highlightOpacity },
   printedPitch,
@@ -121,6 +142,9 @@ export function QpcV1PageText({
   headingColor,
   headingDecoration = SURAH_HEADING_DECORATION,
 }: QpcV1PageTextProps) {
+  const ayahTarget = useGuideTarget('ayah');
+  const markerTarget = useGuideTarget('marker');
+  const guideExample = guideTargets ? guideExampleOf(layout) : null;
   const lineCount = Math.max(15, layout.lines.length);
   const pitch = height / lineCount;
   const opening = isOpeningPage(layout.page);
@@ -283,7 +307,12 @@ export function QpcV1PageText({
               const baseline = reportedBaseline ?? cssBaseline(fontSize, fontSize * QCF_V1_LINE_BOX_EM);
               return (
                 // pointerEvents none: taps land on the line, so the press location is line-relative.
-                <View key={index} pointerEvents="none" onLayout={onWordLayout(line.line, index, word.verseKey, word.kind)}>
+                <View
+                  key={index}
+                  ref={guideExample?.line === line.line ? (index === guideExample.word ? ayahTarget : index === guideExample.marker ? markerTarget : undefined) : undefined}
+                  testID={guideExample?.line === line.line ? (index === guideExample.word ? 'qpc-guide-ayah' : index === guideExample.marker ? 'qpc-guide-marker' : undefined) : undefined}
+                  pointerEvents="none"
+                  onLayout={onWordLayout(line.line, index, word.verseKey, word.kind)}>
                   <Text
                     allowFontScaling={false}
                     onTextLayout={marker ? onMarkerTextLayout : undefined}

@@ -7,6 +7,7 @@ import { OpeningPageOrnamentRich } from '@/components/OpeningPageOrnamentRich';
 import { OPENING_PAGES_DECORATION, type OpeningDecoration } from '@/mushaf/decorations';
 import { MUSHAF_PAPER } from '@/constants/mushafTheme';
 import { MUSHAF_BACKGROUNDS, MUSHAF_APPEARANCE_DEFAULT } from '@/mushaf/appearance';
+import { useGuideTarget } from '@/mushaf/guideTargets';
 import type { BorderInk } from '@/mushaf/borderPattern';
 import { juzOfAyah, juzTitle, toArabicIndicDigits } from '@/mushaf/mushafPage';
 import { computePageLayout, MUSHAF_TEXT_LIFT_PT, type Box } from '@/mushaf/pageGeometry';
@@ -18,8 +19,9 @@ const HIZB_LABEL_SIZE = 0.85;
  * How far in from the page's edges the Surah and juz' heads sit, each on its own side: one border tile
  * (the band's width, page width ÷ 20), so their outer edges line up with the frame's inner rule below them
  * at every page size. (A fixed 7 pt left them over the band itself, still reading as flush with the edge.)
- * The header's height, font and the page below are unchanged. Pages 1–2 (the approved opening design) keep their
- * heads as approved.
+ * The header's height, font and the page below are unchanged. Pages 1–2 (the opening design) take the same inset:
+ * their frame has the same outer band, and the header row sits above the circular decoration (which starts below
+ * it), so the heads line up with the rest of the Mushaf without touching the decoration or the text.
  */
 export const headerSideInset = (layout: { tile: number }) => layout.tile;
 
@@ -104,7 +106,7 @@ export function MushafPageView({
       {/* Fixed physical layout, as printed: juz' on the right, surah on the left. */}
       <View
         testID="mushaf-header"
-        style={[styles.headerRow, { height: layout.header.height, paddingHorizontal: openingOrnament ? 0 : headerSideInset(layout) }, hizbLabels && hizbLabels.length > 0 && styles.headerBaseline]}>
+        style={[styles.headerRow, { height: layout.header.height, paddingHorizontal: headerSideInset(layout) }, hizbLabels && hizbLabels.length > 0 && styles.headerBaseline]}>
         <Text testID="mushaf-header-surah" allowFontScaling={false} style={[headerText, styles.headerSide]}>{surahTitle}</Text>
         {/* Only on a page where a Hizb or one of its quarters starts: centred between the two, a little smaller. */}
         {hizbLabels && hizbLabels.length > 0 && (
@@ -164,12 +166,18 @@ export function MushafPageView({
  * extra reach stays in the paper and the decorative band: at most up to the text area, never over the Quran text.
  */
 function FurnitureTouchAreas({ layout, navigation, hasHizb }: { layout: ReturnType<typeof computePageLayout>; navigation: PageNavigation; hasHizb: boolean }) {
+  // The first-time guide points at these very touch areas (mushaf/guideTargets.tsx); they exist only on the page being read.
+  const surahTarget = useGuideTarget('surah');
+  const juzTarget = useGuideTarget('juz');
+  const hizbTarget = useGuideTarget('hizb');
+  const pageTarget = useGuideTarget('page');
   const headerHeight = layout.header.height;
   // Below the heads: the frame's top band down to (not into) the text area.
   const headerBelow = Math.max(0, Math.min(TOUCH_TARGET - headerHeight, layout.text.y - MUSHAF_TEXT_LIFT_PT - headerHeight - 2));
   const sideWidth = layout.page.width * 0.4;
-  const head = (testID: string, label: string, onPress: () => void, box: { left: number; width: number }) => (
+  const head = (testID: string, label: string, onPress: () => void, box: { left: number; width: number }, guideTarget: (view: View | null) => void) => (
     <Pressable
+      ref={guideTarget}
       testID={testID}
       accessibilityRole="button"
       accessibilityLabel={label}
@@ -184,10 +192,11 @@ function FurnitureTouchAreas({ layout, navigation, hasHizb }: { layout: ReturnTy
   const numberWidth = Math.min(layout.page.width, Math.max(TOUCH_TARGET * 2, layout.page.width * 0.3));
   return (
     <>
-      {head('mushaf-nav-surah', navigation.labels.surah, navigation.onSurah, { left: 0, width: sideWidth })}
-      {head('mushaf-nav-juz', navigation.labels.juz, navigation.onJuz, { left: layout.page.width - sideWidth, width: sideWidth })}
-      {hasHizb && head('mushaf-nav-hizb', navigation.labels.hizb, navigation.onHizb, { left: sideWidth, width: layout.page.width - 2 * sideWidth })}
+      {head('mushaf-nav-surah', navigation.labels.surah, navigation.onSurah, { left: 0, width: sideWidth }, surahTarget)}
+      {head('mushaf-nav-juz', navigation.labels.juz, navigation.onJuz, { left: layout.page.width - sideWidth, width: sideWidth }, juzTarget)}
+      {hasHizb && head('mushaf-nav-hizb', navigation.labels.hizb, navigation.onHizb, { left: sideWidth, width: layout.page.width - 2 * sideWidth }, hizbTarget)}
       <Pressable
+        ref={pageTarget}
         testID="mushaf-nav-page"
         accessibilityRole="button"
         accessibilityLabel={navigation.labels.page}

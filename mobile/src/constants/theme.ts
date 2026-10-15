@@ -34,6 +34,9 @@ export type Palette = {
   /** Default glyph color for neutral icons. */
   icon: string;
   /** Accent used as text/icon color. */
+  /** The How I Feel tab icon (components/HandsHeartIcon.tsx): its solid heart, and its open hands' outline. */
+  howIFeelHeart: string;
+  howIFeelHands: string;
   accent: string;
   /** Tinted wash behind accent icons and selected rows. */
   accentSoft: string;
@@ -97,6 +100,8 @@ export const lightPalette: Palette = {
   textMuted: '#5F6960',
   icon: '#1F2A24',
   accent: '#617256',
+  howIFeelHeart: '#E44855',
+  howIFeelHands: '#6A7B57',
   accentSoft: '#E9EEE4',
   // Identical to accentSoft on purpose: light mode's reveal button keeps its
   // existing plain-fill look (no visible border) — this task is dark-mode-only.
@@ -155,6 +160,9 @@ export const darkPalette: Palette = {
   textMuted: '#A9B1BC',
   icon: '#EDE6DA',
   accent: '#7FC6E0',
+  howIFeelHeart: '#E44855',
+  // The light olive (#6A7B57) is only 3.4:1 on the dark tab bar; this sage is 5.9:1.
+  howIFeelHands: '#8EA68A',
   accentSoft: '#16262E',
   // A visibly distinct, bordered secondary-button surface — weaker than
   // primaryButton, but clearly lighter than the card behind it (unlike

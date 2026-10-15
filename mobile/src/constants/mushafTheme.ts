@@ -48,6 +48,8 @@ export const MUSHAF_PANEL_COLORS = {
     saved: '#3E6B4B',
     // The active bookmark (outline and fill, this page being the selected ورد's saved page) and the lit lightbulb's glass: bright yellow, the same in Dark Mode.
     activeFill: '#FFC000',
+    // The ayah popup's Save heart once the ayah is in Favorites (fill and stroke): the same red in Dark Mode.
+    savedHeart: '#E44855',
     selected: { backgroundColor: 'rgba(89, 111, 73, 0.16)' },
     // The ورد selector (a small pill under the page) and its list.
     accent: '#3E6B4B',
@@ -80,6 +82,8 @@ export const MUSHAF_PANEL_COLORS = {
     saved: '#8EA68A',
     // The active bookmark (outline and fill) and the lit lightbulb's glass: the same bright yellow as in Light Mode.
     activeFill: '#FFC000',
+    // The ayah popup's Save heart once the ayah is in Favorites (fill and stroke): the same red in Dark Mode.
+    savedHeart: '#E44855',
     selected: { backgroundColor: 'rgba(181, 201, 169, 0.18)' },
     accent: '#B5C9A9',
     muted: '#A39C88',

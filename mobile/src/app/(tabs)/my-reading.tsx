@@ -6,6 +6,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { ConfirmSheet } from '@/components/ConfirmSheet';
 import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
+import { MushafIcon } from '@/components/MushafIcon';
 import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
 import { fill, localNumber } from '@/localization/fill';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
@@ -133,7 +134,10 @@ export default function MyReadingScreen() {
           style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
           <BackIcon size={22} color={colors.icon} />
         </Pressable>
-        <Text accessibilityRole="header" style={[styles.title, direction]}>{copy.title}</Text>
+        <View style={styles.titleBlock}>
+          <Text accessibilityRole="header" style={[styles.title, direction]}>{copy.title}</Text>
+          <Text testID="my-reading-subtitle" style={[styles.subtitle, direction]}>{copy.subtitle}</Text>
+        </View>
         <SettingsHeaderButton style={styles.iconButton} pressedStyle={styles.pressed} />
       </View>
 
@@ -229,7 +233,7 @@ export default function MyReadingScreen() {
                   accessibilityRole="button"
                   onPress={() => void openMushafFor(wird.stop)}
                   style={({ pressed }) => [styles.continueButton, rtl && styles.rowRtl, pressed && styles.pressed]}>
-                  <BookOpen size={18} color={colors.onAccentFill} />
+                  <MushafIcon size={18} color={colors.onAccentFill} />
                   <Text style={styles.continueText}>{copy.continue}</Text>
                 </Pressable>
                 <Pressable
@@ -447,7 +451,10 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     alignItems: 'center', backgroundColor: colors.surface, borderColor: colors.border, borderRadius: radii.full,
     borderWidth: 1, height: 48, justifyContent: 'center', width: 48,
   },
-  title: { color: colors.textPrimary, flex: 1, fontSize: 26, fontWeight: '800' },
+  // The title and its subtitle (Home's subtitle style) share the header's flexible middle.
+  titleBlock: { flex: 1, gap: 2 },
+  title: { color: colors.textPrimary, fontSize: 26, fontWeight: '800' },
+  subtitle: { color: colors.textSecondary, fontSize: typography.body, lineHeight: 22 },
   content: { gap: spacing.lg, paddingHorizontal: spacing.lg, paddingTop: spacing.sm },
   stats: { flexDirection: 'row', gap: spacing.sm },
   stat: {

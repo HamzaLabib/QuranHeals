@@ -6,6 +6,8 @@ backend/node_modules/
 # Build output
 backend/dist/
 mobile/.expo/
+# Created only if an Expo dev server is started from backend/ by mistake (local server settings, never needed).
+backend/.expo/
 mobile/dist/
 web-build/
 
@@ -20,6 +22,25 @@ credentials*.json
 *.key
 *.p8
 *.p12
+
+# Downloaded Google OAuth client-secret files
+client_secret*.json
+
+# Local Quran Heals administrative files (deletion cases, audit logs, admin .env profiles; the admin tool also refuses
+# paths inside this repository: backend/src/admin/localFiles.ts)
+QuranHealsAdmin/
+
+# Android signing material
+*.jks
+*.keystore
+
+# iOS provisioning profiles
+*.mobileprovision
+
+# Review screenshots kept outside Git since 2026-10-15 (copies in My App/Working progress/Audit Reports/;
+# the earlier commits still hold them). Ignored so the local copies are never re-added by mistake.
+docs/mushaf-visual-review/
+design-archive/experiments/larger-text-mushaf/screenshots/
 
 # Local scratch files
 tmp/

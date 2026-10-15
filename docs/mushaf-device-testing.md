@@ -20,7 +20,7 @@ The development build runs the current JavaScript from Metro: no new build is ne
 4. **Full screen, page 61:** tap Expand.
    - The page grows taller (on a 6.1″ iPhone about 12% taller, with the lines further apart), letter size unchanged, the whole page visible.
    - Only the Minimize icon at the top right. Exit with Minimize, or with a downward swipe at 1×.
-5. **Install the offline Mushaf** (layout and page fonts, about 115 MB):
+5. **Install the offline Mushaf** (layout and page fonts, about 100 MB):
    - Go to any page not yet downloaded, for example `quranheals://mushaf?page=2`, and tap *Download for offline reading*.
    - Wait for "The complete Mushaf is ready for offline reading". The page fonts come from Quran Foundation's CDN, so the iPhone needs internet access too.
 6. **Check these pages** (`quranheals://mushaf?page=N`, or Search → Page Number). Each must open; none may say "This page can't be shown".
@@ -243,3 +243,17 @@ Implemented and audited in a browser only (Expo Web in headless Chrome; `docs/mu
 | C6 | Tap the page number (Normal Mode) on the iPhone SE and the small Android | The selector card opens below the last Quran line, not over it |
 | C7 | Ayah taps and medallion taps on the first and last words of lines | The popup and the Apply-to-ورد popup open for the right ayah, as before |
 | C8 | Pinch, double-tap and swipe on a page | As before: the whole page scales; swipes turn one page |
+
+## Production automatic offline download (2026-10-15): release gate — UNVERIFIED
+
+Prepared in code and held back: `PRODUCTION_AUTO_DOWNLOAD_RELEASED` in `mobile/src/mushaf/offline/autoDownloadConfig.ts` is `false`, so no production binary or OTA update downloads by itself yet (preview builds already do). Releasing it is that one line, set to `true`, **only after every check below passes** on a preview build (the same controller and channel rule). Use an iPhone and an Android phone, a fresh install each time (delete the app first).
+
+| # | Check | Pass when |
+|---|---|---|
+| P1 | Fresh install on Wi-Fi; open the app and wait | The download starts by itself; the line above the tabs shows real progress; at the end, Settings → Quran → Offline Mushaf says Available Offline |
+| P2 | Fresh install on mobile data only (Wi-Fi off) | Nothing downloads until the prompt (about 100 MB) is answered; Download now starts it; Not now waits for Wi-Fi and does not ask again |
+| P3 | Interrupt (airplane mode, or close the app) half way, then reopen on Wi-Fi | It continues where it stopped; never Available Offline before the end |
+| P4 | Pause, and Remove, then relaunch | Nothing downloads by itself until Download / Continue is tapped |
+| P5 | After P1: airplane mode, force-quit, reopen; read pages 1, 2, 3, 61, 300, 604; swipe through several | Every page draws with its own font; Surah / Juz' / Hizb / page navigation works |
+| P6 | After P5, still offline: an ayah's Save, Unsave and Share | Saved / removed at once; Share opens with the Arabic only; online again, the saved ayah gains its translation |
+| P7 | Storage | Settings shows the real state; the app's storage use grows by about 100 MB and no more |

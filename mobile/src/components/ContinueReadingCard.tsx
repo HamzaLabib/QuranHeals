@@ -1,10 +1,11 @@
-import { BookOpen, Check, ChevronDown } from 'lucide-react-native';
+import { Check, ChevronDown } from 'lucide-react-native';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useDropdownMotion } from '@/components/useDropdownMotion';
+import { MushafIcon } from './MushafIcon';
 import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
 import { fill, localNumber } from '@/localization/fill';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
@@ -201,7 +202,7 @@ export function ContinueReadingCard() {
           accessibilityLabel={copy.mushaf}
           onPress={openMushaf}
           style={({ pressed }) => [styles.primary, rtl && styles.rowRtl, pressed && styles.pressed]}>
-          <BookOpen size={20} color={colors.onAccentFill} />
+          <MushafIcon size={20} color={colors.onAccentFill} />
           <Text style={styles.primaryText}>{copy.mushaf}</Text>
         </Pressable>
       </View>
