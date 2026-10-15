@@ -2,12 +2,19 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { AppState } from 'react-native';
 
 import { useAppLocale } from '@/localization/useAppLocale';
-import { DEFAULT_QURAN_TRANSLATION_PREFERENCE } from '@/localization/quranTranslationPreference';
+import { saveEmotionsLanguage, type EmotionsLanguage } from '@/localization/emotionsLanguage';
+import { applySyncedQuranReadingMode, type QuranReadingMode } from '@/localization/quranLanguage';
+import type { TranslationDisplayMode } from '@/localization/quranTranslationPreference';
+import { useEmotionsLanguage } from '@/localization/useEmotionsLanguage';
+import { useQuranFontSizeSync } from '@/localization/useQuranFontSizePreference';
 import { useQuranTranslationPreference } from '@/localization/useQuranTranslationPreference';
+import type { AppLocale } from '@/localization/locales';
+import { useAppearancePreference } from '@/theme/useAppearancePreference';
+import type { AppearanceMode } from '@/theme/appearancePreference';
 import { GuestDataSheet, type GuestDataChoice } from '@/components/GuestDataSheet';
 import { SyncPassphraseSheet } from '@/components/SyncPassphraseSheet';
-import { pushPreferences, type LocalPreferencesSnapshot } from '@/sync/preferencesSync';
-import { hasUnsyncedLocalPreferences } from '@/sync/preferencesSyncState';
+import { pushPreferences, type ApplyPreference } from '@/sync/preferencesSync';
+import { claimLegacyPreferenceChanges, clearAccountPreferenceState, discardLegacyPreferenceChanges, subscribeToLocalPreferenceChanges } from '@/sync/preferencesSyncState';
 import { subscribeToLocalChanges, subscribeToLocalReadingChanges } from '@/storage/localChanges';
 import { markReadingChangedLocally, resetReadingSyncStatus } from '@/sync/readingSyncState';
 import { syncReading } from '@/sync/readingSync';
@@ -188,28 +195,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, delay);
   }, []);
 
-  const { locale, setLocale, isReady: isLocaleReady } = useAppLocale();
-  const { preference, setDisplayMode, isReady: isTranslationPreferenceReady } = useQuranTranslationPreference();
-  const preferencesHydrated = isLocaleReady && isTranslationPreferenceReady;
+  const { setLocale, isReady: isLocaleReady } = useAppLocale();
+  const { setDisplayMode, isReady: isTranslationPreferenceReady } = useQuranTranslationPreference();
+  const { setMode: setAppearanceMode, isReady: isAppearanceReady } = useAppearancePreference();
+  const { applySyncedSize, isReady: isFontSizeReady } = useQuranFontSizeSync();
+  const { isReady: isEmotionsLanguageReady } = useEmotionsLanguage();
+  const preferencesHydrated = isLocaleReady && isTranslationPreferenceReady && isAppearanceReady && isFontSizeReady && isEmotionsLanguageReady;
 
-  // Latest preference values for sync, read at decision time (never a
-  // snapshot captured when a sync started — see preferencesSync.ts).
-  const latestPreferencesRef = useRef<LocalPreferencesSnapshot>({
-    locale,
-    translationDisplayMode: preference.displayMode,
-    translationId: preference.translationId,
-  });
-  useEffect(() => {
-    latestPreferencesRef.current = {
-      locale,
-      translationDisplayMode: preference.displayMode,
-      translationId: preference.translationId,
-    };
-  }, [locale, preference.displayMode, preference.translationId]);
+  // Applies one of the signed-in account's settings on this device
+  // (sync/preferenceFields.ts), through each setting's own setter with
+  // `fromSync`, so it is never recorded as this device's change.
+  const applyPreferenceRef = useRef<ApplyPreference>(() => {});
+  applyPreferenceRef.current = (field, value) => {
+    switch (field) {
+      case 'locale':
+        setLocale(value as AppLocale, { fromSync: true });
+        break;
+      case 'translationDisplayMode':
+        setDisplayMode(value as TranslationDisplayMode, { fromSync: true });
+        break;
+      case 'translationId':
+        // Only one translation exists (PICKTHALL_TRANSLATION_ID): nothing to
+        // apply yet. Kept per account, so a second translation needs only a setter here.
+        break;
+      case 'quranLanguage':
+        void applySyncedQuranReadingMode(value as QuranReadingMode);
+        break;
+      case 'emotionsLanguage':
+        void saveEmotionsLanguage(value as EmotionsLanguage);
+        break;
+      case 'appearance':
+        setAppearanceMode(value as AppearanceMode, { fromSync: true });
+        break;
+      case 'quranFontSize':
+        applySyncedSize(value as number);
+        break;
+    }
+  };
+  const applyPreference = useCallback<ApplyPreference>((field, value) => applyPreferenceRef.current(field, value), []);
+  // The earlier versions' device-wide settings timestamp: claimed by a
+  // restored session's account, discarded by an interactive sign-in or a
+  // sign-out (sync/preferencesSyncState.ts). Every sync waits for it.
+  const legacyPreferencesRef = useRef<Promise<void>>(Promise.resolve());
 
-  // Sync must never read the providers' pre-hydration defaults (e.g. `en`)
-  // as if the user had chosen them — it waits until both have loaded what
-  // was persisted on this device.
+  // Sync must never apply an account value before a provider has loaded
+  // what was persisted on this device (the provider's own load would then
+  // replace it) — it waits until every synced setting has loaded.
   const preferencesHydratedRef = useRef(false);
   const hydrationWaitersRef = useRef<(() => void)[]>([]);
   useEffect(() => {
@@ -308,21 +339,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
 
           await waitForPreferenceHydration();
+          await legacyPreferencesRef.current;
           const latestToken = (await getSessionToken()) ?? token;
           if (!isCurrent()) return;
           sessionTokenRef.current = latestToken;
           const result = await runFullSync(latestToken, {
             ownerUserId,
-            local: () => latestPreferencesRef.current,
-            applyPreferencesLocally: (next) => {
-              if (!isCurrent()) return;
-              if (next.locale) setLocale(next.locale, { fromSync: true });
-              if (next.translationDisplayMode) setDisplayMode(next.translationDisplayMode, { fromSync: true });
-              // translationId has only one valid value today
-              // (DEFAULT_QURAN_TRANSLATION_PREFERENCE.translationId) —
-              // nothing to apply yet; kept here so a second bundled
-              // translation only needs a setter added, not new sync wiring.
-              void DEFAULT_QURAN_TRANSLATION_PREFERENCE;
+            applyPreference: (field, value) => {
+              if (isCurrent()) applyPreference(field, value);
             },
             promptForPassphrase,
             isCurrent,
@@ -359,7 +383,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         runTrigger = 'local-change';
       }
     },
-    [promptForPassphrase, promptForGuestData, setLocale, setDisplayMode, waitForPreferenceHydration, scheduleSyncRetry],
+    [promptForPassphrase, promptForGuestData, applyPreference, waitForPreferenceHydration, scheduleSyncRetry],
   );
 
   /**
@@ -389,24 +413,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     readingSyncRef.current = runReadingSync;
   }, [runReadingSync]);
 
-  // Pushes a preference change made on this device while signed in, as soon
-  // as it happens. Best-effort: offline or failed pushes are retried by the
-  // next full sync, which re-sends anything newer than the account's value.
-  // Values adopted from the account are already marked synced, so applying
-  // them never echoes back here.
-  useEffect(() => {
-    if (status !== 'signed-in' || !preferencesHydrated) return;
+  // Uploads a setting the user changes while signed in, as soon as it is
+  // recorded for this account (sync/preferencesSyncState.ts). Best-effort:
+  // offline or failed, it stays pending and the next full sync sends it.
+  // Values applied from the account are never recorded, so they never echo
+  // back here; a change recorded for another account is never sent with
+  // this session's token.
+  useEffect(() => subscribeToLocalPreferenceChanges((owner) => {
+    if (owner !== currentUserIdRef.current) return;
+    const epoch = currentAuthEpoch();
+    const isCurrent = () => epoch === currentAuthEpoch() && currentUserIdRef.current === owner;
     void (async () => {
       try {
-        if (!(await hasUnsyncedLocalPreferences())) return;
         const token = (await getSessionToken()) ?? sessionTokenRef.current;
-        if (!token) return;
-        await pushPreferences(token, () => latestPreferencesRef.current);
+        if (!token || !isCurrent()) return;
+        await pushPreferences(token, owner, applyPreference, { isCurrent });
       } catch {
         // Left for the next full sync — see above.
       }
     })();
-  }, [status, preferencesHydrated, locale, preference.displayMode, preference.translationId]);
+  }), [applyPreference]);
 
   useEffect(() => {
     if (hasRestoredSessionRef.current) return;
@@ -432,6 +458,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const epoch = currentAuthEpoch();
       if (session.status === 'signed-in' && session.user) {
         const userId = session.user.id;
+        legacyPreferencesRef.current = claimLegacyPreferenceChanges(userId);
         void activateLocalDataForAccount(userId, () => epoch === currentAuthEpoch()).catch(() => {
           // Retried by the sync below; local data stays where it is.
         });
@@ -527,6 +554,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await activateLocalDataForAccount(signedInUser.id, isCurrent).catch(() => {});
       // An interactive sign-in asks about guest data again.
       await forgetGuestDataDecision(signedInUser.id).catch(() => {});
+      // Settings: only this account's own are synced — never ones chosen as a guest or under another account.
+      legacyPreferencesRef.current = discardLegacyPreferenceChanges();
       if (!isCurrent()) return;
       currentUserIdRef.current = signedInUser.id;
       // Only absent if the backend itself omitted it — this app's backend
@@ -597,6 +626,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     hideAccountDataNow();
     setUser(null);
     setStatus('guest');
+    legacyPreferencesRef.current = discardLegacyPreferenceChanges();
     const cleared = (async () => {
       await activateGuestLocalData().catch(() => {});
       await clearPersistedSession(epoch);
@@ -674,10 +704,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Kept other versions (D5) are this account's reflections too.
     if (deletedUserId) await clearAllConflictVersions(deletedUserId);
     await clearAllFavorites(deletedUserId ?? undefined);
-    // The account's reading stops, Khatmas (also deleted on the server with the account) and recent emotions on this device.
+    // The account's reading stops, Khatmas (also deleted on the server with the account), recent emotions and
+    // settings-sync record on this device. The settings shown here stay as they are (device settings).
     if (deletedUserId) {
       await clearAccountReadingData(deletedUserId);
       await clearRecentEmotions(deletedUserId);
+      await clearAccountPreferenceState(deletedUserId).catch(() => undefined);
     }
     await endSession();
     if (deletedUserId) await releaseLocalDataAfterAccountDeletion(deletedUserId);

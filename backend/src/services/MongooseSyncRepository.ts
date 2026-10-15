@@ -5,7 +5,6 @@ import { UserPreferenceModel } from '../models/UserPreference';
 import { UserReflectionModel } from '../models/UserReflection';
 import { UserSyncKeyModel } from '../models/UserSyncKey';
 import { AppError } from '../errors/AppError';
-import type { TranslationDisplayMode } from '../types/accountDomain';
 import type { FavoriteDto, FavoriteSyncRecordDto, PreferencesDto, ReflectionConflictDto, ReflectionSyncRecordDto, SyncKeyDto } from '../types/accountDto';
 import type {
   IncomingFavoriteRecord,
@@ -14,6 +13,15 @@ import type {
   SyncRepository,
 } from './SyncRepository';
 import { pullReadingRecords, pushReadingChanges } from './MongooseReadingSync';
+import {
+  mergePreferences,
+  PREFERENCE_FIELDS,
+  toPreferencesDto,
+  type FieldInstants,
+  type PreferenceField,
+  type PreferenceValues,
+  type StoredPreferences,
+} from './preferencesMerge';
 import type { ReadingChange, ReadingPullResult, ReadingPushResult } from './readingSync';
 import { withExistingUser } from './withExistingUser';
 
@@ -42,18 +50,13 @@ function toFavoriteSyncRecordDto(doc: { verseKey: string; deleted?: boolean; cre
   };
 }
 
-function toPreferencesDto(doc: {
-  locale?: string;
-  translationDisplayMode?: TranslationDisplayMode;
-  translationId?: string;
-  updatedAt: Date;
-}): PreferencesDto {
-  return {
-    locale: doc.locale,
-    translationDisplayMode: doc.translationDisplayMode,
-    translationId: doc.translationId,
-    updatedAt: doc.updatedAt.toISOString(),
-  };
+/** Only the preference fields of a stored document (never `_id` or `userId`). */
+function toStoredPreferences(doc: StoredPreferences): StoredPreferences {
+  const stored: StoredPreferences = { updatedAt: doc.updatedAt, ...(doc.fieldUpdatedAt ? { fieldUpdatedAt: doc.fieldUpdatedAt } : {}) };
+  for (const field of PREFERENCE_FIELDS) {
+    if (doc[field] !== undefined && doc[field] !== null) (stored as Record<string, unknown>)[field] = doc[field];
+  }
+  return stored;
 }
 
 /**
@@ -213,30 +216,34 @@ export class MongooseSyncRepository implements SyncRepository {
   }
 
   async getPreferences(userId: string): Promise<PreferencesDto | null> {
-    const doc = await UserPreferenceModel.findOne({ userId }).lean();
-    return doc ? toPreferencesDto(doc as never) : null;
+    const doc = await UserPreferenceModel.findOne({ userId }).lean<StoredPreferences>();
+    return doc ? toPreferencesDto(toStoredPreferences(doc)) : null;
   }
 
   async putPreferences(
     userId: string,
-    input: { locale?: string; translationDisplayMode?: TranslationDisplayMode; translationId?: string },
+    input: PreferenceValues,
     clientUpdatedAt: string,
+    fieldUpdatedAt: Partial<Record<PreferenceField, string>> = {},
   ): Promise<PreferencesDto> {
     return withExistingUser(userId, async (session) => {
-      const incomingUpdatedAt = new Date(clientUpdatedAt);
-      const existing = await UserPreferenceModel.findOne({ userId }).session(session).lean();
+      const doc = await UserPreferenceModel.findOne({ userId }).session(session).lean<StoredPreferences>();
+      const existing = doc ? toStoredPreferences(doc) : null;
+      const instants: FieldInstants = Object.fromEntries(Object.entries(fieldUpdatedAt).map(([field, at]) => [field, new Date(at)]));
+      const merged = mergePreferences(existing, input, new Date(clientUpdatedAt), instants);
 
-      if (existing && (existing as { updatedAt: Date }).updatedAt.getTime() >= incomingUpdatedAt.getTime()) {
-        return toPreferencesDto(existing as never);
+      if (!merged) {
+        return existing ? toPreferencesDto(existing) : { updatedAt: new Date(clientUpdatedAt).toISOString(), fieldUpdatedAt: {} };
       }
 
-      const doc = await UserPreferenceModel.findOneAndUpdate(
+      // The merged record keeps every stored field, so it is written whole.
+      const saved = await UserPreferenceModel.findOneAndUpdate(
         { userId },
-        { $set: { ...input, updatedAt: incomingUpdatedAt } },
+        { $set: merged },
         { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true, session },
-      ).lean();
+      ).lean<StoredPreferences>();
 
-      return toPreferencesDto(doc as never);
+      return toPreferencesDto(toStoredPreferences(saved!));
     });
   }
 

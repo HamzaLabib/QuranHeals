@@ -1547,6 +1547,40 @@ describe('the active reading stop (ورد)', () => {
     expect(pillText()).toBe('ورد التدبر');
   });
 
+  it('browsing survives a restart on this device, never moves a ورد, and a ورد saved later (here or synced) still wins', async () => {
+    seed(THREE, 'tadabbur');
+    const stopsBefore = state.storage.get(READING_STOPS_STORAGE_KEY);
+    state.params = {};
+    await render();
+    expect(currentPage()).toBe(125); // opened by itself on the ورد: not a browse
+    expect(state.storage.has('quran-heals:mushaf-last-page:v1')).toBe(false);
+
+    await turnPage(1);
+    await turnPage(1);
+    expect(currentPage()).toBe(127);
+    await act(async () => root.unmount());
+
+    // Restart: the last browsed page opens (browsed after the ورد's last save), with the same active ورد.
+    await render();
+    expect(currentPage()).toBe(127);
+    expect(pillText()).toBe('ورد التدبر');
+    // Browsing changed no ورد: same pages, same save times.
+    expect(state.storage.get(READING_STOPS_STORAGE_KEY)).toBe(stopsBefore);
+    await act(async () => root.unmount());
+
+    // The ورد is then saved at a later page (e.g. on another device, synced): its page wins over the older browse.
+    const later = new Date(Date.now() + 60_000).toISOString();
+    state.storage.set(READING_STOPS_STORAGE_KEY, JSON.stringify([...THREE.filter((s) => s.id !== 'tadabbur'), { ...THREE[1], page: 300, updatedAt: later }]));
+    await render();
+    expect(currentPage()).toBe(300);
+    await act(async () => root.unmount());
+
+    // A page in the link always wins.
+    state.params = { page: '50' };
+    await render();
+    expect(currentPage()).toBe(50);
+  });
+
   it('lists every stop with its page, the active one checked; choosing another opens its page and changes no stop', async () => {
     seed(THREE, 'fajr');
     await render();
@@ -2371,7 +2405,8 @@ describe('Page 604: إتمام الختمة | ورد name | دعاء ختم ال
     await press(root.root.findAllByProps({ testID: 'mushaf-khatma-noWird-cancel' }).find((node) => String(node.type) === 'Pressable')!);
     expect(notice('noWird')).toHaveLength(0);
     for (const [key, value] of before) expect(state.storage.get(key), key).toBe(value);
-    expect([...state.storage.keys()].filter((key) => !before.has(key))).toEqual([]);
+    // Only the device's last browsed page (mushaf/lastBrowsedPage.ts) — never a ورد, cycle or Khatma.
+    expect([...state.storage.keys()].filter((key) => !before.has(key))).toEqual(['quran-heals:mushaf-last-page:v1']);
   });
 
   it('a genuine restriction is kept: a ورد saved at 604 before Khatmas were tracked is not completed here (its own wording is in أورادي وختماتي)', async () => {

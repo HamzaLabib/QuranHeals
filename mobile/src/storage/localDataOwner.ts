@@ -102,6 +102,11 @@ export async function getActiveLocalOwner(): Promise<string | null> {
   return (await getLocalDataOwnerState()).activeUserId;
 }
 
+/** The active owner right now, without waiting: undefined while the state has not been loaded yet. */
+export function peekActiveLocalOwner(): string | null | undefined {
+  return state ? state.activeUserId : undefined;
+}
+
 /** Changes whenever the active owner (or whether it is resolved) changes: work begun under an older value is stale. */
 export function getLocalDataGeneration(): number {
   return generation;

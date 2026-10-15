@@ -26,7 +26,7 @@ vi.mock('@/services/api', () => ({
   getAyah: vi.fn(async (verseKey: string) => ({ id: verseKey, verseKey })),
 }));
 
-const { syncFavorites, propagateFavoriteRemoval } = await import('@/sync/favoritesSync');
+const { syncFavorites, pushFavoriteChange } = await import('@/sync/favoritesSync');
 const { getAyah } = await import('@/services/api');
 const { putFavoriteFromSync, putFavoriteTombstoneFromSync } = await import('@/storage/favorites');
 
@@ -107,17 +107,83 @@ describe('syncFavorites', () => {
   });
 });
 
-describe('propagateFavoriteRemoval', () => {
-  it('sends an explicit DELETE for the removed verseKey', async () => {
+describe('pushFavoriteChange: immediate add / remove / re-add', () => {
+  function capturePut(reply?: (sent: Record<string, unknown>) => unknown) {
+    const sent: Record<string, unknown>[] = [];
     const fetchMock = vi.fn(async (_url: string, init?: RequestInit) => {
-      expect(init?.method).toBe('DELETE');
-      return new Response(JSON.stringify({ success: true, data: null }), { status: 200 });
+      expect(init?.method).toBe('PUT');
+      const body = JSON.parse(String(init!.body)) as { favorites: Record<string, unknown>[] };
+      sent.push(...body.favorites);
+      return new Response(JSON.stringify({ success: true, data: { saved: [reply ? reply(body.favorites[0]) : body.favorites[0]] } }), { status: 200 });
     });
     vi.stubGlobal('fetch', fetchMock);
+    return { sent, fetchMock };
+  }
 
-    await propagateFavoriteRemoval('token', '3:3');
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(String(fetchMock.mock.calls[0][0])).toContain('3%3A3');
+  it('an add is uploaded as a timestamped active record (the tombstone-aware shape, never the legacy union add)', async () => {
+    localFavorites.items = [{ id: '1:1', verseKey: '1:1', savedAt: new Date(2000).toISOString() }];
+    const { sent, fetchMock } = capturePut();
+
+    await pushFavoriteChange('token', 'user-1', '1:1');
+
+    expect(sent).toEqual([{ type: 'active', verseKey: '1:1', createdAt: new Date(2000).toISOString(), updatedAt: new Date(2000).toISOString() }]);
+    expect(String(fetchMock.mock.calls[0][0])).toMatch(/\/api\/sync\/favorites$/);
+  });
+
+  it('a removal is uploaded as a deletion marker with THIS device`s deletion time (not the server clock)', async () => {
+    localTombstones.items = [{ verseKey: '3:3', deleted: true, deletedAt: 5000 }];
+    const { sent } = capturePut();
+
+    await pushFavoriteChange('token', 'user-1', '3:3');
+
+    expect(sent).toEqual([{ type: 'tombstone', verseKey: '3:3', deletedAt: new Date(5000).toISOString() }]);
+  });
+
+  it('a re-add after a removal sends the newer active record, which replaces the account`s deletion marker', async () => {
+    // Locally: removed at 5000, re-added at 9000 (the re-add supersedes the local tombstone: storage/favorites.ts).
+    localFavorites.items = [{ id: '3:3', verseKey: '3:3', savedAt: new Date(9000).toISOString() }];
+    const { sent } = capturePut();
+
+    await pushFavoriteChange('token', 'user-1', '3:3');
+
+    expect(sent).toEqual([{ type: 'active', verseKey: '3:3', createdAt: new Date(9000).toISOString(), updatedAt: new Date(9000).toISOString() }]);
+    expect(putFavoriteTombstoneFromSync).not.toHaveBeenCalled();
+  });
+
+  it('the account holds a NEWER removal (another device): it is applied here', async () => {
+    localFavorites.items = [{ id: '4:4', verseKey: '4:4', savedAt: new Date(1000).toISOString() }];
+    capturePut(() => ({ type: 'tombstone', verseKey: '4:4', deletedAt: new Date(7000).toISOString() }));
+
+    await pushFavoriteChange('token', 'user-1', '4:4');
+
+    expect(tombstonesDownloaded).toEqual([{ verseKey: '4:4', deletedAt: 7000 }]);
+  });
+
+  it('the account holds a NEWER re-add (another device) of a favorite removed here: it is restored here', async () => {
+    localTombstones.items = [{ verseKey: '5:5', deleted: true, deletedAt: 3000 }];
+    capturePut(() => ({ type: 'active', verseKey: '5:5', createdAt: new Date(8000).toISOString(), updatedAt: new Date(8000).toISOString() }));
+
+    await pushFavoriteChange('token', 'user-1', '5:5');
+
+    expect(downloaded).toEqual([{ id: '5:5', verseKey: '5:5', savedAt: new Date(8000).toISOString() }]);
+  });
+
+  it('an older account record never overrides the change just made here', async () => {
+    localTombstones.items = [{ verseKey: '6:6', deleted: true, deletedAt: 9000 }];
+    capturePut(() => ({ type: 'active', verseKey: '6:6', createdAt: new Date(1000).toISOString(), updatedAt: new Date(1000).toISOString() }));
+
+    await pushFavoriteChange('token', 'user-1', '6:6');
+
+    expect(downloaded).toEqual([]);
+    expect(tombstonesDownloaded).toEqual([]);
+  });
+
+  it('a failure (offline) is thrown for the caller to ignore; the local record stays for the next full sync', async () => {
+    localFavorites.items = [{ id: '7:7', verseKey: '7:7', savedAt: new Date(1000).toISOString() }];
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('Network request failed'); }));
+
+    await expect(pushFavoriteChange('token', 'user-1', '7:7')).rejects.toThrow();
+    expect(localFavorites.items).toHaveLength(1);
   });
 });
 

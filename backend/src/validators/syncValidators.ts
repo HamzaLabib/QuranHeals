@@ -48,11 +48,37 @@ export const favoriteVerseKeyParamsSchema = z.object({
   verseKey: verseKeySchema,
 });
 
+/**
+ * Account preferences (services/preferencesMerge.ts). Every field is
+ * optional: a device sends only the settings it changed. `fieldUpdatedAt`
+ * gives each one its own instant; without it (older apps) `updatedAt`
+ * applies to all of them. Unknown fields are stripped, so a newer app's
+ * future setting never fails the request. Values mirror the app's own:
+ *  - quranLanguage: mobile/src/localization/quranLanguage.ts (a stable mode id);
+ *  - emotionsLanguage: mobile/src/localization/emotionsLanguage.ts;
+ *  - appearance: mobile/src/theme/appearancePreference.ts;
+ *  - quranFontSize: mobile/src/localization/quranFontSizePreference.ts (22–32, in steps of 2).
+ */
 export const putPreferencesSchema = z.object({
   locale: z.enum(['en', 'ar', 'ar-EG']).optional(),
   translationDisplayMode: translationDisplayModeSchema.optional(),
   translationId: z.string().trim().min(1).max(80).optional(),
+  quranLanguage: z.string().regex(/^[a-z0-9-]{1,40}$/).optional(),
+  emotionsLanguage: z.enum(['follow', 'en', 'ar', 'ar-EG']).optional(),
+  appearance: z.enum(['system', 'light', 'dark']).optional(),
+  quranFontSize: z.number().int().min(22).max(32).refine((size) => size % 2 === 0, 'Invalid size.').optional(),
   updatedAt: isoDateSchema,
+  fieldUpdatedAt: z
+    .object({
+      locale: isoDateSchema.optional(),
+      translationDisplayMode: isoDateSchema.optional(),
+      translationId: isoDateSchema.optional(),
+      quranLanguage: isoDateSchema.optional(),
+      emotionsLanguage: isoDateSchema.optional(),
+      appearance: isoDateSchema.optional(),
+      quranFontSize: isoDateSchema.optional(),
+    })
+    .optional(),
 });
 
 // Generous but bounded: a 2,000-character reflection (worst case ~4,000

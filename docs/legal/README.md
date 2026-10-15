@@ -28,14 +28,14 @@ Verified against the code in October 2026. Update the policy whenever this chang
 
 **On the device only** (`mobile/src/storage/`, `mobile/src/localization/`, `mobile/src/theme/`, `mobile/src/auth/sessionStorage.ts`)
 - Reflections in plaintext (AsyncStorage, per-account and guest partitions), plus kept "other versions" from concurrent edits (`mobile/src/storage/reflectionConflicts.ts`, account partitions only, cleared on account deletion); favorites; recent-ayah history (10-minute non-repeat); emotions cache.
-- Settings: locale, translation display mode, appearance, Quran font size.
+- Settings: App Language, Quran Language, Emotions Language, translation display mode, appearance, Quran font size (also synced to the account when signed in: see below); notification preferences and schedules, Keep Screen Awake, offline Mushaf download, the Mushaf guide and the last browsed Mushaf page (device only, never uploaded).
 - Signed in: cached profile (`id`, `provider`, `email?`, `createdAt`) in AsyncStorage; access and refresh tokens and the unwrapped reflection master key in SecureStore.
 - Sign-out keeps reflections and favorites. Account deletion clears that account's reflections and favorites on the deleting device (`mobile/src/auth/useAuth.tsx` `deleteAccount`).
 
 **On the backend (MongoDB), only for signed-in users** (`backend/src/models/`)
 - `User`: provider, providerSubject, email?, emailVerified?, timestamps.
 - `Session`: userId, refreshTokenHash, previousRefreshTokenHash, expiresAt (60-day sliding, TTL-deleted), revokedAt, rotatedAt. No IP or user agent.
-- `UserFavorite`: verseKey, deleted, timestamps. `UserPreference`: locale, translationDisplayMode, translationId, updatedAt.
+- `UserFavorite`: verseKey, deleted, timestamps. `UserPreference`: locale, translationDisplayMode, translationId, quranLanguage, emotionsLanguage, appearance, quranFontSize, per-setting change times (`fieldUpdatedAt`), updatedAt. **Policy update needed:** appearance, Quran font size, Quran Language and Emotions Language are now stored on the account for signed-in users (October 2026); the published policy must say so before this ships.
 - `UserReflection`: verseKey, ciphertext, nonce, encryptionVersion, keyFingerprint, encrypted `conflictVersions`, deleted (tombstone), timestamps.
 - `UserSyncKey`: wrappedKey, nonce, salt, kdfIterations, encryptionVersion, keyFingerprint.
 - `AppleCredential`: AES-256-GCM-encrypted Apple refresh token (for revocation on deletion).

@@ -305,13 +305,13 @@ describe('useQuranFontSizePreference.tsx (source-scan: no RN renderer available 
   });
 
   it('increase/decrease both persist via stepQuranFontSize (never an unclamped arbitrary increment)', () => {
-    expect(source).toMatch(/stepQuranFontSize\(current,\s*1\)/);
-    expect(source).toMatch(/stepQuranFontSize\(current,\s*-1\)/);
+    expect(source).toMatch(/apply\(stepQuranFontSize\(sizeRef\.current,\s*1\), true\)/);
+    expect(source).toMatch(/apply\(stepQuranFontSize\(sizeRef\.current,\s*-1\), true\)/);
+    expect(source).toMatch(/setPreferredSize\(next\);\s+void saveQuranFontSizePreference\(next\)/);
   });
 
   it('reset (Auto) sets preferredSize back to DEFAULT_QURAN_FONT_SIZE and persists it', () => {
-    expect(source).toMatch(/setPreferredSize\(DEFAULT_QURAN_FONT_SIZE\)/);
-    expect(source).toMatch(/saveQuranFontSizePreference\(DEFAULT_QURAN_FONT_SIZE\)/);
+    expect(source).toMatch(/reset = useCallback\(\(\) => apply\(DEFAULT_QURAN_FONT_SIZE, true\)/);
   });
 
   it('exposes canIncrease/canDecrease so controls can disable at the limits', () => {
@@ -397,18 +397,19 @@ describe('AyahCard.tsx integration (source-scan): each ayah computes its own siz
   });
 });
 
-describe('Quran font-size preference is never synced to MongoDB/an account', () => {
-  it('preferencesSync.ts (the only module that syncs local preferences to the account) never references the Quran font-size preference', () => {
-    const source = readFileSync(resolve(__dirname, '../src/sync/preferencesSync.ts'), 'utf-8');
-    expect(source).not.toMatch(/fontSize|FontSize|quran-font-size/i);
+describe('Quran font-size preference and account sync', () => {
+  it('is one of the settings synced with the signed-in account, on its own (sync/preferenceFields.ts)', () => {
+    const source = readFileSync(resolve(__dirname, '../src/sync/preferenceFields.ts'), 'utf-8');
+    expect(source).toMatch(/'quranFontSize'/);
   });
 
-  it('syncOrchestrator.ts never references the Quran font-size preference', () => {
-    const source = readFileSync(resolve(__dirname, '../src/sync/syncOrchestrator.ts'), 'utf-8');
-    expect(source).not.toMatch(/fontSize|FontSize|quran-font-size/i);
+  it('only the user`s own steps are recorded for the account; an account value is applied without being recorded', () => {
+    const source = readFileSync(resolve(__dirname, '../src/localization/useQuranFontSizePreference.tsx'), 'utf-8');
+    expect(source).toMatch(/if \(fromUser\) recordLocalPreferenceChange\('quranFontSize', next\)/);
+    expect(source).toMatch(/if \(isValidQuranFontSize\(size\)\) apply\(size, false\)/);
   });
 
-  it('quranFontSizePreference.ts never imports the sync layer', () => {
+  it('quranFontSizePreference.ts (storage and sizing) never imports the sync layer', () => {
     const source = readFileSync(resolve(__dirname, '../src/localization/quranFontSizePreference.ts'), 'utf-8');
     expect(source).not.toMatch(/from ['"]@\/sync/);
   });

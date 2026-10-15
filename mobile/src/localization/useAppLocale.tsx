@@ -5,7 +5,7 @@ import { migrateLegacyAppLanguage, moveEgyptianArabicToEmotions } from './emotio
 import { getDeviceLanguageTags } from './deviceLocale';
 import { APP_LOCALES, DEFAULT_APP_LOCALE, resolveInitialAppLanguage, type AppLanguage, type AppLocale } from './locales';
 import { getMessages, type Messages } from './messages';
-import { recordLocalPreferencesUpdatedAt } from '@/sync/preferencesSyncState';
+import { recordLocalPreferenceChange } from '@/sync/preferencesSyncState';
 
 /** Versioned/namespaced, matching the convention already used by mobile/src/storage/recentAyahs.ts. */
 export const APP_LOCALE_STORAGE_KEY = 'quran-heals:app-locale:v1';
@@ -63,11 +63,10 @@ export function AppLocaleProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setLocale = useCallback((next: AppLocale, options?: PreferenceChangeOptions) => {
-    // A user's choice is stamped so sync can tell it is newer than the
-    // account's value; a value adopted from the account is stamped by sync
-    // itself (preferencesSync.ts) with the account's own timestamp.
-    if (!options?.fromSync) recordLocalPreferencesUpdatedAt(Date.now());
     const language: AppLanguage = next === 'en' ? 'en' : 'ar';
+    // A user's choice is recorded for the signed-in account (if any) so it
+    // is uploaded; a value applied from the account is not (preferencesSyncState.ts).
+    if (!options?.fromSync) recordLocalPreferenceChange('locale', language);
     if (next === 'ar-EG') void moveEgyptianArabicToEmotions();
     setLocaleState(language);
     void AsyncStorage.setItem(APP_LOCALE_STORAGE_KEY, language).catch(() => {

@@ -8,8 +8,10 @@ regress without updating this doc.
 |---|---|---|
 | 30 emotions, Quran text, translations | Always available, from `quran.sqlite`/`translations.sqlite`/MongoDB — never affected by auth. | Same. |
 | Reflections (خواطر) | Stored locally only (`mobile/src/storage/ayahReflections.ts`, AsyncStorage key `quran-heals:ayah-reflections:v1`). | Stored locally **and** synced across the user's signed-in devices, encrypted client-side before upload — see `docs/auth-and-sync/reflection-privacy.md`. |
-| Favorites | Stored locally only (`mobile/src/storage/favorites.ts`). | Synced across devices by stable `verseKey`, union merge — never deletes a favorite one device doesn't have (`mobile/src/sync/favoritesSync.ts`). |
-| Preferences (locale, translation display mode, translation ID) | Stored locally only. | Synced: first sign-in with no stored account preference uploads local; otherwise the existing account preference is applied to the new/reconnecting device (`mobile/src/sync/preferencesSync.ts`). |
+| Favorites | Stored locally only (`mobile/src/storage/favorites.ts`). | Synced across devices by stable `verseKey`, last-write-wins per ayah with durable deletion markers (tombstones), so a removal is never undone by a stale copy and a later re-add replaces the removal. Each add, removal or re-add is uploaded immediately with this device's own change time (`pushFavoriteChange`); the full sync (`syncFavorites`) uploads anything still pending and downloads other devices' changes (`mobile/src/sync/favoritesSync.ts`). |
+| Settings: App Language, Quran Language, Emotions Language, Show Translation (display mode, translation ID), Appearance, Quran font size | Stored locally only. | Synced with the account **field by field**, each setting with its own change time, so two devices changing two different settings never undo each other; the same setting changed on two devices: the later change wins (`mobile/src/sync/preferenceFields.ts`, `preferencesSync.ts`; server: `backend/src/services/preferencesMerge.ts`). Only a change the user makes **while signed in to that account** is uploaded (`preferencesSyncState.ts`, per account). Signing in downloads the account's settings and applies them; it never uploads the guest's settings or another account's, and a setting the account has never stored is left as it is on the device. Offline changes stay pending and are uploaded at the next sync. |
+| Device-only settings: notification preferences and schedules, Keep Screen Awake, offline Mushaf download, the Mushaf guide, the Show Translation dropdown's kept choice | Stored locally only. | **Still stored locally only, on purpose**: the device schedules notifications and keeps its screen awake, and the others describe this device. |
+| Last browsed Mushaf page | Stored locally only (`mobile/src/mushaf/lastBrowsedPage.ts`), so browsing survives an app restart. | **Same — never synced, never part of an account.** Browsing never moves a ورد; only an explicit save does. On opening, the more recent of the last browse and the active ورد's last save wins. |
 | Reading stops (أورادي), their progress and completed Khatmas | Stored locally only, in the guest partition (`mobile/src/mushaf/readingStops.ts`, `khatmas.ts`; see `docs/khatma.md`). | Stored locally in the account's own partition **and synced across the account's devices through the authenticated account** (like favorites; not end-to-end encrypted, no Sync Password; see `docs/auth-and-sync/reading-sync.md`). Guest ورد and Khatmas move in only through "Add to this account"; account deletion removes them from this device and from the server. |
 | Recently chosen emotions (Home's four cards) | Device-local, guest partition (`mobile/src/storage/recentEmotions.ts`). | Device-local, the account's own partition; never synced or merged; removed with the account. |
 | Recent-ayah 10-minute non-repeat history | Device-local, always (`mobile/src/storage/recentAyahHistory.ts`). | **Still device-local — never synced, on purpose** (Part F §27). Two devices can show the same ayah for the same emotion independently. |
@@ -37,9 +39,10 @@ Signing out:
 - A full sync (`runFullSync`) runs automatically: once on cold start (if
   already signed in), and again every time the app returns to the
   foreground while signed in (`AppState` listener in
-  `mobile/src/auth/useAuth.tsx`). Favorites/preferences propagate
+  `mobile/src/auth/useAuth.tsx`). Favorites and synced settings propagate
   immediately on the action itself as a best-effort push in addition to
-  that. There is **no** scheduled background sync while the app is fully
+  that; a failed push stays pending on the device and the next full sync
+  sends it. There is **no** scheduled background sync while the app is fully
   backgrounded/closed (that would need a native background task, out of
   scope for this phase) — a change made offline syncs the next time the
   app is foregrounded with connectivity, not before.

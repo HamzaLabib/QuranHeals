@@ -1,7 +1,8 @@
 import { getAyah } from '@/services/api';
 import { resolveVerseKey } from '@/services/quranReference';
 import { getAllFavoriteTombstones, getFavorites, putFavoriteFromSync, putFavoriteTombstoneFromSync } from '@/storage/favorites';
-import { getCloudFavoriteSyncRecords, putCloudFavoriteSyncRecords, removeCloudFavorite, type FavoriteSyncRecord } from './syncApi';
+import { notifyLocalDataChanged } from '@/storage/localDataOwner';
+import { getCloudFavoriteSyncRecords, putCloudFavoriteSyncRecords, type FavoriteSyncRecord } from './syncApi';
 
 /** Absent `type` means 'active' — mirrors reflectionsSync.ts's isTombstoneRecord. */
 function isTombstoneRecord(record: FavoriteSyncRecord): record is Extract<FavoriteSyncRecord, { type: 'tombstone' }> {
@@ -109,14 +110,45 @@ export async function syncFavorites(sessionToken: string, ownerUserId: string): 
   }
 }
 
+/** This device's current record for `verseKey` in `ownerUserId`'s partition, as a sync record (null: none). */
+async function localRecordFor(ownerUserId: string, verseKey: string): Promise<FavoriteSyncRecord | null> {
+  const [favorites, tombstones] = await Promise.all([getFavorites(ownerUserId), getAllFavoriteTombstones(ownerUserId)]);
+  const favorite = favorites.find((candidate) => resolveVerseKey(candidate) === verseKey);
+  if (favorite) return { type: 'active', verseKey, createdAt: favorite.savedAt, updatedAt: favorite.savedAt };
+  const tombstone = tombstones.find((candidate) => candidate.verseKey === verseKey);
+  return tombstone ? { type: 'tombstone', verseKey, deletedAt: new Date(tombstone.deletedAt).toISOString() } : null;
+}
+
 /**
- * Explicit removal must propagate — otherwise the next syncFavorites() would
- * silently resurrect it from a stale cloud copy. Local removal has already
- * happened by the time this is called (see hooks/useFavorites.ts); a cloud
- * failure here is surfaced to the caller via the thrown error but never
- * un-does the already-successful local removal — the next full sync still
- * carries the durable local tombstone and will retry.
+ * Uploads one favorite's current state right after the user adds, removes
+ * or re-adds it (hooks/useFavorites.ts), through the same tombstone-aware
+ * endpoint and the same last-write-wins rule as syncFavorites — stamped
+ * with this device's own change time, so:
+ *  - a re-add after a removal (here or on another device) replaces the
+ *    account's deletion marker at once, instead of waiting for the next
+ *    full sync;
+ *  - a removal is a deletion marker carrying the time it was made here,
+ *    never the server's clock.
+ * If the account already holds a newer change (another device), that one
+ * is applied here, unless this device changed the favorite again meanwhile.
+ * Throws on failure; the local change stands and the next full sync
+ * carries it (the durable record or tombstone is what it compares).
+ * `ownerUserId` must be the account `sessionToken` belongs to.
  */
-export function propagateFavoriteRemoval(sessionToken: string, verseKey: string): Promise<void> {
-  return removeCloudFavorite(sessionToken, verseKey).then(() => undefined);
+export async function pushFavoriteChange(sessionToken: string, ownerUserId: string, verseKey: string): Promise<void> {
+  const sent = await localRecordFor(ownerUserId, verseKey);
+  if (!sent) return;
+  const { saved } = await putCloudFavoriteSyncRecords(sessionToken, [sent]);
+  const stored = saved?.find((record) => record.verseKey === verseKey);
+  if (!stored || recordTimestamp(stored) <= recordTimestamp(sent)) return;
+
+  const current = await localRecordFor(ownerUserId, verseKey);
+  if (!current || recordTimestamp(current) !== recordTimestamp(sent) || isTombstoneRecord(current) !== isTombstoneRecord(sent)) return;
+  if (isTombstoneRecord(stored)) {
+    await putFavoriteTombstoneFromSync({ verseKey, deletedAt: recordTimestamp(stored) }, ownerUserId);
+  } else {
+    const ayah = await getAyah(verseKey);
+    await putFavoriteFromSync({ ...ayah, savedAt: stored.updatedAt }, ownerUserId);
+  }
+  notifyLocalDataChanged();
 }

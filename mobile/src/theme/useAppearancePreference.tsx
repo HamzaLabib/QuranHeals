@@ -1,5 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
+import type { PreferenceChangeOptions } from '@/localization/useAppLocale';
+import { recordLocalPreferenceChange } from '@/sync/preferencesSyncState';
 import { devLog } from '@/utils/devLog';
 import { DEFAULT_APPEARANCE_MODE, loadAppearancePreference, saveAppearancePreference, type AppearanceMode } from './appearancePreference';
 
@@ -7,7 +9,8 @@ export type AppearancePreferenceContextValue = {
   mode: AppearanceMode;
   /** True once the persisted preference has been read (or the read failed and fell back to DEFAULT_APPEARANCE_MODE). */
   isReady: boolean;
-  setMode: (mode: AppearanceMode) => void;
+  /** `fromSync`: the signed-in account's value, applied without being recorded as this device's change. */
+  setMode: (mode: AppearanceMode, options?: PreferenceChangeOptions) => void;
 };
 
 /**
@@ -26,9 +29,9 @@ const DEFAULT_CONTEXT_VALUE: AppearancePreferenceContextValue = {
 const AppearancePreferenceContext = createContext<AppearancePreferenceContextValue>(DEFAULT_CONTEXT_VALUE);
 
 /**
- * Global, purely local appearance-mode preference (see
- * appearancePreference.ts for why this never syncs to an account, and for
- * the default (System)). Starts synchronously at
+ * Global appearance-mode preference (the default is System:
+ * appearancePreference.ts). Follows the signed-in account
+ * (sync/preferenceFields.ts); a guest's stays on the device. Starts synchronously at
  * DEFAULT_APPEARANCE_MODE and loads the persisted choice in the background
  * — the app renders immediately and never waits on this load; if a valid
  * saved preference is found it is applied once loaded, otherwise the app
@@ -53,7 +56,9 @@ export function AppearancePreferenceProvider({ children }: { children: ReactNode
     };
   }, []);
 
-  const setMode = useCallback((next: AppearanceMode) => {
+  const setMode = useCallback((next: AppearanceMode, options?: PreferenceChangeOptions) => {
+    // The user's own choice is recorded for the signed-in account; an account value (fromSync) is not.
+    if (!options?.fromSync) recordLocalPreferenceChange('appearance', next);
     setModeState(next);
     void saveAppearancePreference(next);
   }, []);

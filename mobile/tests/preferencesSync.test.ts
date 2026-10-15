@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+/**
+ * Per-field settings sync, unit level (sync/preferencesSync.ts,
+ * sync/preferencesSyncState.ts). End-to-end flows with the real providers
+ * and AuthProvider: preferencesSyncLifecycle.test.ts.
+ */
+
 vi.mock('react-native', () => ({ Platform: { OS: 'web' } }));
 
 const asyncStorage = vi.hoisted(() => new Map<string, string>());
@@ -15,201 +21,225 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
   },
 }));
 
-const { reconcilePreferencesOnSignIn, pushPreferences } = await import('@/sync/preferencesSync');
+const { syncPreferences, pushPreferences } = await import('@/sync/preferencesSync');
+const { parseCloudPreferences } = await import('@/sync/preferenceFields');
 const {
-  getLocalPreferencesUpdatedAt,
-  hasUnsyncedLocalPreferences,
-  recordLocalPreferencesUpdatedAt,
+  hasUnsyncedPreferences,
+  loadAccountPreferenceState,
+  recordLocalPreferenceChange,
   resetPreferencesSyncStateForTests,
+  subscribeToLocalPreferenceChanges,
 } = await import('@/sync/preferencesSyncState');
+const { setLocalDataOwnerState, resetLocalDataOwnerForTests } = await import('@/storage/localDataOwner');
+
+const T1 = '2026-01-01T00:00:00.000Z';
+const T2 = '2026-01-02T00:00:00.000Z';
+const T3 = '2026-01-03T00:00:00.000Z';
+
+type Body = Record<string, unknown> & { updatedAt: string; fieldUpdatedAt?: Record<string, string> };
+
+/** A fake endpoint: GET returns `cloud`; PUT records the body and returns `reply(body)` (default: the body as stored). */
+function backend(cloud: unknown, reply?: (body: Body) => unknown) {
+  const puts: Body[] = [];
+  const fetchMock = vi.fn(async (_url: string, init?: RequestInit) => {
+    if (init?.method === 'PUT') {
+      const body = JSON.parse(String(init.body)) as Body;
+      puts.push(body);
+      return new Response(JSON.stringify({ success: true, data: reply ? reply(body) : body }), { status: 200 });
+    }
+    return new Response(JSON.stringify({ success: true, data: cloud }), { status: 200 });
+  });
+  vi.stubGlobal('fetch', fetchMock);
+  return { puts, fetchMock };
+}
+
+function activeOwner(userId: string | null) {
+  setLocalDataOwnerState({ activeUserId: userId, keptSeparate: [], resolved: true });
+}
+
+/** Lets fire-and-forget recording finish. */
+const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 beforeEach(() => {
   asyncStorage.clear();
   resetPreferencesSyncStateForTests();
+  resetLocalDataOwnerForTests();
 });
 
 afterEach(() => vi.unstubAllGlobals());
 
-function mockFetchOnce(body: unknown, status = 200) {
-  vi.stubGlobal(
-    'fetch',
-    vi.fn(async () => new Response(JSON.stringify(body), { status })),
-  );
-}
+describe('recording the user`s own changes', () => {
+  it('is per account: recorded for the active account only, never for a guest', async () => {
+    activeOwner(null);
+    recordLocalPreferenceChange('appearance', 'dark');
+    await flush();
+    activeOwner('user-a');
+    recordLocalPreferenceChange('quranFontSize', 30);
+    await flush();
 
-describe('reconcilePreferencesOnSignIn', () => {
-  it('uploads the local preference when the account has never stored one', async () => {
-    const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
-      if (init?.method === undefined) {
-        // GET /api/sync/preferences
-        return new Response(JSON.stringify({ success: true, data: null }), { status: 200 });
-      }
-      return new Response(JSON.stringify({ success: true, data: JSON.parse(String(init.body)) }), { status: 200 });
-    });
-    vi.stubGlobal('fetch', fetchMock);
-    const applyLocally = vi.fn();
-
-    await reconcilePreferencesOnSignIn(
-      'token',
-      { locale: 'ar', translationDisplayMode: 'on-demand', translationId: 'pickthall' },
-      applyLocally,
-    );
-
-    expect(applyLocally).not.toHaveBeenCalled();
-    const putCall = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT');
-    expect(putCall).toBeDefined();
-    const body = JSON.parse(String(putCall![1]!.body));
-    expect(body).toMatchObject({ locale: 'ar', translationDisplayMode: 'on-demand', translationId: 'pickthall' });
+    expect((await loadAccountPreferenceState('user-a')).fields).toEqual({ quranFontSize: { value: 30, updatedAt: expect.any(Number), synced: false } });
+    expect([...asyncStorage.keys()].filter((key) => key.startsWith('quran-heals:preferences-sync'))).toEqual(['quran-heals:preferences-sync:v2:account:user-a']);
   });
 
-  it('applies the cloud preference locally when the account already has one', async () => {
-    mockFetchOnce({
-      success: true,
-      data: { locale: 'en', translationDisplayMode: 'off', updatedAt: '2026-01-01T00:00:00.000Z' },
-    });
-    const applyLocally = vi.fn();
+  it('notifies the upload listener with the account the change belongs to; instants never repeat', async () => {
+    activeOwner('user-a');
+    const owners: string[] = [];
+    const unsubscribe = subscribeToLocalPreferenceChanges((owner) => owners.push(owner));
+    recordLocalPreferenceChange('appearance', 'dark');
+    recordLocalPreferenceChange('locale', 'ar');
+    await flush();
+    unsubscribe();
 
-    await reconcilePreferencesOnSignIn('token', { locale: 'ar', translationDisplayMode: 'always', translationId: 'x' }, applyLocally);
+    expect(owners).toEqual(['user-a', 'user-a']);
+    const { fields } = await loadAccountPreferenceState('user-a');
+    expect(fields.locale!.updatedAt).toBeGreaterThan(fields.appearance!.updatedAt);
+  });
 
-    expect(applyLocally).toHaveBeenCalledWith({ locale: 'en', translationDisplayMode: 'off', translationId: undefined });
+  it('survives an app restart', async () => {
+    activeOwner('user-a');
+    recordLocalPreferenceChange('emotionsLanguage', 'en');
+    await flush();
+    resetPreferencesSyncStateForTests();
+
+    expect(await hasUnsyncedPreferences('user-a')).toBe(true);
+    expect((await loadAccountPreferenceState('user-a')).fields.emotionsLanguage).toMatchObject({ value: 'en', synced: false });
+  });
+});
+
+describe('syncPreferences', () => {
+  it('applies every account value this device has not changed since, and uploads nothing when nothing is pending', async () => {
+    const { puts } = backend({ locale: 'ar', appearance: 'dark', quranFontSize: 30, updatedAt: T2, fieldUpdatedAt: { locale: T1, appearance: T2, quranFontSize: T2 } });
+    const apply = vi.fn();
+
+    await syncPreferences('token', 'user-a', apply);
+
+    expect(apply.mock.calls).toEqual([['locale', 'ar'], ['appearance', 'dark'], ['quranFontSize', 30]]);
+    expect(puts).toHaveLength(0);
+    expect(await hasUnsyncedPreferences('user-a')).toBe(false);
+  });
+
+  it('an account that never stored settings: nothing is applied and nothing is uploaded', async () => {
+    const { puts } = backend(null);
+    const apply = vi.fn();
+    await syncPreferences('token', 'user-a', apply);
+    expect(apply).not.toHaveBeenCalled();
+    expect(puts).toHaveLength(0);
+  });
+
+  it('a pending change newer than the account is kept and uploaded alone, with its own instant', async () => {
+    activeOwner('user-a');
+    recordLocalPreferenceChange('appearance', 'light');
+    await flush();
+    const { appearance } = (await loadAccountPreferenceState('user-a')).fields;
+    const { puts } = backend({ appearance: 'dark', locale: 'en', updatedAt: T1, fieldUpdatedAt: { appearance: T1, locale: T1 } });
+    const apply = vi.fn();
+
+    await syncPreferences('token', 'user-a', apply);
+
+    expect(apply.mock.calls).toEqual([['locale', 'en']]);
+    expect(puts).toEqual([{ appearance: 'light', fieldUpdatedAt: { appearance: new Date(appearance!.updatedAt).toISOString() }, updatedAt: new Date(appearance!.updatedAt).toISOString() }]);
+    expect(await hasUnsyncedPreferences('user-a')).toBe(false);
+  });
+
+  it('an account value newer than the pending change wins (and an exact tie keeps the account`s)', async () => {
+    activeOwner('user-a');
+    recordLocalPreferenceChange('appearance', 'light');
+    recordLocalPreferenceChange('quranFontSize', 22);
+    await flush();
+    const { fields } = await loadAccountPreferenceState('user-a');
+    const later = new Date(fields.appearance!.updatedAt + 1000).toISOString();
+    const tie = new Date(fields.quranFontSize!.updatedAt).toISOString();
+    const { puts } = backend({ appearance: 'dark', quranFontSize: 32, updatedAt: later, fieldUpdatedAt: { appearance: later, quranFontSize: tie } });
+    const apply = vi.fn();
+
+    await syncPreferences('token', 'user-a', apply);
+
+    expect(apply.mock.calls).toEqual([['appearance', 'dark'], ['quranFontSize', 32]]);
+    expect(puts).toHaveLength(0);
+  });
+
+  it('never applies an unknown or invalid account value (a newer app`s, or damaged data)', async () => {
+    backend({ appearance: 'sepia', quranFontSize: 27, emotionsLanguage: 'fr', locale: 'en', updatedAt: T1 });
+    const apply = vi.fn();
+    await syncPreferences('token', 'user-a', apply);
+    expect(apply.mock.calls).toEqual([['locale', 'en']]);
+  });
+
+  it('applies nothing on the device once its session has ended, but keeps the account`s state', async () => {
+    backend({ appearance: 'dark', updatedAt: T1, fieldUpdatedAt: { appearance: T1 } });
+    const apply = vi.fn();
+    await syncPreferences('token', 'user-a', apply, { isCurrent: () => false });
+    expect(apply).not.toHaveBeenCalled();
+    expect((await loadAccountPreferenceState('user-a')).fields.appearance).toMatchObject({ value: 'dark', synced: true });
   });
 });
 
 describe('pushPreferences', () => {
-  it('sends the current local preference as the new account-wide value', async () => {
-    const fetchMock = vi.fn(async (_url: string, init?: RequestInit) => new Response(JSON.stringify({ success: true, data: JSON.parse(String(init!.body)) }), { status: 200 }));
-    vi.stubGlobal('fetch', fetchMock);
+  it('a change made while the upload is in flight stays pending for the next upload (never marked synced by the earlier one)', async () => {
+    activeOwner('user-a');
+    recordLocalPreferenceChange('appearance', 'light');
+    await flush();
+    const { puts } = backend(null, (body) => {
+      // The user changes it again while this request is in flight.
+      recordLocalPreferenceChange('appearance', 'dark');
+      return body;
+    });
 
-    await pushPreferences('token', { locale: 'ar-EG', translationDisplayMode: 'always', translationId: 'x' });
+    await pushPreferences('token', 'user-a', vi.fn());
+    await flush();
 
-    const [, init] = fetchMock.mock.calls[0];
-    expect(init?.method).toBe('PUT');
-    const body = JSON.parse(String(init!.body));
-    expect(body.locale).toBe('ar-EG');
-    expect(typeof body.updatedAt).toBe('string');
+    expect(puts).toHaveLength(1);
+    expect((await loadAccountPreferenceState('user-a')).fields.appearance).toMatchObject({ value: 'dark', synced: false });
+  });
+
+  it('a server from before per-field sync: a stored field is confirmed, a field it does not know stays pending', async () => {
+    activeOwner('user-a');
+    recordLocalPreferenceChange('locale', 'ar');
+    recordLocalPreferenceChange('appearance', 'dark');
+    await flush();
+    // The previous server keeps only its three fields and one timestamp.
+    backend(null, (body) => ({ locale: body.locale, updatedAt: body.updatedAt }));
+    const apply = vi.fn();
+
+    await pushPreferences('token', 'user-a', apply);
+
+    const { fields } = await loadAccountPreferenceState('user-a');
+    expect(fields.locale).toMatchObject({ value: 'ar', synced: true });
+    expect(fields.appearance).toMatchObject({ value: 'dark', synced: false });
+    expect(apply).not.toHaveBeenCalled();
+  });
+
+  it('the previous server refusing an older upload: the account`s newer value is adopted and applied', async () => {
+    activeOwner('user-a');
+    recordLocalPreferenceChange('locale', 'ar');
+    await flush();
+    const future = new Date(Date.now() + 60_000).toISOString();
+    backend(null, () => ({ locale: 'en', updatedAt: future }));
+    const apply = vi.fn();
+
+    await pushPreferences('token', 'user-a', apply);
+
+    expect(apply.mock.calls).toEqual([['locale', 'en']]);
+    expect((await loadAccountPreferenceState('user-a')).fields.locale).toMatchObject({ value: 'en', synced: true });
+  });
+
+  it('a failed upload (offline) leaves the change pending and throws for the caller to ignore', async () => {
+    activeOwner('user-a');
+    recordLocalPreferenceChange('quranFontSize', 24);
+    await flush();
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('Network request failed'); }));
+
+    await expect(pushPreferences('token', 'user-a', vi.fn())).rejects.toThrow();
+    expect(await hasUnsyncedPreferences('user-a')).toBe(true);
   });
 });
 
-const OLDER = '2026-01-01T00:00:00.000Z';
-const NEWER = '2026-06-01T00:00:00.000Z';
-const LOCAL_AR = { locale: 'ar' as const, translationDisplayMode: 'on-demand' as const, translationId: 'pickthall' };
-
-/** A fake backend preferences endpoint with the same last-write-wins rule as MongooseSyncRepository.putPreferences. */
-function fakePreferencesServer(initial: Record<string, unknown> | null) {
-  const server = { stored: initial, puts: [] as Record<string, unknown>[] };
-  const fetchMock = vi.fn(async (_url: string, init?: RequestInit) => {
-    if (init?.method === 'PUT') {
-      const body = JSON.parse(String(init.body)) as Record<string, unknown>;
-      server.puts.push(body);
-      if (!server.stored || Date.parse(String(body.updatedAt)) > Date.parse(String(server.stored.updatedAt))) server.stored = body;
-    }
-    return new Response(JSON.stringify({ success: true, data: server.stored }), { status: 200 });
-  });
-  vi.stubGlobal('fetch', fetchMock);
-  return server;
-}
-
-describe('reconcilePreferencesOnSignIn: last-write-wins by timestamp', () => {
-  it('a newer local preference wins over an older cloud preference and is uploaded with its own change time', async () => {
-    recordLocalPreferencesUpdatedAt(Date.parse(NEWER));
-    const server = fakePreferencesServer({ locale: 'en', translationDisplayMode: 'always', updatedAt: OLDER });
-    const applyLocally = vi.fn();
-
-    await reconcilePreferencesOnSignIn('token', LOCAL_AR, applyLocally);
-
-    expect(applyLocally).not.toHaveBeenCalled();
-    expect(server.puts).toHaveLength(1);
-    expect(server.puts[0]).toMatchObject({ locale: 'ar', translationDisplayMode: 'on-demand', updatedAt: NEWER });
-    expect(server.stored).toMatchObject({ locale: 'ar', updatedAt: NEWER });
-    expect(await hasUnsyncedLocalPreferences()).toBe(false);
-  });
-
-  it('a newer cloud preference (another device) still wins over an older local one', async () => {
-    recordLocalPreferencesUpdatedAt(Date.parse(OLDER));
-    const server = fakePreferencesServer({ locale: 'ar-EG', translationDisplayMode: 'off', updatedAt: NEWER });
-    const applyLocally = vi.fn();
-
-    await reconcilePreferencesOnSignIn('token', LOCAL_AR, applyLocally);
-
-    expect(applyLocally).toHaveBeenCalledWith({ locale: 'ar-EG', translationDisplayMode: 'off', translationId: undefined });
-    expect(server.puts).toHaveLength(0);
-    expect(await getLocalPreferencesUpdatedAt()).toBe(Date.parse(NEWER));
-  });
-
-  it('equal timestamps mean the device and account already agree: no upload, no local overwrite', async () => {
-    recordLocalPreferencesUpdatedAt(Date.parse(NEWER));
-    const server = fakePreferencesServer({ locale: 'ar', translationDisplayMode: 'on-demand', updatedAt: NEWER });
-    const applyLocally = vi.fn();
-
-    await reconcilePreferencesOnSignIn('token', LOCAL_AR, applyLocally);
-
-    expect(applyLocally).not.toHaveBeenCalled();
-    expect(server.puts).toHaveLength(0);
-  });
-
-  it('a change made while the cloud request is in flight is the value uploaded (read at decision time, not a stale snapshot)', async () => {
-    let current = { locale: 'en' as 'en' | 'ar', translationDisplayMode: 'always' as const, translationId: 'pickthall' };
-    let releaseGet!: () => void;
-    const gate = new Promise<void>((resolve) => { releaseGet = resolve; });
-    const puts: Record<string, unknown>[] = [];
-    vi.stubGlobal('fetch', vi.fn(async (_url: string, init?: RequestInit) => {
-      if (init?.method === 'PUT') {
-        const body = JSON.parse(String(init.body)) as Record<string, unknown>;
-        puts.push(body);
-        return new Response(JSON.stringify({ success: true, data: body }), { status: 200 });
-      }
-      await gate;
-      return new Response(JSON.stringify({ success: true, data: { locale: 'en', updatedAt: OLDER } }), { status: 200 });
-    }));
-    const applyLocally = vi.fn();
-
-    const reconciling = reconcilePreferencesOnSignIn('token', () => current, applyLocally);
-    current = { ...current, locale: 'ar' };
-    recordLocalPreferencesUpdatedAt(Date.parse(NEWER));
-    releaseGet();
-    await reconciling;
-
-    expect(applyLocally).not.toHaveBeenCalled();
-    expect(puts).toEqual([expect.objectContaining({ locale: 'ar', updatedAt: NEWER })]);
-  });
-
-  it('a device that never recorded a change adopts the existing account preference, as before', async () => {
-    const server = fakePreferencesServer({ locale: 'ar', translationDisplayMode: 'off', updatedAt: OLDER });
-    const applyLocally = vi.fn();
-
-    await reconcilePreferencesOnSignIn('token', { ...LOCAL_AR, locale: 'en' }, applyLocally);
-
-    expect(applyLocally).toHaveBeenCalledWith({ locale: 'ar', translationDisplayMode: 'off', translationId: undefined });
-    expect(server.puts).toHaveLength(0);
-  });
-});
-
-describe('pushPreferences: change timestamps', () => {
-  it('uploads with the recorded change time, never a later "now" that could beat a genuinely newer value elsewhere', async () => {
-    recordLocalPreferencesUpdatedAt(Date.parse(OLDER));
-    const server = fakePreferencesServer({ locale: 'ar-EG', translationDisplayMode: 'off', updatedAt: NEWER });
-
-    await pushPreferences('token', LOCAL_AR);
-
-    expect(server.puts[0]).toMatchObject({ locale: 'ar', updatedAt: OLDER });
-    expect(server.stored).toMatchObject({ locale: 'ar-EG', updatedAt: NEWER });
-    // Not confirmed by the account, so it is not marked synced.
-    expect(await hasUnsyncedLocalPreferences()).toBe(true);
-  });
-
-  it('the recorded change time survives an app restart', async () => {
-    recordLocalPreferencesUpdatedAt(Date.parse(NEWER));
-    await vi.waitFor(() => expect(asyncStorage.get('quran-heals:preferences-updated-at:v1')).toBe(String(Date.parse(NEWER))));
-
-    resetPreferencesSyncStateForTests();
-
-    expect(await getLocalPreferencesUpdatedAt()).toBe(Date.parse(NEWER));
-  });
-
-  it('the recorded change time never moves backwards', async () => {
-    recordLocalPreferencesUpdatedAt(Date.parse(NEWER));
-    recordLocalPreferencesUpdatedAt(Date.parse(OLDER));
-    expect(await getLocalPreferencesUpdatedAt()).toBe(Date.parse(NEWER));
+describe('parseCloudPreferences', () => {
+  it('reads a record from before per-field instants as changed at its updatedAt', () => {
+    expect(parseCloudPreferences({ locale: 'ar', translationDisplayMode: 'off', updatedAt: T3 })).toEqual({
+      locale: { value: 'ar', at: Date.parse(T3) },
+      translationDisplayMode: { value: 'off', at: Date.parse(T3) },
+    });
   });
 });
 
@@ -219,5 +249,17 @@ describe('recent-ayah history is never part of preferences sync', () => {
     const { resolve } = await import('node:path');
     const source = readFileSync(resolve(__dirname, '../src/sync/preferencesSync.ts'), 'utf-8');
     expect(source).not.toMatch(/recentAyahHistory|recentAyahs/);
+  });
+});
+
+describe('device-only settings are never synced', () => {
+  it('notifications, Keep Screen Awake, offline download, the Mushaf guide and the last browsed page are not account fields', async () => {
+    const { SYNCED_PREFERENCE_FIELDS } = await import('@/sync/preferenceFields');
+    expect([...SYNCED_PREFERENCE_FIELDS].sort()).toEqual(['appearance', 'emotionsLanguage', 'locale', 'quranFontSize', 'quranLanguage', 'translationDisplayMode', 'translationId']);
+    const { readFileSync } = await import('node:fs');
+    const { resolve } = await import('node:path');
+    for (const file of ['../src/sync/preferencesSync.ts', '../src/sync/preferenceFields.ts', '../src/sync/preferencesSyncState.ts']) {
+      expect(readFileSync(resolve(__dirname, file), 'utf-8')).not.toMatch(/notification-preferences|mushaf-keep-awake|mushaf-offline-auto|mushaf-guide|mushaf-last-page/);
+    }
   });
 });

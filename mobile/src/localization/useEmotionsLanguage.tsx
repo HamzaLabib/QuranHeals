@@ -11,6 +11,7 @@ import {
 } from './emotionsLanguage';
 import { getDirectionStyle, isRtlLocale, type AppLocale, type TextDirection } from './locales';
 import { useAppLocale } from './useAppLocale';
+import { recordLocalPreferenceChange } from '@/sync/preferencesSyncState';
 
 export type EmotionsLanguageContextValue = {
   /** The stored choice ('follow' by default). */
@@ -46,7 +47,10 @@ export function EmotionsLanguageProvider({ children }: { children: ReactNode }) 
     };
   }, []);
 
+  // The picker: the user's own choice, recorded for the signed-in account. An account's value is applied
+  // with saveEmotionsLanguage directly (useAuth.tsx), and a migration's never counts as a choice.
   const setPreference = useCallback((value: EmotionsLanguage) => {
+    recordLocalPreferenceChange('emotionsLanguage', value);
     void saveEmotionsLanguage(value);
   }, []);
 

@@ -54,6 +54,7 @@ import { QPC_V1_FONTS } from '@/mushaf/qpcV1Fonts';
 import { checkAgainstTanzil, loadQpcV1PageLayout, type QpcV1PageLayout } from '@/mushaf/qpcV1Layout';
 import { confirmKhatma, loadReadingData, saveWirdPage, type ReadingCycle } from '@/mushaf/khatmas';
 import { parsePageNumber } from '@/mushaf/pageNumber';
+import { loadLastBrowsedPage, openingPage, saveLastBrowsedPage } from '@/mushaf/lastBrowsedPage';
 import {
   activeReadingStop,
   loadActiveReadingStopId,
@@ -449,13 +450,15 @@ export default function MushafScreen() {
   useEffect(() => {
     let cancelled = false;
     const reload = async (opening: boolean) => {
-      const [list, id] = await Promise.all([loadReadingStops(), loadActiveReadingStopId()]);
+      const [list, id, lastBrowsed] = await Promise.all([loadReadingStops(), loadActiveReadingStopId(), opening ? loadLastBrowsedPage() : null]);
       if (cancelled) return;
       setStops(list);
       setActiveStopId(id);
-      // The saved position: the active ورد's page, else the most recently saved ورد's (as Home's متابعة التلاوة); none: page 1.
+      // The saved position: the active ورد's page, else the most recently saved ورد's (as Home's متابعة التلاوة) —
+      // unless this device browsed elsewhere after that save (mushaf/lastBrowsedPage.ts); none: page 1.
       const saved = activeReadingStop(list, id) ?? list[0] ?? null;
-      if (opening && saved && requestedPage === null && !hasNavigated.current) setPage(saved.page);
+      const start = opening ? openingPage(lastBrowsed, saved) : null;
+      if (start !== null && requestedPage === null && !hasNavigated.current) setPage(start);
     };
     void reload(true);
     const unsubscribeData = subscribeToReadingData(() => void reload(false));
@@ -517,6 +520,12 @@ export default function MushafScreen() {
   useEffect(() => {
     pageRef.current = page;
   }, [page]);
+  // A page the reader was moved to (a swipe, the selector, the index, a link) is remembered on this device only, so
+  // browsing survives a restart. Never a save: no ورد, Khatma cycle or medallion changes (mushaf/lastBrowsedPage.ts).
+  // The page the reader opens on by itself (a ورد's saved page) is not a browse.
+  useEffect(() => {
+    if (hasNavigated.current || requestedPage !== null) void saveLastBrowsedPage(page);
+  }, [page, requestedPage]);
 
   /** Shows a page — and only that: nothing is saved (the lists, the selector, stops and links all use it). */
   const goTo = useCallback((next: number) => {

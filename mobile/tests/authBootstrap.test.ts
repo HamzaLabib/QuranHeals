@@ -202,9 +202,11 @@ describe('Actual AuthProvider cold-start initialization', () => {
       await expect(initialize.mock.results[0].value).resolves.toMatchObject({ status: 'signed-in' });
       expect(native.sync).toHaveBeenCalledTimes(1);
       if (change === 'locale') {
-        // `local` is read at decision time via a getter (preferencesSync.ts).
-        const [, options] = native.sync.mock.calls[0] as unknown as [string, { local: () => { locale: string } }];
-        expect(options.local()).toEqual(expect.objectContaining({ locale: 'ar' }));
+        // Settings sync never reads the device's current values to upload (only changes recorded for this account,
+        // sync/preferencesSyncState.ts); it is given only a way to apply the account's values here.
+        const [, options] = native.sync.mock.calls[0] as unknown as [string, Record<string, unknown>];
+        expect(typeof options.applyPreference).toBe('function');
+        expect(options).not.toHaveProperty('local');
       }
     },
   );
