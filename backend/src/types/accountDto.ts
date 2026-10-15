@@ -33,7 +33,14 @@ export type PreferencesDto = {
   locale?: string;
   translationDisplayMode?: TranslationDisplayMode;
   translationId?: string;
+  quranLanguage?: string;
+  emotionsLanguage?: string;
+  appearance?: string;
+  quranFontSize?: number;
+  /** The newest of the fields' instants (what older apps compare). */
   updatedAt: string;
+  /** When each stored field was last changed (services/preferencesMerge.ts). Older apps ignore it. */
+  fieldUpdatedAt?: Partial<Record<'locale' | 'translationDisplayMode' | 'translationId' | 'quranLanguage' | 'emotionsLanguage' | 'appearance' | 'quranFontSize', string>>;
 };
 
 export type ReflectionActiveRecordDto = {

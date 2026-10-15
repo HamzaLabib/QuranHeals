@@ -61,8 +61,8 @@ export function createSyncController(repository: SyncRepository, reauthenticatio
       const parsed = putPreferencesSchema.safeParse(req.body);
       if (!parsed.success) throw new AppError('Invalid preferences payload.', 400);
 
-      const { updatedAt, ...preferences } = parsed.data;
-      res.json({ success: true, data: await repository.putPreferences(userId(req), preferences, updatedAt) });
+      const { updatedAt, fieldUpdatedAt, ...preferences } = parsed.data;
+      res.json({ success: true, data: await repository.putPreferences(userId(req), preferences, updatedAt, fieldUpdatedAt) });
     },
 
     getReflections: async (req: Request, res: Response) => {

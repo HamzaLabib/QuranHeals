@@ -19,7 +19,7 @@ vi.mock('@/localization/deviceLocale', () => ({ getDeviceLanguageTags: () => sta
 const { resolveInitialAppLanguage, APP_LANGUAGES } = await import('@/localization/locales');
 const { AppLocaleProvider, useAppLocale, APP_LOCALE_STORAGE_KEY } = await import('@/localization/useAppLocale');
 const { EMOTIONS_LANGUAGE_STORAGE_KEY } = await import('@/localization/emotionsLanguage');
-const { getLocalPreferencesUpdatedAt, resetPreferencesSyncStateForTests } = await import('@/sync/preferencesSyncState');
+const { getLastLocalPreferenceChangeForTests, resetPreferencesSyncStateForTests } = await import('@/sync/preferencesSyncState');
 
 describe('resolveInitialAppLanguage', () => {
   it.each([
@@ -71,7 +71,7 @@ describe('AppLocaleProvider', () => {
     expect(state.storage.has(APP_LOCALE_STORAGE_KEY)).toBe(false);
     expect(state.storage.has(EMOTIONS_LANGUAGE_STORAGE_KEY)).toBe(false);
     // Not stamped as a user's change, so a signed-in account's own App Language still wins on sync.
-    expect(await getLocalPreferencesUpdatedAt()).toBeNull();
+    expect(getLastLocalPreferenceChangeForTests()).toBeNull();
   });
 
   it('fresh install on an English or French device: English', async () => {

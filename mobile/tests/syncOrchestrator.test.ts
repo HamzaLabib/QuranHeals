@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 const callOrder: string[] = [];
 
 vi.mock('@/sync/preferencesSync', () => ({
-  reconcilePreferencesOnSignIn: vi.fn(async () => {
+  syncPreferences: vi.fn(async () => {
     callOrder.push('preferences');
   }),
 }));
@@ -50,8 +50,7 @@ afterEach(() => {
 function baseOptions(promptForPassphrase: () => Promise<string>) {
   return {
     ownerUserId: 'user-1',
-    local: { locale: 'en' as const, translationDisplayMode: 'always' as const, translationId: 'pickthall' },
-    applyPreferencesLocally: () => {},
+    applyPreference: () => {},
     promptForPassphrase,
   };
 }

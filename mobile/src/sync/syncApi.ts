@@ -127,17 +127,29 @@ export function putCloudFavoriteSyncRecords(sessionToken: string, favorites: Fav
   });
 }
 
+/**
+ * The account's preferences (sync/preferenceFields.ts lists the fields).
+ * Values are untrusted until parsed there. `fieldUpdatedAt` is absent from
+ * a server older than per-field sync: each present field then counts as
+ * changed at `updatedAt`.
+ */
 export type PreferencesRecord = {
   locale?: string;
   translationDisplayMode?: 'always' | 'on-demand' | 'off';
   translationId?: string;
+  quranLanguage?: string;
+  emotionsLanguage?: string;
+  appearance?: string;
+  quranFontSize?: number;
   updatedAt: string;
+  fieldUpdatedAt?: Partial<Record<string, string>>;
 };
 
 export function getCloudPreferences(sessionToken: string) {
   return authedRequest<PreferencesRecord | null>(sessionToken, '/api/sync/preferences');
 }
 
+/** Only the fields being changed, each with its instant in `fieldUpdatedAt`; `updatedAt` is the newest of them (what an older server compares). */
 export function putCloudPreferences(sessionToken: string, preferences: Omit<PreferencesRecord, 'updatedAt'> & { updatedAt: string }) {
   return authedRequest<PreferencesRecord>(sessionToken, '/api/sync/preferences', {
     method: 'PUT',

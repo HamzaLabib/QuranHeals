@@ -32,7 +32,7 @@ import type {
   SyncRepository,
 } from '../../src/services/SyncRepository';
 import type { UserRepository, VerifiedProviderIdentity } from '../../src/services/UserRepository';
-import type { TranslationDisplayMode } from '../../src/types/accountDomain';
+import { mergePreferences, toPreferencesDto, type PreferenceField, type PreferenceValues, type StoredPreferences } from '../../src/services/preferencesMerge';
 import type {
   FavoriteDto,
   FavoriteSyncRecordDto,
@@ -341,7 +341,7 @@ export class InMemorySyncRepository implements SyncRepository {
   }
 
   private readonly favoritesByUser = new Map<string, Map<string, StoredFavorite>>();
-  private readonly preferencesByUser = new Map<string, PreferencesDto>();
+  private readonly preferencesByUser = new Map<string, StoredPreferences>();
   private readonly reflectionsByUser = new Map<string, Map<string, StoredReflection>>();
   private readonly syncKeyByUser = new Map<string, SyncKeyDto>();
 
@@ -420,21 +420,23 @@ export class InMemorySyncRepository implements SyncRepository {
   }
 
   async getPreferences(userId: string): Promise<PreferencesDto | null> {
-    return this.preferencesByUser.get(userId) ?? null;
+    const stored = this.preferencesByUser.get(userId);
+    return stored ? toPreferencesDto(stored) : null;
   }
 
   async putPreferences(
     userId: string,
-    input: { locale?: string; translationDisplayMode?: TranslationDisplayMode; translationId?: string },
+    input: PreferenceValues,
     clientUpdatedAt: string,
+    fieldUpdatedAt: Partial<Record<PreferenceField, string>> = {},
   ): Promise<PreferencesDto> {
-    const existing = this.preferencesByUser.get(userId);
-    if (existing && new Date(existing.updatedAt).getTime() >= new Date(clientUpdatedAt).getTime()) {
-      return existing;
-    }
-    const next: PreferencesDto = { ...existing, ...input, updatedAt: clientUpdatedAt };
-    this.preferencesByUser.set(userId, next);
-    return next;
+    // The same rules as production (services/preferencesMerge.ts).
+    const existing = this.preferencesByUser.get(userId) ?? null;
+    const instants = Object.fromEntries(Object.entries(fieldUpdatedAt).map(([field, at]) => [field, new Date(at)]));
+    const merged = mergePreferences(existing, input, new Date(clientUpdatedAt), instants);
+    if (!merged) return existing ? toPreferencesDto(existing) : { updatedAt: new Date(clientUpdatedAt).toISOString(), fieldUpdatedAt: {} };
+    this.preferencesByUser.set(userId, merged);
+    return toPreferencesDto(merged);
   }
 
   async listReflections(userId: string): Promise<ReflectionSyncRecordDto[]> {

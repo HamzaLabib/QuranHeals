@@ -21,7 +21,7 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
 }));
 
 const { QuranTranslationPreferenceProvider, useQuranTranslationPreference } = await import('@/localization/useQuranTranslationPreference');
-const { getLocalPreferencesUpdatedAt, resetPreferencesSyncStateForTests } = await import('@/sync/preferencesSyncState');
+const { getLastLocalPreferenceChangeForTests, resetPreferencesSyncStateForTests } = await import('@/sync/preferencesSyncState');
 const KEY = 'quran-heals:quran-translation-preference:v1';
 
 let root: ReactTestRenderer | undefined;
@@ -51,7 +51,7 @@ describe('Show Translation and account sync', () => {
     await mount();
     await act(async () => api.setDisplayMode('always', { fromSync: true }));
     expect(api.preference).toMatchObject({ displayMode: 'always', enabledMode: 'always' });
-    expect(await getLocalPreferencesUpdatedAt()).toBeNull();
+    expect(getLastLocalPreferenceChangeForTests()).toBeNull();
     // OFF from the account keeps the dropdown's last choice.
     await act(async () => api.setDisplayMode('off', { fromSync: true }));
     expect(api.preference).toMatchObject({ displayMode: 'off', enabledMode: 'always' });
@@ -61,21 +61,26 @@ describe('Show Translation and account sync', () => {
   it('the user`s own switch and dropdown changes are stamped, so they are uploaded as newer than the account', async () => {
     await mount();
     await act(async () => api.setShowTranslation(true));
-    const first = await getLocalPreferencesUpdatedAt();
-    expect(first).not.toBeNull();
+    expect(getLastLocalPreferenceChangeForTests()).toMatchObject({ field: 'translationDisplayMode', value: 'on-demand' });
     expect(api.preference.displayMode).toBe('on-demand');
     await act(async () => api.setTranslationMode('always'));
     expect(api.preference.displayMode).toBe('always');
-    // While OFF, the dropdown changes only the kept choice; the synced value stays off.
+    expect(getLastLocalPreferenceChangeForTests()).toMatchObject({ field: 'translationDisplayMode', value: 'always' });
+    // While OFF, the dropdown changes only the kept choice; the synced value stays off and nothing new is recorded.
     await act(async () => api.setShowTranslation(false));
+    expect(getLastLocalPreferenceChangeForTests()).toMatchObject({ field: 'translationDisplayMode', value: 'off' });
+    resetPreferencesSyncStateForTests();
     await act(async () => api.setTranslationMode('on-demand'));
     expect(api.preference).toMatchObject({ displayMode: 'off', enabledMode: 'on-demand' });
+    expect(getLastLocalPreferenceChangeForTests()).toBeNull();
   });
 
   it('what is uploaded is the synced display mode only (never the device-only dropdown choice)', () => {
     const auth = readFileSync(resolve(__dirname, '../src/auth/useAuth.tsx'), 'utf-8');
-    expect(auth).toMatch(/translationDisplayMode: preference\.displayMode/);
     expect(auth).not.toMatch(/enabledMode/);
+    const fields = readFileSync(resolve(__dirname, '../src/sync/preferenceFields.ts'), 'utf-8');
+    expect(fields).toMatch(/'translationDisplayMode'/);
+    expect(fields).not.toMatch(/'enabledMode'/);
     const sync = readFileSync(resolve(__dirname, '../src/sync/preferencesSync.ts'), 'utf-8');
     expect(sync).not.toMatch(/enabledMode/);
   });

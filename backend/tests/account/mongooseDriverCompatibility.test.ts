@@ -262,6 +262,53 @@ describe('Mongoose 9.11 / MongoDB Node driver 7.7 integration', () => {
     expect(await sessions.isSessionActive(ownerSession.sessionId, owner.id)).toBe(false);
   }, 30_000);
 
+  it('merges preferences per field over a record stored before per-field instants, and favorites revive through the tombstone-aware upload', async () => {
+    const user = await createSyntheticUser('google', `prefs-${runId}`);
+    const sync = new MongooseSyncRepository();
+    // Stored by the previous server: three fields and one `updatedAt`, no `fieldUpdatedAt`.
+    await UserPreferenceModel.collection.insertOne({ userId: user.id, locale: 'ar', translationDisplayMode: 'on-demand', updatedAt: new Date('2026-03-01T00:00:00.000Z') });
+
+    expect(await sync.getPreferences(user.id)).toEqual({
+      locale: 'ar',
+      translationDisplayMode: 'on-demand',
+      updatedAt: '2026-03-01T00:00:00.000Z',
+      fieldUpdatedAt: { locale: '2026-03-01T00:00:00.000Z', translationDisplayMode: '2026-03-01T00:00:00.000Z' },
+    });
+
+    // A new setting and an older locale in one request: the setting is stored, the stale locale is not.
+    const saved = await sync.putPreferences(
+      user.id,
+      { appearance: 'dark', quranFontSize: 30, locale: 'en' },
+      '2026-04-01T00:00:00.000Z',
+      { appearance: '2026-04-01T00:00:00.000Z', quranFontSize: '2026-04-01T00:00:00.000Z', locale: '2026-02-01T00:00:00.000Z' },
+    );
+    expect(saved).toMatchObject({ locale: 'ar', translationDisplayMode: 'on-demand', appearance: 'dark', quranFontSize: 30, updatedAt: '2026-04-01T00:00:00.000Z' });
+    // The untouched legacy fields keep their original instant explicitly.
+    expect(saved.fieldUpdatedAt).toEqual({
+      locale: '2026-03-01T00:00:00.000Z',
+      translationDisplayMode: '2026-03-01T00:00:00.000Z',
+      appearance: '2026-04-01T00:00:00.000Z',
+      quranFontSize: '2026-04-01T00:00:00.000Z',
+    });
+
+    // An older app (one `updatedAt` for its fields) still wins for a field it changed later than the account.
+    const olderApp = await sync.putPreferences(user.id, { locale: 'en', translationDisplayMode: 'on-demand' }, '2026-03-15T00:00:00.000Z');
+    expect(olderApp).toMatchObject({ locale: 'en', appearance: 'dark', quranFontSize: 30, updatedAt: '2026-04-01T00:00:00.000Z' });
+    expect(olderApp.fieldUpdatedAt).toMatchObject({ locale: '2026-03-15T00:00:00.000Z', appearance: '2026-04-01T00:00:00.000Z' });
+    const raw = await UserPreferenceModel.findOne({ userId: user.id }).lean<{ fieldUpdatedAt: Record<string, Date> }>();
+    expect(raw!.fieldUpdatedAt.translationDisplayMode.toISOString()).toBe('2026-03-15T00:00:00.000Z');
+
+    // Favorites: a deletion, then a later re-add sent as a timestamped record, revives the favorite.
+    await sync.putFavorites(user.id, [{ type: 'active', verseKey: '3:3', createdAt: '2026-05-01T00:00:00.000Z', updatedAt: '2026-05-01T00:00:00.000Z' }]);
+    await sync.putFavorites(user.id, [{ type: 'tombstone', verseKey: '3:3', deletedAt: '2026-05-02T00:00:00.000Z' }]);
+    expect(await sync.listFavorites(user.id)).toEqual([]);
+    await sync.putFavorites(user.id, [{ type: 'active', verseKey: '3:3', createdAt: '2026-05-03T00:00:00.000Z', updatedAt: '2026-05-03T00:00:00.000Z' }]);
+    expect(await sync.listFavoriteSyncRecords(user.id)).toMatchObject([{ type: 'active', verseKey: '3:3', updatedAt: '2026-05-03T00:00:00.000Z' }]);
+    // A stale removal from another device does not delete it again.
+    await sync.putFavorites(user.id, [{ type: 'tombstone', verseKey: '3:3', deletedAt: '2026-05-02T12:00:00.000Z' }]);
+    expect(await sync.listFavorites(user.id)).toMatchObject([{ verseKey: '3:3' }]);
+  }, 30_000);
+
   it('validates mappings with the driver and sees a newly created emotion within its transaction', async () => {
     const emotionKey = `integration-${runId.replace(/[0-9]/g, 'x').slice(0, 24)}`;
     syntheticEmotionKeys.add(emotionKey);

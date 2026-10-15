@@ -1,4 +1,3 @@
-import type { TranslationDisplayMode } from '../types/accountDomain';
 import type {
   FavoriteDto,
   FavoriteSyncRecordDto,
@@ -7,6 +6,7 @@ import type {
   ReflectionSyncRecordDto,
   SyncKeyDto,
 } from '../types/accountDto';
+import type { PreferenceField, PreferenceValues } from './preferencesMerge';
 import type { ReadingChange, ReadingPullResult, ReadingPushResult } from './readingSync';
 
 export type IncomingActiveReflectionRecord = {
@@ -84,14 +84,16 @@ export interface SyncRepository {
 
   getPreferences(userId: string): Promise<PreferencesDto | null>;
   /**
-   * Last-write-wins by `clientUpdatedAt` vs. the stored `updatedAt` (Part F
-   * §31): if the incoming preference is not newer than what's stored, the
-   * stored value is returned unchanged rather than overwritten.
+   * Last-write-wins per field (services/preferencesMerge.ts): each incoming
+   * field replaces the stored one only when its instant (`fieldUpdatedAt`,
+   * else `clientUpdatedAt`) is strictly newer than that field's. Returns
+   * the stored record as it is afterwards.
    */
   putPreferences(
     userId: string,
-    input: { locale?: string; translationDisplayMode?: TranslationDisplayMode; translationId?: string },
+    input: PreferenceValues,
     clientUpdatedAt: string,
+    fieldUpdatedAt?: Partial<Record<PreferenceField, string>>,
   ): Promise<PreferencesDto>;
 
   /** Returns both active records and deletion tombstones — a caller needs the tombstones too, to learn about deletions made on other devices. */

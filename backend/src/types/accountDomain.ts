@@ -81,7 +81,13 @@ export type UserPreferenceEntity = {
   locale?: string;
   translationDisplayMode?: TranslationDisplayMode;
   translationId?: string;
+  quranLanguage?: string;
+  emotionsLanguage?: string;
+  appearance?: string;
+  quranFontSize?: number;
   updatedAt?: Date;
+  /** Per-field change instants (services/preferencesMerge.ts); absent on records stored before they existed. */
+  fieldUpdatedAt?: Partial<Record<'locale' | 'translationDisplayMode' | 'translationId' | 'quranLanguage' | 'emotionsLanguage' | 'appearance' | 'quranFontSize', Date>>;
 };
 
 /**

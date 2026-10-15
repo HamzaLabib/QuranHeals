@@ -1,13 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
- * The Quran Arabic text size on the ayah screen. Deliberately a SEPARATE,
- * purely local/on-device concern from quranTranslationPreference.ts and
- * useAppLocale.tsx — this preference is never uploaded to MongoDB or
- * reconciled through preferencesSync.ts/syncOrchestrator.ts, unlike
- * locale/translationDisplayMode/translationId. It is a display setting, not
- * account data, so a signed-in user's other devices each keep their own
- * value.
+ * The Quran Arabic text size on the ayah screen. Stored on the device and,
+ * for a signed-in user, synced with the account like the other settings in
+ * sync/preferenceFields.ts (each setting on its own, so a size change never
+ * undoes another device's language change). A guest's stays on the device.
  *
  * Two independent things combine into the size actually rendered:
  *  - `preferredSize`: the user's explicit choice via the A−/Auto/A+

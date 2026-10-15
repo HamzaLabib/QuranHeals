@@ -1,5 +1,4 @@
-import type { ApplyPreferences, LocalPreferencesSource } from './preferencesSync';
-import { reconcilePreferencesOnSignIn } from './preferencesSync';
+import { syncPreferences, type ApplyPreference } from './preferencesSync';
 import { syncFavorites } from './favoritesSync';
 import { syncReading } from './readingSync';
 import { syncReflections } from './reflectionsSync';
@@ -8,8 +7,8 @@ import { ensureReflectionMasterKey, SyncPassphraseCancelledError, type Passphras
 export type FullSyncOptions = {
   /** The account `sessionToken` belongs to. Favorites/reflections sync only that account's local data and cached key. */
   ownerUserId: string;
-  local: LocalPreferencesSource;
-  applyPreferencesLocally: ApplyPreferences;
+  /** Applies one of the account's settings on this device (sync/preferencesSync.ts). */
+  applyPreference: ApplyPreference;
   promptForPassphrase: PassphrasePrompt;
   /**
    * False once the session this sync runs for has ended (sign-out, or
@@ -36,8 +35,10 @@ export type FullSyncResult = {
  * Runs after every sign-in (guest → account migration, Part G) and may be
  * re-run on reconnect (Part H §33). Order matters:
  *
- * 1. Preferences (locale, translation display) carry nothing sensitive and
- *    need no Sync Password, so they sync immediately.
+ * 1. Settings (sync/preferenceFields.ts) carry nothing sensitive and need
+ *    no Sync Password, so they sync immediately — this account's own
+ *    values only: nothing chosen as a guest or under another account is
+ *    uploaded (sync/preferencesSyncState.ts).
  * 2. أورادي وختماتي (sync/readingSync.ts): account-based, like favorites'
  *    storage, and never behind the Sync Password — so they sync before its
  *    prompt, whether reflections are unlocked, locked, or never set up. A
@@ -68,7 +69,7 @@ export async function runFullSync(sessionToken: string, options: FullSyncOptions
 
   try {
     stopIfStale();
-    await reconcilePreferencesOnSignIn(sessionToken, options.local, options.applyPreferencesLocally);
+    await syncPreferences(sessionToken, options.ownerUserId, options.applyPreference, { isCurrent });
     result.preferencesSynced = true;
 
     stopIfStale();

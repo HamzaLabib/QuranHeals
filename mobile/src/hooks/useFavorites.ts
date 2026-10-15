@@ -6,7 +6,7 @@ import { getAyah } from '@/services/api';
 import { resolveVerseKey } from '@/services/quranReference';
 import { addFavorite, completePendingFavoriteTranslations, favoriteMatchesAyah, getFavoriteState, removeFavorite as removeStoredFavorite, type FavoriteReadResult } from '@/storage/favorites';
 import { getLocalDataGeneration, getLocalDataOwnerState, subscribeToLocalDataOwner } from '@/storage/localDataOwner';
-import { addCloudFavorites, removeCloudFavorite } from '@/sync/syncApi';
+import { pushFavoriteChange } from '@/sync/favoritesSync';
 import type { Ayah, FavoriteAyah } from '@/types/domain';
 
 /**
@@ -18,16 +18,13 @@ import type { Ayah, FavoriteAyah } from '@/types/domain';
  * made just before a sign-out/account switch, is never sent with another
  * session's token (the next full sync of its own account carries it).
  */
-async function propagateToCloud(action: 'add' | 'remove', verseKey: string, owner: string | null, generation: number) {
+async function propagateToCloud(verseKey: string, owner: string | null, generation: number) {
   if (owner === null || generation !== getLocalDataGeneration()) return;
   const token = await getCurrentSessionToken().catch(() => null);
   if (!token || generation !== getLocalDataGeneration()) return;
   try {
-    if (action === 'add') {
-      await addCloudFavorites(token, [verseKey]);
-    } else {
-      await removeCloudFavorite(token, verseKey);
-    }
+    // The favorite's current state here (added, removed or re-added), with this device's change time (sync/favoritesSync.ts).
+    await pushFavoriteChange(token, owner, verseKey);
   } catch {
     // Swallowed deliberately — see doc comment above.
   }
@@ -114,7 +111,7 @@ export function useFavorites() {
       const result = await removeStoredFavorite(id, active.owner);
       if (generation !== getLocalDataGeneration()) return;
       applyResult(result);
-      if (removed) void propagateToCloud('remove', resolveVerseKey(removed), active.owner, generation);
+      if (removed) void propagateToCloud(resolveVerseKey(removed), active.owner, generation);
     } catch {
       if (generation === getLocalDataGeneration()) setError('The saved ayah could not be removed. Please try again.');
     }
@@ -130,7 +127,7 @@ export function useFavorites() {
         const result = saved ? await removeStoredFavorite(saved.id, active.owner) : await addFavorite(ayah, active.owner);
         if (generation !== getLocalDataGeneration()) return;
         applyResult(result);
-        void propagateToCloud(saved ? 'remove' : 'add', resolveVerseKey(ayah), active.owner, generation);
+        void propagateToCloud(resolveVerseKey(ayah), active.owner, generation);
       } catch {
         if (generation === getLocalDataGeneration()) setError('Saved ayahs could not be updated. Please try again.');
       }

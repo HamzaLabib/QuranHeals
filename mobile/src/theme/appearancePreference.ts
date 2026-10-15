@@ -3,9 +3,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 /**
  * The user's explicit appearance choice. 'system' means "follow the device
  * color scheme"; 'light'/'dark' force that theme regardless of the device
- * appearance. Purely local/on-device, like quranFontSizePreference.ts —
- * never uploaded to MongoDB or reconciled through
- * preferencesSync.ts/syncOrchestrator.ts.
+ * appearance. Stored on the device, and synced with the signed-in
+ * account like the other settings in sync/preferenceFields.ts.
  */
 export type AppearanceMode = 'system' | 'light' | 'dark';
 

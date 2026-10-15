@@ -28,7 +28,7 @@
 |---|---|
 | Each ورد: id, name and when it was named, saved page and when it was saved (and, when saved from an ayah's number with Apply, that ayah: `ayahKey`, e.g. `"2:255"`; absent for a page-only position), its current reading cycle (id, start, generation `seq`, pending-completion state, the Khatma that started it, `undoneCycleId`), and deletion | Counts. الختمات and ختمات رمضان are always computed from the confirmed, non-deleted Khatma records on each device. |
 | Each confirmed Khatma: id, ورد id and name, cycle id, cycle start, completion time, local civil date, Ramadan classification and Hijri year, and deletion | Anything for a guest. |
-| The selected ورد and when it was chosen | Pages browsed. Only an explicit save moves a ورد. |
+| The selected ورد and when it was chosen | Pages browsed. Only an explicit save moves a ورد. The last browsed page is kept on the device only, for restarts (`mobile/src/mushaf/lastBrowsedPage.ts`). |
 
 A Khatma record is taken exactly as the confirming device wrote it. A completion is never reclassified by another device's time zone or calendar, and the server returns the stored record, never a re-sent variant.
 

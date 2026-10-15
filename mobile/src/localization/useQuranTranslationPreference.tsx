@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import {
   DEFAULT_QURAN_TRANSLATION_PREFERENCE,
@@ -9,7 +9,7 @@ import {
   type TranslationDisplayMode,
 } from './quranTranslationPreference';
 import type { PreferenceChangeOptions } from './useAppLocale';
-import { recordLocalPreferencesUpdatedAt } from '@/sync/preferencesSyncState';
+import { recordLocalPreferenceChange } from '@/sync/preferencesSyncState';
 
 export type QuranTranslationPreferenceContextValue = {
   preference: QuranTranslationPreference;
@@ -34,12 +34,15 @@ const QuranTranslationPreferenceContext = createContext<QuranTranslationPreferen
 export function QuranTranslationPreferenceProvider({ children }: { children: ReactNode }) {
   const [preference, setPreference] = useState<QuranTranslationPreference>(DEFAULT_QURAN_TRANSLATION_PREFERENCE);
   const [isReady, setIsReady] = useState(false);
+  // The value every change starts from, read synchronously (a change's synced fields are compared against it).
+  const currentRef = useRef<QuranTranslationPreference>(DEFAULT_QURAN_TRANSLATION_PREFERENCE);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       const loaded = await loadQuranTranslationPreference();
       if (!cancelled) {
+        currentRef.current = loaded;
         setPreference(loaded);
         setIsReady(true);
       }
@@ -50,13 +53,18 @@ export function QuranTranslationPreferenceProvider({ children }: { children: Rea
   }, []);
 
   const update = useCallback((change: (current: QuranTranslationPreference) => QuranTranslationPreference, options?: PreferenceChangeOptions) => {
-    // See useAppLocale.tsx's setLocale: only a user's own change is stamped here.
-    if (!options?.fromSync) recordLocalPreferencesUpdatedAt(Date.now());
-    setPreference((current) => {
-      const next = change(current);
-      void saveQuranTranslationPreference(next);
-      return next;
-    });
+    const current = currentRef.current;
+    const next = change(current);
+    currentRef.current = next;
+    // See useAppLocale.tsx's setLocale: only a user's own change is recorded,
+    // and only the synced fields it actually changed (the dropdown's kept
+    // choice, enabledMode, stays on this device).
+    if (!options?.fromSync) {
+      if (next.displayMode !== current.displayMode) recordLocalPreferenceChange('translationDisplayMode', next.displayMode);
+      if (next.translationId !== current.translationId) recordLocalPreferenceChange('translationId', next.translationId);
+    }
+    setPreference(next);
+    void saveQuranTranslationPreference(next);
   }, []);
 
   const setDisplayMode = useCallback((mode: TranslationDisplayMode, options?: PreferenceChangeOptions) => {
