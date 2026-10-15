@@ -3,7 +3,7 @@ import type { NetworkKind, NetworkSource } from './autoDownload';
 /**
  * The connection type for the automatic Mushaf download (autoDownload.ts),
  * from expo-network. Only an unmetered connection we can name starts the
- * ~115 MB download without asking:
+ * ~100 MB download without asking:
  *  - Wi-Fi or Ethernet: 'wifi' (starts by itself).
  *  - Mobile data: 'cellular' (asks first).
  *  - Not connected, or the OS says the internet is unreachable (e.g. a Wi-Fi

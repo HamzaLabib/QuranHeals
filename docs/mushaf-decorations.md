@@ -54,4 +54,4 @@ ignore these parameters and always use the constants.
 
 Chosen on 2026-10-14 from a side-by-side comparison of real renders. The comparison screenshots, the exact baseline
 copies and the experiment's notes are outside the repository in
-`My App/Mushaf Decoration Experiment 2026-10-14/`.
+`My App/Working progress/Mushaf Experiments/Mushaf Decoration Experiment 2026-10-14/` (moved there on 2026-10-15).

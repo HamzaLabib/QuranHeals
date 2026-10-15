@@ -272,12 +272,20 @@ describe('دعاء ختم القرآن', () => {
       expect(larger.findAllByType('Plus' as never)).toHaveLength(1);
       expect(root.root.findAllByType('AArrowDown' as never)).toHaveLength(0);
       expect(root.root.findAllByType('AArrowUp' as never)).toHaveLength(0);
-      for (const icon of [smaller.findByType('Minus' as never), larger.findByType('Plus' as never)]) expect(icon.props).toMatchObject({ size: 22 });
+      for (const icon of [smaller.findByType('Minus' as never), larger.findByType('Plus' as never)]) expect(icon.props).toMatchObject({ size: 16, strokeWidth: 1.75 });
       expect(smaller.findByType('Minus' as never).props.color).toBe(larger.findByType('Plus' as never).props.color);
       expect(smaller.props.accessibilityLabel).toBe(MESSAGES[locale].khatmDua.smaller);
       expect(larger.props.accessibilityLabel).toBe(MESSAGES[locale].khatmDua.larger);
-      // The same 44-pt round buttons; − first in reading order (left in English, right in Arabic).
-      for (const button of [smaller, larger]) expect(Object.assign({}, ...[button.props.style({ pressed: false })].flat(3).filter(Boolean))).toMatchObject({ width: 44, height: 44 });
+      // The same compact 36-pt round buttons, each still a 44 × 44-pt touch target (36 + 4 + 4 of hit slop), the two
+      // targets never overlapping (the row's gap is wider than the two slops); − first in reading order (left in
+      // English, right in Arabic).
+      for (const button of [smaller, larger]) {
+        const box = Object.assign({}, ...[button.props.style({ pressed: false })].flat(3).filter(Boolean));
+        expect(box).toMatchObject({ width: 36, height: 36 });
+        expect(box.width + 2 * button.props.hitSlop).toBeGreaterThanOrEqual(44);
+        expect(box.height + 2 * button.props.hitSlop).toBeGreaterThanOrEqual(44);
+        expect(styleOf(smaller.parent!).gap).toBeGreaterThanOrEqual(2 * button.props.hitSlop);
+      }
       expect(styleOf(smaller.parent!).flexDirection).toBe(locale === 'ar' ? 'row-reverse' : 'row');
       // + one step up, − one step back.
       await press('khatm-dua-larger');

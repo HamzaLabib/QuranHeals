@@ -10,9 +10,9 @@ import type { AppLocale } from './locales';
 export type Messages = {
   appName: string;
   home: {
-    /** The tagline («هداية قرآنية لكل شعور»): shown above the emotions question, in the eyebrow style. */
+    /** The tagline («شفاءٌ لما في الصدور»): shown above the emotions question, in the eyebrow style. */
     subtitle: string;
-    /** «تدبّر وتفكّر مع القرآن»: shown under the app's name, in the subtitle style. */
+    /** «عِشْ بالقرآن»: shown under the app's name, in the subtitle style. */
     eyebrow: string;
     title: string;
     loadingTitle: string;
@@ -247,11 +247,30 @@ export type Messages = {
     pageSlider: string;
     goToSelected: string;
     editPage: string;
+    /** The page selector's Go button, beside the arrow while a page is typed. */
+    goToPageShort: string;
+    /** The first-time Mushaf guide (mushaf/mushafGuide.ts): its six steps, its buttons, its counter ({n}, {total}). */
+    guideSurah: string;
+    guideHizb: string;
+    guidePage: string;
+    guideJuz: string;
+    guideAyah: string;
+    guideMarker: string;
+    guideNext: string;
+    guideBack: string;
+    guideClose: string;
+    guideStart: string;
+    guideStepOf: string;
+    /** When the step's control is not on this page (e.g. a page with no Hizb mark). */
+    guideNotOnPage: string;
+    /** The reader's Help button: the guide again. */
+    guideHelp: string;
+    /** The Done bar above the iOS number pad. */
+    keyboardDone: string;
     actionReflection: string;
     actionSave: string;
     actionSaved: string;
     applyToWird: string;
-    applyToNamedWird: string;
     searchTitle: string;
     searchByPage: string;
     searchBySurah: string;
@@ -292,6 +311,8 @@ export type Messages = {
   /** The four bottom tabs (app/(tabs)/_layout.tsx). */
   tabs: {
     home: string;
+    /** The full emotion list (/emotions). */
+    howIFeel: string;
     mushaf: string;
     myReading: string;
     reflections: string;
@@ -314,11 +335,15 @@ export type Messages = {
   emotionsAll: {
     viewAll: string;
     title: string;
+    /** Under the title («وتطمئن القلوب»). */
+    subtitle: string;
     back: string;
   };
   /** أورادي وختماتي (/my-reading). Placeholders: {page}, {total}, {percent}, {count}, {name}, {year}. */
   myReading: {
     title: string;
+    /** Under the title («اقرأ وارتقِ»). */
+    subtitle: string;
     back: string;
     statsTotal: string;
     statsRamadan: string;
@@ -441,6 +466,12 @@ export type Messages = {
     /** Keep Screen Awake (mushaf/keepAwakePreference.ts): a local switch, directly below Quran Language. */
     keepAwakeTitle: string;
     keepAwakeDescription: string;
+    offlineMushafTitle: string;
+    offlineMushafAvailable: string;
+    offlineMushafRequired: string;
+    offlineMushafDownloading: string;
+    offlineMushafFailed: string;
+    offlineMushafDownloadHint: string;
     quranTranslationSection: string;
     translationDisplayAlways: string;
     translationDisplayOnDemand: string;
@@ -456,6 +487,68 @@ export type Messages = {
     accountDeletionInfo: string;
     /** Accessibility hint: the row opens a web page outside the app. */
     opensInBrowser: string;
+    /** The five Settings sections, in order: App, Emotions, Quran, Support (then Account: account.sectionTitle). */
+    appSection: string;
+    emotionsSection: string;
+    quranSection: string;
+    supportSection: string;
+    /** Show Translation: the stored translation preference (localization/quranTranslationPreference.ts). */
+    showTranslationTitle: string;
+    showTranslationDescription: string;
+    /** Show Translation's dropdown (spoken name) and its two choices. */
+    translationModeLabel: string;
+    translationModeAlways: string;
+    translationModeOnDemand: string;
+  };
+  /**
+   * The three local reminders (notifications/): their Settings rows and the
+   * notifications themselves. ar-EG uses the same Modern Standard Arabic as
+   * ar (the App Language is never Egyptian Arabic).
+   */
+  notifications: {
+    wirdReminderTitle: string;
+    randomAyahTitle: string;
+    emotionCheckInTitle: string;
+    frequencyLabel: string;
+    frequencyDaily: string;
+    frequencyEvery3Days: string;
+    frequencyWeekly: string;
+    frequencyTwiceDaily: string;
+    twiceMorning: string;
+    twiceEvening: string;
+    twiceSameTime: string;
+    reminderTimeLabel: string;
+    chooseDay: string;
+    changeHint: string;
+    toggleHint: string;
+    timePickerConfirm: string;
+    timePickerCancel: string;
+    am: string;
+    pm: string;
+    weekday1: string;
+    weekday2: string;
+    weekday3: string;
+    weekday4: string;
+    weekday5: string;
+    weekday6: string;
+    weekday7: string;
+    permissionRequired: string;
+    permissionDeniedHint: string;
+    permissionAllow: string;
+    permissionOpenSettings: string;
+    permissionSheetTitle: string;
+    permissionSheetBody: string;
+    permissionSheetPrivacy: string;
+    permissionSheetConfirm: string;
+    permissionSheetCancel: string;
+    unsupported: string;
+    scheduleError: string;
+    /** The notifications (lock screen), in the App Language. */
+    wirdNotificationTitle: string;
+    wirdNotificationBody: string;
+    randomAyahNotificationTitle: string;
+    checkInNotificationTitle: string;
+    checkInNotificationBody: string;
   };
   appearance: {
     sectionLabel: string;
@@ -646,12 +739,17 @@ export type Messages = {
   };
 };
 
+/**
+ * The Mushaf's ورد save button: one Arabic wording for ar and ar-EG alike (no Egyptian variant), the ورد's name as saved.
+ */
+const AR_APPLY_TO_WIRD = "حفظ في {name}";
+
 export const MESSAGES: Record<AppLocale, Messages> = {
   en: {
     appName: 'Quran Heals',
     home: {
-      subtitle: 'Quranic guidance for every emotion',
-      eyebrow: 'Reflect with the Quran',
+      subtitle: 'Healing for What Lies Within the Hearts',
+      eyebrow: 'Live by the Quran',
       title: 'How are you feeling?',
       loadingTitle: 'Loading emotions',
       loadingMessage: 'Preparing the emotion list.',
@@ -710,7 +808,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     reflections: {
       title: 'My Reflections',
-      subtitle: 'Your thoughts and reflections on Quran verses',
+      subtitle: 'Reflect and Contemplate on the Quran',
       loadingTitle: 'Loading reflections',
       loadingMessage: 'Opening your saved reflections.',
       emptyTitle: 'No reflections yet',
@@ -792,7 +890,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       stopRenamed: 'Name updated.',
       stopNameTaken: 'Another reading stop already uses this name.',
       offlineTitle: "Offline Mushaf",
-      offlineIntro: "All 604 pages and their fonts (about 115 MB), to read without an internet connection.",
+      offlineIntro: "All 604 pages and their fonts (about 100 MB), to read without an internet connection.",
       offlineDownload: "Download for offline reading",
       offlineResume: "Continue download",
       offlineCancel: "Cancel",
@@ -815,8 +913,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       offlineComplete: "The complete Mushaf is ready for offline reading",
       autoPreparing: "Preparing your Mushaf for offline reading",
       autoReady: "Your Mushaf is ready for offline reading",
-      autoConsentCellular: "Download the Mushaf for offline reading (about 115 MB) using mobile data?",
-      autoConsentUnknown: "Download the Mushaf for offline reading now? It is about 115 MB.",
+      autoConsentCellular: "Download the Mushaf for offline reading (about 100 MB) using mobile data?",
+      autoConsentUnknown: "Download the Mushaf for offline reading now? It is about 100 MB.",
       autoDownloadNow: "Download now",
       autoWaitForWifi: "Wait for Wi-Fi",
       autoNotNow: "Not now",
@@ -855,11 +953,25 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       pageSlider: "Page",
       goToSelected: "Go to page {page}",
       editPage: "Type a page number",
+      goToPageShort: "Go",
+      guideSurah: "Tap the Surah name to choose a Surah.",
+      guideHizb: "Tap the Hizb number to choose a Hizb.",
+      guidePage: "Tap the page number to go to a page.",
+      guideJuz: "Tap the Juz number to choose a Juz.",
+      guideAyah: "Tap an ayah to see its options.",
+      guideMarker: "Tap an ayah's number, then Apply, to save your Wird position.",
+      guideNext: "Next",
+      guideBack: "Back",
+      guideClose: "Close",
+      guideStart: "Start Reading",
+      guideStepOf: "{n} of {total}",
+      guideNotOnPage: "Not on this page: it appears on the pages where it applies.",
+      guideHelp: "Help",
+      keyboardDone: "Done",
       actionReflection: "Reflection",
       actionSave: "Save",
       actionSaved: "Saved",
-      applyToWird: "Apply to {name} Wird",
-      applyToNamedWird: "Apply to {name}",
+      applyToWird: "Apply to {name}",
       searchTitle: 'Go to',
       searchByPage: 'Page Number',
       searchBySurah: 'Surah Name',
@@ -888,8 +1000,9 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     tabs: {
       home: 'Home',
+      howIFeel: 'How I Feel',
       mushaf: 'Mushaf',
-      myReading: 'Recitations',
+      myReading: 'Wirds',
       reflections: 'Reflections',
     },
     continueReading: {
@@ -906,11 +1019,13 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     emotionsAll: {
       viewAll: 'View All',
-      title: 'All emotions',
+      title: 'How are you feeling now?',
+      subtitle: 'And Hearts Find Peace',
       back: 'Back',
     },
     myReading: {
       title: 'My Recitations & Khatmas',
+      subtitle: 'Recite and Rise',
       back: 'Back',
       statsTotal: 'Khatmas',
       statsRamadan: 'Ramadan Khatmas',
@@ -1006,7 +1121,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     settings: {
       title: 'Settings',
-      subtitle: 'App language and Quran translation preferences.',
+      subtitle: 'Language, appearance, reminders and your account.',
       openSettings: 'Open settings',
       appLanguageSection: 'App Language',
       emotionsLanguageSection: 'Emotions Language',
@@ -1018,6 +1133,12 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       quranTextOption: 'The Quranic Text',
       keepAwakeTitle: 'Keep Screen Awake',
       keepAwakeDescription: 'Prevent automatic screen locking while reading the Mushaf.',
+      offlineMushafTitle: 'Offline Mushaf',
+      offlineMushafAvailable: 'Available Offline',
+      offlineMushafRequired: 'Download Required',
+      offlineMushafDownloading: 'Downloading…',
+      offlineMushafFailed: 'Download Failed',
+      offlineMushafDownloadHint: 'Tap to download the whole Mushaf for reading without internet.',
       quranTranslationSection: 'Quran Translation',
       translationDisplayAlways: 'Always',
       translationDisplayOnDemand: 'On demand',
@@ -1031,10 +1152,63 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       termsOfUse: 'Terms of Service',
       accountDeletionInfo: 'Account & Data Deletion',
       opensInBrowser: 'Opens in your browser',
+      appSection: 'App',
+      emotionsSection: 'Emotions',
+      quranSection: 'Quran',
+      supportSection: 'Support',
+      showTranslationTitle: 'Show Translation',
+      showTranslationDescription: 'The English translation under each ayah.',
+      translationModeLabel: 'Translation display',
+      translationModeAlways: 'Always',
+      translationModeOnDemand: 'On Demand',
+    },
+    notifications: {
+      wirdReminderTitle: 'Wird Reminder',
+      randomAyahTitle: 'Random Quran Ayah',
+      emotionCheckInTitle: 'You Deserve Peace',
+      frequencyLabel: 'Frequency',
+      frequencyDaily: 'Daily',
+      frequencyEvery3Days: 'Every 3 days',
+      frequencyWeekly: 'Weekly',
+      frequencyTwiceDaily: 'Twice Daily',
+      twiceMorning: 'Morning',
+      twiceEvening: 'Evening',
+      twiceSameTime: 'Choose two different times.',
+      reminderTimeLabel: 'Reminder time',
+      chooseDay: 'Choose day',
+      changeHint: 'Opens the options to change it.',
+      toggleHint: 'Turns this reminder on or off.',
+      timePickerConfirm: 'Set time',
+      timePickerCancel: 'Cancel',
+      am: 'AM',
+      pm: 'PM',
+      weekday1: 'Sunday',
+      weekday2: 'Monday',
+      weekday3: 'Tuesday',
+      weekday4: 'Wednesday',
+      weekday5: 'Thursday',
+      weekday6: 'Friday',
+      weekday7: 'Saturday',
+      permissionRequired: 'Permission required',
+      permissionDeniedHint: 'Notifications are turned off for Quran Heals in your device settings.',
+      permissionAllow: 'Allow notifications',
+      permissionOpenSettings: 'Open device settings',
+      permissionSheetTitle: 'Allow notifications?',
+      permissionSheetBody: 'Allow notifications to receive reminders for your Wird, a Quran ayah, and a moment of peace for your heart.',
+      permissionSheetPrivacy: 'Reminders are scheduled on your device and work offline.',
+      permissionSheetConfirm: 'Continue',
+      permissionSheetCancel: 'Not now',
+      unsupported: 'Reminders are available in the iPhone and Android app.',
+      scheduleError: "This reminder couldn't be scheduled. It will be tried again when you return to the app.",
+      wirdNotificationTitle: 'Time for your Quran reading',
+      wirdNotificationBody: 'Continue your Wird and reconnect with the Quran.',
+      randomAyahNotificationTitle: 'A Message from the Quran',
+      checkInNotificationTitle: 'You Deserve Peace ❤️',
+      checkInNotificationBody: 'How are you feeling today? Let the Quran bring comfort to your heart.',
     },
     appearance: {
       sectionLabel: 'Appearance',
-      system: 'Auto',
+      system: 'System',
       light: 'Light',
       dark: 'Dark',
     },
@@ -1198,8 +1372,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
   ar: {
     appName: 'Quran Heals',
     home: {
-      subtitle: 'هداية قرآنية لكل شعور.',
-      eyebrow: 'تدبّر وتفكّر مع القرآن',
+      subtitle: 'شفاءٌ لما في الصدور',
+      eyebrow: 'عِشْ بالقرآن',
       title: 'بماذا تشعر الآن؟',
       loadingTitle: 'جارٍ تحميل المشاعر',
       loadingMessage: 'جارٍ إعداد قائمة المشاعر.',
@@ -1258,7 +1432,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     reflections: {
       title: 'خواطري',
-      subtitle: 'خواطرك وتأملاتك مع آيات القرآن',
+      subtitle: 'تدبّر وتفكّر مع القرآن',
       loadingTitle: 'جارٍ تحميل الخواطر',
       loadingMessage: 'جارٍ فتح خواطرك المحفوظة.',
       emptyTitle: 'لا توجد خواطر بعد',
@@ -1340,7 +1514,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       stopRenamed: 'تم تحديث الاسم.',
       stopNameTaken: 'هذا الاسم مستخدم لموضع توقف آخر.',
       offlineTitle: "المصحف دون اتصال",
-      offlineIntro: "صفحات المصحف الـ٦٠٤ كلها وخطوطها (حوالي ١١٥ ميغابايت)، للقراءة دون اتصال بالإنترنت.",
+      offlineIntro: "صفحات المصحف الـ٦٠٤ كلها وخطوطها (حوالي ١٠٠ ميغابايت)، للقراءة دون اتصال بالإنترنت.",
       offlineDownload: "التنزيل للقراءة دون اتصال",
       offlineResume: "متابعة التنزيل",
       offlineCancel: "إلغاء",
@@ -1363,8 +1537,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       offlineComplete: "المصحف كاملًا جاهز للقراءة دون اتصال",
       autoPreparing: "جارٍ تجهيز المصحف للقراءة دون اتصال",
       autoReady: "المصحف جاهز للقراءة دون اتصال",
-      autoConsentCellular: "تنزيل المصحف للقراءة دون اتصال (حوالي ١١٥ ميغابايت) باستخدام بيانات الجوال؟",
-      autoConsentUnknown: "هل تريد تنزيل المصحف للقراءة دون اتصال الآن؟ حجمه حوالي ١١٥ ميغابايت.",
+      autoConsentCellular: "تنزيل المصحف للقراءة دون اتصال (حوالي ١٠٠ ميغابايت) باستخدام بيانات الجوال؟",
+      autoConsentUnknown: "هل تريد تنزيل المصحف للقراءة دون اتصال الآن؟ حجمه حوالي ١٠٠ ميغابايت.",
       autoDownloadNow: "نزّله الآن",
       autoWaitForWifi: "انتظر شبكة Wi-Fi",
       autoNotNow: "ليس الآن",
@@ -1403,11 +1577,25 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       pageSlider: "الصفحة",
       goToSelected: "الانتقال إلى الصفحة {page}",
       editPage: "اكتب رقم الصفحة",
+      goToPageShort: "اذهب",
+      guideSurah: "اضغط على اسم السورة للانتقال إلى سورة",
+      guideHizb: "اضغط على رقم الحزب للانتقال إلى حزب",
+      guidePage: "اضغط على رقم الصفحة للانتقال إلى صفحة",
+      guideJuz: "اضغط على رقم الجزء للانتقال إلى جزء",
+      guideAyah: "اضغط على الآية لعرض خياراتها",
+      guideMarker: "اضغط على رقم الآية ثم «تطبيق» لحفظ موضع الورد",
+      guideNext: "التالي",
+      guideBack: "السابق",
+      guideClose: "إغلاق",
+      guideStart: "ابدأ القراءة",
+      guideStepOf: "{n} من {total}",
+      guideNotOnPage: "غير موجود في هذه الصفحة؛ يظهر في الصفحات التي يخصها.",
+      guideHelp: "مساعدة",
+      keyboardDone: "تم",
       actionReflection: "خاطرة",
       actionSave: "حفظ",
       actionSaved: "محفوظة",
-      applyToWird: "تطبيق على ورد {name}",
-      applyToNamedWird: "تطبيق على {name}",
+      applyToWird: AR_APPLY_TO_WIRD,
       searchTitle: 'انتقل إلى',
       searchByPage: 'رقم الصفحة',
       searchBySurah: 'اسم السورة',
@@ -1436,6 +1624,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     tabs: {
       home: 'الرئيسية',
+      howIFeel: 'مشاعري',
       mushaf: 'المصحف',
       myReading: 'أورادي',
       reflections: 'خواطري',
@@ -1454,11 +1643,13 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     emotionsAll: {
       viewAll: 'عرض الكل',
-      title: 'كل المشاعر',
+      title: 'بماذا تشعر الآن؟',
+      subtitle: 'وتطمئن القلوب',
       back: 'رجوع',
     },
     myReading: {
       title: 'أورادي وختماتي',
+      subtitle: 'اقرأ وارتقِ',
       back: 'رجوع',
       statsTotal: 'الختمات',
       statsRamadan: 'ختمات رمضان',
@@ -1554,7 +1745,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     settings: {
       title: 'الإعدادات',
-      subtitle: 'لغة التطبيق وتفضيلات ترجمة القرآن.',
+      subtitle: 'اللغة والمظهر والتذكيرات وحسابك.',
       openSettings: 'فتح الإعدادات',
       appLanguageSection: 'لغة التطبيق',
       emotionsLanguageSection: 'لغة المشاعر',
@@ -1566,6 +1757,12 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       quranTextOption: 'النص القرآني',
       keepAwakeTitle: 'إبقاء الشاشة مضاءة',
       keepAwakeDescription: 'منع قفل الشاشة تلقائيًا أثناء قراءة المصحف.',
+      offlineMushafTitle: 'المصحف بدون إنترنت',
+      offlineMushafAvailable: 'متاح بدون إنترنت',
+      offlineMushafRequired: 'يحتاج إلى تحميل',
+      offlineMushafDownloading: 'جارٍ التحميل',
+      offlineMushafFailed: 'فشل التحميل',
+      offlineMushafDownloadHint: 'اضغط لتحميل المصحف كاملًا للقراءة بدون إنترنت.',
       quranTranslationSection: 'ترجمة القرآن',
       translationDisplayAlways: 'دائمًا',
       translationDisplayOnDemand: 'عند الطلب',
@@ -1579,10 +1776,63 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       termsOfUse: 'شروط الخدمة',
       accountDeletionInfo: 'حذف الحساب والبيانات',
       opensInBrowser: 'تُفتح في المتصفح',
+      appSection: 'التطبيق',
+      emotionsSection: 'المشاعر',
+      quranSection: 'القرآن',
+      supportSection: 'الدعم',
+      showTranslationTitle: 'إظهار الترجمة',
+      showTranslationDescription: 'الترجمة الإنجليزية تحت كل آية.',
+      translationModeLabel: 'عرض الترجمة',
+      translationModeAlways: 'دائمًا',
+      translationModeOnDemand: 'عند الطلب',
+    },
+    notifications: {
+      wirdReminderTitle: 'تذكير الورد',
+      randomAyahTitle: 'آية من القرآن',
+      emotionCheckInTitle: 'تستحق الطمأنينة',
+      frequencyLabel: 'التكرار',
+      frequencyDaily: 'يوميًا',
+      frequencyEvery3Days: 'كل ٣ أيام',
+      frequencyWeekly: 'أسبوعيًا',
+      frequencyTwiceDaily: 'مرتين يوميًا',
+      twiceMorning: 'صباحًا',
+      twiceEvening: 'مساءً',
+      twiceSameTime: 'اختر وقتين مختلفين.',
+      reminderTimeLabel: 'وقت التذكير',
+      chooseDay: 'اختيار اليوم',
+      changeHint: 'يفتح الخيارات لتغييره.',
+      toggleHint: 'تشغيل هذا التذكير أو إيقافه.',
+      timePickerConfirm: 'تعيين الوقت',
+      timePickerCancel: 'إلغاء',
+      am: 'ص',
+      pm: 'م',
+      weekday1: 'الأحد',
+      weekday2: 'الاثنين',
+      weekday3: 'الثلاثاء',
+      weekday4: 'الأربعاء',
+      weekday5: 'الخميس',
+      weekday6: 'الجمعة',
+      weekday7: 'السبت',
+      permissionRequired: 'يلزم السماح بالإشعارات',
+      permissionDeniedHint: 'الإشعارات متوقفة لتطبيق Quran Heals في إعدادات جهازك.',
+      permissionAllow: 'السماح بالإشعارات',
+      permissionOpenSettings: 'فتح إعدادات الجهاز',
+      permissionSheetTitle: 'السماح بالإشعارات؟',
+      permissionSheetBody: 'اسمح بالإشعارات لتصلك تذكيرات بأورادك، وآية من القرآن، ولحظة طمأنينة لقلبك.',
+      permissionSheetPrivacy: 'تُجدول التذكيرات على جهازك، وتعمل دون اتصال بالإنترنت.',
+      permissionSheetConfirm: 'متابعة',
+      permissionSheetCancel: 'ليس الآن',
+      unsupported: 'التذكيرات متاحة في تطبيق iPhone وAndroid.',
+      scheduleError: 'تعذّرت جدولة هذا التذكير. ستُعاد المحاولة عند عودتك إلى التطبيق.',
+      wirdNotificationTitle: 'حان وقت وردك من القرآن',
+      wirdNotificationBody: 'واصل وردك اليوم وخصص وقتًا لقراءة القرآن.',
+      randomAyahNotificationTitle: 'رسالة من القرآن',
+      checkInNotificationTitle: 'تستحق الطمأنينة ❤️',
+      checkInNotificationBody: 'كيف تشعر اليوم؟ دع القرآن يطمئن قلبك.',
     },
     appearance: {
       sectionLabel: 'المظهر',
-      system: 'تلقائي',
+      system: 'حسب النظام',
       light: 'وضع النهار',
       dark: 'وضع الليل',
     },
@@ -1751,7 +2001,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     appName: 'Quran Heals',
     home: {
       subtitle: 'رسالة من القرآن لكل إحساس بتحسه',
-      eyebrow: 'تدبّر وتفكّر مع القرآن',
+      eyebrow: 'عِشْ بالقرآن',
       title: 'إيه إحساسك دلوقتي؟',
       loadingTitle: 'بنحمّل المشاعر',
       loadingMessage: 'بنجهّز قائمة المشاعر.',
@@ -1820,7 +2070,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     // the three approved Egyptian exceptions.
     reflections: {
       title: 'خواطري',
-      subtitle: 'خواطرك وتأملاتك مع آيات القرآن',
+      subtitle: 'تدبّر وتفكّر مع القرآن',
       loadingTitle: 'جارٍ تحميل الخواطر',
       loadingMessage: 'جارٍ فتح خواطرك المحفوظة.',
       emptyTitle: 'لا توجد خواطر بعد',
@@ -1902,7 +2152,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       stopRenamed: 'الاسم اتغيّر.',
       stopNameTaken: 'الاسم ده مستخدم لمكان وقوف تاني.',
       offlineTitle: "المصحف من غير نت",
-      offlineIntro: "صفحات المصحف الـ٦٠٤ كلها وخطوطها (حوالي ١١٥ ميجا)، عشان تقرا من غير نت.",
+      offlineIntro: "صفحات المصحف الـ٦٠٤ كلها وخطوطها (حوالي ١٠٠ ميجا)، عشان تقرا من غير نت.",
       offlineDownload: "نزّله للقراية من غير نت",
       offlineResume: "كمّل التنزيل",
       offlineCancel: "إلغاء",
@@ -1925,8 +2175,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       offlineComplete: "المصحف كله جاهز تقراه من غير نت",
       autoPreparing: "بنجهّز المصحف عشان تقراه من غير نت",
       autoReady: "المصحف جاهز تقراه من غير نت",
-      autoConsentCellular: "تنزّل المصحف للقراية من غير نت (حوالي ١١٥ ميجا) بباقة الموبايل؟",
-      autoConsentUnknown: "تحب تنزّل المصحف للقراية من غير نت دلوقتي؟ حجمه حوالي ١١٥ ميجا.",
+      autoConsentCellular: "تنزّل المصحف للقراية من غير نت (حوالي ١٠٠ ميجا) بباقة الموبايل؟",
+      autoConsentUnknown: "تحب تنزّل المصحف للقراية من غير نت دلوقتي؟ حجمه حوالي ١٠٠ ميجا.",
       autoDownloadNow: "نزّله دلوقتي",
       autoWaitForWifi: "استنى الواي فاي",
       autoNotNow: "مش دلوقتي",
@@ -1965,11 +2215,25 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       pageSlider: "الصفحة",
       goToSelected: "روح للصفحة {page}",
       editPage: "اكتب رقم الصفحة",
+      goToPageShort: "روح",
+      guideSurah: "اضغط على اسم السورة للانتقال إلى سورة",
+      guideHizb: "اضغط على رقم الحزب للانتقال إلى حزب",
+      guidePage: "اضغط على رقم الصفحة للانتقال إلى صفحة",
+      guideJuz: "اضغط على رقم الجزء للانتقال إلى جزء",
+      guideAyah: "اضغط على الآية لعرض خياراتها",
+      guideMarker: "اضغط على رقم الآية ثم «تطبيق» لحفظ موضع الورد",
+      guideNext: "التالي",
+      guideBack: "السابق",
+      guideClose: "إغلاق",
+      guideStart: "ابدأ القراءة",
+      guideStepOf: "{n} من {total}",
+      guideNotOnPage: "غير موجود في هذه الصفحة؛ يظهر في الصفحات التي يخصها.",
+      guideHelp: "مساعدة",
+      keyboardDone: "تم",
       actionReflection: "خاطرة",
       actionSave: "حفظ",
       actionSaved: "محفوظة",
-      applyToWird: "طبّق على ورد {name}",
-      applyToNamedWird: "طبّق على {name}",
+      applyToWird: AR_APPLY_TO_WIRD,
       searchTitle: 'روح لـ',
       searchByPage: 'رقم الصفحة',
       searchBySurah: 'اسم السورة',
@@ -1999,6 +2263,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     // Navigation and the Khatma flow keep the approved Standard Arabic wording (as generalQuran does).
     tabs: {
       home: 'الرئيسية',
+      howIFeel: 'مشاعري',
       mushaf: 'المصحف',
       myReading: 'أورادي',
       reflections: 'خواطري',
@@ -2017,11 +2282,13 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     emotionsAll: {
       viewAll: 'عرض الكل',
-      title: 'كل المشاعر',
+      title: 'بماذا تشعر الآن؟',
+      subtitle: 'وتطمئن القلوب',
       back: 'رجوع',
     },
     myReading: {
       title: 'أورادي وختماتي',
+      subtitle: 'اقرأ وارتقِ',
       back: 'رجوع',
       statsTotal: 'الختمات',
       statsRamadan: 'ختمات رمضان',
@@ -2117,7 +2384,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     settings: {
       title: 'الإعدادات',
-      subtitle: 'لغة التطبيق وتفضيلات ترجمة القرآن.',
+      subtitle: 'اللغة والمظهر والتذكيرات وحسابك.',
       openSettings: 'افتح الإعدادات',
       appLanguageSection: 'لغة التطبيق',
       emotionsLanguageSection: 'لغة المشاعر',
@@ -2129,6 +2396,12 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       quranTextOption: 'النص القرآني',
       keepAwakeTitle: 'إبقاء الشاشة مضاءة',
       keepAwakeDescription: 'منع قفل الشاشة تلقائيًا أثناء قراءة المصحف.',
+      offlineMushafTitle: 'المصحف بدون إنترنت',
+      offlineMushafAvailable: 'متاح بدون إنترنت',
+      offlineMushafRequired: 'يحتاج إلى تحميل',
+      offlineMushafDownloading: 'جارٍ التحميل',
+      offlineMushafFailed: 'فشل التحميل',
+      offlineMushafDownloadHint: 'اضغط لتحميل المصحف كاملًا للقراءة بدون إنترنت.',
       quranTranslationSection: 'ترجمة القرآن',
       translationDisplayAlways: 'دائمًا',
       translationDisplayOnDemand: 'عند الطلب',
@@ -2142,10 +2415,63 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       termsOfUse: 'شروط الخدمة',
       accountDeletionInfo: 'حذف الحساب والبيانات',
       opensInBrowser: 'تُفتح في المتصفح',
+      appSection: 'التطبيق',
+      emotionsSection: 'المشاعر',
+      quranSection: 'القرآن',
+      supportSection: 'الدعم',
+      showTranslationTitle: 'إظهار الترجمة',
+      showTranslationDescription: 'الترجمة الإنجليزية تحت كل آية.',
+      translationModeLabel: 'عرض الترجمة',
+      translationModeAlways: 'دائمًا',
+      translationModeOnDemand: 'عند الطلب',
+    },
+    notifications: {
+      wirdReminderTitle: 'تذكير الورد',
+      randomAyahTitle: 'آية من القرآن',
+      emotionCheckInTitle: 'تستحق الطمأنينة',
+      frequencyLabel: 'التكرار',
+      frequencyDaily: 'يوميًا',
+      frequencyEvery3Days: 'كل ٣ أيام',
+      frequencyWeekly: 'أسبوعيًا',
+      frequencyTwiceDaily: 'مرتين يوميًا',
+      twiceMorning: 'صباحًا',
+      twiceEvening: 'مساءً',
+      twiceSameTime: 'اختر وقتين مختلفين.',
+      reminderTimeLabel: 'وقت التذكير',
+      chooseDay: 'اختيار اليوم',
+      changeHint: 'يفتح الخيارات لتغييره.',
+      toggleHint: 'تشغيل هذا التذكير أو إيقافه.',
+      timePickerConfirm: 'تعيين الوقت',
+      timePickerCancel: 'إلغاء',
+      am: 'ص',
+      pm: 'م',
+      weekday1: 'الأحد',
+      weekday2: 'الاثنين',
+      weekday3: 'الثلاثاء',
+      weekday4: 'الأربعاء',
+      weekday5: 'الخميس',
+      weekday6: 'الجمعة',
+      weekday7: 'السبت',
+      permissionRequired: 'يلزم السماح بالإشعارات',
+      permissionDeniedHint: 'الإشعارات متوقفة لتطبيق Quran Heals في إعدادات جهازك.',
+      permissionAllow: 'السماح بالإشعارات',
+      permissionOpenSettings: 'فتح إعدادات الجهاز',
+      permissionSheetTitle: 'السماح بالإشعارات؟',
+      permissionSheetBody: 'اسمح بالإشعارات لتصلك تذكيرات بأورادك، وآية من القرآن، ولحظة طمأنينة لقلبك.',
+      permissionSheetPrivacy: 'تُجدول التذكيرات على جهازك، وتعمل دون اتصال بالإنترنت.',
+      permissionSheetConfirm: 'متابعة',
+      permissionSheetCancel: 'ليس الآن',
+      unsupported: 'التذكيرات متاحة في تطبيق iPhone وAndroid.',
+      scheduleError: 'تعذّرت جدولة هذا التذكير. ستُعاد المحاولة عند عودتك إلى التطبيق.',
+      wirdNotificationTitle: 'حان وقت وردك من القرآن',
+      wirdNotificationBody: 'واصل وردك اليوم وخصص وقتًا لقراءة القرآن.',
+      randomAyahNotificationTitle: 'رسالة من القرآن',
+      checkInNotificationTitle: 'تستحق الطمأنينة ❤️',
+      checkInNotificationBody: 'كيف تشعر اليوم؟ دع القرآن يطمئن قلبك.',
     },
     appearance: {
       sectionLabel: 'المظهر',
-      system: 'تلقائي',
+      system: 'حسب النظام',
       light: 'وضع النهار',
       dark: 'وضع الليل',
     },

@@ -4,6 +4,7 @@ import {
   DEFAULT_QURAN_TRANSLATION_PREFERENCE,
   loadQuranTranslationPreference,
   saveQuranTranslationPreference,
+  type EnabledTranslationMode,
   type QuranTranslationPreference,
   type TranslationDisplayMode,
 } from './quranTranslationPreference';
@@ -12,7 +13,12 @@ import { recordLocalPreferencesUpdatedAt } from '@/sync/preferencesSyncState';
 
 export type QuranTranslationPreferenceContextValue = {
   preference: QuranTranslationPreference;
+  /** Sets the synced display mode directly (account sync); a mode other than 'off' also becomes the dropdown's choice. */
   setDisplayMode: (mode: TranslationDisplayMode, options?: PreferenceChangeOptions) => void;
+  /** Settings → Show Translation's switch: ON restores the dropdown's choice, OFF keeps it. */
+  setShowTranslation: (on: boolean) => void;
+  /** Settings → Show Translation's dropdown: applied at once while ON, kept for later while OFF. */
+  setTranslationMode: (mode: EnabledTranslationMode) => void;
   isReady: boolean;
 };
 
@@ -43,22 +49,43 @@ export function QuranTranslationPreferenceProvider({ children }: { children: Rea
     };
   }, []);
 
-  const setDisplayMode = useCallback((mode: TranslationDisplayMode, options?: PreferenceChangeOptions) => {
+  const update = useCallback((change: (current: QuranTranslationPreference) => QuranTranslationPreference, options?: PreferenceChangeOptions) => {
     // See useAppLocale.tsx's setLocale: only a user's own change is stamped here.
     if (!options?.fromSync) recordLocalPreferencesUpdatedAt(Date.now());
     setPreference((current) => {
-      const next = { ...current, displayMode: mode };
+      const next = change(current);
       void saveQuranTranslationPreference(next);
       return next;
     });
   }, []);
 
+  const setDisplayMode = useCallback((mode: TranslationDisplayMode, options?: PreferenceChangeOptions) => {
+    update((current) => ({ ...current, displayMode: mode, enabledMode: mode === 'off' ? current.enabledMode : mode }), options);
+  }, [update]);
+
+  const setShowTranslation = useCallback((on: boolean) => {
+    update((current) => ({ ...current, displayMode: on ? current.enabledMode : 'off' }));
+  }, [update]);
+
+  const setTranslationMode = useCallback((mode: EnabledTranslationMode) => {
+    update((current) => ({ ...current, enabledMode: mode, displayMode: current.displayMode === 'off' ? 'off' : mode }));
+  }, [update]);
+
   const value = useMemo<QuranTranslationPreferenceContextValue>(
-    () => ({ preference, setDisplayMode, isReady }),
-    [preference, setDisplayMode, isReady],
+    () => ({ preference, setDisplayMode, setShowTranslation, setTranslationMode, isReady }),
+    [preference, setDisplayMode, setShowTranslation, setTranslationMode, isReady],
   );
 
   return <QuranTranslationPreferenceContext.Provider value={value}>{children}</QuranTranslationPreferenceContext.Provider>;
+}
+
+/**
+ * The stored display mode for the ayah screen's starting state (AyahCard), or
+ * null outside the provider (a card rendered alone in a test), which then
+ * starts hidden. Never throws.
+ */
+export function useQuranTranslationDisplayMode(): TranslationDisplayMode | null {
+  return useContext(QuranTranslationPreferenceContext)?.preference.displayMode ?? null;
 }
 
 export function useQuranTranslationPreference(): QuranTranslationPreferenceContextValue {

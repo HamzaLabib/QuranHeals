@@ -1,5 +1,5 @@
 import { Link, router } from 'expo-router';
-import { BookOpen, ChevronLeft, ChevronRight, Heart, MessageSquare, RefreshCw } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Heart, MessageSquare, RefreshCw } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,6 +9,7 @@ import { EmotionCard } from '@/components/EmotionCard';
 import { ReportIssueSheet } from '@/components/ReportIssueSheet';
 import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { StateView } from '@/components/StateView';
+import { MushafIcon } from '@/components/MushafIcon';
 import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
@@ -299,7 +300,7 @@ export default function HomeScreen() {
           accessibilityLabel={messages.generalQuran.action}
           onPress={() => router.push('/ayah/general')}
           style={({ pressed }) => [styles.generalQuranAction, pressed && styles.pressed]}>
-          <BookOpen size={18} color={colors.icon} strokeWidth={2} />
+          <MushafIcon size={18} color={colors.icon} strokeWidth={2} />
           <Text style={[styles.generalQuranActionText, { writingDirection: direction.writingDirection }]}>
             {messages.generalQuran.action}
           </Text>

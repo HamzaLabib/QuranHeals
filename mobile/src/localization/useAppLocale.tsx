@@ -2,7 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import { migrateLegacyAppLanguage, moveEgyptianArabicToEmotions } from './emotionsLanguage';
-import { APP_LOCALES, DEFAULT_APP_LOCALE, type AppLanguage, type AppLocale } from './locales';
+import { getDeviceLanguageTags } from './deviceLocale';
+import { APP_LOCALES, DEFAULT_APP_LOCALE, resolveInitialAppLanguage, type AppLanguage, type AppLocale } from './locales';
 import { getMessages, type Messages } from './messages';
 import { recordLocalPreferencesUpdatedAt } from '@/sync/preferencesSyncState';
 
@@ -28,8 +29,11 @@ const AppLocaleContext = createContext<AppLocaleContextValue | undefined>(undefi
  * Persists the user's app-language choice via AsyncStorage (this project's
  * existing persistence mechanism — see recentAyahs.ts) under a
  * versioned/namespaced key. English or Arabic only (a legacy Egyptian
- * Arabic choice is migrated: emotionsLanguage.ts). Defaults to `en` (DEFAULT_APP_LOCALE),
- * preserving current app behavior. An invalid or unreadable stored value
+ * Arabic choice is migrated: emotionsLanguage.ts). With nothing saved (a
+ * fresh install), the device's language decides: Arabic devices start in
+ * Modern Standard Arabic, every other device in English
+ * (resolveInitialAppLanguage) — not saved, and not stamped for sync, since
+ * the user has not chosen yet. An invalid or unreadable stored value
  * (corrupted storage, a future removed locale) falls back to the default
  * safely — it never throws and never leaves the app in a broken locale
  * state.
@@ -45,9 +49,7 @@ export function AppLocaleProvider({ children }: { children: ReactNode }) {
       try {
         // A stored Egyptian Arabic App Language is migrated first (emotionsLanguage.ts).
         const stored = await migrateLegacyAppLanguage();
-        if (!cancelled && stored) {
-          setLocaleState(stored);
-        }
+        if (!cancelled) setLocaleState(stored ?? resolveInitialAppLanguage(getDeviceLanguageTags()));
       } catch {
         // Unreadable storage: keep the default locale rather than throwing.
       } finally {

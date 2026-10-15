@@ -1,2 +1,6 @@
+# Line endings: every text file is stored and checked out with LF, on every OS (Windows checkouts with
+# core.autocrlf=true otherwise rewrite them as CRLF, which breaks the byte-exact design-archive check).
+# Binary files are detected and left alone; the -text rules below and in sub-folder .gitattributes keep pinned bytes.
+* text=auto eol=lf
 mobile/assets/licenses/OFL-Amiri.txt text eol=lf
 mobile/tests/fixtures/khatmDuaApproved.txt text eol=lf

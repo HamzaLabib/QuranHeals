@@ -1,7 +1,7 @@
 import * as Font from 'expo-font';
 import { useFonts } from 'expo-font';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft, Maximize2, Minimize2 } from 'lucide-react-native';
+import { ArrowLeft, CircleHelp, Maximize2, Minimize2 } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { BackHandler, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -12,6 +12,7 @@ import { KhatmaReachedSheet } from '@/components/KhatmaReachedSheet';
 import { OfflineMushafPanel } from '@/components/OfflineMushafPanel';
 import { MushafAyahActions, MushafWirdApply, type PopupAnchor } from '@/components/MushafAyahPopups';
 import { MushafIndexSheet, type MushafIndexMode } from '@/components/MushafIndexSheet';
+import { MushafGuide } from '@/components/MushafGuide';
 import { MushafPageSelector, PAGE_SELECTOR_BOTTOM_MARGIN, PAGE_SELECTOR_CARD_HEIGHT } from '@/components/MushafPageSelector';
 import { MushafPageView } from '@/components/MushafPageView';
 import { MushafStopNameField } from '@/components/MushafStopNameField';
@@ -34,9 +35,13 @@ import { KHATM_DUA } from '@/mushaf/khatmDua';
 import { MUSHAF_HEADER_FONT_FAMILY, MUSHAF_HEADER_FONTS } from '@/mushaf/headerFonts';
 import { MUSHAF_PAGE_COUNT, parseMushafPage, tintAyahMarkers, tintSvgInk, toArabicIndicDigits } from '@/mushaf/mushafPage';
 import { HIZB_START_PAGES, pageInfo } from '@/mushaf/navigation';
+import { GuideTargetsProvider, type GuideTarget } from '@/mushaf/guideTargets';
+import { GUIDE_STEPS, loadGuideProgress, saveGuideProgress, type GuideProgress } from '@/mushaf/mushafGuide';
 import { useMushafKeepAwake } from '@/mushaf/useMushafKeepAwake';
+import { useQuietRemindersWhileReading } from '@/notifications/foreground';
 import type { Ayah } from '@/types/domain';
 import { applyToWirdLabel } from '@/mushaf/pageSelector';
+import { requestedAyahOnPage } from '@/mushaf/ayahInMushaf';
 import { offlineMushaf } from '@/mushaf/offline';
 import { readRelayPageForDev } from '@/mushaf/offline/devRelayPage';
 import { useMushafAutoDownload } from '@/mushaf/offline/useMushafAutoDownload';
@@ -60,7 +65,8 @@ import {
 } from '@/mushaf/readingStops';
 import { subscribeToLocalDataOwner } from '@/storage/localDataOwner';
 import { BASMALA_FONT_PAGE, surahOpeningSlots } from '@/mushaf/surahOpenings';
-import { getApiErrorMessage, getAyah } from '@/services/api';
+import { getApiErrorMessage } from '@/services/api';
+import { getAyahForAction } from '@/services/ayahForAction';
 import { getVerseByKey } from '@/services/quran';
 import { getSurahName } from '@/services/surahNames';
 import { useThemedStyles, useThemeName } from '@/theme/useTheme';
@@ -323,6 +329,8 @@ const ignoreVerse = () => undefined;
 export default function MushafScreen() {
   // Keep Screen Awake (Settings): held only while this reader is focused, the app active and the setting ON.
   useMushafKeepAwake();
+  // A reminder arriving while reading is listed, without a banner or sound (notifications/foreground.ts).
+  useQuietRemindersWhileReading();
   const styles = useThemedStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const { locale, messages } = useAppLocale();
@@ -340,6 +348,8 @@ export default function MushafScreen() {
   const highlight = { color: furniture.highlight, opacity: furniture.highlightOpacity };
 
   const requestedPage = parsePageNumber(String(Array.isArray(params.page) ? params.page[0] : params.page ?? ''));
+  // An ayah's reference on its card (AyahCard → mushaf/ayahInMushaf.ts): that ayah selected on its page, as a tap would.
+  const requestedAyah = requestedAyahOnPage(params.ayah, requestedPage);
   // No ?page=: page 1 until the saved ورد (if any) is read from storage just below.
   const initialPage = requestedPage ?? FIRST_PAGE;
   const [page, setPage] = useState(initialPage);
@@ -360,16 +370,31 @@ export default function MushafScreen() {
   const [fontsLoaded, fontError] = useFonts(QPC_V1_FONTS);
   // Separate, so the heads' font can never hold back or disable the Quran text.
   const [headerFontLoaded] = useFonts(MUSHAF_HEADER_FONTS);
-  const [selectedVerseKey, setSelectedVerseKey] = useState<string | null>(null);
+  const [selectedVerseKey, setSelectedVerseKey] = useState<string | null>(requestedAyah);
   const [isReflectionVisible, setIsReflectionVisible] = useState(false);
   // At most one of the reader's popups at a time: the ورد name field, a Surah / juz' / Hizb list, the page selector,
   // an ayah's actions (its words) or its Apply-to-ورد (its separator). Closing it never changes the page or a ورد.
   const [overlay, setOverlay] = useState<Overlay>(null);
+  // The first-time guide (mushaf/mushafGuide.ts): the controls it points at, as the page being read registers them.
+  const guideTargetViews = useRef(new Map<GuideTarget, View>());
+  /** Which controls are registered now (and a count of changes, so a moved or replaced control is measured again). */
+  const [guideTargets, setGuideTargets] = useState({ names: '', changes: 0 });
+  const registerGuideTarget = useCallback((target: GuideTarget, view: View | null) => {
+    const views = guideTargetViews.current;
+    if (view ? views.get(target) === view : !views.has(target)) return;
+    if (view) views.set(target, view);
+    else views.delete(target);
+    setGuideTargets((current) => ({ names: [...views.keys()].sort().join(','), changes: current.changes + 1 }));
+  }, []);
+  const [guideProgress, setGuideProgress] = useState<GuideProgress | null>(null);
+  const [guideVisible, setGuideVisible] = useState(false);
+  const [guideStep, setGuideStep] = useState(0);
+  const guideAutoShown = useRef(false);
   // An ayah tap waits DOUBLE_TAP_MS before its popup opens, so a double-tap (the zoom reset) never opens one.
   const pendingAyahPopup = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [ayahBusy, setAyahBusy] = useState(false);
   const [ayahError, setAyahError] = useState<string | null>(null);
-  const { isFavorite, toggleFavorite } = useFavorites();
+  const { favorites, isFavorite, toggleFavorite } = useFavorites();
   // Share: the ayah being shared in the existing Share Ayah sheet (the same one as the ayah screens), or none.
   const [sharing, setSharing] = useState<Ayah | null>(null);
   // Measured, not the window size: right on tablets, split screen and web.
@@ -391,7 +416,7 @@ export default function MushafScreen() {
   const activeStop = activeReadingStop(stops, activeStopId);
   // Set once the reader moves: the active stop's page then no longer replaces the opening page.
   const hasNavigated = useRef(false);
-  const initialRequest = useRef(`${String(params.page ?? '')}|${String(params.at ?? '')}`);
+  const initialRequest = useRef(`${String(params.page ?? '')}|${String(params.at ?? '')}|${String(params.ayah ?? '')}`);
   // «ما شاء الله، أتممت ختم القرآن»: after a save took this ورد's cycle to page 604.
   const [reached, setReached] = useState<{ stopId: string; cycleId: string; name: string } | null>(null);
   // Page 604's إتمام الختمة when it cannot open the confirmation: why (nothing recorded).
@@ -498,13 +523,13 @@ export default function MushafScreen() {
 
   // A later /mushaf?page=N&at=… (Home's Continue Reciting, أورادي وختماتي) while the reader is already open:
   // applied while rendering (React's "adjust state when a prop changes"), once per request.
-  const requestToken = `${String(params.page ?? '')}|${String(params.at ?? '')}`;
+  const requestToken = `${String(params.page ?? '')}|${String(params.at ?? '')}|${String(params.ayah ?? '')}`;
   const [handledRequest, setHandledRequest] = useState(requestToken);
   if (handledRequest !== requestToken) {
     setHandledRequest(requestToken);
     if (requestedPage !== null) {
       setPage(requestedPage);
-      setSelectedVerseKey(null);
+      setSelectedVerseKey(requestedAyah);
       setOverlay(null);
       setZoomed(false);
     }
@@ -561,14 +586,19 @@ export default function MushafScreen() {
     closeOverlay();
     setIsReflectionVisible(true);
   };
-  /** Save: the existing Favorites toggle for this ayah (as on the ayah screens: the full ayah, then the toggle). */
+  /**
+   * Save: the existing Favorites toggle for this ayah (as on the ayah screens: the full ayah, then the toggle). Offline
+   * too: removing uses the saved favorite itself (no network), and saving falls back to the device's own ayah — the
+   * verified local Arabic, its translation fetched later (services/ayahForAction.ts).
+   */
   const toggleSaved = async () => {
     if (overlay?.kind !== 'ayah' || ayahBusy) return;
     setAyahBusy(true);
     setAyahError(null);
     try {
-      await toggleFavorite(await getAyah(overlay.verseKey));
-      dismissAyahPopup();
+      // The popup stays open: its heart follows Favorites (isFavorite), so it fills or empties as soon as this succeeds.
+      const saved = favorites.find((favorite) => favorite.verseKey === overlay.verseKey);
+      await toggleFavorite(saved ?? (await getAyahForAction(overlay.verseKey)));
     } catch (error) {
       setAyahError(getApiErrorMessage(error, messages.ayah.genericError));
     } finally {
@@ -577,14 +607,15 @@ export default function MushafScreen() {
   };
   /**
    * Share: the existing Share Ayah sheet for exactly this ayah, as the ayah screens open it (getAyah, then the sheet,
-   * which takes only the ayah: no emotion reaches the card). It stays selected while the sheet is open.
+   * which takes only the ayah: no emotion reaches the card). It stays selected while the sheet is open. Offline: the
+   * device's own ayah (the verified local Arabic, no translation), which the sheet already shares without one.
    */
   const shareSelected = async () => {
     if (overlay?.kind !== 'ayah' || ayahBusy) return;
     setAyahBusy(true);
     setAyahError(null);
     try {
-      const ayah = await getAyah(overlay.verseKey);
+      const ayah = await getAyahForAction(overlay.verseKey);
       closeOverlay();
       setSharing(ayah);
     } catch (error) {
@@ -805,6 +836,38 @@ export default function MushafScreen() {
     return { qpc, svgShown, first, drawn: pageWidth > 0 && (qpc || svgShown) && first };
   };
   const drawn = partsOf(page, content).drawn;
+
+  // The first-time guide: read whether it was seen; show it by itself once the page and its controls are drawn
+  // (the Surah head registered), at the step reached before, and keep it until the user closes or finishes it.
+  useEffect(() => {
+    let cancelled = false;
+    void loadGuideProgress().then((progress) => { if (!cancelled) setGuideProgress(progress); });
+    return () => { cancelled = true; };
+  }, []);
+  const guideReady = Boolean(drawn) && guideTargets.names.split(',').includes('surah');
+  useEffect(() => {
+    if (guideAutoShown.current || guideProgress?.status !== 'unseen' || !guideReady) return;
+    guideAutoShown.current = true;
+    closeOverlay();
+    setGuideStep(guideProgress.step);
+    setGuideVisible(true);
+  }, [guideProgress, guideReady, closeOverlay]);
+  const showGuideStep = (step: number) => {
+    setGuideStep(step);
+    // Progress survives a reload: reopened at this step until the guide is closed or finished.
+    if (guideProgress?.status !== 'done') void saveGuideProgress({ status: 'unseen', step });
+  };
+  const endGuide = () => {
+    setGuideVisible(false);
+    setGuideProgress({ status: 'done' });
+    void saveGuideProgress({ status: 'done' });
+  };
+  const openGuide = () => {
+    closeOverlay();
+    setGuideStep(0);
+    setGuideVisible(true);
+  };
+  const guideTexts = [copy.guideSurah, copy.guideHizb, copy.guidePage, copy.guideJuz, copy.guideAyah, copy.guideMarker];
   const iconColor = (dark ? MUSHAF_PANEL_COLORS.dark : MUSHAF_PANEL_COLORS.light).icon;
   return (
     <GestureHandlerRootView style={[styles.reader, { backgroundColor: MUSHAF_BACKGROUNDS[appearance.background].paper, paddingTop: insets.top }]}>
@@ -824,6 +887,19 @@ export default function MushafScreen() {
             <ArrowLeft size={24} color={iconColor} />
           </Pressable>
         )}
+        <View style={styles.barEnd}>
+        {/* Help: the first-time guide again, at its first step. Normal Mode only: full screen keeps just the page and Collapse. */}
+        {!fullScreen && (
+          <Pressable
+            testID="mushaf-guide-open"
+            accessibilityRole="button"
+            accessibilityLabel={copy.guideHelp}
+            onPress={openGuide}
+            hitSlop={{ top: 44 - BACK_BAR_HEIGHT, bottom: 0, left: 0, right: 0 }}
+            style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}>
+            <CircleHelp size={21} color={iconColor} />
+          </Pressable>
+        )}
         <Pressable
           testID="mushaf-fullscreen-toggle"
           accessibilityRole="button"
@@ -835,6 +911,7 @@ export default function MushafScreen() {
           {/* The next action: inward arrows to collapse (Minimize2), outward to expand (Maximize2). */}
           {fullScreen ? <Minimize2 size={22} color={iconColor} /> : <Maximize2 size={22} color={iconColor} />}
         </Pressable>
+        </View>
       </View>
 
       <View
@@ -842,6 +919,7 @@ export default function MushafScreen() {
         style={styles.pageArea}
         onLayout={(event) => setArea({ width: Math.floor(event.nativeEvent.layout.width), height: Math.floor(event.nativeEvent.layout.height) })}>
         {pageWidth > 0 && (
+          <GuideTargetsProvider register={registerGuideTarget}>
           <MushafZoomView ref={zoomView} viewport={fit.viewport} page={fit.page} centered={fullScreen} zoomable={Boolean(drawn)} onSwipe={turn}
             current={page}
             lastPage={MUSHAF_PAGE_COUNT}
@@ -875,6 +953,7 @@ export default function MushafScreen() {
                       selectedVerseKey={isCurrent ? selectedVerseKey : null}
                       onSelectVerse={isCurrent ? selectVerse : ignoreVerse}
                       onPressMarker={isCurrent ? pressMarker : undefined}
+                      guideTargets={isCurrent}
                       accessibilityLabel={`${copy.pageLabel} ${n}`}
                       accessibilityHint={copy.tapHint}
                       accessibilityActions={isCurrent ? pageActions : undefined}
@@ -928,6 +1007,7 @@ export default function MushafScreen() {
               );
             }}
           />
+          </GuideTargetsProvider>
         )}
         {pageWidth > 0 && !fullScreen && (
           <View
@@ -1029,10 +1109,29 @@ export default function MushafScreen() {
       />
 
       {/* The page number under the frame: the compact page selector. */}
+      {/* The first-time guide (mushaf/mushafGuide.ts): over everything, only its own buttons close it. */}
+      <MushafGuide
+        visible={guideVisible}
+        step={guideStep}
+        total={GUIDE_STEPS.length}
+        text={guideTexts[guideStep]}
+        labels={{ next: copy.guideNext, back: copy.guideBack, close: copy.guideClose, start: copy.guideStart, stepOf: copy.guideStepOf, notOnPage: copy.guideNotOnPage }}
+        dark={dark}
+        rtl={rtl}
+        direction={{ writingDirection: rtl ? 'rtl' : 'ltr', textAlign: rtl ? 'right' : 'left' }}
+        safe={{ top: insets.top, bottom: insets.bottom }}
+        getTarget={() => guideTargetViews.current.get(GUIDE_STEPS[guideStep].target)}
+        measureKey={`${guideTargets.changes}|${page}|${fullScreen}|${zoomed}|${pageWidth}`}
+        onNext={() => showGuideStep(Math.min(GUIDE_STEPS.length - 1, guideStep + 1))}
+        onBack={() => showGuideStep(Math.max(0, guideStep - 1))}
+        onClose={endGuide}
+        onFinish={endGuide}
+      />
+
       <MushafPageSelector
         visible={overlay?.kind === 'pageSelector'}
         currentPage={page}
-        labels={{ pageSlider: copy.pageSlider, goToSelected: copy.goToSelected, editPage: copy.editPage, pageOutOfRange: copy.pageOutOfRange, close: copy.wirdClose }}
+        labels={{ pageSlider: copy.pageSlider, goToSelected: copy.goToSelected, editPage: copy.editPage, pageOutOfRange: copy.pageOutOfRange, close: copy.wirdClose, go: copy.goToPageShort, keyboardDone: copy.keyboardDone }}
         dark={dark}
         bottomInset={insets.bottom}
         formatNumber={formatNumber}
@@ -1119,6 +1218,11 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   reader: {
     backgroundColor: colors.background,
     flex: 1,
+  },
+  /** Help and Expand / Collapse, together on the right. */
+  barEnd: {
+    alignItems: 'center',
+    flexDirection: 'row',
   },
   backBar: {
     alignItems: 'center',

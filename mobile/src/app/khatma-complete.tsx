@@ -1,10 +1,11 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { BookHeart, BookOpen, BookOpenText } from 'lucide-react-native';
+import { BookHeart, BookOpenText } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
+import { MushafIcon } from '@/components/MushafIcon';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
 import { fill, localNumber } from '@/localization/fill';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
@@ -111,7 +112,7 @@ export default function KhatmaCompleteScreen() {
             accessibilityLabel={copy.backToMushaf}
             onPress={() => leave(() => backToMushaf(record?.stopId ?? null))}
             style={({ pressed }) => [styles.secondary, isRtlLocale(locale) && styles.rowRtl, pressed && styles.pressed]}>
-            <BookOpen size={20} color={colors.textPrimary} />
+            <MushafIcon size={20} color={colors.textPrimary} />
             <Text style={styles.secondaryText}>{copy.backToMushaf}</Text>
           </Pressable>
           <Pressable

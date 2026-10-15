@@ -65,6 +65,8 @@ The old Settings row chose a **display mode** for the bundled English Pickthall 
 - The stored preference is **kept, not erased**: still synced with the account, and still the Share sheet's starting choice for "show translation".
 - Only one translation source exists (Pickthall), so there is no source ambiguity.
 
+**Settings → Emotions → Show Translation (2026-10-15): a switch and a dropdown (Always / On Demand)** over this same stored, synced preference: OFF = `off`, ON + Always = `always`, ON + On Demand = `on-demand`, so older app versions and the backend's three accepted values keep working. The dropdown's choice while OFF (`enabledMode`) stays on the device only. On the ayah screen: OFF shows no translation and no Show translation button; ON + On Demand starts hidden with the button; ON + Always shows it at once, hideable for that ayah, and the next ayah shows it again. The compact Favorites card follows OFF and otherwise starts hidden. New users (nothing saved) start OFF + On Demand. Saved values migrate as they are: `always` → ON + Always, `on-demand` → ON + On Demand, `off` stays OFF. The Share sheet still starts from `always`.
+
 **Behaviour change for default users (`always`):** the ayah screen now opens with the Arabic alone and the Show translation button, instead of showing the translation automatically. This follows the requested Show/Hide behaviour; it needs product confirmation.
 
 ## Migration and sync

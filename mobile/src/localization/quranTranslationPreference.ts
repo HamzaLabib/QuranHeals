@@ -12,24 +12,49 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export const PICKTHALL_TRANSLATION_ID = 'en.pickthall.gutenberg16955';
 
 export type TranslationDisplayMode = 'always' | 'on-demand' | 'off';
+/** Settings → Show Translation's dropdown: how the translation appears while the switch is ON. */
+export type EnabledTranslationMode = 'always' | 'on-demand';
+export const ENABLED_TRANSLATION_MODES: readonly EnabledTranslationMode[] = ['always', 'on-demand'];
 
 export type QuranTranslationPreference = {
   translationId: string;
+  /**
+   * The one value synced with the account (and understood by older app
+   * versions): Settings → Show Translation OFF = 'off'; ON + Always =
+   * 'always'; ON + On Demand = 'on-demand'.
+   */
   displayMode: TranslationDisplayMode;
+  /** The dropdown's choice, kept on this device while the switch is OFF so turning it back ON restores it. Never synced. */
+  enabledMode: EnabledTranslationMode;
 };
 
 /**
- * Preserves current app behavior: the ayah screen has always shown the
- * English Pickthall translation automatically alongside the Arabic — so the
- * default display mode is "always", not "on-demand" or "off". A future
- * verified translation would be added by extending `translationId`'s valid
- * values here (and the backend's translations.sqlite schema) — never by
- * changing this display-mode architecture.
+ * Nothing saved (a new user): Show Translation OFF, its dropdown on On
+ * Demand. A saved value is always kept: 'always' (the earlier switch ON) is
+ * ON + Always; 'on-demand' (the earlier switch OFF, which still offered the
+ * Show translation button) is ON + On Demand; 'off' (the original Settings
+ * row's explicit Off) stays OFF. A future verified translation would be added
+ * by extending `translationId`'s valid values here (and the backend's
+ * translations.sqlite schema), never by changing this display-mode
+ * architecture.
  */
 export const DEFAULT_QURAN_TRANSLATION_PREFERENCE: QuranTranslationPreference = {
   translationId: PICKTHALL_TRANSLATION_ID,
-  displayMode: 'always',
+  displayMode: 'off',
+  enabledMode: 'on-demand',
 };
+
+export function isEnabledTranslationMode(value: unknown): value is EnabledTranslationMode {
+  return value === 'always' || value === 'on-demand';
+}
+
+/** Settings → Show Translation's switch. */
+export const isShowTranslationOn = (preference: Pick<QuranTranslationPreference, 'displayMode'>): boolean => preference.displayMode !== 'off';
+
+/** Settings → Show Translation's dropdown: the active mode while ON, the kept one while OFF. */
+export function translationModeOf(preference: Pick<QuranTranslationPreference, 'displayMode' | 'enabledMode'>): EnabledTranslationMode {
+  return preference.displayMode === 'off' ? preference.enabledMode : preference.displayMode;
+}
 
 const STORAGE_KEY = 'quran-heals:quran-translation-preference:v1';
 
@@ -49,7 +74,11 @@ export function parseQuranTranslationPreference(raw: unknown): QuranTranslationP
     const displayMode = isValidDisplayMode(candidate.displayMode)
       ? candidate.displayMode
       : DEFAULT_QURAN_TRANSLATION_PREFERENCE.displayMode;
-    return { translationId, displayMode };
+    // Saved before the dropdown existed: the mode it shows is the saved one (or On Demand while OFF).
+    const enabledMode = isEnabledTranslationMode(candidate.enabledMode)
+      ? candidate.enabledMode
+      : displayMode === 'off' ? DEFAULT_QURAN_TRANSLATION_PREFERENCE.enabledMode : displayMode;
+    return { translationId, displayMode, enabledMode };
   }
   return DEFAULT_QURAN_TRANSLATION_PREFERENCE;
 }
@@ -73,13 +102,15 @@ export async function saveQuranTranslationPreference(preference: QuranTranslatio
 }
 
 /**
- * The individual ayah screen's translation behaviour since the Quran
- * Translation row left Settings (docs/localization/quran-language.md):
- * the Arabic ayah alone, with a Show translation / Hide translation
- * toggle. With no setting left to change it, a stored 'always' or 'off'
- * would otherwise lock a reader into one state for good ('off': never able
- * to see the translation). The stored preference itself is kept as it is —
- * never erased, still synced, and still the Share sheet's starting choice.
+ * The ayah screen's Show translation / Hide translation toggle behaves as
+ * 'on-demand' whenever it is offered (AyahCard.tsx). Settings → Show
+ * Translation decides whether it is offered and where each ayah starts
+ * (docs/localization/quran-language.md):
+ *  - OFF ('off'): no translation and no toggle;
+ *  - ON + On Demand ('on-demand'): hidden, with the toggle;
+ *  - ON + Always ('always'): shown, with the toggle to hide it for this ayah;
+ *    the next ayah is shown again.
+ * The stored value is still synced, and still the Share sheet's starting choice.
  */
 export const AYAH_SCREEN_TRANSLATION_MODE: TranslationDisplayMode = 'on-demand';
 

@@ -12,6 +12,8 @@ type ConfirmSheetProps = {
   testID: string;
   title: string;
   body?: string;
+  /** A second paragraph under the body, in the same style (e.g. the notification sheet's privacy note). */
+  note?: string;
   /** Shown above the title (e.g. an ornament). */
   header?: ReactNode;
   /** Without a confirm label (or onConfirm) the sheet only informs: just its close button. */
@@ -45,6 +47,7 @@ export function ConfirmSheet(props: ConfirmSheetProps) {
         {props.header}
         <Text accessibilityRole="header" style={[styles.title, direction]}>{props.title}</Text>
         {props.body ? <Text style={[styles.body, direction]}>{props.body}</Text> : null}
+        {props.note ? <Text testID={`${props.testID}-note`} style={[styles.body, direction]}>{props.note}</Text> : null}
         {props.error ? <Text accessibilityRole="alert" style={[styles.error, direction]}>{props.error}</Text> : null}
         <View style={[styles.actions, rtl && styles.actionsRtl]}>
           <Pressable

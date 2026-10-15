@@ -44,23 +44,25 @@ describe('the contextual arrow beside the selected number', () => {
   });
 });
 
-describe('Apply to [Wird name] Wird', () => {
+describe('Apply to [Wird name]', () => {
   const en = MESSAGES.en.mushaf;
   const ar = MESSAGES.ar.mushaf;
   const strip = (label: string) => label.replace(/[⁨⁩]/g, '');
-  it('English: the actual name, never the placeholder, and "Wird" never doubled', () => {
-    expect(strip(applyToWirdLabel('Morning', en))).toBe('Apply to Morning Wird');
-    expect(strip(applyToWirdLabel('Morning Wird', en))).toBe('Apply to Morning Wird');
+  it('English: the name exactly as saved, never the placeholder, and "Wird" never added', () => {
+    expect(strip(applyToWirdLabel('Morning', en))).toBe('Apply to Morning');
+    expect(strip(applyToWirdLabel('Daily Wird', en))).toBe('Apply to Daily Wird');
     expect(strip(applyToWirdLabel('wird of Fajr', en))).toBe('Apply to wird of Fajr');
+    expect(strip(applyToWirdLabel('Wirdless', en))).toBe('Apply to Wirdless');
     expect(applyToWirdLabel('Morning', en)).not.toContain('{name}');
-    // "Wirdless" is not the word Wird.
-    expect(strip(applyToWirdLabel('Wirdless', en))).toBe('Apply to Wirdless Wird');
   });
-  it('Arabic wording around the user`s own name, which keeps its own direction (isolated)', () => {
-    expect(strip(applyToWirdLabel('الفجر', ar))).toBe('تطبيق على ورد الفجر');
-    expect(strip(applyToWirdLabel('ورد الفجر', ar))).toBe('تطبيق على ورد الفجر');
-    expect(strip(applyToWirdLabel('الورد اليومي', ar))).toBe('تطبيق على الورد اليومي');
+  it('Arabic: «حفظ في» and the name exactly as saved, «ورد» never added; the name keeps its own direction (isolated)', () => {
+    expect(strip(applyToWirdLabel('الفجر', ar))).toBe('حفظ في الفجر');
+    expect(strip(applyToWirdLabel('ورد الفجر', ar))).toBe('حفظ في ورد الفجر');
+    expect(strip(applyToWirdLabel('الورد اليومي', ar))).toBe('حفظ في الورد اليومي');
     // A Latin name inside the Arabic label: wrapped in first-strong isolates, so it reads left to right in place.
-    expect(applyToWirdLabel('Morning', ar)).toBe('تطبيق على ورد ⁨Morning⁩');
+    expect(applyToWirdLabel('Morning', ar)).toBe('حفظ في ⁨Morning⁩');
+    // Egyptian Arabic has no wording of its own here: the standard Arabic label.
+    expect(MESSAGES['ar-EG'].mushaf.applyToWird).toBe(ar.applyToWird);
+    expect(strip(applyToWirdLabel('الفجر', MESSAGES['ar-EG'].mushaf))).toBe('حفظ في الفجر');
   });
 });

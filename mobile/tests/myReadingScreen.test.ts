@@ -29,6 +29,7 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
 }));
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView', useSafeAreaInsets: () => ({ top: 47, bottom: 34, left: 0, right: 0 }) }));
 vi.mock('lucide-react-native', () => Object.fromEntries(['ArrowLeft', 'ArrowRight', 'BookOpen', 'BookOpenText', 'Pencil', 'Plus', 'Settings', 'Trash2'].map((name) => [name, name])));
+vi.mock('react-native-svg', () => ({ default: 'Svg', Path: 'Path', Rect: 'Rect' }));
 vi.mock('expo-router', async () => {
   const { createElement: h } = await import('react');
   return { router: { push: vi.fn(), navigate: vi.fn(), back: vi.fn(), replace: vi.fn(), canGoBack: () => true }, Link: ({ href, children }: { href: string; children: unknown }) => h('Link', { href }, children as never) };
@@ -76,6 +77,20 @@ afterEach(async () => {
 });
 
 describe('أورادي وختماتي', () => {
+  it('the title keeps its wording, with «اقرأ وارتقِ» / Recite and Rise directly under it, in the App Language and its direction', async () => {
+    for (const [locale, title, subtitle, direction] of [['en', 'My Recitations & Khatmas', 'Recite and Rise', 'ltr'], ['ar', 'أورادي وختماتي', 'اقرأ وارتقِ', 'rtl']] as const) {
+      state.locale = locale;
+      await render();
+      const header = root.root.findAll((node) => node.type === ('Text' as never) && node.props.accessibilityRole === 'header')[0];
+      expect(header.props.children).toBe(title);
+      const sub = byId('my-reading-subtitle');
+      expect(sub.props.children).toBe(subtitle);
+      expect(sub.parent).toBe(header.parent);
+      expect(flat(sub.props.style)).toMatchObject({ writingDirection: direction });
+      await act(async () => root.unmount());
+    }
+  });
+
   it('with no ورد: an empty state, zero statistics, the new-ورد action and the du`a entry', async () => {
     await render();
     expect(byId('my-reading-empty')).toBeDefined();

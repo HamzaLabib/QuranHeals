@@ -25,6 +25,8 @@ vi.mock('@/localization/useAppLocale', () => ({ AppLocaleProvider: passthrough, 
 vi.mock('@/localization/useQuranFontSizePreference', () => ({ QuranFontSizePreferenceProvider: passthrough }));
 vi.mock('@/localization/useQuranTranslationPreference', () => ({ QuranTranslationPreferenceProvider: passthrough }));
 vi.mock('@/theme/useAppearancePreference', () => ({ AppearancePreferenceProvider: passthrough, useAppearancePreference: () => ({ isReady: false }) }));
+vi.mock('@/notifications/useNotifications', () => ({ NotificationsProvider: passthrough }));
+vi.mock('@/notifications/useNotificationResponseRouting', () => ({ useNotificationResponseRouting: () => undefined }));
 vi.mock('@/theme/useTheme', () => ({ useThemeName: () => 'light' }));
 vi.mock('@/constants/theme', () => ({ navigationColorsFor: () => ({}), paletteFor: () => ({ background: '#fff' }), statusBarStyleFor: () => 'dark' }));
 vi.mock('@/utils/devLog', () => ({ devLog: () => undefined }));

@@ -69,7 +69,7 @@ describe('where the shortcut appears', () => {
     'src/app/(tabs)/index.tsx', // Home
     'src/app/favorites.tsx',
     'src/app/(tabs)/reflections.tsx',
-    'src/app/emotions.tsx', // All Emotions
+    'src/app/(tabs)/emotions.tsx', // All Emotions (the How I Feel tab)
     'src/components/AyahExperience.tsx', // every ayah screen: emotion, general Quran, /ayah/<surah>/<ayah>
     'src/app/(tabs)/my-reading.tsx', // أورادي وختماتي: Wirds and Khatma history
     'src/app/credits.tsx',
@@ -110,7 +110,8 @@ describe('where the shortcut appears', () => {
     expect(linking).toEqual(['src/components/SettingsHeaderButton.tsx']);
   });
 
-  it('the bottom tabs are still the four', () => {
-    expect(source('src/app/(tabs)/_layout.tsx').match(/<Tabs\.Screen name="/g)).toHaveLength(4);
+  it('the bottom tabs are the approved five (Settings is never a tab)', () => {
+    expect(source('src/app/(tabs)/_layout.tsx').match(/<Tabs\.Screen name="/g)).toHaveLength(5);
+    expect(source('src/app/(tabs)/_layout.tsx')).not.toMatch(/name="settings"/);
   });
 });

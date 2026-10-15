@@ -55,7 +55,7 @@ describe('Home screen bottom safe area (source-scan)', () => {
   });
 
   it('the disclaimer moved to the emotion list (/emotions) with its text styling and RTL direction unchanged, after the cards', () => {
-    const emotionsSource = readFileSync(resolve(__dirname, '../src/app/emotions.tsx'), 'utf-8').split(String.fromCharCode(13)).join('');
+    const emotionsSource = readFileSync(resolve(__dirname, '../src/app/(tabs)/emotions.tsx'), 'utf-8').split(String.fromCharCode(13)).join('');
     expect(emotionsSource).toMatch(/<Text testID="emotions-disclaimer" style=\{\[styles\.disclaimer, direction\]\}>\{messages\.home\.disclaimer\}<\/Text>/);
     expect(emotionsSource).toMatch(/disclaimer: \{\n    color: colors\.textMuted,\n    fontSize: typography\.caption,\n    lineHeight: 19,\n    paddingHorizontal: spacing\.xs,\n  \},/);
     expect(emotionsSource.indexOf('emotions-disclaimer')).toBeGreaterThan(emotionsSource.indexOf('testID="emotions-grid"'));

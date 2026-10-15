@@ -191,8 +191,8 @@ It exits **0** when the scheduled run would succeed, **6** when it would refuse,
 ### Administration from the owner's computer
 
 **Admin folder** (outside the repository; access for your Windows account, SYSTEM and Administrators only):
-`C:\Users\hamzalabib\OneDrive - McGill University\Documents\Personal\My App\QuranHealsAdmin`
-**This is inside the McGill OneDrive**, against the recommendation to keep it outside: files there sync to the organization's cloud. See "Admin folder location" in `docs/account-deletion-requests.md`.
+`<secure-admin-directory>`
+**It is currently inside an organization-managed OneDrive**, against the recommendation to keep it outside: files there sync to the organization's cloud. See "Admin folder location" in `docs/account-deletion-requests.md`.
 
 **Database users** (see `docs/backend-environments.md`):
 - `quranheals-prod-audit`: read-only, profile `production-read`;
@@ -219,7 +219,7 @@ In production the backend's config refuses to load without `SESSION_JWT_SECRET`;
 **Commands (from `backend/`):**
 ```powershell
 # The admin folder. Its path contains spaces: keep every argument below in double quotes.
-$admin = 'C:\Users\hamzalabib\OneDrive - McGill University\Documents\Personal\My App\QuranHealsAdmin'
+$admin = '<secure-admin-directory>'
 
 # Read-only: due / held counts and due ids, holds, TTL index, lock state, run history
 npx tsx "--env-file=$admin\prod-read.env" src/scripts/issueReportRetention.ts preflight --store mongo

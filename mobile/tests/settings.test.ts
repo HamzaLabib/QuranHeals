@@ -32,12 +32,34 @@ describe('Settings screen: exactly three language settings', () => {
     expect(source).toMatch(/choose\(\(\) => setQuranMode\(option\.id\)\)/);
   });
 
-  it('in this order: App Language, Emotions Language, Quran Language, then Appearance; no Quran Translation row', () => {
-    const order = ['messages.settings.appLanguageSection', 'messages.settings.emotionsLanguageSection', 'messages.settings.quranLanguageSection', 'messages.appearance.sectionLabel']
-      .map((needle) => source.indexOf(needle));
+  it('five sections in this order — App (App Language, Appearance), Emotions, Quran, Support, Account; no Quran Translation row, no Notifications section', () => {
+    const order = [
+      'messages.settings.appSection',
+      'messages.settings.appLanguageSection',
+      'messages.appearance.sectionLabel',
+      'messages.settings.emotionsSection',
+      'messages.settings.emotionsLanguageSection',
+      "reminderRow('emotionCheckIn'",
+      'messages.settings.quranSection',
+      'messages.settings.quranLanguageSection',
+      "reminderRow('wird'",
+      "reminderRow('randomAyah'",
+      'messages.settings.supportSection',
+      'settings-report-issue',
+      'messages.settings.legalSection',
+      '<AccountSection',
+    ].map((needle) => source.indexOf(needle));
     expect(order.every((index) => index >= 0)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
-    expect(source).not.toMatch(/quranTranslationSection|setDisplayMode|TRANSLATION_DISPLAY_MODES/);
+    expect(source.match(/<SettingsSection /g)).toHaveLength(4);
+    expect(source).not.toMatch(/quranTranslationSection|TRANSLATION_DISPLAY_MODES|notificationsSection/);
+  });
+
+  it('Show Translation (switch + dropdown) reads and writes the existing stored display-mode preference, not a new setting', () => {
+    expect(source).toMatch(/on=\{isShowTranslationOn\(translationPreference\)\}/);
+    expect(source).toMatch(/mode=\{translationModeOf\(translationPreference\)\}/);
+    expect(source).toMatch(/onToggle=\{setShowTranslation\}/);
+    expect(source).toMatch(/onModeChange=\{setTranslationMode\}/);
   });
 });
 

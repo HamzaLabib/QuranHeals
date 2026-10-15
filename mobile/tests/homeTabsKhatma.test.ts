@@ -89,7 +89,7 @@ vi.mock('@/theme/useTheme', async () => {
   return { usePalette: () => lightPalette, useThemeName: () => 'light', useThemedStyles: (factory: (colors: unknown) => unknown) => factory(lightPalette) };
 });
 // The du'a screen's ornament (components/KhatmDuaOrnament.tsx).
-vi.mock('react-native-svg', () => ({ default: 'Svg', Path: 'Path', Circle: 'Circle' }));
+vi.mock('react-native-svg', () => ({ default: 'Svg', Path: 'Path', Circle: 'Circle', Rect: 'Rect' }));
 vi.mock('@/localization/useAppLocale', () => ({ useAppLocale: () => ({ locale: state.locale, messages: MESSAGES[state.locale] }) }));
 vi.mock('@/services/api', () => ({ getEmotions: async () => state.emotions, getApiErrorMessage: () => 'error' }));
 vi.mock('@/storage/emotionsCache', () => ({ getCachedEmotions: async () => null, setCachedEmotions: async () => undefined }));
@@ -98,7 +98,7 @@ vi.mock('@/utils/emotionIcons', () => ({ EMOTION_ICONS: {}, EMOTION_ICON_FALLBAC
 
 const { AppTabBar, APP_TABS } = await import('@/components/AppTabBar');
 const { ContinueReadingCard } = await import('@/components/ContinueReadingCard');
-const { default: AllEmotionsScreen } = await import('@/app/emotions');
+const { default: AllEmotionsScreen } = await import('@/app/(tabs)/emotions');
 const { default: KhatmaCompleteScreen } = await import('@/app/khatma-complete');
 const { lightPalette } = await import('@/constants/theme');
 const { default: KhatmDuaScreen } = await import('@/app/khatm-dua');
@@ -148,7 +148,7 @@ afterEach(async () => {
   if (root) await act(async () => root.unmount());
 });
 
-describe('the four bottom tabs', () => {
+describe('the five bottom tabs', () => {
   const routes = APP_TABS.map((name) => ({ key: `${name}-key`, name, params: undefined }));
   const props = (index: number, options: Record<string, unknown> = {}) => {
     const navigation = { emit: vi.fn(() => ({ defaultPrevented: false })), navigate: vi.fn() };
@@ -170,9 +170,9 @@ describe('the four bottom tabs', () => {
     expect(navigation.navigate).toHaveBeenCalledWith('my-reading', undefined);
   });
 
-  it('exactly four tabs: Home, Mushaf, Recitations, Reflections — in this order, with the approved labels in every language', async () => {
-    expect(APP_TABS).toEqual(['index', 'mushaf', 'my-reading', 'reflections']);
-    const expected = { en: ['Home', 'Mushaf', 'Recitations', 'Reflections'], ar: ['الرئيسية', 'المصحف', 'أورادي', 'خواطري'], 'ar-EG': ['الرئيسية', 'المصحف', 'أورادي', 'خواطري'] } as const;
+  it('exactly five tabs: Home, How I Feel, Mushaf, Wirds, Reflections — in this order, with the approved labels in every language', async () => {
+    expect(APP_TABS).toEqual(['index', 'emotions', 'mushaf', 'my-reading', 'reflections']);
+    const expected = { en: ['Home', 'How I Feel', 'Mushaf', 'Wirds', 'Reflections'], ar: ['الرئيسية', 'مشاعري', 'المصحف', 'أورادي', 'خواطري'], 'ar-EG': ['الرئيسية', 'مشاعري', 'المصحف', 'أورادي', 'خواطري'] } as const;
     for (const locale of ['en', 'ar', 'ar-EG'] as const) {
       state.locale = locale;
       await mount(createElement(AppTabBar, props(0).props));
@@ -187,7 +187,7 @@ describe('the four bottom tabs', () => {
   });
 
   it('marks the current tab; another tab navigates; the current one again does nothing (no remount, the Mushaf keeps its page)', async () => {
-    const { props: p, navigation } = props(1);
+    const { props: p, navigation } = props(2);
     await mount(createElement(AppTabBar, p));
     expect(byId('tab-mushaf').props.accessibilityState).toEqual({ selected: true });
     await press('tab-mushaf');
@@ -203,9 +203,9 @@ describe('the four bottom tabs', () => {
       p.descriptors['mushaf-key'] = { options: MUSHAF_TAB_OPTIONS };
       return p;
     };
-    await mount(createElement(AppTabBar, withMushaf(1) as never));
+    await mount(createElement(AppTabBar, withMushaf(2) as never));
     expect(all('app-tab-bar')).toHaveLength(0);
-    for (const index of [0, 2, 3]) {
+    for (const index of [0, 1, 3, 4]) {
       await act(async () => root.unmount());
       await mount(createElement(AppTabBar, withMushaf(index) as never));
       expect(all('app-tab-bar')).toHaveLength(1);
@@ -214,7 +214,7 @@ describe('the four bottom tabs', () => {
   });
 
   it('hidden when the screen asks (the Mushaf`s full screen), and reports its height otherwise', async () => {
-    await mount(createElement(AppTabBar, props(1, { tabBarStyle: { display: 'none' } }).props));
+    await mount(createElement(AppTabBar, props(2, { tabBarStyle: { display: 'none' } }).props));
     expect(all('app-tab-bar')).toHaveLength(0);
     await act(async () => root.unmount());
     await mount(createElement(AppTabBar, props(0).props));
@@ -222,10 +222,43 @@ describe('the four bottom tabs', () => {
     expect(state.heightReports).toEqual([83]);
   });
 
-  it('the tabs layout registers exactly these four screens; the third is the existing أورادي وختماتي page (/my-reading)', () => {
+  it('the tabs layout registers exactly these five screens: How I Feel is the existing emotion list (/emotions, moved into the tab group, not copied); Wirds the existing أورادي وختماتي page (/my-reading)', async () => {
     const layout = source('src/app/(tabs)/_layout.tsx');
-    expect([...layout.matchAll(/<Tabs\.Screen name="([^"]+)"/g)].map((m) => m[1])).toEqual(['index', 'mushaf', 'my-reading', 'reflections']);
+    expect([...layout.matchAll(/<Tabs\.Screen name="([^"]+)"/g)].map((m) => m[1])).toEqual(['index', 'emotions', 'mushaf', 'my-reading', 'reflections']);
     expect(layout).not.toMatch(/favorites/);
+    const { existsSync } = await import('node:fs');
+    const { resolve: path } = await import('node:path');
+    expect(existsSync(path(__dirname, '../src/app/(tabs)/emotions.tsx'))).toBe(true);
+    expect(existsSync(path(__dirname, '../src/app/emotions.tsx'))).toBe(false); // one emotion list, no duplicate route
+  });
+
+  it('How I Feel opens the full emotion list; its icon (Option 1) is a solid red heart above thin olive hands, in both themes and states; the other tabs keep theirs', async () => {
+    const { HandsHeartIcon } = await import('@/components/HandsHeartIcon');
+    const { lightPalette, darkPalette } = await import('@/constants/theme');
+    expect(lightPalette).toMatchObject({ howIFeelHeart: '#E44855', howIFeelHands: '#6A7B57' });
+    expect(darkPalette).toMatchObject({ howIFeelHeart: '#E44855', howIFeelHands: '#8EA68A' });
+    // Unselected (Home is the current tab): thin hands; Home's lucide icon unchanged.
+    const { navigation, props: tabProps } = props(0);
+    await mount(createElement(AppTabBar, tabProps));
+    expect(byId('tab-emotions').findByType(HandsHeartIcon).props).toMatchObject({ size: 24, heartColor: '#E44855', handsColor: '#6A7B57', strokeWidth: 1.8 });
+    expect(byId('tab-index').findByType('House' as never).props).toMatchObject({ size: 22, color: lightPalette.accent, strokeWidth: 2.4 });
+    // The heart is solid; the hands are outlines only; nothing filled behind them.
+    const svg = byId('tab-emotions').findByType('Svg' as never);
+    expect(svg.props).toMatchObject({ width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none' });
+    const paths = svg.findAllByType('Path' as never);
+    expect(paths[0].props).toMatchObject({ fill: '#E44855', stroke: '#E44855' });
+    expect(paths).toHaveLength(5); // the heart, then each hand's outline and thumb
+    for (const hand of paths.slice(1)) expect(hand.props).toMatchObject({ stroke: '#6A7B57', strokeWidth: 1.8 });
+    for (const hand of paths.slice(1)) expect(hand.props.fill).toBeUndefined();
+    // Selected: the same colours, a slightly firmer outline; the label carries the selected colour.
+    await act(async () => root.unmount());
+    await mount(createElement(AppTabBar, props(1).props));
+    expect(byId('tab-emotions').findByType(HandsHeartIcon).props).toMatchObject({ heartColor: '#E44855', handsColor: '#6A7B57', strokeWidth: 2.1 });
+    expect(byId('tab-emotions').findByType('Text' as never).props.style).toEqual(expect.arrayContaining([expect.objectContaining({ color: lightPalette.accent })]));
+    await act(async () => root.unmount());
+    await mount(createElement(AppTabBar, tabProps));
+    await act(async () => { byId('tab-emotions').props.onPress(); });
+    expect(navigation.navigate).toHaveBeenCalledWith('emotions', undefined);
   });
 
   it('long labels stay on one line (shrinking a little) rather than wrapping or clipping', () => {
@@ -263,7 +296,7 @@ describe('Home', () => {
     expect(MESSAGES.en.myReading.title).toBe('My Recitations & Khatmas');
     expect(MESSAGES.ar.myReading.title).toBe('أورادي وختماتي');
     expect(MESSAGES['ar-EG'].myReading.title).toBe('أورادي وختماتي');
-    expect(MESSAGES.en.tabs.myReading).toBe('Recitations');
+    expect(MESSAGES.en.tabs.myReading).toBe('Wirds');
     expect(MESSAGES.ar.tabs.myReading).toBe('أورادي');
     expect(MESSAGES['ar-EG'].tabs.myReading).toBe('أورادي');
     // The Continue Reciting card's button: shorter in English; Arabic unchanged.
@@ -664,6 +697,26 @@ describe('Continue Reading (متابعة القراءة)', () => {
 
 describe('View All (/emotions)', () => {
   const catalog = Array.from({ length: 30 }, (_, i) => ({ key: `e${i}`, names: { en: `Emotion ${i}`, ar: `شعور ${i}` }, icon: 'heart' }) as unknown as Emotion);
+
+  it('the title «بماذا تشعر الآن؟» / How are you feeling now? with «وتطمئن القلوب» / And Hearts Find Peace under it, in the App Language and its direction; all 30 emotions kept; the tab label unchanged', async () => {
+    state.emotions = catalog;
+    expect(MESSAGES.ar.emotionsAll.title).toBe(MESSAGES.ar.home.title); // the same question as Home
+    expect(MESSAGES.en.tabs.howIFeel).toBe('How I Feel');
+    expect(MESSAGES.ar.tabs.howIFeel).toBe('مشاعري');
+    for (const [locale, title, subtitle, direction] of [['en', 'How are you feeling now?', 'And Hearts Find Peace', 'ltr'], ['ar', 'بماذا تشعر الآن؟', 'وتطمئن القلوب', 'rtl']] as const) {
+      state.locale = locale;
+      await mount(createElement(AllEmotionsScreen));
+      const header = root.root.findAll((node) => node.type === ('Text' as never) && node.props.accessibilityRole === 'header')[0];
+      expect(header.props.children).toBe(title);
+      const sub = byId('emotions-subtitle');
+      expect(sub.props.children).toBe(subtitle);
+      // Directly under the title, in the same block.
+      expect(sub.parent).toBe(header.parent);
+      expect(flat(sub.props.style)).toMatchObject({ writingDirection: direction });
+      expect(byId('emotions-grid').children).toHaveLength(30);
+      await act(async () => root.unmount());
+    }
+  });
 
   it('shows every emotion the app serves, in the original full-size cards; Back returns', async () => {
     state.emotions = catalog;

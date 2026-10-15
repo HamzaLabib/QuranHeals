@@ -13,6 +13,8 @@ import { MUSHAF_SCREEN_OPTIONS } from '@/mushaf/screenOptions';
 import { QuranFontSizePreferenceProvider } from '@/localization/useQuranFontSizePreference';
 import { QuranTranslationPreferenceProvider } from '@/localization/useQuranTranslationPreference';
 import { KeepAwakePreferenceProvider } from '@/mushaf/useKeepAwakePreference';
+import { useNotificationResponseRouting } from '@/notifications/useNotificationResponseRouting';
+import { NotificationsProvider } from '@/notifications/useNotifications';
 import { AppearancePreferenceProvider, useAppearancePreference } from '@/theme/useAppearancePreference';
 import { useThemeName } from '@/theme/useTheme';
 import { devLog } from '@/utils/devLog';
@@ -70,9 +72,11 @@ export default function RootLayout() {
           <QuranTranslationPreferenceProvider>
             <QuranFontSizePreferenceProvider>
               <KeepAwakePreferenceProvider>
-                <AuthProvider>
-                  <ThemedRoot />
-                </AuthProvider>
+                <NotificationsProvider>
+                  <AuthProvider>
+                    <ThemedRoot />
+                  </AuthProvider>
+                </NotificationsProvider>
               </KeepAwakePreferenceProvider>
             </QuranFontSizePreferenceProvider>
           </QuranTranslationPreferenceProvider>
@@ -89,11 +93,10 @@ export default function RootLayout() {
  * provider's value wouldn't be reachable yet.
  */
 function ThemedRoot() {
-  // Defaults to Light (see appearancePreference.ts) until the user picks an
-  // Appearance option in Settings; only follows the device appearance
-  // (app.json userInterfaceStyle: "automatic") once System is explicitly
-  // selected. Re-renders live when either the device appearance or the
-  // saved preference changes.
+  // Follows the device appearance (app.json userInterfaceStyle: "automatic")
+  // unless the user saved Light or Dark in Settings (appearancePreference.ts).
+  // Re-renders live when either the device appearance or the saved
+  // preference changes.
   const theme = useThemeName();
   const background = paletteFor(theme).background;
 
@@ -109,6 +112,8 @@ function ThemedRoot() {
   const { isReady: isAppearanceReady } = useAppearancePreference();
   const { isReady: isLocaleReady } = useAppLocale();
   const startupReady = isAppearanceReady && isLocaleReady;
+  // Reminder taps (notifications/): after startup, once the root navigator exists — including the tap that launched the app.
+  useNotificationResponseRouting(startupReady);
 
   useEffect(() => {
     // Offline Mushaf (Quran Foundation Content Sync, relayed by our backend):

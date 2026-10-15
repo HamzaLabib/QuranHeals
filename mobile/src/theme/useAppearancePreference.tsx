@@ -13,7 +13,7 @@ export type AppearancePreferenceContextValue = {
 /**
  * Default context value used when no AppearancePreferenceProvider is
  * mounted — e.g. a component rendered in isolation in a test. It reproduces
- * the Provider's own initial state (DEFAULT_APPEARANCE_MODE = 'light')
+ * the Provider's own initial state (DEFAULT_APPEARANCE_MODE = 'system')
  * rather than throwing, so appearance resolution can never block rendering
  * and every existing themed component keeps working unchanged.
  */
@@ -28,7 +28,7 @@ const AppearancePreferenceContext = createContext<AppearancePreferenceContextVal
 /**
  * Global, purely local appearance-mode preference (see
  * appearancePreference.ts for why this never syncs to an account, and for
- * why the default is Light rather than System). Starts synchronously at
+ * the default (System)). Starts synchronously at
  * DEFAULT_APPEARANCE_MODE and loads the persisted choice in the background
  * — the app renders immediately and never waits on this load; if a valid
  * saved preference is found it is applied once loaded, otherwise the app
@@ -63,7 +63,7 @@ export function AppearancePreferenceProvider({ children }: { children: ReactNode
   return <AppearancePreferenceContext.Provider value={value}>{children}</AppearancePreferenceContext.Provider>;
 }
 
-/** Never throws: falls back to the Light-default context value if no provider is mounted. */
+/** Never throws: falls back to the default (System) context value if no provider is mounted. */
 export function useAppearancePreference(): AppearancePreferenceContextValue {
   return useContext(AppearancePreferenceContext);
 }

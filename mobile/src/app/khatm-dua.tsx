@@ -12,6 +12,16 @@ import { KhatmDuaArch, KhatmDuaDivider, khatmDuaFrameColor } from '@/components/
 import { usePalette, useThemedStyles, useThemeName } from '@/theme/useTheme';
 import { scrollBottomPadding } from '@/utils/safeAreaSpacing';
 
+/**
+ * The − / + text-size buttons: a compact 36-pt circle with a 16-pt icon in lucide's finer 1.75 stroke (was a 44-pt
+ * circle and a 22-pt icon at 2). The hit slop keeps each one a full 44 × 44-pt touch target, and the row's 14-pt gap
+ * keeps the two targets apart.
+ */
+const SIZE_BUTTON = 36;
+const SIZE_ICON = 16;
+const SIZE_ICON_STROKE = 1.75;
+const SIZE_BUTTON_SLOP = (44 - SIZE_BUTTON) / 2;
+
 /** Back to the reader's page 604: the reader is under this screen when it opened it; otherwise open it there. */
 function backToPage604() {
   if (router.canGoBack()) router.back();
@@ -71,8 +81,9 @@ export default function KhatmDuaScreen({ dua = KHATM_DUA }: { dua?: KhatmDuaText
               accessibilityState={{ disabled: sizeIndex === 0 }}
               disabled={sizeIndex === 0}
               onPress={() => setSizeIndex((i) => Math.max(0, i - 1))}
+              hitSlop={SIZE_BUTTON_SLOP}
               style={({ pressed }) => [styles.sizeButton, sizeIndex === 0 && styles.disabled, pressed && styles.pressed]}>
-              <Minus size={22} color={colors.icon} />
+              <Minus size={SIZE_ICON} strokeWidth={SIZE_ICON_STROKE} color={colors.icon} />
             </Pressable>
             <Pressable
               testID="khatm-dua-larger"
@@ -81,8 +92,9 @@ export default function KhatmDuaScreen({ dua = KHATM_DUA }: { dua?: KhatmDuaText
               accessibilityState={{ disabled: sizeIndex === KHATM_DUA_SIZES.length - 1 }}
               disabled={sizeIndex === KHATM_DUA_SIZES.length - 1}
               onPress={() => setSizeIndex((i) => Math.min(KHATM_DUA_SIZES.length - 1, i + 1))}
+              hitSlop={SIZE_BUTTON_SLOP}
               style={({ pressed }) => [styles.sizeButton, sizeIndex === KHATM_DUA_SIZES.length - 1 && styles.disabled, pressed && styles.pressed]}>
-              <Plus size={22} color={colors.icon} />
+              <Plus size={SIZE_ICON} strokeWidth={SIZE_ICON_STROKE} color={colors.icon} />
             </Pressable>
           </View>
           {/* A manuscript-style panel: a fine gold rule inside the card's edge, an arch over the du'a and a divider under it. Shapes only; the text is untouched. */}
@@ -160,7 +172,7 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   },
   sizeRow: {
     flexDirection: 'row',
-    gap: spacing.sm,
+    gap: spacing.md,
     justifyContent: 'flex-end',
   },
   sizeButton: {
@@ -169,9 +181,9 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radii.full,
     borderWidth: 1,
-    height: 44,
+    height: SIZE_BUTTON,
     justifyContent: 'center',
-    width: 44,
+    width: SIZE_BUTTON,
   },
   duaCard: {
     // A comfortable reading measure on iPad; full width on phones.

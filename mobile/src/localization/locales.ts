@@ -26,8 +26,25 @@ export function isAppLanguage(value: unknown): value is AppLanguage {
   return value === 'en' || value === 'ar';
 }
 
-/** Preserves current app behavior: the app has always started in English. */
+/** The App Language for a device whose language is not Arabic (and before the stored choice has loaded). */
 export const DEFAULT_APP_LOCALE: AppLanguage = 'en';
+
+/**
+ * The App Language on a fresh install (nothing saved yet), from the device's
+ * preferred languages, most preferred first: Modern Standard Arabic when the
+ * first one is Arabic in any region (ar, ar-EG, ar-SA, ar-CA, …), English for
+ * everything else (English, French, any language the app has no interface
+ * for). Never Egyptian Arabic: that is an Emotions Language only. Only the
+ * first preference counts, so a French speaker who also lists Arabic gets
+ * English, as the device's own first choice suggests. Not saved: once the
+ * user picks a language in Settings that choice is stored and wins for good.
+ */
+export function resolveInitialAppLanguage(deviceLanguageTags: readonly string[]): AppLanguage {
+  const first = deviceLanguageTags.find((tag) => typeof tag === 'string' && tag.trim().length > 0);
+  if (!first) return DEFAULT_APP_LOCALE;
+  const language = first.trim().toLowerCase().split(/[-_]/)[0];
+  return language === 'ar' ? 'ar' : 'en';
+}
 
 export const RTL_LOCALES: readonly AppLocale[] = ['ar', 'ar-EG'];
 

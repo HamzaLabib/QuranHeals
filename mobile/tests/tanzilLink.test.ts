@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
   openURL: vi.fn(async (_url: string) => {}),
+  navigate: vi.fn((_route: unknown) => {}),
   locale: 'en' as 'en' | 'ar' | 'ar-EG',
 }));
 
@@ -26,6 +27,7 @@ vi.mock('react-native', () => ({
   useColorScheme: () => 'light',
 }));
 vi.mock('lucide-react-native', () => ({ ArrowUpRight: 'ArrowUpRight', Check: 'Check', Copy: 'Copy' }));
+vi.mock('expo-router', () => ({ router: { navigate: mocks.navigate } }));
 vi.mock('expo-clipboard', () => ({ setStringAsync: vi.fn() }));
 vi.mock('@react-native-async-storage/async-storage', () => ({ default: {} }));
 vi.mock('@/localization/useAppLocale', () => ({
@@ -33,6 +35,7 @@ vi.mock('@/localization/useAppLocale', () => ({
 }));
 vi.mock('@/localization/useQuranTranslationPreference', () => ({
   useQuranTranslationPreference: () => ({ preference: { displayMode: 'always' } }),
+  useQuranTranslationDisplayMode: () => 'always',
 }));
 vi.mock('@/localization/useQuranFontSizePreference', () => ({
   useQuranFontSizePreference: () => ({ preferredSize: 26 }),
@@ -95,6 +98,7 @@ function cardLink(currentAyah = ayah, compact = false) {
 
 beforeEach(() => {
   mocks.openURL.mockReset().mockResolvedValue(undefined);
+  mocks.navigate.mockReset();
   mocks.locale = 'en';
 });
 
@@ -141,8 +145,11 @@ describe('buildTanzilAyahUrl: exact Tanzil deep link for a given surah/ayah', ()
   });
 });
 
-describe('AyahCard reference opens the current ayah in Tanzil', () => {
-  it.each([false, true])('the entire reference is pressable, including compact=%s', (compact) => {
+/** The route the reference navigates to: the app's Mushaf tab, the page holding the ayah, that ayah selected. */
+const mushafRoute = (page: number, verseKey: string) => ({ pathname: '/mushaf', params: { page: String(page), ayah: verseKey, at: expect.stringMatching(/^\d+$/) } });
+
+describe('AyahCard reference opens the current ayah in the app`s own Mushaf (never a website)', () => {
+  it.each([false, true])('the entire reference is pressable, unchanged in look, including compact=%s', (compact) => {
     const { link } = cardLink(ayah, compact);
     expect(link.type).toBe('Pressable');
     expect(link.props.disabled).toBe(false);
@@ -151,16 +158,23 @@ describe('AyahCard reference opens the current ayah in Tanzil', () => {
       .toBe(formatAyahReference(39, 62));
     expect(children.find((child) => child.type === 'ArrowUpRight')?.props)
       .toMatchObject({ size: 16, color: lightPalette.accent });
-    expect(mocks.openURL).not.toHaveBeenCalled();
+    expect(mocks.navigate).not.toHaveBeenCalled();
     link.props.onPress!();
-    expect(mocks.openURL).toHaveBeenCalledExactlyOnceWith('https://tanzil.net/#39:62');
+    // Az-Zumar 39:62 is on page 465 (verified page starts).
+    expect(mocks.navigate).toHaveBeenCalledExactlyOnceWith(mushafRoute(465, '39:62'));
+    expect(mocks.openURL).not.toHaveBeenCalled();
   });
 
-  it('uses the new current ayah when a different card is rendered', () => {
+  it('the exact ayah`s page, not its Surah`s first page; each card its own ayah', () => {
     cardLink().link.props.onPress!();
     cardLink({ ...ayah, id: '19:58', surahNumber: 19, ayahNumber: 58 }).link.props.onPress!();
-    expect(mocks.openURL.mock.calls.map(([url]) => url))
-      .toEqual(['https://tanzil.net/#39:62', 'https://tanzil.net/#19:58']);
+    cardLink({ ...ayah, id: '2:255', surahNumber: 2, ayahNumber: 255 }).link.props.onPress!();
+    cardLink({ ...ayah, id: '1:1', surahNumber: 1, ayahNumber: 1 }).link.props.onPress!();
+    cardLink({ ...ayah, id: '114:6', surahNumber: 114, ayahNumber: 6 }).link.props.onPress!();
+    expect(mocks.navigate.mock.calls.map(([route]) => route)).toEqual([
+      mushafRoute(465, '39:62'), mushafRoute(309, '19:58'), mushafRoute(42, '2:255'), mushafRoute(1, '1:1'), mushafRoute(604, '114:6'),
+    ]);
+    expect(mocks.openURL).not.toHaveBeenCalled();
   });
 
   it.each(APP_LOCALES)('labels the exact ayah with the localized action in %s', (locale) => {
@@ -183,20 +197,17 @@ describe('AyahCard reference opens the current ayah in Tanzil', () => {
     expect(referenceGroup?.props.children).toEqual([link, attribution]);
   });
 
-  it('disables invalid references and never opens a fallback URL', () => {
-    const { link } = cardLink({ ...ayah, ayahNumber: 999 });
-    expect(link.props.disabled).toBe(true);
-    expect(link.props.accessibilityState).toEqual({ disabled: true });
-    expect(elements(link).some((element) => element.type === 'ArrowUpRight')).toBe(false);
-    link.props.onPress!();
+  it('disables invalid references and never opens a fallback page or URL', () => {
+    // 1:8: in range for a bare number check, but Al-Fatiha has 7 ayahs — never opened.
+    for (const invalid of [{ ...ayah, ayahNumber: 999 }, { ...ayah, surahNumber: 1, ayahNumber: 8 }]) {
+      const { link } = cardLink(invalid);
+      expect(link.props.disabled).toBe(true);
+      expect(link.props.accessibilityState).toEqual({ disabled: true });
+      expect(elements(link).some((element) => element.type === 'ArrowUpRight')).toBe(false);
+      link.props.onPress!();
+    }
+    expect(mocks.navigate).not.toHaveBeenCalled();
     expect(mocks.openURL).not.toHaveBeenCalled();
-  });
-
-  it('catches a rejected external link without crashing', async () => {
-    mocks.openURL.mockRejectedValueOnce(new Error('No browser available'));
-    expect(() => cardLink().link.props.onPress!()).not.toThrow();
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(mocks.openURL).toHaveBeenCalledExactlyOnceWith('https://tanzil.net/#39:62');
   });
 });
 
@@ -233,8 +244,10 @@ describe('Shared reference link and action hierarchy', () => {
     expect(favorites).toContain('<FavoriteActions favorite={favorite} onRemove={removeFavorite}');
   });
 
-  it('uses the existing URL builder in the shared card', () => {
-    expect(card).toContain('buildTanzilAyahUrl(ayah.surahNumber, ayah.ayahNumber)');
+  it('the shared card opens the Mushaf through its route helper and opens no external link', () => {
+    expect(card).toContain('mushafRouteForAyah(ayah.surahNumber, ayah.ayahNumber)');
+    expect(card).toContain('router.navigate(route)');
+    expect(card).not.toMatch(/buildTanzilAyahUrl|\bLinking\b|openURL/);
   });
 
   it('keeps the original olive reference styling and attribution spacing with pressed feedback', () => {

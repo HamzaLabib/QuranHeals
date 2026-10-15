@@ -81,7 +81,10 @@ export default function AllEmotionsScreen() {
           style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
           <BackIcon size={22} color={colors.icon} />
         </Pressable>
-        <Text accessibilityRole="header" style={[styles.title, direction]}>{messages.emotionsAll.title}</Text>
+        <View style={styles.titleBlock}>
+          <Text accessibilityRole="header" style={[styles.title, direction]}>{messages.emotionsAll.title}</Text>
+          <Text testID="emotions-subtitle" style={[styles.subtitle, direction]}>{messages.emotionsAll.subtitle}</Text>
+        </View>
         <SettingsHeaderButton style={styles.iconButton} pressedStyle={styles.pressed} />
       </View>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding(insets.bottom) }]}>
@@ -123,7 +126,10 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     alignItems: 'center', backgroundColor: colors.surface, borderColor: colors.border, borderRadius: radii.full,
     borderWidth: 1, height: 48, justifyContent: 'center', width: 48,
   },
-  title: { color: colors.textPrimary, flex: 1, fontSize: 26, fontWeight: '800' },
+  // The title and its subtitle (Home's subtitle style) share the header's flexible middle.
+  titleBlock: { flex: 1, gap: 2 },
+  title: { color: colors.textPrimary, fontSize: 26, fontWeight: '800' },
+  subtitle: { color: colors.textSecondary, fontSize: typography.body, lineHeight: 22 },
   content: { gap: spacing.lg, paddingHorizontal: spacing.lg, paddingTop: spacing.sm },
   // Home's original grid: two columns, the same gaps.
   grid: { columnGap: spacing.md, flexDirection: 'row', flexWrap: 'wrap', rowGap: spacing.sm },

@@ -29,15 +29,15 @@ describe('Home: the two texts swapped', () => {
 
   it('the exact approved new line, in English and Standard Arabic', () => {
     // Shown exactly as written: this position's style (subtitle) never transforms case.
-    expect(MESSAGES.en.home.eyebrow).toBe('Reflect with the Quran');
-    expect(MESSAGES['ar-EG'].home.eyebrow).toBe('تدبّر وتفكّر مع القرآن');
-    expect(MESSAGES.ar.home.eyebrow).toBe('تدبّر وتفكّر مع القرآن');
+    expect(MESSAGES.en.home.eyebrow).toBe('Live by the Quran');
+    expect(MESSAGES['ar-EG'].home.eyebrow).toBe('عِشْ بالقرآن');
+    expect(MESSAGES.ar.home.eyebrow).toBe('عِشْ بالقرآن');
   });
 
-  it('the tagline keeps its wording in both App Languages', () => {
-    // Shown exactly as written (no automatic uppercase): sentence case, no apostrophe or full stop.
-    expect(MESSAGES.en.home.subtitle).toBe('Quranic guidance for every emotion');
-    expect(MESSAGES.ar.home.subtitle).toBe('هداية قرآنية لكل شعور.');
+  it('the tagline above the emotions question, in both App Languages', () => {
+    // Shown exactly as written (no automatic uppercase), with the approved diacritics.
+    expect(MESSAGES.en.home.subtitle).toBe('Healing for What Lies Within the Hearts');
+    expect(MESSAGES.ar.home.subtitle).toBe('شفاءٌ لما في الصدور');
     expect(APP_LANGUAGES).toEqual(['en', 'ar']);
     // Egyptian Arabic keeps its approved tagline.
     expect(MESSAGES['ar-EG'].home.subtitle).toBe('رسالة من القرآن لكل إحساس بتحسه');

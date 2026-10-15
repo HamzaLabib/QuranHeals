@@ -1,7 +1,8 @@
 import * as Clipboard from 'expo-clipboard';
+import { router } from 'expo-router';
 import { ArrowUpRight, Check, Copy } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
@@ -14,9 +15,11 @@ import {
 import { AYAH_SCREEN_TRANSLATION_MODE, resolveTranslationVisibility } from '@/localization/quranTranslationPreference';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { useQuranFontSizePreference } from '@/localization/useQuranFontSizePreference';
+import { useQuranTranslationDisplayMode } from '@/localization/useQuranTranslationPreference';
 import type { Ayah } from '@/types/domain';
 import { formatAyahReference } from '@/utils/ayahReference';
-import { buildTanzilAyahUrl } from '@/utils/tanzilLink';
+import { translationPending } from '@/services/ayahTranslation';
+import { mushafRouteForAyah } from '@/mushaf/ayahInMushaf';
 import { QuranFontSizeControls } from './QuranFontSizeControls';
 
 type AyahCardProps = {
@@ -28,23 +31,30 @@ type AyahCardProps = {
 const COPY_CONFIRMATION_MS = 1300;
 
 /**
- * Quran Arabic is always shown. The English Pickthall translation (with
- * its attribution) appears only when the reader taps Show translation, and
- * Hide translation hides it again (AYAH_SCREEN_TRANSLATION_MODE: there is
- * no Settings choice any more; see quranTranslationPreference.ts).
- * "Revealed on this ayah" (`on-demand` mode) is local, per-card state keyed
- * to `ayah.id` — it resets automatically whenever a different ayah is
- * shown (new `AyahCard` render for that id), and is never written to the
- * persisted global preference. In `on-demand` mode this is a proper
- * show/hide toggle (not a one-way reveal): pressing the control flips
- * between hidden ("Show translation") and visible ("Hide translation").
+ * Quran Arabic is always shown. The English Pickthall translation (with its
+ * attribution) follows Settings → Show Translation (the stored display mode,
+ * quranTranslationPreference.ts):
+ *  - OFF ('off'): never shown, and no Show translation button;
+ *  - ON + On Demand ('on-demand'): hidden, with the Show / Hide translation
+ *    toggle (AYAH_SCREEN_TRANSLATION_MODE);
+ *  - ON + Always ('always'): shown at once, with the toggle to hide it for
+ *    this ayah; the next ayah is shown again.
+ * The compact card (Favorites) follows OFF, and otherwise always starts hidden
+ * with the toggle, as before. Outside the preference provider (a card rendered
+ * alone) it behaves as On Demand.
+ *
+ * The reader's toggle is local, per-card state keyed to `ayah.id`: it resets
+ * whenever a different ayah is shown, and is never written to the persisted
+ * global preference.
  */
 export function AyahCard({ ayah, compact = false }: AyahCardProps) {
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
   const { messages } = useAppLocale();
   const { preferredSize } = useQuranFontSizePreference();
-  const [revealedAyahId, setRevealedAyahId] = useState<string | null>(null);
+  const displayMode = useQuranTranslationDisplayMode();
+  // Set only once the reader taps the toggle on this ayah; until then the Show Translation setting decides.
+  const [toggled, setToggled] = useState<{ ayahId: string; revealed: boolean } | null>(null);
   const [trackedAyahId, setTrackedAyahId] = useState(ayah.id);
   const [isCopied, setIsCopied] = useState(false);
   const copyResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -55,7 +65,7 @@ export function AyahCard({ ayah, compact = false }: AyahCardProps) {
   // commit/cascading-render pass — see https://react.dev/learn/you-might-not-need-an-effect.
   if (trackedAyahId !== ayah.id) {
     setTrackedAyahId(ayah.id);
-    setRevealedAyahId(null);
+    setToggled(null);
     setIsCopied(false);
   }
 
@@ -65,8 +75,15 @@ export function AyahCard({ ayah, compact = false }: AyahCardProps) {
     };
   }, []);
 
-  const isRevealed = revealedAyahId === ayah.id;
-  const { showTranslation, showToggleControl } = resolveTranslationVisibility(AYAH_SCREEN_TRANSLATION_MODE, isRevealed);
+  const translationOff = displayMode === 'off';
+  const startsRevealed = !compact && displayMode === 'always';
+  const isRevealed = toggled?.ayahId === ayah.id ? toggled.revealed : startsRevealed;
+  const visibility = resolveTranslationVisibility(AYAH_SCREEN_TRANSLATION_MODE, isRevealed);
+  // Show Translation OFF: neither the translation nor its button. Nor while an ayah saved offline still waits for its
+  // translation (services/ayahForAction.ts): nothing is shown in its place, never an empty block.
+  const noTranslation = translationOff || translationPending(ayah);
+  const showTranslation = !noTranslation && visibility.showTranslation;
+  const showToggleControl = !noTranslation && visibility.showToggleControl;
   const toggleLabel = isRevealed ? messages.translation.hideTranslation : messages.translation.showTranslation;
 
   // Each ayah calculates its own automatic length adjustment from its own
@@ -75,12 +92,11 @@ export function AyahCard({ ayah, compact = false }: AyahCardProps) {
   const arabicFontSize = compact ? computeCompactQuranFontSize(preferredSize, wordCount) : computeMainQuranFontSize(preferredSize, wordCount);
   const arabicLineHeight = computeQuranLineHeight(arabicFontSize);
 
-  const tanzilAyahUrl = buildTanzilAyahUrl(ayah.surahNumber, ayah.ayahNumber);
-  const openInTanzil = () => {
-    if (!tanzilAyahUrl) return;
-    Linking.openURL(tanzilAyahUrl).catch(() => {
-      // Best-effort external link: an unavailable browser must not crash the card.
-    });
+  // The reference opens this exact ayah in the app's own Mushaf (its page, the ayah selected), never a website.
+  const mushafRoute = mushafRouteForAyah(ayah.surahNumber, ayah.ayahNumber);
+  const openInMushaf = () => {
+    const route = mushafRouteForAyah(ayah.surahNumber, ayah.ayahNumber);
+    if (route) router.navigate(route);
   };
 
   const copyAyahText = async () => {
@@ -131,12 +147,12 @@ export function AyahCard({ ayah, compact = false }: AyahCardProps) {
         <Pressable
           accessibilityRole="link"
           accessibilityLabel={`${messages.ayah.readInQuran}: ${formatAyahReference(ayah.surahNumber, ayah.ayahNumber)}`}
-          accessibilityState={{ disabled: !tanzilAyahUrl }}
-          disabled={!tanzilAyahUrl}
-          onPress={openInTanzil}
+          accessibilityState={{ disabled: !mushafRoute }}
+          disabled={!mushafRoute}
+          onPress={openInMushaf}
           style={({ pressed }) => [styles.referenceLink, pressed && styles.pressed]}>
           <Text style={styles.reference}>{formatAyahReference(ayah.surahNumber, ayah.ayahNumber)}</Text>
-          {tanzilAyahUrl && <ArrowUpRight size={16} color={colors.accent} />}
+          {mushafRoute && <ArrowUpRight size={16} color={colors.accent} />}
         </Pressable>
         <Text style={styles.source}>Quran text: Tanzil · Uthmani 1.1</Text>
       </View>
@@ -152,7 +168,7 @@ export function AyahCard({ ayah, compact = false }: AyahCardProps) {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={toggleLabel}
-          onPress={() => setRevealedAyahId(isRevealed ? null : ayah.id)}
+          onPress={() => setToggled({ ayahId: ayah.id, revealed: !isRevealed })}
           style={({ pressed }) => [styles.revealButton, pressed && styles.pressed]}>
           <Text style={styles.revealButtonText}>{toggleLabel}</Text>
         </Pressable>

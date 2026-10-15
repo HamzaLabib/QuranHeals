@@ -5,7 +5,7 @@ import { useAppearancePreference } from './useAppearancePreference';
 
 /**
  * The app theme to render, from the user's saved Appearance preference
- * (default: Light — see appearancePreference.ts). 'system' follows the
+ * (default: System — see appearancePreference.ts). 'system' follows the
  * device color scheme and re-renders live when it changes; 'light'/'dark'
  * force that theme regardless of the device appearance. This is the ONLY
  * place device appearance (useColorScheme) is read — every screen should go

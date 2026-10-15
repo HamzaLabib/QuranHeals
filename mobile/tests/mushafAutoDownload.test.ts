@@ -573,6 +573,116 @@ function realDevice() {
   return { relay, cdn, files, engine };
 }
 
+describe('production: prepared, and held back until the device checks pass (autoDownloadConfig.ts)', { timeout: 20_000 }, () => {
+  it('the gate is closed: a production binary (and any OTA update to it) never downloads by itself yet; preview and other channels are unchanged', async () => {
+    const config = await import('@/mushaf/offline/autoDownloadConfig');
+    expect(config.PRODUCTION_AUTO_DOWNLOAD_RELEASED).toBe(false);
+    expect(config.PRODUCTION_CHANNEL).toBe('production');
+    expect(config.autoDownloadChannels()).toEqual(['preview']);
+    expect(config.resolveAutoDownloadEnabled({ dev: false, channel: 'production' })).toBe(false);
+    expect(config.resolveAutoDownloadEnabled({ dev: false, channel: 'preview' })).toBe(true);
+  });
+
+  it('released (the one-line switch): production joins preview; nothing else is ever enabled', async () => {
+    const { autoDownloadChannels, resolveAutoDownloadEnabled } = await import('@/mushaf/offline/autoDownloadConfig');
+    expect(autoDownloadChannels(true)).toEqual(['preview', 'production']);
+    expect(resolveAutoDownloadEnabled({ dev: false, channel: 'production' }, true)).toBe(true);
+    expect(resolveAutoDownloadEnabled({ dev: false, channel: 'preview' }, true)).toBe(true);
+    for (const channel of ['development', 'Production', 'production-2', '', null, undefined]) {
+      expect(resolveAutoDownloadEnabled({ dev: false, channel }, true), String(channel)).toBe(false);
+    }
+  });
+
+  /** A production binary once released: the controller exactly as the build gate would configure it. */
+  const released = async (options: Omit<Parameters<typeof harness>[0], 'enabled'> = {}) => {
+    const { resolveAutoDownloadEnabled } = await import('@/mushaf/offline/autoDownloadConfig');
+    return harness({ ...options, enabled: resolveAutoDownloadEnabled({ dev: false, channel: 'production' }, true) });
+  };
+
+  it('released, on Wi-Fi: downloads by itself, and is ready only once the engine reports it complete', async () => {
+    h = await released({ network: 'wifi' });
+    await h.controller.start();
+    await h.settle();
+    expect(h.s.downloads).toBe(1);
+    expect(h.controller.getState()).toMatchObject({ phase: 'ready', justCompleted: true });
+  });
+
+  it('released, on mobile data or an unknown network: asks first, downloads only after Yes, and remembers it', async () => {
+    for (const network of ['cellular', 'unknown'] as const) {
+      h = await released({ network });
+      await h.controller.start();
+      await h.settle();
+      expect(h.phase(), network).toBe('needs-consent');
+      expect(h.s.downloads, network).toBe(0);
+      await h.controller.allowCellular();
+      await h.settle();
+      expect(h.s.downloads, network).toBe(1);
+      expect(h.stored.prefs.cellular, network).toBe('allowed');
+      expect(h.phase(), network).toBe('ready');
+      await h.controller.dispose();
+    }
+  });
+
+  it('released: Not now (Wi-Fi only) is respected on mobile data, without asking again; Wi-Fi then starts it', async () => {
+    h = await released({ network: 'cellular', prefs: { cellular: 'wifi-only', hold: null } });
+    await h.controller.start();
+    await h.settle();
+    expect(h.phase()).toBe('waiting-wifi');
+    expect(h.s.downloads).toBe(0);
+    await h.network('wifi');
+    await h.settle();
+    expect(h.s.downloads).toBe(1);
+    expect(h.phase()).toBe('ready');
+  });
+
+  it('released: a saved Pause or Remove holds — nothing downloads by itself, on Wi-Fi too', async () => {
+    for (const hold of ['paused', 'removed'] as const) {
+      h = await released({ network: 'wifi', prefs: { cellular: 'ask', hold } });
+      await h.controller.start();
+      await h.settle();
+      expect(h.phase(), hold).toBe(hold);
+      expect(h.s.downloads, hold).toBe(0);
+      await h.controller.dispose();
+    }
+  });
+
+  it('released: a download that leaves the fonts incomplete is never ready (never "Available Offline")', async () => {
+    h = await released({ network: 'wifi' });
+    h.s.steps = ['incomplete'];
+    await h.controller.start();
+    await h.settle();
+    expect(h.controller.getState()).toMatchObject({ phase: 'retrying', justCompleted: false });
+    expect(h.phase()).not.toBe('ready');
+  });
+
+  it('released, with the real verified engine: ready only once every layout and all 604 page fonts are verified', async () => {
+    const device = realDevice();
+    device.cdn.state.dropAfter = 200; // the fonts stop part way
+    h = await released({ network: 'wifi', engine: device.engine() });
+    await h.controller.start();
+    await h.settle();
+    expect(h.phase()).not.toBe('ready');
+    expect(await device.engine().status()).toMatchObject({ installed: true, complete: false });
+    device.cdn.state.dropAfter = Infinity;
+    await h.fireRetry();
+    expect(h.phase()).toBe('ready');
+    expect(await device.engine().status()).toMatchObject({ installed: true, complete: true, fonts: { ready: 604, total: 604 } });
+  });
+
+  it('not released (today): a production binary stays off — nothing downloads by itself even on Wi-Fi; the reader`s own Download still works', async () => {
+    const { resolveAutoDownloadEnabled } = await import('@/mushaf/offline/autoDownloadConfig');
+    h = harness({ network: 'wifi', enabled: resolveAutoDownloadEnabled({ dev: false, channel: 'production' }) });
+    await h.controller.start();
+    await h.settle();
+    expect(h.phase()).toBe('disabled');
+    expect(h.s.downloads).toBe(0);
+    await h.controller.resume(); // the Settings row's / the reader's Download
+    await h.settle();
+    expect(h.s.downloads).toBe(1);
+    expect(h.phase()).toBe('ready');
+  });
+});
+
 describe('with the real engine', { timeout: 20_000 }, () => {
   it('interrupted download and restart: the next launch resumes with only what is missing, and is complete; a later launch downloads nothing', async () => {
     const device = realDevice();

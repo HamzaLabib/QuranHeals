@@ -10,12 +10,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export type AppearanceMode = 'system' | 'light' | 'dark';
 
 /**
- * A user who has never chosen an Appearance option gets Light, not System —
- * the app does not follow the device theme until the user explicitly asks
- * it to (by selecting System). Also the fallback for a missing/corrupted
+ * A user who has never chosen an Appearance option follows the device's
+ * Light/Dark appearance (System). A saved Light or Dark choice is kept as it
+ * is; nothing ever rewrites it. Also the fallback for a missing/corrupted
  * stored value or a storage read failure.
  */
-export const DEFAULT_APPEARANCE_MODE: AppearanceMode = 'light';
+export const DEFAULT_APPEARANCE_MODE: AppearanceMode = 'system';
 
 const APPEARANCE_MODES: readonly AppearanceMode[] = ['system', 'light', 'dark'];
 
@@ -30,7 +30,7 @@ export function parseAppearanceMode(raw: unknown): AppearanceMode {
   return isValidAppearanceMode(raw) ? raw : DEFAULT_APPEARANCE_MODE;
 }
 
-/** Never throws and never blocks app startup: any read failure (or nothing stored yet) resolves to DEFAULT_APPEARANCE_MODE ('light'). */
+/** Never throws and never blocks app startup: any read failure (or nothing stored yet) resolves to DEFAULT_APPEARANCE_MODE ('system'). */
 export async function loadAppearancePreference(): Promise<AppearanceMode> {
   try {
     const raw = await AsyncStorage.getItem(STORAGE_KEY);

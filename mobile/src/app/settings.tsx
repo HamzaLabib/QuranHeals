@@ -1,23 +1,31 @@
 import { router } from 'expo-router';
 import { ArrowLeft, ArrowRight, Check, ChevronLeft, ChevronRight, Flag } from 'lucide-react-native';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState, type ReactNode } from 'react';
 import { LayoutAnimation, Linking, Pressable, RefreshControl, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/useAuth';
 import { AccountSection } from '@/components/AccountSection';
-import { OfflineMushafPanel } from '@/components/OfflineMushafPanel';
+import { ConfirmSheet } from '@/components/ConfirmSheet';
+import { NotificationReminderRow } from '@/components/NotificationReminderRow';
+import { OfflineMushafSettingsRow } from '@/components/OfflineMushafSettingsRow';
 import { ReportIssueSheet } from '@/components/ReportIssueSheet';
 import { SettingsAccordion } from '@/components/SettingsAccordion';
+import { TranslationSettingRow } from '@/components/TranslationSettingRow';
 import { getLegalLinks } from '@/constants/legalLinks';
 import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
+import { deviceUses24HourClock } from '@/localization/deviceLocale';
 import { EMOTIONS_LANGUAGES, type EmotionsLanguage } from '@/localization/emotionsLanguage';
 import { APP_LANGUAGES, APP_LOCALE_DISPLAY_NAMES, getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { QURAN_READING_MODES, useQuranReadingMode } from '@/localization/quranLanguage';
+import { isShowTranslationOn, translationModeOf } from '@/localization/quranTranslationPreference';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { useEmotionsLanguage } from '@/localization/useEmotionsLanguage';
+import { useQuranTranslationPreference } from '@/localization/useQuranTranslationPreference';
 import { useKeepAwakePreference } from '@/mushaf/useKeepAwakePreference';
+import { reminderFrequencies, type NotificationKind } from '@/notifications/types';
+import { useNotifications, type ReminderChange } from '@/notifications/useNotifications';
 import type { AppearanceMode } from '@/theme/appearancePreference';
 import { useAppearancePreference } from '@/theme/useAppearancePreference';
 import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
@@ -25,10 +33,18 @@ import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefres
 const APPEARANCE_MODES: readonly AppearanceMode[] = ['system', 'light', 'dark'];
 
 /**
- * The collapsible sections; at most one is open at a time. Account and the
- * Danger Zone are not part of this. Exactly three language settings, in
- * this order: App Language, Emotions Language, Quran Language (no separate
- * Quran Translation row: the ayah screen's Show translation covers it).
+ * Settings: exactly five sections, in this order (no separate Notifications
+ * section — each reminder sits in the section it belongs to):
+ *  1. App — App Language (English / العربية), Appearance (System / Light / Dark).
+ *  2. Emotions — Emotions Language, Show Translation, Emotional Check-in.
+ *  3. Quran — Quran Language, Keep Screen Awake, Wird Reminder, Random Quran
+ *     Ayah, and the offline Mushaf.
+ *  4. Support — Report an Issue, Legal & Privacy.
+ *  5. Account — AccountSection (sign in / out, Delete Account), unchanged.
+ *
+ * The collapsible cards hold the choice lists; at most one is open at a time.
+ * Exactly three language settings: App, Emotions and Quran Language (no
+ * separate Quran Translation row).
  */
 type SettingsSectionKey = 'language' | 'emotions' | 'quran' | 'appearance' | 'legal';
 
@@ -45,6 +61,10 @@ export default function SettingsScreen() {
   const { mode: quranMode, setMode: setQuranMode } = useQuranReadingMode();
   const { mode, setMode } = useAppearancePreference();
   const { enabled: keepAwake, setEnabled: setKeepAwake } = useKeepAwakePreference();
+  const { preference: translationPreference, setShowTranslation, setTranslationMode } = useQuranTranslationPreference();
+  const notifications = useNotifications();
+  const [uses24HourClock] = useState(() => deviceUses24HourClock());
+  const [isPermissionSheetVisible, setIsPermissionSheetVisible] = useState(false);
   const { refreshSync } = useAuth();
   const direction = getDirectionStyle(locale);
   // A "back" arrow should point toward where the previous screen visually
@@ -73,6 +93,37 @@ export default function SettingsScreen() {
     animateNextLayout();
     setOpenSection(null);
   };
+
+  // The OS prompt is shown only from here, after a tap, with an explanation first — never on launch.
+  // Once the OS will no longer ask (denied for good), the same tap opens the device settings instead.
+  const canAskPermission = notifications.permission.status === 'undetermined'
+    || (notifications.permission.status === 'denied' && notifications.permission.canAskAgain);
+  const onPermissionPress = () => {
+    if (canAskPermission) setIsPermissionSheetVisible(true);
+    else notifications.openSystemSettings();
+  };
+  const changeReminder = (kind: NotificationKind, change: ReminderChange) => {
+    notifications.update(kind, change);
+    // Turning a reminder ON is the natural moment to ask, if the OS has never been asked.
+    if (change.enabled === true && notifications.permission.status === 'undetermined') setIsPermissionSheetVisible(true);
+  };
+  const reminderRow = (kind: NotificationKind, title: string) => (
+    <NotificationReminderRow
+      testID={`settings-reminder-${kind}`}
+      title={title}
+      frequencies={reminderFrequencies(kind)}
+      preference={notifications.preferences[kind]}
+      state={notifications.states[kind]}
+      permission={notifications.permission}
+      locale={locale}
+      messages={messages}
+      direction={direction}
+      isRtl={isRtl}
+      uses24HourClock={uses24HourClock}
+      onChange={(change) => changeReminder(kind, change)}
+      onPermissionPress={onPermissionPress}
+    />
+  );
 
   const onPullToRefresh = useCallback(async () => {
     await runGuardedRefresh(refreshGuardRef.current, async () => {
@@ -136,7 +187,8 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        <View style={styles.accordionGroup}>
+        {/* 1. App */}
+        <SettingsSection testID="settings-section-app" title={messages.settings.appSection} direction={direction}>
           <SettingsAccordion
             title={messages.settings.appLanguageSection}
             summary={APP_LOCALE_DISPLAY_NAMES[locale]}
@@ -156,6 +208,27 @@ export default function SettingsScreen() {
           </SettingsAccordion>
 
           <SettingsAccordion
+            title={messages.appearance.sectionLabel}
+            summary={appearanceModeLabel[mode]}
+            expanded={openSection === 'appearance'}
+            onToggle={() => toggleSection('appearance')}
+            direction={direction}
+            isRtl={isRtl}>
+            {APPEARANCE_MODES.map((option) => (
+              <OptionRow
+                key={option}
+                label={appearanceModeLabel[option]}
+                selected={option === mode}
+                onPress={() => choose(() => setMode(option))}
+                direction={direction}
+              />
+            ))}
+          </SettingsAccordion>
+        </SettingsSection>
+
+        {/* 2. Emotions */}
+        <SettingsSection testID="settings-section-emotions" title={messages.settings.emotionsSection} direction={direction}>
+          <SettingsAccordion
             title={messages.settings.emotionsLanguageSection}
             summary={emotionsLanguageLabel[emotionsLanguage]}
             expanded={openSection === 'emotions'}
@@ -173,6 +246,22 @@ export default function SettingsScreen() {
             ))}
           </SettingsAccordion>
 
+          {/* Show Translation: the stored, synced translation preference (quranTranslationPreference.ts). OFF: no translation and no Show translation button on the ayah screen; ON + On Demand: hidden, with the button; ON + Always: shown, hideable per ayah. The Share sheet still starts from this choice. */}
+          <TranslationSettingRow
+            on={isShowTranslationOn(translationPreference)}
+            mode={translationModeOf(translationPreference)}
+            messages={messages}
+            direction={direction}
+            isRtl={isRtl}
+            onToggle={setShowTranslation}
+            onModeChange={setTranslationMode}
+          />
+
+          {reminderRow('emotionCheckIn', messages.notifications.emotionCheckInTitle)}
+        </SettingsSection>
+
+        {/* 3. Quran */}
+        <SettingsSection testID="settings-section-quran" title={messages.settings.quranSection} direction={direction}>
           <SettingsAccordion
             title={messages.settings.quranLanguageSection}
             summary={quranModeLabel(quranMode)}
@@ -212,23 +301,29 @@ export default function SettingsScreen() {
             />
           </View>
 
-          <SettingsAccordion
-            title={messages.appearance.sectionLabel}
-            summary={appearanceModeLabel[mode]}
-            expanded={openSection === 'appearance'}
-            onToggle={() => toggleSection('appearance')}
-            direction={direction}
-            isRtl={isRtl}>
-            {APPEARANCE_MODES.map((option) => (
-              <OptionRow
-                key={option}
-                label={appearanceModeLabel[option]}
-                selected={option === mode}
-                onPress={() => choose(() => setMode(option))}
-                direction={direction}
-              />
-            ))}
-          </SettingsAccordion>
+          {reminderRow('wird', messages.notifications.wirdReminderTitle)}
+          {reminderRow('randomAyah', messages.notifications.randomAyahTitle)}
+
+          {/* The offline Mushaf (shared device content, the same signed in or not): one compact row with its actual status; tapping it downloads when a download is needed. */}
+          <OfflineMushafSettingsRow messages={messages} locale={locale} direction={direction} isRtl={isRtl} />
+        </SettingsSection>
+
+        {/* 4. Support */}
+        <SettingsSection testID="settings-section-support" title={messages.settings.supportSection} direction={direction}>
+          {/* General and technical issues: the same reporting sheet as the ayah screen, with no ayah attached. Signed in or not. */}
+          <Pressable
+            testID="settings-report-issue"
+            accessibilityRole="button"
+            accessibilityLabel={messages.issueReport.action}
+            accessibilityHint={messages.issueReport.settingsDescription}
+            onPress={() => setIsReportVisible(true)}
+            style={({ pressed }) => [styles.reportCard, isRtl && styles.optionRowRtl, pressed && styles.pressed]}>
+            <Flag size={18} color={colors.icon} strokeWidth={2} />
+            <View style={styles.optionTextWrap}>
+              <Text style={[styles.optionLabel, direction]}>{messages.issueReport.action}</Text>
+              <Text style={[styles.optionHint, direction]}>{messages.issueReport.settingsDescription}</Text>
+            </View>
+          </Pressable>
 
           <SettingsAccordion
             title={messages.settings.legalSection}
@@ -251,30 +346,40 @@ export default function SettingsScreen() {
               />
             ))}
           </SettingsAccordion>
-        </View>
+        </SettingsSection>
 
-        {/* The offline Mushaf (shared device content, the same signed in or not): progress and controls — pause, continue, try again, check for updates, remove — also once it is complete. */}
-        <OfflineMushafPanel />
-
-        {/* General and technical issues: the same reporting sheet as the ayah screen, with no ayah attached. Signed in or not. */}
-        <Pressable
-          testID="settings-report-issue"
-          accessibilityRole="button"
-          accessibilityLabel={messages.issueReport.action}
-          accessibilityHint={messages.issueReport.settingsDescription}
-          onPress={() => setIsReportVisible(true)}
-          style={({ pressed }) => [styles.reportCard, isRtl && styles.optionRowRtl, pressed && styles.pressed]}>
-          <Flag size={18} color={colors.icon} strokeWidth={2} />
-          <View style={styles.optionTextWrap}>
-            <Text style={[styles.optionLabel, direction]}>{messages.issueReport.action}</Text>
-            <Text style={[styles.optionHint, direction]}>{messages.issueReport.settingsDescription}</Text>
-          </View>
-        </Pressable>
-
+        {/* 5. Account: its own heading and card (components/AccountSection.tsx). */}
         <AccountSection locale={locale} messages={messages} direction={direction} isRtl={isRtl} />
       </ScrollView>
       <ReportIssueSheet visible={isReportVisible} onClose={() => setIsReportVisible(false)} variant="settings" />
+      <ConfirmSheet
+        visible={isPermissionSheetVisible}
+        testID="settings-notification-permission"
+        title={messages.notifications.permissionSheetTitle}
+        body={messages.notifications.permissionSheetBody}
+        note={messages.notifications.permissionSheetPrivacy}
+        confirmLabel={messages.notifications.permissionSheetConfirm}
+        cancelLabel={messages.notifications.permissionSheetCancel}
+        onConfirm={() => {
+          setIsPermissionSheetVisible(false);
+          void notifications.requestPermission();
+        }}
+        onCancel={() => setIsPermissionSheetVisible(false)}
+      />
     </SafeAreaView>
+  );
+}
+
+type Direction = { writingDirection: 'ltr' | 'rtl'; textAlign: 'left' | 'right' };
+
+/** One of the five sections: its heading (the Account section's style) and its cards. */
+function SettingsSection({ testID, title, direction, children }: { testID: string; title: string; direction: Direction; children: ReactNode }) {
+  const styles = useThemedStyles(makeStyles);
+  return (
+    <View testID={testID} style={styles.section}>
+      <Text accessibilityRole="header" style={[styles.sectionLabel, direction]}>{title}</Text>
+      {children}
+    </View>
   );
 }
 
@@ -283,7 +388,7 @@ type OptionRowProps = {
   hint?: string;
   selected: boolean;
   onPress: () => void;
-  direction: { writingDirection: 'ltr' | 'rtl'; textAlign: 'left' | 'right' };
+  direction: Direction;
 };
 
 function OptionRow({ label, hint, selected, onPress, direction }: OptionRowProps) {
@@ -320,7 +425,7 @@ type LinkRowProps = {
   label: string;
   hint: string;
   onPress: () => void;
-  direction: { writingDirection: 'ltr' | 'rtl'; textAlign: 'left' | 'right' };
+  direction: Direction;
 };
 
 /** Same row as OptionRow, for a page that opens outside the app (a forward chevron instead of a checkmark). */
@@ -393,8 +498,16 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     fontSize: typography.caption,
     lineHeight: 18,
   },
-  accordionGroup: {
+  section: {
     gap: spacing.sm,
+  },
+  /** The same heading as AccountSection's ("Account"), so all five sections read alike. */
+  sectionLabel: {
+    color: colors.accent,
+    fontSize: typography.small,
+    fontWeight: '700',
+    letterSpacing: 0,
+    textTransform: 'uppercase',
   },
   optionRow: {
     alignItems: 'center',
@@ -452,12 +565,6 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     color: colors.textSecondary,
     fontSize: typography.caption,
     lineHeight: 17,
-  },
-  note: {
-    color: colors.textMuted,
-    fontSize: typography.caption,
-    lineHeight: 18,
-    paddingHorizontal: spacing.xs,
   },
   pressed: {
     opacity: 0.78,
