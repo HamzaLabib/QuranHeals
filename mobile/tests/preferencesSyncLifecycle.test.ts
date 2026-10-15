@@ -610,3 +610,34 @@ describe('a server from before per-field sync', () => {
     expect(server.records.get(USER_A.id)).toMatchObject({ locale: 'ar', appearance: 'dark' });
   });
 });
+
+describe('refreshReading (أورادي وختماتي pull-to-refresh)', () => {
+  it('a guest: resolves without any account sync', async () => {
+    const { syncReading } = await import('@/sync/readingSync');
+    vi.mocked(syncReading).mockClear();
+    await launchApp();
+    expect(account.status).toBe('guest');
+    await act(async () => { await account.refreshReading(); });
+    expect(syncReading).not.toHaveBeenCalled();
+  });
+
+  it('signed in: runs the reading-only sync for this account and resolves only once it has finished', async () => {
+    const { syncReading } = await import('@/sync/readingSync');
+    signedInAs(USER_A);
+    await launchApp();
+    vi.mocked(syncReading).mockClear();
+    let finish!: (synced: boolean) => void;
+    vi.mocked(syncReading).mockImplementationOnce(() => new Promise<boolean>((resolve) => { finish = resolve; }));
+
+    let done = false;
+    let refreshing!: Promise<void>;
+    await act(async () => { refreshing = account.refreshReading().then(() => { done = true; }); });
+    await settle();
+    expect(syncReading).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(syncReading).mock.calls[0][1]).toBe(USER_A.id);
+    expect(done).toBe(false);
+
+    await act(async () => { finish(true); await refreshing; });
+    expect(done).toBe(true);
+  });
+});

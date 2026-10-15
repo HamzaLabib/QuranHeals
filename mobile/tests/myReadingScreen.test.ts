@@ -9,7 +9,13 @@ import { formatCivilDate } from '@/utils/formatDate';
  * أورادي وختماتي (/my-reading), rendered over the real reading data
  * (mushaf/khatmas.ts) on an in-memory AsyncStorage.
  */
-const state = vi.hoisted(() => ({ locale: 'en' as 'en' | 'ar' | 'ar-EG', dark: false, storage: new Map<string, string>() }));
+const state = vi.hoisted(() => ({
+  locale: 'en' as 'en' | 'ar' | 'ar-EG',
+  dark: false,
+  storage: new Map<string, string>(),
+  // useAuth's refreshReading (the account reading sync); a guest's is a no-op.
+  refreshReading: async () => {},
+}));
 vi.mock('react-native', async () => {
   const { createElement: h } = await import('react');
   return {
@@ -17,7 +23,7 @@ vi.mock('react-native', async () => {
     StyleSheet: { create: (value: unknown) => value, absoluteFill: { position: 'absolute' }, hairlineWidth: 0.5 },
     Modal: ({ visible, children, ...rest }: { visible: boolean; children: unknown }) => (visible ? h('Modal', rest, children as never) : null),
     ActivityIndicator: 'ActivityIndicator', KeyboardAvoidingView: 'KeyboardAvoidingView',
-    Pressable: 'Pressable', ScrollView: 'ScrollView', Text: 'Text', TextInput: 'TextInput', View: 'View',
+    Pressable: 'Pressable', RefreshControl: 'RefreshControl', ScrollView: 'ScrollView', Text: 'Text', TextInput: 'TextInput', View: 'View',
   };
 });
 vi.mock('@react-native-async-storage/async-storage', () => ({
@@ -40,6 +46,7 @@ vi.mock('@/theme/useTheme', async () => {
   return { usePalette: palette, useThemedStyles: (factory: (colors: unknown) => unknown) => factory(palette()) };
 });
 vi.mock('@/localization/useAppLocale', () => ({ useAppLocale: () => ({ locale: state.locale, messages: MESSAGES[state.locale] }) }));
+vi.mock('@/auth/useAuth', () => ({ useAuth: () => ({ refreshReading: () => state.refreshReading() }) }));
 
 const { default: MyReadingScreen } = await import('@/app/(tabs)/my-reading');
 const { confirmKhatma, loadReadingData, saveWirdPage } = await import('@/mushaf/khatmas');
@@ -68,6 +75,7 @@ beforeEach(() => {
   state.locale = 'en';
   state.dark = false;
   state.storage.clear();
+  state.refreshReading = async () => {};
   resetLocalDataOwnerForTests();
   vi.mocked(router.push).mockClear();
   vi.mocked(router.navigate).mockClear();
@@ -474,4 +482,105 @@ describe('no Complete Khatma here (it is on Mushaf page 604)', () => {
       expect(byId(`wird-confirm-${w.stop.id}`)).toBeDefined();
     });
   }
+});
+
+describe('pull-to-refresh (the same pattern as Favorites and Reflections)', () => {
+  const control = () => byId('my-reading-scroll').props.refreshControl as { props: { refreshing: boolean; onRefresh: () => void; tintColor: string; colors: string[]; progressBackgroundColor: string } };
+  const pull = async () => { await act(async () => { control().props.onRefresh(); }); };
+  /** The reading data another device's changes would leave here, written without notifying the screen (as if by a sync). */
+  async function snapshotOf(prepare: () => Promise<void>) {
+    await prepare();
+    const snapshot = new Map(state.storage);
+    state.storage.clear();
+    resetLocalDataOwnerForTests();
+    return snapshot;
+  }
+
+  it('uses the shared spinner: accent tint and colors on the surface background, in Light and Dark', async () => {
+    const { darkPalette, lightPalette } = await import('@/constants/theme');
+    for (const [dark, palette] of [[false, lightPalette], [true, darkPalette]] as const) {
+      state.dark = dark;
+      await render();
+      expect(control().props).toMatchObject({ refreshing: false, tintColor: palette.accent, colors: [palette.accent], progressBackgroundColor: palette.surface });
+      expect(flat(byId('my-reading-scroll').props.style)).toMatchObject({ flex: 1 });
+      await act(async () => root.unmount());
+    }
+  });
+
+  it('signed in: runs the account reading sync, then shows what it stored (أوراد, counters, history); the spinner stays until both finish', async () => {
+    const synced = await snapshotOf(async () => {
+      await readTo('ورد الفجر', 300, 604);
+      const [w] = await wirds();
+      await confirmKhatma(w.stop.id, w.cycle.id);
+      await readTo('ورد التدبر', 150);
+    });
+    await render();
+    expect(byId('my-reading-empty')).toBeDefined();
+
+    let finishSync!: () => void;
+    state.refreshReading = () => new Promise<void>((resolve) => {
+      finishSync = () => {
+        for (const [key, value] of synced) state.storage.set(key, value);
+        resolve();
+      };
+    });
+    await pull();
+    expect(control().props.refreshing).toBe(true);
+    await flush();
+    expect(control().props.refreshing).toBe(true); // the sync is still running
+
+    await act(async () => { finishSync(); });
+    await flush();
+    await flush();
+    expect(control().props.refreshing).toBe(false);
+    expect(all('my-reading-empty')).toHaveLength(0);
+    expect(textOf(byId('my-reading-stat-total'))).toMatch(/^1 \| /);
+    const names = (await wirds()).map((w) => w.stop.name).sort();
+    expect(names).toEqual(['ورد التدبر', 'ورد الفجر']);
+    for (const w of await wirds()) expect(byId(`wird-card-${w.stop.id}`)).toBeDefined();
+  });
+
+  it('a second pull while one is running starts no second sync', async () => {
+    await render();
+    let calls = 0;
+    let finish!: () => void;
+    state.refreshReading = () => { calls += 1; return new Promise<void>((resolve) => { finish = resolve; }); };
+    await pull();
+    await pull();
+    await pull();
+    expect(calls).toBe(1);
+    await act(async () => { finish(); });
+    await flush();
+    expect(control().props.refreshing).toBe(false);
+    await pull();
+    expect(calls).toBe(2);
+    await act(async () => { finish(); });
+    await flush();
+  });
+
+  it('a guest (no-op sync) or offline: local data only — the stored ورد, progress and Khatmas are re-read, never changed', async () => {
+    await readTo('ورد الفجر', 300, 604);
+    const [w] = await wirds();
+    await confirmKhatma(w.stop.id, w.cycle.id);
+    await readTo('ورد التدبر', 210);
+    await render();
+    const before = new Map(state.storage);
+    const cardsBefore = (await wirds()).map((x) => textOf(byId(`wird-card-${x.stop.id}`)));
+
+    await pull();
+    await flush();
+    await flush();
+
+    expect(control().props.refreshing).toBe(false);
+    expect(new Map(state.storage)).toEqual(before);
+    expect((await wirds()).map((x) => textOf(byId(`wird-card-${x.stop.id}`)))).toEqual(cardsBefore);
+    expect(textOf(byId('my-reading-stat-total'))).toMatch(/^1 \| /);
+  });
+
+  it('Arabic: the same control, the screen still right to left', async () => {
+    state.locale = 'ar';
+    await render();
+    expect(control().props.onRefresh).toBeTypeOf('function');
+    expect(flat(byId('my-reading-stats').props.style)).toMatchObject({ flexDirection: 'row-reverse' });
+  });
 });

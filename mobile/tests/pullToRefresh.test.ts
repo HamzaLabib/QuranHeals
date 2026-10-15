@@ -478,4 +478,31 @@ describe('Screen wiring (source-scan): each screen is actually connected to the 
     expect(ayahExperienceSource).toMatch(/from '@\/utils\/pullToRefresh'/);
     expect(ayahExperienceSource).toMatch(/runGuardedRefresh\(/);
   });
+
+  const emotionsSource = readFileSync(resolve(__dirname, '../src/app/(tabs)/emotions.tsx'), 'utf-8');
+  const myReadingSource = readFileSync(resolve(__dirname, '../src/app/(tabs)/my-reading.tsx'), 'utf-8');
+  const sharedSpinner = /<RefreshControl\s+refreshing=\{\w+\}\s+onRefresh=\{\(\) => void onPullToRefresh\(\)\}\s+tintColor=\{colors\.accent\}\s+colors=\{\[colors\.accent\]\}\s+progressBackgroundColor=\{colors\.surface\}\s+\/>/;
+
+  it('every pull-to-refresh screen renders the identical spinner (accent tint on the surface background)', () => {
+    for (const source of [homeSource, favoritesSource, reflectionsSource, emotionsSource, myReadingSource]) expect(source).toMatch(sharedSpinner);
+  });
+
+  it('How I Feel uses the shared guard and reuses its own emotions fetch (cache write, retry) — no second fetch path', () => {
+    expect(emotionsSource).toMatch(/from '@\/utils\/pullToRefresh'/);
+    expect(emotionsSource).toMatch(/runGuardedRefresh\(/);
+    const pullBlock = emotionsSource.match(/const onPullToRefresh = useCallback\(async \(\) => \{[\s\S]*?\n {2}\}, \[load, hasShown\]\);/)?.[0] ?? '';
+    expect(pullBlock).toMatch(/await load\(hasShown\)/);
+    expect(pullBlock).not.toMatch(/getEmotions\(|withRetry\(|setCachedEmotions\(/);
+  });
+
+  it('أورادي وختماتي uses the shared guard, the existing reading sync (never the full sync and its Sync Password step) and its own loader', () => {
+    expect(myReadingSource).toMatch(/from '@\/utils\/pullToRefresh'/);
+    expect(myReadingSource).toMatch(/runGuardedRefresh\(/);
+    expect(myReadingSource).toMatch(/await refreshReading\(\);\s+(\/\/[^\n]*\n\s+)*await reloadRef\.current\(\)/);
+    expect(myReadingSource).not.toMatch(/refreshSync|syncReading\(|pushCloudReading|getCloudReading/);
+    // Wird selection, progress and Khatma completion are never touched by the refresh.
+    const pullBlock = myReadingSource.match(/const onPullToRefresh = useCallback\(async \(\) => \{[\s\S]*?\n {2}\}, \[refreshReading\]\);/)?.[0] ?? '';
+    expect(pullBlock).not.toBe('');
+    expect(pullBlock).not.toMatch(/setActiveReadingStopId|saveWirdPage|confirmKhatma|removeKhatma|createWird|deleteWird/);
+  });
 });

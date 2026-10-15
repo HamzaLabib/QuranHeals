@@ -101,6 +101,15 @@ export type AuthContextValue = {
   /** Re-runs the same favorites/preferences/reflections sync as sign-in/foreground (runFullSync) — a no-op for a guest. The one function pull-to-refresh screens call; never a separate sync implementation. */
   refreshSync: () => Promise<void>;
   /**
+   * أورادي وختماتي's pull-to-refresh: the same reading-only account sync a
+   * reading change triggers (sync/readingSync.ts) — no Sync Password, one
+   * per account at a time (a sync already running is waited for, never
+   * duplicated). Resolves when it has finished; never throws (a failure
+   * leaves everything on the device and schedules the usual retry). A
+   * no-op for a guest.
+   */
+  refreshReading: () => Promise<void>;
+  /**
    * Permanently deletes the signed-in account. Local data (tokens, cached
    * master key, local reflections, local favorites) is cleared only after
    * the backend confirms deletion — a network/backend failure here throws
@@ -660,6 +669,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await runSyncAfterSignIn(token, 'pull');
   }, [runSyncAfterSignIn]);
 
+  const refreshReading = useCallback(async () => {
+    if (!sessionTokenRef.current) return;
+    await runReadingSync();
+  }, [runReadingSync]);
+
   const promptForFreshProviderCredential = useFreshProviderCredential(user?.provider ?? null);
 
   const deleteAccount = useCallback(async () => {
@@ -725,9 +739,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signOut,
       clearLastError,
       refreshSync,
+      refreshReading,
       deleteAccount,
     }),
-    [status, user, lastError, signInWithGoogle, signInWithApple, signOut, clearLastError, refreshSync, deleteAccount],
+    [status, user, lastError, signInWithGoogle, signInWithApple, signOut, clearLastError, refreshSync, refreshReading, deleteAccount],
   );
 
   return (

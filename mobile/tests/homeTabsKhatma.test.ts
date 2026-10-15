@@ -21,6 +21,8 @@ const state = vi.hoisted(() => ({
   storage: new Map<string, string>(),
   params: {} as Record<string, string>,
   emotions: [] as unknown[],
+  /** When set, the emotions fetch (services/api getEmotions) runs this instead of returning `emotions`. */
+  fetchEmotions: null as null | (() => Promise<unknown[]>),
   heightReports: [] as number[],
   /** The screen, and where a measured view is on it (measureInWindow: x, y, width, height). */
   window: { width: 390, height: 844 },
@@ -40,7 +42,7 @@ vi.mock('react-native', async () => {
     StyleSheet: { create: (value: unknown) => value, absoluteFill: { position: 'absolute' }, hairlineWidth: 0.5 },
     Modal: ({ visible, children, ...rest }: { visible: boolean; children: unknown }) => (visible ? h('Modal', rest, children as never) : null),
     ActivityIndicator: 'ActivityIndicator', KeyboardAvoidingView: 'KeyboardAvoidingView',
-    Pressable: 'Pressable', ScrollView: 'ScrollView', Text: 'Text', TextInput: 'TextInput', View: 'View',
+    Pressable: 'Pressable', RefreshControl: 'RefreshControl', ScrollView: 'ScrollView', Text: 'Text', TextInput: 'TextInput', View: 'View',
     useWindowDimensions: () => state.window,
   };
 });
@@ -91,7 +93,7 @@ vi.mock('@/theme/useTheme', async () => {
 // The du'a screen's ornament (components/KhatmDuaOrnament.tsx).
 vi.mock('react-native-svg', () => ({ default: 'Svg', Path: 'Path', Circle: 'Circle', Rect: 'Rect' }));
 vi.mock('@/localization/useAppLocale', () => ({ useAppLocale: () => ({ locale: state.locale, messages: MESSAGES[state.locale] }) }));
-vi.mock('@/services/api', () => ({ getEmotions: async () => state.emotions, getApiErrorMessage: () => 'error' }));
+vi.mock('@/services/api', () => ({ getEmotions: async () => (state.fetchEmotions ? state.fetchEmotions() : state.emotions), getApiErrorMessage: () => 'error' }));
 vi.mock('@/storage/emotionsCache', () => ({ getCachedEmotions: async () => null, setCachedEmotions: async () => undefined }));
 vi.mock('@/components/StateView', () => ({ StateView: 'StateView' }));
 vi.mock('@/utils/emotionIcons', () => ({ EMOTION_ICONS: {}, EMOTION_ICON_FALLBACK: 'EmotionIcon' }));
@@ -134,6 +136,7 @@ beforeEach(() => {
   state.locale = 'en';
   state.storage.clear();
   state.params = {};
+  state.fetchEmotions = null;
   state.heightReports = [];
   state.window = { width: 390, height: 844 };
   state.anchor = [24, 200, 120, 32];
@@ -750,6 +753,66 @@ describe('View All (/emotions)', () => {
     await flush();
     expect(router.push).toHaveBeenLastCalledWith({ pathname: '/ayah/[emotion]', params: { emotion: 'e7', namesJson: JSON.stringify(catalog[7].names) } });
     expect(JSON.parse(state.storage.get(RECENT_EMOTIONS_STORAGE_KEY)!)).toEqual(['e7']);
+  });
+
+  describe('pull-to-refresh (the same pattern as Home)', () => {
+    const control = () => byId('emotions-scroll').props.refreshControl as { props: { refreshing: boolean; onRefresh: () => void; tintColor: string; colors: string[]; progressBackgroundColor: string } };
+    const pull = async () => { await act(async () => { control().props.onRefresh(); }); };
+
+    it('the shared spinner (accent on the surface), on a screen-filling scroll so a short list still pulls', async () => {
+      state.emotions = catalog;
+      await mount(createElement(AllEmotionsScreen));
+      expect(control().props).toMatchObject({ refreshing: false, tintColor: lightPalette.accent, colors: [lightPalette.accent], progressBackgroundColor: lightPalette.surface });
+      expect(flat(byId('emotions-scroll').props.style)).toMatchObject({ flex: 1 });
+      // The same shape as Home's own control.
+      expect(source('src/app/(tabs)/index.tsx')).toMatch(/tintColor=\{colors\.accent\}\s+colors=\{\[colors\.accent\]\}\s+progressBackgroundColor=\{colors\.surface\}/);
+    });
+
+    it('reloads the emotions through the same fetch; the spinner stays until it finishes; all 30 and the language kept', async () => {
+      state.locale = 'ar';
+      state.emotions = catalog.slice(0, 29);
+      await mount(createElement(AllEmotionsScreen));
+      expect(byId('emotions-grid').children).toHaveLength(29);
+
+      let finish!: () => void;
+      state.fetchEmotions = () => new Promise((resolve) => { finish = () => resolve(catalog); });
+      await pull();
+      expect(control().props.refreshing).toBe(true);
+      await flush();
+      expect(control().props.refreshing).toBe(true);
+
+      await act(async () => { finish(); });
+      await flush();
+      expect(control().props.refreshing).toBe(false);
+      expect(byId('emotions-grid').children).toHaveLength(30);
+      expect(flat(byId('emotions-subtitle').props.style)).toMatchObject({ writingDirection: 'rtl' });
+      expect(textOf(byId('emotions-grid'))).toContain('شعور 29');
+    });
+
+    it('a second pull while one is running fetches nothing more', async () => {
+      state.emotions = catalog;
+      await mount(createElement(AllEmotionsScreen));
+      let calls = 0;
+      let finish!: () => void;
+      state.fetchEmotions = () => { calls += 1; return new Promise((resolve) => { finish = () => resolve(catalog); }); };
+      await pull();
+      await pull();
+      expect(calls).toBe(1);
+      await act(async () => { finish(); });
+      await flush();
+      expect(control().props.refreshing).toBe(false);
+    });
+
+    it('a failed refresh (offline) never blanks the list on screen and shows no error; the spinner stops', async () => {
+      state.emotions = catalog;
+      await mount(createElement(AllEmotionsScreen));
+      state.fetchEmotions = async () => { throw new Error('offline'); };
+      await pull();
+      await flush();
+      expect(control().props.refreshing).toBe(false);
+      expect(byId('emotions-grid').children).toHaveLength(30);
+      expect(root.root.findAllByType('StateView' as never)).toHaveLength(0);
+    });
   });
 });
 
