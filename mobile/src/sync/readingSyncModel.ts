@@ -1,6 +1,7 @@
 import { parseRecord, type KhatmaRecord, type ReadingCycle } from '@/mushaf/khatmas';
 import { MUSHAF_PAGE_COUNT } from '@/mushaf/mushafPage';
 import { normalizeReadingStopName, type ReadingStop } from '@/mushaf/readingStops';
+import { isWirdAyahOnPage } from '@/mushaf/wirdAyah';
 
 /**
  * أورادي وختماتي sync: what one record contains, and the deterministic rules
@@ -11,8 +12,9 @@ import { normalizeReadingStopName, type ReadingStop } from '@/mushaf/readingStop
  * Account-based, like favorites (no Sync Password): each record's content
  * is sent as it is (over HTTPS, to the signed-in account only) and checked
  * again on arrival (parseContent). Three kinds of record:
- *  - 'wird': one ورد — its name, its saved page and its current reading
- *    cycle (with the cycle's generation, `seq`).
+ *  - 'wird': one ورد — its name, its saved page (and, when saved from an
+ *    ayah's number, that ayah: `ayahKey`) and its current reading cycle
+ *    (with the cycle's generation, `seq`).
  *  - 'khatma': one confirmed Khatma, exactly as recorded on the confirming
  *    device (its date and Ramadan classification never change afterwards).
  *  - 'active': which ورد is selected, and when it was chosen.
@@ -41,6 +43,11 @@ export type WirdContent = {
   /** When the page was last saved (the stop's updatedAt). */
   savedAt: string;
   cycle: SyncedCycle;
+  /**
+   * The ayah whose number was applied on `page`; absent (not null) for a page-only position, so page-only content is
+   * exactly what earlier versions sent. Part of the position: it moves, wins and loses with `page` and `savedAt`.
+   */
+  ayahKey?: string;
 };
 
 export type KhatmaContent = { v: 1; kind: 'khatma' } & KhatmaRecord;
@@ -76,6 +83,7 @@ export function wirdContent(stop: ReadingStop, cycle: ReadingCycle): WirdContent
       seq: cycle.seq ?? 0,
       undoneCycleId: cycle.undoneCycleId ?? null,
     },
+    ...(stop.ayahKey && { ayahKey: stop.ayahKey }),
   };
 }
 
@@ -83,6 +91,7 @@ export function wirdContent(stop: ReadingStop, cycle: ReadingCycle): WirdContent
 export function wirdFromContent(content: WirdContent): { stop: ReadingStop; cycle: ReadingCycle } {
   const stop: ReadingStop = { id: content.id, name: content.name, page: content.page, updatedAt: content.savedAt };
   if (content.nameUpdatedAt) stop.nameUpdatedAt = content.nameUpdatedAt;
+  if (content.ayahKey) stop.ayahKey = content.ayahKey;
   const { seq, undoneCycleId, ...rest } = content.cycle;
   const cycle: ReadingCycle = { ...rest, lastSavedPage: content.page, seq };
   if (undoneCycleId) cycle.undoneCycleId = undoneCycleId;
@@ -146,7 +155,11 @@ export function parseContent(kind: string, recordId: string, value: unknown): Re
     const cycle = parseCycle(c.cycle);
     if (!name || name !== c.name || !isPage(c.page) || !isDate(c.savedAt) || !cycle) return null;
     if (c.nameUpdatedAt !== null && !isDate(c.nameUpdatedAt)) return null;
-    return { v: 1, kind: 'wird', id: recordId, name, nameUpdatedAt: c.nameUpdatedAt, page: c.page, savedAt: c.savedAt, cycle };
+    // An ayah must have its number on the saved page.
+    if (c.ayahKey !== undefined && !isWirdAyahOnPage(c.ayahKey, c.page)) return null;
+    const wird: WirdContent = { v: 1, kind: 'wird', id: recordId, name, nameUpdatedAt: c.nameUpdatedAt, page: c.page, savedAt: c.savedAt, cycle };
+    if (c.ayahKey !== undefined) wird.ayahKey = c.ayahKey;
+    return wird;
   }
   if (kind === 'khatma') {
     const record = parseRecord(c);
@@ -162,10 +175,12 @@ export function parseContent(kind: string, recordId: string, value: unknown): Re
 
 // ── Combining two versions ───────────────────────────────────────────────
 
-const samePosition = (a: WirdContent, b: WirdContent) => a.page === b.page && a.savedAt === b.savedAt && sameContent(a.cycle as never, b.cycle as never);
+const samePosition = (a: WirdContent, b: WirdContent) =>
+  a.page === b.page && a.ayahKey === b.ayahKey && a.savedAt === b.savedAt && sameContent(a.cycle as never, b.cycle as never);
 
-type Position = Pick<WirdContent, 'page' | 'savedAt' | 'cycle'>;
-const positionOf = (w: WirdContent): Position => ({ page: w.page, savedAt: w.savedAt, cycle: w.cycle });
+type Position = Pick<WirdContent, 'page' | 'savedAt' | 'cycle' | 'ayahKey'>;
+/** `ayahKey` always present (undefined for page-only), so the winner's replaces the other side's when spread over it. */
+const positionOf = (w: WirdContent): Position => ({ page: w.page, savedAt: w.savedAt, cycle: w.cycle, ayahKey: w.ayahKey });
 
 /**
  * This device's version (`local`) and the account's (`remote`) of one ورد,
@@ -176,7 +191,7 @@ const positionOf = (w: WirdContent): Position => ({ page: w.page, savedAt: w.sav
  * Name — whichever side renamed it; if both did, the later rename
  * (`nameUpdatedAt`); an exact tie keeps the account's.
  *
- * Saved page and cycle:
+ * Saved page (with its ayah, if any) and cycle:
  *  - Only one side saved or confirmed: that side.
  *  - Same cycle on both: the later SAVE wins (`savedAt`, when the page was
  *    saved) — never the higher page, which would wrongly treat reading

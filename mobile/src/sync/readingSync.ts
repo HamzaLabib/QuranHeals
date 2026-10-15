@@ -21,7 +21,7 @@ import {
   saveReadingSyncMeta,
   type ReadingSyncMeta,
 } from './readingSyncState';
-import { getCloudReading, pushCloudReading, type CloudReadingRecord, type ReadingChange, type ReadingChangeResult } from './syncApi';
+import { getCloudReading, pushCloudReading, SyncApiError, type CloudReadingRecord, type ReadingChange, type ReadingChangeResult } from './syncApi';
 
 /**
  * أورادي وختماتي sync for one signed-in account (docs/auth-and-sync/reading-sync.md).
@@ -59,6 +59,24 @@ export type ReadingSyncOptions = {
 };
 
 type Pending = { key: string; change: ReadingChange; content?: ReadingContent };
+
+/**
+ * Whether the account's server takes a ورد's `ayahKey` (the gold medallion's ayah). A server from before it refuses
+ * the whole upload (its content schema is strict: a 400), which would stall every reading change. So on such a
+ * refusal of a batch carrying one, this app session uploads without it: the page syncs exactly as before and the
+ * ayah stays on this device until a later session finds the server updated (it then goes up like any other change).
+ */
+let serverTakesAyahKey = true;
+/** Tests only: a new app session. */
+export function resetReadingSyncServerCapabilitiesForTests(): void {
+  serverTakesAyahKey = true;
+}
+const withoutAyahKey = (content: WirdContent): WirdContent => {
+  if (serverTakesAyahKey || content.ayahKey === undefined) return content;
+  const { ayahKey: _kept, ...pageOnly } = content;
+  return pageOnly;
+};
+const carriesAyahKey = (batch: Pending[]) => batch.some((item) => item.change.kind === 'wird' && item.change.action === 'upsert' && item.change.data.ayahKey !== undefined);
 
 /** One sync at a time per account: a full sync and a reading-only one (useAuth.tsx) never interleave. */
 const queues = new Map<string, Promise<unknown>>();
@@ -127,7 +145,7 @@ async function syncOnce(context: Context): Promise<'complete' | 'incomplete' | '
   if (!context.isCurrent()) return 'stopped';
   await saveReadingSyncMeta(context.owner, context.meta);
 
-  for (let round = 0; round < MAX_PUSH_ROUNDS; round += 1) {
+  rounds: for (let round = 0; round < MAX_PUSH_ROUNDS; round += 1) {
     const pending = changesToUpload(context, await readReadingSnapshot(context.owner));
     if (pending.length === 0) {
       if (context.limited) return 'incomplete';
@@ -138,7 +156,17 @@ async function syncOnce(context: Context): Promise<'complete' | 'incomplete' | '
     }
     for (let start = 0; start < pending.length; start += PUSH_BATCH) {
       const batch = pending.slice(start, start + PUSH_BATCH);
-      const response = await pushCloudReading(context.token, batch.map((item) => item.change));
+      let response: Awaited<ReturnType<typeof pushCloudReading>>;
+      try {
+        response = await pushCloudReading(context.token, batch.map((item) => item.change));
+      } catch (error) {
+        // A server without `ayahKey` (see serverTakesAyahKey): the same changes again, page-only.
+        if (serverTakesAyahKey && error instanceof SyncApiError && error.statusCode === 400 && carriesAyahKey(batch)) {
+          serverTakesAyahKey = false;
+          continue rounds;
+        }
+        throw error;
+      }
       if (!context.isCurrent()) return 'stopped';
       if (context.meta.syncId && response.syncId !== context.meta.syncId) {
         context.meta = { ...emptyReadingSyncMeta(), syncId: null };
@@ -295,7 +323,7 @@ function changesToUpload(context: Context, snapshot: ReadingSnapshot): Pending[]
   for (const stop of snapshot.stops) {
     const key = keyOf('wird', stop.id);
     if (unreadable.has(key) || !snapshot.cycles[stop.id]) continue;
-    const content = wirdContent(stop, snapshot.cycles[stop.id]);
+    const content = withoutAyahKey(wirdContent(stop, snapshot.cycles[stop.id]));
     const base = meta.wirds[stop.id];
     if (base && sameContent(content, base.content)) continue;
     pending.push({ key, content, change: { kind: 'wird', recordId: stop.id, action: 'upsert', baseRevision: base?.revision ?? null, data: content } });

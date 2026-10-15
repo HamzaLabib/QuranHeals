@@ -1,4 +1,4 @@
-import { Heart, Share2, X } from 'lucide-react-native';
+import { Check, Copy, Heart, Share2, X } from 'lucide-react-native';
 import { useState, type ReactNode } from 'react';
 import { Modal, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -57,23 +57,28 @@ type Theme = (typeof MUSHAF_PANEL_COLORS)['light'] | (typeof MUSHAF_PANEL_COLORS
 const themeOf = (dark: boolean): Theme => (dark ? MUSHAF_PANEL_COLORS.dark : MUSHAF_PANEL_COLORS.light);
 
 /**
- * Tapping an ayah's words: exactly three actions, in this order, nothing else.
+ * Tapping an ayah's words: exactly four actions, in this order, nothing else.
  *  - Reflection, with the retired bar's enabled, lit lamp exactly (ReflectionBulbIcon lit, its size, the `saved` green
  *    outline and the `activeFill` yellow glass): opens the existing Reflection editor for this ayah.
  *  - Save, with the Favorites heart (filled when this ayah is already a favourite): the existing Favorites toggle.
+ *  - Copy: the ayah's verified Arabic text alone (mushaf/ayahCopyText.ts) to the clipboard; "Copied" with a check for
+ *    a moment after it succeeds. The popup stays open and the ayah selected.
  *  - Share, with the ayah screen's Share icon: the existing Share Ayah sheet for this ayah (no emotion on the card).
  * None touches a ورد, reading progress or a Khatma.
  */
-export function MushafAyahActions({ anchor, dark, rtl, saved, busy, error, labels, onReflect, onToggleSave, onShare, onClose }: {
+export function MushafAyahActions({ anchor, dark, rtl, saved, copied, busy, error, labels, onReflect, onToggleSave, onCopy, onShare, onClose }: {
   anchor: PopupAnchor | null;
   dark: boolean;
   rtl: boolean;
   saved: boolean;
+  /** Just copied: the Copy row reads "Copied" with a check. */
+  copied: boolean;
   busy: boolean;
   error: string | null;
-  labels: { reflection: string; save: string; saved: string; saveHint: string; removeHint: string; share: string; shareHint: string; close: string };
+  labels: { reflection: string; save: string; saved: string; saveHint: string; removeHint: string; copy: string; copied: string; share: string; shareHint: string; close: string };
   onReflect: () => void;
   onToggleSave: () => void;
+  onCopy: () => void;
   onShare: () => void;
   onClose: () => void;
 }) {
@@ -102,6 +107,20 @@ export function MushafAyahActions({ anchor, dark, rtl, saved, busy, error, label
           <Heart testID={saved ? 'mushaf-ayah-heart-saved' : 'mushaf-ayah-heart'} size={20} color={theme.savedHeart} fill={saved ? theme.savedHeart : 'transparent'} />
         </View>
         <Text style={text}>{saved ? labels.saved : labels.save}</Text>
+      </Pressable>
+      <View style={[styles.divider, { backgroundColor: theme.divider }]} />
+      <Pressable
+        testID="mushaf-ayah-copy"
+        accessibilityRole="button"
+        accessibilityLabel={copied ? labels.copied : labels.copy}
+        accessibilityState={{ busy, disabled: busy }}
+        disabled={busy}
+        onPress={onCopy}
+        style={({ pressed }) => [row, pressed && theme.selected, busy && styles.busy]}>
+        <View style={styles.icon}>
+          {copied ? <Check size={20} color={theme.saved} /> : <Copy size={20} color={theme.icon} />}
+        </View>
+        <Text accessibilityLiveRegion="polite" style={text}>{copied ? labels.copied : labels.copy}</Text>
       </Pressable>
       <View style={[styles.divider, { backgroundColor: theme.divider }]} />
       <Pressable

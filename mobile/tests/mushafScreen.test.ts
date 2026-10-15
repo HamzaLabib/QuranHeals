@@ -17,6 +17,9 @@ import { MESSAGES } from '@/localization/messages';
 
 type MockGesture = { kind: 'pinch' | 'pan' | 'tap'; handlers: Record<string, (...args: unknown[]) => void>; config: Record<string, unknown> };
 const state = vi.hoisted(() => ({
+  /** The clipboard (expo-clipboard): what was last copied; `clipboardFails` makes the next copy fail. */
+  clipboard: null as string | null,
+  clipboardFails: false,
   locale: 'en' as 'en' | 'ar' | 'ar-EG',
   storage: new Map<string, string>(),
   fontsLoaded: true,
@@ -88,7 +91,7 @@ vi.mock('react-native', async () => {
 vi.mock('react-native-svg', () => ({ default: 'Svg', ClipPath: 'ClipPath', Rect: 'Rect', Path: 'Path', Circle: 'Circle', SvgXml: 'SvgXml', Defs: 'Defs', Ellipse: 'Ellipse', G: 'G', Line: 'Line', LinearGradient: 'LinearGradient', Stop: 'Stop' }));
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView', useSafeAreaInsets: () => state.insets }));
 vi.mock('lucide-react-native', () => ({
-  ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', BookMarked: 'BookMarked', Bookmark: 'Bookmark', Check: 'Check', ChevronDown: 'ChevronDown', CircleHelp: 'CircleHelp', Heart: 'Heart', Maximize2: 'Maximize2', Minimize2: 'Minimize2', Plus: 'Plus', Search: 'Search', Share2: 'Share2', X: 'X',
+  ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', BookMarked: 'BookMarked', Bookmark: 'Bookmark', Check: 'Check', ChevronDown: 'ChevronDown', CircleHelp: 'CircleHelp', Copy: 'Copy', Heart: 'Heart', Maximize2: 'Maximize2', Minimize2: 'Minimize2', Plus: 'Plus', Search: 'Search', Share2: 'Share2', X: 'X',
 }));
 vi.mock('expo-router', () => ({ router: { back: vi.fn(), replace: vi.fn(), push: vi.fn(), navigate: vi.fn(), canGoBack: () => state.canGoBack }, useLocalSearchParams: () => state.params, useIsFocused: () => true }));
 // Keep Screen Awake: the reader holds its own tag while focused (lifecycle cases: mushafKeepAwake.test.ts).
@@ -167,6 +170,13 @@ vi.mock('expo-font', () => ({ useFonts: () => [state.fontsLoaded, null], loadAsy
 vi.mock('@/mushaf/qpcV1Fonts', () => ({ QPC_V1_FONTS: { QCF_P061: 1 } }));
 // The binary's EAS Update channel (expo-updates, a native module): none, as in a development build.
 vi.mock('expo-updates', () => ({ channel: null }));
+vi.mock('expo-clipboard', () => ({
+  setStringAsync: vi.fn(async (text: string) => {
+    if (state.clipboardFails) return false;
+    state.clipboard = text;
+    return true;
+  }),
+}));
 // The device's connection (expo-network, a native module): Wi-Fi.
 vi.mock('expo-network', () => ({ getNetworkStateAsync: async () => ({ type: 'WIFI', isConnected: true, isInternetReachable: true }), addNetworkStateListener: () => ({ remove: () => undefined }) }));
 vi.mock('@/mushaf/offline', () => {
@@ -194,7 +204,7 @@ const { drag, flick, runTouch } = await import('./helpers/gestureSimulator');
 const { MUSHAF_SCREEN_OPTIONS } = await import('@/mushaf/screenOptions');
 const { AYAH_MARKERS_061 } = await import('@/mushaf/generated/ayahMarkers061');
 const { BORDER_INKS } = await import('@/mushaf/borderPattern');
-const { MUSHAF_BORDER_STYLES } = await import('@/mushaf/appearance');
+const { MUSHAF_BORDER_STYLES, MUSHAF_WIRD_MARKER } = await import('@/mushaf/appearance');
 const layoutResponse = (status: number, body: unknown) => ({ ok: status >= 200 && status < 300, status, json: async () => body });
 
 let root: ReactTestRenderer;
@@ -339,6 +349,8 @@ async function doubleTap() {
 
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+  state.clipboard = null;
+  state.clipboardFails = false;
   state.locale = 'en';
   state.storage.clear();
   // The reader's own tests: its first-time guide already seen (the guide's tests start fresh: 'the first-time guide').
@@ -3806,21 +3818,21 @@ describe('the redesigned navigation and ayah actions', () => {
     });
   });
 
-  describe('an ayah`s words: exactly Reflection, Save and Share', () => {
+  describe('an ayah`s words: exactly Reflection, Save, Copy and Share', () => {
     const ayah = (verseKey: string) => ({
       id: verseKey, verseKey, referenceKey: verseKey, surahNumber: 3, surahNameArabic: 'آل عمران', surahNameEnglish: 'Aal-i-Imraan',
       ayahNumber: Number(verseKey.split(':')[1]), arabicText: '', englishTranslation: 'Say…', emotions: [], quranTextSource: 'tanzil', translationSource: 'pickthall',
     });
 
-    it('opens after the double-tap window, near the ayah, with exactly three actions in order: the lit lamp, the heart, Share', async () => {
+    it('opens after the double-tap window, near the ayah, with exactly four actions in order: the lit lamp, the heart, Copy, Share', async () => {
       await render();
       await tapPage(100, 130); // 3:85
       expect(hosts('mushaf-ayah-actions')).toHaveLength(0); // not yet: it may still be a double-tap
       await afterTapWindow();
       const popup = onlyHost('mushaf-ayah-actions');
       const actions = popup.findAll((n) => typeof n.type === 'string' && n.props.accessibilityRole === 'button');
-      expect(actions.map((n) => n.props.testID)).toEqual(['mushaf-ayah-reflection', 'mushaf-ayah-save', 'mushaf-ayah-share']);
-      expect(textOf(popup)).toBe(`${copy().actionReflection}|${copy().actionSave}|${MESSAGES.en.ayah.share}`);
+      expect(actions.map((n) => n.props.testID)).toEqual(['mushaf-ayah-reflection', 'mushaf-ayah-save', 'mushaf-ayah-copy', 'mushaf-ayah-share']);
+      expect(textOf(popup)).toBe(`${copy().actionReflection}|${copy().actionSave}|${copy().actionCopy}|${MESSAGES.en.ayah.share}`);
       // Share: the ayah screen's own icon (lucide share-2) and spoken label.
       expect(onlyHost('mushaf-ayah-share').findAllByType('Share2' as never)).toHaveLength(1);
       expect(onlyHost('mushaf-ayah-share').props.accessibilityLabel).toBe(MESSAGES.en.ayah.shareAyah);
@@ -3904,7 +3916,7 @@ describe('the redesigned navigation and ayah actions', () => {
       await press(onlyHost('mushaf-ayah-save'));
       await flush();
       const popup = onlyHost('mushaf-ayah-actions');
-      expect(popup.findAll((n) => typeof n.type === 'string' && n.props.accessibilityRole === 'button').map((n) => n.props.testID)).toEqual(['mushaf-ayah-reflection', 'mushaf-ayah-save', 'mushaf-ayah-share']);
+      expect(popup.findAll((n) => typeof n.type === 'string' && n.props.accessibilityRole === 'button').map((n) => n.props.testID)).toEqual(['mushaf-ayah-reflection', 'mushaf-ayah-save', 'mushaf-ayah-copy', 'mushaf-ayah-share']);
       expect(onlyHost('mushaf-ayah-save').findByType('Heart' as never).props).toMatchObject({ color: '#E44855', fill: '#E44855' });
       expect(textOf(onlyHost('mushaf-ayah-save'))).toBe(MESSAGES[locale].mushaf.actionSaved);
       expect(onlyHost('mushaf-ayah-save').props.accessibilityLabel).toBe(MESSAGES[locale].favoriteButton.removeLabel);
@@ -3946,7 +3958,7 @@ describe('the redesigned navigation and ayah actions', () => {
       // Saved: the heart fills at once, no error.
       expect(hosts('mushaf-ayah-actions')).toHaveLength(1);
       expect(onlyHost('mushaf-ayah-save').findByType('Heart' as never).props).toMatchObject({ color: '#E44855', fill: '#E44855' });
-      expect(textOf(onlyHost('mushaf-ayah-actions'))).toBe(`${copy().actionReflection}|${copy().actionSaved}|${MESSAGES.en.ayah.share}`);
+      expect(textOf(onlyHost('mushaf-ayah-actions'))).toBe(`${copy().actionReflection}|${copy().actionSaved}|${copy().actionCopy}|${MESSAGES.en.ayah.share}`);
       const [saved] = storedFavorites();
       expect(saved).toMatchObject({ verseKey: '3:85', surahNumber: 3, ayahNumber: 85, surahNameEnglish: 'Aal-i-Imraan', surahNameArabic: 'آل عمران', englishTranslation: '', translationSource: '', emotions: [] });
       expect(saved.arabicText).toBe((await getVerseByKey('3:85')).arabicText);
@@ -3996,7 +4008,7 @@ describe('the redesigned navigation and ayah actions', () => {
       await render();
       await tapPage(100, 130);
       await afterTapWindow();
-      expect(textOf(onlyHost('mushaf-ayah-actions'))).toBe('خاطرة|حفظ|مشاركة');
+      expect(textOf(onlyHost('mushaf-ayah-actions'))).toBe('خاطرة|حفظ|نسخ|مشاركة');
       expect(flat(onlyHost('mushaf-ayah-reflection').props.style({ pressed: false })).flexDirection).toBe('row-reverse');
     });
 
@@ -4076,6 +4088,47 @@ describe('the redesigned navigation and ayah actions', () => {
       expect(shared.arabicText).toBe((await getVerseByKey('3:85')).arabicText);
     });
 
+    it.each([['en', 'Copy', 'Copied'], ['ar', 'نسخ', 'تم النسخ'], ['ar-EG', 'نسخ', 'تم النسخ']] as const)('%s: Copy puts exactly the ayah`s verified Arabic on the clipboard, says "%s" then "%s", and changes nothing else', async (locale, label, done) => {
+      state.locale = locale;
+      seedWird();
+      await render();
+      const stopsBefore = state.storage.get(READING_STOPS_STORAGE_KEY);
+      await tapPage(100, 130); // 3:85
+      await afterTapWindow();
+      expect(textOf(onlyHost('mushaf-ayah-copy'))).toBe(label);
+      expect(onlyHost('mushaf-ayah-copy').findAllByType('Copy' as never)).toHaveLength(1);
+      await press(onlyHost('mushaf-ayah-copy'));
+      await flush();
+      const { getVerseByKey } = await import('@/services/quran');
+      // The device's verified Tanzil text, whole, with its marks: no translation, reference or QCF glyph codes.
+      expect(state.clipboard).toBe((await getVerseByKey('3:85')).arabicText);
+      expect(state.clipboard).toMatch(/[ً-ْ]/);
+      expect(state.clipboard).not.toMatch(/[-ﭐ-﷿ﹰ-﻿]|[A-Za-z0-9]/);
+      // Confirmed in place; the popup stays open, the ayah selected; no network was needed.
+      expect(textOf(onlyHost('mushaf-ayah-copy'))).toBe(done);
+      expect(onlyHost('mushaf-ayah-copy').findAllByType('Check' as never)).toHaveLength(1);
+      expect(hosts('mushaf-ayah-actions')).toHaveLength(1);
+      expect(root.root.findByType('ReflectionSheet' as never).props.verseKey).toBe('3:85');
+      expect(shareSheet().props.visible).toBe(false);
+      expect(state.storage.get(READING_STOPS_STORAGE_KEY)).toBe(stopsBefore);
+      expect(onlyHost('mushaf-ayah-save').findByType('Heart' as never).props.fill).toBe('transparent');
+      // The confirmation passes; Copy is ready again.
+      await act(async () => { await new Promise((resolve) => setTimeout(resolve, 1400)); });
+      expect(textOf(onlyHost('mushaf-ayah-copy'))).toBe(label);
+    });
+
+    it('Copy that fails: the reason in the popup, never "Copied"', async () => {
+      state.clipboardFails = true;
+      await render();
+      await tapPage(100, 130);
+      await afterTapWindow();
+      await press(onlyHost('mushaf-ayah-copy'));
+      await flush();
+      expect(textOf(onlyHost('mushaf-ayah-copy'))).toBe(copy().actionCopy);
+      expect(texts()).toContain(copy().actionCopyFailed);
+      expect(hosts('mushaf-ayah-actions')).toHaveLength(1);
+    });
+
     it('Share refused (the ayah isn`t found): the reason in the popup, no sheet', async () => {
       state.fetch.mockImplementation(async (url: string) => (String(url).includes('/api/ayahs/') ? layoutResponse(404, { success: false }) : layoutResponse(503, { success: false })));
       await render();
@@ -4084,7 +4137,7 @@ describe('the redesigned navigation and ayah actions', () => {
       await press(onlyHost('mushaf-ayah-share'));
       await flush();
       expect(hosts('mushaf-ayah-actions')).toHaveLength(1);
-      expect(textOf(onlyHost('mushaf-ayah-actions')).split('|').length).toBe(4); // the three actions and the reason
+      expect(textOf(onlyHost('mushaf-ayah-actions')).split('|').length).toBe(5); // the four actions and the reason
       expect(shareSheet().props.visible).toBe(false);
     });
   });
@@ -4205,6 +4258,238 @@ describe('the redesigned navigation and ayah actions', () => {
       await flush();
       expect(hosts('mushaf-popup-save')).toHaveLength(1);
       expect(stops()).toEqual([]);
+    });
+  });
+
+  describe('the selected ورد`s saved ayah: a gold medallion', () => {
+    const GOLD = MUSHAF_WIRD_MARKER.warm.colors;
+    /** The ayah whose medallion is gold on the page being read, or null. Exactly one at most. */
+    const goldAyah = () => {
+      const marked = inPage().findAll((node) => node.props.testID === 'qpc-wird-marker' && node.props.marker);
+      expect(marked.length).toBeLessThanOrEqual(1);
+      return marked.length ? (marked[0].props.marker.verseKey as string) : null;
+    };
+    const goldFills = () => inPage().findAll((node) => node.props.testID === 'qpc-wird-marker' && typeof node.type === 'string')[0]
+      .findAll((node) => typeof node.type === 'string' && node.props.fill !== undefined).map((node) => node.props.fill);
+    const seedStops = (list: object[], active: string) => {
+      state.storage.set(READING_STOPS_STORAGE_KEY, JSON.stringify(list));
+      state.storage.set(ACTIVE_READING_STOP_STORAGE_KEY, active);
+    };
+    const apply = async (layout: ReturnType<typeof syntheticQpcPage61>, verseKey: string) => {
+      const marker = markerOf(layout, verseKey);
+      await tapLine(marker.line, marker.x);
+      await afterTapWindow();
+      await press(onlyHost('mushaf-wird-apply-button'));
+      await flush();
+    };
+
+    it('Apply: that ayah`s medallion turns gold at once, stays after the popup closes, and the position is saved with it', async () => {
+      seedWird('Morning', 20);
+      const layout = syntheticQpcPage61();
+      await renderQpc(layout);
+      await layOut(layout);
+      expect(goldAyah()).toBeNull();
+      await apply(layout, '3:86');
+      expect(hosts('mushaf-wird-apply')).toHaveLength(0);
+      expect(stops()).toEqual([expect.objectContaining({ id: 'fajr', page: 61, ayahKey: '3:86' })]);
+      expect(goldAyah()).toBe('3:86');
+      expect(goldFills()).toEqual([GOLD.capFill, GOLD.sideFill, GOLD.innerFill, GOLD.caps, GOLD.number]);
+      // Not a selection: no selection highlight is left behind; tapping elsewhere keeps the gold.
+      expect(inPage().findAll((node) => typeof node.props.testID === 'string' && node.props.testID.startsWith('qpc-highlight-'))).toHaveLength(0);
+      const word = wordOf(layout, '3:88');
+      await tapLine(word.line, word.x);
+      await afterTapWindow();
+      expect(hosts('mushaf-ayah-actions')).toHaveLength(1);
+      expect(goldAyah()).toBe('3:86');
+    });
+
+    it('Apply on another ayah moves it: the previous medallion returns to normal', async () => {
+      seedWird('Morning', 20);
+      const layout = syntheticQpcPage61();
+      await renderQpc(layout);
+      await layOut(layout);
+      await apply(layout, '3:86');
+      await apply(layout, '3:90');
+      expect(goldAyah()).toBe('3:90');
+      expect(stops()).toEqual([expect.objectContaining({ page: 61, ayahKey: '3:90' })]);
+    });
+
+    it('switching ورد shows that ورد`s own ayah — or none when it has only a page — never another ورد`s', async () => {
+      seedStops([
+        { id: 'fajr', name: 'Fajr', page: 61, ayahKey: '3:86', updatedAt: '2026-10-02T00:00:00.000Z' },
+        { id: 'isha', name: 'Isha', page: 61, ayahKey: '3:90', updatedAt: '2026-10-01T00:00:00.000Z' },
+        { id: 'asr', name: 'Asr', page: 61, updatedAt: '2026-09-30T00:00:00.000Z' },
+      ], 'fajr');
+      const layout = syntheticQpcPage61();
+      await renderQpc(layout);
+      await layOut(layout);
+      expect(goldAyah()).toBe('3:86');
+      const choose = async (id: string) => {
+        await press(root.root.findByProps({ testID: 'mushaf-wird' }));
+        await press(root.root.findAllByProps({ testID: `mushaf-wird-${id}` }).find((node) => String(node.type) === 'Pressable')!);
+        await flush();
+      };
+      await choose('isha');
+      expect(goldAyah()).toBe('3:90');
+      await choose('asr');
+      expect(goldAyah()).toBeNull();
+      await choose('fajr');
+      expect(goldAyah()).toBe('3:86');
+    });
+
+    it('restored after a restart: read back from storage', async () => {
+      seedStops([{ id: 'fajr', name: 'Fajr', page: 61, ayahKey: '3:88', updatedAt: '2026-10-02T00:00:00.000Z' }], 'fajr');
+      const layout = syntheticQpcPage61();
+      await renderQpc(layout);
+      await layOut(layout);
+      expect(goldAyah()).toBe('3:88');
+      act(() => root.unmount());
+      await renderQpc(layout);
+      await layOut(layout);
+      expect(goldAyah()).toBe('3:88');
+    });
+
+    it('follows changes made elsewhere (account sync, guest merge, أورادي وختماتي): moved, then cleared by a page-only save', async () => {
+      seedStops([{ id: 'fajr', name: 'Fajr', page: 61, ayahKey: '3:84', updatedAt: '2026-10-02T00:00:00.000Z' }], 'fajr');
+      const layout = syntheticQpcPage61();
+      await renderQpc(layout);
+      await layOut(layout);
+      expect(goldAyah()).toBe('3:84');
+      const { notifyReadingDataChanged } = await import('@/mushaf/readingStops');
+      seedStops([{ id: 'fajr', name: 'Fajr', page: 61, ayahKey: '3:91', updatedAt: '2026-10-03T00:00:00.000Z' }], 'fajr');
+      await act(async () => notifyReadingDataChanged());
+      await flush();
+      expect(goldAyah()).toBe('3:91');
+      seedStops([{ id: 'fajr', name: 'Fajr', page: 61, updatedAt: '2026-10-04T00:00:00.000Z' }], 'fajr');
+      await act(async () => notifyReadingDataChanged());
+      await flush();
+      expect(goldAyah()).toBeNull();
+    });
+
+    it('only on its saved page: a ورد saved on page 61 shows nothing on page 62; deleting the ورد clears it', async () => {
+      everyPageDrawn();
+      seedStops([{ id: 'fajr', name: 'Fajr', page: 61, ayahKey: '3:86', updatedAt: '2026-10-02T00:00:00.000Z' }], 'fajr');
+      await render();
+      // What the reader asks each page to draw in gold (the page being read and its neighbours beside it).
+      const asked = () => Object.fromEntries(root.root.findAll((node) => node.props.layout && 'wirdAyahKey' in node.props && typeof node.type !== 'string')
+        .map((node) => [node.props.layout.page, node.props.wirdAyahKey]));
+      expect(asked()).toEqual({ 60: null, 61: '3:86', 62: null });
+      await turnPage(1);
+      expect(currentPage()).toBe(62);
+      expect(asked()).toEqual({ 61: '3:86', 62: null, 63: null });
+      await turnPage(-1);
+      expect(asked()).toEqual({ 60: null, 61: '3:86', 62: null });
+      const { deleteWird } = await import('@/mushaf/khatmas');
+      await act(async () => deleteWird('fajr'));
+      await flush();
+      expect(asked()).toEqual({ 60: null, 61: null, 62: null });
+    });
+
+    /** No ورد selected: a tap on `verseKey`'s number, its New ورد button, then the name field saves `name`. */
+    const newWirdFromNumber = async (layout: ReturnType<typeof syntheticQpcPage61>, verseKey: string, name: string) => {
+      const marker = markerOf(layout, verseKey);
+      await tapLine(marker.line, marker.x);
+      await afterTapWindow();
+      expect(textOf(onlyHost('mushaf-wird-apply'))).toBe(copy().wirdNew);
+      await press(onlyHost('mushaf-wird-apply-button'));
+      await flush();
+      await act(async () => root.root.findByProps({ testID: 'mushaf-popup-save' }).findByType('TextInput' as never).props.onChangeText(name));
+      await press(button(copy().confirmStop));
+      await flush();
+      await flush();
+    };
+
+    it('no ورد selected: a new ورد named from an ayah`s number saves that page AND that ayah, and its medallion turns gold at once', async () => {
+      const layout = syntheticQpcPage61();
+      await renderQpc(layout);
+      await layOut(layout);
+      await newWirdFromNumber(layout, '3:86', 'Dawn');
+      expect(stops()).toEqual([expect.objectContaining({ name: 'Dawn', page: 61, ayahKey: '3:86' })]);
+      expect(state.storage.get(ACTIVE_READING_STOP_STORAGE_KEY)).toBe(stops()[0].id);
+      expect(hosts('mushaf-popup-save')).toHaveLength(0);
+      expect(goldAyah()).toBe('3:86');
+    });
+
+    it('no ورد selected, the name of an existing ورد typed: that ورد takes this page and ayah (its old position replaced) and becomes the selected one', async () => {
+      seedStops([
+        { id: 'isha', name: 'Isha', page: 20, updatedAt: '2026-10-01T00:00:00.000Z' },
+        { id: 'fajr', name: 'Fajr', page: 61, ayahKey: '3:84', updatedAt: '2026-10-02T00:00:00.000Z' },
+      ], '');
+      state.storage.delete(ACTIVE_READING_STOP_STORAGE_KEY);
+      const layout = syntheticQpcPage61();
+      await renderQpc(layout);
+      await layOut(layout);
+      expect(goldAyah()).toBeNull(); // nothing selected: no gold, not even Fajr's
+      await newWirdFromNumber(layout, '3:90', 'isha'); // any case, as every save by name
+      const isha = stops().find((s) => s.id === 'isha') as unknown as { page: number; ayahKey?: string; updatedAt: string };
+      expect(isha).toMatchObject({ page: 61, ayahKey: '3:90' });
+      expect(Date.parse(isha.updatedAt)).toBeGreaterThan(Date.parse('2026-10-02T00:00:00.000Z')); // a new save: later-save-wins
+      expect(stops()).toHaveLength(2);
+      expect(stops().find((s) => s.id === 'fajr')).toMatchObject({ page: 61, ayahKey: '3:84' }); // untouched
+      expect(state.storage.get(ACTIVE_READING_STOP_STORAGE_KEY)).toBe('isha');
+      expect(goldAyah()).toBe('3:90');
+    });
+
+    it('the ورد list`s Add stays page-only (the intended page save): no ayah, no gold', async () => {
+      const layout = syntheticQpcPage61();
+      await renderQpc(layout);
+      await layOut(layout);
+      // An ayah selected first (its words), so nothing could be borrowed from a selection either.
+      const word = wordOf(layout, '3:86');
+      await tapLine(word.line, word.x);
+      await afterTapWindow();
+      await press(onlyHost('mushaf-ayah-actions-backdrop'));
+      await openNameField();
+      await act(async () => root.root.findByProps({ testID: 'mushaf-popup-save' }).findByType('TextInput' as never).props.onChangeText('Asr'));
+      await press(button(copy().confirmStop));
+      await flush();
+      await flush();
+      expect(stops()).toEqual([expect.objectContaining({ name: 'Asr', page: 61 })]);
+      expect(stops()[0]).not.toHaveProperty('ayahKey');
+      expect(goldAyah()).toBeNull();
+    });
+
+    it('the name field from an ayah`s number, closed without saving: the next Add from the list is page-only', async () => {
+      const layout = syntheticQpcPage61();
+      await renderQpc(layout);
+      await layOut(layout);
+      const marker = markerOf(layout, '3:86');
+      await tapLine(marker.line, marker.x);
+      await afterTapWindow();
+      await press(onlyHost('mushaf-wird-apply-button'));
+      await flush();
+      // Closed without saving (the field's own close).
+      const field = root.root.findAll((node) => typeof node.type !== 'string' && node.props.labels?.confirmStop && typeof node.props.onClose === 'function')[0];
+      await act(async () => field.props.onClose());
+      await flush();
+      expect(stops()).toEqual([]);
+      await openNameField();
+      await act(async () => root.root.findByProps({ testID: 'mushaf-popup-save' }).findByType('TextInput' as never).props.onChangeText('Asr'));
+      await press(button(copy().confirmStop));
+      await flush();
+      await flush();
+      expect(stops()[0]).toMatchObject({ name: 'Asr', page: 61 });
+      expect(stops()[0]).not.toHaveProperty('ayahKey');
+    });
+
+    it('Dark Mode: the same gold medallion on the dark page', async () => {
+      state.theme = 'dark';
+      seedStops([{ id: 'fajr', name: 'Fajr', page: 61, ayahKey: '3:86', updatedAt: '2026-10-02T00:00:00.000Z' }], 'fajr');
+      const layout = syntheticQpcPage61();
+      await renderQpc(layout);
+      await layOut(layout);
+      expect(goldAyah()).toBe('3:86');
+      expect(goldFills()).toEqual([GOLD.capFill, GOLD.sideFill, GOLD.innerFill, GOLD.caps, GOLD.number]);
+    });
+
+    it('the gold medallion takes no touch: a tap on it still opens Apply / X, and Apply there keeps it', async () => {
+      seedStops([{ id: 'fajr', name: 'Fajr', page: 61, ayahKey: '3:86', updatedAt: '2026-10-02T00:00:00.000Z' }], 'fajr');
+      const layout = syntheticQpcPage61();
+      await renderQpc(layout);
+      await layOut(layout);
+      expect(inPage().findAll((node) => node.props.testID === 'qpc-wird-marker' && typeof node.type === 'string')[0].props.pointerEvents).toBe('none');
+      await apply(layout, '3:86');
+      expect(goldAyah()).toBe('3:86');
     });
   });
 

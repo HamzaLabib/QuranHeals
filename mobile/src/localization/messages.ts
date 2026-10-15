@@ -270,6 +270,10 @@ export type Messages = {
     actionReflection: string;
     actionSave: string;
     actionSaved: string;
+    /** The ayah popup's Copy: the ayah's verified Arabic text only, and its brief confirmation. */
+    actionCopy: string;
+    actionCopied: string;
+    actionCopyFailed: string;
     applyToWird: string;
     searchTitle: string;
     searchByPage: string;
@@ -971,6 +975,9 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       actionReflection: "Reflection",
       actionSave: "Save",
       actionSaved: "Saved",
+      actionCopy: "Copy",
+      actionCopied: "Copied",
+      actionCopyFailed: "Couldn't copy the ayah. Please try again.",
       applyToWird: "Apply to {name}",
       searchTitle: 'Go to',
       searchByPage: 'Page Number',
@@ -1595,6 +1602,9 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       actionReflection: "خاطرة",
       actionSave: "حفظ",
       actionSaved: "محفوظة",
+      actionCopy: "نسخ",
+      actionCopied: "تم النسخ",
+      actionCopyFailed: "تعذّر نسخ الآية. يرجى إعادة المحاولة.",
       applyToWird: AR_APPLY_TO_WIRD,
       searchTitle: 'انتقل إلى',
       searchByPage: 'رقم الصفحة',
@@ -2233,6 +2243,9 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       actionReflection: "خاطرة",
       actionSave: "حفظ",
       actionSaved: "محفوظة",
+      actionCopy: "نسخ",
+      actionCopied: "تم النسخ",
+      actionCopyFailed: "تعذّر نسخ الآية. يرجى إعادة المحاولة.",
       applyToWird: AR_APPLY_TO_WIRD,
       searchTitle: 'روح لـ',
       searchByPage: 'رقم الصفحة',

@@ -14,6 +14,7 @@ import { MongooseAccountDeletionService } from '../../src/services/MongooseAccou
 import { MongooseSyncRepository } from '../../src/services/MongooseSyncRepository';
 import { MongooseUserRepository } from '../../src/services/MongooseUserRepository';
 import type { ReadingChange } from '../../src/services/readingSync';
+import { pushReadingSchema } from '../../src/validators/readingSyncValidators';
 
 vi.mock('../../src/config/env', () => ({ env: { SESSION_JWT_SECRET: 'synthetic-integration-test-secret' } }));
 
@@ -90,6 +91,24 @@ describe('أورادي وختماتي sync on MongoDB (replica set)', () => {
     const marker = docs.find((doc) => doc.recordId === 'khatma-c1')!;
     expect(marker).toMatchObject({ deleted: true, revision: 2 });
     for (const field of ['data', 'ciphertext', 'nonce', 'encryptionVersion', 'keyFingerprint', 'cycleId', 'legacyEncrypted']) expect(marker).not.toHaveProperty(field);
+  });
+
+  it('a ورد`s `ayahKey`: accepted by the request schema, stored in the document, returned by the change feed; a page-only update removes it', async () => {
+    const userId = await newUser();
+    const withAyah = { ...wird('stop-1', null), data: { ...(wird('stop-1', null) as { data: object }).data, ayahKey: '13:10' } };
+    // Through the same schema the route uses: the field survives validation.
+    const { changes } = pushReadingSchema.parse({ changes: [withAyah] });
+    expect((changes[0] as { data: { ayahKey?: string } }).data.ayahKey).toBe('13:10');
+    expect((await repo.pushReading(userId, changes)).results[0].status).toBe('applied');
+    const stored = await UserReadingRecordModel.findOne({ userId, recordId: 'stop-1' }).lean();
+    expect(stored?.data).toMatchObject({ page: 250, ayahKey: '13:10' });
+    const pulled = await repo.pullReading(userId, 0, 50);
+    expect(pulled.records.find((r) => r.recordId === 'stop-1')?.data).toMatchObject({ page: 250, ayahKey: '13:10' });
+    // A later page-only save: the content is replaced whole, so the ayah is gone from the document and the feed.
+    const pageOnly = pushReadingSchema.parse({ changes: [wird('stop-1', 1)] }).changes;
+    expect((await repo.pushReading(userId, pageOnly)).results[0].status).toBe('applied');
+    expect((await UserReadingRecordModel.findOne({ userId, recordId: 'stop-1' }).lean())?.data).not.toHaveProperty('ayahKey');
+    expect((await repo.pullReading(userId, 0, 50)).records.find((r) => r.recordId === 'stop-1')?.data).not.toHaveProperty('ayahKey');
   });
 
   it('the partial unique index allows one confirmed Khatma per (account, cycle), and another after a removal', async () => {

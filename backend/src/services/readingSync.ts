@@ -41,7 +41,7 @@ export type ReadingCycleData = {
   seq: number;
   undoneCycleId: string | null;
 };
-export type WirdData = { v: 1; kind: 'wird'; id: string; name: string; nameUpdatedAt: string | null; page: number; savedAt: string; cycle: ReadingCycleData };
+export type WirdData = { v: 1; kind: 'wird'; id: string; name: string; nameUpdatedAt: string | null; page: number; savedAt: string; cycle: ReadingCycleData; ayahKey?: string };
 export type KhatmaData = {
   v: 1;
   kind: 'khatma';

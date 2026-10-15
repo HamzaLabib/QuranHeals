@@ -16,6 +16,8 @@ export class FakeReadingServer {
   readonly log: { account: string; method: 'GET' | 'POST'; changes?: ReadingChange[] }[] = [];
   /** Set to make the next push apply on the server but lose its response (a dropped connection). */
   loseNextPushResponse = false;
+  /** A server from before a ورد's `ayahKey`: its strict schema refuses the whole upload (400) when any content carries one. */
+  rejectsAyahKey = false;
   private syncIds = 0;
 
   constructor(private readonly accountForToken: (token: string) => string | null) {}
@@ -63,6 +65,9 @@ export class FakeReadingServer {
     }
     const { changes } = JSON.parse(String(init.body)) as { changes: ReadingChange[] };
     this.log.push({ account: name, method, changes });
+    if (this.rejectsAyahKey && changes.some((change) => change.action === 'upsert' && 'ayahKey' in change.data)) {
+      return json(400, { success: false, message: 'Invalid request.' });
+    }
     const results: ReadingChangeResult[] = changes.map((change) => this.apply(account, change));
     if (this.loseNextPushResponse) {
       this.loseNextPushResponse = false;

@@ -9,8 +9,9 @@ type AyahMarkerOrnamentProps = {
   colors: AyahMarkerColors;
   /** Where the ornament goes, relative to the marker glyph's box (ayahMarkers.markerOverlayBox). */
   box: PageBox;
-  /** Distinguishes gradient ids when one ayah's marker is drawn more than once. */
+  /** Distinguishes gradient ids when one ayah's marker is drawn more than once (or in other colours: the ورد's gold). */
   idSuffix?: string;
+  testID?: string;
 };
 
 /** A little room around the artwork so anti-aliased edges are never clipped. */
@@ -50,7 +51,7 @@ function Bands({ id, a, b, top, bottom }: { id: string; a: string; b: string; to
  * style (mushaf/appearance.ts). Decorative and untouchable: taps pass to
  * the line, which maps them to the ayah.
  */
-export const AyahMarkerOrnament = memo(function AyahMarkerOrnament({ marker, colors, box, idSuffix = '' }: AyahMarkerOrnamentProps) {
+export const AyahMarkerOrnament = memo(function AyahMarkerOrnament({ marker, colors, box, idSuffix = '', testID }: AyahMarkerOrnamentProps) {
   const o = marker.ornamentBox;
   const viewBox = [o.x - o.width * PAD, o.y - o.height * PAD, o.width * (1 + 2 * PAD), o.height * (1 + 2 * PAD)].join(' ');
   const id = `qh-marker-${marker.verseKey.replace(':', '-')}${idSuffix}`;
@@ -69,6 +70,7 @@ export const AyahMarkerOrnament = memo(function AyahMarkerOrnament({ marker, col
 
   return (
     <Svg
+      testID={testID}
       pointerEvents="none"
       style={{ position: 'absolute', left: box.x - box.width * PAD, top: box.y - box.height * PAD }}
       width={box.width * (1 + 2 * PAD)}

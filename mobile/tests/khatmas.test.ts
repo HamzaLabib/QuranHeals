@@ -356,3 +356,44 @@ describe('guest and account partitions', () => {
     expect((await loadReadingData(null)).wirds).toHaveLength(1);
   });
 });
+
+describe('the ayah saved with a ورد (the gold medallion)', () => {
+  it('Apply saves the page and the ayah, and makes that ورد the active one; each ورد keeps its own', async () => {
+    await saveWirdPage({ name: 'Fajr', page: 250, ayahKey: '13:10' }, options());
+    await saveWirdPage({ name: 'Isha', page: 61, ayahKey: '3:88' }, options());
+    const data = await loadReadingData();
+    expect(data.wirds.find((w) => w.stop.name === 'Fajr')?.stop).toMatchObject({ page: 250, ayahKey: '13:10' });
+    expect(data.wirds.find((w) => w.stop.name === 'Isha')?.stop).toMatchObject({ page: 61, ayahKey: '3:88' });
+    expect(data.activeStopId).toBe((await wird('Isha')).stop.id);
+    // Choosing the other ورد changes no ayah.
+    await setActiveReadingStopId((await wird('Fajr')).stop.id);
+    expect((await wird('Isha')).stop.ayahKey).toBe('3:88');
+    expect((await wird('Fajr')).stop.ayahKey).toBe('13:10');
+  });
+
+  it('a Khatma clears it (the ورد returns to page 1); undoing the Khatma returns to 604 page-only', async () => {
+    await readTo('Daily', 600);
+    const saved = await saveWirdPage({ name: 'Daily', page: 604, ayahKey: '114:6' }, options());
+    await confirmKhatma(saved.stop.id, saved.cycleId, options());
+    expect((await wird('Daily')).stop).toMatchObject({ page: 1 });
+    expect((await wird('Daily')).stop).not.toHaveProperty('ayahKey');
+    const [record] = (await loadReadingData()).records;
+    expect(await removeKhatma(record.id, options())).toBe('restored');
+    expect((await wird('Daily')).stop).toMatchObject({ page: 604 });
+    expect((await wird('Daily')).stop).not.toHaveProperty('ayahKey');
+  });
+
+  it('deleting the ورد removes it with its ayah', async () => {
+    const { stop } = await saveWirdPage({ name: 'Fajr', page: 250, ayahKey: '13:10' }, options());
+    await deleteWird(stop.id, options());
+    expect((await loadReadingData()).wirds).toEqual([]);
+  });
+
+  it('"Add to this account" keeps the guest`s ayah', async () => {
+    asGuest();
+    await saveWirdPage({ name: 'Fajr', page: 2, ayahKey: '2:5' }, options());
+    asAccount('user-1');
+    expect(await adoptGuestReadingData('user-1')).toBe(true);
+    expect((await wird('Fajr')).stop).toMatchObject({ page: 2, ayahKey: '2:5' });
+  });
+});
