@@ -19,6 +19,8 @@ const NAME_MAX_LENGTH = 40;
 const idSchema = z.string().regex(/^[A-Za-z0-9_.:-]{1,128}$/);
 const isoDateSchema = z.string().max(40).refine((value) => !Number.isNaN(Date.parse(value)), 'Invalid timestamp.');
 const pageSchema = z.number().int().min(1).max(MUSHAF_PAGE_COUNT);
+// Surah 1–114, ayah 1–286 (the longest Surah), no leading zeros.
+const ayahKeySchema = z.string().regex(/^(?:[1-9]\d?|10\d|11[0-4]):(?:[1-9]\d?|1\d\d|2[0-7]\d|28[0-6])$/);
 // As the app stores it: trimmed, single spaces, no control characters, 1–40 characters.
 const nameSchema = z.string().refine((value) => {
   const length = [...value].length;
@@ -45,6 +47,9 @@ const wirdDataSchema = z.object({
   page: pageSchema,
   savedAt: isoDateSchema,
   cycle: cycleSchema,
+  // Optional: the ayah whose number was applied on that page ("2:255"); absent for a page-only save. The app checks
+  // that its number is printed on `page`; the server stores no page tables, so it checks the form only.
+  ayahKey: ayahKeySchema.optional(),
 }).strict().refine((data) => data.cycle.lastSavedPage === data.page, 'The cycle must agree with the saved page.');
 
 const khatmaDataSchema = z.object({

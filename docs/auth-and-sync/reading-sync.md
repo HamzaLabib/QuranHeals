@@ -1,6 +1,6 @@
 # أورادي وختماتي sync (Wirds and Khatmas across devices)
 
-**Status (2026-10-13):** implemented and tested; not deployed. A signed-in account's أوراد, their saved pages and cycles, the selected ورد, and every confirmed Khatma sync between its devices.
+**Status (2026-10-15):** implemented and tested (the saved ayah tested on an iPhone); not deployed. A signed-in account's أوراد, their saved pages and cycles, the selected ورد, and every confirmed Khatma sync between its devices.
 - **Account-based, like favorites.** No Sync Password, and never affected by it.
 - **Guests:** their data stays on the device.
 
@@ -26,7 +26,7 @@
 
 | Synced (one record each) | Never synced |
 |---|---|
-| Each ورد: id, name and when it was named, saved page and when it was saved, its current reading cycle (id, start, generation `seq`, pending-completion state, the Khatma that started it, `undoneCycleId`), and deletion | Counts. الختمات and ختمات رمضان are always computed from the confirmed, non-deleted Khatma records on each device. |
+| Each ورد: id, name and when it was named, saved page and when it was saved (and, when saved from an ayah's number with Apply, that ayah: `ayahKey`, e.g. `"2:255"`; absent for a page-only position), its current reading cycle (id, start, generation `seq`, pending-completion state, the Khatma that started it, `undoneCycleId`), and deletion | Counts. الختمات and ختمات رمضان are always computed from the confirmed, non-deleted Khatma records on each device. |
 | Each confirmed Khatma: id, ورد id and name, cycle id, cycle start, completion time, local civil date, Ramadan classification and Hijri year, and deletion | Anything for a guest. |
 | The selected ورد and when it was chosen | Pages browsed. Only an explicit save moves a ورد. |
 
@@ -71,6 +71,8 @@ Pending changes are what differs from the last acknowledged version, kept on the
 - **Different أوراد:** both edits are kept.
 - **Same ورد renamed on both:** the later rename (`nameUpdatedAt`) wins. An exact tie keeps the account's.
 - **Different pages, same cycle:** the later save (`savedAt`) wins, not the higher page. An exact tie keeps the account's.
+- **The saved ayah (`ayahKey`, added 2026-10-15) is part of the position:** it wins and loses with the page and `savedAt`. A later page-only save clears it; a Khatma (back to page 1) and its undo (back to 604) clear it. On arrival the app accepts it only if that ayah's number is printed on the saved page; otherwise the record is treated as unreadable (never applied or overwritten). The server checks its form only (surah 1–114, ayah 1–286).
+- **Server compatibility for `ayahKey`:** a server from before the field refuses any upload carrying it (`400`, strict schema). On that refusal the app re-sends the same changes without it for the rest of the app session, so page sync never stalls; the ayah stays on that device until a later session finds the server updated. Deploy the backend before (or with) the app that sends it.
 - **Confirmation or undo seen by only one device:** the newer cycle generation (`seq`) wins, so a stale device can't revert a confirmation. Exception: if the newer side is an undo of the cycle in which the other device saved progress, the progress is kept (and the Khatma stays removed).
 - **Both confirmed the same completion:** the cycle with progress wins, then the later save, then the smaller cycle id.
 - **Deleted on one device, edited on another:** the deletion wins, permanently. Its Khatmas stay in history.
@@ -115,7 +117,22 @@ An earlier development version encrypted these records with the reflection Sync 
 
 If confirmation of the deployment history (EAS) shows no such build was ever published, the legacy handling is inert. No production data needs changing either way.
 
+## The saved ayah (`ayahKey`, the gold medallion)
+
+Added 2026-10-15. A ورد's position is its page and, when it was saved from an ayah's number, that ayah. The reader draws the selected ورد's ayah with a gold medallion (colours only: the QCF glyph, artwork, number and geometry are unchanged).
+
+**When a ورد gets an ayah:**
+- **Apply to [ورد]** from an ayah's number (a ورد is selected): this page and that ayah.
+- **New ورد** from an ayah's number (no ورد selected): the name field opens carrying that ayah. A new name creates the ورد on this page with that ayah. The name of an existing ورد (any case) moves that ورد to this page and ayah, as a new save (later save wins), and makes it the selected one.
+
+**When it is page-only:** the ورد list's Add and every other save by page (the name field opened from the list, أورادي وختماتي) save the page alone and clear any ayah. Confirming a Khatma (back to page 1) and undoing one (back to 604) clear it; deleting the ورد removes it. Renaming and "Add to this account" keep it.
+
+**Storage:** an optional `ayahKey` (`"2:255"`) on the stop (`quran-heals:mushaf-reading-stops:v1`, format otherwise unchanged). It is kept only if that ayah's number is printed on the stop's page (`mushaf/wirdAyah.ts`, from the page fonts' marker table). Phase 1's old `verseKey` field is never read as one.
+
+**Sync:** the same optional `ayahKey` on the `wird` record, absent for a page-only position, so page-only content is byte-for-byte what earlier versions sent. It is part of the position (see the conflict rules above). The server stores it in the record's `data` as sent (tested on MongoDB) and checks its form only; the app rejects a record whose ayah isn't on its page.
+
 ## Deployment
 
-1. **Backend first.** No data migration step; Mongoose builds the indexes at startup. In Atlas, confirm `UserReadingRecord` has the unique `{userId, kind, recordId}` index and the partial unique `{userId, cycleId}` index.
-2. **Then the app, as an OTA update.** JavaScript only, so the runtime fingerprint is unchanged. A build without this feature never calls the endpoints and keeps working locally.
+1. **Backend first.** It must accept `ayahKey` before any app sends one. No data migration step; Mongoose builds the indexes at startup. In Atlas, confirm `UserReadingRecord` has the unique `{userId, kind, recordId}` index and the partial unique `{userId, cycleId}` index. (If an app reaches a server without `ayahKey` anyway, it falls back to page-only uploads for that session; see the conflict rules.)
+2. **Then new iOS and Android preview builds. An OTA update is not enough for this release.** On 2026-10-15 the current code's runtime fingerprints (iOS `8977ea78…`, Android `c180ab2e…`) matched no installed preview build: the preview builds of 2026-10-11 are on `dcb9385c…` (iOS) and `34f1099c…` (Android). Native changes made after them (between commits `ae026e5` and `78fcd0d`), not the reading-sync code, changed the fingerprint, so an OTA update published now would reach none of them. Only the iOS development build of 2026-10-15 matches.
+3. **Later JavaScript-only changes may go out as OTA updates** to those new builds, as long as the runtime fingerprint still matches (`npx expo-updates fingerprint:generate --platform ios|android`, compared with the build's runtime version in `eas build:list`). A build without reading sync never calls the endpoints and keeps working locally.

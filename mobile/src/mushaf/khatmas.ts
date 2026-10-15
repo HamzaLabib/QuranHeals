@@ -24,6 +24,7 @@ import {
   readingStopsKey,
   removeReadingStopUnlocked,
   saveReadingStopUnlocked,
+  stopAtPage,
   withReadingLock,
   writeActiveReadingStop,
   type ReadingStop,
@@ -291,7 +292,7 @@ async function loadRepaired(owner: string | null): Promise<{ stops: ReadingStop[
     if (stored?.pendingPage !== undefined) {
       const page = stored.pendingPage;
       if (stop.page !== page) {
-        stops = stops.map((s) => (s.id === stop.id ? { ...s, page } : s));
+        stops = stops.map((s) => (s.id === stop.id ? stopAtPage(s, page) : s));
         stopsChanged = true;
       }
       const { pendingPage: _done, ...rest } = stored;
@@ -359,8 +360,10 @@ export async function createWird(input: { name: string; page?: number }, clock: 
  * The reader's explicit save (the bookmark): saves or moves the stop named
  * `name` to `page`, and makes it the active one. `reachedEnd` is true only
  * when this save took an existing stop from an earlier page to page 604.
+ * `ayahKey`: saved from that ayah's number (Apply to the ورد); without it the
+ * position is the page alone, and any ayah saved before is cleared.
  */
-export async function saveWirdPage(input: { name: string; page: number }, clock: Clock = {}): Promise<{ stops: ReadingStop[]; stop: ReadingStop; reachedEnd: boolean; cycleId: string }> {
+export async function saveWirdPage(input: { name: string; page: number; ayahKey?: string | null }, clock: Clock = {}): Promise<{ stops: ReadingStop[]; stop: ReadingStop; reachedEnd: boolean; cycleId: string }> {
   const saved = await withReadingLock(async () => {
     const owner = await readingOwner();
     const { stops: before, doc } = await loadRepaired(owner);
@@ -422,7 +425,7 @@ export async function confirmKhatma(stopId: string, cycleId: string, options: Cl
     doc.cycles[stop.id] = { ...next, pendingPage: 1 };
     await writeDocument(owner, doc);
     // 2. The stop back to page 1. 3. Done.
-    await persistReadingStops(owner, stops.map((s) => (s.id === stop.id ? { ...s, page: 1, updatedAt: record.completedAt } : s)));
+    await persistReadingStops(owner, stops.map((s) => (s.id === stop.id ? stopAtPage(s, 1, record.completedAt) : s)));
     doc.cycles[stop.id] = next;
     await writeDocument(owner, doc);
     notifyReadingDataChanged();
@@ -480,7 +483,7 @@ export async function removeKhatma(recordId: string, clock: Pick<Clock, 'now'> =
     };
     doc.cycles[stop.id] = { ...restored, pendingPage: MUSHAF_PAGE_COUNT };
     await writeDocument(owner, doc);
-    await persistReadingStops(owner, stops.map((s) => (s.id === stop.id ? { ...s, page: MUSHAF_PAGE_COUNT } : s)));
+    await persistReadingStops(owner, stops.map((s) => (s.id === stop.id ? stopAtPage(s, MUSHAF_PAGE_COUNT) : s)));
     doc.cycles[stop.id] = restored;
     await writeDocument(owner, doc);
     notifyReadingDataChanged();

@@ -7,7 +7,7 @@ import { SurahHeadingTraditional } from '@/components/SurahHeadingTraditional';
 import { SURAH_HEADING_DECORATION, type HeadingDecoration } from '@/mushaf/decorations';
 import { MUSHAF_PAPER } from '@/constants/mushafTheme';
 import { useGuideTarget } from '@/mushaf/guideTargets';
-import { MUSHAF_MARKER_STYLES, type MushafMarkerStyleId } from '@/mushaf/appearance';
+import { MUSHAF_MARKER_STYLES, type AyahMarkerColors, type MushafMarkerStyleId } from '@/mushaf/appearance';
 import { cssBaseline, getAyahMarker, markerOverlayBox, QCF_V1_INK_OVERFLOW_EM, QCF_V1_INK_ROOM_V_EM, QCF_V1_LINE_BOX_EM, qcfV1AndroidRowShiftEm, qcfV1DrawnLineShiftEm } from '@/mushaf/ayahMarkers';
 import { MUSHAF_TEXT_LIFT_PT, pageWidthOfText, PRINTED_TEXT_WIDTH_SHARE, textSideInset } from '@/mushaf/pageGeometry';
 import { pressLocation } from '@/mushaf/pressLocation';
@@ -60,6 +60,13 @@ type QpcV1PageTextProps = {
   headingColor?: string;
   /** Which ornament Surah headings draw (mushaf/decorations.ts; pages 1–2 keep their own): the traditional band by default, or the original. */
   headingDecoration?: HeadingDecoration;
+  /**
+   * The selected ورد's saved ayah on this page (wirdAyah.ts wirdAyahOnPage), or null: its medallion is drawn in
+   * `wirdMarker`'s gold. Colour only: the same artwork, number, box and glyph, and taps reach the line as before.
+   */
+  wirdAyahKey?: string | null;
+  /** The gold (mushaf/appearance.ts MUSHAF_WIRD_MARKER): the medallion's colours, or the plain glyph's tint. */
+  wirdMarker?: { colors: AyahMarkerColors; glyph: string };
 };
 
 /** Android draws each glyph through an unclipped copy (see androidInk). */
@@ -101,7 +108,9 @@ const OPENING_NAME_MAX_EM = 3.95;
  * tinted green as one glyph. With a medallion style it stays in the line,
  * unchanged, so positions, justification and taps are the font's, but is
  * painted transparent, and the Quran SVG medallion with that ayah's number
- * is drawn over its ring (AyahMarkerOrnament), on every page alike.
+ * is drawn over its ring (AyahMarkerOrnament), on every page alike. The
+ * selected ورد's saved ayah (`wirdAyahKey`) takes the gold colours in the
+ * very same place: nothing else on the line is drawn differently.
  *
  * Sizing: a hidden pass measures each line's natural width; the font size
  * makes the widest line fill the text area, and every line is justified
@@ -141,6 +150,8 @@ export function QpcV1PageText({
   headingFontFamily,
   headingColor,
   headingDecoration = SURAH_HEADING_DECORATION,
+  wirdAyahKey = null,
+  wirdMarker,
 }: QpcV1PageTextProps) {
   const ayahTarget = useGuideTarget('ayah');
   const markerTarget = useGuideTarget('marker');
@@ -218,8 +229,10 @@ export function QpcV1PageText({
     else onSelectVerse(hit.verseKey, at);
   };
 
-  const glyphStyle = (size: number, kind: string) => ({
-    color: kind === 'end' ? MUSHAF_PAPER.marker : ink,
+  /** The ورد's gold, for this word: only its own ayah's number (never a word of the ayah, nor a neighbour). */
+  const wirdGold = (kind: string, verseKey: string) => (wirdMarker && kind === 'end' && verseKey === wirdAyahKey ? wirdMarker : null);
+  const glyphStyle = (size: number, kind: string, markerTint?: string) => ({
+    color: kind === 'end' ? markerTint ?? MUSHAF_PAPER.marker : ink,
     fontFamily: layout.fontFamily,
     fontSize: size,
     includeFontPadding: false,
@@ -304,6 +317,9 @@ export function QpcV1PageText({
             )}
             {line.words.map((word, index) => {
               const marker = markerFor(word.kind, word.verseKey);
+              const gold = wirdGold(word.kind, word.verseKey);
+              // The plain glyph is tinted only where it shows (no medallion over it): a hidden one stays exactly as it was.
+              const glyphTint = marker ? undefined : gold?.glyph;
               const baseline = reportedBaseline ?? cssBaseline(fontSize, fontSize * QCF_V1_LINE_BOX_EM);
               return (
                 // pointerEvents none: taps land on the line, so the press location is line-relative.
@@ -316,12 +332,18 @@ export function QpcV1PageText({
                   <Text
                     allowFontScaling={false}
                     onTextLayout={marker ? onMarkerTextLayout : undefined}
-                    style={[glyphStyle(fontSize, word.kind), inkRoom(fontSize, !marker), (marker || ANDROID) && styles.hiddenGlyph]}>
+                    style={[glyphStyle(fontSize, word.kind, glyphTint), inkRoom(fontSize, !marker), (marker || ANDROID) && styles.hiddenGlyph]}>
                     {word.glyph}
                   </Text>
-                  {ANDROID && !marker && androidInk(fontSize, glyphStyle(fontSize, word.kind), word.glyph)}
+                  {ANDROID && !marker && androidInk(fontSize, glyphStyle(fontSize, word.kind, glyphTint), word.glyph)}
                   {marker && markerColors && (
-                    <AyahMarkerOrnament marker={marker} colors={markerColors} box={markerOverlayBox(marker, fontSize, baseline)} />
+                    <AyahMarkerOrnament
+                      testID={gold ? 'qpc-wird-marker' : undefined}
+                      marker={marker}
+                      colors={gold ? gold.colors : markerColors}
+                      idSuffix={gold ? '-wird' : undefined}
+                      box={markerOverlayBox(marker, fontSize, baseline)}
+                    />
                   )}
                 </View>
               );

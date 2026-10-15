@@ -1,3 +1,4 @@
+import * as Clipboard from 'expo-clipboard';
 import * as Font from 'expo-font';
 import { useFonts } from 'expo-font';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -28,7 +29,7 @@ import { isRtlLocale } from '@/localization/locales';
 import { fill } from '@/localization/fill';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { useFavorites } from '@/hooks/useFavorites';
-import { MUSHAF_BACKGROUNDS, MUSHAF_BORDER_STYLES, MUSHAF_INKS, MUSHAF_PAGE_FURNITURE, resolveMushafAppearance } from '@/mushaf/appearance';
+import { MUSHAF_BACKGROUNDS, MUSHAF_BORDER_STYLES, MUSHAF_INKS, MUSHAF_PAGE_FURNITURE, MUSHAF_WIRD_MARKER, resolveMushafAppearance } from '@/mushaf/appearance';
 import { QCF_V1_NORMAL_BOX_MARGIN_EM } from '@/mushaf/ayahMarkers';
 import { HAFS_KFQC_PAGE_061 } from '@/mushaf/generated/hafsKfqcPage061';
 import { KHATM_DUA } from '@/mushaf/khatmDua';
@@ -65,6 +66,8 @@ import {
 } from '@/mushaf/readingStops';
 import { subscribeToLocalDataOwner } from '@/storage/localDataOwner';
 import { BASMALA_FONT_PAGE, surahOpeningSlots } from '@/mushaf/surahOpenings';
+import { isWirdAyahOnPage, wirdAyahOnPage } from '@/mushaf/wirdAyah';
+import { ayahCopyText } from '@/mushaf/ayahCopyText';
 import { getApiErrorMessage } from '@/services/api';
 import { getAyahForAction } from '@/services/ayahForAction';
 import { getVerseByKey } from '@/services/quran';
@@ -87,9 +90,14 @@ import { goBackOrHome } from '@/utils/goBackOrHome';
  *    lists (MushafIndexSheet);
  *  - the page number under the frame opens the compact page selector, an RTL
  *    slider with a contextual arrow (MushafPageSelector);
- *  - a tap on an ayah's words: Reflection or Save (to Favorites), nothing else;
+ *  - a tap on an ayah's words: Reflection, Save (to Favorites), Copy (its verified
+ *    Arabic text) or Share, nothing else;
  *  - a tap on its number (the separator medallion): Apply to the active ورد,
- *    saving this page to it (MushafAyahPopups).
+ *    saving this page and that ayah to it (MushafAyahPopups). The active
+ *    ورد's saved ayah is then drawn with a gold medallion (MUSHAF_WIRD_MARKER)
+ *    for as long as it is that ورد's position: another Apply moves it, a
+ *    page-only save, a Khatma or deleting the ورد clears it, and choosing
+ *    another ورد shows that one's (or none).
  * Screen readers turn pages with the page's own next / previous actions.
  *
  * Navigating (swipes, the lists, the selector) only shows a page: no stop is
@@ -173,6 +181,8 @@ export const restartedWithoutProgress = (cycle: ReadingCycle) => cycle.startedBy
  */
 export const END_LINK_MAX_WIDTH = '29%';
 export const PAGE_604_PILL_MAX_WIDTH = '30%';
+/** How long Copy reads "Copied" after it succeeds (as the ayah card's copy icon). */
+const COPY_CONFIRMATION_MS = 1300;
 /** Two taps this close together are a double-tap, which resets the zoom rather than selecting. */
 const DOUBLE_TAP_MS = 350;
 
@@ -242,7 +252,8 @@ function textBottomFor(width: number, tilesDown: number) {
 
 /** The reader's one open popup (or none). */
 type Overlay =
-  | { kind: 'stopName' }
+  /** `ayahKey`: opened from an ayah's number with no ورد selected, so the new (or named) ورد takes that ayah too. */
+  | { kind: 'stopName'; ayahKey?: string | null }
   | { kind: 'index'; mode: MushafIndexMode }
   | { kind: 'pageSelector' }
   | { kind: 'ayah'; verseKey: string; anchor: PopupAnchor }
@@ -394,6 +405,12 @@ export default function MushafScreen() {
   const pendingAyahPopup = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [ayahBusy, setAyahBusy] = useState(false);
   const [ayahError, setAyahError] = useState<string | null>(null);
+  // Copy: the ayah just copied ("Copied" for COPY_CONFIRMATION_MS), and its timer.
+  const [copiedVerseKey, setCopiedVerseKey] = useState<string | null>(null);
+  const copiedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (copiedTimer.current) clearTimeout(copiedTimer.current);
+  }, []);
   const { favorites, isFavorite, toggleFavorite } = useFavorites();
   // Share: the ayah being shared in the existing Share Ayah sheet (the same one as the ayah screens), or none.
   const [sharing, setSharing] = useState<Ayah | null>(null);
@@ -606,6 +623,27 @@ export default function MushafScreen() {
     }
   };
   /**
+   * Copy: the ayah's verified Arabic, complete with its marks, from the device (the same Tanzil text the page is checked
+   * against; works offline), without the Basmala Tanzil prefixes to some first ayahs, a translation, a reference or the
+   * page's QCF glyph codes (mushaf/ayahCopyText.ts). The popup stays open; "Copied" shows only once it succeeded.
+   */
+  const copySelected = async () => {
+    if (overlay?.kind !== 'ayah' || ayahBusy) return;
+    const { verseKey } = overlay;
+    setAyahError(null);
+    try {
+      const [verse, basmala] = await Promise.all([getVerseByKey(verseKey), getVerseByKey('1:1')]);
+      const text = ayahCopyText(verseKey, verse.arabicText, basmala.arabicText);
+      if (!text || !(await Clipboard.setStringAsync(text))) throw new Error('not copied');
+      setCopiedVerseKey(verseKey);
+      if (copiedTimer.current) clearTimeout(copiedTimer.current);
+      copiedTimer.current = setTimeout(() => setCopiedVerseKey(null), COPY_CONFIRMATION_MS);
+    } catch {
+      setCopiedVerseKey(null);
+      setAyahError(copy.actionCopyFailed);
+    }
+  };
+  /**
    * Share: the existing Share Ayah sheet for exactly this ayah, as the ayah screens open it (getAyah, then the sheet,
    * which takes only the ayah: no emotion reaches the card). It stays selected while the sheet is open. Offline: the
    * device's own ayah (the verified local Arabic, no translation), which the sheet already shares without one.
@@ -625,9 +663,11 @@ export default function MushafScreen() {
     }
   };
   /**
-   * Apply: this page saved to the active ورد, read from storage now (the ورد list's own source of truth, so never a
-   * stale one), through the reader's one save path (onSaveStop: page 604's Khatma rules included). No active ورد:
-   * the ورد name field instead (the existing way to create one). Saved: the popup closes, nothing else is shown.
+   * Apply: this page and this ayah saved to the active ورد, read from storage now (the ورد list's own source of
+   * truth, so never a stale one), through the reader's one save path (onSaveStop: page 604's Khatma rules included).
+   * No active ورد: the ورد name field instead (the existing way to create one), carrying this ayah, so the ورد it
+   * saves — a new one, or an existing one typed by name — takes this page and ayah as Apply would. Saved: the popup
+   * closes and the ayah's medallion turns gold (the stops just saved, so at once).
    */
   const applyToWird = async () => {
     if (overlay?.kind !== 'wird' || ayahBusy) return;
@@ -637,11 +677,12 @@ export default function MushafScreen() {
       const [list, id] = await Promise.all([loadReadingStops(), loadActiveReadingStopId()]);
       const target = activeReadingStop(list, id);
       if (!target) {
+        // The name field, carrying this ayah: the ورد it saves (new, or an existing one named) takes this page and ayah.
         setSelectedVerseKey(null);
-        setOverlay({ kind: 'stopName' });
+        setOverlay({ kind: 'stopName', ayahKey: isWirdAyahOnPage(overlay.verseKey, page) ? overlay.verseKey : null });
         return;
       }
-      const result = await onSaveStop(target.name);
+      const result = await onSaveStop(target.name, isWirdAyahOnPage(overlay.verseKey, page) ? overlay.verseKey : null);
       if (result.tone === 'info') dismissAyahPopup();
       else setAyahError(result.text);
     } catch {
@@ -668,11 +709,12 @@ export default function MushafScreen() {
   };
   /**
    * The reader's explicit save of this whole page to the ورد named `name` — the bookmark's save, also used by page
-   * 604's إتمام الختمة. Never the selected ayah. The stop just saved is the one being read (saveWirdPage makes it
+   * 604's إتمام الختمة. Never the selected ayah; an ayah only when Apply passes the one whose number was tapped
+   * (`ayahKey`). The stop just saved is the one being read (saveWirdPage makes it
    * active). Only a save that took this ورد from an earlier page to 604 offers the Khatma; showing 604 never does.
    */
-  const savePage = async (name: string) => {
-    const result = await saveWirdPage({ name, page });
+  const savePage = async (name: string, ayahKey: string | null = null) => {
+    const result = await saveWirdPage({ name, page, ayahKey });
     setStops(result.stops);
     setActiveStopId(result.stop.id);
     if (result.reachedEnd) {
@@ -681,7 +723,8 @@ export default function MushafScreen() {
     }
     return result;
   };
-  const onSaveStop = async (name: string) => {
+  /** `ayahKey`: Apply from that ayah's number; otherwise (the ورد name field) the page alone. */
+  const onSaveStop = async (name: string, ayahKey: string | null = null) => {
     try {
       // Page 604: never for a ورد whose cycle a confirmed Khatma has just restarted (checked before saving, so the
       // save itself cannot count as its progress). The field closes and the new-cycle notice explains why.
@@ -694,7 +737,7 @@ export default function MushafScreen() {
           return { tone: 'error' as const, text: messages.khatma.newCycleTitle };
         }
       }
-      await savePage(name);
+      await savePage(name, ayahKey);
       return { tone: 'info' as const, text: copy.stopSaved };
     } catch (error) {
       const kind = error instanceof ReadingStopError ? error.kind : null;
@@ -967,6 +1010,8 @@ export default function MushafScreen() {
                       ink={ink}
                       highlight={highlight}
                       headingDecoration={decorations.heading}
+                      wirdAyahKey={wirdAyahOnPage(activeStop, n)}
+                      wirdMarker={MUSHAF_WIRD_MARKER[appearance.background]}
                     />
                   ) : (
                     <MushafSvgText
@@ -1080,7 +1125,8 @@ export default function MushafScreen() {
         dark={dark}
         bottomInset={insets.bottom}
         defaultStopName={activeStop?.name}
-        onSave={onSaveStop}
+        // From an ayah's number: that ayah too; from the ورد list's Add: the page alone, as before.
+        onSave={(name) => onSaveStop(name, overlay?.kind === 'stopName' ? overlay.ayahKey ?? null : null)}
         onClose={closeOverlay}
       />
 
@@ -1141,12 +1187,13 @@ export default function MushafScreen() {
         onClose={closeOverlay}
       />
 
-      {/* An ayah's words: Reflection or Save. */}
+      {/* An ayah's words: Reflection, Save, Copy, Share. */}
       <MushafAyahActions
         anchor={overlay?.kind === 'ayah' ? overlay.anchor : null}
         dark={dark}
         rtl={rtl}
         saved={overlay?.kind === 'ayah' && isFavorite(overlay.verseKey)}
+        copied={overlay?.kind === 'ayah' && copiedVerseKey === overlay.verseKey}
         busy={ayahBusy}
         error={overlay?.kind === 'ayah' ? ayahError : null}
         labels={{
@@ -1155,12 +1202,15 @@ export default function MushafScreen() {
           saved: copy.actionSaved,
           saveHint: messages.favoriteButton.saveLabel,
           removeHint: messages.favoriteButton.removeLabel,
+          copy: copy.actionCopy,
+          copied: copy.actionCopied,
           share: messages.ayah.share,
           shareHint: messages.ayah.shareAyah,
           close: copy.wirdClose,
         }}
         onReflect={openReflection}
         onToggleSave={() => void toggleSaved()}
+        onCopy={() => void copySelected()}
         onShare={() => void shareSelected()}
         onClose={dismissAyahPopup}
       />

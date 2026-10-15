@@ -4,11 +4,14 @@ import { notifyLocalReadingChange } from '@/storage/localChanges';
 import { getActiveLocalOwner, ownerStorageKey } from '@/storage/localDataOwner';
 
 import { MUSHAF_PAGE_COUNT } from './mushafPage';
+import { isWirdAyahOnPage } from './wirdAyah';
 
 /**
  * Reading stops (أورادي): named page bookmarks — "Mum", "Ramadan" — so
  * several readers or reading plans on one device each keep their place. A
- * stop records a whole page, never an ayah. A guest's stay on the device;
+ * stop records a page; when it was saved from an ayah's number (Apply to the
+ * ورد), also that ayah (`ayahKey`, wirdAyah.ts), which the reader marks in
+ * gold. Any other save, or a change of page, drops it. A guest's stay on the device;
  * a signed-in account's sync with the account (no Sync Password) between its devices
  * (sync/readingSync.ts, docs/auth-and-sync/reading-sync.md).
  *
@@ -36,6 +39,11 @@ export type ReadingStop = {
   updatedAt: string;
   /** ISO timestamp of the last time its name was set (created or renamed); absent on stops from before sync. Resolves concurrent renames. */
   nameUpdatedAt?: string;
+  /**
+   * The ayah whose number was applied on `page` ("2:255"), or absent: a page-only position. Not phase 1's `verseKey`
+   * (still dropped on reading), so a position saved then never comes back as an ayah.
+   */
+  ayahKey?: string;
 };
 
 /** Unchanged from phase 1; stops saved then with an ayah are read as page-only. */
@@ -51,7 +59,7 @@ export const READING_STOP_NAME_MAX_LENGTH = 40;
  */
 export const MAX_READING_STOPS = 500;
 
-export type ReadingStopErrorKind = 'invalid_name' | 'invalid_page' | 'name_taken' | 'not_found' | 'too_many';
+export type ReadingStopErrorKind = 'invalid_name' | 'invalid_page' | 'invalid_ayah' | 'name_taken' | 'not_found' | 'too_many';
 
 export class ReadingStopError extends Error {
   constructor(public readonly kind: ReadingStopErrorKind) {
@@ -87,6 +95,8 @@ export function parseReadingStops(raw: unknown): ReadingStop[] {
     // Any other stored field (e.g. phase 1's `verseKey`) is dropped.
     const stop: ReadingStop = { id: candidate.id, name, page: candidate.page, updatedAt: candidate.updatedAt };
     if (typeof candidate.nameUpdatedAt === 'string' && !Number.isNaN(Date.parse(candidate.nameUpdatedAt))) stop.nameUpdatedAt = candidate.nameUpdatedAt;
+    // An ayah whose number isn't on the stop's page is dropped: the page stays the position.
+    if (isWirdAyahOnPage(candidate.ayahKey, stop.page)) stop.ayahKey = candidate.ayahKey;
     stops.push(stop);
   }
   const newestFirst = stops.sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
@@ -141,7 +151,8 @@ export async function persistReadingStops(owner: string | null, stops: readonly 
   await AsyncStorage.setItem(readingStopsKey(owner), JSON.stringify(stops));
 }
 
-export type SaveReadingStopInput = { name: string; page: number };
+/** `ayahKey`: the ayah whose number was applied (its number must be on `page`); omitted, the save is page-only and clears any. */
+export type SaveReadingStopInput = { name: string; page: number; ayahKey?: string | null };
 type Options = { now?: () => Date; newId?: () => string };
 
 /** Saves (or moves) the stop with this name to `page`. Returns the updated list, newest first. */
@@ -156,6 +167,7 @@ export async function saveReadingStopUnlocked(input: SaveReadingStopInput, optio
   const name = normalizeReadingStopName(input.name);
   if (!name) throw new ReadingStopError('invalid_name');
   if (!isValidPage(input.page)) throw new ReadingStopError('invalid_page');
+  if (input.ayahKey != null && !isWirdAyahOnPage(input.ayahKey, input.page)) throw new ReadingStopError('invalid_ayah');
 
   const owner = await readingOwner(options.owner);
   const stops = await loadReadingStops(owner);
@@ -168,6 +180,7 @@ export async function saveReadingStopUnlocked(input: SaveReadingStopInput, optio
     page: input.page,
     updatedAt: at,
   };
+  if (input.ayahKey != null) saved.ayahKey = input.ayahKey;
   // A new stop, or the same name typed differently: its name was set now.
   const nameUpdatedAt = existing && existing.name === name ? existing.nameUpdatedAt : at;
   if (nameUpdatedAt) saved.nameUpdatedAt = nameUpdatedAt;
@@ -175,6 +188,12 @@ export async function saveReadingStopUnlocked(input: SaveReadingStopInput, optio
   await persistReadingStops(owner, next);
   notifyReadingDataChanged();
   return next;
+}
+
+/** The stop moved to `page` (a Khatma's return to page 1, its undo to 604): page-only, its ayah dropped. */
+export function stopAtPage(stop: ReadingStop, page: number, updatedAt?: string): ReadingStop {
+  const { ayahKey: _dropped, ...rest } = stop;
+  return updatedAt === undefined ? { ...rest, page } : { ...rest, page, updatedAt };
 }
 
 /** Renames one stop; its page, position and every other stop are unchanged. */

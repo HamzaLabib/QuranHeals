@@ -115,6 +115,7 @@ describe('أورادي وختماتي sync: validation', () => {
       [wird('stop-1', null, { name: 'line\nbreak' })],
       [wird('stop-1', null, { savedAt: 'yesterday' })],
       [wird('stop-1', null, { extra: 'field' })],
+      ...['', '2', '2:', ':255', '0:1', '115:1', '2:0', '2:287', '02:255', '2:255:1', ' 2:255', 2255, null].map((ayahKey) => [wird('stop-1', null, { ayahKey })]),
       [{ ...wird('stop-1', null), data: wirdData('stop-2') }], // content of another record
       [{ ...wird('stop-1', null), data: { ...wirdData('stop-1'), cycle: { ...wirdData('stop-1').cycle, lastSavedPage: 12 } } }], // cycle disagrees with page
       [{ ...wird('stop-1', null), data: { ...wirdData('stop-1'), cycle: { ...wirdData('stop-1').cycle, seq: -1 } } }],
@@ -162,6 +163,21 @@ describe('أورادي وختماتي sync: validation', () => {
       [{ ...remove('khatma', 'khatma-c1'), keyFingerprint: 'fp-1' }],
     ]) expect((await a.push(changes)).status).toBe(400);
     expect((await a.pull()).body.data.records).toEqual(before);
+  });
+
+  it('a ورد may carry the ayah whose number was applied (`ayahKey`), stored and served as sent; without it, page-only as before', async () => {
+    const t = buildAccountTestApp();
+    const a = await account(t, 'a');
+    for (const ayahKey of ['1:1', '2:286', '114:6', '9:129']) {
+      expect((await a.push([wird(`stop-${ayahKey.replace(':', '-')}`, null, { ayahKey })])).status, ayahKey).toBe(200);
+    }
+    expect(statuses(await a.push([wird('stop-page-only', null)]))).toEqual(['applied']);
+    const records = (await a.pull()).body.data.records as { recordId: string; data: Record<string, unknown> }[];
+    expect(records.find((r) => r.recordId === 'stop-2-286')?.data.ayahKey).toBe('2:286');
+    expect(records.find((r) => r.recordId === 'stop-page-only')?.data).not.toHaveProperty('ayahKey');
+    // A later page-only save replaces the ayah (it moved the position): nothing of the old ayah is kept.
+    expect(statuses(await a.push([wird('stop-2-286', 1)]))).toEqual(['applied']);
+    expect(((await a.pull()).body.data.records as { recordId: string; data: Record<string, unknown> }[]).find((r) => r.recordId === 'stop-2-286')?.data).not.toHaveProperty('ayahKey');
   });
 
   it('a content-free deletion is accepted from any client: it carries no content and is the user`s own removal', async () => {

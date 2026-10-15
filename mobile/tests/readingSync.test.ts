@@ -31,7 +31,7 @@ const khatmas = await import('@/mushaf/khatmas');
 const { renameReadingStop, setActiveReadingStopId } = await import('@/mushaf/readingStops');
 const { resetLocalDataOwnerForTests } = await import('@/storage/localDataOwner');
 const { activateLocalDataForAccount, activateGuestLocalData } = await import('@/storage/localDataOwnership');
-const { syncReading } = await import('@/sync/readingSync');
+const { resetReadingSyncServerCapabilitiesForTests, syncReading } = await import('@/sync/readingSync');
 const { getReadingSyncStatus } = await import('@/sync/readingSyncState');
 
 let server: FakeReadingServer;
@@ -68,6 +68,7 @@ async function shown(d: Device, account: string | null = 'A') {
 const wird = async (d: Device, name: string, account = 'A') => (await read(d, account)).wirds.find((w) => w.stop.name === name)!;
 
 beforeEach(() => {
+  resetReadingSyncServerCapabilitiesForTests();
   iphone = device('iphone');
   android = device('android');
   server = new FakeReadingServer((token) => (token.startsWith('token-') ? token.slice(6) : null));
@@ -584,5 +585,155 @@ describe('guests, accounts and existing data', () => {
     iphone.online = true;
     expect(await sync(iphone)).toBe(true);
     expect(getReadingSyncStatus().state).toBe('synced');
+  });
+});
+
+describe('the ورد`s saved ayah (the gold medallion)', () => {
+  /** The named ورد's saved page and ayah on a device (undefined: page-only). */
+  const position = async (d: Device, name: string, account = 'A') => {
+    const w = await wird(d, name, account);
+    return { page: w.stop.page, ayahKey: w.stop.ayahKey };
+  };
+  const offline = (...devices: Device[]) => devices.forEach((d) => { d.online = false; });
+  const online = (...devices: Device[]) => devices.forEach((d) => { d.online = true; });
+
+  it('an ayah applied on the iPhone reaches Android; moved on Android, it moves on the iPhone; a page-only save clears it everywhere', async () => {
+    await on(iphone, 'A', () => khatmas.saveWirdPage({ name: 'Fajr', page: 250, ayahKey: '13:10' }));
+    await sync(iphone);
+    await sync(android);
+    expect(await position(android, 'Fajr')).toEqual({ page: 250, ayahKey: '13:10' });
+    expect(server.active('A', 'wird')[0].data).toMatchObject({ page: 250, ayahKey: '13:10' });
+
+    await on(android, 'A', () => khatmas.saveWirdPage({ name: 'Fajr', page: 251, ayahKey: '13:16' }));
+    await sync(android);
+    await sync(iphone);
+    expect(await position(iphone, 'Fajr')).toEqual({ page: 251, ayahKey: '13:16' });
+
+    await on(iphone, 'A', () => khatmas.saveWirdPage({ name: 'Fajr', page: 251 }));
+    await sync(iphone);
+    await sync(android);
+    expect(await position(android, 'Fajr')).toEqual({ page: 251, ayahKey: undefined });
+    expect(server.active('A', 'wird')[0].data).not.toHaveProperty('ayahKey');
+  });
+
+  it('each ورد keeps its own ayah across devices; the selected one follows the latest choice', async () => {
+    await on(iphone, 'A', async () => {
+      await khatmas.saveWirdPage({ name: 'Fajr', page: 250, ayahKey: '13:10' });
+      await khatmas.saveWirdPage({ name: 'Isha', page: 61, ayahKey: '3:88' });
+    });
+    await sync(iphone);
+    await sync(android);
+    expect(await position(android, 'Fajr')).toEqual({ page: 250, ayahKey: '13:10' });
+    expect(await position(android, 'Isha')).toEqual({ page: 61, ayahKey: '3:88' });
+    expect((await shown(android)).active).toBe('Isha');
+  });
+
+  it('both devices apply different ayahs offline: the LATER save wins with its own ayah — and so does a later page-only save', async () => {
+    await on(iphone, 'A', () => khatmas.saveWirdPage({ name: 'Fajr', page: 250, ayahKey: '13:6' }));
+    await sync(iphone);
+    await sync(android);
+    offline(iphone, android);
+    await on(android, 'A', () => khatmas.saveWirdPage({ name: 'Fajr', page: 250, ayahKey: '13:13' }, at('2026-10-13T08:00:00Z')));
+    await on(iphone, 'A', () => khatmas.saveWirdPage({ name: 'Fajr', page: 250, ayahKey: '13:8' }, at('2026-10-13T09:00:00Z')));
+    online(iphone, android);
+    await sync(android);
+    await sync(iphone);
+    await sync(android);
+    expect(await position(iphone, 'Fajr')).toEqual({ page: 250, ayahKey: '13:8' });
+    expect(await position(android, 'Fajr')).toEqual({ page: 250, ayahKey: '13:8' });
+
+    offline(iphone, android);
+    await on(iphone, 'A', () => khatmas.saveWirdPage({ name: 'Fajr', page: 300, ayahKey: '18:57' }, at('2026-10-14T08:00:00Z')));
+    await on(android, 'A', () => khatmas.saveWirdPage({ name: 'Fajr', page: 301 }, at('2026-10-14T09:00:00Z')));
+    online(iphone, android);
+    await sync(iphone);
+    await sync(android);
+    await sync(iphone);
+    expect(await position(iphone, 'Fajr')).toEqual({ page: 301, ayahKey: undefined });
+    expect(await position(android, 'Fajr')).toEqual({ page: 301, ayahKey: undefined });
+  });
+
+  it('a rename on one device and an ayah applied on the other: both kept', async () => {
+    await on(iphone, 'A', () => khatmas.saveWirdPage({ name: 'Fajr', page: 250 }));
+    await sync(iphone);
+    await sync(android);
+    offline(iphone, android);
+    const id = (await wird(iphone, 'Fajr')).stop.id;
+    await on(iphone, 'A', () => renameReadingStop(id, 'Dawn', at('2026-10-13T08:00:00Z')));
+    await on(android, 'A', () => khatmas.saveWirdPage({ name: 'Fajr', page: 250, ayahKey: '13:11' }, at('2026-10-13T09:00:00Z')));
+    online(iphone, android);
+    await sync(iphone);
+    await sync(android);
+    await sync(iphone);
+    expect(await position(iphone, 'Dawn')).toEqual({ page: 250, ayahKey: '13:11' });
+    expect(await position(android, 'Dawn')).toEqual({ page: 250, ayahKey: '13:11' });
+  });
+
+  it('applied offline: kept on the device, uploaded when it reconnects', async () => {
+    iphone.online = false;
+    await on(iphone, 'A', () => khatmas.saveWirdPage({ name: 'Fajr', page: 604, ayahKey: '114:6' }));
+    expect(await syncOrFail(iphone)).toBe('failed');
+    expect(await position(iphone, 'Fajr')).toEqual({ page: 604, ayahKey: '114:6' });
+    iphone.online = true;
+    expect(await sync(iphone)).toBe(true);
+    await sync(android);
+    expect(await position(android, 'Fajr')).toEqual({ page: 604, ayahKey: '114:6' });
+  });
+
+  it('"Add to this account": a guest`s ayah joins the account and reaches its other devices', async () => {
+    await on(iphone, null, () => khatmas.saveWirdPage({ name: 'Fajr', page: 2, ayahKey: '2:5' }));
+    await on(iphone, 'A', () => khatmas.adoptGuestReadingData('A'));
+    expect(await position(iphone, 'Fajr')).toEqual({ page: 2, ayahKey: '2:5' });
+    await sync(iphone);
+    await sync(android);
+    expect(await position(android, 'Fajr')).toEqual({ page: 2, ayahKey: '2:5' });
+  });
+
+  it('a Khatma confirmed on one device clears the ayah on both (the ورد returns to page 1)', async () => {
+    await on(iphone, 'A', async () => {
+      await khatmas.saveWirdPage({ name: 'Daily', page: 600 });
+      const saved = await khatmas.saveWirdPage({ name: 'Daily', page: 604, ayahKey: '114:6' });
+      await khatmas.confirmKhatma(saved.stop.id, saved.cycleId);
+    });
+    await sync(iphone);
+    await sync(android);
+    expect(await position(iphone, 'Daily')).toEqual({ page: 1, ayahKey: undefined });
+    expect(await position(android, 'Daily')).toEqual({ page: 1, ayahKey: undefined });
+  });
+
+  it('an account server from before `ayahKey` (refusing it): sync still completes page-only, the ayah stays on the device; once the server is updated, it goes up', async () => {
+    server.rejectsAyahKey = true;
+    await on(iphone, 'A', () => khatmas.saveWirdPage({ name: 'Fajr', page: 250, ayahKey: '13:10' }));
+    expect(await sync(iphone)).toBe(true);
+    expect(server.active('A', 'wird')[0].data).toMatchObject({ page: 250 });
+    expect(server.active('A', 'wird')[0].data).not.toHaveProperty('ayahKey');
+    expect(await position(iphone, 'Fajr')).toEqual({ page: 250, ayahKey: '13:10' });
+    await sync(android);
+    expect(await position(android, 'Fajr')).toEqual({ page: 250, ayahKey: undefined });
+    // The same session: nothing more is sent (it would only be refused again).
+    const posts = server.log.filter((entry) => entry.method === 'POST').length;
+    expect(await sync(iphone)).toBe(true);
+    expect(server.log.filter((entry) => entry.method === 'POST').length).toBe(posts);
+    // Android's own later sync never takes the ayah away from the iPhone.
+    await sync(android);
+    await sync(iphone);
+    expect(await position(iphone, 'Fajr')).toEqual({ page: 250, ayahKey: '13:10' });
+
+    // The server updated; a new app session.
+    server.rejectsAyahKey = false;
+    resetReadingSyncServerCapabilitiesForTests();
+    expect(await sync(iphone)).toBe(true);
+    await sync(android);
+    expect(await position(android, 'Fajr')).toEqual({ page: 250, ayahKey: '13:10' });
+  });
+
+  it('an account record whose ayah is not on its page is unreadable here: never applied, never overwritten', async () => {
+    await on(iphone, 'A', () => khatmas.saveWirdPage({ name: 'Fajr', page: 250, ayahKey: '13:10' }));
+    await sync(iphone);
+    const record = server.record('A', 'wird', (await wird(iphone, 'Fajr')).stop.id)!;
+    record.data = { ...(record.data as object), ayahKey: '2:255' } as never;
+    record.changeSeq = 1000;
+    await sync(android);
+    expect((await shown(android)).wirds).toEqual([]);
   });
 });

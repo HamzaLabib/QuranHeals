@@ -94,6 +94,23 @@ export const MUSHAF_MARKER_STYLES = {
 } as const satisfies Record<string, { id: string; label: string; colors: AyahMarkerColors | null }>;
 export type MushafMarkerStyleId = keyof typeof MUSHAF_MARKER_STYLES;
 
+/**
+ * The selected ورد's saved ayah (wirdAyah.ts): its medallion in gold. The same artwork, number and box as every
+ * other medallion; only its colours change: a soft gold centre behind the number (#FFF3CB), a darker gold outer band
+ * (#D3A126), gold side crescents (#DFBA5B) and dark gold line-work (#9C741D). The number keeps the medallions' dark
+ * ink: dark gold on the soft centre would be 3.8:1, below the 4.5:1 of the other medallions' numbers.
+ *
+ * Light and Dark take the same golds (the Dark medallions keep their light centre too): the line-work is 3.7:1 on
+ * Warm Cream and the outer band 6.5:1 on Warm Midnight Olive. `glyph`: the 'qpc-glyph' style's plain font glyph,
+ * tinted as one glyph (no fills to recolour).
+ */
+const WIRD_GOLD = { caps: '#9C741D', sides: '#9C741D', capFill: '#D3A126', sideFill: '#DFBA5B', innerFill: '#FFF3CB', number: '#231F20' } as const;
+export const MUSHAF_WIRD_MARKER: Readonly<Record<MushafBackgroundId, { colors: AyahMarkerColors; glyph: string }>> = {
+  original: { colors: WIRD_GOLD, glyph: '#9C741D' },
+  warm: { colors: WIRD_GOLD, glyph: '#9C741D' },
+  midnight: { colors: WIRD_GOLD, glyph: '#D3A126' },
+};
+
 // ── Quran ink ───────────────────────────────────────────────────────────
 
 export const MUSHAF_INKS = {

@@ -208,3 +208,46 @@ describe('the active stop (the reader`s ورد selector)', () => {
     expect(await loadActiveReadingStopId()).toBe(stops[0].id);
   });
 });
+
+describe('the ayah applied from its number (the gold medallion)', () => {
+  it('is saved with the page, survives a restart (read back from storage), and moves with the next Apply', async () => {
+    await saveReadingStop({ name: 'Fajr', page: 250, ayahKey: '13:10' }, options);
+    expect(stored()).toEqual([expect.objectContaining({ name: 'Fajr', page: 250, ayahKey: '13:10' })]);
+    // A restart: nothing but the stored JSON.
+    expect(parseReadingStops(stored())[0]).toMatchObject({ page: 250, ayahKey: '13:10' });
+    expect((await loadReadingStops())[0]).toMatchObject({ page: 250, ayahKey: '13:10' });
+    await saveReadingStop({ name: 'Fajr', page: 251, ayahKey: '13:16' }, options);
+    expect(await loadReadingStops()).toEqual([expect.objectContaining({ name: 'Fajr', page: 251, ayahKey: '13:16' })]);
+  });
+
+  it('a page-only save (the name field, or no ayah) clears it; renaming keeps it', async () => {
+    const [stop] = await saveReadingStop({ name: 'Fajr', page: 250, ayahKey: '13:10' }, options);
+    await renameReadingStop(stop.id, 'Dawn', options);
+    expect((await loadReadingStops())[0]).toMatchObject({ name: 'Dawn', ayahKey: '13:10' });
+    await saveReadingStop({ name: 'Dawn', page: 250 }, options);
+    expect((await loadReadingStops())[0]).not.toHaveProperty('ayahKey');
+    await saveReadingStop({ name: 'Dawn', page: 250, ayahKey: '13:12' }, options);
+    await saveReadingStop({ name: 'Dawn', page: 250, ayahKey: null }, options);
+    expect((await loadReadingStops())[0]).not.toHaveProperty('ayahKey');
+  });
+
+  it('only an ayah whose number is printed on that page is accepted (pages 1, 2, 4, 61, 604)', async () => {
+    for (const [page, ayahKey] of [[1, '1:7'], [2, '2:5'], [4, '2:24'], [61, '3:84'], [604, '114:6']] as const) {
+      expect(await errorKind(() => saveReadingStop({ name: `p${page}`, page, ayahKey }, options)), ayahKey).toBe('ok');
+    }
+    for (const [page, ayahKey] of [[2, '2:6'], [3, '2:5'], [61, '3:92'], [604, '111:5'], [250, '2:255'], [250, '13:10 '], [250, '0:1'], [250, '115:1']] as const) {
+      expect(await errorKind(() => saveReadingStop({ name: 'Bad', page, ayahKey }, options)), `${page} ${ayahKey}`).toBe('invalid_ayah');
+    }
+  });
+
+  it('stored data with an ayah not on its page (or malformed) keeps the stop, page-only', () => {
+    const base = { id: 'a', name: 'Mum', page: 61, updatedAt: '2026-10-11T08:00:00.000Z' };
+    for (const ayahKey of ['2:255', '3:84:1', 384, null, '']) expect(parseReadingStops([{ ...base, ayahKey }])).toEqual([base]);
+    expect(parseReadingStops([{ ...base, ayahKey: '3:91' }])).toEqual([{ ...base, ayahKey: '3:91' }]);
+  });
+
+  it('a phase-1 `verseKey` is never read as the ayah', async () => {
+    storage.map.set(READING_STOPS_STORAGE_KEY, JSON.stringify([{ id: 'a', name: 'Mum', page: 61, verseKey: '3:86', updatedAt: '2026-10-11T08:00:00.000Z' }]));
+    expect((await loadReadingStops())[0]).not.toHaveProperty('ayahKey');
+  });
+});
