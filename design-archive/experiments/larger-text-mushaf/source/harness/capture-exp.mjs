@@ -2,10 +2,11 @@
 // experiment patch), original vs candidates, and records DOM measurements and per-line glyph checks against the
 // verified relay dataset. Expo Web / headless Chrome; not a device or simulator.
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { gunzipSync } from 'node:zlib';
 import { driver, launch } from './cdp.mjs';
 
-const REPO = 'C:/Users/hamzalabib/OneDrive - McGill University/Documents/Personal/My App/QuranHeals';
+const REPO = fileURLToPath(new URL('../../../../..', import.meta.url)).replace(/[\\/]$/, '');
 const OUT = `${REPO}/design-archive/experiments/larger-text-mushaf`;
 const SHOTS = `${OUT}/screenshots`;
 const S = new URL('.', import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1');

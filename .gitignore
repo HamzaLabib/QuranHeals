@@ -41,11 +41,16 @@ QuranHealsAdmin/
 # the earlier commits still hold them). Ignored so the local copies are never re-added by mistake.
 docs/mushaf-visual-review/
 design-archive/experiments/larger-text-mushaf/screenshots/
+# Its comparison images too (QCF V1 page renders, Quran Foundation content; local copies kept, untracked 2026-10-16).
+design-archive/experiments/larger-text-mushaf/comparisons/*.png
 
 # Local scratch files
 tmp/
 *.tmp
 *.tsbuildinfo
+# Python bytecode caches (written next to research scripts when they run)
+__pycache__/
+*.py[cod]
 coverage/
 .cache/
 tools/quran-import/staging/
@@ -65,6 +70,11 @@ mobile/assets/mushaf/**/*.woff2
 # Quran Foundation Content Sync copy (mushafs:2): QF content, kept on the
 # backend and relayed to the app under the Content Sync terms; never committed.
 backend/data/mushaf-sync/
+
+# The Unicode Mushaf prototype's Madina05 table and KFGQPC-derived width table once restored into the app
+# (unicode-experiments/restore/restore.mjs): local only, like their archived copies (unicode-experiments/.gitignore).
+mobile/src/mushaf/unicode/generated/madina05Layout.ts
+mobile/src/mushaf/unicode/generated/hafsWordWidths.ts
 
 # MongoDB pre-write snapshot backups (documented as git-ignored in
 # backend/src/utils/backupPaths.ts but not previously excluded here)

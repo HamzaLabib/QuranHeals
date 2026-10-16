@@ -1,6 +1,6 @@
-diff --git a/C:/Users/HAMZAL~1/AppData/Local/Temp/claude/c--Users-hamzalabib-OneDrive---McGill-University-Documents-Personal-My-App-QuranHeals/44d23233-ece4-487f-8dcf-601067e2b12b/scratchpad/exp/pageGeometry.orig.ts b/src/mushaf/pageGeometry.ts
+diff --git a/src/mushaf/pageGeometry.ts b/src/mushaf/pageGeometry.ts
 index 71e1f5f..64feaad 100644
---- a/C:/Users/HAMZAL~1/AppData/Local/Temp/claude/c--Users-hamzalabib-OneDrive---McGill-University-Documents-Personal-My-App-QuranHeals/44d23233-ece4-487f-8dcf-601067e2b12b/scratchpad/exp/pageGeometry.orig.ts
+--- a/src/mushaf/pageGeometry.ts
 +++ b/src/mushaf/pageGeometry.ts
 @@ -16,6 +16,29 @@
   * error. Everything below is a fraction of the frame's outer width.

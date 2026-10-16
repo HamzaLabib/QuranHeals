@@ -1,0 +1,75 @@
+<!doctype html><meta charset=utf-8>
+<!-- Unicode font harness (local evaluation). ?page=5&font=v18|v22|dk|amiri&size=fit|<em measure>&just=space|cv01|tatweel&weight=<px stroke>&dup=<em offset> -->
+<style>
+@font-face{font-family:v18;src:url('../fonts/UthmanicHafs1Ver18.ttf')}
+@font-face{font-family:v22;src:url('../specimen/UthmanicHafs_V22.ttf')}
+@font-face{font-family:dk;src:url('../fonts/dk/oldmadina.ttf')}
+@font-face{font-family:amiri;src:url('../fonts/amiri/Amiri-1.003/AmiriQuran.ttf')}
+body{margin:0;background:#F9EFD2}
+#area{position:relative;width:331.4px;height:625.5px;margin:12px}
+.row{position:absolute;left:0;width:331.4px;display:flex;flex-direction:row-reverse;align-items:center;white-space:nowrap;color:#231F20}
+.w{display:inline-block}
+.m{display:inline-flex;align-items:center;justify-content:center;border:1.5px solid #3E7D57;border-radius:50%;color:#231F20;font-family:sans-serif}
+.h{justify-content:center;font-family:serif;color:#2B2A26}
+</style><div id=area></div>
+<script>
+const q = new URLSearchParams(location.search);
+const page = +q.get('page'), font = q.get('font') || 'v18', just = q.get('just') || 'space', size = q.get('size') || 'fit';
+const weight = +(q.get('weight') || 0), dup = +(q.get('dup') || 0), gapMin = +(q.get('gap') || 0.12);
+const W = 331.4, H = 625.5, pitch = H / 15;
+const swap = (font === 'v18' || font === 'v22') ? (s) => s.replace(/[ْ۟]/g, (c) => c === 'ْ' ? 'ۡ' : 'ْ') : (s) => s;
+fetch('../lines.json').then(r => r.json()).then(async (all) => {
+  await document.fonts.load(`40px ${font}`);
+  const lines = all[page];
+  const area = document.getElementById('area');
+  const opening = page <= 2;
+  // Natural widths at 100px.
+  const probe = document.createElement('span'); probe.className = 'w'; probe.style.font = `100px ${font}`; probe.style.position = 'absolute'; probe.style.visibility = 'hidden'; area.appendChild(probe);
+  const widthOf = (t, feat) => { probe.style.fontFeatureSettings = feat || 'normal'; probe.textContent = swap(t); return probe.getBoundingClientRect().width / 100; };
+  const space = widthOf(' ب') - widthOf('ب');
+  const markEm = 1.0;
+  const nat = lines.map(l => l.kind !== 'text' ? 0 : l.words.reduce((s, w) => s + (w.m ? markEm : widthOf(w.t)), 0) + (l.words.length - 1) * space);
+  let fs = size === 'fit' ? W * 0.985 / Math.max(...nat) : W / +size;
+  if (opening) fs = W / 21;
+  lines.forEach((l, i) => {
+    const row = document.createElement('div'); row.className = 'row'; area.appendChild(row);
+    const top = opening ? (H - lines.length * pitch) / 2 + i * pitch : i * pitch;
+    row.style.top = top + 'px'; row.style.height = pitch + 'px';
+    if (l.kind === 'heading') { row.classList.add('h'); row.style.fontSize = fs * 0.9 + 'px'; row.textContent = '— سورة —'; return; }
+    row.style.font = `${fs}px ${font}`;
+    if (weight) row.style.webkitTextStroke = `${weight}px #231F20`;
+    const items = l.words.map(w => ({ ...w, width: w.m ? markEm : widthOf(w.t), level: 0 }));
+    const centred = opening || l.kind === 'basmala' || (nat[i] < 0.8 * W / fs && (lines[i + 1]?.kind === 'heading' || i === lines.length - 1));
+    const gaps = items.length - 1;
+    let gap = space;
+    if (!centred && gaps > 0) {
+      let room = W / fs - items.reduce((s, it) => s + it.width, 0);
+      if (just === 'cv01' && font === 'dk') {
+        // In-letter elongation: give the longest words cv01 levels (one step at a time, max 2 words per line first).
+        const cand = items.filter(it => !it.m).sort((a, b) => b.width - a.width);
+        const target = room - gaps * Math.max(space, 0.18);
+        let left = target;
+        for (let pass = 0; pass < 12 && left > 0.05; pass++) for (const it of cand.slice(0, pass < 4 ? 2 : 4)) {
+          const nw = widthOf(it.t, `"cv01" ${it.level + 1}`);
+          if (nw > it.width && nw - it.width <= left + 0.02) { left -= nw - it.width; it.width = nw; it.level++; }
+        }
+        room = W / fs - items.reduce((s, it) => s + it.width, 0);
+      }
+      gap = room / gaps;
+      if (gap < gapMin) gap = gapMin;
+    }
+    items.forEach((it, k) => {
+      const el = document.createElement('span');
+      if (it.m) { el.className = 'm'; el.style.width = el.style.height = fs * 0.95 + 'px'; el.style.fontSize = fs * 0.4 + 'px'; el.textContent = it.m.toLocaleString('ar-EG'); }
+      else { el.className = 'w'; el.textContent = swap(it.t); if (it.level) el.style.fontFeatureSettings = `"cv01" ${it.level}`;
+        if (dup) el.style.textShadow = `${dup * fs}px 0 0 #231F20`; }
+      if (k > 0) el.style.marginRight = (centred ? space : gap) * fs + 'px';
+      row.appendChild(el);
+    });
+    if (centred) row.style.justifyContent = 'flex-start', row.style.paddingRight = (W - items.reduce((s, it) => s + it.width, 0) * fs - gaps * space * fs) / 2 + 'px';
+  });
+  probe.remove();
+  document.body.dataset.fs = fs.toFixed(2);
+  document.body.dataset.ready = 1;
+});
+</script>

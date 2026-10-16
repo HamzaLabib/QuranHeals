@@ -1,0 +1,11 @@
+import puppeteer from 'puppeteer-core';
+const b = await puppeteer.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
+const p = await b.newPage(); await p.setViewport({ width: 393, height: 852, deviceScaleFactor: 1 });
+const logs = []; p.on('console', (m) => logs.push(m.text().slice(0, 160)));
+await p.goto('http://localhost:8083/', { waitUntil: 'domcontentloaded', timeout: 300000 });
+await p.evaluate(() => { localStorage.setItem('quran-heals:mushaf-guide:v1', '{"status":"done"}'); localStorage.setItem('quran-heals:dev-unicode-mushaf:renderer:v1', 'unicode'); });
+await p.goto(`http://localhost:8083/mushaf?page=604&ayah=114:1`, { waitUntil: 'domcontentloaded', timeout: 300000 });
+await new Promise((r) => setTimeout(r, 12000));
+console.log(await p.evaluate(() => [Object.keys(localStorage).filter((k) => k.includes('unicode')).map((k) => k + '=' + localStorage.getItem(k)).join(' '), document.body.innerText.slice(0, 300)].join('\n---\n')));
+console.log(logs.filter((l) => /mushaf|unicode/i.test(l)).slice(-8).join('\n'));
+await p.screenshot({ path: '../shots/state.png' }); await b.close();

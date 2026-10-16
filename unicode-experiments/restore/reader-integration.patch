@@ -1,0 +1,324 @@
+diff --git a/docs/mushaf-device-testing.md b/docs/mushaf-device-testing.md
+index f140f94..6f16d2d 100644
+--- a/docs/mushaf-device-testing.md
++++ b/docs/mushaf-device-testing.md
+@@ -257,3 +257,8 @@ Prepared in code and held back: `PRODUCTION_AUTO_DOWNLOAD_RELEASED` in `mobile/s
+ | P5 | After P1: airplane mode, force-quit, reopen; read pages 1, 2, 3, 61, 300, 604; swipe through several | Every page draws with its own font; Surah / Juz' / Hizb / page navigation works |
+ | P6 | After P5, still offline: an ayah's Save, Unsave and Share | Saved / removed at once; Share opens with the Arabic only; online again, the saved ayah gains its translation |
+ | P7 | Storage | Settings shows the real state; the app's storage use grows by about 100 MB and no more |
++
++## Unicode Mushaf prototype (development builds only, 2026-10-15) — UNVERIFIED
++
++Runs in the development build already installed (no new build, no backend needed for its pages). Checklist, rendering
++check mode (✓ chip) and results table: [unicode-mushaf/device-testing-checklist.md](unicode-mushaf/device-testing-checklist.md).
+diff --git a/mobile/package.json b/mobile/package.json
+index e6ec50e..02aa8d9 100644
+--- a/mobile/package.json
++++ b/mobile/package.json
+@@ -47,6 +47,7 @@
+     "react-native-worklets": "0.10.1"
+   },
+   "devDependencies": {
++    "@expo-google-fonts/amiri-quran": "0.4.1",
+     "@types/node": "^26.4.1",
+     "@types/react": "~19.2.2",
+     "@types/react-test-renderer": "^19.3.0",
+diff --git a/mobile/src/app/(tabs)/mushaf.tsx b/mobile/src/app/(tabs)/mushaf.tsx
+index 6898e22..d75ee33 100644
+--- a/mobile/src/app/(tabs)/mushaf.tsx
++++ b/mobile/src/app/(tabs)/mushaf.tsx
+@@ -76,6 +76,16 @@ import { getSurahName } from '@/services/surahNames';
+ import { useThemedStyles, useThemeName } from '@/theme/useTheme';
+ import { devLog } from '@/utils/devLog';
+ import { goBackOrHome } from '@/utils/goBackOrHome';
++import type { UnicodePageText } from '@/mushaf/unicode';
++
++/**
++ * The Unicode Mushaf prototype (docs/unicode-mushaf/feasibility-report.md): development builds only. Release bundles
++ * never contain it — Metro inlines __DEV__ and folds this to null before collecting dependencies — so there the reader
++ * is exactly the QPC V1 one. In a development build it stays off (QPC V1) until switched on with the reader's
++ * development-only "Unicode" chip or ?renderer=unicode.
++ */
++// eslint-disable-next-line @typescript-eslint/no-require-imports
++const unicodeMushaf: typeof import('@/mushaf/unicode') | null = typeof __DEV__ !== 'undefined' && __DEV__ ? require('../../mushaf/unicode') : null;
+ 
+ /**
+  * The Mushaf reader (/mushaf): a plain Back arrow in a slim row under the
+@@ -268,6 +278,8 @@ type Overlay =
+ type PageState =
+   | { status: 'loading' }
+   | { status: 'qpc'; layout: QpcV1PageLayout; source: 'offline' | 'api'; basmalaFont: string | null }
++  /** The Unicode prototype's page (development builds only): its verified text, checked against its layout. */
++  | { status: 'unicode'; text: UnicodePageText }
+   | { status: 'svg' }
+   | { status: 'missing' }
+   | { status: 'unavailable' };
+@@ -312,8 +324,18 @@ async function ensurePageFont(page: number, family: string): Promise<boolean> {
+ }
+ 
+ /** One page's layout and font, checked against the verified Tanzil text before it may be drawn. Never throws. */
+-async function loadPageState(page: number, onlineInDev: boolean): Promise<PageState> {
++async function loadPageState(page: number, onlineInDev: boolean, unicode: import('@/mushaf/unicode').UnicodeFontId | null = null): Promise<PageState> {
+   const startedAt = Date.now();
++  if (unicode && unicodeMushaf) {
++    // The Unicode prototype: the verified text on Madina05's lines, in its own font (no offline QPC V1 download needed).
++    try {
++      const [font, loaded] = await Promise.all([unicodeMushaf.ensureUnicodeFont(unicode), unicodeMushaf.loadUnicodePage(page, unicode)]);
++      devLog('mushaf', 'unicode page', { page, ms: Date.now() - startedAt, font: font.ok ? font.source : font.reason, ok: loaded.ok, problems: loaded.ok ? [] : loaded.problems });
++      return font.ok && loaded.ok ? { status: 'unicode', text: loaded.text } : { status: 'unavailable' };
++    } catch {
++      return { status: 'unavailable' };
++    }
++  }
+   try {
+     const offline = await offlineMushaf.readPage(page).catch(() => null);
+     // Online: page 61 from the page API; in development builds with ?source=online, any page straight from the relay.
+@@ -426,6 +448,30 @@ export default function MushafScreen() {
+   const [zoomed, setZoomed] = useState(false);
+   // Development builds only: read any page straight from the relay (?source=online), to check it without installing.
+   const onlineInDev = isDevBuild() && params.source === 'online';
++  // Development builds only: the Unicode Mushaf prototype and its Tajweed Colors (both off by default; kept on this
++  // device, never synced). ?renderer=unicode switches it on for this visit. Without the prototype module (release
++  // bundles) both stay false and nothing below changes.
++  const [prototype, setPrototype] = useState<{ unicode: boolean; tajweed: boolean; font: import('@/mushaf/unicode').UnicodeFontId }>({ unicode: unicodeMushaf !== null && params.renderer === 'unicode', tajweed: false, font: 'madinaNatural' });
++  useEffect(() => {
++    if (!unicodeMushaf) return undefined;
++    let cancelled = false;
++    void unicodeMushaf.loadPrototypeSettings().then((saved) => {
++      if (!cancelled) setPrototype((current) => ({ unicode: current.unicode || saved.unicode, tajweed: saved.tajweed, font: saved.font }));
++    });
++    return () => { cancelled = true; };
++  }, []);
++  const changePrototype = (next: typeof prototype) => {
++    setPrototype(next);
++    setSelectedVerseKey(null);
++    void unicodeMushaf?.savePrototypeSettings(next);
++  };
++  const unicodeOn = unicodeMushaf !== null && prototype.unicode;
++  /** The Unicode font to draw with, or null (QPC V1). */
++  const unicodeFont = unicodeOn ? prototype.font : null;
++  // Development builds only: the rendering check (word slots and baselines outlined; the platform's layout of every word
++  // compared with the prototype's, logged to Metro as "[mushaf] unicode check"). Never kept.
++  const [unicodeCheck, setUnicodeCheck] = useState(false);
++  const unicodeDiagnostics = useRef({ onReport: (report: unknown) => devLog('mushaf', 'unicode check', report as Record<string, unknown>) }).current;
+   // Which design each decoration draws (mushaf/decorations.ts): the constants; previews in development builds.
+   const decorations = resolveDecorations(params, isDevBuild());
+   const zoomView = useRef<MushafZoomHandle>(null);
+@@ -476,18 +522,27 @@ export default function MushafScreen() {
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, []);
+ 
++  // Switching the prototype's renderer reads the pages again (as an offline download ending does).
++  const seenUnicode = useRef(unicodeFont);
++  useEffect(() => {
++    if (seenUnicode.current === unicodeFont) return;
++    seenUnicode.current = unicodeFont;
++    setReloadKey((key) => key + 1);
++  }, [unicodeFont]);
++
+   // The page's layout and font (loadPageState), then its neighbours', so a swipe finds them drawn.
+   useEffect(() => {
+     let cancelled = false;
+     const near = (n: number) => Math.abs(n - page) <= 1;
+-    for (const [key, entry] of pageLoads.current) if (!near(entry.page) || !key.endsWith(`|${reloadKey}|${onlineInDev}`)) pageLoads.current.delete(key);
++    const variant = `${onlineInDev}|${unicodeFont}`;
++    for (const [key, entry] of pageLoads.current) if (!near(entry.page) || !key.endsWith(`|${reloadKey}|${variant}`)) pageLoads.current.delete(key);
+     void (async () => {
+       for (const n of [page, page + 1, page - 1]) {
+         if (n < 1 || n > MUSHAF_PAGE_COUNT) continue;
+-        const key = `${n}|${reloadKey}|${onlineInDev}`;
++        const key = `${n}|${reloadKey}|${variant}`;
+         let entry = pageLoads.current.get(key);
+         if (!entry) {
+-          entry = { page: n, load: loadPageState(n, onlineInDev) };
++          entry = { page: n, load: loadPageState(n, onlineInDev, unicodeFont) };
+           pageLoads.current.set(key, entry);
+         }
+         const state = await entry.load;
+@@ -505,7 +560,7 @@ export default function MushafScreen() {
+     return () => {
+       cancelled = true;
+     };
+-  }, [page, reloadKey, onlineInDev]);
++  }, [page, reloadKey, onlineInDev, unicodeFont]);
+ 
+   /** Closes whatever popup is open, and an ayah popup still waiting to open. Changes nothing else. */
+   const closeOverlay = useCallback(() => {
+@@ -877,19 +932,22 @@ export default function MushafScreen() {
+   const showQpc = qpcShown(content);
+   // Automatic, on every page and in both modes (with the larger text, candidate C): Taller wherever the whole page
+   // fits (fitMushafPage falls back to Traditional otherwise). It needs the QPC lines (the Quran SVG page keeps its own
+-  // fixed line positions). There is no layout choice anywhere.
+-  const taller = showQpc;
++  // fixed line positions) — or the Unicode prototype's, which are laid out on the same 15-line grid. There is no
++  // layout choice anywhere.
++  const taller = showQpc || content.status === 'unicode';
+   // The largest page that fits between the Back row and the ورد row (Normal Mode), never cropped. No tab bar on this tab.
+   const fit = fitMushafPage(area, insets.bottom, fullScreen, taller);
+   const { width: pageWidth, height: pageHeight } = fit.page;
+   /** What a page shows: its QPC lines, page 61's Quran SVG, or neither (yet); and its first ayah (the page's heads). */
+   const partsOf = (n: number, state: PageState) => {
+     const qpc = qpcShown(state);
+-    const svgShown = n === DEFAULT_PAGE && svg && (state.status === 'svg' || (state.status === 'qpc' && !qpc));
+-    const first = qpc && state.status === 'qpc'
+-      ? (() => { const [surah, ayah] = state.layout.verseKeys[0].split(':').map(Number); return { surah, ayah }; })()
++    const unicode = state.status === 'unicode';
++    const svgShown = !unicode && n === DEFAULT_PAGE && svg && (state.status === 'svg' || (state.status === 'qpc' && !qpc));
++    const firstKey = qpc && state.status === 'qpc' ? state.layout.verseKeys[0] : state.status === 'unicode' ? state.text.firstVerseKey : null;
++    const first = firstKey
++      ? (() => { const [surah, ayah] = firstKey.split(':').map(Number); return { surah, ayah }; })()
+       : svg?.page.ayahs[0];
+-    return { qpc, svgShown, first, drawn: pageWidth > 0 && (qpc || svgShown) && first };
++    return { qpc, unicode, svgShown, first, drawn: pageWidth > 0 && (qpc || unicode || svgShown) && first };
+   };
+   const drawn = partsOf(page, content).drawn;
+ 
+@@ -943,6 +1001,58 @@ export default function MushafScreen() {
+             <ArrowLeft size={24} color={iconColor} />
+           </Pressable>
+         )}
++        {/*
++          Development builds only (the Unicode prototype): its renderer and, while it is on, Tajweed Colors · ألوان التجويد
++          (OFF by default). Normal Mode only, like Help. Release bundles have no prototype, so this never renders there.
++        */}
++        {unicodeMushaf && !fullScreen && (
++          <View testID="mushaf-dev-prototype" style={styles.devChips}>
++            <Pressable
++              testID="mushaf-dev-renderer"
++              accessibilityRole="switch"
++              accessibilityState={{ checked: prototype.unicode }}
++              accessibilityLabel="Unicode Mushaf prototype"
++              onPress={() => changePrototype({ ...prototype, unicode: !prototype.unicode })}
++              style={({ pressed }) => [styles.devChip, { borderColor: iconColor }, prototype.unicode && { backgroundColor: iconColor }, pressed && styles.pressed]}>
++              <Text style={[styles.devChipText, { color: prototype.unicode ? MUSHAF_BACKGROUNDS[appearance.background].paper : iconColor }]}>{prototype.unicode ? 'Uni' : 'QCF'}</Text>
++            </Pressable>
++            {prototype.unicode && (
++              <Pressable
++                testID="mushaf-dev-font"
++                accessibilityRole="button"
++                accessibilityLabel="Unicode Mushaf font"
++                onPress={() => changePrototype({ ...prototype, font: unicodeMushaf.UNICODE_FONT_IDS[(unicodeMushaf.UNICODE_FONT_IDS.indexOf(prototype.font) + 1) % unicodeMushaf.UNICODE_FONT_IDS.length] })}
++                style={({ pressed }) => [styles.devChip, { borderColor: iconColor }, pressed && styles.pressed]}>
++                <Text style={[styles.devChipText, { color: iconColor }]}>{unicodeMushaf.UNICODE_FONT_LABELS[prototype.font]}</Text>
++              </Pressable>
++            )}
++            {prototype.unicode && (
++              <Pressable
++                testID="mushaf-dev-check"
++                accessibilityRole="switch"
++                accessibilityState={{ checked: unicodeCheck }}
++                accessibilityLabel="Unicode Mushaf rendering check"
++                onPress={() => setUnicodeCheck(!unicodeCheck)}
++                style={({ pressed }) => [styles.devChip, { borderColor: iconColor }, unicodeCheck && { backgroundColor: iconColor }, pressed && styles.pressed]}>
++                <Text style={[styles.devChipText, { color: unicodeCheck ? MUSHAF_BACKGROUNDS[appearance.background].paper : iconColor }]}>✓</Text>
++              </Pressable>
++            )}
++            {prototype.unicode && (
++              <Pressable
++                testID="mushaf-dev-tajweed"
++                accessibilityRole="switch"
++                accessibilityState={{ checked: prototype.tajweed }}
++                accessibilityLabel={rtl ? unicodeMushaf.TAJWEED_COLORS_LABEL.ar : unicodeMushaf.TAJWEED_COLORS_LABEL.en}
++                onPress={() => changePrototype({ ...prototype, tajweed: !prototype.tajweed })}
++                style={({ pressed }) => [styles.devChip, { borderColor: iconColor }, prototype.tajweed && { backgroundColor: iconColor }, pressed && styles.pressed]}>
++                {/* On = filled, like the other switches (its state is also announced: accessibilityState.checked). */}
++                <Text numberOfLines={1} style={[styles.devChipText, { color: prototype.tajweed ? MUSHAF_BACKGROUNDS[appearance.background].paper : iconColor }]}>
++                  {rtl ? unicodeMushaf.TAJWEED_COLORS_LABEL.ar : unicodeMushaf.TAJWEED_COLORS_LABEL.en}
++                </Text>
++              </Pressable>
++            )}
++          </View>
++        )}
+         <View style={styles.barEnd}>
+         {/* Help: the first-time guide again, at its first step. Normal Mode only: full screen keeps just the page and Collapse. */}
+         {!fullScreen && (
+@@ -993,14 +1103,40 @@ export default function MushafScreen() {
+                   width={pageWidth}
+                   tilesDown={fit.tilesDown === BORDER_TILES_DOWN ? undefined : fit.tilesDown}
+                   hizbLabels={hizbLabelsForPage(n)}
+-                  openingOrnament={parts.qpc && n <= 2}
++                  openingOrnament={(parts.qpc || parts.unicode) && n <= 2}
+                   openingDecoration={decorations.opening}
+                   headerFontFamily={headerFontLoaded ? MUSHAF_HEADER_FONT_FAMILY : undefined}
+                   paperColor={MUSHAF_BACKGROUNDS[appearance.background].paper}
+                   headerColor={furniture.header}
+                   borderInks={MUSHAF_BORDER_STYLES[appearance.border ?? 'original'].inks}
+                   navigation={isCurrent ? pageNavigation : undefined}
+-                  renderText={(textArea, { printedLinePitch }) => (parts.qpc && state.status === 'qpc' ? (
++                  renderText={(textArea, { printedLinePitch }) => (state.status === 'unicode' && unicodeMushaf ? (
++                    <unicodeMushaf.UnicodeMushafPageText
++                      key={`unicode-${n}-${textArea.width}`}
++                      laid={unicodeMushaf.laidUnicodePage(state.text, textArea.width)}
++                      width={textArea.width}
++                      height={textArea.height}
++                      font={unicodeMushaf.unicodeFontProps(state.text.font)}
++                      selectedVerseKey={isCurrent ? selectedVerseKey : null}
++                      onSelectVerse={isCurrent ? selectVerse : ignoreVerse}
++                      onPressMarker={isCurrent ? pressMarker : undefined}
++                      guideTargets={isCurrent}
++                      accessibilityLabel={`${copy.pageLabel} ${n}`}
++                      accessibilityHint={copy.tapHint}
++                      accessibilityActions={isCurrent ? pageActions : undefined}
++                      onAccessibilityAction={isCurrent ? onPageAction : undefined}
++                      ink={ink}
++                      highlight={highlight}
++                      printedPitch={printedLinePitch}
++                      headingFontFamily={headerFontLoaded ? MUSHAF_HEADER_FONT_FAMILY : undefined}
++                      headingColor={furniture.header}
++                      headingDecoration={decorations.heading}
++                      wirdAyahKey={wirdAyahOnPage(activeStop, n)}
++                      wirdMarker={MUSHAF_WIRD_MARKER[appearance.background]}
++                      tajweed={prototype.tajweed ? unicodeMushaf.tajweedColours(dark) : null}
++                      diagnostics={isCurrent && unicodeCheck ? unicodeDiagnostics : null}
++                    />
++                  ) : parts.qpc && state.status === 'qpc' ? (
+                     <QpcV1PageText
+                       key={`qpc-${n}-${textArea.width}`}
+                       layout={state.layout}
+@@ -1303,6 +1439,26 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
+     justifyContent: 'center',
+     width: 44,
+   },
++  /** Development builds only: the Unicode prototype's chips, between Back and the right-hand icons. */
++  devChips: {
++    alignItems: 'center',
++    flex: 1,
++    flexDirection: 'row',
++    gap: 5,
++    justifyContent: 'center',
++    overflow: 'hidden',
++  },
++  devChip: {
++    borderRadius: radii.full,
++    borderWidth: 1,
++    flexShrink: 1,
++    paddingHorizontal: 7,
++    paddingVertical: 3,
++  },
++  devChipText: {
++    fontSize: 12,
++    fontWeight: '700',
++  },
+   pageArea: {
+     alignItems: 'center',
+     flex: 1,
+diff --git a/mobile/tests/mushafScreen.test.ts b/mobile/tests/mushafScreen.test.ts
+index a645113..fbb6051 100644
+--- a/mobile/tests/mushafScreen.test.ts
++++ b/mobile/tests/mushafScreen.test.ts
+@@ -399,6 +399,15 @@ describe('full-screen reading view', () => {
+     expect(button(copy().rendererQpc)).toBeUndefined();
+   });
+ 
++  it('release bundles (__DEV__ false, as here) have none of the Unicode prototype`s development controls, even with ?renderer=unicode', async () => {
++    state.params = { page: '61', renderer: 'unicode' };
++    await render();
++    for (const testID of ['mushaf-dev-prototype', 'mushaf-dev-renderer', 'mushaf-dev-font', 'mushaf-dev-check', 'mushaf-dev-tajweed', 'unicode-mushaf-text']) {
++      expect(root.root.findAll((node) => node.props.testID === testID)).toHaveLength(0);
++    }
++    expect(texts()).not.toContain('Unicode');
++  });
++
+   it('no source credit under the page (it is on Home and in Quran Sources & Credits)', async () => {
+     await render();
+     expect(texts().join(' ')).not.toMatch(/Quran Foundation|King Fahd|Tanzil/);

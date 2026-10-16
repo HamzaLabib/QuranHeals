@@ -1,9 +1,10 @@
 // Measures each light-mode capture's actual ink against the frame's inner rule (pixels of the real screenshots), with
 // the DOM geometry recorded at capture time. Writes calculations/measurements.json and measurements.md.
 import { readFileSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { driver, launch } from './cdp.mjs';
 
-const OUT = 'C:/Users/hamzalabib/OneDrive - McGill University/Documents/Personal/My App/QuranHeals/design-archive/experiments/larger-text-mushaf';
+const OUT = fileURLToPath(new URL('../..', import.meta.url)).replace(/[\\/]$/, '');
 const S = new URL('.', import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1');
 const raw = JSON.parse(readFileSync(`${OUT}/calculations/captures-raw.json`, 'utf8'));
 const SCALE = { 'small-iphone-se': 2, 'standard-iphone-14': 3, 'large-iphone-16-pro-max': 3, 'android-pixel': 2.625 };

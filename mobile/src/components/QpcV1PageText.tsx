@@ -8,7 +8,7 @@ import { SURAH_HEADING_DECORATION, type HeadingDecoration } from '@/mushaf/decor
 import { MUSHAF_PAPER } from '@/constants/mushafTheme';
 import { useGuideTarget } from '@/mushaf/guideTargets';
 import { MUSHAF_MARKER_STYLES, type AyahMarkerColors, type MushafMarkerStyleId } from '@/mushaf/appearance';
-import { cssBaseline, getAyahMarker, markerOverlayBox, QCF_V1_INK_OVERFLOW_EM, QCF_V1_INK_ROOM_V_EM, QCF_V1_LINE_BOX_EM, qcfV1AndroidRowShiftEm, qcfV1DrawnLineShiftEm } from '@/mushaf/ayahMarkers';
+import { cssBaseline, getAyahMarker, markerOverlayBox, QCF_V1_INK_OVERFLOW_EM, QCF_V1_INK_ROOM_V_EM, QCF_V1_LINE_BOX_EM, qcfV1AndroidRowShiftEm, qcfV1AndroidTextRaiseEm, qcfV1DrawnLineShiftEm } from '@/mushaf/ayahMarkers';
 import { mushafTextLift, pageWidthOfText, PRINTED_TEXT_WIDTH_SHARE, textSideInset } from '@/mushaf/pageGeometry';
 import { pressLocation } from '@/mushaf/pressLocation';
 import { lineAtY, pressTargetAtLineX, selectionSpan, type QpcV1PageLayout, type WordBox } from '@/mushaf/qpcV1Layout';
@@ -166,8 +166,9 @@ export function QpcV1PageText({
   const used = [...layout.lines.map((line) => line.line), ...slots.map((slot) => slot.line)];
   // Pages 1–2 (their ornamental circle, OpeningPageOrnament, centred in the frame): the block is centred on the frame's
   // centre as drawn — the text area's mushafTextLift taken back, less the platform's drawn drop (iOS draws the
-  // glyphs lower; Android's rows move by the same; the web neither).
-  const openingDrop = opening ? (qcfV1DrawnLineShiftEm(layout.page, Platform.OS) + qcfV1AndroidRowShiftEm(layout.page, Platform.OS)) * openingPageSize(width) : 0;
+  // glyphs lower; Android's rows move by the same; the web neither). Android's raise is not taken back: the lines of
+  // pages 1–2 rise as much as every other page's (QCF_V1_ANDROID_TEXT_RAISE_EM); the cartouches stay.
+  const openingDrop = opening ? (qcfV1DrawnLineShiftEm(layout.page, Platform.OS) + qcfV1AndroidRowShiftEm(layout.page, Platform.OS) + qcfV1AndroidTextRaiseEm(Platform.OS)) * openingPageSize(width) : 0;
   const blockTop = opening && used.length ? (height - (Math.max(...used) - Math.min(...used) + 1) * rowPitch) / 2 - (Math.min(...used) - 1) * rowPitch + mushafTextLift(width, Platform.OS) - openingDrop : 0;
   const rowTop = (line: number) => blockTop + (line - 1) * rowPitch;
   // The highlight band: 92% of the line pitch, as printed — no taller when the lines are spaced wider.
@@ -202,7 +203,8 @@ export function QpcV1PageText({
   // draw the glyphs lower in them (qcfV1DrawnLineShiftEm: iOS). The highlight band and the taps use the drawn line;
   // horizontally, the words' rendered boxes plus their ink (withSelectionInk: generated data; medallions: their box).
   const drawnShift = fontSize === null ? 0 : qcfV1DrawnLineShiftEm(layout.page, Platform.OS) * fontSize;
-  // Android: the Quran rows themselves move to where the iPhone draws the lines (qcfV1AndroidRowShiftEm); the Basmala
+  // Android: the Quran rows themselves move to where the iPhone draws the lines, less the Android raise
+  // (qcfV1AndroidRowShiftEm, QCF_V1_ANDROID_TEXT_RAISE_EM); the Basmala
   // is in page 1's font. Headings (Amiri) keep their rows. 0 on iOS and the web.
   const quranRowShift = fontSize === null ? 0 : qcfV1AndroidRowShiftEm(layout.page, Platform.OS) * fontSize;
   const basmalaRowShift = fontSize === null ? 0 : qcfV1AndroidRowShiftEm(1, Platform.OS) * fontSize;
@@ -267,9 +269,15 @@ export function QpcV1PageText({
         position: 'absolute',
         left: -size * QCF_V1_INK_OVERFLOW_EM,
         right: -size * QCF_V1_INK_OVERFLOW_EM,
-        top: -size * QCF_V1_INK_ROOM_V_EM,
-        bottom: -size * QCF_V1_INK_ROOM_V_EM,
-        paddingVertical: size * (QCF_V1_INK_ROOM_V_EM + boxMarginEm),
+        // An explicit height: the font's whole line plus the painting room, centred on the word's box. Sized from the
+        // word's box instead (top/bottom), the content box was only as tall as the row allowed (Yoga measures the in-flow
+        // Text at most as tall as its row: 61 of the line's 119 px on a 411-pt emulator), and TextView clips a layout
+        // taller than its content box at the bottom padding edge — every glyph lost its dots, kasras and tails below
+        // the baseline (Android emulator, 2026-10-16).
+        top: '50%',
+        height: size * (QCF_V1_LINE_BOX_EM + 2 * QCF_V1_INK_ROOM_V_EM),
+        marginTop: -size * (QCF_V1_LINE_BOX_EM / 2 + QCF_V1_INK_ROOM_V_EM),
+        paddingVertical: size * QCF_V1_INK_ROOM_V_EM,
         textAlign: 'center',
       }]}>
       {glyph}
@@ -424,9 +432,12 @@ export function QpcV1PageText({
 }
 
 const styles = StyleSheet.create({
-  // Kept in the line for its exact advance; not painted.
+  // Kept in the line for its exact advance; not painted. Android also needs opacity 0: there the transparent colour
+  // was not honoured and the in-flow glyph drew in black, under and below its unclipped copy (Android emulator,
+  // 2026-10-16). Opacity keeps its layout (advance, onTextLayout); iOS is unchanged.
   hiddenGlyph: {
     color: 'transparent',
+    ...(ANDROID && { opacity: 0 }),
   },
   measure: {
     left: -10000,

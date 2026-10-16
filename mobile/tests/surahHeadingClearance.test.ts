@@ -25,7 +25,7 @@ vi.mock('react-native-svg', () => ({ default: 'Svg', ClipPath: 'ClipPath', Rect:
 vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem: vi.fn(), setItem: vi.fn(), removeItem: vi.fn() } }));
 
 const { QpcV1PageText } = await import('@/components/QpcV1PageText');
-const { qcfV1DrawnLineShiftEm, surahHeadingShift, HEADING_CLEARANCE_PITCH } = await import('@/mushaf/ayahMarkers');
+const { qcfV1AndroidRowShiftEm, qcfV1DrawnLineShiftEm, surahHeadingShift, HEADING_CLEARANCE_PITCH } = await import('@/mushaf/ayahMarkers');
 const { placeSurahHeading, HEADING_INK_CLEARANCE_PT, IOS_MEDALLION_LIFT_UNITS } = await import('@/mushaf/surahHeadingPlacement');
 const { SURAH_HEADING_NEIGHBOURS } = await import('@/mushaf/generated/surahHeadingNeighbours');
 const { computePageLayout, MIN_TILES_DOWN, mushafTextLift, PAGE_GEOMETRY, QURAN_TEXT_SCALE } = await import('@/mushaf/pageGeometry');
@@ -73,9 +73,9 @@ function audit(os: string) {
       const blockTop = h.opening ? (textH - (u1 - u0 + 1) * rowPitch) / 2 - (u0 - 1) * rowPitch : 0;
       const rowTop = (line: number) => blockTop + (line - 1) * rowPitch;
       // A glyph row's baseline as the platform draws it: the font's hhea line centred in the box, then the platform's
-      // drop (iOS draws lower; Android's rows move by the same amount; the web neither).
+      // drop (iOS draws lower; Android's rows move by the same amount less its raise, QCF_V1_ANDROID_TEXT_RAISE_EM; the web neither).
       const baseline = (line: number, [a, d]: [number, number], page: number) =>
-        rowTop(line) + rowPitch / 2 + (-LINE_BOX / 2 + a + (LINE_BOX - a - d) / 2) * em + (os === 'web' ? 0 : qcfV1DrawnLineShiftEm(page, 'ios') * fontSize);
+        rowTop(line) + rowPitch / 2 + (-LINE_BOX / 2 + a + (LINE_BOX - a - d) / 2) * em + (qcfV1DrawnLineShiftEm(page, os) + qcfV1AndroidRowShiftEm(page, os)) * fontSize;
       const placed = placeSurahHeading({ page: h.page, line: h.line, os, fontSize, rowPitch, rowTop, textWidth: textW, textHeight: textH });
       const top = placed.top;
       const bottom = top + rowPitch;
@@ -178,7 +178,7 @@ describe('the component moves the heading row by surahHeadingShift on each platf
       const placed = placeSurahHeading({ page: 293, line: 10, os, fontSize, rowPitch: pitch, rowTop: (l) => (l - 1) * pitch, textWidth: 330, textHeight: 520 });
       expect(style('qpc-heading-10').top).toBeCloseTo(placed.top, 9);
       expect(style('qpc-heading-10').height).toBeCloseTo(pitch, 9);
-      expect(style('qpc-basmala-11').top).toBeCloseTo(10 * pitch + (os === 'android' ? qcfV1DrawnLineShiftEm(1, 'ios') * fontSize : 0), 9); // the Basmala unchanged
+      expect(style('qpc-basmala-11').top).toBeCloseTo(10 * pitch + qcfV1AndroidRowShiftEm(1, os) * fontSize, 9); // the Basmala: a Quran row (Android: the iPhone's place, raised 0.15 em)
       await act(async () => root.unmount());
       platform.OS = 'ios';
     });

@@ -42,7 +42,9 @@ import {
   QCF_V1_INK_ROOM_V_EM,
   QCF_V1_LINE_BOX_EM,
   QCF_V1_NORMAL_BOX_MARGIN_EM,
+  QCF_V1_ANDROID_TEXT_RAISE_EM,
   qcfV1AndroidRowShiftEm,
+  qcfV1AndroidTextRaiseEm,
   qcfV1DrawnLineShiftEm,
   qcfV1IntendedBaselineUnits,
 } from '../../mobile/src/mushaf/ayahMarkers';
@@ -505,7 +507,7 @@ function rowExtents(m: PageModel, width: number, tiles: number, os: 'web' | 'ios
   const printed = computePageLayout(width).linePitch;
   const rowPitch = opening ? Math.min(pitch, printed) : pitch;
   const used = [...m.lines.keys(), ...m.slots.map((s) => s.line)];
-  const openingDrop = opening ? (qcfV1DrawnLineShiftEm(m.page, os) + qcfV1AndroidRowShiftEm(m.page, os)) * size : 0;
+  const openingDrop = opening ? (qcfV1DrawnLineShiftEm(m.page, os) + qcfV1AndroidRowShiftEm(m.page, os) + qcfV1AndroidTextRaiseEm(os)) * size : 0;
   const blockTop = opening ? (height - (Math.max(...used) - Math.min(...used) + 1) * rowPitch) / 2 - (Math.min(...used) - 1) * rowPitch + lift - openingDrop : 0;
   const rowTop = (line: number) => blockTop + (line - 1) * rowPitch;
   // Baseline of a Quran row (text-area coordinates): the line box centred in the row; iOS draws lower; Android moves the row.
@@ -577,7 +579,7 @@ for (const os of ['web', 'ios', 'android'] as const) {
 
 const result = {
   generatedBy: 'tools/mushaf-audit/audit-current-layout.mts',
-  layout: { liftEmOverride: LIFT_EM, NATIVE_TEXT_LIFT_EM, NOMINAL_LETTER_SIZE_PER_TEXT_WIDTH, QURAN_TEXT_SCALE, MIN_TILES_DOWN, TALLER_MAX_TILES_DOWN, MUSHAF_TEXT_LIFT_PT, textInsetX: PAGE_GEOMETRY.textInsetX, FIT, rasterPxPerEm: RASTER_PX_PER_EM, widths: WIDTHS, tiles: TILES },
+  layout: { liftEmOverride: LIFT_EM, QCF_V1_ANDROID_TEXT_RAISE_EM, NATIVE_TEXT_LIFT_EM, NOMINAL_LETTER_SIZE_PER_TEXT_WIDTH, QURAN_TEXT_SCALE, MIN_TILES_DOWN, TALLER_MAX_TILES_DOWN, MUSHAF_TEXT_LIFT_PT, textInsetX: PAGE_GEOMETRY.textInsetX, FIT, rasterPxPerEm: RASTER_PX_PER_EM, widths: WIDTHS, tiles: TILES },
   structure: { ...structure, fontSha256: undefined, fontsHashOfHashes: createHash('sha256').update(Object.values(structure.fontSha256).join('\n')).digest('hex') },
   horizontal: horizontalSummary,
   clipping,

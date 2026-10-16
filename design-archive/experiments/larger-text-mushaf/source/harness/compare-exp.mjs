@@ -1,9 +1,10 @@
 // Comparison images for the larger-text experiment, built ONLY from the real captures: side-by-side screenshots at
 // equal size, and 1:1 device-pixel crops (never enlarged) of the same region. Every panel is labelled with its file.
 import { readFileSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { driver, launch } from './cdp.mjs';
 
-const OUT = 'C:/Users/hamzalabib/OneDrive - McGill University/Documents/Personal/My App/QuranHeals/design-archive/experiments/larger-text-mushaf';
+const OUT = fileURLToPath(new URL('../..', import.meta.url)).replace(/[\\/]$/, '');
 const S = new URL('.', import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1');
 const meas = JSON.parse(readFileSync(`${OUT}/calculations/measurements.json`, 'utf8'));
 const uri = (f) => `data:image/png;base64,${readFileSync(`${OUT}/screenshots/${f}`).toString('base64')}`;
