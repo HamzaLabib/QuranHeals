@@ -1,0 +1,14 @@
+# Local copies of the comparison screenshots: they include QCF V1 page renderings (Quran Foundation content, whose terms
+# do not allow redistributing it outside the app) and the repository is public. Kept on this machine only; the originals
+# are in "Working progress/Screenshots and Logs/unicode-mushaf-*".
+screenshots/
+
+# The Madina05 page/line table: redistribution rights unresolved (Waqf vs ISC; placement derived from unlicensed OCR data
+# of KFGQPC's pages, docs/unicode-mushaf/licensing.md). Kept on this machine only; regenerate with
+# tools/unicode-mushaf/generate-layout.mjs <cache> (pinned in madina05.lock.json).
+mobile/src/mushaf/unicode/generated/madina05Layout.ts
+
+# The KF/A width table: advance widths measured from KFGQPC HAFS Uthmanic Script v18, whose EULA forbids modifying or
+# reverse-engineering the font without written approval and whose Quran Foundation terms allow it only inside the app.
+# Kept on this machine only; regenerate with tools/unicode-mushaf/measure-widths.py (tools/unicode-mushaf/README.md).
+mobile/src/mushaf/unicode/generated/hafsWordWidths.ts

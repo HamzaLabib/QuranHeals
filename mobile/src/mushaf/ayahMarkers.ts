@@ -147,9 +147,29 @@ export function qcfV1IntendedBaselineUnits(page: number): number {
  */
 export const ANDROID_MATCHES_IPHONE_BASELINE = true;
 
-/** Android only: how far the Quran rows of `page` move down to match the iPhone, in em (see ANDROID_MATCHES_IPHONE_BASELINE). */
+/**
+ * Android only (2026-10-15): the whole block of Quran rows — every line, Basmala, medallion, highlight and tap target —
+ * drawn this much higher than the iPhone's place, in em of the page's letter size. At the iPhone's place the last
+ * line's lowest marks came within 0.50–0.87 pt of the frame's inner rule on Android phones (page 560, 66:7), with
+ * 5.4–9.4 pt free above the first line, and the bottom of the text was reported as looking cut off on Android. 0.15 em
+ * splits that room roughly evenly (tools/mushaf-audit/audit-current-layout.mts). Not the Surah headings (surahHeadingShift
+ * keeps them where they were), the frame, the page number, the glyph size or the line spacing; iOS and the web unchanged.
+ * Pages 1–2 rise by the same amount (their opening drop takes back only the iPhone match, qcfV1AndroidTextRaiseEm).
+ */
+export const QCF_V1_ANDROID_TEXT_RAISE_EM = 0.2;
+
+/** The Android raise of the Quran rows in em (QCF_V1_ANDROID_TEXT_RAISE_EM); 0 on iOS and the web. */
+export function qcfV1AndroidTextRaiseEm(os: string): number {
+  return os === 'android' ? QCF_V1_ANDROID_TEXT_RAISE_EM : 0;
+}
+
+/**
+ * Android only: how far the Quran rows of `page` move down, in em — to the iPhone's place (ANDROID_MATCHES_IPHONE_BASELINE),
+ * less QCF_V1_ANDROID_TEXT_RAISE_EM.
+ */
 export function qcfV1AndroidRowShiftEm(page: number, os: string): number {
-  return os === 'android' && ANDROID_MATCHES_IPHONE_BASELINE ? qcfV1DrawnLineShiftEm(page, 'ios') : 0;
+  if (os !== 'android') return 0;
+  return (ANDROID_MATCHES_IPHONE_BASELINE ? qcfV1DrawnLineShiftEm(page, 'ios') : 0) - QCF_V1_ANDROID_TEXT_RAISE_EM;
 }
 
 /**
@@ -164,7 +184,8 @@ export const HEADING_CLEARANCE_PITCH = 0.045;
 
 /** How far a Surah heading row's contents move down, in pt, for a page at `fontSize` with rows `rowPitch` apart. */
 export function surahHeadingShift(page: number, os: string, fontSize: number, rowPitch: number): number {
-  return (qcfV1DrawnLineShiftEm(page, os) + qcfV1AndroidRowShiftEm(page, os)) * fontSize + HEADING_CLEARANCE_PITCH * rowPitch;
+  // The headings stay where they were before the Android raise of the Quran rows (QCF_V1_ANDROID_TEXT_RAISE_EM).
+  return (qcfV1DrawnLineShiftEm(page, os) + qcfV1AndroidRowShiftEm(page, os) + qcfV1AndroidTextRaiseEm(os)) * fontSize + HEADING_CLEARANCE_PITCH * rowPitch;
 }
 
 export function qcfV1DrawnLineShiftEm(page: number, os: string): number {

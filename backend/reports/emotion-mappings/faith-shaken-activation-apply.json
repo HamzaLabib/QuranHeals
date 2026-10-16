@@ -212,7 +212,7 @@
     "emotionUpdates": 1
   },
   "backup": {
-    "path": "C:\\Users\\hamzalabib\\OneDrive - McGill University\\Documents\\Personal\\My App\\QuranHeals\\backend\\backups\\emotion-mappings\\faith-shaken-1789589792066.json",
+    "path": "backend/backups/emotion-mappings/faith-shaken-1789589792066.json",
     "sha256": "e1e4d7ce871051fe5c59f143d1d6abdc09befe42fa76fe862efb3e44c60908a2",
     "byteLength": 834812
   },

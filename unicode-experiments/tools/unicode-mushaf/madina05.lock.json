@@ -1,0 +1,11 @@
+{
+  "repository": "tarekeldeeb/quran-madina-html",
+  "version": "1.0.1",
+  "commit": "bed882fc8e54c801daffd3f0763c6a84ea1822a9",
+  "license": "\"Waqf\" General Public License 2.0 (https://github.com/ojuba-org/waqf/tree/master/2.0). Modified works may be redistributed only under the same licence, crediting the original and stating the nature of the modification.",
+  "note": "Only the page/line assignment of each word is used. The Quran text always comes from the app's verified Tanzil SQLite, never from this file. SHA-256 of each file at the commit (checked 2026-10-15).",
+  "files": {
+    "assets/db/Madina05-Hafs-16px.json": "1a7ec00788f6017eac5584d4da78f2b19d28eac74b1d9fa08d32d43450a08831",
+    "assets/db/Madina05-Amiri_Quran-16px.json": "8af3a440d893ca3032b0d317f0493b998cf067e89b58318b1aa4ee5a03aa3227"
+  }
+}

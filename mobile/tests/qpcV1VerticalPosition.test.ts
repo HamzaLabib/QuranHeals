@@ -22,7 +22,7 @@ vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem
 
 const { QpcV1PageText } = await import('@/components/QpcV1PageText');
 const { MIN_TILES_DOWN, MUSHAF_TEXT_LIFT_PT, NATIVE_TEXT_LIFT_EM, NOMINAL_LETTER_SIZE_PER_TEXT_WIDTH, QURAN_TEXT_SCALE, PAGE_GEOMETRY } = await import('@/mushaf/pageGeometry');
-const { QCF_V1_INK_ROOM_V_EM, QCF_V1_NORMAL_BOX_MARGIN_EM } = await import('@/mushaf/ayahMarkers');
+const { QCF_V1_ANDROID_TEXT_RAISE_EM, QCF_V1_INK_ROOM_V_EM, QCF_V1_NORMAL_BOX_MARGIN_EM } = await import('@/mushaf/ayahMarkers');
 const styleOf = (node: ReactTestInstance) => Object.assign({}, ...[node.props.style].flat(5).filter(Boolean));
 const rowNodes = (root: ReturnType<typeof create>) =>
   root.root.findAll((node) => typeof node.props.testID === 'string' && /^qpc-(line|basmala|heading)-\d+$/.test(node.props.testID) && typeof node.type === 'string');
@@ -116,7 +116,7 @@ describe('rows on the printed grid, no correction of their own (Normal and Full-
  * tools/mushaf-audit/README.md). Replaces the 2026-10-12 report (vertical-position.report.json, kept as evidence),
  * which described the printed 29-tile layout before the larger text.
  */
-const audit = JSON.parse(readFileSync(new URL('../../docs/mushaf-verification/results/2026-10-15-post-fix-layout-audit.json', import.meta.url), 'utf8'));
+const audit = JSON.parse(readFileSync(new URL('../../docs/mushaf-verification/results/2026-10-15-android-raise-layout-audit.json', import.meta.url), 'utf8'));
 type Config = { os: 'web' | 'ios' | 'android'; width: number; tiles: number; minTopPt: number; minBottomPt: number; pagesTouching: { page: number; edge: string }[] };
 const configs = audit.vertical.configs as Config[];
 const native = configs.filter((c) => c.os !== 'web');
@@ -126,6 +126,7 @@ describe('604-page audit of the current layout (post-fix, 2026-10-15)', () => {
   it('was run with the app`s own constants (the lift, the larger text, the frame, the boxes)', () => {
     expect(audit.layout).toMatchObject({
       liftEmOverride: null,
+      QCF_V1_ANDROID_TEXT_RAISE_EM,
       NATIVE_TEXT_LIFT_EM,
       NOMINAL_LETTER_SIZE_PER_TEXT_WIDTH,
       MUSHAF_TEXT_LIFT_PT,
@@ -151,7 +152,12 @@ describe('604-page audit of the current layout (post-fix, 2026-10-15)', () => {
   it('iOS and Android: no ink crosses the frame`s inner rule, top or bottom, at any page width and frame height', () => {
     for (const c of native) expect(c.pagesTouching, `${c.os} ${c.width}/${c.tiles}`).toEqual([]);
     expect(Math.min(...native.map((c) => c.minBottomPt))).toBeGreaterThanOrEqual(0.5);
-    expect(Math.min(...native.map((c) => c.minTopPt))).toBeGreaterThanOrEqual(4.4);
+    expect(Math.min(...native.filter((c) => c.os === 'ios').map((c) => c.minTopPt))).toBeGreaterThanOrEqual(4.4);
+    // Android: the block raised by QCF_V1_ANDROID_TEXT_RAISE_EM; the first line still clear of the top rule at the smallest width.
+    expect(Math.min(...native.filter((c) => c.os === 'android').map((c) => c.minTopPt))).toBeGreaterThanOrEqual(2.1);
+    // Android phones: the bottom was 0.50–0.87 pt before the raise (page 560's marks); now at least 1.1 pt everywhere
+    // (at the narrowest widths the limit is page 557's Surah heading band, which does not move).
+    for (const c of native.filter((c) => c.os === 'android')) expect(c.minBottomPt, `${c.width}/${c.tiles}`).toBeGreaterThan(1.1);
     expect(audit.vertical.liftAsShareOfLetterSize.min).toBeGreaterThan(0.24);
     expect(audit.vertical.liftAsShareOfLetterSize.max).toBeLessThan(0.28);
   });

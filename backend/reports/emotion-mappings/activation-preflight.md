@@ -70,6 +70,6 @@
 
 ## Backup plan
 
-- Before any future apply, a verified point-in-time backup of every live Emotion and EmotionVerseMapping document is written under `C:\Users\hamza\OneDrive\Documents\Projects\QuranHeals\backend\backups\emotion-mappings` (git-ignored) — see writeActivationBackup / rollbackEmotionMappingActivation.ts.
+- Before any future apply, a verified point-in-time backup of every live Emotion and EmotionVerseMapping document is written under `backend/backups/emotion-mappings` (git-ignored) — see writeActivationBackup / rollbackEmotionMappingActivation.ts.
 
 **Overall decision: PASS**

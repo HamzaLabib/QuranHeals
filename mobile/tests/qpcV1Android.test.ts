@@ -52,7 +52,8 @@ function checkPage(root: ReturnType<typeof create>, boxMarginEm: number, problem
       const size = s.fontSize;
       const R = size * QCF_V1_INK_OVERFLOW_EM;
       const RV = size * QCF_V1_INK_ROOM_V_EM;
-      if (s.color !== 'transparent') { problems.push(`${label}: in-flow glyph painted`); continue; }
+      // Hidden twice over: Android did not honour the transparent colour alone (emulator, 2026-10-16).
+      if (s.color !== 'transparent' || s.opacity !== 0) { problems.push(`${label}: in-flow glyph painted`); continue; }
       // In-flow layout as on iOS: the advance, the font's line box, the vertical room.
       if (Math.abs(s.lineHeight - size * QCF_V1_LINE_BOX_EM) > 1e-6 || Math.abs(s.marginHorizontal + R) > 1e-6 || Math.abs(s.paddingHorizontal - R) > 1e-6) problems.push(`${label}: in-flow layout changed`);
       const hiddenMarker = texts.length === 1;
@@ -62,9 +63,12 @@ function checkPage(root: ReturnType<typeof create>, boxMarginEm: number, problem
       }
       const c = styleOf(copy);
       if (copy.props.children !== inFlow.props.children) problems.push(`${label}: copy draws another glyph`);
-      if (c.position !== 'absolute' || Math.abs(c.left + R) > 1e-6 || Math.abs(c.right + R) > 1e-6 || Math.abs(c.top + RV) > 1e-6 || Math.abs(c.bottom + RV) > 1e-6) problems.push(`${label}: copy box`);
+      // The copy's own height (the font's line plus the room), centred on the word's box: never as short as the row.
+      const L = size * QCF_V1_LINE_BOX_EM;
+      if (c.position !== 'absolute' || Math.abs(c.left + R) > 1e-6 || Math.abs(c.right + R) > 1e-6 || c.top !== '50%' || c.bottom !== undefined || Math.abs(c.height - (L + 2 * RV)) > 1e-6 || Math.abs(c.marginTop + L / 2 + RV) > 1e-6) problems.push(`${label}: copy box`);
       if (c.textAlign !== 'center' || (c.paddingHorizontal ?? 0) !== 0 || c.paddingLeft !== undefined || c.paddingRight !== undefined) problems.push(`${label}: copy not centred in an unpadded box`);
-      if (Math.abs(c.paddingVertical - size * (QCF_V1_INK_ROOM_V_EM + boxMarginEm)) > 1e-6) problems.push(`${label}: copy vertical room`);
+      if (Math.abs(c.paddingVertical - RV) > 1e-6) problems.push(`${label}: copy vertical room`);
+      if (Math.abs(s.paddingVertical - size * (QCF_V1_INK_ROOM_V_EM + boxMarginEm)) > 1e-6) problems.push(`${label}: in-flow vertical room`);
       if (c.fontFamily !== s.fontFamily || c.fontSize !== size || c.lineHeight !== s.lineHeight || c.color === 'transparent') problems.push(`${label}: copy font`);
       if (copy.props.accessible !== false || copy.props.numberOfLines !== 1) problems.push(`${label}: copy props`);
       drawn.push(copy.props.children);
@@ -95,12 +99,14 @@ describe('Android: every Quran glyph drawn through an unclipped copy', () => {
 });
 
 describe('Android: the Quran lines where the approved iPhone draws them (ANDROID_MATCHES_IPHONE_BASELINE)', () => {
-  it('Quran and Basmala rows move down by the iPhone`s measured drop; headings by surahHeadingShift; copies and in-flow glyphs share one baseline', async () => {
-    const { ANDROID_MATCHES_IPHONE_BASELINE, qcfV1AndroidRowShiftEm, qcfV1DrawnLineShiftEm } = await import('@/mushaf/ayahMarkers');
+  it('Quran and Basmala rows move down by the iPhone`s measured drop less the Android raise; headings by surahHeadingShift (unchanged); copies and in-flow glyphs share one baseline', async () => {
+    const { ANDROID_MATCHES_IPHONE_BASELINE, QCF_V1_ANDROID_TEXT_RAISE_EM, qcfV1AndroidRowShiftEm, qcfV1DrawnLineShiftEm } = await import('@/mushaf/ayahMarkers');
     expect(ANDROID_MATCHES_IPHONE_BASELINE).toBe(true);
-    expect(qcfV1AndroidRowShiftEm(61, 'android')).toBeCloseTo(770 / 2048, 9); // = the iPhone's drop (3311 − 2541 units)
-    expect(qcfV1AndroidRowShiftEm(61, 'android')).toBe(qcfV1DrawnLineShiftEm(61, 'ios'));
-    expect(qcfV1AndroidRowShiftEm(237, 'android')).toBe(qcfV1DrawnLineShiftEm(237, 'ios')); // page 237: its own metrics
+    expect(QCF_V1_ANDROID_TEXT_RAISE_EM).toBe(0.2);
+    const raise = QCF_V1_ANDROID_TEXT_RAISE_EM;
+    expect(qcfV1AndroidRowShiftEm(61, 'android')).toBeCloseTo(770 / 2048 - raise, 9); // the iPhone's drop (3311 − 2541 units), 0.2 em higher
+    expect(qcfV1AndroidRowShiftEm(61, 'android')).toBeCloseTo(qcfV1DrawnLineShiftEm(61, 'ios') - raise, 12);
+    expect(qcfV1AndroidRowShiftEm(237, 'android')).toBeCloseTo(qcfV1DrawnLineShiftEm(237, 'ios') - raise, 12); // page 237: its own metrics
     expect(qcfV1AndroidRowShiftEm(61, 'ios')).toBe(0); // the iPhone renderer is untouched
     expect(qcfV1AndroidRowShiftEm(61, 'web')).toBe(0);
     const layout = {
@@ -112,10 +118,12 @@ describe('Android: the Quran lines where the approved iPhone draws them (ANDROID
     const glyph = root.root.find((n) => n.props.testID === 'qpc-line-1' && typeof n.type === 'string').findAll(isText)[0];
     const fontSize = styleOf(glyph).fontSize as number;
     const pitch = 509 / 15;
-    expect(row('qpc-line-1').top).toBeCloseTo(0 + qcfV1DrawnLineShiftEm(61, 'ios') * fontSize, 9);
-    const { surahHeadingShift } = await import('@/mushaf/ayahMarkers');
+    expect(row('qpc-line-1').top).toBeCloseTo(0 + (qcfV1DrawnLineShiftEm(61, 'ios') - raise) * fontSize, 9);
+    const { surahHeadingShift, HEADING_CLEARANCE_PITCH } = await import('@/mushaf/ayahMarkers');
     expect(row('qpc-heading-2').top).toBeCloseTo(pitch + surahHeadingShift(61, 'android', fontSize, pitch), 9);
-    expect(row('qpc-basmala-3').top).toBeCloseTo(2 * pitch + qcfV1DrawnLineShiftEm(1, 'ios') * fontSize, 9);
+    // The heading stays where it was before the raise: the iPhone's drop plus the clearance.
+    expect(surahHeadingShift(61, 'android', fontSize, pitch)).toBeCloseTo(qcfV1DrawnLineShiftEm(61, 'ios') * fontSize + HEADING_CLEARANCE_PITCH * pitch, 9);
+    expect(row('qpc-basmala-3').top).toBeCloseTo(2 * pitch + (qcfV1DrawnLineShiftEm(1, 'ios') - raise) * fontSize, 9);
     // In-flow and copy: the same font, size, line box and content top, so the same baseline (checkPage verifies boxes).
     expect(checkPage(root, QCF_V1_NORMAL_BOX_MARGIN_EM, [], 'parity')).toContain('ﭑ');
     await act(async () => root.unmount());

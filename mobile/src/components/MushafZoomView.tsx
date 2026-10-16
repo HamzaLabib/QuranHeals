@@ -1,4 +1,4 @@
-import { useImperativeHandle, useLayoutEffect, useState, type ReactNode, type Ref } from 'react';
+import { useCallback, useImperativeHandle, useLayoutEffect, useState, type ReactNode, type Ref } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { cancelAnimation, Easing, useAnimatedStyle, useSharedValue, withTiming, type SharedValue } from 'react-native-reanimated';
@@ -41,6 +41,11 @@ type MushafZoomViewProps = {
   ref?: Ref<MushafZoomHandle>;
 };
 
+type PagerStripProps = MushafZoomViewProps & {
+  /** A swipe has settled on `target`: React will show it next (see MushafZoomView). */
+  onTurned: (target: number) => void;
+};
+
 export type MushafZoomHandle = { reset: () => void };
 
 /** A downward drag this long (and mostly vertical) is a swipe down; shorter ones are taps or small movements. */
@@ -74,10 +79,33 @@ export const PAGE_SETTLE = { duration: 240, easing: Easing.out(Easing.cubic) };
  *
  * Runs on the UI thread (Reanimated worklets); only a settled page turn and
  * the zoomed/not-zoomed switch reach React.
+ *
+ * A page opened any other way than a swipe (a link, the selector, the index, a screen reader's page action) gets
+ * a new strip, centred on it from its first frame. In the same strip, its newly mounted slots would take their
+ * first position from the strip's previous page (off screen) and rely on their animated styles catching up on the
+ * UI thread, which they sometimes never did: the page was drawn, but off screen, until the next drag (Android,
+ * 2026-10-16: 4 of 40 jumps in a development build, 2 of 131 in a release build). A swipe moves the strip on the
+ * UI thread before React draws the new neighbour, so it keeps its strip and the drawing that slid in. The strip's
+ * state is all per page (1×, no drag, no glide), so nothing else changes.
  */
-export function MushafZoomView({
-  viewport, page, centered = false, zoomable = true, current, firstPage = 1, lastPage, renderPage, onSwipe, onSwipeDown, swipeDownFromY = 0, onDoubleTap, onZoomChange, ref,
-}: MushafZoomViewProps) {
+export function MushafZoomView(props: MushafZoomViewProps) {
+  const { current } = props;
+  // Pages swipes have settled on that React has yet to show, in order (as PagerStrip's `swiped`).
+  const [turnedTo, setTurnedTo] = useState<number[]>([]);
+  const [shown, setShown] = useState({ page: current, strip: 0 });
+  // Applied while rendering (React's "adjust state when a prop changes").
+  if (shown.page !== current) {
+    const index = turnedTo.indexOf(current);
+    setShown({ page: current, strip: index >= 0 ? shown.strip : shown.strip + 1 });
+    setTurnedTo(index >= 0 ? turnedTo.slice(index + 1) : []);
+  }
+  const onTurned = useCallback((target: number) => setTurnedTo((pending) => [...pending, target]), []);
+  return <PagerStrip key={shown.strip} {...props} onTurned={onTurned} />;
+}
+
+function PagerStrip({
+  viewport, page, centered = false, zoomable = true, current, firstPage = 1, lastPage, renderPage, onSwipe, onTurned, onSwipeDown, swipeDownFromY = 0, onDoubleTap, onZoomChange, ref,
+}: PagerStripProps) {
   const scale = useSharedValue(1);
   const tx = useSharedValue(0);
   const ty = useSharedValue(0);
@@ -179,6 +207,7 @@ export function MushafZoomView({
 
   const turned = (delta: -1 | 1, target: number) => {
     swiped.set([...swiped.get(), target]);
+    onTurned(target);
     onSwipe(delta);
   };
   /** Glides the strip to `delta` (-1, 0 or +1 page); on arriving at a neighbour, centres it there and tells React. */

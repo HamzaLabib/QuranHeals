@@ -1,0 +1,13 @@
+import puppeteer from 'puppeteer-core';
+const out = process.argv[2];
+const b = await puppeteer.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
+const p = await b.newPage(); await p.setViewport({ width: 393, height: 852, deviceScaleFactor: 2 });
+const logs = []; p.on('console', (m) => logs.push(m.text()));
+await p.goto('http://localhost:8083/', { waitUntil: 'domcontentloaded', timeout: 300000 });
+await p.evaluate(() => { localStorage.setItem('quran-heals:mushaf-guide:v1', '{"status":"done"}'); localStorage.setItem('quran-heals:dev-unicode-mushaf:renderer:v1', 'unicode'); localStorage.setItem('quran-heals:dev-unicode-mushaf:tajweed:v1', 'off'); localStorage.setItem('quran-heals:dev-unicode-mushaf:font:v1', 'hafs'); });
+await p.goto('http://localhost:8083/mushaf?page=3&renderer=unicode&scheme=light', { waitUntil: 'domcontentloaded', timeout: 300000 });
+await p.waitForSelector('[data-testid="unicode-mushaf-text"]', { timeout: 90000 }); await p.evaluate(() => document.fonts.ready); await new Promise((r) => setTimeout(r, 1000));
+await p.click('[data-testid="mushaf-dev-check"]'); await new Promise((r) => setTimeout(r, 2500));
+const badge = await p.evaluate(() => document.querySelector('[data-testid="unicode-check-badge"]')?.textContent ?? null);
+console.log('badge:', badge); console.log(logs.filter((l) => l.includes('unicode check')).slice(-2).join('\n') || 'no check log');
+await p.screenshot({ path: `${out}/check-mode-p003.png` }); await b.close();
