@@ -2,7 +2,6 @@ import * as Clipboard from 'expo-clipboard';
 import { Check, ChevronLeft, ChevronRight, Download, Link2, Share2, X } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Modal, PixelRatio, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
   DEFAULT_SHARE_CARD_THEME,
@@ -11,6 +10,8 @@ import {
   type ShareCardThemeName,
 } from '@/constants/shareCardThemes';
 import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
+import { SheetSafeArea } from '@/layout/SheetSafeArea';
+import { LAYOUT_TOKENS, windowClassFor } from '@/layout/windowClass';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { useQuranTranslationPreference } from '@/localization/useQuranTranslationPreference';
@@ -150,7 +151,9 @@ export function ShareAyahSheet({ visible, ayah, onClose }: ShareAyahSheetProps) 
   const aspect = spec.height / SHARE_CARD_DESIGN_WIDTH;
   // Large, but leaves the controls reachable on small phones.
   const maxPreviewHeight = Math.max(220, Math.min(screen.height * 0.42, 470));
-  const previewWidth = Math.floor(Math.min(screen.width - 2 * spacing.lg - 2, maxPreviewHeight / aspect));
+  // Inside the sheet: the window on phones, the centred sheet (at most LAYOUT_TOKENS.sheetMaxWidth) on tablets.
+  const sheetWidth = windowClassFor(screen.width) === 'compact' ? screen.width : Math.min(screen.width, LAYOUT_TOKENS.sheetMaxWidth);
+  const previewWidth = Math.floor(Math.min(sheetWidth - 2 * spacing.lg - 2, maxPreviewHeight / aspect));
   // Laid out at 1080 px: exactly that on iOS (integer screen scale); Android
   // corrects any rounding when capturing — see captureCardImage.
   const exportWidth = SHARE_CARD_DESIGN_WIDTH / PixelRatio.get();
@@ -285,7 +288,7 @@ export function ShareAyahSheet({ visible, ayah, onClose }: ShareAyahSheetProps) 
           ))}
         </View>
 
-        <SafeAreaView edges={['bottom']} style={styles.safeArea}>
+        <SheetSafeArea edges={['bottom']} style={styles.safeArea}>
           <View style={styles.sheet}>
             <View style={[styles.header, isRtl && styles.rowRtl]}>
               <Text style={[styles.title, direction]}>{copy.title}</Text>
@@ -474,7 +477,7 @@ export function ShareAyahSheet({ visible, ayah, onClose }: ShareAyahSheetProps) 
               )}
             </ScrollView>
           </View>
-        </SafeAreaView>
+        </SheetSafeArea>
       </View>
     </Modal>
   );

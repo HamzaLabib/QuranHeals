@@ -4,10 +4,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { EmotionCard } from '@/components/EmotionCard';
+import { EmotionCard, EmotionGridFiller } from '@/components/EmotionCard';
 import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { StateView } from '@/components/StateView';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
+import { useWindowClass } from '@/layout/useWindowClass';
+import { contentColumnStyle, emotionGridColumns, gridFillerCount } from '@/layout/windowClass';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { getApiErrorMessage, getEmotions } from '@/services/api';
@@ -31,6 +33,9 @@ export default function AllEmotionsScreen() {
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
   const insets = useSafeAreaInsets();
+  // Tablets: a centred column, 3 cards per row (medium) or 4 (expanded); phones: the original two (layout/windowClass.ts).
+  const { windowClass } = useWindowClass();
+  const columns = emotionGridColumns(windowClass);
   const { locale, messages } = useAppLocale();
   const direction = getDirectionStyle(locale);
   const isRtl = isRtlLocale(locale);
@@ -92,7 +97,7 @@ export default function AllEmotionsScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-      <View style={[styles.header, isRtl && styles.headerRtl]}>
+      <View style={[styles.header, contentColumnStyle(windowClass), isRtl && styles.headerRtl]}>
         <Pressable
           testID="emotions-back"
           accessibilityRole="button"
@@ -110,7 +115,7 @@ export default function AllEmotionsScreen() {
       <ScrollView
         testID="emotions-scroll"
         style={styles.scroll}
-        contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding(insets.bottom) }]}
+        contentContainerStyle={[styles.content, contentColumnStyle(windowClass), { paddingBottom: scrollBottomPadding(insets.bottom) }]}
         refreshControl={
           <RefreshControl
             refreshing={isPullRefreshing}
@@ -132,6 +137,7 @@ export default function AllEmotionsScreen() {
               <EmotionCard
                 key={emotion.key}
                 emotion={emotion}
+                columns={columns}
                 onPress={() => {
                   void recordEmotionUse(emotion.key);
                   router.push({
@@ -141,6 +147,7 @@ export default function AllEmotionsScreen() {
                 }}
               />
             ))}
+            {Array.from({ length: gridFillerCount(emotions.length, columns) }, (_, index) => <EmotionGridFiller key={`filler-${index}`} columns={columns} />)}
           </View>
         )}
         {/* After the emotion cards; the scroll's bottom padding keeps it clear of the home indicator / navigation bar. */}

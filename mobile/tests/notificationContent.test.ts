@@ -12,8 +12,8 @@ const { isMushafReadingFocused, useQuietRemindersWhileReading } = await import('
 
 describe('Notification copy (App Language)', () => {
   it('Wird Reminder: the approved English and Modern Standard Arabic wording', () => {
-    expect(wirdReminderContent('en')).toMatchObject({ title: 'Time for your Quran reading', body: 'Continue your Wird and reconnect with the Quran.' });
-    expect(wirdReminderContent('ar')).toMatchObject({ title: 'حان وقت وردك من القرآن', body: 'واصل وردك اليوم وخصص وقتًا لقراءة القرآن.' });
+    expect(wirdReminderContent('en')).toMatchObject({ title: 'Time for your Quran reading', body: 'Continue your Reciting and reconnect with the Quran.' });
+    expect(wirdReminderContent('ar')).toMatchObject({ title: 'حان وقت وِردك من القرآن', body: 'واصل وِردك اليوم وخصص وقتًا لقراءة القرآن.' });
   });
 
   it('Emotional Check-in: the approved wording', () => {
@@ -34,8 +34,8 @@ describe('Notification copy (App Language)', () => {
   });
 
   it('the permission explanation (Settings → Allow notifications?): the approved wording; ar-EG as Arabic', () => {
-    expect(MESSAGES.en.notifications.permissionSheetBody).toBe('Allow notifications to receive reminders for your Wird, a Quran ayah, and a moment of peace for your heart.');
-    expect(MESSAGES.ar.notifications.permissionSheetBody).toBe('اسمح بالإشعارات لتصلك تذكيرات بأورادك، وآية من القرآن، ولحظة طمأنينة لقلبك.');
+    expect(MESSAGES.en.notifications.permissionSheetBody).toBe('Allow notifications to receive reminders for your Reciting, a Quran ayah, and a moment of peace for your heart.');
+    expect(MESSAGES.ar.notifications.permissionSheetBody).toBe('اسمح بالإشعارات لتصلك تذكيرات بوِردك، وآية من القرآن، ولحظة طمأنينة لقلبك.');
     expect(MESSAGES['ar-EG'].notifications.permissionSheetBody).toBe(MESSAGES.ar.notifications.permissionSheetBody);
     // Its second paragraph: true of the implementation (local notifications only, scheduled with the OS on the device,
     // no push token or server; each reminder's content is built on the device, so delivery needs no connection).
@@ -45,8 +45,8 @@ describe('Notification copy (App Language)', () => {
   });
 
   it('settings labels: the approved names and frequency words', () => {
-    expect(MESSAGES.en.notifications).toMatchObject({ wirdReminderTitle: 'Wird Reminder', randomAyahTitle: 'Random Quran Ayah', emotionCheckInTitle: 'You Deserve Peace', frequencyDaily: 'Daily', frequencyEvery3Days: 'Every 3 days', frequencyWeekly: 'Weekly', permissionRequired: 'Permission required' });
-    expect(MESSAGES.ar.notifications).toMatchObject({ wirdReminderTitle: 'تذكير الورد', randomAyahTitle: 'آية من القرآن', emotionCheckInTitle: 'تستحق الطمأنينة', frequencyDaily: 'يوميًا', frequencyEvery3Days: 'كل ٣ أيام', frequencyWeekly: 'أسبوعيًا', permissionRequired: 'يلزم السماح بالإشعارات', chooseDay: 'اختيار اليوم', reminderTimeLabel: 'وقت التذكير' });
+    expect(MESSAGES.en.notifications).toMatchObject({ wirdReminderTitle: 'Reciting Reminder', randomAyahTitle: 'Random Quran Ayah', emotionCheckInTitle: 'You Deserve Peace', frequencyDaily: 'Daily', frequencyEvery3Days: 'Every 3 days', frequencyWeekly: 'Weekly', permissionRequired: 'Permission required' });
+    expect(MESSAGES.ar.notifications).toMatchObject({ wirdReminderTitle: 'تذكير الوِرد', randomAyahTitle: 'آية من القرآن', emotionCheckInTitle: 'تستحق الطمأنينة', frequencyDaily: 'يوميًا', frequencyEvery3Days: 'كل ٣ أيام', frequencyWeekly: 'أسبوعيًا', permissionRequired: 'يلزم السماح بالإشعارات', chooseDay: 'اختيار اليوم', reminderTimeLabel: 'وقت التذكير' });
     expect(MESSAGES.en.settings).toMatchObject({ appSection: 'App', emotionsSection: 'Emotions', quranSection: 'Quran', supportSection: 'Support', showTranslationTitle: 'Show Translation', showTranslationDescription: 'The English translation under each ayah.' });
     expect(MESSAGES.ar.settings).toMatchObject({ appSection: 'التطبيق', emotionsSection: 'المشاعر', quranSection: 'القرآن', supportSection: 'الدعم', showTranslationTitle: 'إظهار الترجمة', showTranslationDescription: 'الترجمة الإنجليزية تحت كل آية.', legalSection: 'السياسات والشروط' });
     expect(MESSAGES['ar-EG'].settings.showTranslationDescription).toBe(MESSAGES.ar.settings.showTranslationDescription);
@@ -60,7 +60,7 @@ describe('Identifiers and channels', () => {
     expect(kindOfNotificationId('quranheals.ayah.2026-10-14')).toBe('randomAyah');
     expect(kindOfNotificationId('expo-something')).toBeNull();
     expect(new Set(Object.values(ANDROID_CHANNEL_IDS)).size).toBe(3);
-    expect(channelNames('ar')).toEqual({ wird: 'تذكير الورد', randomAyah: 'آية من القرآن', emotionCheckIn: 'تستحق الطمأنينة' });
+    expect(channelNames('ar')).toEqual({ wird: 'تذكير الوِرد', randomAyah: 'آية من القرآن', emotionCheckIn: 'تستحق الطمأنينة' });
   });
 });
 

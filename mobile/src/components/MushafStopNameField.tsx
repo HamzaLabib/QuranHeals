@@ -4,6 +4,7 @@ import { Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, 
 
 import { MUSHAF_PANEL_COLORS } from '@/constants/mushafTheme';
 import { READING_STOP_NAME_MAX_LENGTH } from '@/mushaf/readingStops';
+import { useDismissKeyboardOnResize } from '@/layout/useDismissKeyboardOnResize';
 
 /** How long the "Saved" confirmation stays (as the retired bar's, SAVED_TOAST_MS). */
 export const SAVED_TOAST_MS = 1800;
@@ -43,6 +44,8 @@ export function MushafStopNameField({ visible, labels, dark, bottomInset, defaul
   }, []);
   // Each opening starts from the active ورد's name.
   const [openedFor, setOpenedFor] = useState(false);
+  // A tablet rotated or resized with the keyboard open (Android): closed, so the field is laid out again whole.
+  useDismissKeyboardOnResize(visible);
   if (visible !== openedFor) {
     setOpenedFor(visible);
     if (visible) {
@@ -87,7 +90,10 @@ export function MushafStopNameField({ visible, labels, dark, bottomInset, defaul
       {visible && <Pressable testID="mushaf-stop-name-backdrop" accessible={false} style={StyleSheet.absoluteFill} onPress={close} />}
       <KeyboardAvoidingView
         pointerEvents="box-none"
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        // 'padding' on Android too: with edge-to-edge (always on) Android no longer resizes the window for the keyboard,
+        // so without it the field stayed under the keyboard (Android 17 tablet emulator, 2026-10-16). The dock is sized
+        // by its content, so 'padding' (not 'height') lifts it.
+        behavior="padding"
         style={[styles.dock, { bottom: bottomInset + DOCK_MARGIN }]}>
         {toast !== null && !visible && (
           <View testID="mushaf-saved-toast" pointerEvents="none" style={[styles.toast, theme.surface]}>

@@ -7,6 +7,7 @@ import { MUSHAF_PANEL_COLORS } from '@/constants/mushafTheme';
 import { fill } from '@/localization/fill';
 import { HIZB_COUNT, HIZB_START_PAGES, JUZ_COUNT, JUZ_START_PAGES, searchNumbered } from '@/mushaf/navigation';
 import { searchSurahs, SURAHS } from '@/mushaf/surahSearch';
+import { useKeyboardAvoidingKey } from '@/layout/useDismissKeyboardOnResize';
 
 export type MushafIndexMode = 'surah' | 'juz' | 'hizb';
 
@@ -54,6 +55,8 @@ const ROW_HEIGHT = 58;
  */
 export function MushafIndexSheet({ mode, labels, dark, rtl, formatNumber, current, onSelectPage, onClose }: Props) {
   const theme = dark ? MUSHAF_PANEL_COLORS.dark : MUSHAF_PANEL_COLORS.light;
+  // Measured afresh after a rotation or resize (layout/useDismissKeyboardOnResize.ts).
+  const keyboardKey = useKeyboardAvoidingKey(mode !== null);
   const { height: windowHeight } = useWindowDimensions();
   const [query, setQuery] = useState('');
   // A new list starts with an empty search.
@@ -110,7 +113,7 @@ export function MushafIndexSheet({ mode, labels, dark, rtl, formatNumber, curren
 
   return (
     <Modal visible={mode !== null} transparent animationType="slide" onRequestClose={close}>
-      <KeyboardAvoidingView style={[styles.backdrop, { backgroundColor: theme.backdrop }]} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={0}>
+      <KeyboardAvoidingView key={keyboardKey} style={[styles.backdrop, { backgroundColor: theme.backdrop }]} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={0}>
         <Pressable testID="mushaf-index-backdrop" accessibilityLabel={labels.close} style={styles.dismissArea} onPress={close} />
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <SafeAreaView edges={['bottom', 'left', 'right']} testID="mushaf-index-sheet" style={[styles.sheet, theme.sheet, { height: Math.min(mode === 'surah' ? 600 : 520, windowHeight * 0.72) }]}>

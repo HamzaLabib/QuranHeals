@@ -201,7 +201,7 @@ describe('Settings: section order and initial state', () => {
     expect(texts()).not.toContain(en.settings.quranTranslationSection);
   });
 
-  it('each section holds its own settings: App (App Language, Appearance), Emotions (Emotions Language, Show Translation, Emotional Check-in), Quran (Quran Language, Keep Screen Awake, Wird Reminder, Random Quran Ayah, offline Mushaf), Support (Report an Issue, Legal & Privacy)', async () => {
+  it('each section holds its own settings: App (App Language, Appearance), Emotions (Emotions Language, Show Translation, Emotional Check-in), Quran (Quran Language, Keep Screen Awake, Reciting Reminder, Random Quran Ayah, offline Mushaf), Support (Report an Issue, Legal & Privacy)', async () => {
     await renderSettings();
     const section = (id: string) => root!.root.find((node) => node.props.testID === id && typeof node.type === 'string');
     const headersIn = (id: string) => section(id).findAll((node) => headers().includes(node)).map((node) => node.props.accessibilityLabel.split(', ')[0]);
@@ -660,10 +660,10 @@ describe('Settings: reminders (the compact rows)', () => {
     const rows = root!.root.findAll((node) => typeof node.type === 'string' && /^settings-reminder-[a-zA-Z]+$/.test(node.props.testID ?? ''));
     expect(rows.map((node) => node.props.testID)).toEqual(KINDS.map((k) => `settings-reminder-${k}`));
     expect(texts(row('emotionCheckIn')).slice(0, 2)).toEqual(['You Deserve Peace', '9:00 PM']);
-    expect(texts(row('wird')).slice(0, 2)).toEqual(['Wird Reminder', '9:00 PM']);
+    expect(texts(row('wird')).slice(0, 2)).toEqual(['Reciting Reminder', '9:00 PM']);
     expect(texts(row('randomAyah')).slice(0, 2)).toEqual(['Random Quran Ayah', '8:00 AM']);
     expect(part('emotionCheckIn', 'frequency').props.accessibilityLabel).toBe('You Deserve Peace, Frequency, Daily');
-    expect(part('wird', 'frequency').props.accessibilityLabel).toBe('Wird Reminder, Frequency, Daily');
+    expect(part('wird', 'frequency').props.accessibilityLabel).toBe('Reciting Reminder, Frequency, Daily');
     expect(part('randomAyah', 'frequency').props.accessibilityLabel).toBe('Random Quran Ayah, Frequency, Daily');
     for (const kind of KINDS) {
       expect(part(kind, 'switch').props).toMatchObject({ value: true, accessibilityRole: 'switch', accessibilityState: { checked: true } });
@@ -709,7 +709,7 @@ describe('Settings: reminders (the compact rows)', () => {
     await openMenu('wird', 'frequency');
     await press(part('wird', 'frequency-option-weekly'));
     await flush();
-    expect(texts(row('wird')).slice(0, 4)).toEqual(['Wird Reminder', 'Wednesday', '·', '9:00 PM']);
+    expect(texts(row('wird')).slice(0, 4)).toEqual(['Reciting Reminder', 'Wednesday', '·', '9:00 PM']);
     await openMenu('wird', 'weekday');
     expect(menuOptions('wird', 'weekday').map((node) => node.props.accessibilityLabel)).toEqual(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']);
     await press(part('wird', 'weekday-option-1'));
@@ -904,7 +904,7 @@ describe('Settings: reminders (the compact rows)', () => {
   it('Arabic: the approved names, frequency words, mirrored rows and Arabic-Indic times', async () => {
     state.storage.set(LOCALE_KEY, 'ar');
     await renderSettings();
-    expect(texts(row('wird')).slice(0, 2)).toEqual(['تذكير الورد', '٢١:٠٠']);
+    expect(texts(row('wird')).slice(0, 2)).toEqual(['تذكير الوِرد', '٢١:٠٠']);
     expect(texts(row('randomAyah'))[0]).toBe('آية من القرآن');
     expect(texts(row('emotionCheckIn'))[0]).toBe('تستحق الطمأنينة');
     expect(part('emotionCheckIn', 'frequency').props.accessibilityLabel).toBe('تستحق الطمأنينة, التكرار, يوميًا');

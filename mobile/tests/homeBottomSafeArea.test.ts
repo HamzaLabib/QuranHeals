@@ -33,7 +33,9 @@ describe('Home screen bottom safe area (source-scan)', () => {
   it('applies the inset exactly once: on the scroll content, never also on the SafeAreaView', () => {
     expect(indexSource).toMatch(/<SafeAreaView style=\{styles\.safeArea\} edges=\{\['top', 'left', 'right'\]\}>/);
     expect(indexSource).not.toMatch(/edges=\{\[[^\]]*'bottom'/);
-    expect(indexSource).toMatch(/contentContainerStyle=\{\[styles\.content, \{ paddingBottom: scrollBottomPadding\(insets\.bottom\) \}\]\}/);
+    // The tablet content column (layout/windowClass.ts: no style on phones) sits between the content style and the inset.
+    expect(indexSource).toMatch(/contentContainerStyle=\{\[styles\.content, contentColumnStyle\(windowClass\), \{ paddingBottom: scrollBottomPadding\(insets\.bottom\) \}\]\}/);
+    expect(indexSource.match(/scrollBottomPadding\(insets\.bottom\)/g)).toHaveLength(1);
     // No competing fixed bottom padding left in the static content style.
     const contentStyle = indexSource.match(/\n  content: \{[\s\S]*?\n  \},/)?.[0] ?? '';
     expect(contentStyle).not.toMatch(/paddingBottom/);

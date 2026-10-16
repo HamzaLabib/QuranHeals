@@ -1,9 +1,9 @@
 import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { useThemedStyles } from '@/theme/useTheme';
+import { SheetSafeArea } from '@/layout/SheetSafeArea';
 import { makeSyncPasswordStyles } from './SyncPassphraseSheet';
 
 export type GuestDataChoice = 'add' | 'keep-separate';
@@ -30,7 +30,7 @@ export function GuestDataSheet({ visible, onChoose }: GuestDataSheetProps) {
   return (
     <Modal visible transparent animationType="fade" onRequestClose={() => {}}>
       <View style={styles.backdrop}>
-        <SafeAreaView style={styles.safeArea}>
+        <SheetSafeArea style={styles.safeArea}>
           <View style={styles.sheet}>
             <ScrollView contentContainerStyle={styles.scrollContent}>
               <Text style={[styles.title, direction]}>{messages.guestData.title}</Text>
@@ -53,7 +53,7 @@ export function GuestDataSheet({ visible, onChoose }: GuestDataSheetProps) {
               </View>
             </ScrollView>
           </View>
-        </SafeAreaView>
+        </SheetSafeArea>
       </View>
     </Modal>
   );

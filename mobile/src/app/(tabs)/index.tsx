@@ -5,12 +5,14 @@ import { AppState, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ContinueReadingCard } from '@/components/ContinueReadingCard';
-import { EmotionCard } from '@/components/EmotionCard';
+import { EmotionCard, EmotionGridFiller } from '@/components/EmotionCard';
 import { ReportIssueSheet } from '@/components/ReportIssueSheet';
 import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { StateView } from '@/components/StateView';
 import { MushafIcon } from '@/components/MushafIcon';
 import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
+import { useWindowClass } from '@/layout/useWindowClass';
+import { contentColumnStyle, gridFillerCount } from '@/layout/windowClass';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
@@ -51,6 +53,9 @@ export default function HomeScreen() {
   // to the scroll content instead (once), so the sources footer always ends
   // fully above the gesture bar / 3-button bar / home indicator.
   const insets = useSafeAreaInsets();
+  // Tablets: a centred column, and Home's four emotions in one row (layout/windowClass.ts). Phones: unchanged.
+  const { windowClass, isWide } = useWindowClass();
+  const homeColumns = isWide ? 4 : 2;
   const [emotions, setEmotions] = useState<Emotion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -195,7 +200,7 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding(insets.bottom) }]}
+        contentContainerStyle={[styles.content, contentColumnStyle(windowClass), { paddingBottom: scrollBottomPadding(insets.bottom) }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -259,6 +264,7 @@ export default function HomeScreen() {
                 key={emotion.key}
                 emotion={emotion}
                 compact
+                columns={homeColumns}
                 onPress={() => {
                   // Remembered for Home's four cards; never blocks or changes the emotion's own flow.
                   setRecentKeys((keys) => [emotion.key, ...keys.filter((k) => k !== emotion.key)]);
@@ -270,6 +276,7 @@ export default function HomeScreen() {
                 }}
               />
             ))}
+            {Array.from({ length: gridFillerCount(homeEmotions.length, homeColumns) }, (_, index) => <EmotionGridFiller key={`filler-${index}`} columns={homeColumns} />)}
           </View>
         )}
 

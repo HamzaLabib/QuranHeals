@@ -5,6 +5,7 @@ import { BottomTabBarHeightCallbackContext, type BottomTabBarProps } from 'expo-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { spacing, typography, type Palette } from '@/constants/theme';
+import { LAYOUT_TOKENS } from '@/layout/windowClass';
 import { isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
@@ -43,7 +44,14 @@ export function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps)
     <View
       testID="app-tab-bar"
       accessibilityRole="tablist"
-      style={[styles.bar, { paddingBottom: Math.max(insets.bottom, spacing.sm) }, isRtlLocale(locale) && styles.rtl]}>
+      style={[styles.bar, { paddingBottom: Math.max(insets.bottom, spacing.sm) }]}>
+      {/*
+        The five tabs as one centred group, LAYOUT_TOKENS.tabBarMaxWidth wide at most: on tablets they aren't stretched
+        across the window; on phones (narrower than that) this changes nothing. Pure layout, never the window's size in
+        JavaScript: measured from the window, a rotation could lay the bar out once with the old size's margins, and
+        Android's adjustsFontSizeToFit then left the labels shrunk for good (Android 17 tablet emulator, 2026-10-16).
+      */}
+      <View testID="app-tab-row" style={[styles.row, isRtlLocale(locale) && styles.rtl]}>
       {APP_TABS.map((name) => {
         const route = state.routes.find((r) => r.name === name);
         if (!route) return null;
@@ -75,6 +83,7 @@ export function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps)
           </Pressable>
         );
       })}
+      </View>
     </View>
   );
 
@@ -92,8 +101,13 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     backgroundColor: colors.surface,
     borderTopColor: colors.border,
     borderTopWidth: StyleSheet.hairlineWidth,
-    flexDirection: 'row',
     paddingTop: spacing.xs,
+  },
+  row: {
+    alignSelf: 'center',
+    flexDirection: 'row',
+    maxWidth: LAYOUT_TOKENS.tabBarMaxWidth,
+    width: '100%',
   },
   rtl: {
     flexDirection: 'row-reverse',

@@ -15,7 +15,6 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/useAuth';
 import { MUSHAF_PANEL_COLORS } from '@/constants/mushafTheme';
@@ -27,6 +26,8 @@ import { getReflection, REFLECTION_MAX_LENGTH, saveReflection } from '@/storage/
 import { getLocalDataGeneration, subscribeToLocalDataOwner } from '@/storage/localDataOwner';
 import { getConflictVersionsFor, resolveConflictVersions, type ReflectionConflictVersion } from '@/storage/reflectionConflicts';
 import { notifyLocalChange } from '@/storage/localChanges';
+import { SheetSafeArea } from '@/layout/SheetSafeArea';
+import { useKeyboardAvoidingKey } from '@/layout/useDismissKeyboardOnResize';
 
 type ReflectionSheetProps = {
   visible: boolean;
@@ -99,6 +100,8 @@ export function ReflectionSheet({ visible, verseKey, onClose, mushaf }: Reflecti
 
 function ReflectionSheetContent({ verseKey, onClose, mushaf }: { verseKey: string; onClose: () => void; mushaf?: { dark: boolean } }) {
   const { colors, styles } = useReflectionTheme(mushaf);
+  // Measured afresh after a rotation or resize (layout/useDismissKeyboardOnResize.ts).
+  const keyboardKey = useKeyboardAvoidingKey();
   const { locale, messages } = useAppLocale();
   const { status } = useAuth();
   const direction = getDirectionStyle(locale);
@@ -262,12 +265,12 @@ function ReflectionSheetContent({ verseKey, onClose, mushaf }: { verseKey: strin
 
   return (
     <Modal visible transparent animationType="slide" onRequestClose={close}>
-      <KeyboardAvoidingView
+      <KeyboardAvoidingView key={keyboardKey}
         style={styles.backdrop}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={0}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <SafeAreaView style={styles.safeArea}>
+          <SheetSafeArea style={styles.safeArea}>
             <View style={styles.sheet}>
               <ScrollView
                 ref={scrollRef}
@@ -385,7 +388,7 @@ function ReflectionSheetContent({ verseKey, onClose, mushaf }: { verseKey: strin
                 </View>
               </ScrollView>
             </View>
-          </SafeAreaView>
+          </SheetSafeArea>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </Modal>

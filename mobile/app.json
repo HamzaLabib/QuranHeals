@@ -8,6 +8,7 @@
     "scheme": "quranheals",
     "userInterfaceStyle": "automatic",
     "ios": {
+      "supportsTablet": true,
       "icon": "./assets/images/appicon.png",
       "bundleIdentifier": "com.quranheals.app",
       "usesAppleSignIn": true,

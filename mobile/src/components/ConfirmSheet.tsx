@@ -3,6 +3,7 @@ import { ActivityIndicator, Modal, Pressable, StyleSheet, Text, View } from 'rea
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
+import { useSheetFrameStyle } from '@/layout/useWindowClass';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
@@ -39,11 +40,13 @@ export function ConfirmSheet(props: ConfirmSheetProps) {
   const { locale } = useAppLocale();
   const direction = getDirectionStyle(locale);
   const rtl = isRtlLocale(locale);
+  // Tablets: centred and width-capped (layout/windowClass.ts); phones: unchanged.
+  const frame = useSheetFrameStyle('absolute');
 
   return (
     <Modal visible={props.visible} transparent animationType="fade" onRequestClose={props.onCancel}>
       <Pressable testID={`${props.testID}-backdrop`} accessibilityLabel={props.cancelLabel} style={styles.backdrop} onPress={props.busy ? undefined : props.onCancel} />
-      <View testID={props.testID} accessibilityViewIsModal style={[styles.sheet, { paddingBottom: insets.bottom + spacing.lg }]}>
+      <View testID={props.testID} accessibilityViewIsModal style={[styles.sheet, frame, { paddingBottom: insets.bottom + spacing.lg }]}>
         {props.header}
         <Text accessibilityRole="header" style={[styles.title, direction]}>{props.title}</Text>
         {props.body ? <Text style={[styles.body, direction]}>{props.body}</Text> : null}

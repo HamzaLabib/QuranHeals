@@ -173,9 +173,9 @@ describe('the five bottom tabs', () => {
     expect(navigation.navigate).toHaveBeenCalledWith('my-reading', undefined);
   });
 
-  it('exactly five tabs: Home, How I Feel, Mushaf, Wirds, Reflections — in this order, with the approved labels in every language', async () => {
+  it('exactly five tabs: Home, How I Feel, Mushaf, Recitating, Reflections — in this order, with the approved labels in every language', async () => {
     expect(APP_TABS).toEqual(['index', 'emotions', 'mushaf', 'my-reading', 'reflections']);
-    const expected = { en: ['Home', 'How I Feel', 'Mushaf', 'Wirds', 'Reflections'], ar: ['الرئيسية', 'مشاعري', 'المصحف', 'أورادي', 'خواطري'], 'ar-EG': ['الرئيسية', 'مشاعري', 'المصحف', 'أورادي', 'خواطري'] } as const;
+    const expected = { en: ['Home', 'How I Feel', 'Mushaf', 'Recitating', 'Reflections'], ar: ['الرئيسية', 'مشاعري', 'المصحف', 'الوِرد', 'خواطري'], 'ar-EG': ['الرئيسية', 'مشاعري', 'المصحف', 'الوِرد', 'خواطري'] } as const;
     for (const locale of ['en', 'ar', 'ar-EG'] as const) {
       state.locale = locale;
       await mount(createElement(AppTabBar, props(0).props));
@@ -184,7 +184,8 @@ describe('the five bottom tabs', () => {
       for (const label of root.root.findByProps({ testID: 'app-tab-bar' }).findAllByType('Text' as never)) {
         expect(label.props).toMatchObject({ numberOfLines: 1, adjustsFontSizeToFit: true });
       }
-      expect(flat(byId('app-tab-bar').props.style).flexDirection).toBe(locale === 'en' ? 'row' : 'row-reverse');
+      // The tabs' row (inside the bar since the tablet layout, layout-only: app-tab-row) carries the reading direction.
+      expect(flat(byId('app-tab-row').props.style).flexDirection).toBe(locale === 'en' ? 'row' : 'row-reverse');
       await act(async () => root.unmount());
     }
   });
@@ -296,16 +297,16 @@ describe('Home', () => {
     expect(MESSAGES.ar.continueReading.title).toBe('متابعة التلاوة');
     expect(MESSAGES['ar-EG'].continueReading.title).toBe('متابعة التلاوة');
     // The page keeps its full title; only the tab is shortened.
-    expect(MESSAGES.en.myReading.title).toBe('My Recitations & Khatmas');
-    expect(MESSAGES.ar.myReading.title).toBe('أورادي وختماتي');
-    expect(MESSAGES['ar-EG'].myReading.title).toBe('أورادي وختماتي');
-    expect(MESSAGES.en.tabs.myReading).toBe('Wirds');
-    expect(MESSAGES.ar.tabs.myReading).toBe('أورادي');
-    expect(MESSAGES['ar-EG'].tabs.myReading).toBe('أورادي');
-    // The Continue Reciting card's button: shorter in English; Arabic unchanged.
-    expect(MESSAGES.en.continueReading.myReading).toBe('My Recitations');
-    expect(MESSAGES.ar.continueReading.myReading).toBe('أورادي وختماتي');
-    expect(MESSAGES['ar-EG'].continueReading.myReading).toBe('أورادي وختماتي');
+    expect(MESSAGES.en.myReading.title).toBe('Recitings and Khatmas');
+    expect(MESSAGES.ar.myReading.title).toBe('الوِرد والختمات');
+    expect(MESSAGES['ar-EG'].myReading.title).toBe('الوِرد والختمات');
+    expect(MESSAGES.en.tabs.myReading).toBe('Recitating');
+    expect(MESSAGES.ar.tabs.myReading).toBe('الوِرد');
+    expect(MESSAGES['ar-EG'].tabs.myReading).toBe('الوِرد');
+    // The Continue Reciting card's button: the combined section's name.
+    expect(MESSAGES.en.continueReading.myReading).toBe('Recitings and Khatmas');
+    expect(MESSAGES.ar.continueReading.myReading).toBe('الوِرد والختمات');
+    expect(MESSAGES['ar-EG'].continueReading.myReading).toBe('الوِرد والختمات');
   });
 });
 
@@ -320,9 +321,9 @@ describe('Continue Reading (متابعة القراءة)', () => {
 
   it('with no ورد: invites reflection with a new ورد under the unchanged title; gone once a ورد exists', async () => {
     const expected = {
-      en: 'Open the Mushaf to its first page and reflect on its verses as you begin a new Wird.',
-      ar: 'افتح المصحف من صفحته الأولى، وتفكّر في آياته مع وردٍ جديد.',
-      'ar-EG': 'افتح المصحف من أول صفحة، واتأمّل في آياته مع ورد جديد.',
+      en: 'Open the Mushaf to its first page and reflect on its verses as you begin a new Reciting.',
+      ar: 'افتح المصحف من صفحته الأولى، وتفكّر في آياته مع وِردٍ جديد.',
+      'ar-EG': 'افتح المصحف من أول صفحة، واتأمّل في آياته مع وِرد جديد.',
     } as const;
     expect(MESSAGES.ar.continueReading.firstTitle).toBe('ابدأ قراءتك');
     for (const locale of ['en', 'ar', 'ar-EG'] as const) {
@@ -828,7 +829,7 @@ describe('the Khatma completion screen (/khatma-complete)', () => {
     expect(byId('khatma-complete-title').props.children).toBe('تقبل الله ختمتك');
     expect(byId('khatma-complete-body').props.children).toBe('نسأل الله أن يجعل القرآن نورًا لقلبك وشفيعًا لك');
     expect(textOf(byId('khatma-complete-dua'))).toBe('قراءة دعاء ختم القرآن');
-    expect(textOf(byId('khatma-complete-back'))).toBe('العودة إلى ختماتي');
+    expect(textOf(byId('khatma-complete-back'))).toBe('العودة إلى الوِرد والختمات');
     expect(byId('khatma-complete-name').props.children).toBe('ورد الفجر');
     await press('khatma-complete-dua');
     expect(router.push).toHaveBeenLastCalledWith('/khatm-dua');
@@ -961,7 +962,7 @@ describe('the Khatma completion screen (/khatma-complete)', () => {
       expect(actionIds()).toEqual(['khatma-complete-mushaf', 'khatma-complete-back', 'khatma-complete-dua']);
       const en = locale === 'en';
       expect(textOf(byId('khatma-complete-mushaf'))).toBe(en ? 'Back to Mushaf' : 'العودة إلى المصحف');
-      expect(textOf(byId('khatma-complete-back'))).toBe(en ? 'Back to My Recitations & Khatmas' : 'العودة إلى ختماتي');
+      expect(textOf(byId('khatma-complete-back'))).toBe(en ? 'Back to Recitings and Khatmas' : 'العودة إلى الوِرد والختمات');
       expect(textOf(byId('khatma-complete-dua'))).toBe(en ? 'Read the Khatma Du’a' : 'قراءة دعاء ختم القرآن');
       // Each a full-width, 54 pt button in the app's palette (Light and Dark follow from it); the icon side mirrors in Arabic.
       const style = (id: string) => Object.assign({}, ...[byId(id).props.style({ pressed: false })].flat(3).filter(Boolean));
@@ -1070,5 +1071,91 @@ describe('the du`a screen has no Khatma action', () => {
   it('the du`a screen reads and writes no reading data at all', () => {
     const screen = source('src/app/khatm-dua.tsx');
     expect(screen).not.toMatch(/@\/mushaf\/khatmas|confirmKhatma|loadReadingData|useLocalSearchParams|khatma-complete/);
+  });
+});
+
+describe('tablets: the window`s size class (phones unchanged)', () => {
+  const catalog = Array.from({ length: 30 }, (_, i) => ({ key: `e${i}`, names: { en: `Emotion ${i}`, ar: `شعور ${i}` }, icon: 'heart' }) as unknown as Emotion);
+  const routes = APP_TABS.map((name) => ({ key: `${name}-key`, name, params: undefined }));
+  const tabProps = {
+    state: { index: 0, routes, key: 'tabs', routeNames: [...APP_TABS], type: 'tab', stale: false, history: [] },
+    descriptors: Object.fromEntries(routes.map((r) => [r.key, { options: {} }])),
+    navigation: { emit: vi.fn(() => ({ defaultPrevented: false })), navigate: vi.fn() },
+    insets: { top: 0, bottom: 34, left: 0, right: 0 },
+  } as never;
+  /** Each rendered card's flex basis (its Pressable's style, unpressed). */
+  const cardBases = () => byId('emotions-grid').findAll((n) => typeof n.type === 'string' && n.props.accessibilityRole === 'button').map((card) => {
+    const style = typeof card.props.style === 'function' ? card.props.style({ pressed: false }) : card.props.style;
+    return flat(style).flexBasis as string;
+  });
+  const scrollContent = () => flat(root.root.findByProps({ testID: 'emotions-scroll' }).props.contentContainerStyle);
+
+  it('the five tabs: one centred group at most 600 pt wide, by layout alone (never the window size in JS); phones narrower than that are unchanged', async () => {
+    for (const [width, height] of [[390, 844], [820, 1180], [1180, 820], [1376, 1032]] as const) {
+      state.window = { width, height };
+      await mount(createElement(AppTabBar, tabProps));
+      const bar = flat(byId('app-tab-bar').props.style);
+      expect(bar.paddingHorizontal).toBeUndefined();
+      expect(bar.flexDirection).toBeUndefined();
+      // The same style at every window size: a rotation can never leave it computed for the old size.
+      expect(flat(byId('app-tab-row').props.style)).toEqual({ alignSelf: 'center', flexDirection: 'row', maxWidth: 600, width: '100%' });
+      expect(byId('app-tab-row').findAll((n) => typeof n.type === 'string' && n.props.accessibilityRole === 'tab').map((n) => n.props.testID)).toEqual(APP_TABS.map((name) => `tab-${name}`));
+      await act(async () => root.unmount());
+    }
+    expect(source('src/components/AppTabBar.tsx')).not.toMatch(/useWindowClass|useWindowDimensions/);
+  });
+
+  it('How I Feel: 2 columns on a phone (the original cards, no column style), 3 on a medium window, 4 on an expanded one; the last row completed with empty cells', async () => {
+    state.emotions = catalog;
+    await mount(createElement(AllEmotionsScreen));
+    expect(new Set(cardBases())).toEqual(new Set(['47.5%']));
+    expect(byId('emotions-grid').children).toHaveLength(30);
+    expect(scrollContent().maxWidth).toBeUndefined();
+    await act(async () => root.unmount());
+
+    state.window = { width: 820, height: 1180 };
+    await mount(createElement(AllEmotionsScreen));
+    expect(new Set(cardBases())).toEqual(new Set(['30%']));
+    expect(byId('emotions-grid').children).toHaveLength(30); // 10 full rows
+    expect(scrollContent()).toMatchObject({ maxWidth: 720, alignSelf: 'center', width: '100%' });
+    await act(async () => root.unmount());
+
+    state.window = { width: 1180, height: 820 };
+    await mount(createElement(AllEmotionsScreen));
+    const cells = byId('emotions-grid').children as ReactTestInstance[];
+    expect(cells).toHaveLength(32); // 30 cards + 2 empty cells completing the 8th row
+    expect(new Set(cardBases())).toEqual(new Set(['22%']));
+    expect(cardBases()).toHaveLength(30);
+    expect(cells.slice(30).every((cell) => cell.findAll((n) => n.props.accessibilityRole === 'button').length === 0 && cell.findAllByType('Text' as never).length === 0)).toBe(true);
+  });
+
+  it('Arabic keeps the reading order mirrored on tablets too', async () => {
+    state.emotions = catalog;
+    state.locale = 'ar';
+    state.window = { width: 1180, height: 820 };
+    await mount(createElement(AllEmotionsScreen));
+    expect(flat(byId('emotions-grid').props.style).flexDirection).toBe('row-reverse');
+  });
+
+  it('Continue Reading: the open ورد list follows the name when the window is rotated or resized', async () => {
+    await saveWirdPage({ name: 'Isha', page: 302 });
+    await saveWirdPage({ name: 'Fajr', page: 40 });
+    state.window = { width: 820, height: 1180 };
+    state.overlay = [0, 0, 820, 1180];
+    state.anchor = [130, 260, 160, 32];
+    const element = createElement(ContinueReadingCard);
+    await mount(element);
+    await press('home-wird-selector');
+    const menuBox = () => flat(byId('home-wird-menu').props.style);
+    expect(menuBox()).toMatchObject({ left: 130, top: 260 + 32 + 6 });
+    // Rotated: the window, the overlay and the name all move.
+    state.window = { width: 1180, height: 820 };
+    state.overlay = [0, 0, 1180, 820];
+    state.anchor = [310, 200, 160, 32];
+    await act(async () => root.update(element));
+    await act(async () => byId('home-wird-overlay').props.onLayout());
+    await flush();
+    expect(all('home-wird-menu')).toHaveLength(1);
+    expect(menuBox()).toMatchObject({ left: 310, top: 200 + 32 + 6 });
   });
 });

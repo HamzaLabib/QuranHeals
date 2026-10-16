@@ -7,6 +7,7 @@ import { fill } from '@/localization/fill';
 import { MUSHAF_PAGE_COUNT } from '@/mushaf/mushafPage';
 import { pageInfo, parseTypedPage } from '@/mushaf/navigation';
 import { navigationArrow, pageAtTrackX, trackXOfPage } from '@/mushaf/pageSelector';
+import { useKeyboardAvoidingKey } from '@/layout/useDismissKeyboardOnResize';
 
 type Labels = {
   /** The slider's spoken name ("Page"). */
@@ -81,6 +82,8 @@ export const PAGE_SELECTOR_CARD_HEIGHT = 8 + 44 + SLIDER_TOUCH + 4 + 2;
  */
 export function MushafPageSelector({ visible, currentPage, labels, dark, bottomInset, formatNumber, surahName, juzLabel, onGo, onClose }: Props) {
   const theme = dark ? MUSHAF_PANEL_COLORS.dark : MUSHAF_PANEL_COLORS.light;
+  // Measured afresh after a rotation or resize (layout/useDismissKeyboardOnResize.ts).
+  const keyboardKey = useKeyboardAvoidingKey(visible);
   const [selected, setSelected] = useState(currentPage);
   const [editing, setEditing] = useState(false);
   const [typed, setTyped] = useState('');
@@ -164,7 +167,7 @@ export function MushafPageSelector({ visible, currentPage, labels, dark, bottomI
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={close}>
-      <KeyboardAvoidingView style={styles.fill} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <KeyboardAvoidingView key={keyboardKey} style={styles.fill} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <Pressable testID="mushaf-page-selector-backdrop" accessibilityLabel={labels.close} style={StyleSheet.absoluteFill} onPress={outside} />
         {/* In the layout (not absolute), at the bottom: lifted above the keyboard with the space it takes. A tap on the card outside its controls closes only the keyboard. */}
         <View

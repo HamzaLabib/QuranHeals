@@ -9,6 +9,8 @@ import { ConfirmSheet } from '@/components/ConfirmSheet';
 import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { MushafIcon } from '@/components/MushafIcon';
 import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
+import { useKeyboardAvoidingKey } from '@/layout/useDismissKeyboardOnResize';
+import { useContentColumnStyle, useSheetFrameStyle } from '@/layout/useWindowClass';
 import { fill, localNumber } from '@/localization/fill';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
@@ -46,6 +48,8 @@ export default function MyReadingScreen() {
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
   const insets = useSafeAreaInsets();
+  // Tablets: a centred content column (layout/windowClass.ts); phones: unchanged.
+  const column = useContentColumnStyle();
   const { locale, messages } = useAppLocale();
   const copy = messages.myReading;
   const direction = getDirectionStyle(locale);
@@ -152,7 +156,7 @@ export default function MyReadingScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-      <View style={[styles.header, rtl && styles.rowRtl]}>
+      <View style={[styles.header, column, rtl && styles.rowRtl]}>
         <Pressable
           testID="my-reading-back"
           accessibilityRole="button"
@@ -171,7 +175,7 @@ export default function MyReadingScreen() {
       <ScrollView
         testID="my-reading-scroll"
         style={styles.scroll}
-        contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding(insets.bottom) }]}
+        contentContainerStyle={[styles.content, column, { paddingBottom: scrollBottomPadding(insets.bottom) }]}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
@@ -429,13 +433,18 @@ function WirdNameSheet(props: {
   const direction = getDirectionStyle(locale);
   const rtl = isRtlLocale(locale);
   const [name, setName] = useState(props.initialName);
+  // Measured afresh after a rotation or resize (layout/useDismissKeyboardOnResize.ts).
+  const keyboardKey = useKeyboardAvoidingKey();
   const [page, setPage] = useState('');
+  // Tablets: centred and width-capped (layout/windowClass.ts); phones: unchanged.
+  const frame = useSheetFrameStyle('flow');
 
   return (
     <Modal visible transparent animationType="fade" onRequestClose={props.onCancel}>
       <Pressable style={styles.backdrop} accessibilityLabel={copy.cancel} onPress={props.onCancel} />
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.sheetDock} pointerEvents="box-none">
-        <View testID="wird-name-sheet" style={[styles.sheet, { paddingBottom: insets.bottom + spacing.lg }]}>
+      {/* Android: 'height', as the other sheets. Without it the sheet stayed under the keyboard: with edge-to-edge (always on), Android no longer resizes the window for it (Android 17 tablet emulator, 2026-10-16). */}
+      <KeyboardAvoidingView key={keyboardKey} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.sheetDock} pointerEvents="box-none">
+        <View testID="wird-name-sheet" style={[styles.sheet, frame, { paddingBottom: insets.bottom + spacing.lg }]}>
           <Text accessibilityRole="header" style={[styles.sheetTitle, direction]}>{props.mode === 'rename' ? copy.renameTitle : copy.createTitle}</Text>
           <Text style={[styles.label, direction]}>{copy.nameLabel}</Text>
           <TextInput
