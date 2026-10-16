@@ -50,6 +50,9 @@ import { qcfFontUrl } from '@/mushaf/offline/fonts';
 import { resolveDecorations } from '@/mushaf/decorations';
 import { hizbLabelsForPage } from '@/mushaf/hizbQuarters';
 import { BORDER_TILES_DOWN, computePageLayout, MIN_TILES_DOWN, MUSHAF_TEXT_LIFT_PT } from '@/mushaf/pageGeometry';
+import { pageBoxOnScreen, remapAnchor, sameBox } from '@/mushaf/popupAnchor';
+import { createResizeSettler } from '@/layout/resizeSettler';
+import { windowClassFor } from '@/layout/windowClass';
 import { QPC_V1_FONTS } from '@/mushaf/qpcV1Fonts';
 import { checkAgainstTanzil, loadQpcV1PageLayout, type QpcV1PageLayout } from '@/mushaf/qpcV1Layout';
 import { confirmKhatma, loadReadingData, saveWirdPage, type ReadingCycle } from '@/mushaf/khatmas';
@@ -419,11 +422,19 @@ export default function MushafScreen() {
   const { favorites, isFavorite, toggleFavorite } = useFavorites();
   // Share: the ayah being shared in the existing Share Ayah sheet (the same one as the ayah screens), or none.
   const [sharing, setSharing] = useState<Ayah | null>(null);
-  // Measured, not the window size: right on tablets, split screen and web.
+  // Measured, not the window size: right on tablets, split screen and web. On tablet-sized windows a rotation's layouts,
+  // or a window being dragged, are applied once they stop, so the page's text is refitted once, at the final size
+  // (layout/resizeSettler.ts). Phone-sized windows apply every change at once, as before.
   const [area, setArea] = useState({ width: 0, height: 0 });
+  const [areaSettler] = useState(() => createResizeSettler(setArea, {
+    settle: (next, applied) => windowClassFor(next.width) !== 'compact' || windowClassFor(applied.width) !== 'compact',
+  }));
+  useEffect(() => () => areaSettler.cancel(), [areaSettler]);
   // The selection before the latest tap, so a double-tap (zoom reset) can put it back.
   const lastTap = useRef<{ before: string | null; at: number; ignoreUntil: number }>({ before: null, at: 0, ignoreUntil: 0 });
-  const [zoomed, setZoomed] = useState(false);
+  // The fit (viewport and page size) the page was zoomed in at, or null at 1×: zoomed only while that fit is current, so
+  // a rotation or resize (which refits the page and returns it to 1×, MushafZoomView) ends it without an extra update.
+  const [zoomedAt, setZoomedAt] = useState<string | null>(null);
   // Development builds only: read any page straight from the relay (?source=online), to check it without installing.
   const onlineInDev = isDevBuild() && params.source === 'online';
   // Which design each decoration draws (mushaf/decorations.ts): the constants; previews in development builds.
@@ -538,7 +549,7 @@ export default function MushafScreen() {
     setPage(next);
     setSelectedVerseKey(null);
     closeOverlay();
-    setZoomed(false); // a new page opens at 1×
+    setZoomedAt(null); // a new page opens at 1×
   }, [closeOverlay]);
   /** One page back (-1) or forward (+1): swipes, and the page's screen-reader actions. */
   const turn = useCallback((delta: -1 | 1) => {
@@ -546,7 +557,7 @@ export default function MushafScreen() {
     setPage((current) => Math.min(MUSHAF_PAGE_COUNT, Math.max(1, current + delta)));
     setSelectedVerseKey(null);
     closeOverlay();
-    setZoomed(false);
+    setZoomedAt(null);
   }, [closeOverlay]);
   // A finger swipe left to right = next, right to left = previous (the same in every language; swipes at 1× only —
   // mushaf/pageZoom.ts swipeTurn).
@@ -561,7 +572,7 @@ export default function MushafScreen() {
       setPage(requestedPage);
       setSelectedVerseKey(requestedAyah);
       setOverlay(null);
-      setZoomed(false);
+      setZoomedAt(null);
     }
   }
   // Such a page is a navigation: the active ورد's saved page no longer replaces it on opening.
@@ -570,7 +581,7 @@ export default function MushafScreen() {
   }, [handledRequest]);
 
   /** Where a popup goes when a tap's position isn't known (the web): the middle of the reading area. */
-  const middle = (): PopupAnchor => ({ x: area.width / 2, y: insets.top + BACK_BAR_HEIGHT + area.height / 2 });
+  const middle = (): PopupAnchor => ({ x: insets.left + area.width / 2, y: insets.top + BACK_BAR_HEIGHT + area.height / 2 });
   /**
    * A tap on an ayah: it is selected (highlighted) at once, and its popup opens DOUBLE_TAP_MS later, unless the tap
    * turns out to be half of a double-tap (onDoubleTap cancels it) or the page has changed meanwhile.
@@ -882,6 +893,26 @@ export default function MushafScreen() {
   // The largest page that fits between the Back row and the ورد row (Normal Mode), never cropped. No tab bar on this tab.
   const fit = fitMushafPage(area, insets.bottom, fullScreen, taller);
   const { width: pageWidth, height: pageHeight } = fit.page;
+  const fitKey = `${fit.viewport.width}x${fit.viewport.height}|${pageWidth}x${pageHeight}`;
+  const zoomed = zoomedAt === fitKey;
+  // An open ayah or ورد popup follows its ayah when the page is refitted (a rotation, a resized window): the tapped
+  // point is moved with the page, which scales as one picture. Zoomed in, the point isn't known at 1×: the middle.
+  const pageBox = pageBoxOnScreen({ area, insets, barHeight: BACK_BAR_HEIGHT, page: fit.page, viewportHeight: fit.viewport.height, fullScreen });
+  const placedOn = useRef(pageBox);
+  // Tablets: the ورد row (and page 604's links) spans the page, not the whole window, so the links stay beside the
+  // page in landscape. Centred on the area as laid out now and exactly the page's width, never insets worked out from a
+  // size the area may already have left (a rotation): page 604's fitted link labels must never be squeezed (Android
+  // keeps a shrunk adjustsFontSizeToFit label). Phones (the page is the window's width less 6 pt): the full width.
+  const wirdRowSpan = windowClassFor(area.width) === 'compact' ? null : { left: '50%' as const, marginLeft: -pageWidth / 2, right: undefined, width: pageWidth };
+  useEffect(() => {
+    const before = placedOn.current;
+    placedOn.current = pageBox;
+    // No ayah or ورد popup open: nothing to move, and no state update (each one would redraw the pages).
+    if (sameBox(before, pageBox) || (overlay?.kind !== 'ayah' && overlay?.kind !== 'wird')) return;
+    setOverlay({ ...overlay, anchor: (zoomed ? null : remapAnchor(overlay.anchor, before, pageBox)) ?? middle() });
+    // Only when the page's box changes; overlay, zoomed and middle() are read as they are then.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageBox.x, pageBox.y, pageBox.width, pageBox.height]);
   /** What a page shows: its QPC lines, page 61's Quran SVG, or neither (yet); and its first ayah (the page's heads). */
   const partsOf = (n: number, state: PageState) => {
     const qpc = qpcShown(state);
@@ -926,7 +957,7 @@ export default function MushafScreen() {
   const guideTexts = [copy.guideSurah, copy.guideHizb, copy.guidePage, copy.guideJuz, copy.guideAyah, copy.guideMarker];
   const iconColor = (dark ? MUSHAF_PANEL_COLORS.dark : MUSHAF_PANEL_COLORS.light).icon;
   return (
-    <GestureHandlerRootView style={[styles.reader, { backgroundColor: MUSHAF_BACKGROUNDS[appearance.background].paper, paddingTop: insets.top }]}>
+    <GestureHandlerRootView style={[styles.reader, { backgroundColor: MUSHAF_BACKGROUNDS[appearance.background].paper, paddingTop: insets.top, paddingLeft: insets.left, paddingRight: insets.right }]}>
       {/*
         Plain icons, no circle, background, border or label, fixed left and right in every language
         (like the bar's order): Back on the left (Normal Mode only), Expand / Collapse on the right (always).
@@ -973,7 +1004,7 @@ export default function MushafScreen() {
       <View
         testID="mushaf-page-area"
         style={styles.pageArea}
-        onLayout={(event) => setArea({ width: Math.floor(event.nativeEvent.layout.width), height: Math.floor(event.nativeEvent.layout.height) })}>
+        onLayout={(event) => areaSettler.measure({ width: Math.floor(event.nativeEvent.layout.width), height: Math.floor(event.nativeEvent.layout.height) })}>
         {pageWidth > 0 && (
           <GuideTargetsProvider register={registerGuideTarget}>
           <MushafZoomView ref={zoomView} viewport={fit.viewport} page={fit.page} centered={fullScreen} zoomable={Boolean(drawn)} onSwipe={turn}
@@ -982,7 +1013,7 @@ export default function MushafScreen() {
             onSwipeDown={fullScreen && !isReflectionVisible ? () => switchReadingMode(false) : undefined}
             swipeDownFromY={insets.top + SWIPE_DOWN_TOP_GUARD}
             onDoubleTap={onDoubleTap}
-            onZoomChange={setZoomed}
+            onZoomChange={(next) => setZoomedAt(next ? fitKey : null)}
             renderPage={(n, isCurrent) => {
               const state = isCurrent ? content : stateOf(n);
               const parts = partsOf(n, state);
@@ -1071,7 +1102,7 @@ export default function MushafScreen() {
           <View
             testID="mushaf-wird-row"
             pointerEvents={zoomed ? 'none' : 'box-none'}
-            style={[styles.wirdRow, { top: pageHeight, height: fit.viewport.height - pageHeight, opacity: zoomed ? 0 : 1 }]}>
+            style={[styles.wirdRow, wirdRowSpan, { top: pageHeight, height: fit.viewport.height - pageHeight, opacity: zoomed ? 0 : 1 }]}>
             <MushafWirdSelector
               labels={{
                 choose: copy.wirdChoose,

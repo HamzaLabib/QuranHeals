@@ -23,7 +23,7 @@ const state = vi.hoisted(() => ({
 }));
 vi.mock('react-native', () => ({
   Linking: { openURL: state.openURL },
-  Platform: { OS: 'ios', select: (values: { ios: unknown }) => values.ios },
+  useWindowDimensions: () => ({ width: 390, height: 844, scale: 3, fontScale: 1 }), Platform: { OS: 'ios', select: (values: { ios: unknown }) => values.ios },
   StyleSheet: { create: (value: unknown) => value, hairlineWidth: 0.5 },
   Pressable: 'Pressable', ScrollView: 'ScrollView', Text: 'Text', View: 'View',
 }));

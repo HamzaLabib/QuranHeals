@@ -13,13 +13,14 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { isValidDeleteConfirmation } from '@/utils/deleteAccountConfirmation';
+import { SheetSafeArea } from '@/layout/SheetSafeArea';
+import { useKeyboardAvoidingKey } from '@/layout/useDismissKeyboardOnResize';
 
 type DeleteAccountSheetProps = {
   visible: boolean;
@@ -44,6 +45,8 @@ type DeleteAccountSheetProps = {
  * ambiguous state.
  */
 export function DeleteAccountSheet({ visible, onClose, onDeleted, deleteAccount }: DeleteAccountSheetProps) {
+  // Measured afresh after a rotation or resize (layout/useDismissKeyboardOnResize.ts).
+  const keyboardKey = useKeyboardAvoidingKey(visible);
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
   const { locale, messages } = useAppLocale();
@@ -89,10 +92,10 @@ export function DeleteAccountSheet({ visible, onClose, onDeleted, deleteAccount 
   return (
     <Modal visible transparent animationType="slide" onRequestClose={close}>
       {/* See ReflectionSheet.tsx's matching comment — same shared bottom-sheet-over-Modal pattern and the same keyboard-overlap fix. */}
-      <KeyboardAvoidingView style={styles.backdrop} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <KeyboardAvoidingView key={keyboardKey} style={styles.backdrop} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         {/* Tap outside the field dismisses the keyboard only — never closes this dialog; Cancel/Delete remain deliberate separate presses. */}
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <SafeAreaView style={styles.safeArea}>
+          <SheetSafeArea style={styles.safeArea}>
             <View style={styles.sheet}>
               <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
                 <Text style={[styles.title, direction]}>{messages.deleteAccount.title}</Text>
@@ -146,7 +149,7 @@ export function DeleteAccountSheet({ visible, onClose, onDeleted, deleteAccount 
                 </View>
               </ScrollView>
             </View>
-          </SafeAreaView>
+          </SheetSafeArea>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </Modal>

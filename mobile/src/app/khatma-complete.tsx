@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { MushafIcon } from '@/components/MushafIcon';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
+import { useContentColumnStyle } from '@/layout/useWindowClass';
 import { fill, localNumber } from '@/localization/fill';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
@@ -40,6 +41,8 @@ export async function backToMushaf(stopId: string | null) {
 export default function KhatmaCompleteScreen() {
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
+  // Tablets: a centred content column (layout/windowClass.ts); phones: unchanged.
+  const column = useContentColumnStyle();
   const { locale, messages } = useAppLocale();
   const copy = messages.khatma;
   const direction = getDirectionStyle(locale);
@@ -77,10 +80,10 @@ export default function KhatmaCompleteScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right', 'bottom']}>
       {/* Only the Settings gear, quietly at the header's far end (right in English, left in Arabic), where it sits on every
           other screen. No Back button is added: the actions below remain the way on, and system Back is unchanged. */}
-      <View testID="khatma-complete-header" style={[styles.header, isRtlLocale(locale) && styles.rowRtl]}>
+      <View testID="khatma-complete-header" style={[styles.header, column, isRtlLocale(locale) && styles.rowRtl]}>
         <SettingsHeaderButton style={styles.iconButton} pressedStyle={styles.pressed} />
       </View>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, column]}>
         <View style={styles.emblem}>
           <BookHeart size={34} color={colors.accent} strokeWidth={1.8} />
         </View>

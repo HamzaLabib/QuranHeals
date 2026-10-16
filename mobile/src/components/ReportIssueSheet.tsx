@@ -13,7 +13,6 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
@@ -22,6 +21,8 @@ import { useAppLocale } from '@/localization/useAppLocale';
 import { useQuranTranslationPreference } from '@/localization/useQuranTranslationPreference';
 import { submitFeedback, submitIssueReport, type IssueReportCategory } from '@/services/issueReportApi';
 import { formatAyahReference } from '@/utils/ayahReference';
+import { SheetSafeArea } from '@/layout/SheetSafeArea';
+import { useKeyboardAvoidingKey } from '@/layout/useDismissKeyboardOnResize';
 
 /**
  * The one reporting sheet, opened from three places:
@@ -63,6 +64,8 @@ type ReportIssueSheetProps = {
  * (useAppLocale), never the Emotions Language.
  */
 export function ReportIssueSheet({ visible, onClose, variant = 'ayah', context = {} }: ReportIssueSheetProps) {
+  // Measured afresh after a rotation or resize (layout/useDismissKeyboardOnResize.ts).
+  const keyboardKey = useKeyboardAvoidingKey(visible);
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
   const { locale, messages } = useAppLocale();
@@ -215,12 +218,12 @@ export function ReportIssueSheet({ visible, onClose, variant = 'ayah', context =
 
   return (
    <Modal visible transparent animationType="slide" onRequestClose={close}>
-  <KeyboardAvoidingView
+  <KeyboardAvoidingView key={keyboardKey}
     style={styles.backdrop}
     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     keyboardVerticalOffset={0}>
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <SafeAreaView style={styles.safeArea}>
+      <SheetSafeArea style={styles.safeArea}>
         <View style={styles.sheet}>
           <ScrollView
             ref={scrollRef}
@@ -395,7 +398,7 @@ export function ReportIssueSheet({ visible, onClose, variant = 'ayah', context =
             )}
           </ScrollView>
         </View>
-      </SafeAreaView>
+      </SheetSafeArea>
     </TouchableWithoutFeedback>
   </KeyboardAvoidingView>
 </Modal>

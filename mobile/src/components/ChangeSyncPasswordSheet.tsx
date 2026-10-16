@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Keyboard, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Text, TouchableWithoutFeedback, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { getCurrentSessionToken } from '@/auth/useAuth';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
@@ -10,11 +9,15 @@ import { useVerifiedSyncPassword } from '@/sync/useVerifiedSyncPassword';
 import { canChangeSyncPassword, passwordLengthError } from '@/utils/syncPasswordValidation';
 import { SyncPasswordField } from './SyncPasswordField';
 import { useThemedStyles } from '@/theme/useTheme';
+import { SheetSafeArea } from '@/layout/SheetSafeArea';
+import { useKeyboardAvoidingKey } from '@/layout/useDismissKeyboardOnResize';
 import { makeSyncPasswordStyles } from './SyncPassphraseSheet';
 
 /** Mounted only while open, so dismissal/sign-out drops all password state. */
 export function ChangeSyncPasswordSheet({ onClose }: { onClose: () => void }) {
   const { locale, messages } = useAppLocale();
+  // Measured afresh after a rotation or resize (layout/useDismissKeyboardOnResize.ts).
+  const keyboardKey = useKeyboardAvoidingKey();
   const styles = useThemedStyles(makeSyncPasswordStyles);
   const copy = messages.syncPassphrase;
   const direction = getDirectionStyle(locale);
@@ -89,9 +92,9 @@ export function ChangeSyncPasswordSheet({ onClose }: { onClose: () => void }) {
 
   return (
     <Modal visible transparent animationType="fade" onRequestClose={close}>
-      <KeyboardAvoidingView style={styles.backdrop} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <KeyboardAvoidingView key={keyboardKey} style={styles.backdrop} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <SafeAreaView style={styles.safeArea}>
+          <SheetSafeArea style={styles.safeArea}>
             <View style={styles.sheet}>
               <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scrollContent}>
                 <Text style={[styles.title, direction]}>{copy.changeTitle}</Text>
@@ -123,7 +126,7 @@ export function ChangeSyncPasswordSheet({ onClose }: { onClose: () => void }) {
                 </View>
               </ScrollView>
             </View>
-          </SafeAreaView>
+          </SheetSafeArea>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </Modal>

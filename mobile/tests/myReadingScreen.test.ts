@@ -19,7 +19,7 @@ const state = vi.hoisted(() => ({
 vi.mock('react-native', async () => {
   const { createElement: h } = await import('react');
   return {
-    Platform: { OS: 'ios', select: (values: { ios: unknown }) => values.ios },
+    useWindowDimensions: () => ({ width: 390, height: 844, scale: 3, fontScale: 1 }), Platform: { OS: 'ios', select: (values: { ios: unknown }) => values.ios },
     StyleSheet: { create: (value: unknown) => value, absoluteFill: { position: 'absolute' }, hairlineWidth: 0.5 },
     Modal: ({ visible, children, ...rest }: { visible: boolean; children: unknown }) => (visible ? h('Modal', rest, children as never) : null),
     ActivityIndicator: 'ActivityIndicator', KeyboardAvoidingView: 'KeyboardAvoidingView',
@@ -86,7 +86,7 @@ afterEach(async () => {
 
 describe('أورادي وختماتي', () => {
   it('the title keeps its wording, with «اقرأ وارتقِ» / Recite and Rise directly under it, in the App Language and its direction', async () => {
-    for (const [locale, title, subtitle, direction] of [['en', 'My Recitations & Khatmas', 'Recite and Rise', 'ltr'], ['ar', 'أورادي وختماتي', 'اقرأ وارتقِ', 'rtl']] as const) {
+    for (const [locale, title, subtitle, direction] of [['en', 'Recitings and Khatmas', 'Recite and Rise', 'ltr'], ['ar', 'الوِرد والختمات', 'اقرأ وارتقِ', 'rtl']] as const) {
       state.locale = locale;
       await render();
       const header = root.root.findAll((node) => node.type === ('Text' as never) && node.props.accessibilityRole === 'header')[0];
@@ -450,7 +450,7 @@ describe('أورادي وختماتي', () => {
     await readTo('ورد', 302);
     const [w] = await wirds();
     await render();
-    expect(root.root.findAll((node) => node.props.accessibilityRole === 'header')[0].props.children).toBe('أورادي وختماتي');
+    expect(root.root.findAll((node) => node.props.accessibilityRole === 'header')[0].props.children).toBe('الوِرد والختمات');
     expect(textOf(byId('my-reading-stats'))).toBe('٠ | الختمات | ٠ | ختمات رمضان');
     expect(textOf(byId(`wird-card-${w.stop.id}`))).toContain('صفحة ٣٠٢ من ٦٠٤');
     expect(flat(byId('my-reading-stats').props.style).flexDirection).toBe('row-reverse');

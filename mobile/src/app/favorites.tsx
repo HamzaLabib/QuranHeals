@@ -10,6 +10,7 @@ import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { ShareAyahSheet } from '@/components/ShareAyahSheet';
 import { StateView } from '@/components/StateView';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
+import { useContentColumnStyle } from '@/layout/useWindowClass';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { useFavorites } from '@/hooks/useFavorites';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
@@ -55,6 +56,8 @@ function FavoriteActions({ favorite, onShare, onRemove, messages, isRtl }: Favor
 export default function FavoritesScreen() {
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
+  // Tablets: a centred content column (layout/windowClass.ts); phones: unchanged.
+  const column = useContentColumnStyle();
   const { locale, messages } = useAppLocale();
   const direction = getDirectionStyle(locale);
   const isRtl = isRtlLocale(locale);
@@ -90,7 +93,7 @@ export default function FavoritesScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, column]}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}

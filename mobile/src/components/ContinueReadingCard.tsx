@@ -124,6 +124,15 @@ export function ContinueReadingCard() {
   useLayoutEffect(() => {
     if (menuOpen) measure(overlayRef.current, setOverlay);
   }, [menuOpen]);
+  // The window rotated or was resized while the list is open (tablets, split screen): the name moved, so it is measured
+  // again and the list follows it (the overlay re-measures itself on layout).
+  const windowSize = `${screen.width}x${screen.height}`;
+  const measuredFor = useRef(windowSize);
+  useEffect(() => {
+    if (measuredFor.current === windowSize) return;
+    measuredFor.current = windowSize;
+    if (menuOpen) measure(selectorRef.current, setAnchor);
+  }, [windowSize, menuOpen]);
   const menuWidth = Math.min(MENU_WIDTH, (overlay?.width ?? screen.width) - 2 * EDGE);
   // The name in the overlay's coordinates.
   const at = anchor && overlay ? { x: anchor.x - overlay.x, y: anchor.y - overlay.y, width: anchor.width, height: anchor.height } : null;

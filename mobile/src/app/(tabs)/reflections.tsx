@@ -10,6 +10,7 @@ import { ReflectionSheet } from '@/components/ReflectionSheet';
 import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { StateView } from '@/components/StateView';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
+import { useContentColumnStyle } from '@/layout/useWindowClass';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { useReflections, type ReflectionListItem } from '@/hooks/useReflections';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
@@ -27,6 +28,8 @@ import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefres
 export default function ReflectionsScreen() {
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
+  // Tablets: a centred content column (layout/windowClass.ts); phones: unchanged.
+  const column = useContentColumnStyle();
   const { locale, messages } = useAppLocale();
   const direction = getDirectionStyle(locale);
   const isRtl = isRtlLocale(locale);
@@ -79,7 +82,7 @@ export default function ReflectionsScreen() {
       <FlatList<ReflectionListItem>
         data={listData}
         keyExtractor={(item) => item.reflection.verseKey}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, column]}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}

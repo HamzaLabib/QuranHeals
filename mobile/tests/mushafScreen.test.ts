@@ -1637,7 +1637,7 @@ describe('the active reading stop (ورد)', () => {
   });
 
   it('the empty name field asks for a ورد name, as a placeholder only (never prefilled); a typed name shows and saves as typed', async () => {
-    const expected = { en: 'Wird name (e.g., Personal or Mosque)', ar: 'اسم الورد (مثل: شخصي أو المسجد)', 'ar-EG': 'اسم الورد (زي: شخصي أو المسجد)' } as const;
+    const expected = { en: 'Reciting name (e.g., Personal or Mosque)', ar: 'اسم الوِرد (مثل: شخصي أو المسجد)', 'ar-EG': 'اسم الوِرد (زي: شخصي أو المسجد)' } as const;
     for (const locale of ['en', 'ar', 'ar-EG'] as const) {
       state.locale = locale;
       state.storage.clear();
@@ -2406,7 +2406,7 @@ describe('Page 604: إتمام الختمة | ورد name | دعاء ختم ال
     await tapComplete();
     expect(reachedSheet()).toHaveLength(0);
     expect(notice('noWird')).toHaveLength(1);
-    expect(texts()).toEqual(expect.arrayContaining(['اختر وردًا أولًا', 'اختر الورد الذي أتممته من اسم الورد أسفل الصفحة، ثم حاول مرة أخرى.']));
+    expect(texts()).toEqual(expect.arrayContaining(['اختر وِردًا أولًا', 'اختر الوِرد الذي أتممته من اسم الوِرد أسفل الصفحة، ثم حاول مرة أخرى.']));
     expect(root.root.findAllByProps({ testID: 'mushaf-khatma-noWird-confirm' })).toHaveLength(0);
     await press(root.root.findAllByProps({ testID: 'mushaf-khatma-noWird-cancel' }).find((node) => String(node.type) === 'Pressable')!);
     expect(notice('noWird')).toHaveLength(0);
@@ -4768,7 +4768,7 @@ describe('the first-time guide', () => {
     const actions = onlyHost('mushaf-guide-close').parent!;
     expect(styleOf(actions)).toMatchObject({ flexDirection: 'row-reverse' });
     for (let step = 0; step < 5; step += 1) await next();
-    expect(guideText()).toBe('اضغط على رقم الآية ثم «تطبيق» لحفظ موضع الورد');
+    expect(guideText()).toBe('اضغط على رقم الآية ثم «تطبيق» لحفظ موضع الوِرد');
     expect(texts()).toContain('ابدأ القراءة');
     expect(texts()).toContain('السابق');
   });
@@ -4802,5 +4802,109 @@ describe('the first-time guide', () => {
     // useWindowDimensions is 390 wide here; the card is never wider than the screen less 16 pt each side.
     expect(card.width).toBeLessThanOrEqual(390 - 32);
     expect(card.left).toBeGreaterThanOrEqual(16);
+  });
+});
+
+describe('tablets: rotation and window resizing (one centred page, nothing lost)', () => {
+  // These tests draw page 61's Quran SVG (Traditional frame: fitMushafPage's `taller` false).
+  // An 11" iPad (820 × 1180 pt, 24-pt status bar, 20-pt home indicator): its reading area under the status bar and the
+  // Back row, in portrait and landscape.
+  const PORTRAIT = { width: 820, height: 1180 - 24 - BACK_BAR_HEIGHT };
+  const LANDSCAPE = { width: 1180, height: 820 - 24 - BACK_BAR_HEIGHT };
+  const iPadInsets = { top: 24, bottom: 20, left: 0, right: 0 };
+  const layout = async (area: { width: number; height: number }) => {
+    await act(async () => root.root.findByProps({ testID: 'mushaf-page-area' }).props.onLayout({ nativeEvent: { layout: { x: 0, y: 0, ...area } } }));
+    await flush();
+  };
+  /** Longer than the resize settling window (layout/resizeSettler.ts): a rotation's layouts have been applied. */
+  const quiet = async () => {
+    await act(async () => { await new Promise((done) => setTimeout(done, 260)); });
+    await flush();
+  };
+  const pageSize = () => {
+    const style = styleOf(root.root.findByProps({ testID: 'mushaf-zoom-page' }));
+    return { width: style.width as number, height: style.height as number };
+  };
+  const selected = () => root.root.findAll((n) => typeof n.type !== 'string' && n.props.selectedVerseKey !== undefined && n.props.selectedVerseKey !== null).map((n) => n.props.selectedVerseKey as string);
+  const ayahAnchor = () => root.root.findAll((n) => typeof n.type !== 'string' && n.props.anchor && n.props.copied !== undefined)[0]?.props.anchor as { x: number; y: number } | undefined;
+
+  it('portrait and landscape both show one whole page, centred at its approved proportions; a rotation refits it once its layouts stop', async () => {
+    state.insets = iPadInsets;
+    await render(PORTRAIT);
+    expect(pageSize()).toEqual(fitMushafPage(PORTRAIT, 20, false, false).page);
+    await quiet();
+    await layout(LANDSCAPE);
+    await quiet();
+    const landscape = fitMushafPage(LANDSCAPE, 20, false, false);
+    expect(pageSize()).toEqual(landscape.page);
+    // Same width-to-height proportions as on a phone at that width (never stretched to fill the landscape width).
+    expect(landscape.page.height / landscape.page.width).toBeCloseTo(fitMushafPage({ width: landscape.page.width + 6, height: 10000 }, 0, false, false).page.height / (landscape.page.width), 5);
+    expect(landscape.page.width).toBeLessThan(LANDSCAPE.width / 2); // one page; the rest is paper
+    const viewport = styleOf(root.root.findByProps({ testID: 'mushaf-zoom-viewport' }));
+    expect(viewport.width).toBe(LANDSCAPE.width);
+    expect(styleOf(inPage().parent!)).toMatchObject({ alignItems: 'center' }); // centred across it
+  });
+
+  it('rotating while zoomed returns to the fitted 1× page (never left off screen), on the same page with the same ayah selected', async () => {
+    state.insets = iPadInsets;
+    await render(PORTRAIT);
+    await quiet();
+    const before = currentPage();
+    await tapPage(100, 130); // 3:85
+    expect(selected()).toContain('3:85');
+    await pinch(2.5, { x: 600, y: 900 });
+    expect(zoom().scale).toBe(2.5);
+    await layout(LANDSCAPE);
+    await quiet();
+    expect(zoom()).toEqual({ scale: 1, x: 0, y: 0 });
+    expect(currentPage()).toBe(before);
+    expect(selected()).toContain('3:85');
+    // Zoom works again at the new size, within the new bounds.
+    await pinch(2);
+    expect(zoom().scale).toBe(2);
+  });
+
+  it('an open ayah popup follows its ayah to where the page is after the rotation', async () => {
+    state.insets = iPadInsets;
+    await render(PORTRAIT);
+    await quiet();
+    await tapPage(100, 130);
+    await afterTapWindow();
+    const before = ayahAnchor()!;
+    expect(before).toBeDefined();
+    const box = (area: { width: number; height: number }) => {
+      const fit = fitMushafPage(area, 20, false, false);
+      return { x: (area.width - fit.page.width) / 2, y: 24 + BACK_BAR_HEIGHT, width: fit.page.width, height: fit.page.height };
+    };
+    const from = box(PORTRAIT);
+    await layout(LANDSCAPE);
+    await quiet();
+    const after = ayahAnchor()!;
+    const to = box(LANDSCAPE);
+    expect((after.x - to.x) / to.width).toBeCloseTo((before.x - from.x) / from.width, 6);
+    expect((after.y - to.y) / to.height).toBeCloseTo((before.y - from.y) / from.height, 6);
+    expect(after.x).not.toBeCloseTo(before.x, 0);
+  });
+
+  it('a window being resized (Stage Manager, Android freeform) refits the page once it stops, to the last size, never an intermediate one', async () => {
+    state.insets = iPadInsets;
+    await render(PORTRAIT);
+    await quiet();
+    for (const size of [{ width: 700, height: 1000 }, { width: 650, height: 990 }, { width: 600, height: 980 }]) await layout(size);
+    expect(pageSize()).toEqual(fitMushafPage(PORTRAIT, 20, false, false).page); // held while the window is still moving
+    await quiet();
+    expect(pageSize()).toEqual(fitMushafPage({ width: 600, height: 980 }, 20, false, false).page);
+  });
+
+  it('landscape side insets (a side cutout or navigation bar) are kept clear by the whole reader', async () => {
+    state.insets = { top: 0, bottom: 24, left: 48, right: 0 };
+    await render({ width: 1280 - 48, height: 800 - BACK_BAR_HEIGHT });
+    expect(styleOf(root.root.findByType('GestureHandlerRootView' as never))).toMatchObject({ paddingTop: 0, paddingLeft: 48, paddingRight: 0 });
+  });
+
+  it('phones are unchanged: no side padding, the same fitted page as before', async () => {
+    await render();
+    expect(styleOf(root.root.findByType('GestureHandlerRootView' as never))).toMatchObject({ paddingTop: 47, paddingLeft: 0, paddingRight: 0 });
+    expect(pageSize()).toEqual(fitMushafPage({ width: 390, height: 797 }, 34, false, false).page);
   });
 });

@@ -1,5 +1,5 @@
 import { Check, ChevronDown } from 'lucide-react-native';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -77,6 +77,18 @@ export function CompactDropdown<T extends string | number>(props: CompactDropdow
   };
 
   const close = () => setMenu(null);
+
+  // The window rotated or was resized while the menu is open (tablets, split screen): placed again beside its selector.
+  const windowSize = `${window.width}x${window.height}`;
+  const placedFor = useRef(windowSize);
+  const isOpen = menu !== null;
+  useEffect(() => {
+    if (placedFor.current === windowSize) return;
+    placedFor.current = windowSize;
+    if (isOpen) open();
+    // Only when the window changes; open() reads the current window.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [windowSize, isOpen]);
 
   return (
     <>

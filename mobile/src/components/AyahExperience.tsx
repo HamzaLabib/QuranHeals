@@ -26,6 +26,8 @@ import { SettingsHeaderButton } from './SettingsHeaderButton';
 import { ShareAyahSheet } from './ShareAyahSheet';
 import { StateView } from './StateView';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
+import { useContentColumnStyle } from '@/layout/useWindowClass';
+import { LAYOUT_TOKENS } from '@/layout/windowClass';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 
 /**
@@ -61,6 +63,8 @@ type AyahExperienceProps = {
 export function AyahExperience({ source }: AyahExperienceProps) {
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
+  // Tablets: the ayah, its translation and actions at a reading width (layout/windowClass.ts); phones: unchanged.
+  const readingColumn = useContentColumnStyle(LAYOUT_TOKENS.readingMaxWidth);
   const { locale, messages } = useAppLocale();
   const direction = getDirectionStyle(locale);
   // The emotion's name and its connection text follow the Emotions Language; everything else the App Language.
@@ -301,7 +305,7 @@ export function AyahExperience({ source }: AyahExperienceProps) {
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, readingColumn]}
         refreshControl={
           <RefreshControl
             refreshing={isPullRefreshing}

@@ -5,6 +5,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { QURAN_SOURCES } from '@/constants/quranSources';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
+import { useContentColumnStyle } from '@/layout/useWindowClass';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
@@ -20,6 +21,8 @@ export default function CreditsScreen() {
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
   const insets = useSafeAreaInsets();
+  // Tablets: a centred content column (layout/windowClass.ts); phones: unchanged.
+  const column = useContentColumnStyle();
   const { locale, messages } = useAppLocale();
   const copy = messages.credits;
   const direction = getDirectionStyle(locale);
@@ -28,7 +31,7 @@ export default function CreditsScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-      <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding(insets.bottom) }]}>
+      <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, column, { paddingBottom: scrollBottomPadding(insets.bottom) }]}>
         <View style={[styles.header, isRtl && styles.headerRtl]}>
           <Pressable
             accessibilityRole="button"

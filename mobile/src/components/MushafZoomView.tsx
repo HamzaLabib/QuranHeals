@@ -1,4 +1,4 @@
-import { useCallback, useImperativeHandle, useLayoutEffect, useState, type ReactNode, type Ref } from 'react';
+import { useCallback, useImperativeHandle, useLayoutEffect, useRef, useState, type ReactNode, type Ref } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { cancelAnimation, Easing, useAnimatedStyle, useSharedValue, withTiming, type SharedValue } from 'react-native-reanimated';
@@ -122,15 +122,21 @@ function PagerStrip({
   const settling = useSharedValue(0);
   // Pages swipes have settled on that React has yet to show, in order.
   const swiped = useSharedValue<number[]>([]);
-  const [zoomed, setZoomed] = useState(false);
+  // The fit (viewport and page size) the page was zoomed in at, or null at 1×. Zoomed only while that fit is current:
+  // a rotation or resize refits the page and ends the zoom (see the layout effect below).
+  const fittedFor = `${viewport.width}x${viewport.height}|${page.width}x${page.height}`;
+  const [zoomedAt, setZoomedAt] = useState<string | null>(null);
+  // Refitted while zoomed: back to 1× (applied while rendering, only then; at 1× a resize adds no render here).
+  if (zoomedAt !== null && zoomedAt !== fittedFor) setZoomedAt(null);
+  const zoomed = zoomedAt === fittedFor;
   // A page shown starts at 1× (applied while rendering: React's "adjust state when a prop changes").
   const [zoomedPage, setZoomedPage] = useState(current);
   if (zoomedPage !== current) {
     setZoomedPage(current);
-    setZoomed(false);
+    setZoomedAt(null);
   }
   const reportZoom = (next: boolean) => {
-    setZoomed(next);
+    setZoomedAt(next ? fittedFor : null);
     onZoomChange?.(next);
   };
   useImperativeHandle(ref, () => ({
@@ -160,6 +166,27 @@ function PagerStrip({
     // Only when the page changes; the shared values are stable.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current]);
+
+  // The window was rotated or resized (tablets, split screen, a foldable): the page has been refitted, so a zoom and
+  // pan chosen for the old size (and their bounds) no longer apply, and a page still gliding was moving by the old
+  // width. Back to the fitted 1× page, on the page being read (a glide not yet finished doesn't turn it).
+  const lastFit = useRef(fittedFor);
+  useLayoutEffect(() => {
+    if (lastFit.current === fittedFor) return;
+    lastFit.current = fittedFor;
+    cancelAnimation(scale);
+    cancelAnimation(tx);
+    cancelAnimation(ty);
+    cancelAnimation(shift);
+    scale.set(MIN_ZOOM);
+    tx.set(0);
+    ty.set(0);
+    shift.set(0);
+    settling.set(0);
+    // Only when the fit changes; the shared values are stable. The parent ends its zoom by itself: it keys it to the fit
+    // too (onZoomChange is not called here, so a refit at 1× adds no render).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fittedFor]);
 
   // The page's centre, relative to the viewport's centre, at 1×.
   const offsetX = 0;

@@ -137,8 +137,8 @@ describe('NotificationsProvider', () => {
     const before = JSON.stringify(notifications.preferences);
     await act(async () => locale.setLocale('ar'));
     await flush();
-    expect(pending.get('quranheals.wird.daily')!.content.title).toBe('حان وقت وردك من القرآن');
-    expect(pending.get('quranheals.wird.daily')!.content.body).toBe('واصل وردك اليوم وخصص وقتًا لقراءة القرآن.');
+    expect(pending.get('quranheals.wird.daily')!.content.title).toBe('حان وقت وِردك من القرآن');
+    expect(pending.get('quranheals.wird.daily')!.content.body).toBe('واصل وِردك اليوم وخصص وقتًا لقراءة القرآن.');
     const checkIn = [...pending.values()].find((r) => r.identifier.startsWith('quranheals.checkin.'))!;
     expect(checkIn.content).toMatchObject({ title: 'تستحق الطمأنينة ❤️', body: 'كيف تشعر اليوم؟ دع القرآن يطمئن قلبك.' });
     expect(JSON.stringify(notifications.preferences)).toBe(before);

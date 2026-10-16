@@ -4,6 +4,7 @@ import { Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
+import { useSheetFrameStyle } from '@/layout/useWindowClass';
 import { isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import type { LocalTime } from '@/notifications/types';
@@ -49,6 +50,8 @@ function IosTimeSheet({ visible, value, title, onConfirm, onCancel }: ReminderTi
   const styles = useThemedStyles(makeStyles);
   const theme = useThemeName();
   const insets = useSafeAreaInsets();
+  // Tablets: centred and width-capped (layout/windowClass.ts); phones: unchanged.
+  const frame = useSheetFrameStyle('absolute');
   const { locale, messages } = useAppLocale();
   const rtl = isRtlLocale(locale);
   const [draft, setDraft] = useState(() => toDate(value));
@@ -62,7 +65,7 @@ function IosTimeSheet({ visible, value, title, onConfirm, onCancel }: ReminderTi
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <Pressable accessibilityLabel={messages.notifications.timePickerCancel} style={styles.backdrop} onPress={onCancel} />
-      <View accessibilityViewIsModal style={[styles.sheet, { paddingBottom: insets.bottom + spacing.lg }]}>
+      <View accessibilityViewIsModal style={[styles.sheet, frame, { paddingBottom: insets.bottom + spacing.lg }]}>
         <Text accessibilityRole="header" style={[styles.title, { textAlign: rtl ? 'right' : 'left', writingDirection: rtl ? 'rtl' : 'ltr' }]}>{title}</Text>
         <DateTimePicker
           mode="time"

@@ -291,7 +291,7 @@ describe('Random Quran Ayah queue', () => {
       expect(content.title).toBe('A Message from the Quran');
       expect(after.title).toBe('رسالة من القرآن');
     }
-    expect(os.pending.get('quranheals.wird.daily')!.content.title).toBe('حان وقت وردك من القرآن');
+    expect(os.pending.get('quranheals.wird.daily')!.content.title).toBe('حان وقت وِردك من القرآن');
   });
 
   it('the next day, delivered entries drop off, new dates are added only at the far end, and existing ones keep their verses (no duplicates, no repeat of recent verses)', async () => {

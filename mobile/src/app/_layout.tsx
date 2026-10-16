@@ -7,6 +7,7 @@ import * as WebBrowser from 'expo-web-browser';
 
 import { AuthProvider } from '@/auth/useAuth';
 import { navigationColorsFor, paletteFor, statusBarStyleFor } from '@/constants/theme';
+import { useDeviceOrientationPolicy } from '@/layout/useDeviceOrientationPolicy';
 import { AppLocaleProvider, useAppLocale } from '@/localization/useAppLocale';
 import { EmotionsLanguageProvider } from '@/localization/useEmotionsLanguage';
 import { MUSHAF_SCREEN_OPTIONS } from '@/mushaf/screenOptions';
@@ -99,6 +100,8 @@ function ThemedRoot() {
   // preference changes.
   const theme = useThemeName();
   const background = paletteFor(theme).background;
+  // Phones portrait, tablets any orientation (Android, at runtime; iOS is static): layout/orientationPolicy.ts.
+  useDeviceOrientationPolicy();
 
   useEffect(() => {
     // Native root view behind every screen/modal (and Android's transparent

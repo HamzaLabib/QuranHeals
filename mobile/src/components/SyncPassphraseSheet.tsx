@@ -11,7 +11,6 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { AuthProvider } from '@/auth/authTypes';
 import {
@@ -27,6 +26,8 @@ import { SyncApiError } from '@/sync/syncApi';
 import type { ResetEncryptedSync, SyncPassphraseMode, VerifyPassphrase } from '@/sync/syncKeyManager';
 import { useVerifiedSyncPassword } from '@/sync/useVerifiedSyncPassword';
 import { canSetSyncPassword, passwordLengthError } from '@/utils/syncPasswordValidation';
+import { SheetSafeArea } from '@/layout/SheetSafeArea';
+import { useKeyboardAvoidingKey } from '@/layout/useDismissKeyboardOnResize';
 import { DeleteAccountSheet } from './DeleteAccountSheet';
 import { SyncPasswordField } from './SyncPasswordField';
 
@@ -83,6 +84,8 @@ function SyncPassphraseForm({
   onAccountDeleted,
   accountProvider,
 }: SyncPassphraseSheetProps & { request: NonNullable<PassphraseRequestLike> }) {
+  // Measured afresh after a rotation or resize (layout/useDismissKeyboardOnResize.ts).
+  const keyboardKey = useKeyboardAvoidingKey();
   const styles = useThemedStyles(makeSyncPasswordStyles);
   const { locale, messages } = useAppLocale();
   const direction = getDirectionStyle(locale);
@@ -185,7 +188,7 @@ function SyncPassphraseForm({
     return (
       <Modal visible transparent animationType="fade" onRequestClose={() => {}}>
         <View style={styles.backdrop}>
-          <SafeAreaView style={styles.safeArea}>
+          <SheetSafeArea style={styles.safeArea}>
             <View style={styles.sheet}>
               <ScrollView contentContainerStyle={styles.scrollContent}>
                 <Text style={[styles.title, direction]}>{messages.syncPassphrase.resetTitle}</Text>
@@ -235,7 +238,7 @@ function SyncPassphraseForm({
                 </Pressable>
               </ScrollView>
             </View>
-          </SafeAreaView>
+          </SheetSafeArea>
         </View>
       </Modal>
     );
@@ -244,14 +247,14 @@ function SyncPassphraseForm({
   return (
     <Modal visible transparent animationType="fade" onRequestClose={() => {}}>
       {/* See ReflectionSheet.tsx's matching comment — same shared bottom-sheet-over-Modal pattern and the same keyboard-overlap fix. The password input is this app's closest equivalent to a password field, so it gets the same treatment. */}
-      <KeyboardAvoidingView style={styles.backdrop} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <KeyboardAvoidingView key={keyboardKey} style={styles.backdrop} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         {/* Tapping anywhere outside the TextInput (backdrop or the sheet's
             own empty space) only dismisses the keyboard — never the sheet
             itself. A tap that lands on a button/input inside is claimed by
             that element first and never reaches this handler, so Continue
             and the field itself are unaffected. */}
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <SafeAreaView style={styles.safeArea}>
+          <SheetSafeArea style={styles.safeArea}>
             <View style={styles.sheet}>
               <ScrollView key={request.mode} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scrollContent}>
                 <Text style={[styles.title, direction]}>
@@ -302,7 +305,7 @@ function SyncPassphraseForm({
                 </View>
               </ScrollView>
             </View>
-          </SafeAreaView>
+          </SheetSafeArea>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </Modal>

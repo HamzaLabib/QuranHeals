@@ -14,6 +14,7 @@ import { SettingsAccordion } from '@/components/SettingsAccordion';
 import { TranslationSettingRow } from '@/components/TranslationSettingRow';
 import { getLegalLinks } from '@/constants/legalLinks';
 import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
+import { useContentColumnStyle } from '@/layout/useWindowClass';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { deviceUses24HourClock } from '@/localization/deviceLocale';
 import { EMOTIONS_LANGUAGES, type EmotionsLanguage } from '@/localization/emotionsLanguage';
@@ -56,6 +57,8 @@ function animateNextLayout() {
 export default function SettingsScreen() {
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
+  // Tablets: a centred content column (layout/windowClass.ts); phones: unchanged.
+  const column = useContentColumnStyle();
   const { locale, setLocale, messages } = useAppLocale();
   const { preference: emotionsLanguage, setPreference: setEmotionsLanguage } = useEmotionsLanguage();
   const { mode: quranMode, setMode: setQuranMode } = useQuranReadingMode();
@@ -163,7 +166,7 @@ export default function SettingsScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, column]}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}

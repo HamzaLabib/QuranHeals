@@ -30,6 +30,7 @@ vi.mock('@/notifications/useNotificationResponseRouting', () => ({ useNotificati
 vi.mock('@/theme/useTheme', () => ({ useThemeName: () => 'light' }));
 vi.mock('@/constants/theme', () => ({ navigationColorsFor: () => ({}), paletteFor: () => ({ background: '#fff' }), statusBarStyleFor: () => 'dark' }));
 vi.mock('@/utils/devLog', () => ({ devLog: () => undefined }));
+vi.mock('@/layout/useDeviceOrientationPolicy', () => ({ useDeviceOrientationPolicy: () => undefined }));
 
 describe('Mushaf route options', () => {
   it('the stack registers the tabs group holding the Mushaf reader with swipe-back off (edge and full-screen)', async () => {

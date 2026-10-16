@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { radii, shadows, spacing, type Palette } from '@/constants/theme';
+import { gridCardBasis } from '@/layout/windowClass';
 import { useEmotionLocale } from '@/localization/useEmotionsLanguage';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import type { Emotion } from '@/types/domain';
@@ -12,9 +13,11 @@ type EmotionCardProps = {
   onPress: () => void;
   /** Home's four cards: the same card, slightly shorter. The full list (/emotions) uses the original size. */
   compact?: boolean;
+  /** Cards per row: 2 on phones (the original grid, unchanged), 3 or 4 on tablets (layout/windowClass.ts). */
+  columns?: number;
 };
 
-export function EmotionCard({ emotion, onPress, compact = false }: EmotionCardProps) {
+export function EmotionCard({ emotion, onPress, compact = false, columns = 2 }: EmotionCardProps) {
   // Emotion names follow the Emotions Language (لغة المشاعر), not the App Language.
   const { emotionLocale, emotionDirection, emotionRtl } = useEmotionLocale();
   const colors = usePalette();
@@ -35,7 +38,7 @@ export function EmotionCard({ emotion, onPress, compact = false }: EmotionCardPr
       accessibilityRole="button"
       accessibilityLabel={displayName}
       onPress={onPress}
-      style={({ pressed }) => [styles.card, compact && styles.cardCompact, alignEnd && styles.cardRtl, pressed && styles.pressed]}>
+      style={({ pressed }) => [styles.card, columns !== 2 && { flexBasis: gridCardBasis(columns) }, compact && styles.cardCompact, alignEnd && styles.cardRtl, pressed && styles.pressed]}>
       <View style={styles.iconWrap}>
         <Icon color={colors.accent} size={22} strokeWidth={2} />
       </View>
@@ -44,6 +47,14 @@ export function EmotionCard({ emotion, onPress, compact = false }: EmotionCardPr
       </View>
     </Pressable>
   );
+}
+
+/**
+ * An empty cell completing a tablet grid's last row (gridFillerCount), so the last cards keep the width of the others
+ * instead of growing to fill the row. Invisible and not focusable; never used in the phone grid.
+ */
+export function EmotionGridFiller({ columns }: { columns: number }) {
+  return <View accessible={false} importantForAccessibility="no-hide-descendants" pointerEvents="none" style={{ flexBasis: gridCardBasis(columns), flexGrow: 1 }} />;
 }
 
 const makeStyles = (colors: Palette) => StyleSheet.create({
