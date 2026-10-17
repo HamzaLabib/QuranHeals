@@ -80,7 +80,14 @@ describe('validation against the verified local Quran', () => {
   });
 });
 
-describe('initial download', () => {
+// Every test below downloads and validates the whole synthetic 604-page Mushaf
+// into a real SQLite file: ~0.5 s alone, but several times that when the full
+// suite runs files in parallel and the disk is busy (one run on Windows hit
+// 6.1 s against the 5 s default). The same allowance as mushafAutoDownload's
+// real-engine tests.
+const REAL_DOWNLOAD = { timeout: 20_000 };
+
+describe('initial download', REAL_DOWNLOAD, () => {
   it('downloads all 31 chunks with progress, verifies them, and installs the Mushaf into its own database', async () => {
     const { relay, state } = fakeRelay(publishVersion(pagesV1));
     const mushaf = app(relay);
@@ -163,7 +170,7 @@ describe('initial download', () => {
   });
 });
 
-describe('updates and the sync policy', () => {
+describe('updates and the sync policy', REAL_DOWNLOAD, () => {
   const day = 24 * 60 * 60 * 1000;
 
   it('a new version replaces only changed chunks, atomically, after validating the whole Mushaf', async () => {
@@ -229,7 +236,7 @@ describe('updates and the sync policy', () => {
   });
 });
 
-describe('restarts and recovery', () => {
+describe('restarts and recovery', REAL_DOWNLOAD, () => {
   it('a damaged database is detected on open, reset, and can be downloaded again', async () => {
     const { relay } = fakeRelay(publishVersion(pagesV1));
     await app(relay).download();

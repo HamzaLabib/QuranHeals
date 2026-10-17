@@ -7,13 +7,20 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('lucide-react-native', () => ({ Leaf: 'Leaf', PenLine: 'PenLine' }));
 vi.mock('react-native', () => ({
   Platform: { OS: 'ios', select: (values: { ios: unknown }) => values.ios },
+  Image: 'Image',
   Text: 'Text',
   View: 'View',
 }));
+vi.mock('react-native-svg', () => ({ default: 'Svg', Defs: 'Defs', LinearGradient: 'LinearGradient', Rect: 'Rect', Stop: 'Stop' }));
+// The bundled photographs themselves: tests/shareCardScenery.test.ts checks the real files.
+vi.mock('@/constants/shareCardSceneryImages', () => ({
+  SHARE_CARD_SCENERY_IMAGES: new Proxy({}, { get: (_target, id) => ({ testUri: `scenery:${String(id)}` }) }),
+}));
 
 import { ShareAyahCard } from '@/components/ShareAyahCard';
+import { SCENERY_CARD_THEME, SHARE_CARD_SCENERY, sceneryEdgeOpacity } from '@/constants/shareCardScenery';
 import { SHARE_CARD_THEMES } from '@/constants/shareCardThemes';
-import { QURAN_TEXT_CARD_ATTRIBUTION, REFLECTION_INVITATION, type ShareCardPage } from '@/utils/shareCardLayout';
+import { QURAN_TEXT_CARD_ATTRIBUTION, REFLECTION_INVITATION, SHARE_CARD_FORMAT_SPECS, type ShareCardPage } from '@/utils/shareCardLayout';
 
 const ARABIC = 'بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ';
 const REFERENCE = 'Al-Faatiha · 1:1 · الفاتحة';
@@ -31,7 +38,7 @@ const INVITATION = ['Write your reflection', 'اكتب خاطرتك'];
 async function render(page: ShareCardPage, extra: Record<string, unknown> = {}) {
   await act(async () => {
     root = create(createElement(ShareAyahCard, {
-      page, format: 'story', theme: 'sage', width: 360, reference: REFERENCE, translationCredit: 'Marmaduke Pickthall', ...extra,
+      page, format: 'story', theme: 'sage', scenery: null, width: 360, reference: REFERENCE, translationCredit: 'Marmaduke Pickthall', ...extra,
     }));
   });
 }
@@ -155,5 +162,80 @@ describe('pen icon and leaf divider', () => {
     const quran = texts().find((node) => node.props.children === ARABIC)!;
     expect(root.root.findByType('PenLine' as never).props.size).toBeLessThan(styleOf(quran).fontSize as number);
     expect(strings().indexOf('QURAN HEALS')).toBeGreaterThan(strings().indexOf(ARABIC));
+  });
+});
+
+describe('Scenery background', () => {
+  const images = () => root.root.findAllByType('Image' as never);
+  const stops = () => root.root.findAllByType('Stop' as never).map((node) => node.props);
+
+  it('a Colors card draws no photograph and no overlay', async () => {
+    await render(onePage, { theme: 'cream' });
+    expect(images()).toHaveLength(0);
+    expect(root.root.findAllByType('Svg' as never)).toHaveLength(0);
+  });
+
+  it.each(['story', 'post', 'square'] as const)('%s: the photograph fills the whole card, cover-cropped, behind every text, with no fade-in', async (format) => {
+    await render(onePage, { format, scenery: 'olive-grove', theme: 'dark', width: 270 });
+    const card = root.root.findAllByType('View' as never)[0];
+    const { width, height } = card.props.style;
+    const [image] = images();
+    expect(image.props.source).toEqual({ testUri: 'scenery:olive-grove' });
+    expect(image.props).toMatchObject({ resizeMode: 'cover', fadeDuration: 0 });
+    expect(image.props.style).toMatchObject({ position: 'absolute', top: 0, left: 0, width, height });
+    expect(height).toBe(270 * SHARE_CARD_FORMAT_SPECS[format].height / 1080);
+    // First child of the card: everything else is drawn on top of it.
+    expect(card.children[0]).toBe(image.parent);
+    const overlay = root.root.findByType('Svg' as never);
+    expect(overlay.props).toMatchObject({ width, height, pointerEvents: 'none' });
+  });
+
+  it.each(['story', 'post', 'square'] as const)('%s: the cream overlay is at the photograph`s full strength over the whole text area and fades only outside it', async (format) => {
+    for (const { id, overlayOpacity } of SHARE_CARD_SCENERY) {
+      await render(onePage, { format, scenery: id });
+      const spec = SHARE_CARD_FORMAT_SPECS[format];
+      const [top, fullFrom, fullTo, bottom] = stops();
+      expect(fullFrom.offset).toBeLessThanOrEqual(spec.paddingTop / spec.height);
+      expect(fullTo.offset).toBeGreaterThanOrEqual(1 - spec.paddingBottom / spec.height);
+      expect([fullFrom.stopOpacity, fullTo.stopOpacity]).toEqual([overlayOpacity, overlayOpacity]);
+      expect([top.stopOpacity, bottom.stopOpacity]).toEqual([sceneryEdgeOpacity(overlayOpacity), sceneryEdgeOpacity(overlayOpacity)]);
+      expect([top.offset, bottom.offset]).toEqual([0, 1]);
+      for (const stop of stops()) expect(stop.stopColor).toBe('#F7F2EA');
+      const gradient = root.root.findByType('LinearGradient' as never);
+      expect(root.root.findByType('Rect' as never).props.fill).toBe(`url(#${gradient.props.id})`);
+      await act(async () => root.unmount());
+    }
+  });
+
+  it('shows exactly the same, live text as a Colors card, in the Scenery inks — nothing is baked into the photograph', async () => {
+    await render(onePage);
+    const colorStrings = strings();
+    await act(async () => root.unmount());
+    await render(onePage, { scenery: 'soft-clouds' });
+    expect(strings()).toEqual(colorStrings);
+    const arabic = texts().find((node) => node.props.children === ARABIC)!;
+    expect(styleOf(arabic)).toMatchObject({ color: SCENERY_CARD_THEME.arabic, writingDirection: 'rtl' });
+    expect(styleOf(texts().find((node) => node.props.children === onePage.translation)!).color).toBe(SCENERY_CARD_THEME.translation);
+    expect(styleOf(texts().find((node) => node.props.children === REFERENCE)!).color).toBe(SCENERY_CARD_THEME.reference);
+    expect(styleOf(texts().find((node) => node.props.children === 'QURAN HEALS')!).color).toBe(SCENERY_CARD_THEME.branding);
+    expect(root.root.findAllByType('View' as never)[0].props.style.backgroundColor).toBe(SCENERY_CARD_THEME.background);
+  });
+
+  it('reports when the photograph has loaded, or failed to', async () => {
+    const onSceneryLoad = vi.fn();
+    await render(onePage, { scenery: 'alpine-lake', onSceneryLoad });
+    await act(async () => images()[0].props.onLoad());
+    expect(onSceneryLoad).toHaveBeenLastCalledWith(true);
+    await act(async () => images()[0].props.onError());
+    expect(onSceneryLoad).toHaveBeenLastCalledWith(false);
+  });
+
+  it('a different photograph replaces the image source', async () => {
+    await render(onePage, { scenery: 'alpine-lake' });
+    await act(async () => root.update(createElement(ShareAyahCard, {
+      page: onePage, format: 'story', theme: 'sage', scenery: 'golden-dunes', width: 360, reference: REFERENCE, translationCredit: null,
+    })));
+    expect(images()).toHaveLength(1);
+    expect(images()[0].props.source).toEqual({ testUri: 'scenery:golden-dunes' });
   });
 });
