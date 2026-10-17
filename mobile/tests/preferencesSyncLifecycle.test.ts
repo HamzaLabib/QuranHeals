@@ -200,10 +200,18 @@ function tree() {
             createElement(AuthProvider, null, createElement(Probe)))))));
 }
 
-/** Lets every pending promise chain (storage, fetch, effects) run to completion. */
+/**
+ * Lets every pending promise chain (storage, fetch, effects) run to completion.
+ * setImmediate, not setTimeout(0): each turns the event loop once, but on
+ * Windows a setTimeout(0) waits for the ~15.6 ms system timer tick (unless
+ * another program has raised the timer resolution). That made one settle() take
+ * ~0.4 s, pushed the two-device test past the 5 s timeout depending on
+ * what else was running, and its still-running body then leaked device
+ * storage into the tests after it.
+ */
 async function settle() {
   await act(async () => {
-    for (let i = 0; i < 25; i += 1) await new Promise((resolve) => setTimeout(resolve, 0));
+    for (let i = 0; i < 25; i += 1) await new Promise((resolve) => setImmediate(resolve));
   });
 }
 

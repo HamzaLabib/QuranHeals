@@ -129,6 +129,12 @@ export type Messages = {
     themeSage: string;
     themeCream: string;
     themeDark: string;
+    /** Background categories: the solid Colors themes, and the Scenery photographs. */
+    backgroundColors: string;
+    backgroundScenery: string;
+    /** Scenery: shows a different photograph. */
+    newBackground: string;
+    sceneryLoadFailed: string;
     showTranslation: string;
     share: string;
     shareAllCards: string;
@@ -849,6 +855,10 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       themeSage: 'Sage',
       themeCream: 'Cream',
       themeDark: 'Dark',
+      backgroundColors: 'Colors',
+      backgroundScenery: 'Scenery',
+      newBackground: 'New Background',
+      sceneryLoadFailed: "This background couldn't be loaded. Tap New Background to choose another.",
       showTranslation: 'Show translation',
       share: 'Share image',
       shareAllCards: 'Share all cards',
@@ -1476,6 +1486,10 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       themeSage: 'زيتوني',
       themeCream: 'كريمي',
       themeDark: 'ليلي',
+      backgroundColors: 'الألوان',
+      backgroundScenery: 'المناظر الطبيعية',
+      newBackground: 'خلفية جديدة',
+      sceneryLoadFailed: 'تعذّر تحميل هذه الخلفية. اضغط «خلفية جديدة» لاختيار غيرها.',
       showTranslation: 'إظهار الترجمة',
       share: 'مشاركة الصورة',
       shareAllCards: 'مشاركة كل البطاقات',
@@ -2117,6 +2131,10 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       themeSage: 'زيتوني',
       themeCream: 'كريمي',
       themeDark: 'ليلي',
+      backgroundColors: 'الألوان',
+      backgroundScenery: 'المناظر الطبيعية',
+      newBackground: 'خلفية جديدة',
+      sceneryLoadFailed: 'الخلفية دي ماتحمّلتش. دوس «خلفية جديدة» واختار غيرها.',
       showTranslation: 'عرض الترجمة',
       share: 'شارك الصورة',
       shareAllCards: 'شارك كل البطاقات',

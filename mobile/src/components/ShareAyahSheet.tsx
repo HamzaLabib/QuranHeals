@@ -1,8 +1,9 @@
 import * as Clipboard from 'expo-clipboard';
-import { Check, ChevronLeft, ChevronRight, Download, Link2, Share2, X } from 'lucide-react-native';
+import { Check, ChevronLeft, ChevronRight, Download, Link2, RefreshCw, Share2, X } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Modal, PixelRatio, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
+import { pickScenery, type ShareCardSceneryId } from '@/constants/shareCardScenery';
 import {
   DEFAULT_SHARE_CARD_THEME,
   SHARE_CARD_THEMES,
@@ -46,6 +47,8 @@ type ShareAyahSheetProps = {
 
 type Status = { tone: 'info' | 'error'; text: string; openSettings?: boolean };
 type Busy = 'share' | 'save' | null;
+type BackgroundCategory = 'colors' | 'scenery';
+const BACKGROUND_CATEGORIES: readonly BackgroundCategory[] = ['colors', 'scenery'];
 
 /**
  * Share Ayah: a live, customizable preview of the ayah as an image card,
@@ -57,6 +60,14 @@ type Busy = 'share' | 'save' | null;
  * captured, and they are measured first: Share/Save stay disabled until
  * every export card reports that its text fits, and any overflow re-plans
  * with smaller text or more cards — the image is never clipped.
+ *
+ * Backgrounds come in two categories: Colors (Sage, Cream, Dark) and Scenery
+ * (bundled photographs). The session's Scenery photograph is picked at random
+ * the first time Scenery is chosen and then stays put — through re-renders,
+ * format and translation changes, switching back and forth between the
+ * categories, and export — until "New Background" picks a different one or
+ * the sheet opens again. Every card of a long ayah uses the same photograph,
+ * and Share/Save also wait until each export card has drawn it.
  */
 export function ShareAyahSheet({ visible, ayah, onClose }: ShareAyahSheetProps) {
   const colors = usePalette();
@@ -71,6 +82,12 @@ export function ShareAyahSheet({ visible, ayah, onClose }: ShareAyahSheetProps) 
   const hasTranslation = Boolean(ayah?.englishTranslation?.trim());
   const [format, setFormat] = useState<ShareCardFormat>(DEFAULT_SHARE_CARD_FORMAT);
   const [theme, setTheme] = useState<ShareCardThemeName>(DEFAULT_SHARE_CARD_THEME);
+  const [category, setCategory] = useState<BackgroundCategory>('colors');
+  // Null until Scenery is first chosen in this session.
+  const [sceneryId, setSceneryId] = useState<ShareCardSceneryId | null>(null);
+  // `${planId}|${page key}|${photograph}` of every export card that has drawn its photograph.
+  const [sceneryLoaded, setSceneryLoaded] = useState<ReadonlySet<string>>(() => new Set());
+  const [sceneryFailed, setSceneryFailed] = useState<ShareCardSceneryId | null>(null);
   // Follows the reader's translation setting: on when translations are
   // always shown, off for "on demand" / "off". Changing it here never
   // changes that saved setting.
@@ -97,6 +114,10 @@ export function ShareAyahSheet({ visible, ayah, onClose }: ShareAyahSheetProps) 
     if (openKey) {
       setFormat(DEFAULT_SHARE_CARD_FORMAT);
       setTheme(DEFAULT_SHARE_CARD_THEME);
+      setCategory('colors');
+      setSceneryId(null);
+      setSceneryLoaded(new Set());
+      setSceneryFailed(null);
       setShowTranslation(preference.displayMode === 'always');
       setPageIndex(0);
       setLevels({});
@@ -123,8 +144,21 @@ export function ShareAyahSheet({ visible, ayah, onClose }: ShareAyahSheetProps) 
   );
   const currentIndex = Math.min(pageIndex, Math.max(pages.length - 1, 0));
   const currentPage = pages[currentIndex];
-  const isReady = verifiedPlanId === planId;
-  const cannotFit = level >= MAX_ESTIMATE_LEVEL && !isReady;
+  // What every card shows: a photograph, or null for the Colors theme.
+  const scenery = category === 'scenery' ? sceneryId : null;
+  const sceneryKey = (pageKey: string) => `${planId}|${pageKey}|${scenery}`;
+  const backgroundReady = scenery === null || pages.every((page) => sceneryLoaded.has(sceneryKey(page.key)));
+  const fitVerified = verifiedPlanId === planId;
+  const isReady = fitVerified && backgroundReady;
+  const cannotFit = level >= MAX_ESTIMATE_LEVEL && !fitVerified;
+
+  const onSceneryLoad = useCallback((key: string, forScenery: ShareCardSceneryId, loaded: boolean) => {
+    if (!loaded) {
+      setSceneryFailed(forScenery);
+      return;
+    }
+    setSceneryLoaded((current) => (current.has(key) ? current : new Set(current).add(key)));
+  }, []);
 
   const releaseShared = useCallback(() => {
     releaseCardImages(sharedUris.current);
@@ -164,6 +198,19 @@ export function ShareAyahSheet({ visible, ayah, onClose }: ShareAyahSheetProps) 
     setStatus(null);
     onClose();
   };
+
+  // Random picks happen only here, in response to a tap — never while rendering.
+  const chooseCategory = (next: BackgroundCategory) => {
+    setCategory(next);
+    if (next === 'scenery' && sceneryId === null) setSceneryId(pickScenery(null));
+    setStatus(null);
+  };
+  const showNewBackground = () => {
+    setSceneryId(pickScenery(sceneryId));
+    setSceneryFailed(null);
+    setStatus(null);
+  };
+  const sceneryError = scenery !== null && sceneryFailed === scenery;
 
   const captureAll = async (targets: typeof pages) => {
     const uris: string[] = [];
@@ -237,6 +284,10 @@ export function ShareAyahSheet({ visible, ayah, onClose }: ShareAyahSheetProps) 
     cream: copy.themeCream,
     dark: copy.themeDark,
   };
+  const categoryLabel: Record<BackgroundCategory, string> = {
+    colors: copy.backgroundColors,
+    scenery: copy.backgroundScenery,
+  };
   const shareLabel = isMultiCard ? `${copy.shareAllCards} (${pages.length})` : copy.share;
   // Only the Quran reference — never who shared it or why.
   const ayahLink = buildAyahLink(ayah.surahNumber, ayah.ayahNumber);
@@ -280,6 +331,8 @@ export function ShareAyahSheet({ visible, ayah, onClose }: ShareAyahSheetProps) 
               page={page}
               format={format}
               theme={theme}
+              scenery={scenery}
+              onSceneryLoad={scenery === null ? undefined : (loaded) => onSceneryLoad(sceneryKey(page.key), scenery, loaded)}
               width={exportWidth}
               reference={reference}
               translationCredit={translationCredit}
@@ -315,6 +368,7 @@ export function ShareAyahSheet({ visible, ayah, onClose }: ShareAyahSheetProps) 
                       page={currentPage}
                       format={format}
                       theme={theme}
+                      scenery={scenery}
                       width={previewWidth}
                       reference={reference}
                       translationCredit={translationCredit}
@@ -374,32 +428,62 @@ export function ShareAyahSheet({ visible, ayah, onClose }: ShareAyahSheetProps) 
               </View>
 
               <Text style={[styles.sectionLabel, direction]}>{copy.background}</Text>
-              <View style={[styles.swatches, isRtl && styles.rowRtl]}>
-                {SHARE_CARD_THEMES_ORDER.map((option) => {
-                  const selected = option === theme;
+              <View style={[styles.segmented, isRtl && styles.rowRtl]}>
+                {BACKGROUND_CATEGORIES.map((option) => {
+                  const selected = option === category;
                   return (
                     <Pressable
                       key={option}
                       accessibilityRole="button"
-                      accessibilityLabel={themeLabel[option]}
+                      accessibilityLabel={categoryLabel[option]}
                       accessibilityState={{ selected }}
                       disabled={optionsLocked}
-                      onPress={() => { setTheme(option); setStatus(null); }}
-                      style={({ pressed }) => [styles.swatchOption, pressed && styles.pressed]}>
-                      <View style={[styles.swatchRing, selected && styles.swatchRingSelected]}>
-                        <View
-                          style={[
-                            styles.swatch,
-                            { backgroundColor: SHARE_CARD_THEMES[option].background, borderColor: SHARE_CARD_THEMES[option].frame },
-                          ]}>
-                          <Text style={[styles.swatchGlyph, { color: SHARE_CARD_THEMES[option].arabic }]}>ق</Text>
-                        </View>
-                      </View>
-                      <Text style={[styles.swatchLabel, selected && styles.swatchLabelSelected]}>{themeLabel[option]}</Text>
+                      onPress={() => chooseCategory(option)}
+                      style={({ pressed }) => [styles.segment, selected && styles.segmentSelected, pressed && styles.pressed]}>
+                      <Text style={[styles.segmentText, selected && styles.segmentTextSelected]}>{categoryLabel[option]}</Text>
                     </Pressable>
                   );
                 })}
               </View>
+              {category === 'scenery' ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={copy.newBackground}
+                  accessibilityState={{ disabled: optionsLocked }}
+                  disabled={optionsLocked}
+                  onPress={showNewBackground}
+                  style={({ pressed }) => [styles.newBackgroundButton, isRtl && styles.rowRtl, optionsLocked && styles.disabled, pressed && styles.pressed]}>
+                  <RefreshCw size={18} color={colors.accent} />
+                  <Text style={styles.newBackgroundText}>{copy.newBackground}</Text>
+                </Pressable>
+              ) : (
+                <View style={[styles.swatches, isRtl && styles.rowRtl]}>
+                  {SHARE_CARD_THEMES_ORDER.map((option) => {
+                    const selected = option === theme;
+                    return (
+                      <Pressable
+                        key={option}
+                        accessibilityRole="button"
+                        accessibilityLabel={themeLabel[option]}
+                        accessibilityState={{ selected }}
+                        disabled={optionsLocked}
+                        onPress={() => { setTheme(option); setStatus(null); }}
+                        style={({ pressed }) => [styles.swatchOption, pressed && styles.pressed]}>
+                        <View style={[styles.swatchRing, selected && styles.swatchRingSelected]}>
+                          <View
+                            style={[
+                              styles.swatch,
+                              { backgroundColor: SHARE_CARD_THEMES[option].background, borderColor: SHARE_CARD_THEMES[option].frame },
+                            ]}>
+                            <Text style={[styles.swatchGlyph, { color: SHARE_CARD_THEMES[option].arabic }]}>ق</Text>
+                          </View>
+                        </View>
+                        <Text style={[styles.swatchLabel, selected && styles.swatchLabelSelected]}>{themeLabel[option]}</Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              )}
 
               {hasTranslation && (
                 <Pressable
@@ -416,16 +500,16 @@ export function ShareAyahSheet({ visible, ayah, onClose }: ShareAyahSheetProps) 
                 </Pressable>
               )}
 
-              {(status || busy || cannotFit) && (
+              {(status || busy || cannotFit || sceneryError) && (
                 <View accessibilityLiveRegion="polite" style={[styles.statusRow, isRtl && styles.rowRtl]}>
                   {busy && <ActivityIndicator size="small" color={colors.accent} />}
                   <Text
                     style={[
                       styles.statusText,
                       direction,
-                      (cannotFit || status?.tone === 'error') && styles.statusError,
+                      (cannotFit || sceneryError || status?.tone === 'error') && styles.statusError,
                     ]}>
-                    {busy ? copy.preparing : cannotFit ? copy.cannotFit : status?.text}
+                    {busy ? copy.preparing : cannotFit ? copy.cannotFit : sceneryError ? copy.sceneryLoadFailed : status?.text}
                   </Text>
                   {!busy && status?.openSettings && (
                     <Pressable
@@ -613,6 +697,23 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   },
   segmentTextSelected: {
     color: colors.onPrimaryButton,
+  },
+  newBackgroundButton: {
+    alignItems: 'center',
+    backgroundColor: colors.secondaryButtonSurface,
+    borderColor: colors.secondaryButtonBorder,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    flexDirection: 'row',
+    gap: spacing.sm,
+    justifyContent: 'center',
+    minHeight: 48,
+    paddingHorizontal: spacing.md,
+  },
+  newBackgroundText: {
+    color: colors.accent,
+    fontSize: typography.body,
+    fontWeight: '700',
   },
   swatches: {
     flexDirection: 'row',

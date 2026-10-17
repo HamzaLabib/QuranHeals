@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { createElement } from 'react';
 import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'react-test-renderer';
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { SHARE_CARD_SCENERY } from '@/constants/shareCardScenery';
 import { MESSAGES } from '@/localization/messages';
 import type { Ayah } from '@/types/domain';
 
@@ -32,7 +33,7 @@ vi.mock('react-native', () => ({
 }));
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView' }));
 vi.mock('expo-clipboard', () => ({ setStringAsync: state.clipboard }));
-vi.mock('lucide-react-native', () => ({ Check: 'Check', Link2: 'Link2', ChevronLeft: 'ChevronLeft', ChevronRight: 'ChevronRight', Download: 'Download', Share2: 'Share2', X: 'X' }));
+vi.mock('lucide-react-native', () => ({ Check: 'Check', Link2: 'Link2', ChevronLeft: 'ChevronLeft', ChevronRight: 'ChevronRight', Download: 'Download', RefreshCw: 'RefreshCw', Share2: 'Share2', X: 'X' }));
 vi.mock('@/localization/useAppLocale', () => ({ useAppLocale: () => ({ locale: state.locale, messages: MESSAGES[state.locale] }) }));
 vi.mock('@/localization/useQuranTranslationPreference', () => ({
   useQuranTranslationPreference: () => ({ preference: { displayMode: state.displayMode, translationId: 'en.pickthall.gutenberg16955' } }),
@@ -423,7 +424,8 @@ describe('the same card from every flow', () => {
     await render(ayahFor('2:255'));
     for (const card of cards()) {
       expect(Object.keys(card.props).sort()).toEqual(
-        ['format', 'onFitChange', 'page', 'reference', 'theme', 'translationCredit', 'width', ...(card.props.viewRef ? ['viewRef'] : [])].sort(),
+        ['format', 'onFitChange', 'page', 'reference', 'scenery', 'theme', 'translationCredit', 'width',
+          ...(card.props.viewRef ? ['onSceneryLoad', 'viewRef'] : [])].sort(),
       );
     }
     expect(text()).not.toContain('sad');
@@ -498,5 +500,251 @@ describe('Share Studio helper text', () => {
     const hint = root.root.findAllByType('Text' as never).find((node) => node.props.children === wording)!;
     expect(hint).toBeDefined();
     expect(hint.parent!.findAllByType('Pressable' as never).map((node) => node.props.accessibilityLabel)).toContain(MESSAGES[locale].share.copyLink);
+  });
+});
+
+describe('backgrounds: Colors and Scenery', () => {
+  const SCENERY_IDS = SHARE_CARD_SCENERY.map((scenery) => scenery.id);
+  const colorsButton = () => button(copy().backgroundColors);
+  const sceneryButton = () => button(copy().backgroundScenery);
+  const newBackground = () => button(copy().newBackground);
+  const shown = () => previewCard().props.scenery;
+  /** Every card (preview and export) shows the same background. */
+  const everyCardShows = (scenery: string | null) => cards().every((card) => card.props.scenery === scenery);
+  /** What the off-screen export cards report once their photograph is drawn (or fails to load). */
+  async function sceneryLoads(loaded = true) {
+    await act(async () => {
+      for (const card of exportCards()) card.props.onSceneryLoad?.(loaded);
+    });
+  }
+  const longAyah = () => ayahFor('2:282', { englishTranslation: 'O ye who believe! When ye contract a debt for a fixed term, record it in writing. '.repeat(16).trim() });
+
+  it('offers Colors and Scenery; Colors (with Sage, Cream and Dark, Sage selected) is the default and has no New Background button', async () => {
+    await render();
+    expect(text()).toContain(copy().background);
+    expect(colorsButton()!.props.accessibilityState).toEqual({ selected: true });
+    expect(sceneryButton()!.props.accessibilityState).toEqual({ selected: false });
+    for (const label of [copy().themeSage, copy().themeCream, copy().themeDark]) expect(button(label), label).toBeDefined();
+    expect(button(copy().themeSage)!.props.accessibilityState).toEqual({ selected: true });
+    expect(newBackground()).toBeUndefined();
+    expect(everyCardShows(null)).toBe(true);
+    expect([copy().backgroundColors, copy().backgroundScenery, copy().newBackground]).toEqual(['Colors', 'Scenery', 'New Background']);
+  });
+
+  it('Sage, Cream and Dark behave exactly as before', async () => {
+    await render();
+    for (const [label, theme] of [[copy().themeCream, 'cream'], [copy().themeDark, 'dark'], [copy().themeSage, 'sage']] as const) {
+      await press(button(label));
+      expect(cards().every((card) => card.props.theme === theme && card.props.scenery === null), theme).toBe(true);
+    }
+  });
+
+  it('choosing Scenery shows one random bundled photograph on every card, hides the colour swatches and shows New Background', async () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.5);
+    await render();
+    await press(sceneryButton());
+    expect(sceneryButton()!.props.accessibilityState).toEqual({ selected: true });
+    const expected = SCENERY_IDS[Math.floor(0.5 * SCENERY_IDS.length)];
+    expect(shown()).toBe(expected);
+    expect(everyCardShows(expected)).toBe(true);
+    expect(button(copy().themeSage)).toBeUndefined();
+    expect(newBackground()).toBeDefined();
+    expect(root.root.findAllByType('RefreshCw' as never)).toHaveLength(1);
+  });
+
+  it.each([0, 0.25, 0.999999])('random %s still picks a valid photograph', async (value) => {
+    vi.spyOn(Math, 'random').mockReturnValue(value);
+    await render();
+    await press(sceneryButton());
+    expect(SCENERY_IDS).toContain(shown());
+  });
+
+  it('New Background always shows a different photograph, as often as it is tapped', async () => {
+    const values = [0, 0, 0.999, 0.999, 0.5, 0.5, 0.3, 0.71, 0, 0.999];
+    let call = 0;
+    vi.spyOn(Math, 'random').mockImplementation(() => values[call++ % values.length]);
+    await render();
+    await press(sceneryButton());
+    const seen = [shown()];
+    for (let tap = 0; tap < 40; tap += 1) {
+      await press(newBackground());
+      expect(shown()).not.toBe(seen[seen.length - 1]);
+      expect(SCENERY_IDS).toContain(shown());
+      expect(everyCardShows(shown())).toBe(true);
+      seen.push(shown());
+    }
+    expect(new Set(seen).size).toBeGreaterThan(2);
+  });
+
+  it('New Background never changes the ayah, its translation, the reference, the format or the card shown', async () => {
+    await render(longAyah());
+    await press(button(`${copy().formatPost} 4:5`));
+    await press(sceneryButton());
+    await press(button(copy().nextCard));
+    const before = previewCard().props;
+    const exportPages = exportCards().map((card) => card.props.page);
+    await press(newBackground());
+    const after = previewCard().props;
+    expect(after.scenery).not.toBe(before.scenery);
+    expect(after.page).toEqual(before.page);
+    expect(after.page.pageNumber).toBe(2);
+    expect([after.reference, after.format, after.translationCredit]).toEqual([before.reference, before.format, before.translationCredit]);
+    expect(exportCards().map((card) => card.props.page)).toEqual(exportPages);
+    expect(button(copy().showTranslation)!.props.accessibilityState).toEqual({ checked: true });
+  });
+
+  it('the photograph stays put across re-renders, format changes, the translation switch and export — no new random pick', async () => {
+    const random = vi.spyOn(Math, 'random').mockReturnValue(0.42);
+    await render();
+    await press(sceneryButton());
+    const picked = shown();
+    expect(random).toHaveBeenCalledTimes(1);
+    await act(async () => root.update(createElement(ShareAyahSheet, { visible: true, ayah: ayahFor('1:1'), onClose })));
+    await act(async () => root.update(createElement(ShareAyahSheet, { visible: true, ayah: ayahFor('1:1'), onClose })));
+    expect(everyCardShows(picked)).toBe(true);
+    for (const label of [`${copy().formatSquare} 1:1`, `${copy().formatPost} 4:5`, `${copy().formatStory} 9:16`]) {
+      await press(button(label));
+      expect(everyCardShows(picked), label).toBe(true);
+    }
+    await press(button(copy().showTranslation));
+    await press(button(copy().showTranslation));
+    expect(everyCardShows(picked)).toBe(true);
+    await exportCardsFit();
+    await sceneryLoads();
+    await press(button(copy().share));
+    await press(button(copy().saveImage));
+    expect(everyCardShows(picked)).toBe(true);
+    expect(random).toHaveBeenCalledTimes(1);
+  });
+
+  it('switching to Colors and back keeps both the colour and this session`s photograph', async () => {
+    const random = vi.spyOn(Math, 'random').mockReturnValue(0.8);
+    await render();
+    await press(button(copy().themeDark));
+    await press(sceneryButton());
+    const picked = shown();
+    await press(colorsButton());
+    expect(everyCardShows(null)).toBe(true);
+    expect(cards().every((card) => card.props.theme === 'dark')).toBe(true);
+    expect(button(copy().themeDark)!.props.accessibilityState).toEqual({ selected: true });
+    expect(newBackground()).toBeUndefined();
+    await press(sceneryButton());
+    expect(everyCardShows(picked)).toBe(true);
+    expect(random).toHaveBeenCalledTimes(1);
+  });
+
+  it('a new Share Studio session starts again from Colors and picks a fresh photograph', async () => {
+    const random = vi.spyOn(Math, 'random').mockReturnValue(0.1);
+    await render(ayahFor('94:5'));
+    await press(sceneryButton());
+    await act(async () => root.update(createElement(ShareAyahSheet, { visible: false, ayah: ayahFor('94:5'), onClose })));
+    await act(async () => root.update(createElement(ShareAyahSheet, { visible: true, ayah: ayahFor('94:5'), onClose })));
+    expect(colorsButton()!.props.accessibilityState).toEqual({ selected: true });
+    expect(everyCardShows(null)).toBe(true);
+    await press(sceneryButton());
+    expect(random).toHaveBeenCalledTimes(2);
+  });
+
+  it('Share and Save wait until every export card has drawn the photograph — again after New Background', async () => {
+    await render();
+    await press(sceneryButton());
+    await exportCardsFit();
+    expect(button(copy().share)!.props.disabled).toBe(true);
+    await sceneryLoads();
+    expect(button(copy().share)!.props.disabled).toBe(false);
+    expect(button(copy().saveImage)!.props.disabled).toBe(false);
+    await press(newBackground());
+    expect(button(copy().share)!.props.disabled).toBe(true);
+    await sceneryLoads();
+    expect(button(copy().share)!.props.disabled).toBe(false);
+    // Colors needs no photograph.
+    await press(colorsButton());
+    expect(button(copy().share)!.props.disabled).toBe(false);
+  });
+
+  it('the preview card never gates export; only the full-size export cards report their photograph', async () => {
+    await render();
+    await press(sceneryButton());
+    expect(previewCard().props.onSceneryLoad).toBeUndefined();
+    expect(exportCards().every((card) => typeof card.props.onSceneryLoad === 'function')).toBe(true);
+  });
+
+  it('exports the selected photograph: the captured export cards show exactly the previewed background', async () => {
+    await render();
+    await press(sceneryButton());
+    await exportCardsFit();
+    await sceneryLoads();
+    const atCapture: unknown[] = [];
+    state.capture.mockImplementation(async () => {
+      atCapture.push(...exportCards().map((card) => card.props.scenery));
+      return 'file:///cache/card.png';
+    });
+    await press(button(copy().share));
+    expect(state.capture).toHaveBeenCalledTimes(1);
+    expect(atCapture).toEqual([shown()]);
+  });
+
+  it('a long ayah`s cards all share one photograph, all must load before export, and every card is exported with it', async () => {
+    await render(longAyah());
+    await press(sceneryButton());
+    await exportCardsFit();
+    const count = exportCards().length;
+    expect(count).toBeGreaterThan(1);
+    expect(everyCardShows(shown())).toBe(true);
+    await act(async () => { exportCards()[0].props.onSceneryLoad(true); });
+    expect(button(`${copy().shareAllCards} (${count})`)!.props.disabled).toBe(true);
+    await sceneryLoads();
+    const atCapture: unknown[][] = [];
+    state.capture.mockImplementation(async () => {
+      atCapture.push(exportCards().map((card) => card.props.scenery));
+      return `file:///cache/card-${atCapture.length}.png`;
+    });
+    await press(button(`${copy().shareAllCards} (${count})`));
+    expect(atCapture).toHaveLength(count);
+    expect(new Set(atCapture.flat())).toEqual(new Set([shown()]));
+    expect(state.share.mock.calls[0][0]).toHaveLength(count);
+  });
+
+  it('a photograph that fails to load blocks export and says so; New Background recovers', async () => {
+    await render();
+    await press(sceneryButton());
+    await exportCardsFit();
+    await sceneryLoads(false);
+    expect(text()).toContain(copy().sceneryLoadFailed);
+    expect(button(copy().share)!.props.disabled).toBe(true);
+    await press(newBackground());
+    expect(text()).not.toContain(copy().sceneryLoadFailed);
+    await sceneryLoads();
+    expect(button(copy().share)!.props.disabled).toBe(false);
+  });
+
+  it('categories and New Background are locked while cards are being exported', async () => {
+    let finish!: (value: string) => void;
+    state.share.mockImplementationOnce(() => new Promise((resolve) => { finish = resolve; }));
+    await render();
+    await press(sceneryButton());
+    await exportCardsFit();
+    await sceneryLoads();
+    await act(async () => { void button(copy().share)!.props.onPress(); });
+    for (const label of [copy().backgroundColors, copy().backgroundScenery, copy().newBackground]) {
+      expect(button(label)!.props.disabled, label).toBe(true);
+    }
+    await act(async () => finish('shared'));
+    expect(newBackground()!.props.disabled).toBe(false);
+  });
+
+  it.each(['ar', 'ar-EG'] as const)('%s: الألوان / المناظر الطبيعية / خلفية جديدة, laid out right to left', async (locale) => {
+    state.locale = locale;
+    await render();
+    expect([copy().backgroundColors, copy().backgroundScenery, copy().newBackground]).toEqual(['الألوان', 'المناظر الطبيعية', 'خلفية جديدة']);
+    const categories = colorsButton()!.parent!;
+    expect(categories.props.style).toEqual(expect.arrayContaining([expect.objectContaining({ flexDirection: 'row-reverse' })]));
+    expect(categories.findAllByType('Pressable' as never).map((node) => node.props.accessibilityLabel)).toEqual(['الألوان', 'المناظر الطبيعية']);
+    await press(sceneryButton());
+    const refresh = newBackground()!;
+    expect(refresh.findByType('Text' as never).props.children).toBe('خلفية جديدة');
+    expect(refresh.props.style({ pressed: false })).toEqual(expect.arrayContaining([expect.objectContaining({ flexDirection: 'row-reverse' })]));
+    await sceneryLoads(false);
+    expect(text()).toContain(MESSAGES[locale].share.sceneryLoadFailed);
   });
 });
