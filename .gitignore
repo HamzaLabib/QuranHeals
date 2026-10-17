@@ -41,8 +41,14 @@ QuranHealsAdmin/
 # the earlier commits still hold them). Ignored so the local copies are never re-added by mistake.
 docs/mushaf-visual-review/
 design-archive/experiments/larger-text-mushaf/screenshots/
-# Its comparison images too (QCF V1 page renders, Quran Foundation content; local copies kept, untracked 2026-10-16).
+# Its comparison images too (QCF V1 page renders, Quran Foundation content): local copies kept, untracked 2026-10-17
+# (repository audit C1; manifest: design-archive/experiments/larger-text-mushaf/comparisons/ARCHIVED.md).
 design-archive/experiments/larger-text-mushaf/comparisons/*.png
+
+# King Fahd (KFGQPC) verification outputs: they contain the KFGQPC Quran text, whose redistribution terms are
+# unresolved. Kept locally and in the private audit archive, untracked 2026-10-17 (repository audit C2; manifest:
+# tools/quran-verification/output/ARCHIVED-OUTPUTS.md).
+tools/quran-verification/output/kfgqpc-*
 
 # Local scratch files
 tmp/
@@ -54,6 +60,9 @@ __pycache__/
 coverage/
 .cache/
 tools/quran-import/staging/
+# The audio audit's Python decoder (pip --target, compiled binaries), installed only to re-run
+# tools/quran-audio/audit/*.py (tools/quran-audio/README.md).
+tools/quran-audio/pylib/
 
 # QCF V1 page fonts (King Fahd Complex, from Quran Foundation's CDN). Their
 # terms allow them only inside the app, never as a standalone download, and

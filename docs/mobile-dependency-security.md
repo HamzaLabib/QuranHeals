@@ -1,17 +1,17 @@
 # Mobile Dependency Security
 
-**Reviewed:** 2026-10-13
+**Reviewed:** 2026-10-13; rechecked 2026-10-17 (commit `4e35aca`)
 
 ## Current Findings
 
-The mobile lockfile contains 20 high-severity package records from two distinct advisories. Both are transitive through Expo SDK 57 tooling. `npm audit --omit=dev` reports the same records because Expo and Expo Updates are runtime dependencies in `package.json`, even though the affected Node packages are not part of the iOS or Android application runtime.
+The mobile lockfile contains 21 high-severity package records (20 at the first review) from the same two distinct advisories, at the same installed versions; every record is on a path to `braces` or `node-forge`. Both are transitive through Expo SDK 57 tooling. `npm audit --omit=dev` reports the same records because Expo and Expo Updates are runtime dependencies in `package.json`, even though the affected Node packages are not part of the iOS or Android application runtime.
 
 | Package | Installed | Advisory | Affected behavior | Dependency path |
 | --- | --- | --- | --- | --- |
 | `braces` | 3.0.3 | [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), CVE-2026-93687, High | Deeply nested brace patterns can exhaust the JavaScript call stack in recursive AST walkers and terminate the Node process. | `expo` -> `@expo/cli` -> `@expo/metro` -> `metro-file-map` -> `micromatch` -> `braces` |
 | `node-forge` | 1.4.0 | [GHSA-86w9-cpqp-85rv](https://github.com/advisories/GHSA-86w9-cpqp-85rv), CVE-2026-85393, High | RSA PKCS#1 v1.5 verification can accept a forged signature when a nested `DigestAlgorithm` contains extra elements; the advisory describes low-exponent RSA keys. | `expo` -> `@expo/cli` -> `node-forge`, and `expo-updates` -> `@expo/code-signing-certificates` -> `node-forge` |
 
-The GitHub advisories list no patched release. The npm registry currently publishes `braces` only through 3.0.3 and `node-forge` only through 1.4.0. Expo SDK 57 is already at its latest 57.x Expo, Expo CLI, and Expo Updates versions. `@expo/code-signing-certificates@0.0.7` is published, but it still depends on `node-forge@^1.4.0` and does not fix this advisory. The `braces` depth-guard change is not published to npm; the node-forge correction remains an upstream pull request, not an npm release. Do not apply a major downgrade or an unverified override to clear the audit.
+The GitHub advisories list no patched release. The npm registry currently publishes `braces` only through 3.0.3 and `node-forge` only through 1.4.0 (rechecked 2026-10-17). The Quran audio dependency added on 2026-10-17, `expo-audio@57.0.5`, is not on any affected path and adds no advisory. The backend lockfile has no findings (`npm audit` and `npm audit --omit=dev`: 0). Expo SDK 57 is already at its latest 57.x Expo, Expo CLI, and Expo Updates versions. `@expo/code-signing-certificates@0.0.7` is published, but it still depends on `node-forge@^1.4.0` and does not fix this advisory. The `braces` depth-guard change is not published to npm; the node-forge correction remains an upstream pull request, not an npm release. Do not apply a major downgrade or an unverified override to clear the audit.
 
 ## Reachability And Impact
 

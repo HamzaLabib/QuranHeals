@@ -30,11 +30,16 @@ them to make the source roles appear to have been the same throughout the work.
 ## King Fahd comparison and orthographic review
 
 The untouched user-supplied `UthmanicHafs_v2-0.zip` has been compared with Tanzil.
-The [exact comparison report](output/kfgqpc-comparison-report.md) and
-[machine-readable mismatches](output/kfgqpc-comparison.json) preserve the raw
-differences. The subsequent [orthographic analysis](output/kfgqpc-orthographic-analysis.md)
-and [machine-readable analysis](output/kfgqpc-orthographic-analysis.json) retain
-2,498 cases requiring review after conservative comparison rules. No remaining
+The exact comparison report (`output/kfgqpc-comparison-report.md`) and
+machine-readable mismatches (`output/kfgqpc-comparison.json`) preserve the raw
+differences. The subsequent orthographic analysis (`output/kfgqpc-orthographic-analysis.md`)
+and machine-readable analysis (`output/kfgqpc-orthographic-analysis.json`) retain
+2,498 cases requiring review after conservative comparison rules. These outputs
+contain the King Fahd text, whose redistribution terms are unresolved, so since
+2026-10-17 they are kept out of Git and preserved unchanged in a private archive:
+[output/ARCHIVED-OUTPUTS.md](output/ARCHIVED-OUTPUTS.md) lists their hashes and how
+to restore and verify them (they cannot be regenerated without the original ZIP).
+Restore them before running the stages below. No remaining
 difference is automatically resolved, and the analysis does not approve a
 canonical-source switch or establish a substantive Quranic error.
 

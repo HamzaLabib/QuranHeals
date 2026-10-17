@@ -150,7 +150,7 @@ Run `node tools/mushaf/verify-offline-dataset.mjs http://localhost:4000`: it dow
 
 **The two word-count rules** (anything else fails):
 - **Basmala:** Tanzil's text starts the first ayah of 112 surahs (all but 1 and 9) with the basmala, while the print sets it on its own line. Those 4 words are left out of the count only when the ayah begins exactly with Tanzil's 1:1 basmala, or (95:1, 97:1) with بِّسْمِ, the same word with a shadda after the ب.
-- **Joined words:** the QCF V1 layout counts two Tanzil tokens as one word in 2:181, 8:6 and 13:37 (بَعْدَ مَا) and 37:130 (إِلْ يَاسِينَ). The ayah must contain that exact pair and have exactly one word fewer. All four are in `tools/quran-verification/output/kfgqpc-comparison-report.md`.
+- **Joined words:** the QCF V1 layout counts two Tanzil tokens as one word in 2:181, 8:6 and 13:37 (بَعْدَ مَا) and 37:130 (إِلْ يَاسِينَ). The ayah must contain that exact pair and have exactly one word fewer. All four are in the King Fahd comparison report (`kfgqpc-comparison-report.md`, privately archived outside Git since 2026-10-17: `tools/quran-verification/output/ARCHIVED-OUTPUTS.md`).
 
 ## Surah headers and basmala
 

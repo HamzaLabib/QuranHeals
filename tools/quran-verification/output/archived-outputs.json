@@ -1,0 +1,38 @@
+{
+  "archivedOn": "2026-10-17T19:42:53.517Z",
+  "headAtArchive": "4e35aca7ddabf30f1614f25aa403de03a19a9783",
+  "reason": "King Fahd (KFGQPC) Hafs v2.0 comparison and orthographic-analysis outputs. They contain KFGQPC Quran text, whose redistribution terms are unresolved. They cannot be regenerated without the original UthmanicHafs_v2-0.zip (not present).",
+  "privateArchive": "repository-cleanup-2026-10-17 (outside the repository; see README in this folder)",
+  "files": [
+    {
+      "path": "tools/quran-verification/output/kfgqpc-comparison-report.md",
+      "bytes": 9357181,
+      "sha256": "cc476f13331035914369c06c7a8042c78394638cd0f8e167ccbdfdab2fb5edf7",
+      "addedInCommit": "cca158fa6f87d8e32ac6c04d88a529f986c9f550"
+    },
+    {
+      "path": "tools/quran-verification/output/kfgqpc-comparison.json",
+      "bytes": 18658919,
+      "sha256": "055b2a9ee43b757c2781fdf273dcde8022eab681198f45ed06b6941dd09fd201",
+      "addedInCommit": "cca158fa6f87d8e32ac6c04d88a529f986c9f550"
+    },
+    {
+      "path": "tools/quran-verification/output/kfgqpc-orthographic-analysis.json",
+      "bytes": 71437051,
+      "sha256": "f17fb3e97fdffc2fa20d235c1363138458a5f63a38057a6ccc517caeb5fb5fdf",
+      "addedInCommit": "cca158fa6f87d8e32ac6c04d88a529f986c9f550"
+    },
+    {
+      "path": "tools/quran-verification/output/kfgqpc-orthographic-analysis.md",
+      "bytes": 5085530,
+      "sha256": "05caf11e87b38d1e950bfee5339741e1679ee85740d40a41b231a46540c1f440",
+      "addedInCommit": "cca158fa6f87d8e32ac6c04d88a529f986c9f550"
+    },
+    {
+      "path": "tools/quran-verification/output/kfgqpc-pdf-inspection.json",
+      "bytes": 330709,
+      "sha256": "f1173a4b8a2106eb3d407229de7ce618e5e1d965e408efe2dee10a5e735ac593",
+      "addedInCommit": "cca158fa6f87d8e32ac6c04d88a529f986c9f550"
+    }
+  ]
+}

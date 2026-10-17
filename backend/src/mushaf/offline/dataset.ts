@@ -109,7 +109,8 @@ export const tanzilWordCount = (text: string) => tokens(text).length;
  * the King Fahd print sets them. Each names the exact Tanzil token pair it
  * requires; the layout must then have exactly one word fewer. Observed in
  * mushafs:2 (2026-10-11) and in the King Fahd text (both keep the space;
- * see tools/quran-verification/output/kfgqpc-comparison-report.md).
+ * see the King Fahd comparison report, privately archived:
+ * tools/quran-verification/output/ARCHIVED-OUTPUTS.md).
  */
 export const JOINED_WORDS: Readonly<Record<string, readonly [string, string]>> = {
   '2:181': ['بَعْدَ', 'مَا'],

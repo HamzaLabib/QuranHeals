@@ -122,8 +122,9 @@ npx expo start --dev-client --clear                       # Mushaf tab → QCF c
 
 **Related, outside this archive:** the 17 comparison images of the earlier larger-text experiment,
 `design-archive/experiments/larger-text-mushaf/comparisons/*.png` (14 side-by-side panels and 3 sets of 1:1 crops of
-pages 4 and 604), are QCF V1 page renders. Since 2026-10-16 they are local only: they remain on disk on this machine but
-are excluded from public Git tracking (root `.gitignore`), because the rights to redistribute QCF V1 renderings
+pages 4 and 604), are QCF V1 page renders. Since 2026-10-17 they are local only: they remain on disk on this machine
+(with a verified copy in the private audit archive; `comparisons/ARCHIVED.md` there lists their hashes) but are excluded
+from public Git tracking (root `.gitignore`), because the rights to redistribute QCF V1 renderings
 (Quran Foundation content) have not been confirmed. Earlier commits still contain them. They are not needed to restore
 or run anything here.
 

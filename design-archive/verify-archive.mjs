@@ -17,11 +17,15 @@ for (const entry of manifest.files) {
   const path = join(archive, entry.archivePath);
   if (!existsSync(path)) { problems.push(`missing: ${entry.archivePath}`); continue; }
   const bytes = readFileSync(path);
-  const sha = createHash('sha256').update(bytes).digest('hex');
-  if (sha !== entry.sha256 || bytes.length !== entry.bytes) problems.push(`changed: ${entry.archivePath}`);
   // The archived bytes hash to the original's Git blob (with the repository's line-ending filters applied).
   const blob = git('hash-object', '--path', entry.source, path).toString().trim();
   if (blob !== entry.blob) problems.push(`not the original blob: ${entry.archivePath}`);
+  // MANIFEST.json records the committed bytes. A checkout with core.autocrlf=true (Windows) holds the same file with
+  // CRLF line endings: then the committed object itself (identical, as the blob check above proves) is what's hashed.
+  const sha = createHash('sha256').update(bytes).digest('hex');
+  const committed = sha !== entry.sha256 && blob === entry.blob ? git('cat-file', 'blob', entry.blob) : bytes;
+  const committedSha = committed === bytes ? sha : createHash('sha256').update(committed).digest('hex');
+  if (committedSha !== entry.sha256 || committed.length !== entry.bytes) problems.push(`changed: ${entry.archivePath}`);
   // And the original is still reachable in history at its revision.
   let original;
   try { original = git('rev-parse', `${entry.revision}:${entry.source}`).toString().trim(); } catch { original = null; }
