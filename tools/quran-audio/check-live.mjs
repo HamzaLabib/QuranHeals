@@ -1,6 +1,8 @@
 // Live drift check (run before a release): for every surah the app plays ayah by ayah, fetches MP3Quran's timing now
 // and compares its fingerprint with the audited one (as the app does before using it), and checks that the audio file
 // still answers with the audited size. Any difference means that surah would be refused in the app until re-audited.
+// Measured timing (timingSource 'measured') is shipped in the app, so only its audio file is checked: a different
+// size means the file it was measured on has changed, and that reciter must be re-measured before release.
 //
 // usage: node check-live.mjs [reciterId ...]
 import fs from 'node:fs';
@@ -39,7 +41,7 @@ for (const reciter of results.reciters) {
   if (surahs.length === 0) continue;
   const bad = [];
   await pool(surahs, 6, async (surah) => {
-    const timing = await retry(async () => {
+    const timing = reciter.timingSource === 'measured' ? null : await retry(async () => {
       const response = await fetch(`https://www.mp3quran.net/api/v3/ayat_timing?surah=${surah}&read=${reciter.timingRead}`, { headers: UA });
       if (!response.ok) throw new Error(`timing ${response.status}`);
       return response.json();
@@ -47,7 +49,7 @@ for (const reciter of results.reciters) {
     const fingerprint = Array.isArray(timing)
       ? timingFingerprint(timing.map((x) => ({ ayah: x.ayah, startMs: x.start_time, endMs: x.end_time })))
       : null;
-    if (fingerprint !== reciter.timed[surah].fingerprint) bad.push(`${surah}: timing ${fingerprint ?? timing.error} ≠ ${reciter.timed[surah].fingerprint}`);
+    if (timing !== null && fingerprint !== reciter.timed[surah].fingerprint) bad.push(`${surah}: timing ${fingerprint ?? timing.error} ≠ ${reciter.timed[surah].fingerprint}`);
     const url = `${reciter.server}${String(surah).padStart(3, '0')}.mp3`;
     const size = await retry(async () => {
       const response = await fetch(url, { headers: { ...UA, Range: 'bytes=0-1' } });
@@ -60,7 +62,8 @@ for (const reciter of results.reciters) {
     checked++;
   });
   problems += bad.length;
-  console.log(`${reciter.id.padEnd(14)} ${surahs.length} surahs: ${bad.length === 0 ? 'all match' : `${bad.length} differ`}`);
+  const what = reciter.timingSource === 'measured' ? 'audio (measured timing)' : 'timing and audio';
+  console.log(`${reciter.id.padEnd(14)} ${surahs.length} surahs, ${what}: ${bad.length === 0 ? 'all match' : `${bad.length} differ`}`);
   for (const line of bad.sort()) console.log(`   ${line}`);
 }
 console.log(`${checked} surahs checked, ${problems} differences (${new Date().toISOString()})`);

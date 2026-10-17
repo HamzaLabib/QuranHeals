@@ -23,6 +23,7 @@ const passes = (d) => d && d.n > 0 && d.pause >= Math.ceil(PASS * d.n);
 
 const out = [];
 for (const r of RECITERS) {
+  if (r.moshafId === null) continue; // no recording in the app: refine-results.mjs lists it
   const a = audit.get(r.moshafId);
   if (!a) throw new Error(`no audit for ${r.id} (${r.moshafId})`);
   const entry = {

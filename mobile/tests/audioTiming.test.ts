@@ -148,3 +148,48 @@ describe('loading timing', () => {
     expect(requests).toBe(1);
   });
 });
+
+describe('measured timing (shipped in the app)', () => {
+  const MEASURED_112: TimingEntry[] = SURAH_112.filter((e) => e.ayah > 0);
+  /** A reciter with measured timing for surah 112 only. */
+  const measuredReciter = (): Reciter => ({
+    ...getReciter('hudhaifi')!,
+    id: 'measured-test',
+    timingSource: 'measured',
+    timingRead: null,
+    timed: { 112: [timingFingerprint(MEASURED_112), 1000] },
+  });
+  const noNetwork = async () => {
+    throw new Error('measured timing must never be fetched');
+  };
+  const noStore: TimingStore = {
+    read: async () => {
+      throw new Error('measured timing is never read from the device');
+    },
+    write: async () => {
+      throw new Error('measured timing is never stored');
+    },
+  };
+
+  it('loads without any request or storage, verified against the catalogue fingerprint', async () => {
+    const loader = createTimingLoader({ fetchText: noNetwork, store: noStore, measured: (id, surah) => (id === 'measured-test' && surah === 112 ? MEASURED_112 : null) });
+    const result = await loader.load(measuredReciter(), 112);
+    expect(result).toEqual({ ok: true, timing: { reciterId: 'measured-test', surah: 112, introEndMs: 5000, ayahs: MEASURED_112.map(({ startMs, endMs }) => ({ startMs, endMs })) } });
+    expect(await loader.stored(measuredReciter(), 112)).not.toBeNull();
+  });
+
+  it('refuses measured timing that is not the audited copy, and surahs without it', async () => {
+    const changed = MEASURED_112.map((e) => (e.ayah === 2 ? { ...e, endMs: e.endMs + 1 } : e));
+    const loader = createTimingLoader({ fetchText: noNetwork, store: noStore, measured: () => changed });
+    expect(await loader.load(measuredReciter(), 112)).toEqual({ ok: false, reason: 'mismatch' });
+    expect(await loader.load(measuredReciter(), 1)).toEqual({ ok: false, reason: 'unavailable' });
+    const none = createTimingLoader({ fetchText: noNetwork, store: noStore, measured: () => null });
+    expect(await none.load(measuredReciter(), 112)).toEqual({ ok: false, reason: 'mismatch' });
+  });
+
+  it('the real shipped timing verifies for every surah Ali Al-Hudhaifi is listed with', async () => {
+    const hudhaifi = getReciter('hudhaifi')!;
+    const loader = createTimingLoader({ fetchText: noNetwork, store: noStore });
+    for (const surah of Object.keys(hudhaifi.timed).map(Number)) expect((await loader.load(hudhaifi, surah)).ok).toBe(true);
+  });
+});

@@ -1,4 +1,4 @@
-// Structural audit of MP3Quran recordings for the 16 Quran Heals reciters.
+// Structural audit of MP3Quran recordings for the 16 Quran Heals reciters that have one (the 17th, Ahmed Mohamed Salama, has none).
 import fs from 'fs'; import path from 'path';
 const D = process.argv[2]; const counts = JSON.parse(fs.readFileSync(D + '/ayah_counts.json'));
 const cache = D + '/timing'; fs.mkdirSync(cache, { recursive: true });

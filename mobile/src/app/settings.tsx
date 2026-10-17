@@ -42,7 +42,7 @@ const APPEARANCE_MODES: readonly AppearanceMode[] = ['system', 'light', 'dark'];
  * section — each reminder sits in the section it belongs to):
  *  1. App — App Language (English / العربية), Appearance (System / Light / Dark).
  *  2. Emotions — Emotions Language, Show Translation, Emotional Check-in.
- *  3. Quran — Quran Language, Keep Screen Awake, Favorite Reciter (the 16
+ *  3. Quran — Quran Language, Keep Screen Awake, Favorite Reciter (the 17
  *     reciters, each with its coverage; its offline download as a small icon
  *     beside the dropdown), Wird Reminder,
  *     Random Quran Ayah, the offline Mushaf, and Mushaf Guide (opens the
@@ -313,7 +313,7 @@ export default function SettingsScreen() {
             />
           </View>
 
-          {/* Favorite Reciter (audio/favoriteReciterPreference.ts): the 16 reciters, each with how much it can play ayah by ayah; a device setting, applied at once. */}
+          {/* Favorite Reciter (audio/favoriteReciterPreference.ts): the 17 reciters, each with how much it can play ayah by ayah; a device setting, applied at once. */}
           <SettingsAccordion
             title={messages.audio.favoriteTitle}
             summary={favoriteReciter ? reciterName(favoriteReciter, isRtl) : undefined}

@@ -1,5 +1,6 @@
 import { SURAH_AYAH_COUNTS } from '@/utils/ayahLink';
 
+import { measuredTimingEntries } from './generated/measuredTiming';
 import { hasAyahPlayback, MP3QURAN_API, type Reciter } from './reciters';
 import { timingFingerprint, type TimingEntry } from './timingFingerprint';
 
@@ -14,7 +15,8 @@ export type TimingResult =
   /**
    * 'unavailable': this reciter has no verified timing for the surah (never fetched);
    * 'network': it could not be fetched (and is not stored on the device);
-   * 'mismatch': MP3Quran's timing is no longer the copy that was audited, so it is not used.
+   * 'mismatch': the timing is no longer the copy that was audited (MP3Quran changed it, or the measured copy shipped in
+   *   the app does not match the catalogue), so it is not used.
    */
   | { ok: false; reason: 'unavailable' | 'network' | 'mismatch' };
 
@@ -73,13 +75,30 @@ export type TimingLoader = {
 };
 
 /**
- * Loads a surah's timing: from memory, else the device (verified again), else MP3Quran (verified, then stored so it
- * works offline from then on). Concurrent loads of the same surah share one request.
+ * Loads a surah's timing. MP3Quran timing: from memory, else the device (verified again), else MP3Quran (verified, then
+ * stored so it works offline from then on); concurrent loads of the same surah share one request. Measured timing
+ * (generated/measuredTiming.ts, shipped in the app): verified the same way, never fetched or stored.
+ * `measured` is injectable for tests.
  */
-export function createTimingLoader(deps: { fetchText: (url: string) => Promise<string>; store: TimingStore }): TimingLoader {
+export function createTimingLoader(deps: {
+  fetchText: (url: string) => Promise<string>;
+  store: TimingStore;
+  measured?: (reciterId: string, surah: number) => TimingEntry[] | null;
+}): TimingLoader {
   const memory = new Map<string, SurahTiming>();
   const inFlight = new Map<string, Promise<TimingResult>>();
   const keyOf = (reciter: Reciter, surah: number) => `${reciter.id}:${surah}`;
+  const measured = deps.measured ?? measuredTimingEntries;
+
+  const fromMeasured = (reciter: Reciter, surah: number): SurahTiming | null => {
+    const key = keyOf(reciter, surah);
+    const cached = memory.get(key);
+    if (cached) return cached;
+    const entries = measured(reciter.id, surah);
+    const timing = entries ? verifyTiming(reciter, surah, entries) : null;
+    if (timing) memory.set(key, timing);
+    return timing;
+  };
 
   const fromText = (reciter: Reciter, surah: number, text: string | null): SurahTiming | null => {
     if (!text) return null;
@@ -92,7 +111,9 @@ export function createTimingLoader(deps: { fetchText: (url: string) => Promise<s
   };
 
   const stored = async (reciter: Reciter, surah: number) => {
-    if (!hasAyahPlayback(reciter, surah) || reciter.timingRead === null) return null;
+    if (!hasAyahPlayback(reciter, surah)) return null;
+    if (reciter.timingSource === 'measured') return fromMeasured(reciter, surah);
+    if (reciter.timingRead === null) return null;
     const key = keyOf(reciter, surah);
     const cached = memory.get(key);
     if (cached) return cached;
@@ -102,7 +123,12 @@ export function createTimingLoader(deps: { fetchText: (url: string) => Promise<s
   };
 
   const load = async (reciter: Reciter, surah: number): Promise<TimingResult> => {
-    if (!hasAyahPlayback(reciter, surah) || reciter.timingRead === null) return { ok: false, reason: 'unavailable' };
+    if (!hasAyahPlayback(reciter, surah)) return { ok: false, reason: 'unavailable' };
+    if (reciter.timingSource === 'measured') {
+      const timing = fromMeasured(reciter, surah);
+      return timing ? { ok: true, timing } : { ok: false, reason: 'mismatch' };
+    }
+    if (reciter.timingRead === null) return { ok: false, reason: 'unavailable' };
     const local = await stored(reciter, surah);
     if (local) return { ok: true, timing: local };
     const key = keyOf(reciter, surah);

@@ -1036,17 +1036,20 @@ describe('Settings: Favorite Reciter and offline listening (audio/)', () => {
     expect(state.storage.has(FAVORITE_KEY)).toBe(false);
   });
 
-  it('lists exactly the 16 reciters in English, each with its availability; the current one selected', async () => {
+  it('lists exactly the 17 reciters in English, each with its availability; the current one selected', async () => {
     await renderSettings();
     await pressHeader('Favorite Reciter');
-    expect(reciterRows()).toHaveLength(16);
+    expect(reciterRows()).toHaveLength(17);
     const labels = reciterRows().map((node) => node.props.accessibilityLabel as string);
     expect(labels.map((label) => label.split(', ')[0])).toEqual([
       'Abdul Basit Abdus Samad', 'Muhammad Siddiq Al-Minshawi', 'Ahmed Naeena', 'Mahmoud Khalil Al-Husary', 'Mahmoud Ali Al-Banna',
       'Yasser Mahmoud Salama', 'Saud Al-Shuraim', 'Abdul Rashid Ali Sufi', 'Ali Al-Hudhaifi', 'Abu Bakr Al-Shatri', 'Ahmed Al-Ajmi',
-      'Maher Al-Muaiqly', 'Abdullah Basfar', 'Saleh Al-Talib', 'Muhammad Rifaat', 'Islam Sobhi',
+      'Maher Al-Muaiqly', 'Abdullah Basfar', 'Saleh Al-Talib', 'Muhammad Rifaat', 'Islam Sobhi', 'Ahmed Mohamed Salama',
     ]);
-    expect(labels).toContain('Maher Al-Muaiqly, All 114 surahs');
+    expect(labels).toContain('Abdul Basit Abdus Samad, All 114 surahs');
+    expect(labels).toContain('Maher Al-Muaiqly, 101 of 114 surahs');
+    expect(labels).toContain('Ali Al-Hudhaifi, 103 of 114 surahs');
+    expect(labels).toContain('Ahmed Mohamed Salama, Ayah-by-ayah playback not available');
     expect(labels).toContain('Mahmoud Khalil Al-Husary, 103 of 114 surahs');
     expect(labels).toContain('Muhammad Rifaat, Ayah-by-ayah playback not available');
     expect(reciterRows().filter((node) => node.props.accessibilityState.selected).map((node) => node.props.testID)).toEqual(['settings-reciter-maher']);
@@ -1098,16 +1101,16 @@ describe('Settings: Favorite Reciter and offline listening (audio/)', () => {
     expect(header('App Language').findAllByType('ChevronDown' as never)).toHaveLength(1);
   });
 
-  it('independent touch targets: the chevron and the title open the 16 reciters; the download icon opens its sheet only', async () => {
+  it('independent touch targets: the chevron and the title open the 17 reciters; the download icon opens its sheet only', async () => {
     await renderSettings();
     const chevron = () => all('Pressable').find((node) => node.props.testID === 'settings-accordion-chevron')!;
     await press(chevron());
-    expect(reciterRows()).toHaveLength(16);
+    expect(reciterRows()).toHaveLength(17);
     expect(header('Favorite Reciter').props.accessibilityState).toEqual({ expanded: true });
     await press(chevron());
     expect(reciterRows()).toHaveLength(0);
     await pressHeader('Favorite Reciter');
-    expect(reciterRows()).toHaveLength(16);
+    expect(reciterRows()).toHaveLength(17);
     await pressHeader('Favorite Reciter');
     await press(downloadIcon());
     expect(reciterRows()).toHaveLength(0);
@@ -1144,7 +1147,7 @@ describe('Settings: Favorite Reciter and offline listening (audio/)', () => {
     expect(downloadIcon().findAll((node) => node.props.testID === 'reciter-download-icon-complete')).toHaveLength(0);
     await press(downloadIcon());
     expect(sheetText()).toContain(en.audio.offlineNotPermitted);
-    expect(sheetText()).toMatch(/Download Maher Al-Muaiqly to listen without internet: 114 surahs, about [\d.]+ GB\./);
+    expect(sheetText()).toMatch(/Download Maher Al-Muaiqly to listen without internet: 101 surahs, about [\d.]+ GB\./);
     expect(sheetButtons()).toEqual(['settings-reciter-download-close']); // no Download, Retry or Delete
     expect(fetchSpy).not.toHaveBeenCalled();
   });

@@ -57,7 +57,7 @@ function problemText(state: PlaybackState, copy: Messages['audio'], rtl: boolean
  *    Play / Pause button, then the Sheikh's name and the ayah number (a separate touch target that opens the window),
  *    with ⌄ while the window is closed and ⌃ while it is open, and Follow recitation after the reader swiped away. Paused,
  *    stopped, finished or stopped by an error, the chip is gone and the headphones are back;
- *  - the window, top to bottom: the Sheikh's name with its ⌄ / ⌃ (the reciter list: all 16, each with its coverage, the
+ *  - the window, top to bottom: the Sheikh's name with its ⌄ / ⌃ (the reciter list: all 17, each with its coverage, the
  *    current one highlighted, an "Up next" one marked), the Surah and ayah being recited, the recitation's progress
  *    through its surah, then, from the right in every language (the Mushaf's direction), Previous page — Previous ayah —
  *    Play / Pause — Next ayah — Next page. The
@@ -193,7 +193,7 @@ export function MushafAudioPlayer({ dark, rtl, copy, following, onFollow, panelT
                 badge={(id) => (id === state.reciterId ? copy.nowReciting : id === state.pendingReciterId ? copy.upNextBadge : null)}
                 note={(id) => {
                   const candidate = getReciter(id);
-                  return candidate && candidate.timingRead !== null && !hasAyahPlayback(candidate, neededSurah) ? copy.notForThisSurah : null;
+                  return candidate && candidate.timingSource !== null && !hasAyahPlayback(candidate, neededSurah) ? copy.notForThisSurah : null;
                 }}
               />
             </ScrollView>

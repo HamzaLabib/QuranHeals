@@ -220,8 +220,10 @@ describe('downloading a reciter for offline listening', () => {
   it('a real reciter\'s download covers exactly its timed surahs', () => {
     const downloads = createAudioDownloads({ files: fakeFiles().files, timing: okTiming, permitted: () => true });
     const maher = getReciter('maher')!;
-    expect(timedSurahs(maher)).toHaveLength(114);
+    expect(timedSurahs(maher).length).toBeGreaterThan(100);
     expect(downloads.totalBytes('maher')).toBe(Object.values(maher.timed).reduce((sum, [, bytes]) => sum + bytes, 0));
+    // A surah without verified timing is never part of a download (it could not play ayah by ayah).
+    expect(timedSurahs(maher)).not.toContain(36);
   });
 });
 

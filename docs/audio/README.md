@@ -9,10 +9,11 @@ decided by the audit in [source-audit.md](source-audit.md).
 
 | File | Role |
 |---|---|
-| `generated/reciterCatalog.ts` | Generated from `tools/quran-audio/audit-results.json`: the 16 reciters, each recording's folder, surahs recorded, and per timed surah its timing fingerprint and file size. Do not edit by hand. |
+| `generated/reciterCatalog.ts` | Generated from `tools/quran-audio/audit-results.json`: the 17 reciters, each recording's folder, surahs recorded, where its timing comes from (`timingSource`), and per timed surah its timing fingerprint and file size. Do not edit by hand. |
+| `generated/measuredTiming.ts` | Generated from `tools/quran-audio/measured-timing.json`: ayah timing measured by the audit for MP3Quran recordings that have no usable MP3Quran timing (Ali Al-Hudhaifi). Do not edit by hand. |
 | `reciters.ts` | Catalogue helpers, the default (Maher Al-Muaiqly), and `OFFLINE_DOWNLOADS_PERMITTED`. |
 | `quranSequence.ts` | Canonical order (next/previous ayah across surahs, ends after An-Nas 6), a page's first ayah, an ayah's page. |
-| `timing.ts` | Fetches MP3Quran timing, accepts it only if it matches the audited fingerprint and is well formed, stores it on the device. |
+| `timing.ts` | Fetches MP3Quran timing, accepts it only if it matches the audited fingerprint and is well formed, stores it on the device. Measured timing is read from `generated/measuredTiming.ts` and verified the same way (never fetched or stored). |
 | `engine.ts` | **The one playback engine**: a single store and a single native player for the whole app. |
 | `expoOutput.ts` | expo-audio adapter: one `AudioPlayer`, background audio, lock-screen play/pause, exact seeks. |
 | `sources.ts` | Provider seam: a downloaded file first, else MP3Quran's stream. |
@@ -45,7 +46,7 @@ involved.
   the page shown: a recitation carries on, never skips to that page, and stops being
   followed until Follow recitation (or a return to the recited page).
 - **The audio window** (a tap on the chip), top to bottom: the Sheikh's name with its
-  arrow (⌄ closed, ⌃ open; the 16 reciters, current one highlighted, coverage shown), the
+  arrow (⌄ closed, ⌃ open; the 17 reciters, current one highlighted, coverage shown), the
   Surah and ayah being recited («سورة الفاتحة · الآية ٧» / "Al-Faatiha · Ayah 7"), its
   progress through the surah, then — from the right, in every app language (the Mushaf's
   direction) — Previous page, Previous ayah, Play/Pause, Next ayah, Next page (page jumps
@@ -134,6 +135,10 @@ emulator yet:
 6. Airplane mode with a downloaded surah plays; without one, it shows the network
    message.
 7. Download pause, resume, cancel, delete, and restart mid-download.
-8. Maher Al-Muaiqly's riwaya: listen at 18:1–2 and 36:52 for Hafs's sakt.
-9. Mushaf layout unchanged with the chip shown (page size, QCF glyph positions),
+8. Maher Al-Muaiqly's riwaya: listen at 18:1–2 and 36:52 for Hafs's sakt (Quran Foundation labels
+   the same performance Hafs; MP3Quran labels it only «المصحف المجود»).
+9. Ali Al-Hudhaifi (measured timing): a few ayah starts and single-ayah stops, including a
+   surah's last ayah and a page turn (see source-audit.md, "Listening checks").
+10. The boundaries listed for review in source-audit.md ("Boundaries left for review").
+11. Mushaf layout unchanged with the chip shown (page size, QCF glyph positions),
    compared against the approved screenshots.

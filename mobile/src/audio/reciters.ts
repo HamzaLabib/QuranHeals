@@ -1,12 +1,15 @@
 import { GENERATED_RECITERS, type GeneratedReciter } from './generated/reciterCatalog';
 
 /**
- * The 16 Quran Heals reciters (exactly, in the approved order), each with one MP3Quran recording of Hafs ʿan ʿĀṣim
- * (generated/reciterCatalog.ts; the audit is in tools/quran-audio/README.md). Every reciter is listed, even where the
- * recording is incomplete or has no verified ayah timing: the gaps are shown, never filled with another recording.
+ * The 17 Quran Heals reciters (exactly, in the approved order), each with one MP3Quran recording of Hafs ʿan ʿĀṣim
+ * (generated/reciterCatalog.ts; the audit is in tools/quran-audio/README.md), except Ahmed Mohamed Salama, who has none in
+ * the app (`server` null). Every reciter is listed, even where the recording is incomplete, missing or has no verified
+ * ayah timing: the gaps are shown, never filled with another recording.
  *
  * Ayah playback (start at an ayah, follow ayahs, turn pages) needs verified timing for that surah: `timed`. A surah
- * without it is unavailable for that reciter, and the player says so instead of substituting another voice.
+ * without it is unavailable for that reciter, and the player says so instead of substituting another voice. The
+ * timing is MP3Quran's own (`timingSource: 'mp3quran'`, fetched and fingerprint-checked) or, where MP3Quran has none
+ * that can be used, measured for the same MP3Quran file by the audit (`'measured'`, shipped in the app).
  */
 export type Reciter = GeneratedReciter;
 
@@ -43,12 +46,14 @@ export function reciterName(reciter: Reciter, rtl: boolean): string {
 
 /** The MP3Quran file of a whole surah. */
 export function surahAudioUrl(reciter: Reciter, surah: number): string {
+  // Never reached for a reciter without a recording: it has no timed surah, so nothing of it is ever loaded.
+  if (reciter.server === null) throw new Error(`${reciter.id} has no recording in the app`);
   return `${reciter.server}${String(surah).padStart(3, '0')}.mp3`;
 }
 
 /** Whether `surah` can be played ayah by ayah with this reciter (audio and verified timing). */
 export function hasAyahPlayback(reciter: Reciter, surah: number): boolean {
-  return reciter.timingRead !== null && reciter.timed[surah] !== undefined;
+  return reciter.timingSource !== null && reciter.timed[surah] !== undefined;
 }
 
 export function timedSurahs(reciter: Reciter): number[] {

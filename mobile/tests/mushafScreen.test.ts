@@ -22,6 +22,8 @@ const state = vi.hoisted(() => ({
   clipboardFails: false,
   locale: 'en' as 'en' | 'ar' | 'ar-EG',
   storage: new Map<string, string>(),
+  /** The Favorite Reciter the screen sees (useFavoriteReciter mock): the default unless a test chooses one. */
+  favoriteReciterId: 'maher',
   fontsLoaded: true,
   fetch: vi.fn(),
   params: {} as Record<string, string>,
@@ -154,6 +156,9 @@ vi.mock('react-native-reanimated', async () => {
 // From the UI thread to React: at once, or (deferRN) queued in `toRN` until run, as when React is a frame behind.
 vi.mock('react-native-worklets', () => ({
   scheduleOnRN: (fn: (...args: unknown[]) => void, ...args: unknown[]) => (state.deferRN ? state.toRN.push(() => fn(...args)) : fn(...args)),
+}));
+vi.mock('@/audio/useFavoriteReciter', () => ({
+  useFavoriteReciter: () => ({ reciterId: state.favoriteReciterId, isReady: true, setReciterId: () => undefined }),
 }));
 vi.mock('@react-native-async-storage/async-storage', () => ({
   default: {
@@ -393,6 +398,7 @@ beforeEach(() => {
   state.clipboardFails = false;
   state.locale = 'en';
   state.storage.clear();
+  state.favoriteReciterId = 'maher';
   // The reader's own tests: its first-time guide already seen (the guide's tests start fresh: 'the first-time guide').
   // (closed, not finished: its Help icon still shows, as these tests of the top bar expect).
   state.storage.set('quran-heals:mushaf-guide:v1', JSON.stringify({ status: 'done', finished: false }));
@@ -5116,6 +5122,11 @@ describe('tablets: rotation and window resizing (one centred page, nothing lost)
 });
 
 describe('Quran audio in the reader (audio/)', () => {
+  // The fixture pages are 61-62 (Al-Imran). The default, Maher Al-Muaiqly, has no verified timing for Al-Imran since
+  // the 2026-10-17 audit (tools/quran-audio), so these tests listen with a Favorite Reciter who has: Abdul Basit.
+  beforeEach(() => {
+    state.favoriteReciterId = 'abdulbasit';
+  });
   const engine = async () => (await import('@/audio/index')).audioEngine;
   const onlyHost = (testID: string) => {
     const found = hosts(testID);
@@ -5143,8 +5154,8 @@ describe('Quran audio in the reader (audio/)', () => {
     await press(onlyHost('mushaf-play-page'));
     await flush();
     const state = (await engine()).getState();
-    expect(state).toMatchObject({ phase: 'playing', mode: 'continuous', position: { surah: 3, ayah: 84 }, reciterId: 'maher' });
-    expect(audio.loads).toEqual(['https://cdn.mp3quran.net/audio/maher-muaiqly/r3/003.mp3@834000']);
+    expect(state).toMatchObject({ phase: 'playing', mode: 'continuous', position: { surah: 3, ayah: 84 }, reciterId: 'abdulbasit' });
+    expect(audio.loads).toEqual(['https://cdn.mp3quran.net/audio/abdulbasit-abdulsamad/r3/003.mp3@834000']);
     expect(hosts('audio-chip')).toHaveLength(1);
     expect(hosts('mushaf-play-page')).toHaveLength(0);
     expect(highlighted()).toBe('3:84');
@@ -5206,7 +5217,7 @@ describe('Quran audio in the reader (audio/)', () => {
     await press(onlyHost('mushaf-ayah-listen'));
     await flush();
     expect(hosts('mushaf-ayah-actions')).toHaveLength(0);
-    expect((await engine()).getState()).toMatchObject({ phase: 'playing', position: { surah: 3, ayah: 85 }, reciterId: 'maher' });
+    expect((await engine()).getState()).toMatchObject({ phase: 'playing', position: { surah: 3, ayah: 85 }, reciterId: 'abdulbasit' });
     expect(highlighted()).toBe('3:85');
   });
 
@@ -5214,13 +5225,13 @@ describe('Quran audio in the reader (audio/)', () => {
     await render();
     await press(onlyHost('mushaf-play-page'));
     await flush();
-    (await engine()).selectReciter('abdulbasit');
+    (await engine()).selectReciter('naina');
     await flush();
     await tapPage(100, 130);
     await afterTapWindow();
     await press(onlyHost('mushaf-ayah-listen'));
     await flush();
-    expect((await engine()).getState()).toMatchObject({ position: { surah: 3, ayah: 85 }, reciterId: 'abdulbasit' });
+    expect((await engine()).getState()).toMatchObject({ position: { surah: 3, ayah: 85 }, reciterId: 'naina' });
     expect(state.storage.has('quran-heals:favorite-reciter:v1')).toBe(false);
   });
 
@@ -5254,8 +5265,8 @@ describe('Quran audio in the reader (audio/)', () => {
     await finishAyah(); // 3:85
     const loads = audio.loads.length;
     await press(onlyHost('mushaf-fullscreen-toggle'));
-    expect((await engine()).getState()).toMatchObject({ phase: 'playing', position: { surah: 3, ayah: 85 }, reciterId: 'maher' });
-    expect(textOfNode(onlyHost('audio-expand'))).toContain('Maher Al-Muaiqly');
+    expect((await engine()).getState()).toMatchObject({ phase: 'playing', position: { surah: 3, ayah: 85 }, reciterId: 'abdulbasit' });
+    expect(textOfNode(onlyHost('audio-expand'))).toContain('Abdul Basit Abdus Samad');
     await press(onlyHost('mushaf-fullscreen-toggle'));
     expect((await engine()).getState()).toMatchObject({ phase: 'playing', position: { surah: 3, ayah: 85 } });
     expect(audio.loads).toHaveLength(loads);
@@ -5298,9 +5309,9 @@ describe('Quran audio in the reader (audio/)', () => {
     const targets = chip.findAll((node) => typeof node.type === 'string' && node.props.accessibilityRole === 'button').map((node) => node.props.testID);
     expect(targets.slice(0, 2)).toEqual(['audio-toggle', 'audio-expand']);
     expect(onlyHost('audio-toggle').findAllByType('Pause' as never)).toHaveLength(1);
-    expect(chipText()).toBe('Maher Al-Muaiqly · 84');
+    expect(chipText()).toBe('Abdul Basit Abdus Samad · 84');
     await finishAyah();
-    expect(chipText()).toBe('Maher Al-Muaiqly · 85');
+    expect(chipText()).toBe('Abdul Basit Abdus Samad · 85');
     // The Pause button acts at once, without opening the window.
     expect(hosts('audio-panel')).toHaveLength(0);
   });
@@ -5309,7 +5320,7 @@ describe('Quran audio in the reader (audio/)', () => {
     await playing();
     await finishAyah(); // 3:85
     await press(onlyHost('audio-toggle'));
-    expect((await engine()).getState()).toMatchObject({ phase: 'paused', position: { surah: 3, ayah: 85 }, reciterId: 'maher' });
+    expect((await engine()).getState()).toMatchObject({ phase: 'paused', position: { surah: 3, ayah: 85 }, reciterId: 'abdulbasit' });
     expect(hosts('audio-chip')).toHaveLength(0);
     expect(hosts('mushaf-audio-idle')).toHaveLength(1);
     expect(onlyHost('mushaf-play-page').props.accessibilityLabel).toBe(MESSAGES.en.audio.play);
@@ -5339,7 +5350,7 @@ describe('Quran audio in the reader (audio/)', () => {
 
   it('the headphones return (and the chip goes) after the end of the Quran and after an error that stops playback', async () => {
     await render();
-    (await engine()).start({ surah: 114, ayah: 6 }, { mode: 'continuous', reciterId: 'maher' });
+    (await engine()).start({ surah: 114, ayah: 6 }, { mode: 'continuous', reciterId: 'abdulbasit' });
     await flush();
     expect(hosts('audio-chip')).toHaveLength(1);
     await finishAyah();
@@ -5376,7 +5387,7 @@ describe('Quran audio in the reader (audio/)', () => {
     const order = panel.findAll((node) => typeof node.type === 'string' && /^audio-(reciter-dropdown|ayah|progress|previous-page|previous|toggle-large|next|next-page)$/.test(node.props.testID ?? '')).map((node) => node.props.testID);
     expect(order).toEqual(['audio-reciter-dropdown', 'audio-ayah', 'audio-progress', 'audio-previous-page', 'audio-previous', 'audio-toggle-large', 'audio-next', 'audio-next-page']);
     // The Sheikh header has no Surah name; the row under it has the Surah and the ayah.
-    expect(textOfNode(onlyHost('audio-reciter-dropdown'))).toBe('Maher Al-Muaiqly');
+    expect(textOfNode(onlyHost('audio-reciter-dropdown'))).toBe('Abdul Basit Abdus Samad');
     expect(textOfNode(onlyHost('audio-ayah'))).toBe('Aal-i-Imraan · Ayah 84');
     expect(onlyHost('audio-progress').props.accessibilityLabel).toBe('Ayah 84 of 200');
     // Previous and Next are drawn (icons with no style transform, which react-native-svg would move off their box).
@@ -5402,7 +5413,7 @@ describe('Quran audio in the reader (audio/)', () => {
 
   it('the Surah and ayah follow the recitation, across a surah', async () => {
     await render();
-    (await engine()).start({ surah: 3, ayah: 200 }, { mode: 'continuous', reciterId: 'maher' });
+    (await engine()).start({ surah: 3, ayah: 200 }, { mode: 'continuous', reciterId: 'abdulbasit' });
     await flush();
     await press(onlyHost('audio-expand'));
     expect(textOfNode(onlyHost('audio-ayah'))).toBe('Aal-i-Imraan · Ayah 200');
@@ -5426,19 +5437,19 @@ describe('Quran audio in the reader (audio/)', () => {
     await flush();
     expect((await engine()).getState().position).toEqual({ surah: 3, ayah: 84 });
     // Across a page: from 3:91 (page 61), Next plays 3:92 and the page turns to 62.
-    (await engine()).start({ surah: 3, ayah: 91 }, { mode: 'continuous', reciterId: 'maher' });
+    (await engine()).start({ surah: 3, ayah: 91 }, { mode: 'continuous', reciterId: 'abdulbasit' });
     await flush();
     await press(onlyHost('audio-next'));
     await flush();
     expect((await engine()).getState().position).toEqual({ surah: 3, ayah: 92 });
     expect(currentPage()).toBe(62);
     // Across a surah: Previous from 4:1 plays 3:200 from Aal-i-Imraan's file.
-    (await engine()).start({ surah: 4, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    (await engine()).start({ surah: 4, ayah: 1 }, { mode: 'continuous', reciterId: 'abdulbasit' });
     await flush();
     await press(onlyHost('audio-previous'));
     await flush();
     expect((await engine()).getState()).toMatchObject({ phase: 'playing', position: { surah: 3, ayah: 200 } });
-    expect(audio.loads.at(-1)).toBe(`https://cdn.mp3quran.net/audio/maher-muaiqly/r3/003.mp3@${4000 + 199 * 10_000}`);
+    expect(audio.loads.at(-1)).toBe(`https://cdn.mp3quran.net/audio/abdulbasit-abdulsamad/r3/003.mp3@${4000 + 199 * 10_000}`);
   });
 
   it('Next page in the window: the next page`s first ayah plays (from a pause too), the page shows it and follows again', async () => {
@@ -5452,7 +5463,7 @@ describe('Quran audio in the reader (audio/)', () => {
     expect(currentPage()).toBe(62);
     expect(textOfNode(onlyHost('audio-ayah'))).toBe('Aal-i-Imraan · Ayah 92');
     await press(onlyHost('audio-panel-backdrop'));
-    expect(chipText()).toBe('Maher Al-Muaiqly · 92');
+    expect(chipText()).toBe('Abdul Basit Abdus Samad · 92');
     // Recitation continues from there, and the page follows it.
     for (let ayah = 92; ayah <= 100; ayah++) await finishAyah();
     expect(currentPage()).toBe(63); // page 63 begins at 3:101
@@ -5473,13 +5484,13 @@ describe('Quran audio in the reader (audio/)', () => {
 
   it('Previous page is unavailable while page 1 is recited, Next page while page 604 is', async () => {
     await render();
-    (await engine()).start({ surah: 1, ayah: 4 }, { mode: 'continuous', reciterId: 'maher' });
+    (await engine()).start({ surah: 1, ayah: 4 }, { mode: 'continuous', reciterId: 'abdulbasit' });
     await flush();
     await press(onlyHost('audio-expand'));
     expect(onlyHost('audio-previous-page').props).toMatchObject({ disabled: true, accessibilityState: { disabled: true } });
     expect(onlyHost('audio-next-page').props.disabled).toBe(false);
     await press(onlyHost('audio-panel-backdrop'));
-    (await engine()).start({ surah: 114, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    (await engine()).start({ surah: 114, ayah: 1 }, { mode: 'continuous', reciterId: 'abdulbasit' });
     await flush();
     await press(onlyHost('audio-expand'));
     expect(onlyHost('audio-next-page').props).toMatchObject({ disabled: true, accessibilityState: { disabled: true } });
@@ -5496,12 +5507,12 @@ describe('Quran audio in the reader (audio/)', () => {
     await flush();
     expect((await engine()).getState()).toMatchObject({ reciterId: 'minshawi', pendingReciterId: null, position: { surah: 3, ayah: 92 }, phase: 'playing' });
     expect(state.storage.has('quran-heals:favorite-reciter:v1')).toBe(false);
-    (await engine()).start({ surah: 54, ayah: 50 }, { mode: 'continuous', reciterId: 'minshawi' }); // page 531; page 532 begins at 55:17
+    (await engine()).start({ surah: 51, ayah: 52 }, { mode: 'continuous', reciterId: 'minshawi' }); // page 523; page 524 begins at 52:15
     await flush();
     await press(onlyHost('audio-next-page'));
     await flush();
-    expect((await engine()).getState()).toMatchObject({ phase: 'error', reciterId: 'minshawi', position: { surah: 55, ayah: 17 } });
-    expect(textOfNode(onlyHost('audio-problem'))).toMatch(/Muhammad Siddiq Al-Minshawi has no verified recording of Surah Ar-Rahmaan/);
+    expect((await engine()).getState()).toMatchObject({ phase: 'error', reciterId: 'minshawi', position: { surah: 52, ayah: 15 } });
+    expect(textOfNode(onlyHost('audio-problem'))).toMatch(/Muhammad Siddiq Al-Minshawi has no verified recording of Surah At-Tur/);
     expect(hosts('audio-chip')).toHaveLength(0); // not shown as playing
   });
 
@@ -5561,20 +5572,20 @@ describe('Quran audio in the reader (audio/)', () => {
 
   it('Previous is unavailable at Al-Fatiha 1 and Next at An-Nas 6', async () => {
     await render();
-    (await engine()).start({ surah: 1, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    (await engine()).start({ surah: 1, ayah: 1 }, { mode: 'continuous', reciterId: 'abdulbasit' });
     await flush();
     await press(onlyHost('audio-expand'));
     expect(onlyHost('audio-previous').props).toMatchObject({ disabled: true, accessibilityState: { disabled: true } });
     expect(onlyHost('audio-next').props.disabled).toBe(false);
     await press(onlyHost('audio-panel-backdrop'));
-    (await engine()).start({ surah: 114, ayah: 6 }, { mode: 'continuous', reciterId: 'maher' });
+    (await engine()).start({ surah: 114, ayah: 6 }, { mode: 'continuous', reciterId: 'abdulbasit' });
     await flush();
     await press(onlyHost('audio-expand'));
     expect(onlyHost('audio-next').props).toMatchObject({ disabled: true, accessibilityState: { disabled: true } });
     expect(onlyHost('audio-previous').props.disabled).toBe(false);
   });
 
-  it('the Sheikh dropdown: its arrow always shown, ⌄ closed and ⌃ open; 16 reciters, the current highlighted; a choice is Up next, a manual Next applies it at once', async () => {
+  it('the Sheikh dropdown: its arrow always shown, ⌄ closed and ⌃ open; 17 reciters, the current highlighted; a choice is Up next, a manual Next applies it at once', async () => {
     await playing();
     await press(onlyHost('audio-expand'));
     expect(hosts('audio-reciter-chevron-down')).toHaveLength(1);
@@ -5583,8 +5594,8 @@ describe('Quran audio in the reader (audio/)', () => {
     expect(hosts('audio-reciter-chevron-up')).toHaveLength(1);
     expect(hosts('audio-reciter-chevron-down')).toHaveLength(0);
     const rows = () => root.root.findAll((node) => typeof node.type === 'string' && /^audio-reciter-(?!dropdown|name|list|chevron)/.test(node.props.testID ?? ''));
-    expect(rows()).toHaveLength(16);
-    expect(rows().filter((node) => node.props.accessibilityState?.selected).map((node) => node.props.testID)).toEqual(['audio-reciter-maher']);
+    expect(rows()).toHaveLength(17);
+    expect(rows().filter((node) => node.props.accessibilityState?.selected).map((node) => node.props.testID)).toEqual(['audio-reciter-abdulbasit']);
     // Tapping it again closes the list.
     await press(onlyHost('audio-reciter-dropdown'));
     expect(hosts('audio-reciter-list')).toHaveLength(0);
@@ -5596,7 +5607,7 @@ describe('Quran audio in the reader (audio/)', () => {
     expect(hosts('audio-reciter-chevron-down')).toHaveLength(1);
     expect(textOfNode(onlyHost('audio-up-next'))).toBe('Up next: Muhammad Siddiq Al-Minshawi');
     // The ayah being recited is not interrupted: same voice, same ayah, no reload.
-    expect((await engine()).getState()).toMatchObject({ phase: 'playing', reciterId: 'maher', pendingReciterId: 'minshawi', position: { surah: 3, ayah: 84 } });
+    expect((await engine()).getState()).toMatchObject({ phase: 'playing', reciterId: 'abdulbasit', pendingReciterId: 'minshawi', position: { surah: 3, ayah: 84 } });
     expect(audio.loads).toHaveLength(1);
     expect(state.storage.has('quran-heals:favorite-reciter:v1')).toBe(false);
     await press(onlyHost('audio-next'));
@@ -5612,15 +5623,15 @@ describe('Quran audio in the reader (audio/)', () => {
     expect(textOfNode(onlyHost('audio-problem'))).toMatch(/Mahmoud Ali Al-Banna has no verified recording of Surah Aal-i-Imraan/);
   });
 
-  it('Arabic: the chip «[⏸] ماهر المعيقلي · ٨٤» (Pause on the right of the name), «سورة آل عمران · الآية ٨٤», the controls mirrored with the right-pointing glyphs', async () => {
+  it('Arabic: the chip «[⏸] عبد الباسط عبد الصمد · ٨٤» (Pause on the right of the name), «سورة آل عمران · الآية ٨٤», the controls mirrored with the right-pointing glyphs', async () => {
     state.locale = 'ar';
     await playing();
-    expect(chipText()).toBe('ماهر المعيقلي · ٨٤');
+    expect(chipText()).toBe('عبد الباسط عبد الصمد · ٨٤');
     // row-reverse: the first child, Pause, is drawn on the right, immediately beside the name.
     expect(flat(onlyHost('audio-chip').props.style).flexDirection).toBe('row-reverse');
     expect((onlyHost('audio-chip').children as ReactTestInstance[])[0].props.testID).toBe('audio-toggle');
     await press(onlyHost('audio-expand'));
-    expect(textOfNode(onlyHost('audio-reciter-dropdown'))).toBe('ماهر المعيقلي');
+    expect(textOfNode(onlyHost('audio-reciter-dropdown'))).toBe('عبد الباسط عبد الصمد');
     expect(textOfNode(onlyHost('audio-ayah'))).toBe('سورة آل عمران · الآية ٨٤');
     expect(flat(onlyHost('audio-reciter-dropdown').props.style({ pressed: false })).flexDirection).toBe('row-reverse');
     expect(flat(onlyHost('audio-previous').parent!.props.style).flexDirection).toBe('row-reverse');

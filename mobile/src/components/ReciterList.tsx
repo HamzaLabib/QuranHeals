@@ -21,7 +21,7 @@ type ReciterListProps = {
 };
 
 /**
- * The 16 reciters, in the approved order, each with its name in the app's language and how much of the Quran it can
+ * The 17 reciters, in the approved order, each with its name in the app's language and how much of the Quran it can
  * play ayah by ayah ("All 114 surahs", "103 of 114 surahs", "Ayah-by-ayah playback not available"): every reciter is
  * listed and selectable, with its gaps shown, never hidden. Used by Settings → Favorite Reciter and the Mushaf player.
  */
