@@ -1,6 +1,6 @@
 # Mobile Dependency Security
 
-**Reviewed:** 2026-10-13; rechecked 2026-10-17 (commit `4e35aca`)
+**Reviewed:** 2026-10-13; rechecked 2026-10-17 (commit `2c6e907`)
 
 ## Current Findings
 

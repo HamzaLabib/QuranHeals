@@ -1,6 +1,8 @@
 {
   "archivedOn": "2026-10-17T19:42:53.517Z",
-  "headAtArchive": "4e35aca7ddabf30f1614f25aa403de03a19a9783",
+  "headAtArchive": "2c6e907a0120da4d014220f7125c6676583b85d4",
+  "headAtArchiveBeforeRewrite": "4e35aca7ddabf30f1614f25aa403de03a19a9783",
+  "removedFromGitHistory": "2026-10-17: main rewritten dbadb6e -> 48bb4a8; addedInCommitBeforeRewrite resolves only in the pre-rewrite backup bundle",
   "reason": "QCF V1 page renders (Quran Foundation content; the fonts may be used only inside the app). Untracked from the public repository; local copies kept in place.",
   "privateArchive": "repository-cleanup-2026-10-17 (outside the repository; see README in this folder)",
   "files": [
@@ -8,103 +10,103 @@
       "path": "design-archive/experiments/larger-text-mushaf/comparisons/01-page004-original-vs-best-C.png",
       "bytes": 592840,
       "sha256": "526b8bab1f64febbd82d7e31c9abeec9d86fe4f46dbc8346b34cda847a1e11ad",
-      "addedInCommit": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
+      "addedInCommitBeforeRewrite": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
     },
     {
       "path": "design-archive/experiments/larger-text-mushaf/comparisons/02-page604-original-vs-best-C.png",
       "bytes": 528471,
       "sha256": "e0314e63e37edb018fd837829339a10eb08c892daf3272901dd19cc0ed8f9ddd",
-      "addedInCommit": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
+      "addedInCommitBeforeRewrite": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
     },
     {
       "path": "design-archive/experiments/larger-text-mushaf/comparisons/03-page004-original-vs-3pct.png",
       "bytes": 584622,
       "sha256": "dcb1f3ba7d3d8ea78ec70fd9d4f68113624559ea45eead131e398ddbabd67cbd",
-      "addedInCommit": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
+      "addedInCommitBeforeRewrite": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
     },
     {
       "path": "design-archive/experiments/larger-text-mushaf/comparisons/04-page004-original-vs-5pct.png",
       "bytes": 591438,
       "sha256": "61407e69589e687efb17eba39d0fce57ee4518857054ee105894f2e50ff6c7b2",
-      "addedInCommit": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
+      "addedInCommitBeforeRewrite": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
     },
     {
       "path": "design-archive/experiments/larger-text-mushaf/comparisons/05-page004-original-vs-8pct-FAIL.png",
       "bytes": 601064,
       "sha256": "cce8f0ffda28b3b3eea4d1f9cad2290bc2b09e6a76f811400d8e0d6c5b326f9e",
-      "addedInCommit": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
+      "addedInCommitBeforeRewrite": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
     },
     {
       "path": "design-archive/experiments/larger-text-mushaf/comparisons/06-page604-original-vs-3pct.png",
       "bytes": 523683,
       "sha256": "1588d67b83990a551b772045ad3518c54860d132a39a8f54d51f1420e74a66c5",
-      "addedInCommit": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
+      "addedInCommitBeforeRewrite": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
     },
     {
       "path": "design-archive/experiments/larger-text-mushaf/comparisons/07-page604-original-vs-8pct-FAIL.png",
       "bytes": 531020,
       "sha256": "a294ce475ea07ec936dc253cb3175c1a0a970104107f81b79b486e896927836a",
-      "addedInCommit": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
+      "addedInCommitBeforeRewrite": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
     },
     {
       "path": "design-archive/experiments/larger-text-mushaf/comparisons/08-page004-all-candidates-iphone14.png",
       "bytes": 720326,
       "sha256": "df640972a04da395d92c9c004ad8953828acb5ef10cec1a07a2b904195d07a81",
-      "addedInCommit": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
+      "addedInCommitBeforeRewrite": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
     },
     {
       "path": "design-archive/experiments/larger-text-mushaf/comparisons/09-page604-all-candidates-iphone14.png",
       "bytes": 546542,
       "sha256": "20e722d359be43850bfea45ff731e6e746f909a6c7f91e0cb5ca8fd72c7a2a23",
-      "addedInCommit": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
+      "addedInCommitBeforeRewrite": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
     },
     {
       "path": "design-archive/experiments/larger-text-mushaf/comparisons/10-page004-small-iphone-se.png",
       "bytes": 550319,
       "sha256": "aa1224802f4e1fd9358d5f1301ef0f9930e04cc9949ec566313ed1fa5dfb069f",
-      "addedInCommit": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
+      "addedInCommitBeforeRewrite": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
     },
     {
       "path": "design-archive/experiments/larger-text-mushaf/comparisons/11-page004-large-iphone-16-pro-max.png",
       "bytes": 580056,
       "sha256": "01171b1efdb9a48638b60557f5627bd79669acbf25de7fc4dad738da24866836",
-      "addedInCommit": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
+      "addedInCommitBeforeRewrite": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
     },
     {
       "path": "design-archive/experiments/larger-text-mushaf/comparisons/12-page004-android-pixel.png",
       "bytes": 620452,
       "sha256": "229b0dbb621739c37d88ddd077d9c72146c35f2e3ef65d0e75c26135a71f9fd8",
-      "addedInCommit": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
+      "addedInCommitBeforeRewrite": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
     },
     {
       "path": "design-archive/experiments/larger-text-mushaf/comparisons/13-page604-dark.png",
       "bytes": 504101,
       "sha256": "e8ca136812d951d3cb58c42f73c25941a70633cab95403e1234993aceb823805",
-      "addedInCommit": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
+      "addedInCommitBeforeRewrite": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
     },
     {
       "path": "design-archive/experiments/larger-text-mushaf/comparisons/14-page004-dark.png",
       "bytes": 573745,
       "sha256": "fb33500e833d6108a8b48615a0d26b6b82d7370e13d31fe9c4c5c7a2a39a2f75",
-      "addedInCommit": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
+      "addedInCommitBeforeRewrite": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
     },
     {
       "path": "design-archive/experiments/larger-text-mushaf/comparisons/20-crop-right-edge-page004.png",
       "bytes": 418542,
       "sha256": "9842fa7dfc2c547863caddfd4f8e53918e5511fb8592d26c105484581c4f5eb7",
-      "addedInCommit": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
+      "addedInCommitBeforeRewrite": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
     },
     {
       "path": "design-archive/experiments/larger-text-mushaf/comparisons/21-crop-line-middle-page004.png",
       "bytes": 275326,
       "sha256": "2900880f10f1e9066c3e2e75e33ebc116c75b2b3872e078a55f2c30a56e8d4e4",
-      "addedInCommit": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
+      "addedInCommitBeforeRewrite": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
     },
     {
       "path": "design-archive/experiments/larger-text-mushaf/comparisons/22-crop-right-edge-page604.png",
       "bytes": 384151,
       "sha256": "69afd1a4846ae49f73ecd771e8235245037c969e4a10d9fad3633aeaf2dec22f",
-      "addedInCommit": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
+      "addedInCommitBeforeRewrite": "78fcd0ddd791d43afe8e23ee82f24d81e61b9acb"
     }
   ]
 }

@@ -31,7 +31,7 @@ The historical preparation reports `report.md` and `report.json` stay tracked: t
 | `kfgqpc-pdf-inspection.json` | 330,709 | `f1173a4b8a2106eb3d407229de7ce618e5e1d965e408efe2dee10a5e735ac593` | `cca158f` |
 
 Machine-readable: [`archived-outputs.json`](archived-outputs.json). Total 104,869,390 bytes; HEAD when archived:
-`4e35aca7ddabf30f1614f25aa403de03a19a9783`.
+`2c6e907a0120da4d014220f7125c6676583b85d4` (`4e35aca` before the 2026-10-17 history rewrite, which did not touch these files).
 
 ## Restoring
 

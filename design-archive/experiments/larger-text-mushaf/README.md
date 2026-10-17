@@ -64,8 +64,8 @@ WebSocket and an installed Chrome.
 | [findings.md](findings.md) | Results, limits, evidence and the recommendation |
 | [calculations/measurements.md](calculations/measurements.md) | Every measurement per page × phone × candidate, with verdicts |
 | `calculations/measurements.json`, `verdicts.json`, `captures-raw.json`, `feasibility-by-phone.json` | Raw data (DOM geometry, per-line glyphs, the dataset lines) |
-| `screenshots/` | The 54 captures and their index (`screenshots/README.md`): no longer in Git since 2026-10-15 (the previous commits hold them). Preserved locally, verified file by file, in `My App/Working progress/Audit Reports/larger-text-mushaf-screenshots/` |
-| `comparisons/` | 14 side-by-side images and 3 sets of 1:1 crops (QCF V1 page renders): no longer in Git since 2026-10-17 (commit `78fcd0d` and its successors hold them). Preserved locally and, verified file by file, in `My App/Working progress/Audit Reports/repository-cleanup-2026-10-17/`; names, sizes and hashes in [comparisons/ARCHIVED.md](comparisons/ARCHIVED.md) |
+| `screenshots/` | The 54 captures and their index (`screenshots/README.md`): no longer in Git since 2026-10-15, and removed from Git history on 2026-10-17 (no commit holds them). Preserved locally, verified file by file, in `My App/Working progress/Audit Reports/larger-text-mushaf-screenshots/` and `My App/Working progress/Audit Reports/history-cleanup-2026-10-17/private-archive-116-png/` |
+| `comparisons/` | 14 side-by-side images and 3 sets of 1:1 crops (QCF V1 page renders): no longer in Git since 2026-10-17, and removed from Git history the same day (history rewrite; no commit holds them). Preserved locally and, verified file by file, in `My App/Working progress/Audit Reports/repository-cleanup-2026-10-17/`; names, sizes and hashes in [comparisons/ARCHIVED.md](comparisons/ARCHIVED.md) |
 | `source/` | The harness, the patch, and `current-renderer-snapshot/` (the live geometry files at the time, with `SHA256SUMS`; working-tree copies, not Git-verified) |
 
 The permanent archive of the production geometry is [`../../mushaf-page-layout-v1/`](../../mushaf-page-layout-v1/README.md),

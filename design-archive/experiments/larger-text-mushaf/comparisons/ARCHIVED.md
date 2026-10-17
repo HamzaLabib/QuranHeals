@@ -5,9 +5,12 @@ renders: Quran Foundation content whose fonts may be used only inside the app. O
 were removed from Git tracking; `.gitignore` keeps them out. They remain in this folder on the owner's machine, and a
 byte-for-byte copy is in the owner's private audit archive outside the repository (`My App/Working progress/Audit Reports/repository-cleanup-2026-10-17/`, next to the earlier repository-excluded review images). They are evidence only: nothing builds, tests or restores from them.
 
-Earlier commits still contain them (see "Added in").
+On 2026-10-17 they were also removed from Git history (`main` rewritten from `dbadb6e` to `48bb4a8`; 12 commits re-hashed): no
+commit on GitHub contains them any more. "Added in" is the commit ID from before that rewrite; it resolves only in the owner's
+pre-rewrite backup bundle. A second byte-verified copy of all 116 removed images is in
+`My App/Working progress/Audit Reports/history-cleanup-2026-10-17/private-archive-116-png/`.
 
-| File | Bytes | SHA-256 (committed object) | Added in |
+| File | Bytes | SHA-256 (committed object) | Added in (pre-rewrite ID) |
 |---|---:|---|---|
 | `01-page004-original-vs-best-C.png` | 592,840 | `526b8bab1f64febbd82d7e31c9abeec9d86fe4f46dbc8346b34cda847a1e11ad` | `78fcd0d` |
 | `02-page604-original-vs-best-C.png` | 528,471 | `e0314e63e37edb018fd837829339a10eb08c892daf3272901dd19cc0ed8f9ddd` | `78fcd0d` |
@@ -36,5 +39,5 @@ Machine-readable: [`archived-images.json`](archived-images.json). Total 9,126,69
    redistribution terms are unresolved.
 2. Verify them: `node tools/quran-verification/verify-private-archive.mjs design-archive/experiments/larger-text-mushaf/comparisons/archived-images.json` from the repository root (exit 0 =
    every file present with its recorded SHA-256; a Windows CRLF checkout copy of a text file is recognised as such).
-3. If the private archive were ever lost, the identical bytes remain in Git history:
-   `git show <added-in commit>:<path> > <path>`.
+3. If both private archives were ever lost, the only other copy is the owner's pre-rewrite backup bundle
+   (`git show <added-in commit>:<path> > <path>` in a clone of it). The public Git history no longer contains them.

@@ -2,7 +2,7 @@
 
 **Verdict: FAIL.** One verified defect class needs a decision before public release: on current iPhones in Normal Mode, a last-line descender crosses the frame's inner rule on 8 pages (worst: page 560, 1.4 pt). Everything else passed automated verification. The proposed fix changes the approved layout and was **not applied**. No physical device was used.
 
-- **Code verified:** `main` at `f0b5ad8` (clean tree; only the user's own `README.md` edit was present).
+- **Code verified:** `main` at `eda5aaa` (clean tree; only the user's own `README.md` edit was present).
 - **Layout data:** Content Sync snapshot 547617, content version `de84dc6fa58675669b4f5c30`. This is the version production serves now (`/api/mushaf/qpc-v1/offline/manifest`, read-only GET, 200, sequence 547620, same version): 604 pages, 6,236 ayahs, 83,665 words.
 - **Fonts:** the 604 QCF V1 page fonts from Quran Foundation's public CDN (the app's own download source), kept outside the repository. Page 61 equals its pinned SHA-256 (`fonts.lock.json`). The other fonts have no pinned hash in the app; the app accepts them by glyph coverage, which check A repeats. All 604 hashes are in the results file (hash of hashes `2d6c2475…`). `export-word-advances.mjs` output from these fonts equals the committed fixture byte for byte.
 - **Results file:** `results/2026-10-15-current-layout-audit.json` (no glyph codes).
@@ -13,7 +13,7 @@
 - Other evidence found:
   - the larger-text experiment (outside the repo, `My App/design-archive/experiments/larger-text-mushaf/`): pages 4 and 604 only, browser captures. It states that "a Quran-wide check of the right-side ink extent on all 604 pages is needed";
   - three Chrome profiles in `%TEMP%/quran-heals-audit` from an earlier browser audit, with no results;
-  - commit `78fcd0d` (the +5% text): "Final browser visual audits and native-device verification remain pending."
+  - commit `96504a9` (the +5% text): "Final browser visual audits and native-device verification remain pending."
 - **Reusable as is:** checks that do not depend on the page geometry (Quran text equality, glyph coverage, ayah selection logic).
 - **Not reusable:** the 2026-10-12 Python geometry results (`tools/mushaf-audit/README.md`), `vertical-position.report.json` and `android-rendering.report.json`. They model the printed 29-tile layout and the printed side margin (16.2 pt), not the shipped +5% layout (8.4 pt margin, 31–35 tiles).
 - **Python is not installed on this machine**, so the Python audits could not be re-run. They were replaced by a Node audit, `tools/mushaf-audit/audit-current-layout.mts`. It imports the app's own geometry and placement code and is calibrated against the Python tool's published result (see Phase 2).

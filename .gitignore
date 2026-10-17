@@ -38,7 +38,7 @@ QuranHealsAdmin/
 *.mobileprovision
 
 # Review screenshots kept outside Git since 2026-10-15 (copies in My App/Working progress/Audit Reports/;
-# the earlier commits still hold them). Ignored so the local copies are never re-added by mistake.
+# removed from Git history on 2026-10-17). Ignored so the local copies are never re-added by mistake.
 docs/mushaf-visual-review/
 design-archive/experiments/larger-text-mushaf/screenshots/
 # Its comparison images too (QCF V1 page renders, Quran Foundation content): local copies kept, untracked 2026-10-17

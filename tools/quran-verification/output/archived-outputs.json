@@ -1,6 +1,7 @@
 {
   "archivedOn": "2026-10-17T19:42:53.517Z",
-  "headAtArchive": "4e35aca7ddabf30f1614f25aa403de03a19a9783",
+  "headAtArchive": "2c6e907a0120da4d014220f7125c6676583b85d4",
+  "headAtArchiveBeforeRewrite": "4e35aca7ddabf30f1614f25aa403de03a19a9783",
   "reason": "King Fahd (KFGQPC) Hafs v2.0 comparison and orthographic-analysis outputs. They contain KFGQPC Quran text, whose redistribution terms are unresolved. They cannot be regenerated without the original UthmanicHafs_v2-0.zip (not present).",
   "privateArchive": "repository-cleanup-2026-10-17 (outside the repository; see README in this folder)",
   "files": [

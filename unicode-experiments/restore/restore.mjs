@@ -37,7 +37,7 @@ const git = (args) => execFileSync('git', args, { cwd: repo, stdio: 'pipe', enco
 try {
   git(['apply', '--check', patch]);
 } catch (error) {
-  console.error('The reader integration patch no longer applies cleanly to this tree (the reader changed since d9141b8).');
+  console.error('The reader integration patch no longer applies cleanly to this tree (the reader changed since 545d2d9).');
   console.error('Nothing was changed. Merge it by hand: the full files it produced are in restore/reference/.');
   console.error(String(error.stderr || error.message));
   process.exit(1);

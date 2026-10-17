@@ -209,7 +209,7 @@ The renderer plugs into `MushafPageView`'s `renderText` slot, so the reader's ow
 - Full mobile suite: **2,712 passed**, 1 skipped, **10 failed — all in `preferencesSyncLifecycle.test.ts`**, a
   pre-existing timing failure unrelated to this work (its first test exceeds the 5 s timeout on this machine; it
   passes 18/18 with `--testTimeout=30000`, and neither it nor anything it imports is among the changed files; it
-  was not re-run on the last commit `d9141b8` itself).
+  was not re-run on the last commit `545d2d9` itself).
 - `tsc --noEmit` clean; ESLint clean on all changed files. All four generators regenerate byte for byte.
 - **Web (headless Chrome, Expo web dev server, no backend):** 35 screenshots — pages 1, 2, 3, 5, 187, 319, 560, 595,
   604 in Light, Tajweed ON, Dark, Dark + Tajweed, full screen, 360/384/393/820-pt widths, Amiri — each with an

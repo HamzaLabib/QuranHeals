@@ -75,7 +75,7 @@ fixed, a Unicode font must choose between longer stretches (C) and looser or sho
 | `mobile/tests/unicodeMushaf*.test.ts` | 604-page integrity, layout quality per candidate, C2 rules, Tajweed, component tests |
 | `tools/unicode-mushaf/` | Generators: Madina05 fetch (pinned), layout and Tajweed generators, HarfBuzz width measurement, font build, layout comparison; own README |
 | `docs/unicode-mushaf/` | Feasibility report, visual candidates, licensing, migration plan, device checklist |
-| `restore/` | `restore.mjs`, `reader-integration.patch` (the reader, screen test, package.json and docs changes against commit `d9141b8`), `reference/` (the full patched files) |
+| `restore/` | `restore.mjs`, `reader-integration.patch` (the reader, screen test, package.json and docs changes against commit `545d2d9`), `reference/` (the full patched files) |
 | `third-party-fonts/`, `licenses/` | Unmodified OFL source fonts (DigitalKhatt Old Madina, Amiri Quran) and their licences, `NOTICES.md` |
 | `research-scripts/` | The ad-hoc scripts behind the screenshots and parameter sweeps (Puppeteer capture, QCF V1 reference harness, layout sweeps, font analysis). Paths resolve from each script's own location (repository root = `../../../`); the layout sweeps import the prototype from `mobile/src/mushaf/unicode/`, so run them after `restore/restore.mjs`. `qcf-reference/make-qcf.mjs` writes its QCF V1 pages to the current folder and `screenshots-tool/cand*.mjs` read them from `QCF_REFERENCE_DIR` (default `./qcf`): keep that folder outside the repository (QF content) |
 | `screenshots/` | **Local only (git-ignored)**: copies of the four comparison folders (see below) |
@@ -87,7 +87,7 @@ fixed, a Unicode font must choose between longer stretches (C) and looser or sho
 
 ## Restoring
 
-Tested on 2026-10-15 in a clean worktree of commit `d9141b8`: restore, then 276/276 tests and `tsc` passed, and the
+Tested on 2026-10-15 in a clean worktree of commit `545d2d9`: restore, then 276/276 tests and `tsc` passed, and the
 restored reader file was identical to `restore/reference/`.
 
 ```sh
@@ -102,7 +102,7 @@ npx expo start --dev-client --clear                       # Mushaf tab → QCF c
 
 - The archive stays in place after restoring; delete `unicode-experiments/mobile` etc. only once the restored copy is
   committed.
-- If the reader (`mobile/src/app/(tabs)/mushaf.tsx`) has changed since `d9141b8`, the script stops before changing
+- If the reader (`mobile/src/app/(tabs)/mushaf.tsx`) has changed since `545d2d9`, the script stops before changing
   anything. Merge `restore/reader-integration.patch` by hand (`restore/reference/` has the full files it produced).
 - The existing development build runs it from Metro (no native module). The KFGQPC font (KF, A) downloads on first
   use and needs internet once; C, C2, B and Amiri are bundled.
@@ -125,7 +125,7 @@ npx expo start --dev-client --clear                       # Mushaf tab → QCF c
 pages 4 and 604), are QCF V1 page renders. Since 2026-10-17 they are local only: they remain on disk on this machine
 (with a verified copy in the private audit archive; `comparisons/ARCHIVED.md` there lists their hashes) but are excluded
 from public Git tracking (root `.gitignore`), because the rights to redistribute QCF V1 renderings
-(Quran Foundation content) have not been confirmed. Earlier commits still contain them. They are not needed to restore
+(Quran Foundation content) have not been confirmed. Since the 2026-10-17 history rewrite, no commit contains them. They are not needed to restore
 or run anything here.
 
 **Regenerating data (only if inputs change; not needed to restore):** Python 3 with `uharfbuzz==0.56.3` and
