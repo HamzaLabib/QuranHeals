@@ -10,14 +10,16 @@ import type { Messages } from '@/localization/messages';
  *   place in the Application or its associated credits".
  * - King Fahd Complex: copyright holder of the QCF V1 fonts and the artwork.
  * - Amiri Project Authors: the Amiri Bold font used for Surah names.
- * See docs/mushaf.md, "Authorization and terms".
+ * - MP3Quran: the recitations and their ayah timing (audio/reciters.ts); its published rights statement (the
+ *   "Copyrights" section of its privacy page) allows any visitor or developer to copy and use its material.
+ * See docs/mushaf.md, "Authorization and terms", and docs/audio/source-audit.md.
  *
  * Checked on 2026-10-11: the Tanzil and Quran Foundation URLs answer 200.
  * qurancomplex.gov.sa did not answer from the checking network (it is often
  * unreachable outside Saudi Arabia); it is the Complex's official domain.
  */
 export type QuranSource = {
-  key: 'tanzil' | 'quranFoundation' | 'kingFahd' | 'amiri';
+  key: 'tanzil' | 'quranFoundation' | 'kingFahd' | 'amiri' | 'mp3quran';
   name: (copy: Messages['credits']) => string;
   work: (copy: Messages['credits']) => string;
   links: { label: 'website' | 'license' | 'terms'; url: string }[];
@@ -55,6 +57,15 @@ export const QURAN_SOURCES: readonly QuranSource[] = [
     links: [
       { label: 'website', url: 'https://github.com/aliftype/amiri' },
       { label: 'license', url: 'https://openfontlicense.org/' },
+    ],
+  },
+  {
+    key: 'mp3quran',
+    name: (copy) => copy.mp3quranName,
+    work: (copy) => copy.mp3quranWork,
+    links: [
+      { label: 'website', url: 'https://www.mp3quran.net/' },
+      { label: 'license', url: 'https://www.mp3quran.net/eng/privacy' },
     ],
   },
 ];

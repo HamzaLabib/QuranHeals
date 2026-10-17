@@ -1,0 +1,597 @@
+import { describe, expect, it } from 'vitest';
+
+import { COMMAND_GRACE_MS, createPlaybackEngine, RETRY_DELAYS_MS, type AudioOutput, type OutputStatus } from '@/audio/engine';
+import { pageOfPosition } from '@/audio/quranSequence';
+import { getReciter, surahAudioUrl, type Reciter } from '@/audio/reciters';
+import type { SurahTiming, TimingLoader, TimingResult } from '@/audio/timing';
+import { SURAH_AYAH_COUNTS } from '@/utils/ayahLink';
+
+/** Synthetic timing: a 4 s opening, then every ayah 10 s long. */
+const INTRO = 4000;
+const AYAH = 10_000;
+const startOf = (ayah: number) => INTRO + (ayah - 1) * AYAH;
+const endOf = (ayah: number) => startOf(ayah) + AYAH;
+function timingFor(reciter: Reciter, surah: number): SurahTiming {
+  return {
+    reciterId: reciter.id,
+    surah,
+    introEndMs: INTRO,
+    ayahs: Array.from({ length: SURAH_AYAH_COUNTS[surah - 1] }, (_, i) => ({ startMs: startOf(i + 1), endMs: endOf(i + 1) })),
+  };
+}
+
+function setup(options: { timing?: (reciter: Reciter, surah: number) => TimingResult; failLoad?: (uri: string) => boolean } = {}) {
+  const calls: string[] = [];
+  const listeners = new Set<(status: OutputStatus) => void>();
+  let clock = 0;
+  const timers: { at: number; run: () => void }[] = [];
+  const output: AudioOutput = {
+    async load(uri, startMs) {
+      calls.push(`load ${uri} @${startMs}`);
+      if (options.failLoad?.(uri)) throw new Error('unreachable');
+    },
+    async seek(ms) {
+      calls.push(`seek @${ms}`);
+    },
+    play: () => calls.push('play'),
+    pause: () => calls.push('pause'),
+    stop: () => calls.push('stop'),
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    },
+    setNowPlaying: (info) => calls.push(info ? `now ${info.title}` : 'now -'),
+    preload: (uri) => calls.push(`preload ${uri}`),
+  };
+  const timing: TimingLoader = {
+    async load(reciter, surah) {
+      return options.timing?.(reciter, surah) ?? { ok: true, timing: timingFor(reciter, surah) };
+    },
+    async stored() {
+      return null;
+    },
+  };
+  const engine = createPlaybackEngine({
+    output,
+    timing,
+    resolveSource: async (reciter, surah) => ({ uri: surahAudioUrl(reciter, surah), local: false }),
+    describe: (position, reciter) => ({ title: `${position.surah}:${position.ayah}`, artist: reciter.id }),
+    now: () => clock,
+    schedule: (run, ms) => {
+      const timer = { at: clock + ms, run };
+      timers.push(timer);
+      return () => timers.splice(timers.indexOf(timer), 1);
+    },
+  });
+  /** Lets pending promises (timing, load) settle. */
+  const settle = async () => {
+    for (let i = 0; i < 10; i++) await Promise.resolve();
+  };
+  /** The player reports `positionMs` while playing (after the command grace period). */
+  const at = async (positionMs: number, patch: Partial<OutputStatus> = {}) => {
+    clock += COMMAND_GRACE_MS;
+    for (const listener of listeners) listener({ positionMs, playing: true, buffering: false, loaded: true, finished: false, error: null, ...patch });
+    await settle();
+  };
+  const advanceTimers = async (ms: number) => {
+    clock += ms;
+    for (const timer of timers.filter((t) => t.at <= clock)) {
+      timers.splice(timers.indexOf(timer), 1);
+      timer.run();
+    }
+    await settle();
+  };
+  const loads = () => calls.filter((c) => c.startsWith('load') || c.startsWith('seek'));
+  return { engine, calls, settle, at, loads, advanceTimers };
+}
+
+const maher = getReciter('maher')!;
+const abdulbasit = getReciter('abdulbasit')!;
+const minshawi = getReciter('minshawi')!;
+const url = (reciter: Reciter, surah: number) => surahAudioUrl(reciter, surah);
+
+describe('starting playback', () => {
+  it('plays a Mushaf page from its first ayah (page 3 begins at Al-Baqara 6)', async () => {
+    const t = setup();
+    t.engine.startPage(3, 'maher');
+    await t.settle();
+    const state = t.engine.getState();
+    expect(state.phase).toBe('playing');
+    expect(state.position).toEqual({ surah: 2, ayah: 6 });
+    expect(state.reciterId).toBe('maher');
+    expect(t.loads()).toEqual([`load ${url(maher, 2)} @${startOf(6)}`]);
+    expect(t.calls).toContain('play');
+  });
+
+  it('starts a surah\'s ayah 1 from the file\'s start (its istiʿādha and Basmala), never inside the opening', async () => {
+    const t = setup();
+    t.engine.start({ surah: 36, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    expect(t.loads()).toEqual([`load ${url(maher, 36)} @0`]);
+  });
+
+  it('starts from a selected ayah', async () => {
+    const t = setup();
+    t.engine.start({ surah: 18, ayah: 10 }, { mode: 'continuous', reciterId: 'abdulbasit' });
+    await t.settle();
+    expect(t.engine.getState().position).toEqual({ surah: 18, ayah: 10 });
+    expect(t.loads()).toEqual([`load ${url(abdulbasit, 18)} @${startOf(10)}`]);
+  });
+
+  it('refuses a surah the reciter has no verified recording of (no load, no other voice)', async () => {
+    const t = setup();
+    // Minshawi: surah 53's timing failed the audit.
+    t.engine.start({ surah: 53, ayah: 1 }, { mode: 'continuous', reciterId: 'minshawi' });
+    await t.settle();
+    const state = t.engine.getState();
+    expect(state.phase).toBe('error');
+    expect(state.error).toEqual({ kind: 'unavailable', surah: 53, reciterId: 'minshawi' });
+    expect(t.loads()).toEqual([]);
+  });
+
+  it('a reciter with no verified timing at all never plays', async () => {
+    const t = setup();
+    t.engine.start({ surah: 1, ayah: 1 }, { mode: 'continuous', reciterId: 'banna' });
+    await t.settle();
+    expect(t.engine.getState().error?.kind).toBe('unavailable');
+    expect(t.loads()).toEqual([]);
+  });
+
+  it('a new start replaces what was playing (one player)', async () => {
+    const t = setup();
+    t.engine.start({ surah: 2, ayah: 255 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    t.engine.start({ surah: 94, ayah: 5 }, { mode: 'single', reciterId: 'maher' });
+    await t.settle();
+    expect(t.engine.getState().position).toEqual({ surah: 94, ayah: 5 });
+    expect(t.engine.getState().mode).toBe('single');
+    expect(t.engine.getState().session).toBe(2);
+  });
+});
+
+describe('continuous recitation', () => {
+  it('moves to the next ayah in the same file without seeking', async () => {
+    const t = setup();
+    t.engine.start({ surah: 1, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    await t.at(startOf(1) + 500);
+    await t.at(endOf(1) - 20);
+    expect(t.engine.getState().position).toEqual({ surah: 1, ayah: 2 });
+    expect(t.loads()).toHaveLength(1);
+  });
+
+  it('continues into the next surah from its start after a surah\'s last ayah', async () => {
+    const t = setup();
+    t.engine.start({ surah: 1, ayah: 7 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    await t.at(startOf(7) + 100);
+    await t.at(endOf(7));
+    expect(t.engine.getState().position).toEqual({ surah: 2, ayah: 1 });
+    expect(t.loads()).toEqual([`load ${url(maher, 1)} @${startOf(7)}`, `load ${url(maher, 2)} @0`]);
+    expect(t.engine.getState().phase).toBe('playing');
+  });
+
+  it('preloads the next surah on a surah\'s last ayah', async () => {
+    const t = setup();
+    t.engine.start({ surah: 1, ayah: 6 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    await t.at(startOf(6) + 100);
+    await t.at(endOf(6));
+    expect(t.calls).toContain(`preload ${url(maher, 2)}`);
+  });
+
+  it('the recited ayah\'s page is the one to show (automatic page turning)', () => {
+    expect(pageOfPosition({ surah: 2, ayah: 5 })).toBe(2);
+    expect(pageOfPosition({ surah: 2, ayah: 6 })).toBe(3);
+    expect(pageOfPosition({ surah: 114, ayah: 6 })).toBe(604);
+  });
+
+  it('stops gracefully after An-Nas 6', async () => {
+    const t = setup();
+    t.engine.start({ surah: 114, ayah: 6 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    await t.at(startOf(6) + 100);
+    await t.at(endOf(6));
+    expect(t.engine.getState().phase).toBe('ended');
+    expect(t.engine.getState().position).toEqual({ surah: 114, ayah: 6 });
+    expect(t.calls.at(-1)).toBe('stop');
+  });
+
+  it('a stale position right after a load never counts as the new ayah\'s end', async () => {
+    const t = setup();
+    t.engine.start({ surah: 2, ayah: 10 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    // The player still reports the previous file's later position.
+    await t.at(endOf(40));
+    expect(t.engine.getState().position).toEqual({ surah: 2, ayah: 10 });
+    await t.at(startOf(10) + 50);
+    await t.at(endOf(10));
+    expect(t.engine.getState().position).toEqual({ surah: 2, ayah: 11 });
+  });
+});
+
+describe('controls', () => {
+  it('next / previous move one ayah, across surahs', async () => {
+    const t = setup();
+    t.engine.start({ surah: 2, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    t.engine.skip(-1);
+    await t.settle();
+    expect(t.engine.getState().position).toEqual({ surah: 1, ayah: 7 });
+    t.engine.skip(1);
+    await t.settle();
+    expect(t.engine.getState().position).toEqual({ surah: 2, ayah: 1 });
+    t.engine.skip(1);
+    await t.settle();
+    expect(t.engine.getState().position).toEqual({ surah: 2, ayah: 2 });
+    // Same file: a seek, not a reload.
+    expect(t.loads().at(-1)).toBe(`seek @${startOf(2)}`);
+  });
+
+  it('pause and resume', async () => {
+    const t = setup();
+    t.engine.start({ surah: 2, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    t.engine.toggle();
+    expect(t.engine.getState().phase).toBe('paused');
+    expect(t.calls.at(-1)).toBe('pause');
+    // A paused player never moves on.
+    await t.at(endOf(1), { playing: false });
+    expect(t.engine.getState().position).toEqual({ surah: 2, ayah: 1 });
+    t.engine.toggle();
+    expect(t.engine.getState().phase).toBe('playing');
+    expect(t.calls.at(-1)).toBe('play');
+  });
+
+  it('Previous / Next play the ayah (from a pause too), loading the right recording across surahs', async () => {
+    const t = setup();
+    t.engine.start({ surah: 2, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    t.engine.pause();
+    t.engine.skip(1);
+    await t.settle();
+    expect(t.engine.getState()).toMatchObject({ phase: 'playing', position: { surah: 2, ayah: 2 } });
+    expect(t.calls.at(-1)).toBe('play');
+    t.engine.pause();
+    t.engine.skip(-1);
+    t.engine.skip(-1);
+    await t.settle();
+    // Across the surah boundary: Al-Fatiha's file, at its last ayah; the earlier skip's load never plays as well.
+    expect(t.engine.getState()).toMatchObject({ phase: 'playing', position: { surah: 1, ayah: 7 } });
+    expect(t.loads().at(-1)).toBe(`load ${url(maher, 1)} @${startOf(7)}`);
+    expect(t.calls.filter((c) => c === 'play')).toHaveLength(3);
+  });
+
+  it('nothing before Al-Fatiha 1 or after An-Nas 6', async () => {
+    const t = setup();
+    t.engine.start({ surah: 1, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    const before = t.loads().length;
+    t.engine.skip(-1);
+    await t.settle();
+    expect(t.engine.getState().position).toEqual({ surah: 1, ayah: 1 });
+    t.engine.start({ surah: 114, ayah: 6 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    t.engine.skip(1);
+    await t.settle();
+    expect(t.engine.getState().position).toEqual({ surah: 114, ayah: 6 });
+    expect(t.loads()).toHaveLength(before + 1);
+  });
+
+  it('Next into a surah the reciter has no verified recording of stops there with a message (no verse skipped, no other voice)', async () => {
+    const t = setup();
+    t.engine.start({ surah: 54, ayah: 55 }, { mode: 'continuous', reciterId: 'minshawi' });
+    await t.settle();
+    t.engine.skip(1);
+    await t.settle();
+    expect(t.engine.getState()).toMatchObject({ phase: 'error', position: { surah: 55, ayah: 1 }, reciterId: 'minshawi', error: { kind: 'unavailable', surah: 55 } });
+  });
+
+  it('pausing while an ayah loads shows paused at once and stays paused once it has loaded; resume then plays it', async () => {
+    const t = setup();
+    t.engine.start({ surah: 2, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    t.engine.pause();
+    expect(t.engine.getState().phase).toBe('paused');
+    await t.settle();
+    expect(t.engine.getState().phase).toBe('paused');
+    expect(t.calls).not.toContain('play');
+    t.engine.resume();
+    expect(t.engine.getState().phase).toBe('playing');
+    expect(t.calls.at(-1)).toBe('play');
+  });
+
+  it('follows a pause from outside the app (a call, the lock screen), and its resume', async () => {
+    const t = setup();
+    t.engine.start({ surah: 2, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    await t.at(startOf(1) + 100);
+    await t.at(startOf(1) + 200, { playing: false });
+    expect(t.engine.getState().phase).toBe('paused');
+    await t.at(startOf(1) + 300, { playing: true });
+    expect(t.engine.getState().phase).toBe('playing');
+  });
+
+  it('stop releases everything and returns to idle', async () => {
+    const t = setup();
+    t.engine.start({ surah: 2, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    t.engine.selectReciter('abdulbasit');
+    t.engine.stop();
+    const state = t.engine.getState();
+    expect(state).toMatchObject({ phase: 'idle', position: null, reciterId: null, pendingReciterId: null, sessionReciterId: null });
+    expect(t.calls.at(-1)).toBe('stop');
+  });
+});
+
+describe('changing the reciter during playback', () => {
+  async function playing(position = { surah: 2, ayah: 3 }) {
+    const t = setup();
+    t.engine.start(position, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    await t.at(startOf(position.ayah) + 100);
+    return t;
+  }
+
+  it('finishes the current ayah in the original voice, then switches at the next ayah', async () => {
+    const t = await playing();
+    t.engine.selectReciter('abdulbasit');
+    expect(t.engine.getState()).toMatchObject({ reciterId: 'maher', pendingReciterId: 'abdulbasit' });
+    // Mid-ayah: nothing changes, nothing is interrupted.
+    await t.at(startOf(3) + 5000);
+    expect(t.engine.getState()).toMatchObject({ reciterId: 'maher', pendingReciterId: 'abdulbasit', position: { surah: 2, ayah: 3 } });
+    expect(t.calls).not.toContain('pause');
+    expect(t.loads()).toEqual([`load ${url(maher, 2)} @${startOf(3)}`]);
+    // The ayah's end: the next ayah begins in the new voice.
+    await t.at(endOf(3));
+    expect(t.engine.getState()).toMatchObject({ reciterId: 'abdulbasit', pendingReciterId: null, position: { surah: 2, ayah: 4 }, phase: 'playing' });
+    expect(t.loads().at(-1)).toBe(`load ${url(abdulbasit, 2)} @${startOf(4)}`);
+  });
+
+  it('several changes during one ayah: the last one wins', async () => {
+    const t = await playing();
+    t.engine.selectReciter('abdulbasit');
+    t.engine.selectReciter('minshawi');
+    t.engine.selectReciter('naina');
+    expect(t.engine.getState().pendingReciterId).toBe('naina');
+    await t.at(endOf(3));
+    expect(t.engine.getState().reciterId).toBe('naina');
+  });
+
+  it('choosing the current voice again cancels the pending change', async () => {
+    const t = await playing();
+    t.engine.selectReciter('abdulbasit');
+    t.engine.selectReciter('maher');
+    expect(t.engine.getState().pendingReciterId).toBeNull();
+    await t.at(endOf(3));
+    expect(t.engine.getState().reciterId).toBe('maher');
+    expect(t.loads()).toHaveLength(1);
+  });
+
+  it('a manual skip applies the pending reciter at once', async () => {
+    const t = await playing();
+    t.engine.selectReciter('abdulbasit');
+    t.engine.skip(1);
+    await t.settle();
+    expect(t.engine.getState()).toMatchObject({ reciterId: 'abdulbasit', pendingReciterId: null, position: { surah: 2, ayah: 4 } });
+    expect(t.loads().at(-1)).toBe(`load ${url(abdulbasit, 2)} @${startOf(4)}`);
+  });
+
+  it('pausing keeps the pending choice; after resuming the switch still happens at the boundary', async () => {
+    const t = await playing();
+    t.engine.selectReciter('abdulbasit');
+    t.engine.pause();
+    expect(t.engine.getState()).toMatchObject({ phase: 'paused', pendingReciterId: 'abdulbasit', reciterId: 'maher' });
+    t.engine.resume();
+    expect(t.engine.getState()).toMatchObject({ phase: 'playing', pendingReciterId: 'abdulbasit', reciterId: 'maher' });
+    await t.at(endOf(3));
+    expect(t.engine.getState().reciterId).toBe('abdulbasit');
+  });
+
+  it('a reciter without the coming surah is refused with a notice, never substituted', async () => {
+    // Minshawi has no verified timing for surah 53; the next ayah after 52's last is 53:1.
+    const t = await playing({ surah: 52, ayah: 49 });
+    expect(minshawi.timed[53]).toBeUndefined();
+    t.engine.selectReciter('minshawi');
+    expect(t.engine.getState().pendingReciterId).toBeNull();
+    expect(t.engine.getState().notice).toEqual({ kind: 'reciter-unavailable', reciterId: 'minshawi', surah: 53 });
+    await t.at(endOf(49));
+    expect(t.engine.getState()).toMatchObject({ reciterId: 'maher', position: { surah: 53, ayah: 1 } });
+  });
+
+  it('continuing into a surah the current voice lacks stops with a message instead of another voice', async () => {
+    const t = setup();
+    // Minshawi has 54 (55 ayahs) but not 55.
+    expect(minshawi.timed[54]).toBeDefined();
+    t.engine.start({ surah: 54, ayah: 55 }, { mode: 'continuous', reciterId: 'minshawi' });
+    await t.settle();
+    await t.at(startOf(55) + 100);
+    await t.at(endOf(55));
+    expect(t.engine.getState()).toMatchObject({ phase: 'error', error: { kind: 'unavailable', surah: 55, reciterId: 'minshawi' }, position: { surah: 55, ayah: 1 } });
+    // Choosing another reciter there resumes at that ayah in the chosen voice.
+    t.engine.selectReciter('maher');
+    await t.settle();
+    expect(t.engine.getState()).toMatchObject({ phase: 'playing', reciterId: 'maher', position: { surah: 55, ayah: 1 } });
+  });
+
+  it('the player\'s choice becomes the session reciter until the player is closed', async () => {
+    const t = await playing();
+    t.engine.selectReciter('abdulbasit');
+    expect(t.engine.getState().sessionReciterId).toBe('abdulbasit');
+    t.engine.stop();
+    expect(t.engine.getState().sessionReciterId).toBeNull();
+  });
+
+  it('the ayah screens\' single-ayah playback does not keep a session reciter', async () => {
+    const t = await playing();
+    t.engine.selectReciter('abdulbasit');
+    t.engine.start({ surah: 94, ayah: 5 }, { mode: 'single', reciterId: 'maher' });
+    await t.settle();
+    expect(t.engine.getState().sessionReciterId).toBeNull();
+    expect(t.engine.getState().reciterId).toBe('maher');
+  });
+});
+
+describe('one ayah (the ayah screens)', () => {
+  it('plays the ayah and stops at its end, without moving on', async () => {
+    const t = setup();
+    t.engine.start({ surah: 94, ayah: 5 }, { mode: 'single', reciterId: 'maher' });
+    await t.settle();
+    await t.at(startOf(5) + 100);
+    await t.at(endOf(5));
+    expect(t.engine.getState()).toMatchObject({ phase: 'ended', position: { surah: 94, ayah: 5 } });
+    expect(t.loads()).toHaveLength(1);
+  });
+
+  it('replays from the ayah\'s start', async () => {
+    const t = setup();
+    t.engine.start({ surah: 94, ayah: 5 }, { mode: 'single', reciterId: 'maher' });
+    await t.settle();
+    await t.at(startOf(5) + 100);
+    await t.at(endOf(5));
+    t.engine.resume();
+    await t.settle();
+    expect(t.engine.getState().phase).toBe('playing');
+    expect(t.loads().at(-1)).toBe(`seek @${startOf(5)}`);
+  });
+});
+
+describe('failures', () => {
+  it('a network failure is retried by itself, then reported with Retry', async () => {
+    let online = false;
+    const t = setup({ failLoad: () => !online });
+    t.engine.start({ surah: 2, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    expect(t.engine.getState().error?.kind).toBe('network');
+    await t.advanceTimers(RETRY_DELAYS_MS[0]);
+    expect(t.engine.getState().error?.kind).toBe('network');
+    await t.advanceTimers(RETRY_DELAYS_MS[1]);
+    expect(t.engine.getState().phase).toBe('error');
+    // No further automatic attempts.
+    const attempts = t.loads().length;
+    await t.advanceTimers(60_000);
+    expect(t.loads()).toHaveLength(attempts);
+    online = true;
+    t.engine.retry();
+    await t.settle();
+    expect(t.engine.getState()).toMatchObject({ phase: 'playing', position: { surah: 2, ayah: 1 }, error: null });
+  });
+
+  it('timing that no longer matches the audit is never used', async () => {
+    const t = setup({ timing: () => ({ ok: false, reason: 'mismatch' }) });
+    t.engine.start({ surah: 2, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    expect(t.engine.getState().error?.kind).toBe('mismatch');
+    expect(t.loads()).toEqual([]);
+  });
+
+  it('an error while streaming stops at that ayah, ready to retry from its start', async () => {
+    const t = setup();
+    t.engine.start({ surah: 2, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    await t.at(startOf(1) + 100);
+    await t.at(startOf(1) + 200, { error: 'connection lost' });
+    expect(t.engine.getState()).toMatchObject({ phase: 'error', error: { kind: 'network' }, position: { surah: 2, ayah: 1 } });
+    t.engine.retry();
+    await t.settle();
+    expect(t.loads().at(-1)).toBe(`load ${url(maher, 2)} @0`);
+  });
+});
+
+describe('session ownership (the ayah screens)', () => {
+  it('start returns its session; release stops exactly that session, and only while it is the current one', async () => {
+    const t = setup();
+    const first = t.engine.start({ surah: 94, ayah: 5 }, { mode: 'single', reciterId: 'maher' })!;
+    await t.settle();
+    const second = t.engine.start({ surah: 2, ayah: 255 }, { mode: 'continuous', reciterId: 'maher' })!;
+    await t.settle();
+    expect(second).toBe(first + 1);
+    t.engine.release(first); // an older session: the Mushaf's recitation carries on
+    expect(t.engine.getState()).toMatchObject({ phase: 'playing', mode: 'continuous' });
+    t.engine.release(second);
+    expect(t.engine.getState().phase).toBe('idle');
+    expect(() => t.engine.release(second)).not.toThrow(); // idempotent
+    expect(t.engine.getState().phase).toBe('idle');
+  });
+
+  it('a session released while its timing and audio are still loading never plays afterwards', async () => {
+    const t = setup();
+    const session = t.engine.start({ surah: 94, ayah: 5 }, { mode: 'single', reciterId: 'maher' })!;
+    expect(t.engine.getState().phase).toBe('loading'); // timing not loaded yet
+    t.engine.release(session);
+    await t.settle();
+    expect(t.engine.getState().phase).toBe('idle');
+    expect(t.calls).not.toContain('play');
+  });
+});
+
+describe('page jumps (the audio window`s Previous / Next page)', () => {
+  it('Next page: from the recited page to the next page`s first ayah, playing (from a pause too)', async () => {
+    const t = setup();
+    t.engine.start({ surah: 2, ayah: 10 }, { mode: 'continuous', reciterId: 'maher' }); // page 3 (2:6–2:16)
+    await t.settle();
+    t.engine.pause();
+    t.engine.skipPage(1);
+    await t.settle();
+    expect(t.engine.getState()).toMatchObject({ phase: 'playing', position: { surah: 2, ayah: 17 } }); // page 4 begins at 2:17
+    expect(pageOfPosition(t.engine.getState().position!)).toBe(4);
+    expect(t.loads().at(-1)).toBe(`seek @${startOf(17)}`);
+  });
+
+  it('Previous page: the previous page`s first ayah, across a surah (page 50 → 49 begins at 2:283)', async () => {
+    const t = setup();
+    t.engine.start({ surah: 3, ayah: 5 }, { mode: 'continuous', reciterId: 'maher' }); // page 50 (3:1–3:9)
+    await t.settle();
+    t.engine.skipPage(-1);
+    await t.settle();
+    expect(t.engine.getState()).toMatchObject({ phase: 'playing', position: { surah: 2, ayah: 283 } });
+    expect(t.loads().at(-1)).toBe(`load ${url(maher, 2)} @${startOf(283)}`);
+  });
+
+  it('nothing before page 1 or after page 604', async () => {
+    const t = setup();
+    t.engine.start({ surah: 1, ayah: 3 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    t.engine.skipPage(-1);
+    await t.settle();
+    expect(t.engine.getState().position).toEqual({ surah: 1, ayah: 3 });
+    t.engine.start({ surah: 114, ayah: 2 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    t.engine.skipPage(1);
+    await t.settle();
+    expect(t.engine.getState().position).toEqual({ surah: 114, ayah: 2 });
+  });
+
+  it('a pending reciter takes over at once; one without the target surah stops there with its message', async () => {
+    const t = setup();
+    t.engine.start({ surah: 2, ayah: 10 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    t.engine.selectReciter('abdulbasit');
+    t.engine.skipPage(1);
+    await t.settle();
+    expect(t.engine.getState()).toMatchObject({ reciterId: 'abdulbasit', pendingReciterId: null, position: { surah: 2, ayah: 17 } });
+    // Minshawi has 54 but not 55: page 531 begins at 54:50, page 532 at 55:17.
+    t.engine.start({ surah: 54, ayah: 50 }, { mode: 'continuous', reciterId: 'minshawi' });
+    await t.settle();
+    t.engine.skipPage(1);
+    await t.settle();
+    const state = t.engine.getState();
+    expect(state.phase).toBe('error');
+    expect(state.error).toMatchObject({ kind: 'unavailable', reciterId: 'minshawi' });
+    expect(state.reciterId).toBe('minshawi');
+    expect(state.position).toEqual({ surah: 55, ayah: 17 }); // the target ayah, not skipped
+  });
+
+  it('rapid jumps: the last one wins, one recording at a time', async () => {
+    const t = setup();
+    t.engine.start({ surah: 2, ayah: 10 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    t.engine.skipPage(1);
+    t.engine.skipPage(1);
+    t.engine.skipPage(1);
+    await t.settle();
+    // Each jump starts from the position the previous one set: page 3 → 4 → 5 → 6.
+    expect(pageOfPosition(t.engine.getState().position!)).toBe(6);
+    expect(t.engine.getState().phase).toBe('playing');
+    expect(t.calls.filter((c) => c === 'play').length).toBeLessThanOrEqual(2);
+  });
+});

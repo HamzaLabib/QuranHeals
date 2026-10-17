@@ -6,8 +6,11 @@ import { useEffect } from 'react';
 import * as WebBrowser from 'expo-web-browser';
 
 import { AuthProvider } from '@/auth/useAuth';
+import { setAudioLocale } from '@/audio/index';
+import { FavoriteReciterProvider } from '@/audio/useFavoriteReciter';
 import { navigationColorsFor, paletteFor, statusBarStyleFor } from '@/constants/theme';
 import { useDeviceOrientationPolicy } from '@/layout/useDeviceOrientationPolicy';
+import { isRtlLocale } from '@/localization/locales';
 import { AppLocaleProvider, useAppLocale } from '@/localization/useAppLocale';
 import { EmotionsLanguageProvider } from '@/localization/useEmotionsLanguage';
 import { MUSHAF_SCREEN_OPTIONS } from '@/mushaf/screenOptions';
@@ -73,11 +76,13 @@ export default function RootLayout() {
           <QuranTranslationPreferenceProvider>
             <QuranFontSizePreferenceProvider>
               <KeepAwakePreferenceProvider>
-                <NotificationsProvider>
-                  <AuthProvider>
-                    <ThemedRoot />
-                  </AuthProvider>
-                </NotificationsProvider>
+                <FavoriteReciterProvider>
+                  <NotificationsProvider>
+                    <AuthProvider>
+                      <ThemedRoot />
+                    </AuthProvider>
+                  </NotificationsProvider>
+                </FavoriteReciterProvider>
               </KeepAwakePreferenceProvider>
             </QuranFontSizePreferenceProvider>
           </QuranTranslationPreferenceProvider>
@@ -113,7 +118,11 @@ function ThemedRoot() {
   // Auth/session restore is deliberately not awaited: it can hit the network
   // and the home screen doesn't depend on it.
   const { isReady: isAppearanceReady } = useAppearancePreference();
-  const { isReady: isLocaleReady } = useAppLocale();
+  const { isReady: isLocaleReady, locale } = useAppLocale();
+  // The lock screen's "now playing" text follows the App Language (audio/index.ts).
+  useEffect(() => {
+    setAudioLocale(isRtlLocale(locale));
+  }, [locale]);
   const startupReady = isAppearanceReady && isLocaleReady;
   // Reminder taps (notifications/): after startup, once the root navigator exists — including the tap that launched the app.
   useNotificationResponseRouting(startupReady);

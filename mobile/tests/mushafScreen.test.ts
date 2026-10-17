@@ -91,7 +91,9 @@ vi.mock('react-native', async () => {
 vi.mock('react-native-svg', () => ({ default: 'Svg', ClipPath: 'ClipPath', Rect: 'Rect', Path: 'Path', Circle: 'Circle', SvgXml: 'SvgXml', Defs: 'Defs', Ellipse: 'Ellipse', G: 'G', Line: 'Line', LinearGradient: 'LinearGradient', Stop: 'Stop' }));
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView', useSafeAreaInsets: () => state.insets }));
 vi.mock('lucide-react-native', () => ({
-  ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', BookMarked: 'BookMarked', Bookmark: 'Bookmark', Check: 'Check', ChevronDown: 'ChevronDown', CircleHelp: 'CircleHelp', Copy: 'Copy', Heart: 'Heart', Maximize2: 'Maximize2', Minimize2: 'Minimize2', Plus: 'Plus', Search: 'Search', Share2: 'Share2', X: 'X',
+  ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', BookMarked: 'BookMarked', Bookmark: 'Bookmark', Check: 'Check', ChevronDown: 'ChevronDown', ChevronLeft: 'ChevronLeft', ChevronRight: 'ChevronRight', ChevronsLeft: 'ChevronsLeft', ChevronsRight: 'ChevronsRight', CircleHelp: 'CircleHelp', Copy: 'Copy', Heart: 'Heart', Maximize2: 'Maximize2', Minimize2: 'Minimize2', Plus: 'Plus', Search: 'Search', Share2: 'Share2', X: 'X',
+  // Quran audio (the top bar's headphones, the player chip and panel, the popup's Listen).
+  AudioLines: 'AudioLines', ChevronUp: 'ChevronUp', CircleAlert: 'CircleAlert', Headphones: 'Headphones', LocateFixed: 'LocateFixed', Pause: 'Pause', Play: 'Play', SkipBack: 'SkipBack', SkipForward: 'SkipForward',
 }));
 vi.mock('expo-router', () => ({ router: { back: vi.fn(), replace: vi.fn(), push: vi.fn(), navigate: vi.fn(), canGoBack: () => state.canGoBack }, useLocalSearchParams: () => state.params, useIsFocused: () => true }));
 // Keep Screen Awake: the reader holds its own tag while focused (lifecycle cases: mushafKeepAwake.test.ts).
@@ -192,6 +194,43 @@ vi.mock('@/services/quranAsset', async () => {
   return { openBundledQuran: async () => openTestDatabase() };
 });
 
+// Quran audio (audio/index.ts): the real engine (audio/engine.ts) over a fake native player and synthetic timing (every
+// ayah 10 s after a 4 s opening), so the reader's Play, Listen, page turning and following run the engine's own rules.
+const audio = vi.hoisted(() => ({
+  listeners: new Set<(status: { positionMs: number; playing: boolean; buffering: boolean; loaded: boolean; finished: boolean; error: string | null }) => void>(),
+  loads: [] as string[],
+}));
+vi.mock('@/audio/index', async () => {
+  const { createPlaybackEngine } = await import('@/audio/engine');
+  const { surahAudioUrl } = await import('@/audio/reciters');
+  const { SURAH_AYAH_COUNTS } = await import('@/utils/ayahLink');
+  const audioEngine = createPlaybackEngine({
+    output: {
+      load: async (uri: string, startMs: number) => void audio.loads.push(`${uri}@${startMs}`),
+      seek: async (ms: number) => void audio.loads.push(`seek@${ms}`),
+      play: () => undefined,
+      pause: () => undefined,
+      stop: () => undefined,
+      subscribe: (listener) => {
+        audio.listeners.add(listener);
+        return () => audio.listeners.delete(listener);
+      },
+      setNowPlaying: () => undefined,
+      preload: () => undefined,
+    },
+    timing: {
+      load: async (reciter, surah) => ({
+        ok: true as const,
+        timing: { reciterId: reciter.id, surah, introEndMs: 4000, ayahs: Array.from({ length: SURAH_AYAH_COUNTS[surah - 1] }, (_, i) => ({ startMs: 4000 + i * 10_000, endMs: 14_000 + i * 10_000 })) },
+      }),
+      stored: async () => null,
+    },
+    resolveSource: async (reciter, surah) => ({ uri: surahAudioUrl(reciter, surah), local: false }),
+    now: () => 10 ** 12,
+  });
+  const idleDownloads = { getState: () => ({ phase: 'idle' }), subscribe: () => () => undefined, getStorageVersion: () => 0 };
+  return { audioEngine, audioDownloads: idleDownloads, audioFiles: { reciters: async () => [] }, setAudioLocale: () => undefined, timingLoader: {} };
+});
 const { resetMushafAutoDownloadForTests } = await import('@/mushaf/offline/autoDownloadService');
 const { default: MushafScreen, fitMushafPage, BACK_BAR_HEIGHT, TALLER_MAX_TILES_DOWN, TALLER_MAX_LINE_SPACING } = await import('@/app/(tabs)/mushaf');
 const { router } = await import('expo-router');
@@ -251,6 +290,7 @@ async function afterTapWindow() {
   await flush();
 }
 const hosts = (testID: string) => root.root.findAllByProps({ testID }).filter((node) => typeof node.type === 'string');
+const textOfNode = (node: ReactTestInstance) => node.findAllByType('Text' as never).map((t) => [t.props.children].flat().join('')).join(' ');
 /** The current page's drawing (its neighbours, drawn beside it for a swipe, are left out). */
 const inPage = () => root.root.findByProps({ testID: 'mushaf-zoom-page' });
 /** The page the reader shows: the pager's current slot (mushaf-pager-N). */
@@ -354,7 +394,8 @@ beforeEach(() => {
   state.locale = 'en';
   state.storage.clear();
   // The reader's own tests: its first-time guide already seen (the guide's tests start fresh: 'the first-time guide').
-  state.storage.set('quran-heals:mushaf-guide:v1', JSON.stringify({ status: 'done' }));
+  // (closed, not finished: its Help icon still shows, as these tests of the top bar expect).
+  state.storage.set('quran-heals:mushaf-guide:v1', JSON.stringify({ status: 'done', finished: false }));
   state.fontsLoaded = true;
   // Most tests draw page 61 (bundled: drawn before any download), so they open it explicitly; without ?page= the
   // reader opens the saved ورد's page, or page 1 (tests below).
@@ -381,6 +422,9 @@ beforeEach(() => {
 });
 afterEach(async () => {
   if (root) await act(async () => root.unmount());
+  // The one audio engine (a module singleton): nothing plays into the next test.
+  (await import('@/audio/index')).audioEngine.stop();
+  audio.loads = [];
   // The offline Mushaf's one controller (a module singleton): each test starts with a fresh one.
   await resetMushafAutoDownloadForTests();
 });
@@ -593,7 +637,9 @@ describe('full-screen reading', () => {
 
   it('Normal Mode is the default: Back on the left, a plain Expand icon on the right, and the ورد pill', async () => {
     await render();
-    expect(barItems()).toEqual(['mushaf-back', 'mushaf-guide-open', 'mushaf-fullscreen-toggle']);
+    // The empty audio slot (the player's chip while something plays) and Listen from this page (headphones) sit between them.
+    // Then the audio slot (the player's chip while playing), the headphones and Help (no page arrows: they are in the audio window).
+    expect(barItems()).toEqual(['mushaf-back', 'mushaf-audio-slot', 'mushaf-play-page', 'mushaf-guide-open', 'mushaf-fullscreen-toggle']);
     expect(toggle().props.accessibilityLabel).toBe(copy().enterFullScreen);
     expect(toggle().findAllByType('Maximize2' as never)).toHaveLength(1);
     expect(toggle().findByType('Maximize2' as never).props.color).toBe(MUSHAF_PANEL_COLORS.light.icon);
@@ -616,9 +662,11 @@ describe('full-screen reading', () => {
     expect(toggle().findAllByType('Minimize2' as never)).toHaveLength(1);
     expect(barItems().at(-1)).toBe('mushaf-fullscreen-toggle');
     expect(has('mushaf-guide-open')).toBe(false); // Help hides in full screen
+    // Full screen keeps the headphones (2026-10-17) and Collapse.
+    expect(barItems()).toEqual([undefined, 'mushaf-audio-slot', 'mushaf-play-page', 'mushaf-fullscreen-toggle']);
     await press(toggle());
     for (const id of ['mushaf-back', 'mushaf-wird-row', 'mushaf-guide-open']) expect(has(id), id).toBe(true);
-    expect(barItems()).toEqual(['mushaf-back', 'mushaf-guide-open', 'mushaf-fullscreen-toggle']); // restored in place
+    expect(barItems()).toEqual(['mushaf-back', 'mushaf-audio-slot', 'mushaf-play-page', 'mushaf-guide-open', 'mushaf-fullscreen-toggle']); // restored in place
   });
 
   it('full screen keeps Normal Mode`s page width, so the Quran text is the same size; its extra height is the viewport`s', async () => {
@@ -954,8 +1002,8 @@ describe('Taller in both modes (larger text, candidate C): every page, every bui
           const shown = texts().join(' | ');
           expect(shown, label).not.toMatch(/Traditional|Taller|tiles|lines \d|space \d|\d+×\d+/);
           expect(root.root.findAll((node) => typeof node.props.accessibilityLabel === 'string' && /Traditional|Taller|development/.test(node.props.accessibilityLabel)), label).toHaveLength(0);
-          // The top row holds only Back (Normal Mode) and Expand / Collapse.
-          expect(barItems(), label).toEqual(mode === 'normal' ? ['mushaf-back', 'mushaf-guide-open', 'mushaf-fullscreen-toggle'] : [undefined, 'mushaf-fullscreen-toggle']);
+          // The top row holds only Back, Listen and Help (Normal Mode), the (empty) audio slot, and Expand / Collapse.
+          expect(barItems(), label).toEqual(mode === 'normal' ? ['mushaf-back', 'mushaf-audio-slot', 'mushaf-play-page', 'mushaf-guide-open', 'mushaf-fullscreen-toggle'] : [undefined, 'mushaf-audio-slot', 'mushaf-play-page', 'mushaf-fullscreen-toggle']);
         }
         await act(async () => root.unmount());
       }
@@ -3859,25 +3907,28 @@ describe('the redesigned navigation and ayah actions', () => {
     });
   });
 
-  describe('an ayah`s words: exactly Reflection, Save, Copy and Share', () => {
+  describe('an ayah`s words: exactly Reflection, Save, Copy, Share and Listen', () => {
     const ayah = (verseKey: string) => ({
       id: verseKey, verseKey, referenceKey: verseKey, surahNumber: 3, surahNameArabic: 'آل عمران', surahNameEnglish: 'Aal-i-Imraan',
       ayahNumber: Number(verseKey.split(':')[1]), arabicText: '', englishTranslation: 'Say…', emotions: [], quranTextSource: 'tanzil', translationSource: 'pickthall',
     });
 
-    it('opens after the double-tap window, near the ayah, with exactly four actions in order: the lit lamp, the heart, Copy, Share', async () => {
+    it('opens after the double-tap window, near the ayah, with exactly five actions in order: the lit lamp, the heart, Copy, Share, Listen', async () => {
       await render();
       await tapPage(100, 130); // 3:85
       expect(hosts('mushaf-ayah-actions')).toHaveLength(0); // not yet: it may still be a double-tap
       await afterTapWindow();
       const popup = onlyHost('mushaf-ayah-actions');
       const actions = popup.findAll((n) => typeof n.type === 'string' && n.props.accessibilityRole === 'button');
-      expect(actions.map((n) => n.props.testID)).toEqual(['mushaf-ayah-reflection', 'mushaf-ayah-save', 'mushaf-ayah-copy', 'mushaf-ayah-share']);
-      expect(textOf(popup)).toBe(`${copy().actionReflection}|${copy().actionSave}|${copy().actionCopy}|${MESSAGES.en.ayah.share}`);
+      expect(actions.map((n) => n.props.testID)).toEqual(['mushaf-ayah-reflection', 'mushaf-ayah-save', 'mushaf-ayah-copy', 'mushaf-ayah-share', 'mushaf-ayah-listen']);
+      expect(textOf(popup)).toBe(`${copy().actionReflection}|${copy().actionSave}|${copy().actionCopy}|${MESSAGES.en.ayah.share}|${MESSAGES.en.audio.listen}`);
       // Share: the ayah screen's own icon (lucide share-2) and spoken label.
       expect(onlyHost('mushaf-ayah-share').findAllByType('Share2' as never)).toHaveLength(1);
       expect(onlyHost('mushaf-ayah-share').props.accessibilityLabel).toBe(MESSAGES.en.ayah.shareAyah);
-      expect(textOf(popup)).not.toMatch(/Listen|Audio|Tafs|Soon/i);
+      // No placeholder actions; Listen (2026-10-17) is a working action: recitation from this ayah (audio/engine.ts).
+      expect(textOf(popup)).not.toMatch(/Audio|Tafs|Soon/i);
+      expect(onlyHost('mushaf-ayah-listen').findAllByType('Headphones' as never)).toHaveLength(1);
+      expect(onlyHost('mushaf-ayah-listen').props.accessibilityHint).toBe(MESSAGES.en.audio.listenHint);
       // The retired bar's enabled lamp, exactly: lit, its size, the saved green outline, the bright yellow glass.
       const lamp = popup.findByType(ReflectionBulbIcon as never).props;
       expect(lamp).toEqual({ lit: true, size: 23, color: MUSHAF_PANEL_COLORS.light.saved, fill: MUSHAF_PANEL_COLORS.light.activeFill });
@@ -3957,7 +4008,7 @@ describe('the redesigned navigation and ayah actions', () => {
       await press(onlyHost('mushaf-ayah-save'));
       await flush();
       const popup = onlyHost('mushaf-ayah-actions');
-      expect(popup.findAll((n) => typeof n.type === 'string' && n.props.accessibilityRole === 'button').map((n) => n.props.testID)).toEqual(['mushaf-ayah-reflection', 'mushaf-ayah-save', 'mushaf-ayah-copy', 'mushaf-ayah-share']);
+      expect(popup.findAll((n) => typeof n.type === 'string' && n.props.accessibilityRole === 'button').map((n) => n.props.testID)).toEqual(['mushaf-ayah-reflection', 'mushaf-ayah-save', 'mushaf-ayah-copy', 'mushaf-ayah-share', 'mushaf-ayah-listen']);
       expect(onlyHost('mushaf-ayah-save').findByType('Heart' as never).props).toMatchObject({ color: '#E44855', fill: '#E44855' });
       expect(textOf(onlyHost('mushaf-ayah-save'))).toBe(MESSAGES[locale].mushaf.actionSaved);
       expect(onlyHost('mushaf-ayah-save').props.accessibilityLabel).toBe(MESSAGES[locale].favoriteButton.removeLabel);
@@ -3999,7 +4050,7 @@ describe('the redesigned navigation and ayah actions', () => {
       // Saved: the heart fills at once, no error.
       expect(hosts('mushaf-ayah-actions')).toHaveLength(1);
       expect(onlyHost('mushaf-ayah-save').findByType('Heart' as never).props).toMatchObject({ color: '#E44855', fill: '#E44855' });
-      expect(textOf(onlyHost('mushaf-ayah-actions'))).toBe(`${copy().actionReflection}|${copy().actionSaved}|${copy().actionCopy}|${MESSAGES.en.ayah.share}`);
+      expect(textOf(onlyHost('mushaf-ayah-actions'))).toBe(`${copy().actionReflection}|${copy().actionSaved}|${copy().actionCopy}|${MESSAGES.en.ayah.share}|${MESSAGES.en.audio.listen}`);
       const [saved] = storedFavorites();
       expect(saved).toMatchObject({ verseKey: '3:85', surahNumber: 3, ayahNumber: 85, surahNameEnglish: 'Aal-i-Imraan', surahNameArabic: 'آل عمران', englishTranslation: '', translationSource: '', emotions: [] });
       expect(saved.arabicText).toBe((await getVerseByKey('3:85')).arabicText);
@@ -4049,7 +4100,7 @@ describe('the redesigned navigation and ayah actions', () => {
       await render();
       await tapPage(100, 130);
       await afterTapWindow();
-      expect(textOf(onlyHost('mushaf-ayah-actions'))).toBe('خاطرة|حفظ|نسخ|مشاركة');
+      expect(textOf(onlyHost('mushaf-ayah-actions'))).toBe('خاطرة|حفظ|نسخ|مشاركة|استمع');
       expect(flat(onlyHost('mushaf-ayah-reflection').props.style({ pressed: false })).flexDirection).toBe('row-reverse');
     });
 
@@ -4178,7 +4229,7 @@ describe('the redesigned navigation and ayah actions', () => {
       await press(onlyHost('mushaf-ayah-share'));
       await flush();
       expect(hosts('mushaf-ayah-actions')).toHaveLength(1);
-      expect(textOf(onlyHost('mushaf-ayah-actions')).split('|').length).toBe(5); // the four actions and the reason
+      expect(textOf(onlyHost('mushaf-ayah-actions')).split('|').length).toBe(6); // the five actions and the reason
       expect(shareSheet().props.visible).toBe(false);
     });
   });
@@ -4584,6 +4635,15 @@ describe('the first-time guide', () => {
     'qpc-guide-ayah': { x: 240, y: 300, width: 44, height: 30 },
     'qpc-guide-marker': { x: 200, y: 300, width: 26, height: 30 },
   };
+  /** The guide's order (2026-10-17, the original reversed): each step's text and the control it points at. */
+  const ORDER = [
+    ['guideMarker', 'qpc-guide-marker'],
+    ['guideAyah', 'qpc-guide-ayah'],
+    ['guideJuz', 'mushaf-nav-juz'],
+    ['guidePage', 'mushaf-nav-page'],
+    ['guideHizb', 'mushaf-nav-hizb'],
+    ['guideSurah', 'mushaf-nav-surah'],
+  ] as const;
   async function renderFresh(area = { width: 390, height: 797 }) {
     await act(async () => {
       root = create(createElement(MushafScreen), {
@@ -4600,43 +4660,46 @@ describe('the first-time guide', () => {
     await flush();
     await flush();
     // The guide measures after the layout settles (a short timer).
-    await act(async () => { await new Promise((done) => setTimeout(done, 120)); });
+    await settle();
   }
+  const settle = async () => { await act(async () => { await new Promise((done) => setTimeout(done, 120)); }); };
   const guide = () => hosts('mushaf-guide');
   const guideText = () => onlyHost('mushaf-guide-text').props.children;
   const hole = () => styleOf(onlyHost('mushaf-guide-highlight'));
   const padded = (id: string) => ({ left: BOXES[id].x - 6, top: BOXES[id].y - 6, width: BOXES[id].width + 12, height: BOXES[id].height + 12 });
-  const next = async () => { await press(onlyHost('mushaf-guide-next')); await act(async () => { await new Promise((done) => setTimeout(done, 120)); }); };
+  const next = async () => { await press(onlyHost('mushaf-guide-next')); await settle(); };
+  const toLastStep = async () => { for (let step = 0; step < 5; step += 1) await next(); };
   const stored = () => JSON.parse(state.storage.get(GUIDE_KEY) ?? 'null');
+  const helpShown = () => hosts('mushaf-guide-open').length === 1;
+  /** Settings → Quran → Mushaf Guide: /mushaf?guide=<time> (a new value each time). */
+  async function requestFromSettings(token: string) {
+    state.params = { guide: token };
+    await act(async () => root.update(createElement(MushafScreen)));
+    await settle();
+  }
 
   beforeEach(() => {
     state.storage.delete(GUIDE_KEY); // a new user
   });
 
-  it('a new user: shown by itself once the page and its controls are drawn, at step 1 (the Surah name), its highlight on the real control and the arrow pointing up to it', async () => {
+  it('a new user: shown by itself once the page and its controls are drawn, at step 1 (the ayah number, for the ورد position)', async () => {
     await renderFresh();
     expect(guide()).toHaveLength(1);
-    expect(guideText()).toBe(copy().guideSurah);
+    expect(guideText()).toBe(copy().guideMarker);
     expect(texts()).toContain('1 of 6');
-    expect(hole()).toMatchObject(padded('mushaf-nav-surah'));
-    // The card below the control; the arrow from the card's top edge up to the highlight, within the card.
-    const card = styleOf(onlyHost('mushaf-guide-card'));
-    const arrow = styleOf(onlyHost('mushaf-guide-arrow'));
-    expect(card.top).toBeGreaterThan(BOXES['mushaf-nav-surah'].y + BOXES['mushaf-nav-surah'].height);
-    expect(arrow.top).toBe(BOXES['mushaf-nav-surah'].y + BOXES['mushaf-nav-surah'].height + 6);
-    expect(arrow.top + arrow.height).toBe(card.top);
-    expect(arrow.left + arrow.width / 2).toBeGreaterThanOrEqual(card.left + 22);
+    expect(helpShown()).toBe(true);
     // Nothing changed: the same page, no ورد, no Khatma.
     expect(currentPage()).toBe(61);
     expect([...state.storage.keys()].filter((key) => /reading-stop|khatma|favorite|reflection/.test(key))).toEqual([]);
   });
 
-  it('all six steps in order, each pointing at its own real control: Surah, Hizb, page, Juz, an ayah, its number', async () => {
+  it('all six steps in the reversed order, numbered 1–6, each pointing at its own real control: ayah number, ayah, Juz, page, Hizb, Surah', async () => {
     await renderFresh();
-    const order: string[] = [];
+    const shown: string[] = [];
     for (let step = 0; step < 6; step += 1) {
-      order.push(guideText());
-      const target = ['mushaf-nav-surah', 'mushaf-nav-hizb', 'mushaf-nav-page', 'mushaf-nav-juz', 'qpc-guide-ayah', 'qpc-guide-marker'][step];
+      shown.push(guideText());
+      expect(texts()).toContain(`${step + 1} of 6`);
+      const target = ORDER[step][1];
       if (hosts(target).length > 0) {
         expect(hole(), target).toMatchObject(padded(target));
         expect(hosts('mushaf-guide-not-on-page'), target).toHaveLength(0);
@@ -4645,55 +4708,66 @@ describe('the first-time guide', () => {
         expect(hosts('mushaf-guide-highlight'), target).toHaveLength(0);
         expect(hosts('mushaf-guide-not-on-page'), target).toHaveLength(1);
       }
+      // Start Reading (Finish) only on step 6; Next on every other.
+      expect(hosts('mushaf-guide-start'), `step ${step + 1}`).toHaveLength(step === 5 ? 1 : 0);
+      expect(hosts('mushaf-guide-next'), `step ${step + 1}`).toHaveLength(step === 5 ? 0 : 1);
       if (step < 5) await next();
     }
-    expect(order).toEqual([copy().guideSurah, copy().guideHizb, copy().guidePage, copy().guideJuz, copy().guideAyah, copy().guideMarker]);
-    // The page number is low on the screen: the card above it, the arrow pointing down.
-    expect(hosts('mushaf-guide-start')).toHaveLength(1);
-    expect(hosts('mushaf-guide-next')).toHaveLength(0);
+    expect(shown).toEqual(ORDER.map(([key]) => copy()[key]));
   });
 
-  it('with the page`s QPC words drawn: steps 5 and 6 point at a real ayah`s word and at that same ayah`s number, on the page being read', async () => {
+  it('step 6 (the Surah name): its highlight on the real control, the card below it and the arrow pointing up to it', async () => {
+    await renderFresh();
+    await toLastStep();
+    expect(guideText()).toBe(copy().guideSurah);
+    expect(hole()).toMatchObject(padded('mushaf-nav-surah'));
+    const card = styleOf(onlyHost('mushaf-guide-card'));
+    const arrow = styleOf(onlyHost('mushaf-guide-arrow'));
+    expect(card.top).toBeGreaterThan(BOXES['mushaf-nav-surah'].y + BOXES['mushaf-nav-surah'].height);
+    expect(arrow.top).toBe(BOXES['mushaf-nav-surah'].y + BOXES['mushaf-nav-surah'].height + 6);
+    expect(arrow.top + arrow.height).toBe(card.top);
+    expect(arrow.left + arrow.width / 2).toBeGreaterThanOrEqual(card.left + 22);
+  });
+
+  it('with the page`s QPC words drawn: steps 1 and 2 point at a real ayah`s number and at a word of that same ayah, on the page being read', async () => {
     state.fetch.mockResolvedValue(layoutResponse(200, { success: true, data: syntheticQpcPage61() }));
     await renderFresh();
     await act(async () => {
       for (const line of syntheticQpcPage61().lines) root.root.findByProps({ testID: `qpc-measure-${line.line}` }).props.onLayout({ nativeEvent: { layout: { x: 0, y: 0, width: line.line === 1 ? MEASURE_WIDTH : 800, height: 100 } } });
     });
-    await act(async () => { await new Promise((done) => setTimeout(done, 120)); });
+    await settle();
     const ayah = onlyHost('qpc-guide-ayah');
     const marker = onlyHost('qpc-guide-marker');
     // The same line; the word belongs to the ayah whose number is the marker (a word before it on that line).
     expect(ayah.parent).toBe(marker.parent);
     const words = (ayah.parent!.children as ReactTestInstance[]).filter((child) => typeof child !== 'string' && child.props.onLayout);
     expect(words.indexOf(ayah)).toBeLessThan(words.indexOf(marker));
-    for (let step = 0; step < 4; step += 1) await next();
-    expect(guideText()).toBe(copy().guideAyah);
-    expect(hole()).toMatchObject(padded('qpc-guide-ayah'));
-    await next();
     expect(guideText()).toBe(copy().guideMarker);
     expect(hole()).toMatchObject(padded('qpc-guide-marker'));
+    await next();
+    expect(guideText()).toBe(copy().guideAyah);
+    expect(hole()).toMatchObject(padded('qpc-guide-ayah'));
     // Only pointed at: nothing selected, no popup, no ورد saved.
     expect(hosts('mushaf-ayah-actions')).toHaveLength(0);
     expect(hosts('mushaf-wird-apply')).toHaveLength(0);
     expect([...state.storage.keys()].filter((key) => /reading-stop|khatma/.test(key))).toEqual([]);
   });
 
-  it('on a page with a Hizb mark (page 5), step 2 points at the real Hizb label', async () => {
+  it('on a page with a Hizb mark (page 5), step 5 points at the real Hizb label', async () => {
     state.params = { page: '5' };
     state.offline.readPage.mockImplementation(async (n: number) => ({ ...syntheticQpcPage61(), page: n, fontFamily: `QCF_P${String(n).padStart(3, '0')}` }));
     await renderFresh();
     expect(currentPage()).toBe(5);
     expect(hosts('mushaf-nav-hizb')).toHaveLength(1);
-    await next();
+    for (let step = 0; step < 4; step += 1) await next();
     expect(guideText()).toBe(copy().guideHizb);
     expect(hole()).toMatchObject(padded('mushaf-nav-hizb'));
     expect(hosts('mushaf-guide-not-on-page')).toHaveLength(0);
   });
 
-  it('the page number`s step: the card above, the arrow down to it', async () => {
+  it('the page number`s step (step 4): the card above, the arrow down to it', async () => {
     await renderFresh();
-    await next();
-    await next();
+    for (let step = 0; step < 3; step += 1) await next();
     expect(guideText()).toBe(copy().guidePage);
     const card = styleOf(onlyHost('mushaf-guide-card'));
     const arrow = styleOf(onlyHost('mushaf-guide-arrow'));
@@ -4710,67 +4784,156 @@ describe('the first-time guide', () => {
     const modal = root.root.findAll((node) => node.type === ('Modal' as never) && node.findAll((n) => n.props.testID === 'mushaf-guide').length > 0)[0];
     await act(async () => modal.props.onRequestClose());
     expect(guide()).toHaveLength(1);
-    expect(guideText()).toBe(copy().guideSurah);
+    expect(guideText()).toBe(copy().guideMarker);
     await act(async () => { await new Promise((done) => setTimeout(done, 3000)); });
-    expect(guideText()).toBe(copy().guideSurah); // no timer
+    expect(guideText()).toBe(copy().guideMarker); // no timer
     await next();
     await next();
-    expect(guideText()).toBe(copy().guidePage);
+    expect(guideText()).toBe(copy().guideJuz);
     await press(onlyHost('mushaf-guide-back'));
-    expect(guideText()).toBe(copy().guideHizb);
+    expect(guideText()).toBe(copy().guideAyah);
     await act(async () => modal.props.onRequestClose()); // Android Back: one step back
-    expect(guideText()).toBe(copy().guideSurah);
+    expect(guideText()).toBe(copy().guideMarker);
     await press(onlyHost('mushaf-guide-close'));
     expect(guide()).toHaveLength(0);
-    expect(stored()).toEqual({ status: 'done' });
+    expect(stored()).toEqual({ status: 'done', finished: false });
   });
 
-  it('closed once, it does not show by itself again; Help opens it again at step 1', async () => {
+  it('closed early, it does not show by itself again and the Help icon stays; Help opens it again at step 1', async () => {
     await renderFresh();
     await press(onlyHost('mushaf-guide-close'));
+    expect(helpShown()).toBe(true);
     await act(async () => root.unmount());
     await renderFresh();
     expect(guide()).toHaveLength(0);
+    expect(helpShown()).toBe(true);
     await press(onlyHost('mushaf-guide-open'));
-    await act(async () => { await new Promise((done) => setTimeout(done, 120)); });
+    await settle();
     expect(guide()).toHaveLength(1);
-    expect(guideText()).toBe(copy().guideSurah);
+    expect(guideText()).toBe(copy().guideMarker);
     expect(onlyHost('mushaf-guide-open').props.accessibilityLabel).toBe(copy().guideHelp);
   });
 
-  it('Start Reading on the last step finishes it and records it as seen', async () => {
+  it('step 6 ends with where to find the guide again, just above Start Reading; no other step shows it', async () => {
     await renderFresh();
-    for (let step = 0; step < 5; step += 1) await next();
-    expect(guideText()).toBe(copy().guideMarker);
+    for (let step = 0; step < 5; step += 1) {
+      expect(hosts('mushaf-guide-reopen-hint'), `step ${step + 1}`).toHaveLength(0);
+      await next();
+    }
+    const hint = onlyHost('mushaf-guide-reopen-hint');
+    expect(hint.props.children).toBe('You can view this guide again anytime from Settings → Quran → Mushaf Guide.');
+    // In the card's own note style, above the buttons.
+    const card = onlyHost('mushaf-guide-card');
+    const flow = card.findAll((node) => typeof node.type === 'string' && (node.props.testID === 'mushaf-guide-reopen-hint' || node.props.testID === 'mushaf-guide-start'));
+    expect(flow.map((node) => node.props.testID)).toEqual(['mushaf-guide-reopen-hint', 'mushaf-guide-start']);
+    expect(styleOf(hint)).toMatchObject({ fontSize: 13, writingDirection: 'ltr', textAlign: 'left' });
+  });
+
+  it('Start Reading on step 6 finishes it: recorded as finished, the Help icon hidden, still hidden after a restart', async () => {
+    await renderFresh();
+    await toLastStep();
+    expect(guideText()).toBe(copy().guideSurah);
     await press(onlyHost('mushaf-guide-start'));
     expect(guide()).toHaveLength(0);
-    expect(stored()).toEqual({ status: 'done' });
+    expect(stored()).toEqual({ status: 'done', finished: true });
+    expect(helpShown()).toBe(false);
     expect(currentPage()).toBe(61);
+    await act(async () => root.unmount());
+    await renderFresh();
+    expect(guide()).toHaveLength(0);
+    expect(helpShown()).toBe(false);
+    // Full screen as before: no Help icon either.
+    await press(toggle());
+    expect(helpShown()).toBe(false);
+  });
+
+  it('users who completed the guide before this update keep it completed: no Help icon, nothing rewritten', async () => {
+    state.storage.set(GUIDE_KEY, JSON.stringify({ status: 'done' }));
+    await renderFresh();
+    expect(guide()).toHaveLength(0);
+    expect(helpShown()).toBe(false);
+    expect(state.storage.get(GUIDE_KEY)).toBe(JSON.stringify({ status: 'done' }));
+  });
+
+  it('Settings → Quran → Mushaf Guide opens it at step 1 even after it was finished; going through or closing it never brings the Help icon back', async () => {
+    state.storage.set(GUIDE_KEY, JSON.stringify({ status: 'done', finished: true }));
+    await renderFresh();
+    expect(guide()).toHaveLength(0);
+    await requestFromSettings('1000');
+    expect(guide()).toHaveLength(1);
+    expect(guideText()).toBe(copy().guideMarker);
+    expect(texts()).toContain('1 of 6');
+    // Opening it saves nothing.
+    expect(stored()).toEqual({ status: 'done', finished: true });
+    for (let step = 0; step < 5; step += 1) await next();
+    expect(guideText()).toBe(copy().guideSurah);
+    expect(stored()).toEqual({ status: 'done', finished: true }); // moving through it saves no progress
+    await press(onlyHost('mushaf-guide-close'));
+    expect(stored()).toEqual({ status: 'done', finished: true });
+    expect(helpShown()).toBe(false);
+    // The same request again (a re-render) does not reopen it; a new one does.
+    await act(async () => root.update(createElement(MushafScreen)));
+    expect(guide()).toHaveLength(0);
+    await requestFromSettings('2000');
+    expect(guideText()).toBe(copy().guideMarker);
+  });
+
+  it('the Settings request changes no page, ورد or reading progress', async () => {
+    state.storage.set(GUIDE_KEY, JSON.stringify({ status: 'done', finished: false }));
+    await renderFresh();
+    const before = new Map([...state.storage].filter(([key]) => !/mushaf-guide/.test(key)));
+    await requestFromSettings('3000');
+    await press(onlyHost('mushaf-guide-close'));
+    expect(currentPage()).toBe(61);
+    expect(new Map([...state.storage].filter(([key]) => !/mushaf-guide/.test(key)))).toEqual(before);
   });
 
   it('interrupted (the app reloaded mid-way): it opens again at the step reached', async () => {
     await renderFresh();
     await next();
     await next();
-    expect(stored()).toEqual({ status: 'unseen', step: 2 });
+    expect(stored()).toEqual({ status: 'unseen', step: 2, order: 2 });
     await act(async () => root.unmount());
     await renderFresh();
-    expect(guideText()).toBe(copy().guidePage);
+    expect(guideText()).toBe(copy().guideJuz);
   });
 
-  it('Arabic: the approved wording, mirrored buttons, «التالي / السابق / إغلاق / ابدأ القراءة»', async () => {
+  it('a step reached in the original order (before this update) is not resumed in the new order: the guide starts at step 1', async () => {
+    state.storage.set(GUIDE_KEY, JSON.stringify({ status: 'unseen', step: 3 }));
+    await renderFresh();
+    expect(guideText()).toBe(copy().guideMarker);
+    expect(texts()).toContain('1 of 6');
+  });
+
+  it('Arabic: the approved wording (step 1 now «وقم بالتأكيد»), mirrored buttons, «التالي / السابق / إغلاق / ابدأ القراءة», and the closing line', async () => {
     state.locale = 'ar';
     await renderFresh();
-    expect(guideText()).toBe('اضغط على اسم السورة للانتقال إلى سورة');
+    expect(guideText()).toBe('اضغط على رقم الآية وقم بالتأكيد لحفظ موضع الوِرد');
     expect(styleOf(onlyHost('mushaf-guide-text'))).toMatchObject({ writingDirection: 'rtl', textAlign: 'right' });
     expect(texts()).toContain('التالي');
     expect(texts()).toContain('إغلاق');
     const actions = onlyHost('mushaf-guide-close').parent!;
     expect(styleOf(actions)).toMatchObject({ flexDirection: 'row-reverse' });
-    for (let step = 0; step < 5; step += 1) await next();
-    expect(guideText()).toBe('اضغط على رقم الآية ثم «تطبيق» لحفظ موضع الوِرد');
+    await toLastStep();
+    expect(guideText()).toBe('اضغط على اسم السورة للانتقال إلى سورة');
     expect(texts()).toContain('ابدأ القراءة');
     expect(texts()).toContain('السابق');
+    const hint = onlyHost('mushaf-guide-reopen-hint');
+    expect(hint.props.children).toBe('يمكنك عرض هذا الدليل مرة أخرى في أي وقت من الإعدادات ← القرآن ← دليل المصحف.');
+    expect(styleOf(hint)).toMatchObject({ writingDirection: 'rtl', textAlign: 'right' });
+  });
+
+  it('English and Arabic stay paired step by step (the same control, its own text)', async () => {
+    for (const locale of ['en', 'ar'] as const) {
+      state.locale = locale;
+      state.storage.delete(GUIDE_KEY);
+      await renderFresh();
+      for (let step = 0; step < 6; step += 1) {
+        expect(guideText(), `${locale} ${step + 1}`).toBe(MESSAGES[locale].mushaf[ORDER[step][0]]);
+        if (step < 5) await next();
+      }
+      await act(async () => root.unmount());
+    }
   });
 
   it('Light and Dark: the reader`s panel colours, the highlight in its accent', async () => {
@@ -4779,6 +4942,7 @@ describe('the first-time guide', () => {
       state.storage.delete(GUIDE_KEY);
       await renderFresh();
       expect(styleOf(onlyHost('mushaf-guide-card'))).toMatchObject({ backgroundColor: MUSHAF_PANEL_COLORS[theme].sheet.backgroundColor });
+      await toLastStep();
       expect(hole()).toMatchObject({ borderColor: MUSHAF_PANEL_COLORS[theme].accent });
       await act(async () => root.unmount());
     }
@@ -4786,10 +4950,11 @@ describe('the first-time guide', () => {
 
   it('full screen: no Help icon (Normal Mode only); a guide already open keeps pointing at the real control, measured again', async () => {
     await renderFresh();
+    await toLastStep();
     expect(guide()).toHaveLength(1);
     await press(toggle());
     expect(hosts('mushaf-guide-open')).toHaveLength(0);
-    await act(async () => { await new Promise((done) => setTimeout(done, 120)); });
+    await settle();
     expect(guide()).toHaveLength(1);
     expect(hole()).toMatchObject(padded('mushaf-nav-surah'));
     await press(toggle());
@@ -4798,6 +4963,7 @@ describe('the first-time guide', () => {
 
   it('a small phone: the card fits the screen width with its margins', async () => {
     await renderFresh({ width: 320, height: 548 });
+    await toLastStep(); // a step with a control on this page: the card is placed beside it
     const card = styleOf(onlyHost('mushaf-guide-card'));
     // useWindowDimensions is 390 wide here; the card is never wider than the screen less 16 pt each side.
     expect(card.width).toBeLessThanOrEqual(390 - 32);
@@ -4907,4 +5073,535 @@ describe('tablets: rotation and window resizing (one centred page, nothing lost)
     expect(styleOf(root.root.findByType('GestureHandlerRootView' as never))).toMatchObject({ paddingTop: 47, paddingLeft: 0, paddingRight: 0 });
     expect(pageSize()).toEqual(fitMushafPage({ width: 390, height: 797 }, 34, false, false).page);
   });
+});
+
+describe('Quran audio in the reader (audio/)', () => {
+  const engine = async () => (await import('@/audio/index')).audioEngine;
+  const onlyHost = (testID: string) => {
+    const found = hosts(testID);
+    expect(found, testID).toHaveLength(1);
+    return found[0];
+  };
+  /** The ayah being recited, as the reader shows it highlighted (the page's selected ayah while nothing is selected). */
+  const highlighted = () => root.root.findAll((node) => typeof node.type !== 'string' && 'selectedVerseKey' in node.props && node.props.onSelectVerse && node.props.accessibilityActions)[0]?.props.selectedVerseKey ?? null;
+  /** The player reports playback reaching the end of the ayah being recited (after a status inside it). */
+  async function finishAyah() {
+    const { position } = (await engine()).getState();
+    const start = 4000 + (position!.ayah - 1) * 10_000;
+    for (const positionMs of [start + 100, start + 10_000]) {
+      await act(async () => {
+        for (const listener of audio.listeners) listener({ positionMs, playing: true, buffering: false, loaded: true, finished: false, error: null });
+      });
+      await flush();
+    }
+  }
+
+  it('the headphones play from the first ayah of the page shown, in the Favorite Reciter; while playing they give way to the chip', async () => {
+    await render();
+    expect(hosts('audio-chip')).toHaveLength(0);
+    expect(hosts('mushaf-audio-idle')).toHaveLength(1);
+    await press(onlyHost('mushaf-play-page'));
+    await flush();
+    const state = (await engine()).getState();
+    expect(state).toMatchObject({ phase: 'playing', mode: 'continuous', position: { surah: 3, ayah: 84 }, reciterId: 'maher' });
+    expect(audio.loads).toEqual(['https://cdn.mp3quran.net/audio/maher-muaiqly/r3/003.mp3@834000']);
+    expect(hosts('audio-chip')).toHaveLength(1);
+    expect(hosts('mushaf-play-page')).toHaveLength(0);
+    expect(highlighted()).toBe('3:84');
+  });
+
+  it('the page keeps its size and place while the player shows (the chip lives in the top bar)', async () => {
+    await render();
+    const before = styleOf(root.root.findByProps({ testID: 'mushaf-paper' }));
+    await press(onlyHost('mushaf-play-page'));
+    await flush();
+    expect(styleOf(root.root.findByProps({ testID: 'mushaf-paper' }))).toEqual(before);
+    expect(styleOf(root.root.findByProps({ testID: 'mushaf-back-bar' })).height).toBe(BACK_BAR_HEIGHT);
+  });
+
+  it('continues ayah after ayah and turns the page when the recitation reaches the next page; no ورد or last page is saved', async () => {
+    await render();
+    const stopsBefore = state.storage.get(READING_STOPS_STORAGE_KEY);
+    await press(onlyHost('mushaf-play-page'));
+    await flush();
+    const lastPageBefore = state.storage.get('quran-heals:mushaf-last-page:v1');
+    for (let ayah = 84; ayah <= 91; ayah++) await finishAyah();
+    expect((await engine()).getState().position).toEqual({ surah: 3, ayah: 92 });
+    expect(currentPage()).toBe(62);
+    expect(state.storage.get(READING_STOPS_STORAGE_KEY)).toBe(stopsBefore);
+    expect(state.storage.get('quran-heals:mushaf-last-page:v1')).toBe(lastPageBefore);
+  });
+
+  it('swiping away stops following (never pulled back); Follow recitation returns to the recited page', async () => {
+    await render();
+    await press(onlyHost('mushaf-play-page'));
+    await flush();
+    await turnPage(1);
+    expect(currentPage()).toBe(62);
+    expect(hosts('audio-follow')).toHaveLength(1);
+    await finishAyah();
+    expect((await engine()).getState().position).toEqual({ surah: 3, ayah: 85 });
+    expect(currentPage()).toBe(62);
+    await press(onlyHost('audio-follow'));
+    await flush();
+    expect(currentPage()).toBe(61);
+    expect(hosts('audio-follow')).toHaveLength(0);
+  });
+
+  it('swiping back to the recited page follows it again', async () => {
+    await render();
+    await press(onlyHost('mushaf-play-page'));
+    await flush();
+    await turnPage(1);
+    await turnPage(-1);
+    expect(hosts('audio-follow')).toHaveLength(0);
+    for (let ayah = 84; ayah <= 91; ayah++) await finishAyah();
+    expect(currentPage()).toBe(62);
+  });
+
+  it('an ayah\'s Listen recites from that ayah; the popup closes and the recited ayah is highlighted', async () => {
+    await render();
+    await tapPage(100, 130); // 3:85
+    await afterTapWindow();
+    await press(onlyHost('mushaf-ayah-listen'));
+    await flush();
+    expect(hosts('mushaf-ayah-actions')).toHaveLength(0);
+    expect((await engine()).getState()).toMatchObject({ phase: 'playing', position: { surah: 3, ayah: 85 }, reciterId: 'maher' });
+    expect(highlighted()).toBe('3:85');
+  });
+
+  it('Listen while listening uses the player\'s reciter (its up-next choice too), never the Favorite Reciter setting', async () => {
+    await render();
+    await press(onlyHost('mushaf-play-page'));
+    await flush();
+    (await engine()).selectReciter('abdulbasit');
+    await flush();
+    await tapPage(100, 130);
+    await afterTapWindow();
+    await press(onlyHost('mushaf-ayah-listen'));
+    await flush();
+    expect((await engine()).getState()).toMatchObject({ position: { surah: 3, ayah: 85 }, reciterId: 'abdulbasit' });
+    expect(state.storage.has('quran-heals:favorite-reciter:v1')).toBe(false);
+  });
+
+  it('full screen: the headphones while idle start the page; the chip while playing; Pause brings the headphones back', async () => {
+    await render();
+    await press(onlyHost('mushaf-fullscreen-toggle'));
+    expect(hosts('mushaf-play-page')).toHaveLength(1);
+    expect(hosts('audio-chip')).toHaveLength(0);
+    await press(onlyHost('mushaf-play-page'));
+    await flush();
+    expect((await engine()).getState()).toMatchObject({ phase: 'playing', position: { surah: 3, ayah: 84 } });
+    expect(hosts('audio-chip')).toHaveLength(1);
+    expect(hosts('mushaf-play-page')).toHaveLength(0);
+    await press(onlyHost('audio-toggle'));
+    expect(hosts('audio-chip')).toHaveLength(0);
+    expect(hosts('mushaf-play-page')).toHaveLength(1);
+    await press(onlyHost('mushaf-play-page'));
+    await flush();
+    expect((await engine()).getState()).toMatchObject({ phase: 'playing', position: { surah: 3, ayah: 84 } });
+    // The window opens from the chip in full screen too, and hides without stopping.
+    await press(onlyHost('audio-expand'));
+    expect(hosts('audio-panel')).toHaveLength(1);
+    await press(onlyHost('audio-panel-backdrop'));
+    expect((await engine()).getState().phase).toBe('playing');
+  });
+
+  it('entering and leaving full screen never restarts, reloads or duplicates the recitation; a pause stays a pause', async () => {
+    await render();
+    await press(onlyHost('mushaf-play-page'));
+    await flush();
+    await finishAyah(); // 3:85
+    const loads = audio.loads.length;
+    await press(onlyHost('mushaf-fullscreen-toggle'));
+    expect((await engine()).getState()).toMatchObject({ phase: 'playing', position: { surah: 3, ayah: 85 }, reciterId: 'maher' });
+    expect(textOfNode(onlyHost('audio-expand'))).toContain('Maher Al-Muaiqly');
+    await press(onlyHost('mushaf-fullscreen-toggle'));
+    expect((await engine()).getState()).toMatchObject({ phase: 'playing', position: { surah: 3, ayah: 85 } });
+    expect(audio.loads).toHaveLength(loads);
+    await press(onlyHost('audio-toggle'));
+    await press(onlyHost('mushaf-fullscreen-toggle'));
+    expect((await engine()).getState().phase).toBe('paused');
+    expect(hosts('mushaf-play-page')).toHaveLength(1);
+    expect(hosts('audio-chip')).toHaveLength(0);
+  });
+
+  it('the toolbar has no page arrows in either mode (they are in the audio window); swipes still only change the page', async () => {
+    await render();
+    for (const id of ['mushaf-page-next', 'mushaf-page-previous', 'audio-next-page', 'audio-previous-page']) expect(hosts(id), id).toHaveLength(0);
+    await press(onlyHost('mushaf-play-page'));
+    await flush();
+    const loads = audio.loads.length;
+    // A manual page change (the page's own next-page action, as a swipe): the recitation carries on, unfollowed.
+    await turnPage(1);
+    expect(currentPage()).toBe(62);
+    expect((await engine()).getState()).toMatchObject({ phase: 'playing', position: { surah: 3, ayah: 84 } });
+    expect(audio.loads).toHaveLength(loads);
+    expect(hosts('audio-follow')).toHaveLength(1);
+    expect(hosts('mushaf-page-next')).toHaveLength(0);
+    await press(onlyHost('mushaf-fullscreen-toggle'));
+    expect(hosts('mushaf-page-next')).toHaveLength(0);
+    expect(hosts('mushaf-page-previous')).toHaveLength(0);
+  });
+
+  async function playing() {
+    await render();
+    await press(onlyHost('mushaf-play-page'));
+    await flush();
+  }
+  /** The chip's label as read: the name and the (nested) ayah number, strings only. */
+  const chipText = () => onlyHost('audio-expand').findAllByType('Text' as never).flatMap((t) => [t.props.children].flat()).filter((c): c is string => typeof c === 'string').join('');
+
+  it('the chip while playing: its own Pause, then the Sheikh and the ayah (updating as it advances), each its own touch target', async () => {
+    await playing();
+    const chip = onlyHost('audio-chip');
+    const targets = chip.findAll((node) => typeof node.type === 'string' && node.props.accessibilityRole === 'button').map((node) => node.props.testID);
+    expect(targets.slice(0, 2)).toEqual(['audio-toggle', 'audio-expand']);
+    expect(onlyHost('audio-toggle').findAllByType('Pause' as never)).toHaveLength(1);
+    expect(chipText()).toBe('Maher Al-Muaiqly · 84');
+    await finishAyah();
+    expect(chipText()).toBe('Maher Al-Muaiqly · 85');
+    // The Pause button acts at once, without opening the window.
+    expect(hosts('audio-panel')).toHaveLength(0);
+  });
+
+  it('Pause in the chip: paused in place, the whole chip gone and the headphones back; the headphones resume from there', async () => {
+    await playing();
+    await finishAyah(); // 3:85
+    await press(onlyHost('audio-toggle'));
+    expect((await engine()).getState()).toMatchObject({ phase: 'paused', position: { surah: 3, ayah: 85 }, reciterId: 'maher' });
+    expect(hosts('audio-chip')).toHaveLength(0);
+    expect(hosts('mushaf-audio-idle')).toHaveLength(1);
+    expect(onlyHost('mushaf-play-page').props.accessibilityLabel).toBe(MESSAGES.en.audio.play);
+    const loads = audio.loads.length;
+    await press(onlyHost('mushaf-play-page'));
+    await flush();
+    expect((await engine()).getState()).toMatchObject({ phase: 'playing', position: { surah: 3, ayah: 85 } });
+    expect(audio.loads).toHaveLength(loads); // resumed in place: no reload, no second player
+    expect(hosts('audio-chip')).toHaveLength(1);
+    expect(hosts('mushaf-play-page')).toHaveLength(0);
+  });
+
+  it('Stop (touch and hold the chip`s Pause, or the screen reader action) closes the player; the headphones return', async () => {
+    await playing();
+    expect(onlyHost('audio-toggle').props.accessibilityActions).toEqual([{ name: 'stop', label: MESSAGES.en.audio.stop }]);
+    await act(async () => onlyHost('audio-toggle').props.onLongPress());
+    expect((await engine()).getState().phase).toBe('idle');
+    expect(hosts('audio-chip')).toHaveLength(0);
+    expect(hosts('mushaf-audio-idle')).toHaveLength(1);
+    // A paused recitation can be stopped from the headphones too.
+    await press(onlyHost('mushaf-play-page'));
+    await flush();
+    await press(onlyHost('audio-toggle'));
+    await act(async () => onlyHost('mushaf-play-page').props.onLongPress());
+    expect((await engine()).getState().phase).toBe('idle');
+  });
+
+  it('the headphones return (and the chip goes) after the end of the Quran and after an error that stops playback', async () => {
+    await render();
+    (await engine()).start({ surah: 114, ayah: 6 }, { mode: 'continuous', reciterId: 'maher' });
+    await flush();
+    expect(hosts('audio-chip')).toHaveLength(1);
+    await finishAyah();
+    expect((await engine()).getState().phase).toBe('ended');
+    expect(hosts('audio-chip')).toHaveLength(0);
+    expect(hosts('mushaf-audio-idle')).toHaveLength(1);
+    (await engine()).start({ surah: 53, ayah: 1 }, { mode: 'continuous', reciterId: 'minshawi' }); // no verified recording
+    await flush();
+    expect((await engine()).getState().phase).toBe('error');
+    expect(hosts('audio-chip')).toHaveLength(0);
+    expect(hosts('mushaf-audio-idle')).toHaveLength(1);
+  });
+
+  it('the chip`s arrow: ⌄ with the window closed, ⌃ while it is open, ⌄ again once a tap outside closes it (playback untouched)', async () => {
+    await playing();
+    expect(hosts('audio-chip-chevron-down')).toHaveLength(1);
+    expect(hosts('audio-chip-chevron-up')).toHaveLength(0);
+    await press(onlyHost('audio-expand'));
+    expect(hosts('audio-panel')).toHaveLength(1);
+    expect(hosts('audio-chip-chevron-up')).toHaveLength(1);
+    expect(hosts('audio-chip-chevron-down')).toHaveLength(0);
+    expect(onlyHost('audio-expand').props.accessibilityState).toEqual({ expanded: true });
+    await press(onlyHost('audio-panel-backdrop'));
+    expect(hosts('audio-panel')).toHaveLength(0);
+    expect(hosts('audio-chip-chevron-down')).toHaveLength(1);
+    expect((await engine()).getState().phase).toBe('playing');
+    expect(audio.loads).toHaveLength(1); // opening and closing never reloaded or restarted
+  });
+
+  it('the window: Sheikh ⌄ first, then the Surah and ayah, its progress, then Previous — Play/Pause — Next; no X', async () => {
+    await playing();
+    await press(onlyHost('audio-expand'));
+    const panel = onlyHost('audio-panel');
+    const order = panel.findAll((node) => typeof node.type === 'string' && /^audio-(reciter-dropdown|ayah|progress|previous-page|previous|toggle-large|next|next-page)$/.test(node.props.testID ?? '')).map((node) => node.props.testID);
+    expect(order).toEqual(['audio-reciter-dropdown', 'audio-ayah', 'audio-progress', 'audio-previous-page', 'audio-previous', 'audio-toggle-large', 'audio-next', 'audio-next-page']);
+    // The Sheikh header has no Surah name; the row under it has the Surah and the ayah.
+    expect(textOfNode(onlyHost('audio-reciter-dropdown'))).toBe('Maher Al-Muaiqly');
+    expect(textOfNode(onlyHost('audio-ayah'))).toBe('Aal-i-Imraan · Ayah 84');
+    expect(onlyHost('audio-progress').props.accessibilityLabel).toBe('Ayah 84 of 200');
+    // Previous and Next are drawn (icons with no style transform, which react-native-svg would move off their box).
+    for (const id of ['audio-previous-icon', 'audio-next-icon', 'audio-previous-page-icon', 'audio-next-page-icon']) expect(root.root.findByProps({ testID: id }).props.style).toBeUndefined();
+    // Page jumps and ayah jumps look different: double chevrons vs skip icons; Play / Pause is the largest.
+    expect(onlyHost('audio-previous-page').findAllByType('ChevronsRight' as never)).toHaveLength(1);
+    expect(onlyHost('audio-next-page').findAllByType('ChevronsLeft' as never)).toHaveLength(1);
+    expect(onlyHost('audio-previous').findAllByType('SkipForward' as never)).toHaveLength(1);
+    const width = (id: string) => flat(onlyHost(id).props.style({ pressed: false })).width as number;
+    expect(width('audio-toggle-large')).toBeGreaterThan(width('audio-previous'));
+    expect(width('audio-previous')).toBeGreaterThanOrEqual(width('audio-previous-page'));
+    // The row fits the narrowest iPhone window (320 − 16 margin − 24 padding = 280 pt): 40 + 44 + 48 + 44 + 40 + 4 × 12.
+    const gap = flat(onlyHost('audio-previous').parent!.props.style).gap as number;
+    expect(width('audio-previous-page') * 2 + width('audio-previous') * 2 + width('audio-toggle-large') + gap * 4).toBeLessThanOrEqual(280);
+    expect(hosts('audio-stop')).toHaveLength(0);
+    expect(panel.findAllByType('X' as never)).toHaveLength(0);
+    // Pausing inside the window keeps it open (the chip goes; the headphones are back behind it).
+    await press(onlyHost('audio-toggle-large'));
+    expect((await engine()).getState().phase).toBe('paused');
+    expect(hosts('audio-panel')).toHaveLength(1);
+    expect(onlyHost('audio-toggle-large').props.accessibilityLabel).toBe(MESSAGES.en.audio.play);
+  });
+
+  it('the Surah and ayah follow the recitation, across a surah', async () => {
+    await render();
+    (await engine()).start({ surah: 3, ayah: 200 }, { mode: 'continuous', reciterId: 'maher' });
+    await flush();
+    await press(onlyHost('audio-expand'));
+    expect(textOfNode(onlyHost('audio-ayah'))).toBe('Aal-i-Imraan · Ayah 200');
+    await finishAyah();
+    expect(textOfNode(onlyHost('audio-ayah'))).toBe('An-Nisaa · Ayah 1');
+  });
+
+  it('Previous and Next play that ayah (from a pause too), across surahs and pages, and the page follows it', async () => {
+    await playing();
+    await turnPage(1); // reading page 62: not following
+    expect(hosts('audio-follow')).toHaveLength(1);
+    await press(onlyHost('audio-expand'));
+    await press(onlyHost('audio-toggle-large')); // pause
+    await press(onlyHost('audio-next'));
+    await flush();
+    expect((await engine()).getState()).toMatchObject({ phase: 'playing', position: { surah: 3, ayah: 85 } });
+    expect(audio.loads.at(-1)).toBe('seek@844000');
+    expect(currentPage()).toBe(61);
+    expect(hosts('audio-follow')).toHaveLength(0);
+    await press(onlyHost('audio-previous'));
+    await flush();
+    expect((await engine()).getState().position).toEqual({ surah: 3, ayah: 84 });
+    // Across a page: from 3:91 (page 61), Next plays 3:92 and the page turns to 62.
+    (await engine()).start({ surah: 3, ayah: 91 }, { mode: 'continuous', reciterId: 'maher' });
+    await flush();
+    await press(onlyHost('audio-next'));
+    await flush();
+    expect((await engine()).getState().position).toEqual({ surah: 3, ayah: 92 });
+    expect(currentPage()).toBe(62);
+    // Across a surah: Previous from 4:1 plays 3:200 from Aal-i-Imraan's file.
+    (await engine()).start({ surah: 4, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    await flush();
+    await press(onlyHost('audio-previous'));
+    await flush();
+    expect((await engine()).getState()).toMatchObject({ phase: 'playing', position: { surah: 3, ayah: 200 } });
+    expect(audio.loads.at(-1)).toBe(`https://cdn.mp3quran.net/audio/maher-muaiqly/r3/003.mp3@${4000 + 199 * 10_000}`);
+  });
+
+  it('Next page in the window: the next page`s first ayah plays (from a pause too), the page shows it and follows again', async () => {
+    await playing(); // page 61, 3:84
+    await press(onlyHost('audio-expand'));
+    await press(onlyHost('audio-toggle-large')); // pause
+    await press(onlyHost('audio-next-page'));
+    await flush();
+    expect((await engine()).getState()).toMatchObject({ phase: 'playing', position: { surah: 3, ayah: 92 } }); // page 62 begins at 3:92
+    expect(audio.loads.at(-1)).toBe(`seek@${4000 + 91 * 10_000}`);
+    expect(currentPage()).toBe(62);
+    expect(textOfNode(onlyHost('audio-ayah'))).toBe('Aal-i-Imraan · Ayah 92');
+    await press(onlyHost('audio-panel-backdrop'));
+    expect(chipText()).toBe('Maher Al-Muaiqly · 92');
+    // Recitation continues from there, and the page follows it.
+    for (let ayah = 92; ayah <= 100; ayah++) await finishAyah();
+    expect(currentPage()).toBe(63); // page 63 begins at 3:101
+  });
+
+  it('page jumps start from the page being recited, not the page merely shown; they restore following', async () => {
+    await playing(); // reciting page 61
+    await turnPage(1);
+    await turnPage(1); // reading page 63
+    expect(hosts('audio-follow')).toHaveLength(1);
+    await press(onlyHost('audio-expand'));
+    await press(onlyHost('audio-previous-page'));
+    await flush();
+    expect((await engine()).getState().position).toEqual({ surah: 3, ayah: 78 }); // page 60 begins at 3:78
+    expect(currentPage()).toBe(60);
+    expect(hosts('audio-follow')).toHaveLength(0);
+  });
+
+  it('Previous page is unavailable while page 1 is recited, Next page while page 604 is', async () => {
+    await render();
+    (await engine()).start({ surah: 1, ayah: 4 }, { mode: 'continuous', reciterId: 'maher' });
+    await flush();
+    await press(onlyHost('audio-expand'));
+    expect(onlyHost('audio-previous-page').props).toMatchObject({ disabled: true, accessibilityState: { disabled: true } });
+    expect(onlyHost('audio-next-page').props.disabled).toBe(false);
+    await press(onlyHost('audio-panel-backdrop'));
+    (await engine()).start({ surah: 114, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    await flush();
+    await press(onlyHost('audio-expand'));
+    expect(onlyHost('audio-next-page').props).toMatchObject({ disabled: true, accessibilityState: { disabled: true } });
+    expect(onlyHost('audio-previous-page').props.disabled).toBe(false);
+  });
+
+  it('a pending Sheikh takes over at once on a page jump; a Sheikh without the target surah stops there with the message', async () => {
+    await playing();
+    await press(onlyHost('audio-expand'));
+    await press(onlyHost('audio-reciter-dropdown'));
+    await press(onlyHost('audio-reciter-minshawi'));
+    await flush();
+    await press(onlyHost('audio-next-page'));
+    await flush();
+    expect((await engine()).getState()).toMatchObject({ reciterId: 'minshawi', pendingReciterId: null, position: { surah: 3, ayah: 92 }, phase: 'playing' });
+    expect(state.storage.has('quran-heals:favorite-reciter:v1')).toBe(false);
+    (await engine()).start({ surah: 54, ayah: 50 }, { mode: 'continuous', reciterId: 'minshawi' }); // page 531; page 532 begins at 55:17
+    await flush();
+    await press(onlyHost('audio-next-page'));
+    await flush();
+    expect((await engine()).getState()).toMatchObject({ phase: 'error', reciterId: 'minshawi', position: { surah: 55, ayah: 17 } });
+    expect(textOfNode(onlyHost('audio-problem'))).toMatch(/Muhammad Siddiq Al-Minshawi has no verified recording of Surah Ar-Rahmaan/);
+    expect(hosts('audio-chip')).toHaveLength(0); // not shown as playing
+  });
+
+  it('the five controls in full screen too', async () => {
+    await render();
+    await press(onlyHost('mushaf-fullscreen-toggle'));
+    await press(onlyHost('mushaf-play-page'));
+    await flush();
+    await press(onlyHost('audio-expand'));
+    for (const id of ['audio-previous-page', 'audio-previous', 'audio-toggle-large', 'audio-next', 'audio-next-page']) expect(hosts(id), id).toHaveLength(1);
+    await press(onlyHost('audio-next-page'));
+    await flush();
+    expect((await engine()).getState().position).toEqual({ surah: 3, ayah: 92 });
+    expect(currentPage()).toBe(62);
+  });
+
+  it('the five controls keep the Mushaf`s right-to-left order and glyphs in English and Arabic, normal and full screen', async () => {
+    for (const locale of ['en', 'ar'] as const) {
+      for (const full of [false, true]) {
+        state.locale = locale;
+        await render();
+        if (full) await press(onlyHost('mushaf-fullscreen-toggle'));
+        await press(onlyHost('mushaf-play-page'));
+        await flush();
+        await press(onlyHost('audio-expand'));
+        const label = `${locale}${full ? ' full screen' : ''}`;
+        const row = onlyHost('audio-controls');
+        // row-reverse in every language: the first child is drawn on the right.
+        expect(flat(row.props.style).flexDirection, label).toBe('row-reverse');
+        const rightToLeft = (row.children as ReactTestInstance[]).map((node) => node.props.testID);
+        expect(rightToLeft, label).toEqual(['audio-previous-page', 'audio-previous', 'audio-toggle-large', 'audio-next', 'audio-next-page']);
+        // Previous glyphs point right, next glyphs left; chosen directly, never transformed.
+        const glyph = (id: string, type: string) => onlyHost(id).findAllByType(type as never);
+        expect(glyph('audio-previous-page', 'ChevronsRight'), label).toHaveLength(1);
+        expect(glyph('audio-previous', 'SkipForward'), label).toHaveLength(1);
+        expect(glyph('audio-next', 'SkipBack'), label).toHaveLength(1);
+        expect(glyph('audio-next-page', 'ChevronsLeft'), label).toHaveLength(1);
+        for (const id of ['audio-previous-icon', 'audio-next-icon', 'audio-previous-page-icon', 'audio-next-page-icon']) expect(root.root.findByProps({ testID: id }).props.style, `${label} ${id}`).toBeUndefined();
+        // Each does its own thing.
+        await press(onlyHost('audio-next'));
+        await flush();
+        expect((await engine()).getState().position, label).toEqual({ surah: 3, ayah: 85 });
+        await press(onlyHost('audio-previous'));
+        await flush();
+        expect((await engine()).getState().position, label).toEqual({ surah: 3, ayah: 84 });
+        await press(onlyHost('audio-next-page'));
+        await flush();
+        expect((await engine()).getState().position, label).toEqual({ surah: 3, ayah: 92 });
+        await press(onlyHost('audio-previous-page'));
+        await flush();
+        expect((await engine()).getState().position, label).toEqual({ surah: 3, ayah: 84 });
+        (await engine()).stop();
+        await act(async () => root.unmount());
+      }
+    }
+  });
+
+  it('Previous is unavailable at Al-Fatiha 1 and Next at An-Nas 6', async () => {
+    await render();
+    (await engine()).start({ surah: 1, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    await flush();
+    await press(onlyHost('audio-expand'));
+    expect(onlyHost('audio-previous').props).toMatchObject({ disabled: true, accessibilityState: { disabled: true } });
+    expect(onlyHost('audio-next').props.disabled).toBe(false);
+    await press(onlyHost('audio-panel-backdrop'));
+    (await engine()).start({ surah: 114, ayah: 6 }, { mode: 'continuous', reciterId: 'maher' });
+    await flush();
+    await press(onlyHost('audio-expand'));
+    expect(onlyHost('audio-next').props).toMatchObject({ disabled: true, accessibilityState: { disabled: true } });
+    expect(onlyHost('audio-previous').props.disabled).toBe(false);
+  });
+
+  it('the Sheikh dropdown: its arrow always shown, ⌄ closed and ⌃ open; 16 reciters, the current highlighted; a choice is Up next, a manual Next applies it at once', async () => {
+    await playing();
+    await press(onlyHost('audio-expand'));
+    expect(hosts('audio-reciter-chevron-down')).toHaveLength(1);
+    expect(hosts('audio-reciter-list')).toHaveLength(0);
+    await press(onlyHost('audio-reciter-dropdown'));
+    expect(hosts('audio-reciter-chevron-up')).toHaveLength(1);
+    expect(hosts('audio-reciter-chevron-down')).toHaveLength(0);
+    const rows = () => root.root.findAll((node) => typeof node.type === 'string' && /^audio-reciter-(?!dropdown|name|list|chevron)/.test(node.props.testID ?? ''));
+    expect(rows()).toHaveLength(16);
+    expect(rows().filter((node) => node.props.accessibilityState?.selected).map((node) => node.props.testID)).toEqual(['audio-reciter-maher']);
+    // Tapping it again closes the list.
+    await press(onlyHost('audio-reciter-dropdown'));
+    expect(hosts('audio-reciter-list')).toHaveLength(0);
+    expect(hosts('audio-reciter-chevron-down')).toHaveLength(1);
+    await press(onlyHost('audio-reciter-dropdown'));
+    await press(onlyHost('audio-reciter-minshawi'));
+    await flush();
+    expect(hosts('audio-reciter-list')).toHaveLength(0); // the list closes after a choice
+    expect(hosts('audio-reciter-chevron-down')).toHaveLength(1);
+    expect(textOfNode(onlyHost('audio-up-next'))).toBe('Up next: Muhammad Siddiq Al-Minshawi');
+    // The ayah being recited is not interrupted: same voice, same ayah, no reload.
+    expect((await engine()).getState()).toMatchObject({ phase: 'playing', reciterId: 'maher', pendingReciterId: 'minshawi', position: { surah: 3, ayah: 84 } });
+    expect(audio.loads).toHaveLength(1);
+    expect(state.storage.has('quran-heals:favorite-reciter:v1')).toBe(false);
+    await press(onlyHost('audio-next'));
+    await flush();
+    expect((await engine()).getState()).toMatchObject({ reciterId: 'minshawi', pendingReciterId: null, position: { surah: 3, ayah: 85 } });
+    // The new name, its arrow still there.
+    expect(textOfNode(onlyHost('audio-reciter-dropdown'))).toBe('Muhammad Siddiq Al-Minshawi');
+    expect(hosts('audio-reciter-chevron-down')).toHaveLength(1);
+    // A reciter with no verified timing at all is listed, marked, and refused with a notice when chosen.
+    await press(onlyHost('audio-reciter-dropdown'));
+    await press(onlyHost('audio-reciter-banna'));
+    await flush();
+    expect(textOfNode(onlyHost('audio-problem'))).toMatch(/Mahmoud Ali Al-Banna has no verified recording of Surah Aal-i-Imraan/);
+  });
+
+  it('Arabic: the chip «[⏸] ماهر المعيقلي · ٨٤» (Pause on the right of the name), «سورة آل عمران · الآية ٨٤», the controls mirrored with the right-pointing glyphs', async () => {
+    state.locale = 'ar';
+    await playing();
+    expect(chipText()).toBe('ماهر المعيقلي · ٨٤');
+    // row-reverse: the first child, Pause, is drawn on the right, immediately beside the name.
+    expect(flat(onlyHost('audio-chip').props.style).flexDirection).toBe('row-reverse');
+    expect((onlyHost('audio-chip').children as ReactTestInstance[])[0].props.testID).toBe('audio-toggle');
+    await press(onlyHost('audio-expand'));
+    expect(textOfNode(onlyHost('audio-reciter-dropdown'))).toBe('ماهر المعيقلي');
+    expect(textOfNode(onlyHost('audio-ayah'))).toBe('سورة آل عمران · الآية ٨٤');
+    expect(flat(onlyHost('audio-reciter-dropdown').props.style({ pressed: false })).flexDirection).toBe('row-reverse');
+    expect(flat(onlyHost('audio-previous').parent!.props.style).flexDirection).toBe('row-reverse');
+    // Previous (on the right) points right, Next (on the left) points left: chosen glyphs, never a mirroring transform.
+    expect(onlyHost('audio-previous').findAllByType('SkipForward' as never)).toHaveLength(1);
+    expect(onlyHost('audio-next').findAllByType('SkipBack' as never)).toHaveLength(1);
+    // Page jumps on the outside: Previous page (on the right) points right, Next page (on the left) points left.
+    expect(onlyHost('audio-previous-page').findAllByType('ChevronsRight' as never)).toHaveLength(1);
+    expect(onlyHost('audio-next-page').findAllByType('ChevronsLeft' as never)).toHaveLength(1);
+    expect(onlyHost('audio-previous-page').props.accessibilityLabel).toBe('الصفحة السابقة');
+    expect(onlyHost('audio-next-page').props.accessibilityLabel).toBe('الصفحة التالية');
+    const controls = (onlyHost('audio-previous').parent!.children as ReactTestInstance[]).map((node) => node.props.testID);
+    expect(controls).toEqual(['audio-previous-page', 'audio-previous', 'audio-toggle-large', 'audio-next', 'audio-next-page']);
+    await press(onlyHost('audio-reciter-dropdown'));
+    expect(hosts('audio-reciter-chevron-up')).toHaveLength(1);
+  });
+
+  it('no directional icon in the player is mirrored or rotated with a style transform (react-native-svg would draw it off its box)', () => {
+    const source = readFileSync(resolve(__dirname, '../src/components/MushafAudioPlayer.tsx'), 'utf-8');
+    expect(source).not.toMatch(/scaleX:\s*-1|rotate:\s*'180deg'/);
+    expect(source).not.toMatch(/<(ChevronDown|ChevronUp|SkipBack|SkipForward)[^>]*\bstyle=/);
+  });
+
 });

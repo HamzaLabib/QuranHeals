@@ -20,6 +20,8 @@ import type { Ayah } from '@/types/domain';
 import { formatAyahReference } from '@/utils/ayahReference';
 import { translationPending } from '@/services/ayahTranslation';
 import { mushafRouteForAyah } from '@/mushaf/ayahInMushaf';
+import { isRtlLocale } from '@/localization/locales';
+import { AyahAudioButton, type AyahAudioProblem } from './AyahAudioButton';
 import { QuranFontSizeControls } from './QuranFontSizeControls';
 
 type AyahCardProps = {
@@ -50,13 +52,15 @@ const COPY_CONFIRMATION_MS = 1300;
 export function AyahCard({ ayah, compact = false }: AyahCardProps) {
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
-  const { messages } = useAppLocale();
+  const { locale, messages } = useAppLocale();
   const { preferredSize } = useQuranFontSizePreference();
   const displayMode = useQuranTranslationDisplayMode();
   // Set only once the reader taps the toggle on this ayah; until then the Show Translation setting decides.
   const [toggled, setToggled] = useState<{ ayahId: string; revealed: boolean } | null>(null);
   const [trackedAyahId, setTrackedAyahId] = useState(ayah.id);
   const [isCopied, setIsCopied] = useState(false);
+  // The play button's message (no verified recording by the Favorite Reciter, network), shown under the controls.
+  const [audioProblem, setAudioProblem] = useState<AyahAudioProblem>(null);
   const copyResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // A different ayah loaded: reset the on-demand reveal state and any
@@ -67,6 +71,7 @@ export function AyahCard({ ayah, compact = false }: AyahCardProps) {
     setTrackedAyahId(ayah.id);
     setToggled(null);
     setIsCopied(false);
+    setAudioProblem(null);
   }
 
   useEffect(() => {
@@ -127,6 +132,19 @@ export function AyahCard({ ayah, compact = false }: AyahCardProps) {
           remain main-screen only. */}
       <View style={styles.controlsRow}>
         <View style={styles.controlsLeft}>{!compact && <QuranFontSizeControls />}</View>
+        <View style={styles.controlsRight}>
+        {/* The ayah screens (not Favorites' compact cards): play this ayah once in the Favorite Reciter, beside Copy. */}
+        {!compact && (
+          <AyahAudioButton
+            surah={ayah.surahNumber}
+            ayah={ayah.ayahNumber}
+            copy={messages.audio}
+            rtl={isRtlLocale(locale)}
+            color={colors.icon}
+            accent={colors.accent}
+            onProblem={setAudioProblem}
+          />
+        )}
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={messages.ayah.copyAyah}
@@ -135,7 +153,11 @@ export function AyahCard({ ayah, compact = false }: AyahCardProps) {
           style={({ pressed }) => [styles.copyButton, pressed && styles.pressed]}>
           {isCopied ? <Check size={18} color={colors.accent} /> : <Copy size={18} color={colors.icon} />}
         </Pressable>
+        </View>
       </View>
+      {!compact && audioProblem && (
+        <Text testID="ayah-audio-problem" accessibilityLiveRegion="polite" style={[styles.audioProblem, isRtlLocale(locale) && styles.audioProblemRtl]}>{audioProblem}</Text>
+      )}
 
       <View style={styles.referenceRow}>
         {/* Always "English Surah name · Surah:Ayah · Arabic Surah name", in
@@ -238,6 +260,21 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   },
   controlsLeft: {
     flexDirection: 'row',
+  },
+  controlsRight: {
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  audioProblem: {
+    color: colors.textSecondary,
+    fontSize: typography.caption,
+    lineHeight: 18,
+    marginTop: -spacing.sm,
+    textAlign: 'left',
+  },
+  audioProblemRtl: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   copyButton: {
     alignItems: 'center',

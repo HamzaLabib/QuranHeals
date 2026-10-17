@@ -19,6 +19,8 @@ const LEGAL_SITE = 'https://quranheals.github.io/legal/';
 const state = vi.hoisted(() => ({
   scheme: 'light' as 'light' | 'dark',
   storage: new Map<string, string>(),
+  /** router.navigate calls (Settings → Quran → Mushaf Guide). */
+  navigations: [] as unknown[],
   openURL: (_url: string) => Promise.resolve(),
   openedUrls: [] as string[],
   layoutAnimations: 0,
@@ -56,10 +58,12 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
   },
 }));
 vi.mock('lucide-react-native', () => ({
-  ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', Check: 'Check',
+  ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', Check: 'Check', CircleHelp: 'CircleHelp', CircleAlert: 'CircleAlert', CircleCheck: 'CircleCheck', Download: 'Download',
   ChevronDown: 'ChevronDown', ChevronLeft: 'ChevronLeft', ChevronRight: 'ChevronRight', Flag: 'Flag',
 }));
-vi.mock('expo-router', () => ({ router: { back: () => undefined } }));
+// The Mushaf Guide row's icon (components/MushafIcon.tsx) draws with react-native-svg.
+vi.mock('react-native-svg', () => ({ default: 'Svg', Path: 'Path', Rect: 'Rect' }));
+vi.mock('expo-router', () => ({ router: { back: () => undefined, navigate: (route: unknown) => { state.navigations.push(route); } } }));
 // The system time picker is native-only; here only what the row asks of it, and what it does with the confirmed time, matter.
 vi.mock('@/components/ReminderTimePicker', async () => {
   const { createElement: h } = await import('react');
@@ -83,6 +87,7 @@ import { AppLocaleProvider } from '@/localization/useAppLocale';
 import { EmotionsLanguageProvider } from '@/localization/useEmotionsLanguage';
 import { QuranTranslationPreferenceProvider } from '@/localization/useQuranTranslationPreference';
 import { KeepAwakePreferenceProvider } from '@/mushaf/useKeepAwakePreference';
+import { FavoriteReciterProvider } from '@/audio/useFavoriteReciter';
 import { NotificationsProvider } from '@/notifications/useNotifications';
 import type { NotificationsApi } from '@/notifications/api';
 import { AppearancePreferenceProvider } from '@/theme/useAppearancePreference';
@@ -126,6 +131,7 @@ beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   state.scheme = 'light';
   state.storage.clear();
+  state.navigations = [];
   state.openURL = () => Promise.resolve();
   state.openedUrls = [];
   state.layoutAnimations = 0;
@@ -150,8 +156,8 @@ async function renderSettings() {
     createElement(AppLocaleProvider, null,
       createElement(EmotionsLanguageProvider, null,
         createElement(QuranTranslationPreferenceProvider, null,
-          createElement(AppearancePreferenceProvider, null, createElement(KeepAwakePreferenceProvider, null,
-            createElement(NotificationsProvider, { api: fakeNotificationsApi, now: () => new Date(2026, 9, 14, 12, 0), verses: fakeVerses }, children))))));
+          createElement(AppearancePreferenceProvider, null, createElement(KeepAwakePreferenceProvider, null, createElement(FavoriteReciterProvider, null,
+            createElement(NotificationsProvider, { api: fakeNotificationsApi, now: () => new Date(2026, 9, 14, 12, 0), verses: fakeVerses }, children)))))));
   await act(async () => { root = create(tree(createElement(SettingsScreen))); });
 }
 
@@ -177,8 +183,8 @@ const pressOption = (label: string) => press(optionRows().find((node) => node.pr
 const resolveStyle = (node: ReactTestInstance) =>
   [typeof node.props.style === 'function' ? node.props.style({ pressed: false }) : node.props.style].flat(Infinity).filter(Boolean);
 
-const EN_HEADERS = ['App Language', 'Appearance', 'Emotions Language', 'Quran Language', 'Legal & Privacy'];
-const AR_HEADERS = ['لغة التطبيق', 'المظهر', 'لغة المشاعر', 'لغة القرآن', 'السياسات والشروط'];
+const EN_HEADERS = ['App Language', 'Appearance', 'Emotions Language', 'Quran Language', 'Favorite Reciter', 'Legal & Privacy'];
+const AR_HEADERS = ['لغة التطبيق', 'المظهر', 'لغة المشاعر', 'لغة القرآن', 'القارئ المفضل', 'السياسات والشروط'];
 const EN_SECTIONS = ['App', 'Emotions', 'Quran', 'Support'];
 const AR_SECTIONS = ['التطبيق', 'المشاعر', 'القرآن', 'الدعم'];
 /** The four section headings this screen draws (Account draws its own, inside AccountSection). */
@@ -201,15 +207,15 @@ describe('Settings: section order and initial state', () => {
     expect(texts()).not.toContain(en.settings.quranTranslationSection);
   });
 
-  it('each section holds its own settings: App (App Language, Appearance), Emotions (Emotions Language, Show Translation, Emotional Check-in), Quran (Quran Language, Keep Screen Awake, Reciting Reminder, Random Quran Ayah, offline Mushaf), Support (Report an Issue, Legal & Privacy)', async () => {
+  it('each section holds its own settings: App (App Language, Appearance), Emotions (Emotions Language, Show Translation, Emotional Check-in), Quran (Quran Language, Keep Screen Awake, Favorite Reciter, Offline listening, Reciting Reminder, Random Quran Ayah, offline Mushaf), Support (Report an Issue, Legal & Privacy)', async () => {
     await renderSettings();
     const section = (id: string) => root!.root.find((node) => node.props.testID === id && typeof node.type === 'string');
     const headersIn = (id: string) => section(id).findAll((node) => headers().includes(node)).map((node) => node.props.accessibilityLabel.split(', ')[0]);
-    const idsIn = (id: string) => section(id).findAll((node) => typeof node.type === 'string' && typeof node.props.testID === 'string' && /^settings-(show-translation|keep-awake|report-issue|offline-mushaf|reminder-[a-zA-Z]+)$/.test(node.props.testID)).map((node) => node.props.testID);
+    const idsIn = (id: string) => section(id).findAll((node) => typeof node.type === 'string' && typeof node.props.testID === 'string' && /^settings-(show-translation|keep-awake|report-issue|offline-mushaf|offline-audio|reminder-[a-zA-Z]+)$/.test(node.props.testID)).map((node) => node.props.testID);
     expect(headersIn('settings-section-app')).toEqual(['App Language', 'Appearance']);
     expect(headersIn('settings-section-emotions')).toEqual(['Emotions Language']);
     expect(idsIn('settings-section-emotions')).toEqual(['settings-show-translation', 'settings-reminder-emotionCheckIn']);
-    expect(headersIn('settings-section-quran')).toEqual(['Quran Language']);
+    expect(headersIn('settings-section-quran')).toEqual(['Quran Language', 'Favorite Reciter']);
     expect(idsIn('settings-section-quran')).toEqual(['settings-keep-awake', 'settings-reminder-wird', 'settings-reminder-randomAyah', 'settings-offline-mushaf']);
     expect(headersIn('settings-section-support')).toEqual(['Legal & Privacy']);
     expect(idsIn('settings-section-support')).toEqual(['settings-report-issue']);
@@ -218,7 +224,7 @@ describe('Settings: section order and initial state', () => {
 
   it('starts with every section collapsed and no option or legal rows rendered', async () => {
     await renderSettings();
-    expect(expandedStates()).toEqual([false, false, false, false, false]);
+    expect(expandedStates()).toEqual([false, false, false, false, false, false]);
     expect(optionRows()).toHaveLength(0);
     expect(linkRows()).toHaveLength(0);
   });
@@ -230,6 +236,7 @@ describe('Settings: section order and initial state', () => {
       'Appearance, System',
       'Emotions Language, Follow App Language',
       'Quran Language, The Quranic Text',
+      'Favorite Reciter, Maher Al-Muaiqly',
       'Legal & Privacy',
     ]);
     expect(texts(header('Legal & Privacy'))).toEqual(['Legal & Privacy']);
@@ -240,11 +247,11 @@ describe('Settings: accordion behavior', () => {
   it('tapping a header expands it and tapping it again collapses it', async () => {
     await renderSettings();
     await pressHeader('App Language');
-    expect(expandedStates()).toEqual([true, false, false, false, false]);
+    expect(expandedStates()).toEqual([true, false, false, false, false, false]);
     // Exactly English and Arabic: Egyptian Arabic is an Emotions Language only.
     expect(optionRows().map((node) => node.props.accessibilityLabel)).toEqual(['English', 'العربية']);
     await pressHeader('App Language');
-    expect(expandedStates()).toEqual([false, false, false, false, false]);
+    expect(expandedStates()).toEqual([false, false, false, false, false, false]);
     expect(optionRows()).toHaveLength(0);
   });
 
@@ -252,9 +259,9 @@ describe('Settings: accordion behavior', () => {
     await renderSettings();
     await pressHeader('App Language');
     await pressHeader('Appearance');
-    expect(expandedStates()).toEqual([false, true, false, false, false]);
+    expect(expandedStates()).toEqual([false, true, false, false, false, false]);
     await pressHeader('Legal & Privacy');
-    expect(expandedStates()).toEqual([false, false, false, false, true]);
+    expect(expandedStates()).toEqual([false, false, false, false, false, true]);
     expect(optionRows()).toHaveLength(0);
   });
 
@@ -262,7 +269,7 @@ describe('Settings: accordion behavior', () => {
     await renderSettings();
     const before = new Map(state.storage);
     for (const title of [...EN_HEADERS, 'Legal & Privacy']) await pressHeader(title);
-    expect(state.layoutAnimations).toBe(6);
+    expect(state.layoutAnimations).toBe(EN_HEADERS.length + 1);
     expect(state.storage).toEqual(before);
     expect(fetchSpy).not.toHaveBeenCalled();
     expect(state.refreshSyncCalls).toBe(0);
@@ -275,7 +282,7 @@ describe('Settings: App Language', () => {
     await pressHeader('App Language');
     await pressOption('العربية');
     expect(state.storage.get(LOCALE_KEY)).toBe('ar');
-    expect(expandedStates()).toEqual([false, false, false, false, false]);
+    expect(expandedStates()).toEqual([false, false, false, false, false, false]);
     const languageHeader = header(ar.settings.appLanguageSection);
     expect(languageHeader.props.accessibilityLabel).toBe('لغة التطبيق, العربية');
     expect(resolveStyle(languageHeader)).toContainEqual({ flexDirection: 'row-reverse' });
@@ -359,7 +366,7 @@ describe('Settings: Quran Language', () => {
     for (const unreleased of ['Turkish', 'French', 'Urdu', 'Coming soon']) expect(texts(root!.root)).not.toContain(unreleased);
     await pressOption('The Quranic Text');
     expect(state.storage.get(QURAN_LANGUAGE_KEY)).toBe('quran-text');
-    expect(expandedStates()).toEqual([false, false, false, false, false]);
+    expect(expandedStates()).toEqual([false, false, false, false, false, false]);
   });
 
   it('Arabic: لغة القرآن / النص القرآني, and the choice is kept after a restart', async () => {
@@ -385,7 +392,7 @@ describe('Settings: Appearance', () => {
     await pressOption('Dark');
     expect(JSON.parse(state.storage.get(APPEARANCE_KEY)!)).toBe('dark');
     expect(header('Appearance').props.accessibilityLabel).toBe('Appearance, Dark');
-    expect(expandedStates()).toEqual([false, false, false, false, false]);
+    expect(expandedStates()).toEqual([false, false, false, false, false, false]);
     await pressHeader('Appearance');
     await pressOption('System');
     expect(JSON.parse(state.storage.get(APPEARANCE_KEY)!)).toBe('system');
@@ -395,7 +402,7 @@ describe('Settings: Appearance', () => {
     await renderSettings();
     await pressHeader('Appearance');
     await pressOption('System');
-    expect(expandedStates()).toEqual([false, false, false, false, false]);
+    expect(expandedStates()).toEqual([false, false, false, false, false, false]);
   });
 
   it('saved choices are shown after a restart — an existing Light or Dark is kept, never replaced by the new System default', async () => {
@@ -477,10 +484,10 @@ describe('Settings: theming', () => {
   const cardBackgrounds = () =>
     all('View').map((node) => resolveStyle(node)).flat().filter((style) => style.borderRadius !== undefined && style.backgroundColor !== undefined).map((style) => style.backgroundColor);
 
-  // The five accordions, the Show Translation and Keep Screen Awake cards, the three reminder cards
-  // (components/NotificationReminderRow.tsx) and the offline Mushaf row (components/OfflineMushafSettingsRow.tsx),
-  // all in the same palette card.
-  const CARDS = 11;
+  // The six accordions, the Show Translation and Keep Screen Awake cards, the three reminder cards
+  // (components/NotificationReminderRow.tsx) and the offline Mushaf row (components/OfflineMushafSettingsRow.tsx), all
+  // in the same palette card. (Offline listening is a small icon on Favorite Reciter's card, not a card of its own.)
+  const CARDS = 12;
 
   it('uses the light palette card for every accordion in Light', async () => {
     await renderSettings();
@@ -550,7 +557,7 @@ describe('Settings: Report an issue', () => {
       .findAll((node) => node.type === ('AccountSection' as never) || headers().includes(node) || node.props?.testID === 'settings-report-issue')
       .filter((node) => typeof node.type === 'string' || node.type === ('AccountSection' as never))
       .map((node) => (node.type === ('AccountSection' as never) ? 'Account' : node.props.testID === 'settings-report-issue' ? 'Report' : node.props.accessibilityLabel.split(', ')[0]));
-    expect(order).toEqual(['App Language', 'Appearance', 'Emotions Language', 'Quran Language', 'Report', 'Legal & Privacy', 'Account']);
+    expect(order).toEqual(['App Language', 'Appearance', 'Emotions Language', 'Quran Language', 'Favorite Reciter', 'Report', 'Legal & Privacy', 'Account']);
     expect(reportRow().props.accessibilityState).toBeUndefined();
     expect(reportRow().props).toMatchObject({ accessibilityRole: 'button', accessibilityLabel: en.issueReport.action, accessibilityHint: en.issueReport.settingsDescription });
     expect(texts(reportRow())).toEqual([en.issueReport.action, en.issueReport.settingsDescription]);
@@ -586,13 +593,13 @@ describe('Settings: Keep Screen Awake', () => {
     const order = root!.root
       .findAll((node) => node === toggle() || headers().includes(node))
       .map((node) => (node === toggle() ? 'switch' : node.props.accessibilityLabel.split(', ')[0]));
-    expect(order).toEqual(['App Language', 'Appearance', 'Emotions Language', 'Quran Language', 'switch', 'Legal & Privacy']);
+    expect(order).toEqual(['App Language', 'Appearance', 'Emotions Language', 'Quran Language', 'switch', 'Favorite Reciter', 'Legal & Privacy']);
     expect(texts(card())).toEqual([en.settings.keepAwakeTitle, en.settings.keepAwakeDescription]);
     expect(en.settings.keepAwakeTitle).toBe('Keep Screen Awake');
     expect(en.settings.keepAwakeDescription).toBe('Prevent automatic screen locking while reading the Mushaf.');
     expect(toggle().props).toMatchObject({ value: true, accessibilityRole: 'switch', accessibilityLabel: 'Keep Screen Awake', accessibilityState: { checked: true } });
     expect(state.storage.has(KEEP_AWAKE_KEY)).toBe(false);
-    // Still exactly the five accordion sections: the switch is not one of them, and opens nothing.
+    // Still exactly the six accordion sections: the switch is not one of them, and opens nothing.
     expect(headers().map((node) => node.props.accessibilityLabel.split(', ')[0])).toEqual(EN_HEADERS);
   });
 
@@ -1015,5 +1022,212 @@ describe('Settings: Show Translation (switch + dropdown)', () => {
     const firstRow = part('settings-show-translation-row').children[0] as ReactTestInstance;
     expect(firstRow.findAll((node) => node.props.testID === 'settings-show-translation-mode')).toHaveLength(0);
     expect(root!.root.findAll((node) => typeof node.type === 'string' && node.props.testID === 'settings-show-translation-mode')).toHaveLength(1);
+  });
+});
+
+describe('Settings: Favorite Reciter and offline listening (audio/)', () => {
+  const FAVORITE_KEY = 'quran-heals:favorite-reciter:v1';
+  const reciterRows = () => all('Pressable').filter((node) => /^settings-reciter-(?!download)/.test(node.props.testID ?? ''));
+  const offlineCard = () => root!.root.find((node) => node.props.testID === 'settings-offline-audio' && typeof node.type === 'string');
+
+  it('Quran → Favorite Reciter: Maher Al-Muaiqly by default, nothing saved', async () => {
+    await renderSettings();
+    expect(header('Favorite Reciter').props.accessibilityLabel).toBe('Favorite Reciter, Maher Al-Muaiqly');
+    expect(state.storage.has(FAVORITE_KEY)).toBe(false);
+  });
+
+  it('lists exactly the 16 reciters in English, each with its availability; the current one selected', async () => {
+    await renderSettings();
+    await pressHeader('Favorite Reciter');
+    expect(reciterRows()).toHaveLength(16);
+    const labels = reciterRows().map((node) => node.props.accessibilityLabel as string);
+    expect(labels.map((label) => label.split(', ')[0])).toEqual([
+      'Abdul Basit Abdus Samad', 'Muhammad Siddiq Al-Minshawi', 'Ahmed Naeena', 'Mahmoud Khalil Al-Husary', 'Mahmoud Ali Al-Banna',
+      'Yasser Mahmoud Salama', 'Saud Al-Shuraim', 'Abdul Rashid Ali Sufi', 'Ali Al-Hudhaifi', 'Abu Bakr Al-Shatri', 'Ahmed Al-Ajmi',
+      'Maher Al-Muaiqly', 'Abdullah Basfar', 'Saleh Al-Talib', 'Muhammad Rifaat', 'Islam Sobhi',
+    ]);
+    expect(labels).toContain('Maher Al-Muaiqly, All 114 surahs');
+    expect(labels).toContain('Mahmoud Khalil Al-Husary, 103 of 114 surahs');
+    expect(labels).toContain('Muhammad Rifaat, Ayah-by-ayah playback not available');
+    expect(reciterRows().filter((node) => node.props.accessibilityState.selected).map((node) => node.props.testID)).toEqual(['settings-reciter-maher']);
+  });
+
+  it('a choice applies and is saved at once, and the list closes', async () => {
+    await renderSettings();
+    await pressHeader('Favorite Reciter');
+    await press(reciterRows().find((node) => node.props.testID === 'settings-reciter-minshawi')!);
+    expect(state.storage.get(FAVORITE_KEY)).toBe('minshawi');
+    expect(reciterRows()).toHaveLength(0);
+    expect(header('Favorite Reciter').props.accessibilityLabel).toBe('Favorite Reciter, Muhammad Siddiq Al-Minshawi');
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it('a saved choice is restored', async () => {
+    state.storage.set(FAVORITE_KEY, 'basfar');
+    await renderSettings();
+    expect(header('Favorite Reciter').props.accessibilityLabel).toBe('Favorite Reciter, Abdullah Basfar');
+  });
+
+  it('in Arabic: القارئ المفضل, with the reciters\' Arabic names', async () => {
+    state.storage.set(LOCALE_KEY, 'ar');
+    await renderSettings();
+    expect(header('القارئ المفضل').props.accessibilityLabel).toBe('القارئ المفضل, ماهر المعيقلي');
+    await pressHeader('القارئ المفضل');
+    expect(reciterRows()[0].props.accessibilityLabel).toBe('عبد الباسط عبد الصمد, جميع السور (١١٤)');
+  });
+
+  const downloadIcon = () => all('Pressable').find((node) => node.props.testID === 'settings-reciter-download')!;
+  const sheetText = () => texts(root!.root.find((node) => node.props.testID === 'settings-reciter-download-sheet' && typeof node.type === 'string')).join(' | ');
+  const sheetButtons = () => all('Pressable').filter((node) => /^settings-reciter-download-/.test(node.props.testID ?? '') && node.props.testID !== 'settings-reciter-download-backdrop').map((node) => node.props.testID);
+
+  it('both icons, swapped: the download icon right beside the title and Sheikh, the dropdown chevron after it at the row`s end', async () => {
+    await renderSettings();
+    const row = header('Favorite Reciter').parent!.parent!;
+    const order = row.findAll((node) => typeof node.type === 'string' && (node.props.testID === 'settings-reciter-download' || node.props.testID === 'settings-accordion-chevron' || node === header('Favorite Reciter'))).map((node) => node.props.testID ?? 'header');
+    expect(order).toEqual(['header', 'settings-reciter-download', 'settings-accordion-chevron']);
+    expect(resolveStyle(row)).toContainEqual(expect.objectContaining({ flexDirection: 'row' }));
+    expect(resolveStyle(row)).not.toContainEqual({ flexDirection: 'row-reverse' });
+    // One chevron (now its own button) and one download/status icon, both visible.
+    const chevron = row.find((node) => node.props.testID === 'settings-accordion-chevron' && typeof node.type === 'string');
+    expect(chevron.findAllByType('ChevronDown' as never)).toHaveLength(1);
+    expect(header('Favorite Reciter').findAllByType('ChevronDown' as never)).toHaveLength(0);
+    expect(row.findAll((node) => /^reciter-download-icon-/.test(node.props.testID ?? ''))).toHaveLength(1);
+    // The chevron is not a second screen-reader button: the header already announces the section.
+    expect(chevron.props).toMatchObject({ accessible: false });
+    // Other sections are unchanged: the chevron inside their header button.
+    expect(header('App Language').findAllByType('ChevronDown' as never)).toHaveLength(1);
+  });
+
+  it('independent touch targets: the chevron and the title open the 16 reciters; the download icon opens its sheet only', async () => {
+    await renderSettings();
+    const chevron = () => all('Pressable').find((node) => node.props.testID === 'settings-accordion-chevron')!;
+    await press(chevron());
+    expect(reciterRows()).toHaveLength(16);
+    expect(header('Favorite Reciter').props.accessibilityState).toEqual({ expanded: true });
+    await press(chevron());
+    expect(reciterRows()).toHaveLength(0);
+    await pressHeader('Favorite Reciter');
+    expect(reciterRows()).toHaveLength(16);
+    await pressHeader('Favorite Reciter');
+    await press(downloadIcon());
+    expect(reciterRows()).toHaveLength(0);
+    expect(header('Favorite Reciter').props.accessibilityState).toEqual({ expanded: false });
+    expect(sheetText()).toContain(en.audio.offlineNotPermitted); // downloads stay off
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it('in Arabic the row is mirrored: the Sheikh, then the download icon to its left, then the chevron at the left end', async () => {
+    state.storage.set(LOCALE_KEY, 'ar');
+    await renderSettings();
+    const row = header('القارئ المفضل').parent!.parent!;
+    expect(resolveStyle(row)).toContainEqual({ flexDirection: 'row-reverse' });
+    const chevron = row.find((node) => node.props.testID === 'settings-accordion-chevron' && typeof node.type === 'string');
+    // Its outer (row-end) padding is on the left in Arabic.
+    const padding = Object.assign({}, ...resolveStyle(chevron)) as { paddingLeft: number; paddingRight: number };
+    expect(padding.paddingLeft).toBeGreaterThan(padding.paddingRight);
+  });
+
+  it('no large download card: offline listening is one small icon beside the Favorite Reciter dropdown', async () => {
+    await renderSettings();
+    expect(root!.root.findAll((node) => node.props.testID === 'settings-offline-audio')).toHaveLength(0);
+    const card = header('Favorite Reciter').parent!.parent!;
+    expect(card.findAll((node) => node.props.testID === 'settings-reciter-download' && typeof node.type === 'string')).toHaveLength(1);
+    // Beside the header button, outside it: the header still only opens and closes the section.
+    expect(header('Favorite Reciter').findAll((node) => node.props.testID === 'settings-reciter-download')).toHaveLength(0);
+  });
+
+  it('downloads not permitted (licensing): the icon shows as unavailable, its sheet explains and offers no download; nothing fetched', async () => {
+    await renderSettings();
+    expect(downloadIcon().props.accessibilityLabel).toBe('Offline listening: Maher Al-Muaiqly, Offline download not available');
+    expect(downloadIcon().props.accessibilityState).toMatchObject({ disabled: true });
+    expect(downloadIcon().findAll((node) => node.props.testID === 'reciter-download-icon-not-permitted')).toHaveLength(1);
+    expect(downloadIcon().findAll((node) => node.props.testID === 'reciter-download-icon-complete')).toHaveLength(0);
+    await press(downloadIcon());
+    expect(sheetText()).toContain(en.audio.offlineNotPermitted);
+    expect(sheetText()).toMatch(/Download Maher Al-Muaiqly to listen without internet: 114 surahs, about [\d.]+ GB\./);
+    expect(sheetButtons()).toEqual(['settings-reciter-download-close']); // no Download, Retry or Delete
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it('an incomplete reciter`s sheet shows the surahs a download would leave out', async () => {
+    state.storage.set(FAVORITE_KEY, 'husary');
+    await renderSettings();
+    await press(downloadIcon());
+    const missing = root!.root.find((node) => node.props.testID === 'settings-reciter-download-missing' && typeof node.type === 'string');
+    expect(texts(missing)).toEqual(['Not included (no verified recording): Surahs 1, 21, 27–28, 31, 46–47, 49, 58, 66, 98']);
+  });
+
+  it('a reciter with nothing to download: unavailable, says so', async () => {
+    state.storage.set(FAVORITE_KEY, 'islam-sobhi');
+    await renderSettings();
+    expect(downloadIcon().findAll((node) => node.props.testID === 'reciter-download-icon-unavailable')).toHaveLength(1);
+    await press(downloadIcon());
+    expect(sheetText()).toContain("Islam Sobhi has no surahs that can play ayah by ayah, so there's nothing to download.");
+    expect(sheetButtons()).toEqual(['settings-reciter-download-close']);
+  });
+
+  it('follows the Favorite Reciter: a new choice shows that reciter`s state', async () => {
+    await renderSettings();
+    await pressHeader('Favorite Reciter');
+    await press(reciterRows().find((node) => node.props.testID === 'settings-reciter-rifaat')!);
+    expect(downloadIcon().props.accessibilityLabel).toBe('Offline listening: Muhammad Rifaat, Offline download not available');
+    expect(downloadIcon().findAll((node) => node.props.testID === 'reciter-download-icon-unavailable')).toHaveLength(1);
+  });
+
+  it('in Arabic, mirrored beside the dropdown', async () => {
+    state.storage.set(LOCALE_KEY, 'ar');
+    await renderSettings();
+    expect(downloadIcon().props.accessibilityLabel).toBe('الاستماع دون اتصال: ماهر المعيقلي, التنزيل غير متاح');
+    // The header row holding the dropdown and the icon is mirrored (the icon on the left, beside the chevron).
+    const ancestors: ReactTestInstance[] = [];
+    for (let node = downloadIcon().parent; node; node = node.parent) if (typeof node.type === 'string') ancestors.push(node);
+    const row = ancestors.find((node) => node.findAll((n) => n.props.accessibilityState && 'expanded' in n.props.accessibilityState).length > 0)!;
+    expect(resolveStyle(row)).toContainEqual({ flexDirection: 'row-reverse' });
+  });
+});
+
+describe('Settings: Quran → Mushaf Guide', () => {
+  const row = () => all('Pressable').find((node) => node.props.testID === 'settings-mushaf-guide')!;
+
+  it('is the last row of the Quran section, in English', async () => {
+    await renderSettings();
+    const quran = root!.root.find((node) => node.props.testID === 'settings-section-quran' && typeof node.type === 'string');
+    const ids = quran.findAll((node) => typeof node.type === 'string' && /^settings-(offline-mushaf|mushaf-guide)$/.test(node.props.testID ?? '')).map((node) => node.props.testID);
+    expect(ids).toEqual(['settings-offline-mushaf', 'settings-mushaf-guide']);
+    expect(row().props).toMatchObject({ accessibilityRole: 'button', accessibilityLabel: 'Mushaf Guide' });
+    // The title alone: no description under it.
+    expect(texts(row())).toEqual(['Mushaf Guide']);
+    // The Mushaf toolbar's Help (?) icon (lucide CircleHelp), at the other Settings icons' size and colour.
+    const icon = row().findByType('CircleHelp' as never);
+    expect(icon.props).toMatchObject({ size: 18, strokeWidth: 2, color: lightPalette.icon });
+    expect(row().findAllByType('MushafIcon' as never)).toHaveLength(0);
+    // Laid out like Keep Screen Awake: the same card.
+    const keepAwakeCard = root!.root.findByProps({ testID: 'settings-keep-awake' }).parent!;
+    expect(resolveStyle(row())).toContainEqual(expect.objectContaining({ minHeight: 56, borderRadius: resolveStyle(keepAwakeCard).find((style) => style.borderRadius !== undefined)?.borderRadius }));
+  });
+
+  it('opens the Mushaf`s own guide (a new request each time), changing no setting, storage or progress', async () => {
+    await renderSettings();
+    const before = new Map(state.storage);
+    await press(row());
+    await press(row());
+    expect(state.navigations).toHaveLength(2);
+    for (const route of state.navigations) expect(route).toMatchObject({ pathname: '/mushaf', params: { guide: expect.stringMatching(/^\d+$/) } });
+    expect(state.storage).toEqual(before);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it('keeps its (?) icon after the guide has been finished (only the Mushaf toolbar`s Help icon hides then)', async () => {
+    state.storage.set('quran-heals:mushaf-guide:v1', JSON.stringify({ status: 'done', finished: true }));
+    await renderSettings();
+    expect(row().findAllByType('CircleHelp' as never)).toHaveLength(1);
+    expect(texts(row())).toEqual(['Mushaf Guide']);
+  });
+
+  it('in Arabic: دليل المصحف, mirrored', async () => {
+    state.storage.set(LOCALE_KEY, 'ar');
+    await renderSettings();
+    expect(texts(row())).toEqual(['دليل المصحف']);
+    expect(resolveStyle(row())).toContainEqual({ flexDirection: 'row-reverse' });
   });
 });

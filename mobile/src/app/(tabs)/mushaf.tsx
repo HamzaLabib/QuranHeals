@@ -2,7 +2,7 @@ import * as Clipboard from 'expo-clipboard';
 import * as Font from 'expo-font';
 import { useFonts } from 'expo-font';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft, CircleHelp, Maximize2, Minimize2 } from 'lucide-react-native';
+import { ArrowLeft, CircleHelp, Headphones, Maximize2, Minimize2 } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { BackHandler, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ConfirmSheet } from '@/components/ConfirmSheet';
 import { KhatmaReachedSheet } from '@/components/KhatmaReachedSheet';
 import { OfflineMushafPanel } from '@/components/OfflineMushafPanel';
+import { isAudioActive, MushafAudioPlayer } from '@/components/MushafAudioPlayer';
 import { MushafAyahActions, MushafWirdApply, type PopupAnchor } from '@/components/MushafAyahPopups';
 import { MushafIndexSheet, type MushafIndexMode } from '@/components/MushafIndexSheet';
 import { MushafGuide } from '@/components/MushafGuide';
@@ -37,7 +38,7 @@ import { MUSHAF_HEADER_FONT_FAMILY, MUSHAF_HEADER_FONTS } from '@/mushaf/headerF
 import { MUSHAF_PAGE_COUNT, parseMushafPage, tintAyahMarkers, tintSvgInk, toArabicIndicDigits } from '@/mushaf/mushafPage';
 import { HIZB_START_PAGES, pageInfo } from '@/mushaf/navigation';
 import { GuideTargetsProvider, type GuideTarget } from '@/mushaf/guideTargets';
-import { GUIDE_STEPS, loadGuideProgress, saveGuideProgress, type GuideProgress } from '@/mushaf/mushafGuide';
+import { GUIDE_STEPS, isGuideFinished, loadGuideProgress, saveGuideProgress, type GuideProgress } from '@/mushaf/mushafGuide';
 import { useMushafKeepAwake } from '@/mushaf/useMushafKeepAwake';
 import { useQuietRemindersWhileReading } from '@/notifications/foreground';
 import type { Ayah } from '@/types/domain';
@@ -72,6 +73,10 @@ import { subscribeToLocalDataOwner } from '@/storage/localDataOwner';
 import { BASMALA_FONT_PAGE, surahOpeningSlots } from '@/mushaf/surahOpenings';
 import { isWirdAyahOnPage, wirdAyahOnPage } from '@/mushaf/wirdAyah';
 import { ayahCopyText } from '@/mushaf/ayahCopyText';
+import { audioEngine } from '@/audio/index';
+import { pageOfPosition, positionOfVerseKey, verseKeyOf } from '@/audio/quranSequence';
+import { useFavoriteReciter } from '@/audio/useFavoriteReciter';
+import { usePlayback } from '@/audio/usePlayback';
 import { getApiErrorMessage } from '@/services/api';
 import { getAyahForAction } from '@/services/ayahForAction';
 import { getVerseByKey } from '@/services/quran';
@@ -104,12 +109,22 @@ import { goBackOrHome } from '@/utils/goBackOrHome';
  *    another ورد shows that one's (or none).
  * Screen readers turn pages with the page's own next / previous actions.
  *
+ * Listening (audio/, 2026-10-17): the headphones icon in the top bar plays from the first ayah of the page shown; while
+ * playing, the player's chip (Pause, the Sheikh, the ayah) takes its place, and paused, stopped or finished the
+ * headphones are back (a tap resumes); an ayah's Listen plays from that ayah. Either goes on ayah after ayah, surah after surah, and the page turns by itself
+ * when the recitation reaches the next page (every page begins with a whole ayah, so ayah timing is exact enough). The
+ * ayah being recited is highlighted like a selection. While playing, the player is a chip in the same top bar
+ * (MushafAudioPlayer): the page keeps its size and place. Swiping away stops the page following the recitation until
+ * Follow recitation (or a swipe back to that page). Listening never saves or moves a ورد, a Khatma or the last browsed
+ * page: reading and listening positions are separate.
+ *
  * Navigating (swipes, the lists, the selector) only shows a page: no stop is
  * ever saved or moved except by an explicit save (Apply, or the ورد list's
  * Add and its name field).
  *
- * Full-screen reading (the top-right Expand / Collapse icon): only the page
- * and the Collapse icon stay; the Back arrow, the bar and the ورد pill hide,
+ * Full-screen reading (the top-right Expand / Collapse icon): only the page,
+ * the audio control (headphones, or the player's chip while playing) and the
+ * Collapse icon stay; the Back arrow, Help, the bar and the ورد pill hide,
  * and the whole page is refitted into the space they used (fitMushafPage)
  * and centred in it: never zoomed to fill, never cropped. The
  * page, the selected ayah and the active ورد are kept; zoom, swipes and ayah
@@ -409,6 +424,16 @@ export default function MushafScreen() {
   const [guideVisible, setGuideVisible] = useState(false);
   const [guideStep, setGuideStep] = useState(0);
   const guideAutoShown = useRef(false);
+  // Settings → Quran → Mushaf Guide: /mushaf?guide=<time> opens the guide at step 1, once per request (applied while
+  // rendering, like ?page= below). It records nothing: what was saved about the guide stays as it was.
+  const guideRequest = typeof params.guide === 'string' ? params.guide : '';
+  const [handledGuideRequest, setHandledGuideRequest] = useState('');
+  if (guideRequest && guideRequest !== handledGuideRequest) {
+    setHandledGuideRequest(guideRequest);
+    setOverlay(null);
+    setGuideStep(0);
+    setGuideVisible(true);
+  }
   // An ayah tap waits DOUBLE_TAP_MS before its popup opens, so a double-tap (the zoom reset) never opens one.
   const pendingAyahPopup = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [ayahBusy, setAyahBusy] = useState(false);
@@ -420,6 +445,32 @@ export default function MushafScreen() {
     if (copiedTimer.current) clearTimeout(copiedTimer.current);
   }, []);
   const { favorites, isFavorite, toggleFavorite } = useFavorites();
+  // Quran audio: the app's one player (audio/engine.ts) and the Favorite Reciter (Settings).
+  const playback = usePlayback();
+  const { reciterId: favoriteReciterId } = useFavoriteReciter();
+  /**
+   * The page of the ayah being recited in the Mushaf's continuous playback (null when nothing is, or for an ayah
+   * screen's single ayah): shown while following, highlighted wherever it is drawn.
+   */
+  const playingPosition = playback.phase !== 'idle' && playback.mode === 'continuous' ? playback.position : null;
+  const playingPage = playingPosition ? pageOfPosition(playingPosition) : null;
+  const playingVerseKey = playback.phase !== 'idle' && playback.position ? verseKeyOf(playback.position) : null;
+  // Whether the page shown follows the recitation. Set by the reader's own page moves (goTo, turn, a link): false away
+  // from the recited page, true on it; true again for every new listening session, Follow recitation, and when the
+  // recitation reaches the page being read.
+  const [following, setFollowing] = useState(true);
+  const [followSession, setFollowSession] = useState(playback.session);
+  if (followSession !== playback.session) {
+    setFollowSession(playback.session);
+    setFollowing(true);
+  }
+  const [seenPlayingPage, setSeenPlayingPage] = useState(playingPage);
+  if (seenPlayingPage !== playingPage) {
+    setSeenPlayingPage(playingPage);
+    if (playingPage !== null && playingPage === page && !following) setFollowing(true);
+  }
+  // The page the recitation itself last turned to: not a browse (the last browsed page is never moved by listening).
+  const [autoTurnedPage, setAutoTurnedPage] = useState<number | null>(null);
   // Share: the ayah being shared in the existing Share Ayah sheet (the same one as the ayah screens), or none.
   const [sharing, setSharing] = useState<Ayah | null>(null);
   // Measured, not the window size: right on tablets, split screen and web. On tablet-sized windows a rotation's layouts,
@@ -539,26 +590,33 @@ export default function MushafScreen() {
   // browsing survives a restart. Never a save: no ورد, Khatma cycle or medallion changes (mushaf/lastBrowsedPage.ts).
   // The page the reader opens on by itself (a ورد's saved page) is not a browse.
   useEffect(() => {
+    // A page the recitation turned to is not a browse (listening never moves the reading position).
+    if (autoTurnedPage === page) return;
     if (hasNavigated.current || requestedPage !== null) void saveLastBrowsedPage(page);
-  }, [page, requestedPage]);
+  }, [page, requestedPage, autoTurnedPage]);
 
   /** Shows a page — and only that: nothing is saved (the lists, the selector, stops and links all use it). */
   const goTo = useCallback((next: number) => {
     if (next < 1 || next > MUSHAF_PAGE_COUNT) return;
     hasNavigated.current = true;
+    setAutoTurnedPage(null);
     setPage(next);
     setSelectedVerseKey(null);
     closeOverlay();
     setZoomedAt(null); // a new page opens at 1×
-  }, [closeOverlay]);
+    // While listening: moving away stops the page following the recitation; landing on its page follows it again.
+    if (playingPage !== null) setFollowing(next === playingPage);
+  }, [closeOverlay, playingPage]);
   /** One page back (-1) or forward (+1): swipes, and the page's screen-reader actions. */
   const turn = useCallback((delta: -1 | 1) => {
     hasNavigated.current = true;
+    setAutoTurnedPage(null);
     setPage((current) => Math.min(MUSHAF_PAGE_COUNT, Math.max(1, current + delta)));
     setSelectedVerseKey(null);
     closeOverlay();
     setZoomedAt(null);
-  }, [closeOverlay]);
+    if (playingPage !== null) setFollowing(Math.min(MUSHAF_PAGE_COUNT, Math.max(1, pageRef.current + delta)) === playingPage);
+  }, [closeOverlay, playingPage]);
   // A finger swipe left to right = next, right to left = previous (the same in every language; swipes at 1× only —
   // mushaf/pageZoom.ts swipeTurn).
 
@@ -573,6 +631,7 @@ export default function MushafScreen() {
       setSelectedVerseKey(requestedAyah);
       setOverlay(null);
       setZoomedAt(null);
+      if (playingPage !== null) setFollowing(requestedPage === playingPage);
     }
   }
   // Such a page is a navigation: the active ورد's saved page no longer replaces it on opening.
@@ -715,6 +774,55 @@ export default function MushafScreen() {
       setAyahBusy(false);
     }
   };
+  /** The voice for a new Play / Listen: the player's current (or up-next) reciter, else the Favorite Reciter. */
+  const listeningReciter = () => (playback.phase !== 'idle' && playback.mode === 'continuous' ? playback.pendingReciterId ?? playback.reciterId : null) ?? favoriteReciterId;
+  // Following: the page turns by itself to the recited ayah's page — after any popup, sheet or the guide is closed,
+  // so nothing open is ever moved from under the reader. No ورد, Khatma or last browsed page changes.
+  const blockingOverlay = overlay !== null || isReflectionVisible || sharing !== null || guideVisible || isWirdOpen || reached !== null || khatmaNotice !== null;
+  // Applied while rendering (React's "adjust state when a prop changes", as for ?page= above): no extra commit.
+  if (following && playingPage !== null && playingPage !== page && !blockingOverlay) {
+    setAutoTurnedPage(playingPage);
+    setPage(playingPage);
+    setSelectedVerseKey(null);
+    setZoomedAt(null);
+  }
+  /** Follow recitation: back to the recited page (turned to while rendering), which then turns with the recitation. */
+  const followRecitation = () => {
+    closeOverlay();
+    setFollowing(true);
+  };
+  /** The top bar's headphones: recitation from the first ayah of the page shown. */
+  const playPage = () => {
+    closeOverlay();
+    setSelectedVerseKey(null);
+    audioEngine.startPage(page, listeningReciter());
+  };
+  /**
+   * The top bar's headphones, always following the engine: shown whenever nothing is actively playing (nothing yet,
+   * paused, stopped, finished, stopped by an error) and replaced by the player's chip while playing (its own Pause, the
+   * Sheikh and the ayah: MushafAudioPlayer). A tap resumes a pause from its position, retries after an error, or else
+   * plays from this page. Touch and hold (or the screen reader's Stop action) stops a paused recitation for good.
+   */
+  const audioActive = isAudioActive(playback);
+  const onAudioButton = () => {
+    if (audioActive) audioEngine.pause();
+    else if (playback.phase === 'paused' || playback.phase === 'error') audioEngine.resume();
+    else playPage();
+  };
+  const stopAudio = () => {
+    if (playback.phase !== 'idle') audioEngine.stop();
+  };
+  /** An ayah's Listen: recitation from that ayah onward (the popup closes so the recited ayah's highlight shows). */
+  const listenFromSelected = () => {
+    if (overlay?.kind !== 'ayah') return;
+    const from = positionOfVerseKey(overlay.verseKey);
+    if (!from) return;
+    const reciterId = listeningReciter();
+    dismissAyahPopup();
+    audioEngine.start(from, { mode: 'continuous', reciterId });
+  };
+  /** The highlighted ayah on page `n`: the reader's selection on the page being read, else the ayah being recited. */
+  const highlightedOn = (n: number, isCurrent: boolean) => (isCurrent && selectedVerseKey) || (playingPage === n ? playingVerseKey : null);
   /** The Hizb holding the top of this page (its list's current row). */
   const currentHizb = HIZB_START_PAGES.filter((start) => start <= page).length;
   /** The running heads and the page number of the page being read: the lists and the page selector. */
@@ -933,28 +1041,37 @@ export default function MushafScreen() {
   }, []);
   const guideReady = Boolean(drawn) && guideTargets.names.split(',').includes('surah');
   useEffect(() => {
+    // Already open (from Settings): it is not opened over itself at another step.
+    if (guideVisible) guideAutoShown.current = true;
     if (guideAutoShown.current || guideProgress?.status !== 'unseen' || !guideReady) return;
     guideAutoShown.current = true;
     closeOverlay();
     setGuideStep(guideProgress.step);
     setGuideVisible(true);
-  }, [guideProgress, guideReady, closeOverlay]);
+  }, [guideProgress, guideReady, guideVisible, closeOverlay]);
   const showGuideStep = (step: number) => {
     setGuideStep(step);
     // Progress survives a reload: reopened at this step until the guide is closed or finished.
     if (guideProgress?.status !== 'done') void saveGuideProgress({ status: 'unseen', step });
   };
-  const endGuide = () => {
+  /**
+   * Close (`finished` false) or Start Reading on the last step (true). Either records the guide as seen; only finishing
+   * hides the Help icon, and a guide finished before stays finished (closing it after reopening never brings the icon
+   * back).
+   */
+  const endGuide = (finished: boolean) => {
+    const done: GuideProgress = { status: 'done', finished: finished || isGuideFinished(guideProgress) };
     setGuideVisible(false);
-    setGuideProgress({ status: 'done' });
-    void saveGuideProgress({ status: 'done' });
+    setGuideProgress(done);
+    void saveGuideProgress(done);
   };
   const openGuide = () => {
     closeOverlay();
     setGuideStep(0);
     setGuideVisible(true);
   };
-  const guideTexts = [copy.guideSurah, copy.guideHizb, copy.guidePage, copy.guideJuz, copy.guideAyah, copy.guideMarker];
+  // Each step's own text (mushaf/mushafGuide.ts), in the guide's order.
+  const guideTexts = GUIDE_STEPS.map((step) => copy[step.text]);
   const iconColor = (dark ? MUSHAF_PANEL_COLORS.dark : MUSHAF_PANEL_COLORS.light).icon;
   return (
     <GestureHandlerRootView style={[styles.reader, { backgroundColor: MUSHAF_BACKGROUNDS[appearance.background].paper, paddingTop: insets.top, paddingLeft: insets.left, paddingRight: insets.right }]}>
@@ -974,9 +1091,40 @@ export default function MushafScreen() {
             <ArrowLeft size={24} color={iconColor} />
           </Pressable>
         )}
+        {/* The audio player while something plays (any mode): a chip in this bar, never over the page. */}
+        <View testID="mushaf-audio-slot" style={styles.barMiddle} pointerEvents="box-none">
+          <MushafAudioPlayer
+            dark={dark}
+            rtl={rtl}
+            copy={messages.audio}
+            following={following}
+            onFollow={followRecitation}
+            panelTop={insets.top + BACK_BAR_HEIGHT}
+          />
+        </View>
         <View style={styles.barEnd}>
-        {/* Help: the first-time guide again, at its first step. Normal Mode only: full screen keeps just the page and Collapse. */}
-        {!fullScreen && (
+        {/* The headphones (onAudioButton): whenever nothing is actively playing, in both modes. Playing: the chip instead. */}
+        {!audioActive && (
+          <Pressable
+            testID="mushaf-play-page"
+            accessibilityRole="button"
+            accessibilityLabel={playback.phase === 'paused' ? messages.audio.play : messages.audio.playPage}
+            accessibilityHint={playback.phase !== 'idle' ? messages.audio.stopHint : undefined}
+            accessibilityActions={playback.phase !== 'idle' ? [{ name: 'stop', label: messages.audio.stop }] : undefined}
+            onAccessibilityAction={(event) => { if (event.nativeEvent.actionName === 'stop') stopAudio(); }}
+            onPress={onAudioButton}
+            onLongPress={playback.phase !== 'idle' ? stopAudio : undefined}
+            hitSlop={{ top: 44 - BACK_BAR_HEIGHT, bottom: 0, left: 0, right: 0 }}
+            style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}>
+            <Headphones testID="mushaf-audio-idle" size={21} color={iconColor} />
+          </Pressable>
+        )}
+        {/*
+          Help: the first-time guide again, at its first step. Normal Mode only (full screen keeps just the page and
+          Collapse), and only until the guide has been finished: then Settings → Quran → Mushaf Guide reopens it. Not
+          shown while the saved state is still being read, so a finished guide's icon never flashes.
+        */}
+        {!fullScreen && guideProgress !== null && !isGuideFinished(guideProgress) && (
           <Pressable
             testID="mushaf-guide-open"
             accessibilityRole="button"
@@ -1037,7 +1185,7 @@ export default function MushafScreen() {
                       layout={state.layout}
                       width={textArea.width}
                       height={textArea.height}
-                      selectedVerseKey={isCurrent ? selectedVerseKey : null}
+                      selectedVerseKey={highlightedOn(n, isCurrent)}
                       onSelectVerse={isCurrent ? selectVerse : ignoreVerse}
                       onPressMarker={isCurrent ? pressMarker : undefined}
                       guideTargets={isCurrent}
@@ -1063,7 +1211,7 @@ export default function MushafScreen() {
                       svg={ink === MUSHAF_INKS.original.color ? svg!.svg : inkedSvg(svg!.svg, ink)}
                       highlight={highlight}
                       area={textArea}
-                      selectedVerseKey={isCurrent ? selectedVerseKey : null}
+                      selectedVerseKey={highlightedOn(n, isCurrent)}
                       onSelectVerse={isCurrent ? selectVerse : ignoreVerse}
                       accessibilityLabel={`${copy.pageLabel} ${n}`}
                       accessibilityHint={copy.tapHint}
@@ -1205,7 +1353,7 @@ export default function MushafScreen() {
         step={guideStep}
         total={GUIDE_STEPS.length}
         text={guideTexts[guideStep]}
-        labels={{ next: copy.guideNext, back: copy.guideBack, close: copy.guideClose, start: copy.guideStart, stepOf: copy.guideStepOf, notOnPage: copy.guideNotOnPage }}
+        labels={{ next: copy.guideNext, back: copy.guideBack, close: copy.guideClose, start: copy.guideStart, stepOf: copy.guideStepOf, notOnPage: copy.guideNotOnPage, reopenHint: copy.guideReopenHint }}
         dark={dark}
         rtl={rtl}
         direction={{ writingDirection: rtl ? 'rtl' : 'ltr', textAlign: rtl ? 'right' : 'left' }}
@@ -1214,8 +1362,8 @@ export default function MushafScreen() {
         measureKey={`${guideTargets.changes}|${page}|${fullScreen}|${zoomed}|${pageWidth}`}
         onNext={() => showGuideStep(Math.min(GUIDE_STEPS.length - 1, guideStep + 1))}
         onBack={() => showGuideStep(Math.max(0, guideStep - 1))}
-        onClose={endGuide}
-        onFinish={endGuide}
+        onClose={() => endGuide(false)}
+        onFinish={() => endGuide(true)}
       />
 
       <MushafPageSelector
@@ -1250,8 +1398,11 @@ export default function MushafScreen() {
           copied: copy.actionCopied,
           share: messages.ayah.share,
           shareHint: messages.ayah.shareAyah,
+          listen: messages.audio.listen,
+          listenHint: messages.audio.listenHint,
           close: copy.wirdClose,
         }}
+        onListen={listenFromSelected}
         onReflect={openReflection}
         onToggleSave={() => void toggleSaved()}
         onCopy={() => void copySelected()}
@@ -1312,6 +1463,14 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   reader: {
     backgroundColor: colors.background,
     flex: 1,
+  },
+  /** The audio chip, centred in what Back and the right-hand icons leave. */
+  barMiddle: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+    minWidth: 0,
+    paddingHorizontal: 4,
   },
   /** Help and Expand / Collapse, together on the right. */
   barEnd: {

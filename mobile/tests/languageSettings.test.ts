@@ -33,7 +33,7 @@ vi.mock('lucide-react-native', async () => {
   const { readFileSync: read } = await import('node:fs');
   const { resolve: path } = await import('node:path');
   const names = new Set<string>();
-  for (const file of ['utils/emotionIcons.ts', 'components/EmotionCard.tsx', 'components/AyahCard.tsx', 'components/AyahConnectionAccordion.tsx']) {
+  for (const file of ['utils/emotionIcons.ts', 'components/EmotionCard.tsx', 'components/AyahCard.tsx', 'components/AyahAudioButton.tsx', 'components/AyahConnectionAccordion.tsx']) {
     const source = read(path(__dirname, '../src', file), 'utf-8');
     for (const [, list] of source.matchAll(/import\s*(?:type\s*)?\{([^}]+)\}\s*from\s*'lucide-react-native'/g)) {
       for (const name of list.split(',')) if (name.trim()) names.add(name.trim().split(/\s+as\s+/)[0]);

@@ -271,6 +271,8 @@ export type Messages = {
     guideNotOnPage: string;
     /** The reader's Help button: the guide again. */
     guideHelp: string;
+    /** The last step's closing line, above Start Reading: where the guide can be opened again. */
+    guideReopenHint: string;
     /** The Done bar above the iOS number pad. */
     keyboardDone: string;
     actionReflection: string;
@@ -449,6 +451,8 @@ export type Messages = {
     kingFahdWork: string;
     amiriName: string;
     amiriWork: string;
+    mp3quranName: string;
+    mp3quranWork: string;
     website: string;
     license: string;
     terms: string;
@@ -476,6 +480,8 @@ export type Messages = {
     /** Keep Screen Awake (mushaf/keepAwakePreference.ts): a local switch, directly below Quran Language. */
     keepAwakeTitle: string;
     keepAwakeDescription: string;
+    /** Settings → Quran → Mushaf Guide (its title only): opens the Mushaf's six-step guide again, from step 1. */
+    mushafGuideTitle: string;
     offlineMushafTitle: string;
     offlineMushafAvailable: string;
     offlineMushafRequired: string;
@@ -747,12 +753,279 @@ export type Messages = {
     synced: string;
     syncFailed: string;
   };
+  /**
+   * Quran audio (audio/): the Mushaf's player, Listen, the ayah screens' play button, and Settings → Favorite Reciter
+   * and offline listening. Reciter names come from the reciter catalog (English or Arabic), never from here.
+   * Placeholders: {surah}, {ayah}, {reciter}, {n}, {total}, {size}, {percent}, {list}, {done}.
+   */
+  audio: {
+    playPage: string;
+    play: string;
+    pause: string;
+    previousAyah: string;
+    nextAyah: string;
+    stop: string;
+    expand: string;
+    collapse: string;
+    reciter: string;
+    chooseReciter: string;
+    upNext: string;
+    loading: string;
+    buffering: string;
+    followRecitation: string;
+    ayahPosition: string;
+    playingOffline: string;
+    ended: string;
+    errorUnavailable: string;
+    errorNetwork: string;
+    errorMismatch: string;
+    errorPlayback: string;
+    retry: string;
+    noticeReciterUnavailable: string;
+    dismiss: string;
+    coverageComplete: string;
+    coveragePartial: string;
+    coverageNone: string;
+    nowReciting: string;
+    upNextBadge: string;
+    notForThisSurah: string;
+    listen: string;
+    listenHint: string;
+    playAyah: string;
+    pauseAyah: string;
+    replayAyah: string;
+    ayahUnavailable: string;
+    favoriteTitle: string;
+    favoriteDescription: string;
+    sourceNote: string;
+    offlineTitle: string;
+    offlineDescription: string;
+    offlineNothing: string;
+    offlineNotIncluded: string;
+    download: string;
+    pauseDownload: string;
+    resumeDownload: string;
+    cancelDownload: string;
+    retryDownload: string;
+    deleteDownload: string;
+    downloadProgress: string;
+    downloadPaused: string;
+    downloadCancelled: string;
+    downloadComplete: string;
+    downloadPartial: string;
+    storageTotal: string;
+    storedReciter: string;
+    wifiTitle: string;
+    wifiBody: string;
+    wifiConfirm: string;
+    wifiCancel: string;
+    deleteTitle: string;
+    deleteBody: string;
+    deleteConfirm: string;
+    deleteCancel: string;
+    downloadErrorNetwork: string;
+    downloadErrorStorage: string;
+    downloadErrorVerify: string;
+    downloadErrorNotPermitted: string;
+    megabytes: string;
+    gigabytes: string;
+    previousPage: string;
+    nextPage: string;
+    ayahOnly: string;
+    surahProgress: string;
+    stopHint: string;
+    offlineNotPermitted: string;
+    offlineStateNone: string;
+    offlineStateDownloading: string;
+    offlineStatePaused: string;
+    offlineStateComplete: string;
+    offlineStateError: string;
+    offlineStateUnavailable: string;
+    offlineManageHint: string;
+    close: string;
+  };
 };
 
 /**
  * The Mushaf's ورد save button: one Arabic wording for ar and ar-EG alike (no Egyptian variant), the ورد's name as saved.
  */
 const AR_APPLY_TO_WIRD = "حفظ في {name}";
+
+/** Quran audio in English. */
+const EN_AUDIO: Messages['audio'] = {
+  playPage: 'Play recitation from this page',
+  play: 'Play',
+  pause: 'Pause',
+  previousAyah: 'Previous ayah',
+  nextAyah: 'Next ayah',
+  stop: 'Stop and close the player',
+  expand: 'Show player',
+  collapse: 'Hide player',
+  reciter: 'Reciter',
+  chooseReciter: 'Choose a reciter',
+  upNext: 'Up next: {reciter}',
+  loading: 'Loading…',
+  buffering: 'Buffering…',
+  followRecitation: 'Follow recitation',
+  ayahPosition: '{surah} · Ayah {ayah}',
+  playingOffline: 'Playing from this device',
+  ended: 'Recitation complete',
+  errorUnavailable: '{reciter} has no verified recording of Surah {surah}. Choose another reciter.',
+  errorNetwork: "The recitation couldn't load. Check your connection.",
+  errorMismatch: "This recitation's ayah timing has changed at the source, so it can't be used until it is verified again.",
+  errorPlayback: "This recording couldn't be played on this device.",
+  retry: 'Try again',
+  noticeReciterUnavailable: '{reciter} has no verified recording of Surah {surah}, so the current reciter continues.',
+  dismiss: 'Dismiss',
+  coverageComplete: 'All 114 surahs',
+  coveragePartial: '{n} of 114 surahs',
+  coverageNone: 'Ayah-by-ayah playback not available',
+  nowReciting: 'Reciting',
+  upNextBadge: 'Up next',
+  notForThisSurah: 'Not available for this surah',
+  listen: 'Listen',
+  listenHint: 'Recites from this ayah onward',
+  playAyah: 'Play this ayah',
+  pauseAyah: 'Pause',
+  replayAyah: 'Play again',
+  ayahUnavailable: '{reciter} has no verified recording of this surah. You can choose another Favorite Reciter in Settings.',
+  favoriteTitle: 'Favorite Reciter',
+  favoriteDescription: 'Recites in the Mushaf and on the ayah screens.',
+  sourceNote: 'Recitations: MP3Quran (mp3quran.net)',
+  offlineTitle: 'Offline listening',
+  offlineDescription: 'Download {reciter} to listen without internet: {n} surahs, about {size}.',
+  offlineNothing: "{reciter} has no surahs that can play ayah by ayah, so there's nothing to download.",
+  offlineNotIncluded: 'Not included (no verified recording): Surahs {list}',
+  download: 'Download',
+  pauseDownload: 'Pause',
+  resumeDownload: 'Resume',
+  cancelDownload: 'Cancel',
+  retryDownload: 'Try again',
+  deleteDownload: 'Delete',
+  downloadProgress: '{done} of {total} surahs · {percent}%',
+  downloadPaused: 'Paused · {done} of {total} surahs',
+  downloadCancelled: 'Stopped · {done} of {total} surahs downloaded',
+  downloadComplete: 'Downloaded: {n} surahs · {size}',
+  downloadPartial: 'Partly downloaded: {done} of {total} surahs',
+  storageTotal: 'Quran audio on this device: {size}',
+  storedReciter: '{reciter}: {n} surahs · {size}',
+  wifiTitle: 'Not on Wi-Fi',
+  wifiBody: 'This download is about {size}. Wi-Fi is recommended. Download over mobile data anyway?',
+  wifiConfirm: 'Download anyway',
+  wifiCancel: 'Not now',
+  deleteTitle: 'Delete downloaded recitations?',
+  deleteBody: "Removes {reciter}'s downloaded recitations ({size}) from this device. You can download them again later.",
+  deleteConfirm: 'Delete',
+  deleteCancel: 'Keep',
+  downloadErrorNetwork: 'The download stopped: no connection.',
+  downloadErrorStorage: 'Not enough free space on this device.',
+  downloadErrorVerify: "A downloaded file couldn't be verified. Try again.",
+  downloadErrorNotPermitted: "Downloads aren't available for this recording.",
+  megabytes: '{n} MB',
+  gigabytes: '{n} GB',
+  previousPage: 'Previous page',
+  nextPage: 'Next page',
+  ayahOnly: 'Ayah {ayah}',
+  surahProgress: 'Ayah {ayah} of {total}',
+  stopHint: 'Touch and hold to stop the recitation.',
+  offlineNotPermitted: "Offline downloads aren't available yet: they are waiting for MP3Quran to confirm permission for these recordings. Recitation streams as usual.",
+  offlineStateNone: 'Not downloaded',
+  offlineStateDownloading: 'Downloading',
+  offlineStatePaused: 'Download paused',
+  offlineStateComplete: 'Downloaded',
+  offlineStateError: 'Download stopped',
+  offlineStateUnavailable: 'Offline download not available',
+  offlineManageHint: 'Shows the offline download for this reciter.',
+  close: 'Close',
+};
+
+/** Quran audio in Arabic: one Standard Arabic wording for ar and ar-EG alike. */
+const AR_AUDIO: Messages['audio'] = {
+  playPage: 'تشغيل التلاوة من هذه الصفحة',
+  play: 'تشغيل',
+  pause: 'إيقاف مؤقت',
+  previousAyah: 'الآية السابقة',
+  nextAyah: 'الآية التالية',
+  stop: 'إيقاف التلاوة وإغلاق المشغّل',
+  expand: 'إظهار المشغّل',
+  collapse: 'إخفاء المشغّل',
+  reciter: 'القارئ',
+  chooseReciter: 'اختر القارئ',
+  upNext: 'التالي: {reciter}',
+  loading: 'جارٍ التحميل…',
+  buffering: 'جارٍ التحميل…',
+  followRecitation: 'تتبّع التلاوة',
+  ayahPosition: 'سورة {surah} · الآية {ayah}',
+  playingOffline: 'يُشغَّل من الجهاز',
+  ended: 'اكتملت التلاوة',
+  errorUnavailable: 'لا تتوفر لدى {reciter} تلاوة موثّقة لسورة {surah}. اختر قارئًا آخر.',
+  errorNetwork: 'تعذّر تحميل التلاوة. تحقّق من اتصالك بالإنترنت.',
+  errorMismatch: 'تغيّر توقيت الآيات لهذه التلاوة في المصدر، فلا يمكن استخدامه حتى يُتحقَّق منه من جديد.',
+  errorPlayback: 'تعذّر تشغيل هذا التسجيل على هذا الجهاز.',
+  retry: 'إعادة المحاولة',
+  noticeReciterUnavailable: 'لا تتوفر لدى {reciter} تلاوة موثّقة لسورة {surah}، لذا يستمر القارئ الحالي.',
+  dismiss: 'إغلاق',
+  coverageComplete: 'جميع السور (١١٤)',
+  coveragePartial: '{n} من ١١٤ سورة',
+  coverageNone: 'التشغيل آيةً بآية غير متاح',
+  nowReciting: 'يتلو الآن',
+  upNextBadge: 'التالي',
+  notForThisSurah: 'غير متاحة لهذه السورة',
+  listen: 'استمع',
+  listenHint: 'التلاوة بدءًا من هذه الآية',
+  playAyah: 'تشغيل الآية',
+  pauseAyah: 'إيقاف مؤقت',
+  replayAyah: 'إعادة التشغيل',
+  ayahUnavailable: 'لا تتوفر لدى {reciter} تلاوة موثّقة لهذه السورة. يمكنك اختيار قارئ مفضّل آخر من الإعدادات.',
+  favoriteTitle: 'القارئ المفضل',
+  favoriteDescription: 'يتلو في المصحف وفي صفحات الآيات.',
+  sourceNote: 'التلاوات: موقع MP3Quran (mp3quran.net)',
+  offlineTitle: 'الاستماع دون اتصال',
+  offlineDescription: 'نزّل تلاوة {reciter} للاستماع دون إنترنت: {n} سورة، نحو {size}.',
+  offlineNothing: 'لا توجد لدى {reciter} سور يمكن تشغيلها آيةً بآية، فلا يوجد ما يُنزَّل.',
+  offlineNotIncluded: 'غير مشمولة (لا توجد تلاوة موثّقة): السور {list}',
+  download: 'تنزيل',
+  pauseDownload: 'إيقاف مؤقت',
+  resumeDownload: 'استئناف',
+  cancelDownload: 'إلغاء',
+  retryDownload: 'إعادة المحاولة',
+  deleteDownload: 'حذف',
+  downloadProgress: '{done} من {total} سورة · {percent}٪',
+  downloadPaused: 'متوقف مؤقتًا · {done} من {total} سورة',
+  downloadCancelled: 'توقّف · نُزّلت {done} من {total} سورة',
+  downloadComplete: 'تم التنزيل: {n} سورة · {size}',
+  downloadPartial: 'نُزّل جزئيًا: {done} من {total} سورة',
+  storageTotal: 'التلاوات المحفوظة على الجهاز: {size}',
+  storedReciter: '{reciter}: {n} سورة · {size}',
+  wifiTitle: 'لست متصلًا بشبكة Wi-Fi',
+  wifiBody: 'حجم التنزيل نحو {size}، ويُنصح باستخدام Wi-Fi. هل تريد التنزيل عبر بيانات الجوال؟',
+  wifiConfirm: 'تنزيل على أي حال',
+  wifiCancel: 'ليس الآن',
+  deleteTitle: 'حذف التلاوات المنزّلة؟',
+  deleteBody: 'يحذف تلاوات {reciter} المنزّلة ({size}) من هذا الجهاز، ويمكنك تنزيلها مرة أخرى لاحقًا.',
+  deleteConfirm: 'حذف',
+  deleteCancel: 'إبقاء',
+  downloadErrorNetwork: 'توقّف التنزيل: لا يوجد اتصال.',
+  downloadErrorStorage: 'لا توجد مساحة كافية على هذا الجهاز.',
+  downloadErrorVerify: 'تعذّر التحقق من ملف منزّل. حاول مرة أخرى.',
+  downloadErrorNotPermitted: 'التنزيل غير متاح لهذا التسجيل.',
+  megabytes: '{n} ميغابايت',
+  gigabytes: '{n} غيغابايت',
+  previousPage: 'الصفحة السابقة',
+  nextPage: 'الصفحة التالية',
+  ayahOnly: 'الآية {ayah}',
+  surahProgress: 'الآية {ayah} من {total}',
+  stopHint: 'اضغط مطولًا لإيقاف التلاوة.',
+  offlineNotPermitted: 'التنزيل للاستماع دون اتصال غير متاح حاليًا، إذ ننتظر تأكيد موقع MP3Quran للإذن بهذه التسجيلات. تعمل التلاوة عبر الإنترنت كالمعتاد.',
+  offlineStateNone: 'غير منزّل',
+  offlineStateDownloading: 'جارٍ التنزيل',
+  offlineStatePaused: 'التنزيل متوقف مؤقتًا',
+  offlineStateComplete: 'تم التنزيل',
+  offlineStateError: 'توقّف التنزيل',
+  offlineStateUnavailable: 'التنزيل غير متاح',
+  offlineManageHint: 'يعرض خيارات التنزيل لهذا القارئ.',
+  close: 'إغلاق',
+};
 
 export const MESSAGES: Record<AppLocale, Messages> = {
   en: {
@@ -981,6 +1254,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       guideStepOf: "{n} of {total}",
       guideNotOnPage: "Not on this page: it appears on the pages where it applies.",
       guideHelp: "Help",
+      guideReopenHint: 'You can view this guide again anytime from Settings → Quran → Mushaf Guide.',
       keyboardDone: "Done",
       actionReflection: "Reflection",
       actionSave: "Save",
@@ -1126,6 +1400,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       kingFahdWork: 'Original Mushaf typography and artwork: the 1405 AH Madinah Mushaf. QCF V1 fonts © King Fahd Glorious Qur’an Printing Complex. All rights reserved.',
       amiriName: 'Amiri Project Authors',
       amiriWork: 'The Amiri Bold font is used for Surah names, not Quran text. SIL Open Font License 1.1 permits embedding and commercial redistribution with software; the font may not be sold by itself. The required copyright notice and full license are bundled with the app. The decorative frame is original Quran Heals artwork.',
+      mp3quranName: 'MP3Quran',
+      mp3quranWork: 'Quran recitations and their ayah timing, streamed from mp3quran.net and downloadable for offline listening. MP3Quran states that any visitor or developer may copy and use its material.',
       website: 'Website',
       license: 'Licence',
       terms: 'Terms of use',
@@ -1150,6 +1426,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       quranTextOption: 'The Quranic Text',
       keepAwakeTitle: 'Keep Screen Awake',
       keepAwakeDescription: 'Prevent automatic screen locking while reading the Mushaf.',
+      mushafGuideTitle: 'Mushaf Guide',
       offlineMushafTitle: 'Offline Mushaf',
       offlineMushafAvailable: 'Available Offline',
       offlineMushafRequired: 'Download Required',
@@ -1385,6 +1662,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       synced: 'Synced',
       syncFailed: 'Sync failed',
     },
+    audio: EN_AUDIO,
   },
   ar: {
     appName: 'Quran Heals',
@@ -1604,7 +1882,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       guidePage: "اضغط على رقم الصفحة للانتقال إلى صفحة",
       guideJuz: "اضغط على رقم الجزء للانتقال إلى جزء",
       guideAyah: "اضغط على الآية لعرض خياراتها",
-      guideMarker: "اضغط على رقم الآية ثم «تطبيق» لحفظ موضع الوِرد",
+      guideMarker: "اضغط على رقم الآية وقم بالتأكيد لحفظ موضع الوِرد",
       guideNext: "التالي",
       guideBack: "السابق",
       guideClose: "إغلاق",
@@ -1612,6 +1890,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       guideStepOf: "{n} من {total}",
       guideNotOnPage: "غير موجود في هذه الصفحة؛ يظهر في الصفحات التي يخصها.",
       guideHelp: "مساعدة",
+      guideReopenHint: 'يمكنك عرض هذا الدليل مرة أخرى في أي وقت من الإعدادات ← القرآن ← دليل المصحف.',
       keyboardDone: "تم",
       actionReflection: "خاطرة",
       actionSave: "حفظ",
@@ -1757,6 +2036,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       kingFahdWork: 'الخط الأصلي للمصحف وزخارفه: مصحف المدينة ١٤٠٥هـ. خطوط QCF V1 © مجمع الملك فهد لطباعة المصحف الشريف. جميع الحقوق محفوظة.',
       amiriName: 'Amiri Project Authors (مؤلفو مشروع Amiri)',
       amiriWork: 'يُستخدم خط Amiri Bold لكتابة أسماء السور فقط، وليس لنص القرآن. تسمح رخصة SIL OFL 1.1 بتضمين الخط وإعادة توزيعه تجاريًا مع التطبيقات، ولا تسمح ببيع الخط منفردًا. وقد أُرفق إشعار حقوق النشر ونص الرخصة كاملًا مع التطبيق. الإطار الزخرفي تصميم أصلي من Quran Heals.',
+      mp3quranName: 'MP3Quran',
+      mp3quranWork: 'تلاوات القرآن الكريم وتوقيت آياتها، تُبَثّ من موقع mp3quran.net ويمكن تنزيلها للاستماع دون اتصال. وينصّ الموقع على أنه يحق لأي زائر أو مطوّر استخدام أي مادة منه.',
       website: 'الموقع',
       license: 'الرخصة',
       terms: 'شروط الاستخدام',
@@ -1781,6 +2062,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       quranTextOption: 'النص القرآني',
       keepAwakeTitle: 'إبقاء الشاشة مضاءة',
       keepAwakeDescription: 'منع قفل الشاشة تلقائيًا أثناء قراءة المصحف.',
+      mushafGuideTitle: 'دليل المصحف',
       offlineMushafTitle: 'المصحف بدون إنترنت',
       offlineMushafAvailable: 'متاح بدون إنترنت',
       offlineMushafRequired: 'يحتاج إلى تحميل',
@@ -2020,6 +2302,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       synced: 'تم التحديث',
       syncFailed: 'تعذّر التحديث',
     },
+    audio: AR_AUDIO,
   },
   'ar-EG': {
     appName: 'Quran Heals',
@@ -2249,7 +2532,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       guidePage: "اضغط على رقم الصفحة للانتقال إلى صفحة",
       guideJuz: "اضغط على رقم الجزء للانتقال إلى جزء",
       guideAyah: "اضغط على الآية لعرض خياراتها",
-      guideMarker: "اضغط على رقم الآية ثم «تطبيق» لحفظ موضع الوِرد",
+      guideMarker: "اضغط على رقم الآية وقم بالتأكيد لحفظ موضع الوِرد",
       guideNext: "التالي",
       guideBack: "السابق",
       guideClose: "إغلاق",
@@ -2257,6 +2540,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       guideStepOf: "{n} من {total}",
       guideNotOnPage: "غير موجود في هذه الصفحة؛ يظهر في الصفحات التي يخصها.",
       guideHelp: "مساعدة",
+      guideReopenHint: 'يمكنك عرض هذا الدليل مرة أخرى في أي وقت من الإعدادات ← القرآن ← دليل المصحف.',
       keyboardDone: "تم",
       actionReflection: "خاطرة",
       actionSave: "حفظ",
@@ -2403,6 +2687,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       kingFahdWork: 'الخط الأصلي للمصحف وزخارفه: مصحف المدينة ١٤٠٥هـ. خطوط QCF V1 © مجمع الملك فهد لطباعة المصحف الشريف. جميع الحقوق محفوظة.',
       amiriName: 'Amiri Project Authors (مؤلفو مشروع Amiri)',
       amiriWork: 'يُستخدم خط Amiri Bold لأسماء السور، وليس لنص القرآن. تسمح رخصة SIL OFL 1.1 بتضمين الخط وإعادة توزيعه تجاريًا مع التطبيقات، ولا تسمح ببيع الخط منفردًا. وقد أُرفق إشعار حقوق النشر ونص الرخصة كاملًا مع التطبيق. الإطار الزخرفي تصميم أصلي من Quran Heals.',
+      mp3quranName: 'MP3Quran',
+      mp3quranWork: 'تلاوات القرآن الكريم وتوقيت آياتها، تُبَثّ من موقع mp3quran.net ويمكن تنزيلها للاستماع دون اتصال. وينصّ الموقع على أنه يحق لأي زائر أو مطوّر استخدام أي مادة منه.',
       website: 'الموقع',
       license: 'الرخصة',
       terms: 'شروط الاستخدام',
@@ -2427,6 +2713,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       quranTextOption: 'النص القرآني',
       keepAwakeTitle: 'إبقاء الشاشة مضاءة',
       keepAwakeDescription: 'منع قفل الشاشة تلقائيًا أثناء قراءة المصحف.',
+      mushafGuideTitle: 'دليل المصحف',
       offlineMushafTitle: 'المصحف بدون إنترنت',
       offlineMushafAvailable: 'متاح بدون إنترنت',
       offlineMushafRequired: 'يحتاج إلى تحميل',
@@ -2673,6 +2960,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       synced: 'تم التحديث',
       syncFailed: 'تعذّر التحديث',
     },
+    audio: AR_AUDIO,
   },
 };
 

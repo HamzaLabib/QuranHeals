@@ -14,7 +14,7 @@ type MushafGuideProps = {
   total: number;
   /** This step's instruction. */
   text: string;
-  labels: { next: string; back: string; close: string; start: string; stepOf: string; notOnPage: string };
+  labels: { next: string; back: string; close: string; start: string; stepOf: string; notOnPage: string; reopenHint: string };
   dark: boolean;
   rtl: boolean;
   direction: Direction;
@@ -38,7 +38,8 @@ type MushafGuideProps = {
  * foreground may have moved it. A control that is not on screen (a page without a Hizb mark, a page still loading) gets
  * no arrow: the card is centred and says so, rather than pointing at the wrong place.
  *
- * Only its buttons close or move it: Back, Close, Next, and on the last step Start Reading. A tap elsewhere does nothing,
+ * Only its buttons close or move it: Back, Close, Next, and on the last step Start Reading (with, above it, where the
+ * guide can be opened again). A tap elsewhere does nothing,
  * and Android's Back key goes to the previous step (never closing it).
  */
 export function MushafGuide(props: MushafGuideProps) {
@@ -96,6 +97,8 @@ export function MushafGuide(props: MushafGuideProps) {
       <Text style={[styles.counter, { color: theme.muted }, direction]}>{counter}</Text>
       <Text testID="mushaf-guide-text" accessibilityRole="header" style={[styles.text, { color: theme.text }, direction]}>{text}</Text>
       {!placement && <Text testID="mushaf-guide-not-on-page" style={[styles.note, { color: theme.muted }, direction]}>{labels.notOnPage}</Text>}
+      {/* The last step: where to find the guide again, just above Start Reading. */}
+      {last && <Text testID="mushaf-guide-reopen-hint" style={[styles.note, { color: theme.muted }, direction]}>{labels.reopenHint}</Text>}
       <View style={[styles.actions, rtl && styles.rowReverse]}>
         {step > 0 && (
           <Pressable testID="mushaf-guide-back" accessibilityRole="button" accessibilityLabel={labels.back} onPress={props.onBack} hitSlop={6} style={({ pressed }) => [styles.secondary, pressed && styles.pressed]}>

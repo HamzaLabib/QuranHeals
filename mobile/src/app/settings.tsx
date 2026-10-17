@@ -1,14 +1,18 @@
 import { router } from 'expo-router';
-import { ArrowLeft, ArrowRight, Check, ChevronLeft, ChevronRight, Flag } from 'lucide-react-native';
+import { ArrowLeft, ArrowRight, Check, ChevronLeft, ChevronRight, CircleHelp, Flag } from 'lucide-react-native';
 import { useCallback, useRef, useState, type ReactNode } from 'react';
 import { LayoutAnimation, Linking, Pressable, RefreshControl, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/useAuth';
+import { getReciter, reciterName } from '@/audio/reciters';
+import { useFavoriteReciter } from '@/audio/useFavoriteReciter';
 import { AccountSection } from '@/components/AccountSection';
 import { ConfirmSheet } from '@/components/ConfirmSheet';
 import { NotificationReminderRow } from '@/components/NotificationReminderRow';
 import { OfflineMushafSettingsRow } from '@/components/OfflineMushafSettingsRow';
+import { ReciterDownloadControl } from '@/components/ReciterDownloadControl';
+import { ReciterList } from '@/components/ReciterList';
 import { ReportIssueSheet } from '@/components/ReportIssueSheet';
 import { SettingsAccordion } from '@/components/SettingsAccordion';
 import { TranslationSettingRow } from '@/components/TranslationSettingRow';
@@ -38,8 +42,11 @@ const APPEARANCE_MODES: readonly AppearanceMode[] = ['system', 'light', 'dark'];
  * section — each reminder sits in the section it belongs to):
  *  1. App — App Language (English / العربية), Appearance (System / Light / Dark).
  *  2. Emotions — Emotions Language, Show Translation, Emotional Check-in.
- *  3. Quran — Quran Language, Keep Screen Awake, Wird Reminder, Random Quran
- *     Ayah, and the offline Mushaf.
+ *  3. Quran — Quran Language, Keep Screen Awake, Favorite Reciter (the 16
+ *     reciters, each with its coverage; its offline download as a small icon
+ *     beside the dropdown), Wird Reminder,
+ *     Random Quran Ayah, the offline Mushaf, and Mushaf Guide (opens the
+ *     Mushaf's six-step guide again).
  *  4. Support — Report an Issue, Legal & Privacy.
  *  5. Account — AccountSection (sign in / out, Delete Account), unchanged.
  *
@@ -47,7 +54,7 @@ const APPEARANCE_MODES: readonly AppearanceMode[] = ['system', 'light', 'dark'];
  * Exactly three language settings: App, Emotions and Quran Language (no
  * separate Quran Translation row).
  */
-type SettingsSectionKey = 'language' | 'emotions' | 'quran' | 'appearance' | 'legal';
+type SettingsSectionKey = 'language' | 'emotions' | 'quran' | 'reciter' | 'appearance' | 'legal';
 
 /** Animates the next layout change: a section opening/closing and the cards below it moving. */
 function animateNextLayout() {
@@ -64,6 +71,8 @@ export default function SettingsScreen() {
   const { mode: quranMode, setMode: setQuranMode } = useQuranReadingMode();
   const { mode, setMode } = useAppearancePreference();
   const { enabled: keepAwake, setEnabled: setKeepAwake } = useKeepAwakePreference();
+  const { reciterId: favoriteReciterId, setReciterId: setFavoriteReciterId } = useFavoriteReciter();
+  const favoriteReciter = getReciter(favoriteReciterId);
   const { preference: translationPreference, setShowTranslation, setTranslationMode } = useQuranTranslationPreference();
   const notifications = useNotifications();
   const [uses24HourClock] = useState(() => deviceUses24HourClock());
@@ -304,11 +313,45 @@ export default function SettingsScreen() {
             />
           </View>
 
+          {/* Favorite Reciter (audio/favoriteReciterPreference.ts): the 16 reciters, each with how much it can play ayah by ayah; a device setting, applied at once. */}
+          <SettingsAccordion
+            title={messages.audio.favoriteTitle}
+            summary={favoriteReciter ? reciterName(favoriteReciter, isRtl) : undefined}
+            expanded={openSection === 'reciter'}
+            onToggle={() => toggleSection('reciter')}
+            direction={direction}
+            isRtl={isRtl}
+            // Offline listening: the compact download icon beside the dropdown (downloads stay off while unlicensed, audio/reciters.ts).
+            accessory={<ReciterDownloadControl reciterId={favoriteReciterId} messages={messages} isRtl={isRtl} direction={direction} />}>
+            <Text style={[styles.optionHint, styles.accordionNote, direction]}>{messages.audio.favoriteDescription}</Text>
+            <ReciterList
+              testIDPrefix="settings-reciter"
+              selectedId={favoriteReciterId}
+              onSelect={(id) => choose(() => setFavoriteReciterId(id))}
+              copy={messages.audio}
+              rtl={isRtl}
+              tone={{ text: colors.textPrimary, muted: colors.textSecondary, accent: colors.accent, selected: colors.accentSoft, divider: colors.divider }}
+            />
+          </SettingsAccordion>
+
           {reminderRow('wird', messages.notifications.wirdReminderTitle)}
           {reminderRow('randomAyah', messages.notifications.randomAyahTitle)}
 
           {/* The offline Mushaf (shared device content, the same signed in or not): one compact row with its actual status; tapping it downloads when a download is needed. */}
           <OfflineMushafSettingsRow messages={messages} locale={locale} direction={direction} isRtl={isRtl} />
+
+          {/* Mushaf Guide: the Mushaf's own six-step guide (components/MushafGuide.tsx), opened there at step 1; nothing is saved or reset. The title alone, with the Mushaf toolbar's own Help (?) icon, always shown here (the toolbar's hides once the guide is finished). */}
+          <Pressable
+            testID="settings-mushaf-guide"
+            accessibilityRole="button"
+            accessibilityLabel={messages.settings.mushafGuideTitle}
+            onPress={() => router.navigate({ pathname: '/mushaf', params: { guide: String(Date.now()) } })}
+            style={({ pressed }) => [styles.switchCard, isRtl && styles.optionRowRtl, pressed && styles.pressed]}>
+            <CircleHelp size={18} color={colors.icon} strokeWidth={2} />
+            <View style={styles.optionTextWrap}>
+              <Text style={[styles.optionLabel, direction]}>{messages.settings.mushafGuideTitle}</Text>
+            </View>
+          </Pressable>
         </SettingsSection>
 
         {/* 4. Support */}
@@ -568,6 +611,10 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     color: colors.textSecondary,
     fontSize: typography.caption,
     lineHeight: 17,
+  },
+  accordionNote: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   pressed: {
     opacity: 0.78,

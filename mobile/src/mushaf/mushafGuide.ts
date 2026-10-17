@@ -10,33 +10,50 @@ import type { GuideTarget } from './guideTargets';
  * Shown by itself the first time the Mushaf is opened (once the page and its controls are drawn), and kept until the
  * user closes or finishes it: no timer, no tap outside, no backgrounding closes it. Its progress is saved, so a reload
  * mid-way reopens it at the same step. Closing or finishing records that it was seen (a local, versioned key; never
- * synced); the reader's Help button opens it again at the first step.
+ * synced). Finishing it (Start Reading on the last step) also hides the reader's Help icon for good; closing it early
+ * keeps the icon. Settings → Quran → Mushaf Guide, and the Help icon while shown, open it again at the first step
+ * without changing what was recorded.
+ *
+ * The order (2026-10-17, the original order reversed): the ayah's number (saving the ورد position), an ayah, the
+ * Juz, the page number, the Hizb, the Surah name. Each step carries its own control and its own text, so they always
+ * move together.
  */
-export type GuideStep = { target: GuideTarget };
+export type GuideTextKey = 'guideMarker' | 'guideAyah' | 'guideJuz' | 'guidePage' | 'guideHizb' | 'guideSurah';
+export type GuideStep = { target: GuideTarget; text: GuideTextKey };
 export const GUIDE_STEPS: readonly GuideStep[] = [
-  { target: 'surah' },
-  { target: 'hizb' },
-  { target: 'page' },
-  { target: 'juz' },
-  { target: 'ayah' },
-  { target: 'marker' },
+  { target: 'marker', text: 'guideMarker' },
+  { target: 'ayah', text: 'guideAyah' },
+  { target: 'juz', text: 'guideJuz' },
+  { target: 'page', text: 'guidePage' },
+  { target: 'hizb', text: 'guideHizb' },
+  { target: 'surah', text: 'guideSurah' },
 ];
+/** Saved with a step in progress; a step saved without it counted in the original order (surah … marker) and restarts. */
+export const GUIDE_ORDER = 2;
 
 export const MUSHAF_GUIDE_STORAGE_KEY = 'quran-heals:mushaf-guide:v1';
 
-/** 'unseen': never shown or shown and not yet closed (with the step reached); 'done': closed or finished. */
-export type GuideProgress = { status: 'unseen'; step: number } | { status: 'done' };
+/**
+ * 'unseen': never shown, or shown and not yet closed (with the step reached); 'done': closed or finished, with
+ * `finished` true once all six steps were gone through to Start Reading. A 'done' saved before `finished` existed
+ * counts as finished: those users keep the guide completed (and the Help icon hidden) after updating.
+ */
+export type GuideProgress = { status: 'unseen'; step: number } | { status: 'done'; finished: boolean };
 
 export function parseGuideProgress(raw: unknown): GuideProgress {
   if (raw && typeof raw === 'object') {
-    const value = raw as { status?: unknown; step?: unknown };
-    if (value.status === 'done') return { status: 'done' };
+    const value = raw as { status?: unknown; step?: unknown; finished?: unknown; order?: unknown };
+    if (value.status === 'done') return { status: 'done', finished: value.finished !== false };
     if (value.status === 'unseen' && typeof value.step === 'number' && Number.isInteger(value.step) && value.step >= 0 && value.step < GUIDE_STEPS.length) {
-      return { status: 'unseen', step: value.step };
+      // A step saved in the original order is not resumed in the reversed one: the guide starts again from step 1.
+      return { status: 'unseen', step: value.order === GUIDE_ORDER ? value.step : 0 };
     }
   }
   return { status: 'unseen', step: 0 };
 }
+
+/** Whether the guide was finished: the reader's Help icon is then hidden for good. */
+export const isGuideFinished = (progress: GuideProgress | null): boolean => progress?.status === 'done' && progress.finished;
 
 /** Never throws: an unreadable store means the guide has not been seen (so it shows, rather than silently never). */
 export async function loadGuideProgress(): Promise<GuideProgress> {
@@ -50,7 +67,7 @@ export async function loadGuideProgress(): Promise<GuideProgress> {
 
 export async function saveGuideProgress(progress: GuideProgress): Promise<void> {
   try {
-    await AsyncStorage.setItem(MUSHAF_GUIDE_STORAGE_KEY, JSON.stringify(progress));
+    await AsyncStorage.setItem(MUSHAF_GUIDE_STORAGE_KEY, JSON.stringify(progress.status === 'unseen' ? { ...progress, order: GUIDE_ORDER } : progress));
   } catch {
     // Non-fatal: at worst the guide shows again next time.
   }

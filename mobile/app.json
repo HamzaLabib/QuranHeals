@@ -74,6 +74,15 @@
           "color": "#617256"
         }
       ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "enableBackgroundRecording": false,
+          "enableBackgroundPlayback": true
+        }
+      ],
       "expo-localization",
       "@react-native-community/datetimepicker",
       "./plugins/withAdvanceWidthText"

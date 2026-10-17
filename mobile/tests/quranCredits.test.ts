@@ -72,7 +72,8 @@ describe('Quran Sources & Credits page', () => {
     expect(shown).toMatch(/typography and artwork/);
     expect(shown).toMatch(/Amiri Project Authors/);
     expect(shown).toMatch(/SIL Open Font License 1\.1/);
-    for (const key of ['tanzilWork', 'quranFoundationWork', 'kingFahdWork', 'amiriWork'] as const) expect(texts()).toContain(copy[key]);
+    expect(shown).toMatch(/MP3Quran/);
+    for (const key of ['tanzilWork', 'quranFoundationWork', 'kingFahdWork', 'amiriWork', 'mp3quranWork'] as const) expect(texts()).toContain(copy[key]);
   });
 
   it('links to the official sites and terms, as accessible links that open in the browser', async () => {
@@ -86,6 +87,8 @@ describe('Quran Sources & Credits page', () => {
       'https://qurancomplex.gov.sa/',
       'https://github.com/aliftype/amiri',
       'https://openfontlicense.org/',
+      'https://www.mp3quran.net/',
+      'https://www.mp3quran.net/eng/privacy',
     ]);
     expect(links()).toHaveLength(urls.length);
     for (const link of links()) {

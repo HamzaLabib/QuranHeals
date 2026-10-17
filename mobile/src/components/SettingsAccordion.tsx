@@ -16,6 +16,12 @@ type SettingsAccordionProps = {
   direction: Direction;
   isRtl: boolean;
   children: ReactNode;
+  /**
+   * A small control of its own right beside the title and summary (Favorite Reciter's download icon), with the dropdown
+   * chevron after it at the row's end: outside the header button, so the control keeps its own label and action. The
+   * title and summary, and the chevron, still open and close the section (independent touch targets).
+   */
+  accessory?: ReactNode;
 };
 
 const CHEVRON_DURATION_MS = 200;
@@ -27,7 +33,7 @@ const CHEVRON_DURATION_MS = 200;
  * The whole header is one accessible button that announces its expanded
  * state and, when collapsed, the current selection.
  */
-export function SettingsAccordion({ title, summary, expanded, onToggle, direction, isRtl, children }: SettingsAccordionProps) {
+export function SettingsAccordion({ title, summary, expanded, onToggle, direction, isRtl, children, accessory }: SettingsAccordionProps) {
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
   // State, not a ref, so it is safe to read during render (as in StateView).
@@ -39,8 +45,13 @@ export function SettingsAccordion({ title, summary, expanded, onToggle, directio
 
   const chevronRotation = rotation.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] });
 
-  return (
-    <View style={styles.card}>
+  const chevron = (
+    <Animated.View style={{ transform: [{ rotate: chevronRotation }] }}>
+      <ChevronDown size={20} color={colors.textSecondary} />
+    </Animated.View>
+  );
+
+  const header = (
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={summary ? `${title}, ${summary}` : title}
@@ -51,11 +62,28 @@ export function SettingsAccordion({ title, summary, expanded, onToggle, directio
           <Text style={[styles.title, direction]}>{title}</Text>
           {summary !== undefined && <Text style={[styles.summary, direction]}>{summary}</Text>}
         </View>
-        {/* Decorative: the header's label and expanded state cover it for screen readers. */}
-        <Animated.View style={{ transform: [{ rotate: chevronRotation }] }}>
-          <ChevronDown size={20} color={colors.textSecondary} />
-        </Animated.View>
+        {/* Decorative: the header's label and expanded state cover it for screen readers. With an accessory, it moves after it (below). */}
+        {!accessory && chevron}
       </Pressable>
+  );
+
+  return (
+    <View style={styles.card}>
+      {accessory ? (
+        <View style={[styles.headerRow, isRtl && styles.headerRtl]}>
+          <View style={styles.headerFill}>{header}</View>
+          <View style={styles.accessory}>{accessory}</View>
+          {/* The chevron at the row's end: a tap opens or closes the section, as the header does (which already announces it to screen readers). */}
+          <Pressable
+            testID="settings-accordion-chevron"
+            accessible={false}
+            importantForAccessibility="no"
+            onPress={onToggle}
+            style={({ pressed }) => [styles.chevronButton, isRtl ? styles.chevronButtonRtl : null, pressed && styles.pressed]}>
+            {chevron}
+          </Pressable>
+        </View>
+      ) : header}
       {expanded && <View style={styles.body}>{children}</View>}
     </View>
   );
@@ -80,6 +108,30 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   },
   headerRtl: {
     flexDirection: 'row-reverse',
+  },
+  headerRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  headerFill: {
+    flex: 1,
+  },
+  /** Right beside the title and summary. */
+  accessory: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  /** The chevron at the row's end, with the header's own end padding. */
+  chevronButton: {
+    alignItems: 'center',
+    alignSelf: 'stretch',
+    justifyContent: 'center',
+    paddingLeft: spacing.sm,
+    paddingRight: spacing.md,
+  },
+  chevronButtonRtl: {
+    paddingLeft: spacing.md,
+    paddingRight: spacing.sm,
   },
   headerText: {
     flex: 1,

@@ -2,21 +2,45 @@ import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem: async () => null, setItem: async () => undefined } }));
 
-const { GUIDE_STEPS, computeGuidePlacement, parseGuideProgress, GUIDE_ARROW_LENGTH, GUIDE_HIGHLIGHT_PAD } = await import('@/mushaf/mushafGuide');
+const { GUIDE_STEPS, computeGuidePlacement, isGuideFinished, parseGuideProgress, GUIDE_ARROW_LENGTH, GUIDE_HIGHLIGHT_PAD } = await import('@/mushaf/mushafGuide');
+const { MESSAGES } = await import('@/localization/messages');
 
 /** The first-time Mushaf guide's pure parts (mushaf/mushafGuide.ts); the overlay itself is rendered in mushafScreen.test.ts. */
 describe('steps and saved progress', () => {
-  it('six steps in the approved order', () => {
-    expect(GUIDE_STEPS.map((step) => step.target)).toEqual(['surah', 'hizb', 'page', 'juz', 'ayah', 'marker']);
+  it('six steps in the reversed order (2026-10-17), each carrying its own text with its own control', () => {
+    expect(GUIDE_STEPS.map((step) => step.target)).toEqual(['marker', 'ayah', 'juz', 'page', 'hizb', 'surah']);
+    expect(GUIDE_STEPS.map((step) => step.text)).toEqual(['guideMarker', 'guideAyah', 'guideJuz', 'guidePage', 'guideHizb', 'guideSurah']);
   });
 
-  it('saved progress is validated: unknown, damaged or out-of-range values mean "not seen, from step 1"; done stays done', () => {
+  it('saved progress is validated: unknown, damaged or out-of-range values mean "not seen, from step 1"', () => {
     expect(parseGuideProgress(null)).toEqual({ status: 'unseen', step: 0 });
-    expect(parseGuideProgress({ status: 'done' })).toEqual({ status: 'done' });
-    expect(parseGuideProgress({ status: 'unseen', step: 3 })).toEqual({ status: 'unseen', step: 3 });
-    for (const bad of [{ status: 'unseen', step: 6 }, { status: 'unseen', step: -1 }, { status: 'unseen', step: 1.5 }, { status: 'other' }, 'done', 42]) {
+    expect(parseGuideProgress({ status: 'unseen', step: 3, order: 2 })).toEqual({ status: 'unseen', step: 3 });
+    for (const bad of [{ status: 'unseen', step: 6, order: 2 }, { status: 'unseen', step: -1 }, { status: 'unseen', step: 1.5 }, { status: 'other' }, 'done', 42]) {
       expect(parseGuideProgress(bad)).toEqual({ status: 'unseen', step: 0 });
     }
+  });
+
+  it('a step saved in the original order restarts at step 1 in the new one', () => {
+    expect(parseGuideProgress({ status: 'unseen', step: 3 })).toEqual({ status: 'unseen', step: 0 });
+  });
+
+  it('done: closed early (finished false) or finished; a done saved before this update counts as finished', () => {
+    expect(parseGuideProgress({ status: 'done', finished: false })).toEqual({ status: 'done', finished: false });
+    expect(parseGuideProgress({ status: 'done', finished: true })).toEqual({ status: 'done', finished: true });
+    expect(parseGuideProgress({ status: 'done' })).toEqual({ status: 'done', finished: true });
+    expect(isGuideFinished({ status: 'done', finished: true })).toBe(true);
+    expect(isGuideFinished({ status: 'done', finished: false })).toBe(false);
+    expect(isGuideFinished({ status: 'unseen', step: 5 })).toBe(false);
+    expect(isGuideFinished(null)).toBe(false);
+  });
+
+  it('every guide text exists in English and Arabic; only the ورد step`s Arabic wording changed («وقم بالتأكيد»)', () => {
+    for (const locale of ['en', 'ar', 'ar-EG'] as const) for (const step of GUIDE_STEPS) expect(MESSAGES[locale].mushaf[step.text].length, `${locale} ${step.text}`).toBeGreaterThan(0);
+    expect(MESSAGES.ar.mushaf.guideMarker).toBe('اضغط على رقم الآية وقم بالتأكيد لحفظ موضع الوِرد');
+    expect(MESSAGES['ar-EG'].mushaf.guideMarker).toBe(MESSAGES.ar.mushaf.guideMarker);
+    expect(MESSAGES.en.mushaf.guideMarker).toBe("Tap an ayah's number, then Apply, to save your Reciting position.");
+    // No guide text refers to a step by its number or position.
+    for (const locale of ['en', 'ar'] as const) for (const step of GUIDE_STEPS) expect(MESSAGES[locale].mushaf[step.text]).not.toMatch(/step|first|last|next|الخطوة|أولا|أخير|التالي/i);
   });
 });
 
