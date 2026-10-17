@@ -57,15 +57,15 @@ type Theme = (typeof MUSHAF_PANEL_COLORS)['light'] | (typeof MUSHAF_PANEL_COLORS
 const themeOf = (dark: boolean): Theme => (dark ? MUSHAF_PANEL_COLORS.dark : MUSHAF_PANEL_COLORS.light);
 
 /**
- * Tapping an ayah's words: exactly five actions, in this order, nothing else.
+ * Tapping an ayah's words: exactly five actions, in this order (the same in every app language), nothing else.
+ *  - Listen (استمع): recitation from this ayah onward, ayah after ayah, turning pages (audio/engine.ts), in the
+ *    player's current reciter or else the Favorite Reciter.
  *  - Reflection, with the retired bar's enabled, lit lamp exactly (ReflectionBulbIcon lit, its size, the `saved` green
  *    outline and the `activeFill` yellow glass): opens the existing Reflection editor for this ayah.
  *  - Save, with the Favorites heart (filled when this ayah is already a favourite): the existing Favorites toggle.
- *  - Copy: the ayah's verified Arabic text alone (mushaf/ayahCopyText.ts) to the clipboard; "Copied" with a check for
- *    a moment after it succeeds. The popup stays open and the ayah selected.
+ *  - Copy: the ayah's verified Arabic text, a blank line and its reference (mushaf/ayahCopyText.ts) to the clipboard;
+ *    "Copied" with a check for a moment after it succeeds. The popup stays open and the ayah selected.
  *  - Share, with the ayah screen's Share icon: the existing Share Ayah sheet for this ayah (no emotion on the card).
- *  - Listen (استمع): recitation from this ayah onward, ayah after ayah, turning pages (audio/engine.ts), in the
- *    player's current reciter or else the Favorite Reciter.
  * None touches a ورد, reading progress or a Khatma.
  */
 export function MushafAyahActions({ anchor, dark, rtl, saved, copied, busy, error, labels, onReflect, onToggleSave, onCopy, onShare, onListen, onClose }: {
@@ -90,6 +90,19 @@ export function MushafAyahActions({ anchor, dark, rtl, saved, copied, busy, erro
   const text = [styles.actionText, { color: theme.text, textAlign: rtl ? 'right' : 'left' } as const];
   return (
     <AnchoredPopup anchor={anchor} onClose={onClose} closeLabel={labels.close} testID="mushaf-ayah-actions" theme={theme}>
+      <Pressable
+        testID="mushaf-ayah-listen"
+        accessibilityRole="button"
+        accessibilityLabel={labels.listen}
+        accessibilityHint={labels.listenHint}
+        onPress={onListen}
+        style={({ pressed }) => [row, pressed && theme.selected]}>
+        <View style={styles.icon}>
+          <Headphones size={20} color={theme.icon} />
+        </View>
+        <Text style={text}>{labels.listen}</Text>
+      </Pressable>
+      <View style={[styles.divider, { backgroundColor: theme.divider }]} />
       <Pressable testID="mushaf-ayah-reflection" accessibilityRole="button" accessibilityLabel={labels.reflection} onPress={onReflect} style={({ pressed }) => [row, pressed && theme.selected]}>
         <View style={styles.icon}>
           <ReflectionBulbIcon lit size={ICON_SIZE} color={theme.saved} fill={theme.activeFill} />
@@ -138,19 +151,6 @@ export function MushafAyahActions({ anchor, dark, rtl, saved, copied, busy, erro
           <Share2 size={20} color={theme.icon} />
         </View>
         <Text style={text}>{labels.share}</Text>
-      </Pressable>
-      <View style={[styles.divider, { backgroundColor: theme.divider }]} />
-      <Pressable
-        testID="mushaf-ayah-listen"
-        accessibilityRole="button"
-        accessibilityLabel={labels.listen}
-        accessibilityHint={labels.listenHint}
-        onPress={onListen}
-        style={({ pressed }) => [row, pressed && theme.selected]}>
-        <View style={styles.icon}>
-          <Headphones size={20} color={theme.icon} />
-        </View>
-        <Text style={text}>{labels.listen}</Text>
       </Pressable>
       {error && <Text accessibilityLiveRegion="polite" style={[styles.error, { color: theme.error, textAlign: rtl ? 'right' : 'left' }]}>{error}</Text>}
     </AnchoredPopup>

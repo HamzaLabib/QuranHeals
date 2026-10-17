@@ -3913,15 +3913,15 @@ describe('the redesigned navigation and ayah actions', () => {
       ayahNumber: Number(verseKey.split(':')[1]), arabicText: '', englishTranslation: 'Say…', emotions: [], quranTextSource: 'tanzil', translationSource: 'pickthall',
     });
 
-    it('opens after the double-tap window, near the ayah, with exactly five actions in order: the lit lamp, the heart, Copy, Share, Listen', async () => {
+    it('opens after the double-tap window, near the ayah, with exactly five actions in order: Listen, the lit lamp, the heart, Copy, Share', async () => {
       await render();
       await tapPage(100, 130); // 3:85
       expect(hosts('mushaf-ayah-actions')).toHaveLength(0); // not yet: it may still be a double-tap
       await afterTapWindow();
       const popup = onlyHost('mushaf-ayah-actions');
       const actions = popup.findAll((n) => typeof n.type === 'string' && n.props.accessibilityRole === 'button');
-      expect(actions.map((n) => n.props.testID)).toEqual(['mushaf-ayah-reflection', 'mushaf-ayah-save', 'mushaf-ayah-copy', 'mushaf-ayah-share', 'mushaf-ayah-listen']);
-      expect(textOf(popup)).toBe(`${copy().actionReflection}|${copy().actionSave}|${copy().actionCopy}|${MESSAGES.en.ayah.share}|${MESSAGES.en.audio.listen}`);
+      expect(actions.map((n) => n.props.testID)).toEqual(['mushaf-ayah-listen', 'mushaf-ayah-reflection', 'mushaf-ayah-save', 'mushaf-ayah-copy', 'mushaf-ayah-share']);
+      expect(textOf(popup)).toBe(`${MESSAGES.en.audio.listen}|${copy().actionReflection}|${copy().actionSave}|${copy().actionCopy}|${MESSAGES.en.ayah.share}`);
       // Share: the ayah screen's own icon (lucide share-2) and spoken label.
       expect(onlyHost('mushaf-ayah-share').findAllByType('Share2' as never)).toHaveLength(1);
       expect(onlyHost('mushaf-ayah-share').props.accessibilityLabel).toBe(MESSAGES.en.ayah.shareAyah);
@@ -4008,7 +4008,7 @@ describe('the redesigned navigation and ayah actions', () => {
       await press(onlyHost('mushaf-ayah-save'));
       await flush();
       const popup = onlyHost('mushaf-ayah-actions');
-      expect(popup.findAll((n) => typeof n.type === 'string' && n.props.accessibilityRole === 'button').map((n) => n.props.testID)).toEqual(['mushaf-ayah-reflection', 'mushaf-ayah-save', 'mushaf-ayah-copy', 'mushaf-ayah-share', 'mushaf-ayah-listen']);
+      expect(popup.findAll((n) => typeof n.type === 'string' && n.props.accessibilityRole === 'button').map((n) => n.props.testID)).toEqual(['mushaf-ayah-listen', 'mushaf-ayah-reflection', 'mushaf-ayah-save', 'mushaf-ayah-copy', 'mushaf-ayah-share']);
       expect(onlyHost('mushaf-ayah-save').findByType('Heart' as never).props).toMatchObject({ color: '#E44855', fill: '#E44855' });
       expect(textOf(onlyHost('mushaf-ayah-save'))).toBe(MESSAGES[locale].mushaf.actionSaved);
       expect(onlyHost('mushaf-ayah-save').props.accessibilityLabel).toBe(MESSAGES[locale].favoriteButton.removeLabel);
@@ -4050,7 +4050,7 @@ describe('the redesigned navigation and ayah actions', () => {
       // Saved: the heart fills at once, no error.
       expect(hosts('mushaf-ayah-actions')).toHaveLength(1);
       expect(onlyHost('mushaf-ayah-save').findByType('Heart' as never).props).toMatchObject({ color: '#E44855', fill: '#E44855' });
-      expect(textOf(onlyHost('mushaf-ayah-actions'))).toBe(`${copy().actionReflection}|${copy().actionSaved}|${copy().actionCopy}|${MESSAGES.en.ayah.share}|${MESSAGES.en.audio.listen}`);
+      expect(textOf(onlyHost('mushaf-ayah-actions'))).toBe(`${MESSAGES.en.audio.listen}|${copy().actionReflection}|${copy().actionSaved}|${copy().actionCopy}|${MESSAGES.en.ayah.share}`);
       const [saved] = storedFavorites();
       expect(saved).toMatchObject({ verseKey: '3:85', surahNumber: 3, ayahNumber: 85, surahNameEnglish: 'Aal-i-Imraan', surahNameArabic: 'آل عمران', englishTranslation: '', translationSource: '', emotions: [] });
       expect(saved.arabicText).toBe((await getVerseByKey('3:85')).arabicText);
@@ -4100,7 +4100,7 @@ describe('the redesigned navigation and ayah actions', () => {
       await render();
       await tapPage(100, 130);
       await afterTapWindow();
-      expect(textOf(onlyHost('mushaf-ayah-actions'))).toBe('خاطرة|حفظ|نسخ|مشاركة|استمع');
+      expect(textOf(onlyHost('mushaf-ayah-actions'))).toBe('استمع|خاطرة|حفظ|نسخ|مشاركة');
       expect(flat(onlyHost('mushaf-ayah-reflection').props.style({ pressed: false })).flexDirection).toBe('row-reverse');
     });
 
