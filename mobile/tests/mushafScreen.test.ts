@@ -4180,7 +4180,7 @@ describe('the redesigned navigation and ayah actions', () => {
       expect(shared.arabicText).toBe((await getVerseByKey('3:85')).arabicText);
     });
 
-    it.each([['en', 'Copy', 'Copied'], ['ar', 'نسخ', 'تم النسخ'], ['ar-EG', 'نسخ', 'تم النسخ']] as const)('%s: Copy puts exactly the ayah`s verified Arabic on the clipboard, says "%s" then "%s", and changes nothing else', async (locale, label, done) => {
+    it.each([['en', 'Copy', 'Copied'], ['ar', 'نسخ', 'تم النسخ'], ['ar-EG', 'نسخ', 'تم النسخ']] as const)('%s: Copy puts the ayah`s verified Arabic, a blank line and its reference on the clipboard (as AyahCard does), says "%s" then "%s", and changes nothing else', async (locale, label, done) => {
       state.locale = locale;
       seedWird();
       await render();
@@ -4192,10 +4192,18 @@ describe('the redesigned navigation and ayah actions', () => {
       await press(onlyHost('mushaf-ayah-copy'));
       await flush();
       const { getVerseByKey } = await import('@/services/quran');
-      // The device's verified Tanzil text, whole, with its marks: no translation, reference or QCF glyph codes.
-      expect(state.clipboard).toBe((await getVerseByKey('3:85')).arabicText);
-      expect(state.clipboard).toMatch(/[ً-ْ]/);
-      expect(state.clipboard).not.toMatch(/[-ﭐ-﷿ﹰ-﻿]|[A-Za-z0-9]/);
+      const arabic = (await getVerseByKey('3:85')).arabicText;
+      // The device's verified Tanzil text, whole, with its marks, then the shared reference: the same in every app
+      // language (English name, Western digits, Arabic name), never reversed or localized.
+      expect(state.clipboard).toBe(`${arabic}\n\nAal-i-Imraan · 3:85 · آل عمران`);
+      const [copiedArabic, reference, ...rest] = state.clipboard!.split('\n\n');
+      expect(rest).toEqual([]);
+      expect(copiedArabic).toBe(arabic);
+      expect(copiedArabic).toMatch(/[ً-ْ]/);
+      // No QCF glyph codes anywhere; no Latin letters or digits in the Arabic part; Western digits in the reference.
+      expect(state.clipboard).not.toMatch(/[-ﭐ-﷿ﹰ-﻿]/);
+      expect(copiedArabic).not.toMatch(/[A-Za-z0-9]/);
+      expect(reference).not.toMatch(/[٠-٩۰-۹]/);
       // Confirmed in place; the popup stays open, the ayah selected; no network was needed.
       expect(textOf(onlyHost('mushaf-ayah-copy'))).toBe(done);
       expect(onlyHost('mushaf-ayah-copy').findAllByType('Check' as never)).toHaveLength(1);
@@ -4219,6 +4227,38 @@ describe('the redesigned navigation and ayah actions', () => {
       expect(textOf(onlyHost('mushaf-ayah-copy'))).toBe(copy().actionCopy);
       expect(texts()).toContain(copy().actionCopyFailed);
       expect(hosts('mushaf-ayah-actions')).toHaveLength(1);
+      expect(state.clipboard).toBeNull();
+    });
+
+    it('Copy works offline: the Arabic and the reference come from the device, with no request made', async () => {
+      await render();
+      await tapPage(100, 130); // 3:85
+      await afterTapWindow();
+      // From here on the network is gone: any request fails.
+      state.fetch.mockReset();
+      state.fetch.mockRejectedValue(new Error('offline'));
+      await press(onlyHost('mushaf-ayah-copy'));
+      await flush();
+      const { getVerseByKey } = await import('@/services/quran');
+      expect(state.clipboard).toBe(`${(await getVerseByKey('3:85')).arabicText}\n\nAal-i-Imraan · 3:85 · آل عمران`);
+      expect(state.fetch).not.toHaveBeenCalled();
+      expect(textOf(onlyHost('mushaf-ayah-copy'))).toBe(copy().actionCopied);
+      expect(texts()).not.toContain(copy().actionCopyFailed);
+    });
+
+    it('Copy never takes the translation: even with one served for the ayah, only its Arabic and reference are copied', async () => {
+      const translation = 'Whoever seeks a religion other than Islam';
+      state.fetch.mockImplementation(async (url: string) => (String(url).includes('/api/ayahs/')
+        ? layoutResponse(200, { success: true, data: { verseKey: '3:85', surahNumber: 3, ayahNumber: 85, englishTranslation: translation } })
+        : layoutResponse(503, { success: false })));
+      await render();
+      await tapPage(100, 130);
+      await afterTapWindow();
+      await press(onlyHost('mushaf-ayah-copy'));
+      await flush();
+      expect(state.clipboard).not.toContain(translation);
+      expect(state.clipboard!.split('\n\n')).toHaveLength(2);
+      expect(state.clipboard!.split('\n\n')[1]).toBe('Aal-i-Imraan · 3:85 · آل عمران');
     });
 
     it('Share refused (the ayah isn`t found): the reason in the popup, no sheet', async () => {

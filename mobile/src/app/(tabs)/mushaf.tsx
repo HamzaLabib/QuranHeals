@@ -72,7 +72,7 @@ import {
 import { subscribeToLocalDataOwner } from '@/storage/localDataOwner';
 import { BASMALA_FONT_PAGE, surahOpeningSlots } from '@/mushaf/surahOpenings';
 import { isWirdAyahOnPage, wirdAyahOnPage } from '@/mushaf/wirdAyah';
-import { ayahCopyText } from '@/mushaf/ayahCopyText';
+import { mushafCopyText } from '@/mushaf/ayahCopyText';
 import { audioEngine } from '@/audio/index';
 import { pageOfPosition, positionOfVerseKey, verseKeyOf } from '@/audio/quranSequence';
 import { useFavoriteReciter } from '@/audio/useFavoriteReciter';
@@ -707,8 +707,9 @@ export default function MushafScreen() {
   };
   /**
    * Copy: the ayah's verified Arabic, complete with its marks, from the device (the same Tanzil text the page is checked
-   * against; works offline), without the Basmala Tanzil prefixes to some first ayahs, a translation, a reference or the
-   * page's QCF glyph codes (mushaf/ayahCopyText.ts). The popup stays open; "Copied" shows only once it succeeded.
+   * against; works offline), without the Basmala Tanzil prefixes to some first ayahs, then a blank line and its
+   * reference, as AyahCard copies it: never a translation or the page's QCF glyph codes (mushaf/ayahCopyText.ts). The
+   * popup stays open; "Copied" shows only once it succeeded.
    */
   const copySelected = async () => {
     if (overlay?.kind !== 'ayah' || ayahBusy) return;
@@ -716,7 +717,7 @@ export default function MushafScreen() {
     setAyahError(null);
     try {
       const [verse, basmala] = await Promise.all([getVerseByKey(verseKey), getVerseByKey('1:1')]);
-      const text = ayahCopyText(verseKey, verse.arabicText, basmala.arabicText);
+      const text = mushafCopyText(verseKey, verse.arabicText, basmala.arabicText);
       if (!text || !(await Clipboard.setStringAsync(text))) throw new Error('not copied');
       setCopiedVerseKey(verseKey);
       if (copiedTimer.current) clearTimeout(copiedTimer.current);
