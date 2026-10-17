@@ -75,7 +75,8 @@
         }
       ],
       "expo-localization",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "./plugins/withAdvanceWidthText"
     ],
     "experiments": {
       "typedRoutes": true,

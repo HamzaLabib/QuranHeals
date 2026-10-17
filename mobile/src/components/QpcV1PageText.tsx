@@ -259,6 +259,8 @@ export function QpcV1PageText({
   // advance, line box and layout unchanged) but transparent, and this copy draws the glyph from a content box that
   // itself spans the advance ± QCF_V1_INK_OVERFLOW_EM (no horizontal padding), centred — the same place, unclipped.
   // Vertically the same room as inkRoom. Not touchable, not read by screen readers. iOS draws as before.
+  // Centred by its advance only because Android TextViews keep the advance-based width (config plugin
+  // plugins/withAdvanceWidthText.js): centred by its bounding box, a glyph moved by half its overhang (page 61 «عَلَىٰٓ»).
   const androidInk = (size: number, style: object, glyph: string) => (
     <Text
       allowFontScaling={false}
