@@ -561,8 +561,15 @@ export type Messages = {
     scheduleError: string;
     /** The notifications (lock screen), in the App Language. */
     wirdNotificationTitle: string;
+    /** The Wird Reminder without a saved position (no ورد yet, or not known): nothing invented. */
     wirdNotificationBody: string;
+    /** With the ورد shown on Home ({name}, exactly as the user typed it, isolated) and its saved page ({page}). */
+    wirdNotificationBodyPage: string;
+    /** Arabic grammar only: a name that is an Arabic adjective («المسائي») reads «وردك {name}»; any other «ورد {name}». English: as wirdNotificationBodyPage. */
+    wirdNotificationBodyPageDefinite: string;
     randomAyahNotificationTitle: string;
+    /** The Random Quran Ayah's reference under the verse: {surah} its name, {chapter} its number, {ayah} the ayah's. */
+    randomAyahNotificationReference: string;
     checkInNotificationTitle: string;
     checkInNotificationBody: string;
   };
@@ -1494,11 +1501,14 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       permissionSheetCancel: 'Not now',
       unsupported: 'Reminders are available in the iPhone and Android app.',
       scheduleError: "This reminder couldn't be scheduled. It will be tried again when you return to the app.",
-      wirdNotificationTitle: 'Time for your Quran reading',
+      wirdNotificationTitle: 'Time for your Quran reciting.',
       wirdNotificationBody: 'Continue your Reciting and reconnect with the Quran.',
-      randomAyahNotificationTitle: 'A Message from the Quran',
+      wirdNotificationBodyPage: 'Continue your {name} reciting from page {page}.',
+      wirdNotificationBodyPageDefinite: 'Continue your {name} reciting from page {page}.',
+      randomAyahNotificationTitle: 'A Verse for You Today',
+      randomAyahNotificationReference: '{surah} · {chapter}:{ayah}',
       checkInNotificationTitle: 'You Deserve Peace ❤️',
-      checkInNotificationBody: 'How are you feeling today? Let the Quran bring comfort to your heart.',
+      checkInNotificationBody: "Whatever you're feeling, there's something in the Quran that speaks to your heart.",
     },
     appearance: {
       sectionLabel: 'Appearance',
@@ -2130,11 +2140,14 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       permissionSheetCancel: 'ليس الآن',
       unsupported: 'التذكيرات متاحة في تطبيق iPhone وAndroid.',
       scheduleError: 'تعذّرت جدولة هذا التذكير. ستُعاد المحاولة عند عودتك إلى التطبيق.',
-      wirdNotificationTitle: 'حان وقت وِردك من القرآن',
+      wirdNotificationTitle: 'وقت وردك القرآني',
       wirdNotificationBody: 'واصل وِردك اليوم وخصص وقتًا لقراءة القرآن.',
-      randomAyahNotificationTitle: 'رسالة من القرآن',
-      checkInNotificationTitle: 'تستحق الطمأنينة ❤️',
-      checkInNotificationBody: 'كيف تشعر اليوم؟ دع القرآن يطمئن قلبك.',
+      wirdNotificationBodyPage: 'أكمل ورد {name} من الصفحة {page}.',
+      wirdNotificationBodyPageDefinite: 'أكمل وردك {name} من الصفحة {page}.',
+      randomAyahNotificationTitle: 'آية من القرآن لك اليوم',
+      randomAyahNotificationReference: 'سورة {surah} · الآية {ayah}',
+      checkInNotificationTitle: 'تستحق السكينة ❤️',
+      checkInNotificationBody: 'مهما كان شعورك، في القرآن ما يلامس قلبك.',
     },
     appearance: {
       sectionLabel: 'المظهر',
@@ -2781,11 +2794,14 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       permissionSheetCancel: 'ليس الآن',
       unsupported: 'التذكيرات متاحة في تطبيق iPhone وAndroid.',
       scheduleError: 'تعذّرت جدولة هذا التذكير. ستُعاد المحاولة عند عودتك إلى التطبيق.',
-      wirdNotificationTitle: 'حان وقت وِردك من القرآن',
+      wirdNotificationTitle: 'وقت وردك القرآني',
       wirdNotificationBody: 'واصل وِردك اليوم وخصص وقتًا لقراءة القرآن.',
-      randomAyahNotificationTitle: 'رسالة من القرآن',
-      checkInNotificationTitle: 'تستحق الطمأنينة ❤️',
-      checkInNotificationBody: 'كيف تشعر اليوم؟ دع القرآن يطمئن قلبك.',
+      wirdNotificationBodyPage: 'أكمل ورد {name} من الصفحة {page}.',
+      wirdNotificationBodyPageDefinite: 'أكمل وردك {name} من الصفحة {page}.',
+      randomAyahNotificationTitle: 'آية من القرآن لك اليوم',
+      randomAyahNotificationReference: 'سورة {surah} · الآية {ayah}',
+      checkInNotificationTitle: 'تستحق السكينة ❤️',
+      checkInNotificationBody: 'مهما كان شعورك، في القرآن ما يلامس قلبك.',
     },
     appearance: {
       sectionLabel: 'المظهر',

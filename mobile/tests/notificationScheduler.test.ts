@@ -272,7 +272,7 @@ describe('Random Quran Ayah queue', () => {
     await makeScheduler().reconcile({ preferences: prefsAt(), locale: 'en' });
     const payloads = ids('quranheals.ayah.').map((id) => os.pending.get(id)!.content.data);
     for (const data of payloads) {
-      expect(data).toMatchObject({ v: 1, kind: 'randomAyah' });
+      expect(data).toMatchObject({ v: 2, kind: 'randomAyah' });
       expect(parseNotificationPayload(data)).toEqual({ kind: 'randomAyah', verseKey: data.verseKey, surah: data.surah, ayah: data.ayah });
     }
     expect(new Set(payloads.map((d) => d.verseKey)).size).toBe(DEFAULT_RANDOM_AYAHS);
@@ -287,11 +287,15 @@ describe('Random Quran Ayah queue', () => {
     for (const [id, content] of before) {
       const after = os.pending.get(id)!.content;
       expect(after.data.verseKey).toBe(content.data.verseKey);
-      expect(after.body).toBe(content.body);
-      expect(content.title).toBe('A Message from the Quran');
-      expect(after.title).toBe('رسالة من القرآن');
+      // The verse itself is untouched; only its reference under it follows the language.
+      expect(after.body.split('\n\n')[0]).toBe(content.body.split('\n\n')[0]);
+      expect(content.title).toBe('A Verse for You Today');
+      expect(after.title).toBe('آية من القرآن لك اليوم');
+      const [surah, ayah] = String(content.data.verseKey).split(':');
+      expect(content.body.endsWith(`\n\n${surah === '2' ? 'Al-Baqara' : '?'} · ${surah}:${ayah}`)).toBe(true);
+      expect(after.body.endsWith(`\n\nسورة البقرة · الآية ${ayah.replace(/\d/g, (x) => '٠١٢٣٤٥٦٧٨٩'[Number(x)])}`)).toBe(true);
     }
-    expect(os.pending.get('quranheals.wird.daily')!.content.title).toBe('حان وقت وِردك من القرآن');
+    expect(os.pending.get('quranheals.wird.daily')!.content.title).toBe('وقت وردك القرآني');
   });
 
   it('the next day, delivered entries drop off, new dates are added only at the far end, and existing ones keep their verses (no duplicates, no repeat of recent verses)', async () => {
@@ -372,15 +376,15 @@ describe('Unsupported platform (web)', () => {
   });
 });
 
-describe('the You Deserve Peace wording (2026-10-15): reminders already scheduled with the old copy', () => {
+describe('the final approved wording (2026-10-17): Check-in reminders already scheduled with the previous copy', () => {
   /** The copy the previous release scheduled for this reminder. */
   const OLD = {
-    en: { title: 'How is your heart feeling today?', body: 'Take a moment to reconnect with the Quran.' },
-    ar: { title: 'كيف يشعر قلبك اليوم؟', body: 'خذ لحظة لتتواصل مع القرآن.' },
-  } as const;
-  const NEW = {
     en: { title: 'You Deserve Peace \u2764\uFE0F', body: 'How are you feeling today? Let the Quran bring comfort to your heart.' },
     ar: { title: 'تستحق الطمأنينة \u2764\uFE0F', body: 'كيف تشعر اليوم؟ دع القرآن يطمئن قلبك.' },
+  } as const;
+  const NEW = {
+    en: { title: 'You Deserve Peace \u2764\uFE0F', body: "Whatever you're feeling, there's something in the Quran that speaks to your heart." },
+    ar: { title: 'تستحق السكينة \u2764\uFE0F', body: 'مهما كان شعورك، في القرآن ما يلامس قلبك.' },
   } as const;
   const checkIn = 'quranheals.checkin.';
 
@@ -447,8 +451,8 @@ describe('You Deserve Peace: Daily by default, and Twice Daily (2026-10-15)', ()
       expect(os.pending.get('quranheals.checkin.twice.morning')!.trigger).toEqual({ type: 'daily', hour: 9, minute: 0 });
       expect(os.pending.get('quranheals.checkin.twice.evening')!.trigger).toEqual({ type: 'daily', hour: 21, minute: 0 });
       const copy = locale === 'en'
-        ? { title: 'You Deserve Peace \u2764\uFE0F', body: 'How are you feeling today? Let the Quran bring comfort to your heart.' }
-        : { title: 'تستحق الطمأنينة \u2764\uFE0F', body: 'كيف تشعر اليوم؟ دع القرآن يطمئن قلبك.' };
+        ? { title: 'You Deserve Peace \u2764\uFE0F', body: "Whatever you're feeling, there's something in the Quran that speaks to your heart." }
+        : { title: 'تستحق السكينة \u2764\uFE0F', body: 'مهما كان شعورك، في القرآن ما يلامس قلبك.' };
       for (const id of ids(checkIn)) {
         expect(os.pending.get(id)!.content, `${locale} ${id}`).toMatchObject(copy);
         expect(parseNotificationPayload(os.pending.get(id)!.content.data)).toEqual({ kind: 'emotionCheckIn' });
@@ -525,7 +529,7 @@ describe('You Deserve Peace: Daily by default, and Twice Daily (2026-10-15)', ()
     await scheduler.reconcile({ preferences: twiceDaily(), locale: 'en' });
     await scheduler.reconcile({ preferences: twiceDaily(), locale: 'ar' });
     expect(ids(checkIn)).toEqual(['quranheals.checkin.twice.evening', 'quranheals.checkin.twice.morning']);
-    for (const id of ids(checkIn)) expect(os.pending.get(id)!.content.title).toBe('تستحق الطمأنينة \u2764\uFE0F');
+    for (const id of ids(checkIn)) expect(os.pending.get(id)!.content.title).toBe('تستحق السكينة \u2764\uFE0F');
   });
 
   it('equal times (never saved, but defended): one request, never the same reminder twice', async () => {

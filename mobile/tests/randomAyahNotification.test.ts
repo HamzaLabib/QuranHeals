@@ -7,7 +7,6 @@ import { describe, expect, it } from 'vitest';
 import { AYAH_NOTIFICATION_MAX_LENGTH, EXCERPT_MARKER, ayahNotificationExcerpt } from '@/notifications/ayahExcerpt';
 import { parseNotificationPayload, randomAyahContent } from '@/notifications/content';
 import { createQuranRepository } from '@/services/quranRepository';
-import { formatAyahReference } from '@/utils/ayahReference';
 
 import { openTestDatabase } from './helpers/sqlite';
 
@@ -58,20 +57,38 @@ describe('Random Quran Ayah text: every verse of the verified Quran', () => {
   it('the longest verse (2:282) becomes a whole-word excerpt; tapping still opens 2:282 in full', async () => {
     const verse = await repository.getVerseByKey('2:282');
     const content = randomAyahContent('en', verse);
-    expect(content.body.endsWith(EXCERPT_MARKER)).toBe(true);
-    expect(verse.arabicText.startsWith(content.body.slice(0, -2))).toBe(true);
+    const [excerpt, reference] = content.body.split('\n\n');
+    expect(excerpt.endsWith(EXCERPT_MARKER)).toBe(true);
+    expect(verse.arabicText.startsWith(excerpt.slice(0, -2))).toBe(true);
+    expect(reference).toBe('Al-Baqara · 2:282');
     expect(parseNotificationPayload(content.data)).toEqual({ kind: 'randomAyah', verseKey: '2:282', surah: 2, ayah: 282 });
   });
 
-  it('a short verse (1:1) is the body verbatim, with the shared reference as subtitle, in either App Language', async () => {
-    const verse = await repository.getVerseByKey('1:1');
-    for (const locale of ['en', 'ar'] as const) {
-      const content = randomAyahContent(locale, verse);
-      expect(content.body).toBe(verse.arabicText);
-      expect(content.subtitle).toBe(formatAyahReference(1, 1));
+  it('a short verse is the body verbatim, then a blank line and its localized reference (no subtitle), in either App Language', async () => {
+    const verse = await repository.getVerseByKey('94:5');
+    const en = randomAyahContent('en', verse);
+    const ar = randomAyahContent('ar', verse);
+    expect(en).toMatchObject({ title: 'A Verse for You Today', body: `${verse.arabicText}\n\nAsh-Sharh · 94:5` });
+    expect(ar).toMatchObject({ title: 'آية من القرآن لك اليوم', body: `${verse.arabicText}\n\nسورة الشرح · الآية ٥` });
+    expect(en.subtitle).toBeUndefined();
+    expect(ar.subtitle).toBeUndefined();
+    expect(parseNotificationPayload(ar.data)).toEqual({ kind: 'randomAyah', verseKey: '94:5', surah: 94, ayah: 5 });
+  });
+
+  it('every verse: the body starts with its verified text (or exact excerpt) and ends with its own reference, never another verse\'s', async () => {
+    const verses = await repository.getAllVerses();
+    const digits = (n: number) => String(n).replace(/\d/g, (x) => '٠١٢٣٤٥٦٧٨٩'[Number(x)]);
+    for (const verse of verses) {
+      for (const locale of ['en', 'ar'] as const) {
+        const { body, data } = randomAyahContent(locale, verse);
+        const [text, reference, ...rest] = body.split('\n\n');
+        expect(rest).toEqual([]);
+        expect(text).toBe(ayahNotificationExcerpt(verse.arabicText).text);
+        if (locale === 'en') expect(reference.endsWith(` · ${verse.surah}:${verse.ayah}`)).toBe(true);
+        else expect(reference.startsWith('سورة ') && reference.endsWith(` · الآية ${digits(verse.ayah)}`)).toBe(true);
+        expect(data).toMatchObject({ verseKey: verse.verseKey, surah: verse.surah, ayah: verse.ayah });
+      }
     }
-    expect(randomAyahContent('en', verse).title).toBe('A Message from the Quran');
-    expect(randomAyahContent('ar', verse).title).toBe('رسالة من القرآن');
   });
 
   it('selection is from the whole verified Quran (not emotion-mapped ayahs), and excluded recent verses are skipped', async () => {

@@ -13,6 +13,7 @@ import {
   randomAyahContent,
   wirdReminderContent,
   type NotificationContent,
+  type WirdReminderTarget,
 } from './content';
 import { formatStoredTime } from './preferences';
 import { nextOccurrences, weekdayOfDate, type Occurrence } from './recurrence';
@@ -23,6 +24,7 @@ import {
   type ReminderPreference,
   type ReminderScheduleState,
 } from './types';
+import type { WirdTargetLookup } from './wirdTarget';
 
 /**
  * The one place reminders are registered with the OS. `reconcile()` compares
@@ -59,6 +61,14 @@ import {
  * The horizon depends on the three settings together, so changing one
  * reminder may lengthen or shorten the far end of another's run (only its
  * last entries; everything nearer is kept as it is).
+ *
+ * Content is fixed when a request is scheduled: the OS shows exactly what was
+ * registered and runs no app code at delivery. So the Wird Reminder's copy
+ * (the ورد's name and saved page, wirdTarget.ts) is read at every
+ * reconciliation, and its signature includes them: a change of page, a rename,
+ * a deletion or another active ورد replaces just that request (the provider
+ * reconciles on every reading-data and owner change). A ورد changed on another
+ * device reaches this one's reminder once this app syncs it.
  *
  * Calls are serialized: one reconciliation at a time, and requests arriving
  * meanwhile are merged into one more run afterwards (rapid taps, a foreground
@@ -111,6 +121,8 @@ export type SchedulerDeps = {
   now: () => Date;
   verses: VerseSource;
   ayahQueue: AyahQueueStore;
+  /** The ورد the Wird Reminder names (wirdTarget.ts). Absent (tests): none, the generic copy. */
+  wirdTarget?: () => Promise<WirdTargetLookup>;
 };
 
 /** What to schedule for: the saved settings and the App Language (the reminders' copy). */
@@ -151,9 +163,16 @@ export function createNotificationScheduler(deps: SchedulerDeps) {
   let channelsLocale: AppLanguage | null = null;
 
   /** Wird Reminder and Emotional Check-in: fixed copy, so Daily/Weekly repeat natively; Every 3 days is a run of dated requests. */
-  function fixedDesired(kind: 'wird' | 'emotionCheckIn', preference: ReminderPreference, locale: AppLanguage, now: Date, dated: Occurrence[]): DesiredRequest[] {
-    const content = kind === 'wird' ? wirdReminderContent(locale) : emotionCheckInContent(locale);
-    const contentKey = `${content.title}|${content.body}`;
+  function fixedDesired(
+    kind: 'wird' | 'emotionCheckIn',
+    preference: ReminderPreference,
+    locale: AppLanguage,
+    now: Date,
+    dated: Occurrence[],
+    wirdTarget: WirdReminderTarget | null,
+  ): DesiredRequest[] {
+    const content = kind === 'wird' ? wirdReminderContent(locale, wirdTarget) : emotionCheckInContent(locale);
+    const contentKey = `${content.title}|${content.body}|${String(content.data.stopId ?? '')}`;
     const prefix = notificationIdPrefix(kind);
     const make = (identifier: string, trigger: ReminderTrigger): DesiredRequest => ({
       identifier,
@@ -289,15 +308,31 @@ export function createNotificationScheduler(deps: SchedulerDeps) {
       now,
     );
 
+    // The ورد the Wird Reminder names, read now (a failed read: the generic copy, never a guess).
+    let wird: WirdTargetLookup = { known: true, target: null };
+    if (allowed && preferences.wird.enabled && deps.wirdTarget) {
+      wird = await deps.wirdTarget().catch((): WirdTargetLookup => ({ known: true, target: null }));
+    }
+
     const states = {} as Record<NotificationKind, ReminderScheduleState>;
     // The fixed-copy reminders first: they never wait for the Quran database, which only the Random Quran Ayah reads.
     for (const kind of RECONCILE_ORDER) {
       const preference = preferences[kind];
       try {
+        if (kind === 'wird' && preference.enabled && allowed && !wird.known) {
+          // Whose ورد it is is not known yet (launch, sign-in state unresolved): what is scheduled stays as it is, and the
+          // owner's resolution reconciles again. Nothing scheduled yet: the generic copy meanwhile.
+          const mine = pending.filter((entry) => kindOfNotificationId(entry.identifier) === 'wird').length;
+          if (mine > 0) {
+            states[kind] = { state: 'scheduled', pending: mine };
+            continue;
+          }
+        }
         let desired: DesiredRequest[] = [];
         if (preference.enabled && allowed) {
           const dated = datedRuns.get(kind) ?? [];
-          desired = kind === 'randomAyah' ? await randomAyahDesired(dated, locale, pending) : fixedDesired(kind, preference, locale, now, dated);
+          const target = wird.known ? wird.target : null;
+          desired = kind === 'randomAyah' ? await randomAyahDesired(dated, locale, pending) : fixedDesired(kind, preference, locale, now, dated, target);
         }
         // Turned off, or not allowed by the OS: this type's pending reminders are removed (only this type's).
         const result = await reconcileKind(kind, desired, pending);

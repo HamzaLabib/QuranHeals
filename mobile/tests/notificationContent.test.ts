@@ -11,22 +11,23 @@ const { MESSAGES } = await import('@/localization/messages');
 const { isMushafReadingFocused, useQuietRemindersWhileReading } = await import('@/notifications/foreground');
 
 describe('Notification copy (App Language)', () => {
-  it('Wird Reminder: the approved English and Modern Standard Arabic wording', () => {
-    expect(wirdReminderContent('en')).toMatchObject({ title: 'Time for your Quran reading', body: 'Continue your Reciting and reconnect with the Quran.' });
-    expect(wirdReminderContent('ar')).toMatchObject({ title: 'حان وقت وِردك من القرآن', body: 'واصل وِردك اليوم وخصص وقتًا لقراءة القرآن.' });
+  it('Wird Reminder: the approved titles; with no ورد position, the generic body (nothing invented)', () => {
+    expect(wirdReminderContent('en')).toMatchObject({ title: 'Time for your Quran reciting.', body: 'Continue your Reciting and reconnect with the Quran.' });
+    expect(wirdReminderContent('ar')).toMatchObject({ title: 'وقت وردك القرآني', body: 'واصل وِردك اليوم وخصص وقتًا لقراءة القرآن.' });
   });
 
   it('Emotional Check-in: the approved wording', () => {
-    expect(emotionCheckInContent('en')).toMatchObject({ title: 'You Deserve Peace ❤️', body: 'How are you feeling today? Let the Quran bring comfort to your heart.' });
-    expect(emotionCheckInContent('ar')).toMatchObject({ title: 'تستحق الطمأنينة ❤️', body: 'كيف تشعر اليوم؟ دع القرآن يطمئن قلبك.' });
+    expect(emotionCheckInContent('en')).toMatchObject({ title: 'You Deserve Peace ❤️', body: "Whatever you're feeling, there's something in the Quran that speaks to your heart." });
+    expect(emotionCheckInContent('ar')).toMatchObject({ title: 'تستحق السكينة ❤️', body: 'مهما كان شعورك، في القرآن ما يلامس قلبك.' });
     // The heart is U+2764 with the emoji presentation selector (U+FE0F), at the end of the title only.
     expect([...emotionCheckInContent('en').title.slice(-2)].map((c) => c.codePointAt(0))).toEqual([0x2764, 0xfe0f]);
     expect([...emotionCheckInContent('ar').title.slice(-2)].map((c) => c.codePointAt(0))).toEqual([0x2764, 0xfe0f]);
   });
 
-  it('payloads carry only the type and version — no ورد name or page, no account, emotion or reflection data', () => {
-    expect(wirdReminderContent('en').data).toEqual({ v: 1, kind: 'wird' });
-    expect(emotionCheckInContent('ar').data).toEqual({ v: 1, kind: 'emotionCheckIn' });
+  it('payloads carry only the type, version and (Wird) the ورد id — no name, page, account, emotion or reflection data', () => {
+    expect(wirdReminderContent('en').data).toEqual({ v: 2, kind: 'wird' });
+    expect(wirdReminderContent('ar', { stopId: 'stop-1', name: 'Mum', page: 9 }).data).toEqual({ v: 2, kind: 'wird', stopId: 'stop-1' });
+    expect(emotionCheckInContent('ar').data).toEqual({ v: 2, kind: 'emotionCheckIn' });
   });
 
   it('ar-EG uses the same Modern Standard Arabic copy as ar for every reminder string', () => {

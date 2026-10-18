@@ -4,9 +4,23 @@ Three reminders, each configured on its own in Settings. Local notifications onl
 
 | Reminder | Settings section | Default | Tap opens |
 |---|---|---|---|
-| Wird Reminder (تذكير الورد) | Quran | ON, Daily, 21:00, all أوراد | one ورد: the Mushaf on its saved page; none or several: أورادي وختماتي |
-| Random Quran Ayah (آية من القرآن) | Quran | ON, Daily, 08:00, all 6,236 verses | `/ayah/<surah>/<ayah>`, the exact verse shown |
-| You Deserve Peace (تستحق الطمأنينة; the Emotional Check-in) | Emotions | ON, Daily, 21:00 (Twice Daily, when chosen: 09:00 and 21:00) | `/emotions`, the How I Feel tab |
+| Wird Reminder (تذكير الورد; Quran Reciting Reminder) | Quran | ON, Daily, 21:00, one reminder naming the ورد Home shows | the Mushaf on that ورد's saved page (made active); deleted or not resolvable: أورادي وختماتي |
+| Random Quran Ayah (آية من القرآن) | Quran | ON, Daily, 08:00, all 6,236 verses | the Mushaf on the verse's page, that ayah selected (`/mushaf?page&ayah&at`) |
+| You Deserve Peace (تستحق الطمأنينة; the Emotional Check-in) | Emotions | ON, Daily, 21:00 (Twice Daily, when chosen: 09:00 and 21:00) | `/emotions`, How I Feel — المشاعر; no emotion chosen |
+
+## Copy (final approved wording, 2026-10-17)
+
+In the App Language (English or Modern Standard Arabic; never Egyptian Arabic). Strings in `localization/messages.ts`, built in `content.ts`.
+
+| Reminder | English | Arabic |
+|---|---|---|
+| Wird | Time for your Quran reciting. / Continue your Evening reciting from page 125. | وقت وردك القرآني / أكمل وردك المسائي من الصفحة ١٢٥. |
+| Check-in | You Deserve Peace ❤️ / Whatever you're feeling, there's something in the Quran that speaks to your heart. | تستحق السكينة ❤️ / مهما كان شعورك، في القرآن ما يلامس قلبك. |
+| Random Ayah | A Verse for You Today / the verse, a blank line, "Ash-Sharh · 94:5" | آية من القرآن لك اليوم / the verse, a blank line, «سورة الشرح · الآية ٥» |
+
+**Wird Reminder body.** It names the ورد that Home's Continue Reciting shows (`wirdTarget.ts`): the active ورد, else the most recently saved one, never one chosen by the time of day. The name is shown exactly as the user saved it: the app has no built-in ورد names, so nothing is ever translated. In Arabic, a name that is an Arabic adjective («المسائي») reads «أكمل وردك المسائي…» and any other name «أكمل ورد رمضان…». A name in the other script is wrapped in Unicode first-strong isolates so the sentence keeps its order. Arabic page numbers use Arabic-Indic digits. With no ورد, an invalid page, or a failed read, the body is the generic «واصل وِردك اليوم وخصص وقتًا لقراءة القرآن.» / "Continue your Reciting and reconnect with the Quran.", and no position is invented. The ورد's name and page now appear on the lock screen; lock-screen previews follow the user's device settings.
+
+**Keeping it current.** A local notification shows exactly what was scheduled, and no app code runs at delivery. So the provider reconciles whenever the reading data changes (a page saved, a ورد renamed, deleted or chosen, a sync applied) or the active owner does (sign-in, sign-out, the sign-in state resolved at launch), as well as at launch, on return to the app and on a language change. The Wird request's signature includes the ورد's id, name and page, so only that request is replaced, under the same identifier. While the owner is still unresolved at launch, an already-scheduled Wird reminder is left as it is. A ورد changed on another device reaches this device's reminder once this app has synced it, at the latest when the app is next opened. Until then the reminder names the last page this device knew.
 
 Code: `mobile/src/notifications/`. The Settings row is `components/NotificationReminderRow.tsx`.
 
@@ -29,7 +43,7 @@ All times are local wall-clock times, built from calendar fields, never by addin
 
 ## Scheduling (`scheduler.ts`)
 
-`reconcile()` compares the desired requests with the pending ones. It cancels only what is obsolete, adds only what is missing, and leaves matching requests alone. Matching means the same identifier and the same `data.sig` (trigger, copy, language, verse, payload version). It runs at launch, on every return to the foreground, after any reminder change, and after an App Language change. Runs are serialized; requests that arrive during a run are merged into one more run with the newest settings.
+`reconcile()` compares the desired requests with the pending ones. It cancels only what is obsolete, adds only what is missing, and leaves matching requests alone. Matching means the same identifier and the same `data.sig` (trigger, copy, language, verse, the Wird Reminder's ورد and page, payload version). It runs at launch, on every return to the foreground, after any reminder change, after an App Language change, and after any reading-data or owner change. An upgrade from payload version 1 replaces each pending request once, in place. Runs are serialized; requests that arrive during a run are merged into one more run with the newest settings.
 
 - Identifiers: `quranheals.wird.*`, `quranheals.checkin.*`, `quranheals.ayah.*`. Nothing outside this prefix is ever cancelled.
 - Wird and Check-in, Daily/Weekly: one repeating request each. The OS repeats it with no end, whether or not the app is opened.
@@ -56,11 +70,11 @@ The available alternatives all need approval, and none is guaranteed:
 
 ## Random Quran Ayah text
 
-The body is the verse exactly as stored in the verified bundled `quran.sqlite`. Verses longer than 220 UTF-16 units become an exact prefix cut just before a space (a whole word, with all its marks), followed by " …". Nothing is normalized or retyped. The subtitle is the shared reference format (`formatAyahReference`). `tests/randomAyahNotification.test.ts` checks all 6,236 verses and that the database file is unchanged.
+The body is the verse exactly as stored in the verified bundled `quran.sqlite`. Verses longer than 220 UTF-16 units become an exact prefix cut just before a space (a whole word, with all its marks), followed by " …". Nothing is normalized or retyped. A blank line and the reference follow it in the body (no subtitle, which Android does not show), from the verified local surah names: "Ash-Sharh · 94:5" in English, «سورة الشرح · الآية ٥» in Arabic. `tests/randomAyahNotification.test.ts` checks all 6,236 verses and that the database file is unchanged.
 
 ## Tap handling (`responseRouting.ts`, `useNotificationResponseRouting.ts`)
 
-The payload holds `{ v, kind }`, plus `verseKey`, `surah` and `ayah` for Random Ayah. It never holds a ورد name or page, account data, an emotion or a reflection. The handler:
+The payload holds `{ v, kind }` (v = 2 since 2026-10-17), plus `verseKey`, `surah` and `ayah` for Random Ayah, and `stopId` for a Wird Reminder that names a ورد. It never holds account data, an emotion or a reflection; the ورد's name and page are only in the visible copy. The handler:
 
 - starts in the root layout once preferences have loaded and the root navigator exists;
 - reads the tap that launched the app once, then clears it;
@@ -71,7 +85,9 @@ Handled taps are also kept (the last 50, `quran-heals:notification-handled-taps:
 
 A reminder change made before the saved settings have loaded is shown at once, then applied over the saved settings (never the defaults), saved and scheduled once they arrive. Nothing is scheduled before then.
 
-The Wird destination is decided at tap time from the current owner's reading stops, so a deleted ورد or another account's data is never involved. A tap never saves a page, completes a ورد or counts a Khatma. With one ورد, it uses `openMushafFor`, the same as Home's continue reading, which makes that ورد the active one. Unknown or newer payloads open the app without navigating.
+The Wird destination is resolved at tap time against the current owner's reading stops. The ورد named by `stopId` opens on its current saved page through `openMushafFor` (the same as Home's Continue Reciting), which makes it the active ورد, so its saved ayah is marked. If that ورد was deleted, or belongs to another owner, the tap opens أورادي وختماتي. A reminder that named no ورد (generic copy, or a version 1 tap) opens the only ورد when there is exactly one, otherwise أورادي وختماتي. A tap never saves a page, completes a ورد or counts a Khatma.
+
+The Random Ayah opens that verse in the Mushaf (`mushafRouteForAyah`, as an ayah card's reference does): its page, with the ayah selected. The `at` parameter makes a reader that is already open move there from any page; the active ورد and its saved page are unchanged. On a cold start the requested page wins over the saved one. The Mushaf and أورادي وختماتي are tabs (`router.navigate`); the emotion list is pushed. Unknown or newer payloads open the app without navigating.
 
 While the Mushaf reader is focused, a reminder that arrives is listed in Notification Centre without a banner or sound.
 

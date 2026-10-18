@@ -79,12 +79,28 @@ describe('Payloads', () => {
   });
 });
 
-describe('Random Quran Ayah → the exact verse that was shown', () => {
-  it('opens /ayah/<surah>/<ayah> for the payload verse, with no new random choice', async () => {
-    const destination = await handler()(tap({ v: 1, kind: 'randomAyah', verseKey: '2:255', surah: 2, ayah: 255 }));
-    expect(destination).toEqual({ type: 'ayah', surah: 2, ayah: 255 });
-    expect(navigated).toEqual([{ pathname: '/ayah/[surah]/[ayah]', params: { surah: '2', ayah: '255' } }]);
+describe('Random Quran Ayah → the exact verse that was shown, in the Mushaf', () => {
+  it('opens the Mushaf on the verse\'s page with that ayah selected, with no new random choice (payload v1 and v2)', async () => {
+    for (const v of [1, 2]) {
+      navigated = [];
+      const destination = await handler()(tap({ v, kind: 'randomAyah', verseKey: '2:255', surah: 2, ayah: 255 }));
+      expect(destination).toEqual({ type: 'ayah', surah: 2, ayah: 255 });
+      expect(navigated).toEqual([{ pathname: '/mushaf', params: { page: '42', ayah: '2:255', at: expect.any(String) } }]);
+    }
     expect(state.writes).toEqual([]);
+  });
+
+  it('94:5 (the approved example) opens page 596; each tap is a new request, so an open reader on another page moves', async () => {
+    const handle = handler();
+    await handle(tap({ v: 2, kind: 'randomAyah', verseKey: '94:5', surah: 94, ayah: 5 }, { deliveredAt: 1 }));
+    await new Promise((done) => setTimeout(done, 2));
+    await handle(tap({ v: 2, kind: 'randomAyah', verseKey: '94:5', surah: 94, ayah: 5 }, { deliveredAt: 2 }));
+    expect(navigated).toEqual([
+      { pathname: '/mushaf', params: { page: '596', ayah: '94:5', at: expect.any(String) } },
+      { pathname: '/mushaf', params: { page: '596', ayah: '94:5', at: expect.any(String) } },
+    ]);
+    const [first, second] = navigated as { params: { at: string } }[];
+    expect(first.params.at).not.toBe(second.params.at);
   });
 });
 
@@ -214,12 +230,13 @@ describe('Root hook: cold start and initialization order', () => {
     state.navKey = 'root';
     await act(async () => root!.update(createElement(Probe, { ready: true })));
     await flush();
-    expect(state.pushed).toEqual([{ pathname: '/ayah/[surah]/[ayah]', params: { surah: '94', ayah: '5' } }]);
+    expect(state.navigated).toEqual([{ pathname: '/mushaf', params: { page: '596', ayah: '94:5', at: expect.any(String) } }]);
+    expect(state.pushed).toEqual([]);
     expect(cleared).toBe(1);
     // The same tap also arriving through the listener does not navigate again.
     listener!(tap({ v: 1, kind: 'randomAyah', verseKey: '94:5', surah: 94, ayah: 5 }, { identifier: 'quranheals.ayah.2026-10-15', deliveredAt: 5 }));
     await flush();
-    expect(state.pushed).toHaveLength(1);
+    expect(state.navigated).toHaveLength(1);
   });
 
   it('a tap while running (foreground or background) arrives through the listener', async () => {

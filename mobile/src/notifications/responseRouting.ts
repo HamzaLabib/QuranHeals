@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { mushafRouteForAyah, type MushafAyahRoute } from '@/mushaf/ayahInMushaf';
+
 import type { NotificationResponseEvent } from './api';
 import { parseNotificationPayload } from './content';
 
@@ -7,37 +9,41 @@ import { parseNotificationPayload } from './content';
  * Where a tapped reminder goes. Decided at tap time, from the payload alone
  * (content.ts) and — for the Wird Reminder — the reading data of whoever is
  * using the app now:
- *  - Random Quran Ayah → that exact verse (/ayah/<surah>/<ayah>, the existing
- *    ayah screen with its translation, reflection, favorite and share). Never
- *    a new random choice.
- *  - Emotional Check-in → the full emotion list (/emotions). Nothing is chosen
- *    or recorded: the user picks, as always.
- *  - Wird Reminder → with exactly one ورد, the Mushaf on its saved page (the
- *    same openMushafFor as Home's "continue reading": it opens the page and
- *    makes that ورد the active one; it saves no page, completes nothing and
- *    counts no Khatma); with none or several, أورادي وختماتي to choose. A ورد
- *    deleted since the reminder was scheduled is simply not there any more.
+ *  - Random Quran Ayah → that exact verse in the Mushaf: its page, with the
+ *    ayah selected as a tap selects it (mushafRouteForAyah, as an ayah card's
+ *    reference does). Its `at` moves a reader that is already open, on any
+ *    page; the active ورد and its saved page are unchanged. Never a new random
+ *    choice.
+ *  - Emotional Check-in → the full emotion list (/emotions, How I Feel —
+ *    المشاعر). Nothing is chosen or recorded: the user picks, as always.
+ *  - Wird Reminder → the ورد it named (`stopId`), if it still exists for the
+ *    current owner: the Mushaf on its current saved page (the same
+ *    openMushafFor as Home's Continue Reciting: it opens the page and makes
+ *    that ورد the active one, so its saved ayah is marked; it saves no page,
+ *    completes nothing and counts no Khatma). Deleted since, or another
+ *    owner's: أورادي وختماتي. A reminder that named no ورد (generic copy, or
+ *    payload version 1): with exactly one ورد, that one; otherwise أورادي وختماتي.
  *  - Anything unrecognised (another version, a damaged payload): the app
  *    opens where it is, without navigating.
  */
 export type NotificationDestination =
   | { type: 'ayah'; surah: number; ayah: number }
   | { type: 'emotions' }
-  | { type: 'wird' };
+  | { type: 'wird'; stopId?: string };
 
 export function destinationOf(event: Pick<NotificationResponseEvent, 'data'>): NotificationDestination | null {
   const payload = parseNotificationPayload(event.data);
   if (!payload) return null;
   if (payload.kind === 'randomAyah') return { type: 'ayah', surah: payload.surah, ayah: payload.ayah };
   if (payload.kind === 'emotionCheckIn') return { type: 'emotions' };
-  return { type: 'wird' };
+  return payload.stopId ? { type: 'wird', stopId: payload.stopId } : { type: 'wird' };
 }
 
 export type RoutingDeps = {
   /** The current owner's ورد list (guest or the signed-in account), read at tap time. */
   loadStops: () => Promise<readonly { id: string; page: number }[]>;
   openMushafFor: (stop: { id: string; page: number }) => Promise<void>;
-  navigate: (route: { pathname: '/ayah/[surah]/[ayah]'; params: { surah: string; ayah: string } } | '/emotions' | '/my-reading') => void;
+  navigate: (route: MushafAyahRoute | '/emotions' | '/my-reading') => void;
   /** Taps already acted on, kept across a reload of the app's code (the OS may report the launching tap again). */
   handledStore?: HandledTapStore;
 };
@@ -90,7 +96,9 @@ export function createNotificationResponseHandler(deps: RoutingDeps) {
     const destination = destinationOf(event);
     if (!destination) return null;
     if (destination.type === 'ayah') {
-      deps.navigate({ pathname: '/ayah/[surah]/[ayah]', params: { surah: String(destination.surah), ayah: String(destination.ayah) } });
+      const route = mushafRouteForAyah(destination.surah, destination.ayah);
+      if (!route) return null;
+      deps.navigate(route);
     } else if (destination.type === 'emotions') {
       deps.navigate('/emotions');
     } else {
@@ -100,7 +108,9 @@ export function createNotificationResponseHandler(deps: RoutingDeps) {
       } catch {
         stops = [];
       }
-      if (stops.length === 1) await deps.openMushafFor(stops[0]);
+      const named = destination.stopId ? stops.find((stop) => stop.id === destination.stopId) : undefined;
+      const target = destination.stopId ? named : stops.length === 1 ? stops[0] : undefined;
+      if (target) await deps.openMushafFor(target);
       else deps.navigate('/my-reading');
     }
     return destination;

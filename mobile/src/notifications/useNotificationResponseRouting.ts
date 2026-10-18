@@ -25,8 +25,8 @@ export function useNotificationResponseRouting(ready: boolean, api: Notification
     createNotificationResponseHandler({
       loadStops: () => loadReadingStops(),
       openMushafFor,
-      // أورادي وختماتي is a tab: navigate (switch to it); the ayah and emotion screens open above the tabs.
-      navigate: (route) => (route === '/my-reading' ? router.navigate(route) : router.push(route)),
+      // أورادي وختماتي and the Mushaf are tabs: navigate (switch to them); the emotion screen opens above the tabs.
+      navigate: (route) => (route === '/emotions' ? router.push(route) : router.navigate(route)),
       handledStore: asyncStorageHandledTapStore,
     }),
   );

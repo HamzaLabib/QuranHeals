@@ -133,14 +133,14 @@ describe('NotificationsProvider', () => {
   it('an App Language change rewrites the pending copy and keeps the reminder settings', async () => {
     permission = { status: 'granted', canAskAgain: true };
     await mount();
-    expect(pending.get('quranheals.wird.daily')!.content.title).toBe('Time for your Quran reading');
+    expect(pending.get('quranheals.wird.daily')!.content.title).toBe('Time for your Quran reciting.');
     const before = JSON.stringify(notifications.preferences);
     await act(async () => locale.setLocale('ar'));
     await flush();
-    expect(pending.get('quranheals.wird.daily')!.content.title).toBe('حان وقت وِردك من القرآن');
+    expect(pending.get('quranheals.wird.daily')!.content.title).toBe('وقت وردك القرآني');
     expect(pending.get('quranheals.wird.daily')!.content.body).toBe('واصل وِردك اليوم وخصص وقتًا لقراءة القرآن.');
     const checkIn = [...pending.values()].find((r) => r.identifier.startsWith('quranheals.checkin.'))!;
-    expect(checkIn.content).toMatchObject({ title: 'تستحق الطمأنينة ❤️', body: 'كيف تشعر اليوم؟ دع القرآن يطمئن قلبك.' });
+    expect(checkIn.content).toMatchObject({ title: 'تستحق السكينة ❤️', body: 'مهما كان شعورك، في القرآن ما يلامس قلبك.' });
     expect(JSON.stringify(notifications.preferences)).toBe(before);
   });
 

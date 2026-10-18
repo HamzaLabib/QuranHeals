@@ -2,6 +2,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { AppState } from 'react-native';
 
 import { useAppLocale } from '@/localization/useAppLocale';
+import { subscribeToReadingData } from '@/mushaf/readingStops';
+import { subscribeToLocalDataOwner } from '@/storage/localDataOwner';
 
 import type { NotificationsApi } from './api';
 import { asyncStorageAyahQueueStore } from './ayahQueue';
@@ -25,6 +27,7 @@ import type {
   TwiceDailySlot,
   Weekday,
 } from './types';
+import { loadWirdReminderTarget, type WirdTargetLookup } from './wirdTarget';
 
 /** One change from Settings. `twiceTime`: one of Twice Daily's two times (the single `time` is never touched by it). */
 export type ReminderChange = { enabled?: boolean; frequency?: ReminderFrequency; time?: LocalTime; weekday?: Weekday; twiceTime?: { slot: TwiceDailySlot; time: LocalTime } };
@@ -71,6 +74,7 @@ type ProviderProps = {
   api?: NotificationsApi;
   now?: () => Date;
   verses?: typeof localQuranVerses;
+  wirdTarget?: () => Promise<WirdTargetLookup>;
 };
 
 /**
@@ -83,10 +87,21 @@ type ProviderProps = {
  *    revoked in device Settings meanwhile; the time zone or date may have
  *    changed; dated reminders are refilled);
  *  - a reminder setting changes, or the App Language changes (new copy; the
- *    same preselected verses).
+ *    same preselected verses);
+ *  - the reading data changes (a page saved, a ورد renamed, deleted or chosen,
+ *    another device's change synced) or the active owner does (sign-in,
+ *    sign-out, the sign-in state resolved at launch): the Wird Reminder names
+ *    the current ورد and page (wirdTarget.ts). Only a request whose copy
+ *    changed is replaced (scheduler.ts).
  * Never asks for OS permission by itself.
  */
-export function NotificationsProvider({ children, api = platformNotificationsApi, now = () => new Date(), verses = localQuranVerses }: ProviderProps) {
+export function NotificationsProvider({
+  children,
+  api = platformNotificationsApi,
+  now = () => new Date(),
+  verses = localQuranVerses,
+  wirdTarget = loadWirdReminderTarget,
+}: ProviderProps) {
   const { locale, isReady: isLocaleReady } = useAppLocale();
   const [preferences, setPreferences] = useState<NotificationPreferences>(DEFAULT_NOTIFICATION_PREFERENCES);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -103,7 +118,7 @@ export function NotificationsProvider({ children, api = platformNotificationsApi
   const [clock] = useState(() => now);
 
   const [scheduler] = useState<NotificationScheduler>(() =>
-    createNotificationScheduler({ api, now: clock, verses, ayahQueue: asyncStorageAyahQueueStore }),
+    createNotificationScheduler({ api, now: clock, verses, ayahQueue: asyncStorageAyahQueueStore, wirdTarget }),
   );
 
   const reconcile = useCallback(() => {
@@ -145,6 +160,17 @@ export function NotificationsProvider({ children, api = platformNotificationsApi
     localeRef.current = locale;
     if (isReady) reconcile();
   }, [isReady, locale, reconcile]);
+
+  // The Wird Reminder's ورد or page changed, or whose data is shown did.
+  useEffect(() => {
+    if (!isReady) return undefined;
+    const unsubscribeData = subscribeToReadingData(reconcile);
+    const unsubscribeOwner = subscribeToLocalDataOwner(() => reconcile());
+    return () => {
+      unsubscribeData();
+      unsubscribeOwner();
+    };
+  }, [isReady, reconcile]);
 
   // Return to the foreground.
   useEffect(() => {
