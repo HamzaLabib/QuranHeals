@@ -27,7 +27,9 @@ export function syntheticQpcPage61(overrides: { dropWord?: string; fetchedAt?: s
     }
     lines[lines.length - 1].words.push({ verseKey, position: words + 1, kind: 'end', glyph: String.fromCharCode(glyph++) });
   }
-  const fetchedAt = overrides.fetchedAt ?? '2026-10-11T08:00:00.000Z';
+  // Fetched an hour ago by default, so the layout is inside its retention window whenever the tests run
+  // (a fixed date made every test that loads it through the real clock fail once it expired, 2026-10-18).
+  const fetchedAt = overrides.fetchedAt ?? new Date(Date.now() - 3600_000).toISOString();
   return {
     page: 61,
     edition: 'qpc-v1',

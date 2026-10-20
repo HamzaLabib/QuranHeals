@@ -92,9 +92,12 @@ describe('device validation and retention', () => {
     expect(QPC_V1_MAX_KEEP_MS).toBe(7 * 24 * 3600 * 1000);
   });
 
+  // These two tests run on their own clock, so they pin when the layout was fetched.
+  const FETCHED_AT = '2026-10-11T08:00:00.000Z';
+
   it('fetches from our backend (never Quran Foundation directly) and caches until keepUntil', async () => {
     const now = Date.parse('2026-10-11T09:00:00Z');
-    const fetchImpl = vi.fn(async (_url: string) => jsonResponse(200, { success: true, data: syntheticQpcPage61() }));
+    const fetchImpl = vi.fn(async (_url: string) => jsonResponse(200, { success: true, data: syntheticQpcPage61({ fetchedAt: FETCHED_AT }) }));
     const first = await loadQpcV1PageLayout(61, { now: () => now, fetchImpl });
     expect(String(fetchImpl.mock.calls[0][0])).toMatch(/\/api\/mushaf\/qpc-v1\/pages\/61$/);
     expect(String(fetchImpl.mock.calls[0][0])).not.toMatch(/quran\.foundation/);
@@ -105,7 +108,7 @@ describe('device validation and retention', () => {
   });
 
   it('an expired cached copy is deleted and never shown; a failed fetch then fails cleanly', async () => {
-    storage.set(qpcV1CacheKey(61), JSON.stringify(syntheticQpcPage61()));
+    storage.set(qpcV1CacheKey(61), JSON.stringify(syntheticQpcPage61({ fetchedAt: FETCHED_AT })));
     const after = Date.parse('2026-10-18T08:00:01Z');
     const failing = vi.fn(async () => jsonResponse(503, { success: false }));
     await expect(loadQpcV1PageLayout(61, { now: () => after, fetchImpl: failing })).rejects.toThrow(QpcV1LayoutError);
