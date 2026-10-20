@@ -16,6 +16,28 @@ export const REVIEWED_CONNECTIONS_PATH = resolve(__dirname, '../../data/ayah-con
 export const CONNECTION_MAX_LENGTH = 2000; // matches models/EmotionVerseMapping.ts
 const LOCALES = ['en', 'ar'] as const;
 
+/**
+ * Owner REMOVE decisions from the connections review: 13 from the decisions
+ * export (2026-10-20T00:07Z) and 9 previously flagged weak pairs approved for
+ * removal on 2026-10-19. Each is recorded as a REJECT in
+ * data/emotion-candidates/updates/editorial-corrections.json, so it is no
+ * longer in the consolidated approved set; the file is refused if it names
+ * one. Live databases change only via `npm run mapping:deactivate`
+ * (docs/emotion-mappings/mapping-deactivation.md).
+ */
+export const EXCLUDED_CONNECTION_PAIRS: readonly string[] = [
+  'afraid|39:69', 'afraid|39:70',
+  'angry|39:67', 'angry|40:16',
+  'betrayed|69:21', 'betrayed|69:22',
+  'confused|40:16', 'confused|61:2', 'confused|61:3', 'confused|69:21',
+  'content|39:69', 'content|39:70', 'content|40:16', 'content|40:17', 'content|40:19', 'content|40:20',
+  'forgiveness_struggle|39:67',
+  'guilty|58:10',
+  'lonely|40:16', 'lonely|40:17',
+  'reassurance|7:169',
+  'repentant|58:10',
+];
+
 export type ReviewedConnection = { emotionKey: string; verseKey: string; connection: MappingConnection };
 
 export class ConnectionValidationError extends Error {
@@ -95,9 +117,9 @@ const isPlainObject = (value: unknown): value is Record<string, unknown> =>
 
 /**
  * Structural validation of the file (no database): known emotion, real
- * verseKey, only en/ar string fields, trimmed, non-blank, ≤ 2,000 chars, at
- * least one locale, no duplicates. Throws ConnectionValidationError listing
- * every problem.
+ * verseKey, not an excluded pair, only en/ar string fields, trimmed,
+ * non-blank, ≤ 2,000 chars, at least one locale, no duplicates. Throws
+ * ConnectionValidationError listing every problem.
  */
 export function parseReviewedConnections(text: string): ReviewedConnection[] {
   let data: unknown;
@@ -119,6 +141,7 @@ export function parseReviewedConnections(text: string): ReviewedConnection[] {
     for (const [verseKey, raw] of Object.entries(verses)) {
       const at = `${emotionKey} ${verseKey}`;
       if (!isValidVerseKey(verseKey)) problems.push(`${at}: invalid verseKey (expected an existing "surah:ayah").`);
+      if (EXCLUDED_CONNECTION_PAIRS.includes(`${emotionKey}|${verseKey}`)) problems.push(`${at}: excluded by an owner Remove decision; it must not receive connection text.`);
       if (!isPlainObject(raw)) {
         problems.push(`${at}: must be an object with "en" and/or "ar".`);
         continue;

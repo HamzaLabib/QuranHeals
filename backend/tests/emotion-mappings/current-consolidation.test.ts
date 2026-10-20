@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
+import { EXCLUDED_CONNECTION_PAIRS } from '../../src/connections/reviewedConnections';
 import { EMOTION_CATALOG } from '../../src/emotions/emotionCatalog';
 import { isValidVerseKey } from '../../src/quran/referenceKeys';
 import { loadApprovedMappingsPreview } from '../../src/scripts/activationDryRun';
@@ -97,6 +98,37 @@ describe('updates/editorial-corrections.json: the 2:222 -> seeking_guidance corr
   });
 });
 
+// The owner REMOVE decisions from the ayah-connections review, as consolidation pair keys (verseKey|emotionKey).
+const OWNER_CONNECTION_REJECTS = EXCLUDED_CONNECTION_PAIRS.map((pair) => {
+  const [emotionKey, verseKey] = pair.split('|');
+  return `${verseKey}|${emotionKey}`;
+});
+
+describe('updates/editorial-corrections.json: the 22 owner connection-review rejects', () => {
+  const corrections = loadEditorialCorrections();
+  const result = runFresh();
+
+  it('records exactly one exact-pair reject per excluded connection pair, and nothing else new', () => {
+    expect(OWNER_CONNECTION_REJECTS).toHaveLength(22);
+    for (const key of OWNER_CONNECTION_REJECTS) {
+      const [verseKey, emotionKey] = key.split('|');
+      const match = corrections.corrections.filter((c) => c.verseKey === verseKey && c.emotionKey === emotionKey);
+      expect(match, key).toHaveLength(1);
+      expect(match[0].type, key).toBe('reject');
+      expect(match[0].reason.length, key).toBeGreaterThan(0);
+    }
+    expect(corrections.corrections).toHaveLength(1 + 22); // 2:222 + these
+  });
+
+  it('removes each pair from the approved set while every verse stays mapped to other emotions', () => {
+    for (const key of OWNER_CONNECTION_REJECTS) {
+      const [verseKey, emotionKey] = key.split('|');
+      expect(result.rows.some((r) => r.verseKey === verseKey && r.emotionKey === emotionKey), key).toBe(false);
+      expect(result.rows.some((r) => r.verseKey === verseKey), `${verseKey} still has other emotions`).toBe(true);
+    }
+  });
+});
+
 describe('Current consolidation: precedence and invariants (Part 11/19)', () => {
   const result = runFresh();
   const problems = validateConsolidation(result);
@@ -120,7 +152,8 @@ describe('Current consolidation: precedence and invariants (Part 11/19)', () => 
     // adds only seeking_guidance, and does not introduce a verse-wide block.
     const beforeUpdates = consolidate(loadHistoricalSources(), discoverLaterBatches().map(loadLaterBatchFinalReview), { corrections: [] });
     const newlyRejected = [...result.rejectPairs].filter(key => !beforeUpdates.rejectPairs.has(key));
-    expect(newlyRejected).toEqual(['2:222|seeking_guidance']);
+    // 2:222 plus the 22 exact-pair owner REMOVE decisions from the connections review — nothing verse-wide.
+    expect(newlyRejected.sort()).toEqual(['2:222|seeking_guidance', ...OWNER_CONNECTION_REJECTS].sort());
   });
 
   it('has zero duplicate final (verseKey, emotionKey) pairs', () => {
@@ -182,11 +215,12 @@ describe('Current consolidation: precedence and invariants (Part 11/19)', () => 
     });
   });
 
-  it('total pairs and unique verses are computed, not hardcoded, and reduced by exactly 1 pair from removing 2:222', () => {
+  it('total pairs are computed, not hardcoded: reduced by 2:222 and the 22 owner connection-review rejects', () => {
     const preview = loadApprovedMappingsPreview();
     const batch6 = loadLaterBatchFinalReview(discoverLaterBatches().find((b) => b.number === 6)!);
-    const expectedTotal = preview.totalPairs + batch6.keepRows.length - 1; // -1 for the removed 2:222 pair
+    const expectedTotal = preview.totalPairs + batch6.keepRows.length - 1 - OWNER_CONNECTION_REJECTS.length;
     expect(result.rows.length).toBe(expectedTotal);
+    expect(expectedTotal).toBe(1991);
   });
 });
 

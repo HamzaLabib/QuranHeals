@@ -3,8 +3,8 @@
   "description": "Audits the CURRENT complete mapping workflow (raw MVP foundation, batch reviews and overlaps + updates/editorial-corrections.json) for duplicate (verseKey, emotionKey) identities and for pairs blocked by a later editorial REJECT/HOLD correction. The same verse mapped to different emotions is never treated as a duplicate. Source batch/update files are never modified by this audit.",
   "historicalSourceDuplicateIdentities": 543,
   "historicalOverlapDuplicateIdentities": 25,
-  "duplicateIdentitiesFound": 544,
-  "editorialBlocksApplied": 18,
+  "duplicateIdentitiesFound": 566,
+  "editorialBlocksApplied": 40,
   "duplicatesRemainingInCurrentApprovedMappings": 0,
   "rows": [
     {
@@ -4083,6 +4083,28 @@
       "resolution": "blocked_by_reject",
       "finalRowIncluded": false,
       "collapsedToOneRow": false
+    },
+    {
+      "verseKey": "7:169",
+      "emotionKey": "reassurance",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/final-review.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "3"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "supplemental_keep"
+      ],
+      "sourceEmotionKeys": [],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-19-7-169-reassurance-reject",
+      "reason": "Owner explicitly approved REMOVE for this previously flagged weak connection (connections finalization, 2026-10-19). The full ayah rebukes a generation that took worldly gain while presuming forgiveness and would repeat the sin; only its closing clause supports reassurance, so the pairing risks misreading the ayah."
     },
     {
       "verseKey": "7:200",
@@ -11804,6 +11826,50 @@
       "collapsedToOneRow": false
     },
     {
+      "verseKey": "39:67",
+      "emotionKey": "angry",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/final-review.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "3"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "supplemental_keep"
+      ],
+      "sourceEmotionKeys": [],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-20-39-67-angry-reject",
+      "reason": "Owner REMOVE decision in the ayah-connections review (decisions export 2026-10-20T00:07Z, QuranHeals_All_Connections_Review_Decisions.json)."
+    },
+    {
+      "verseKey": "39:67",
+      "emotionKey": "forgiveness_struggle",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/final-review.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "3"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "supplemental_keep"
+      ],
+      "sourceEmotionKeys": [],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-20-39-67-forgiveness-struggle-reject",
+      "reason": "Owner REMOVE decision in the ayah-connections review (decisions export 2026-10-20T00:07Z, QuranHeals_All_Connections_Review_Decisions.json)."
+    },
+    {
       "verseKey": "39:68",
       "emotionKey": "afraid",
       "occurrences": 1,
@@ -11928,6 +11994,94 @@
       "resolution": "blocked_by_reject",
       "finalRowIncluded": false,
       "collapsedToOneRow": false
+    },
+    {
+      "verseKey": "39:69",
+      "emotionKey": "afraid",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/final-review.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "3"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "supplemental_keep"
+      ],
+      "sourceEmotionKeys": [],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-20-39-69-afraid-reject",
+      "reason": "Owner REMOVE decision in the ayah-connections review (decisions export 2026-10-20T00:07Z, QuranHeals_All_Connections_Review_Decisions.json)."
+    },
+    {
+      "verseKey": "39:69",
+      "emotionKey": "content",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/final-review.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "3"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "supplemental_keep"
+      ],
+      "sourceEmotionKeys": [],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-20-39-69-content-reject",
+      "reason": "Owner REMOVE decision in the ayah-connections review (decisions export 2026-10-20T00:07Z, QuranHeals_All_Connections_Review_Decisions.json)."
+    },
+    {
+      "verseKey": "39:70",
+      "emotionKey": "afraid",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/final-review.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "3"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "supplemental_keep"
+      ],
+      "sourceEmotionKeys": [],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-20-39-70-afraid-reject",
+      "reason": "Owner REMOVE decision in the ayah-connections review (decisions export 2026-10-20T00:07Z, QuranHeals_All_Connections_Review_Decisions.json)."
+    },
+    {
+      "verseKey": "39:70",
+      "emotionKey": "content",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/final-review.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "3"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "supplemental_keep"
+      ],
+      "sourceEmotionKeys": [],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-19-39-70-content-reject",
+      "reason": "Owner explicitly approved REMOVE for this previously flagged weak connection (connections finalization, 2026-10-19). A Day-of-Judgment repayment ayah (every soul paid in full for what it did); its link to an already-content reader is indirect. Same pattern as the removed content|39:69 and content|40:19."
     },
     {
       "verseKey": "39:71",
@@ -12162,6 +12316,138 @@
       "resolution": "blocked_by_reject",
       "finalRowIncluded": false,
       "collapsedToOneRow": false
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "angry",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/final-review.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "3"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "supplemental_keep"
+      ],
+      "sourceEmotionKeys": [],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-20-40-16-angry-reject",
+      "reason": "Owner REMOVE decision in the ayah-connections review (decisions export 2026-10-20T00:07Z, QuranHeals_All_Connections_Review_Decisions.json)."
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "confused",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/final-review.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "3"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "supplemental_keep"
+      ],
+      "sourceEmotionKeys": [],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-20-40-16-confused-reject",
+      "reason": "Owner REMOVE decision in the ayah-connections review (decisions export 2026-10-20T00:07Z, QuranHeals_All_Connections_Review_Decisions.json)."
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "content",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/final-review.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "3"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "supplemental_keep"
+      ],
+      "sourceEmotionKeys": [],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-19-40-16-content-reject",
+      "reason": "Owner explicitly approved REMOVE for this previously flagged weak connection (connections finalization, 2026-10-19). A Day-of-Judgment scene (all come forth, nothing hidden, sovereignty is Allah's); its link to an already-content reader is indirect. Same pattern as the removed content|39:69 and content|40:19."
+    },
+    {
+      "verseKey": "40:16",
+      "emotionKey": "lonely",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/final-review.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "3"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "supplemental_keep"
+      ],
+      "sourceEmotionKeys": [],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-20-40-16-lonely-reject",
+      "reason": "Owner REMOVE decision in the ayah-connections review (decisions export 2026-10-20T00:07Z, QuranHeals_All_Connections_Review_Decisions.json)."
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "content",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/final-review.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "3"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "supplemental_keep"
+      ],
+      "sourceEmotionKeys": [],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-19-40-17-content-reject",
+      "reason": "Owner explicitly approved REMOVE for this previously flagged weak connection (connections finalization, 2026-10-19). A Day-of-Judgment reckoning ayah (each soul requited, no injustice that Day); its link to an already-content reader is indirect. Same pattern as the removed content|39:69 and content|40:19."
+    },
+    {
+      "verseKey": "40:17",
+      "emotionKey": "lonely",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/final-review.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "3"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "supplemental_keep"
+      ],
+      "sourceEmotionKeys": [],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-20-40-17-lonely-reject",
+      "reason": "Owner REMOVE decision in the ayah-connections review (decisions export 2026-10-20T00:07Z, QuranHeals_All_Connections_Review_Decisions.json)."
     },
     {
       "verseKey": "40:18",
@@ -12540,6 +12826,50 @@
       "resolution": "blocked_by_reject",
       "finalRowIncluded": false,
       "collapsedToOneRow": false
+    },
+    {
+      "verseKey": "40:19",
+      "emotionKey": "content",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/final-review.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "3"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "supplemental_keep"
+      ],
+      "sourceEmotionKeys": [],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-20-40-19-content-reject",
+      "reason": "Owner REMOVE decision in the ayah-connections review (decisions export 2026-10-20T00:07Z, QuranHeals_All_Connections_Review_Decisions.json)."
+    },
+    {
+      "verseKey": "40:20",
+      "emotionKey": "content",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/final-review.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "3"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "supplemental_keep"
+      ],
+      "sourceEmotionKeys": [],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-19-40-20-content-reject",
+      "reason": "Owner explicitly approved REMOVE for this previously flagged weak connection (connections finalization, 2026-10-19). An ayah about Allah judging with truth while false gods judge nothing; its link to an already-content reader is indirect. Same pattern as the removed content|39:69 and content|40:19."
     },
     {
       "verseKey": "40:44",
@@ -14256,6 +14586,30 @@
     },
     {
       "verseKey": "58:10",
+      "emotionKey": "guilty",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/overlaps.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "3"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "overlap"
+      ],
+      "sourceEmotionKeys": [
+        "betrayed"
+      ],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-19-58-10-guilty-reject",
+      "reason": "Owner explicitly approved REMOVE for this previously flagged weak connection (connections finalization, 2026-10-19). The ayah is about secret conspiratorial talk (najwa) from Satan meant to grieve believers; applying it to inner guilt extends it beyond its context."
+    },
+    {
+      "verseKey": "58:10",
       "emotionKey": "peaceful",
       "occurrences": 2,
       "sourceFiles": [
@@ -14301,6 +14655,30 @@
       "resolution": "superseded_by_direct_keep",
       "finalRowIncluded": true,
       "collapsedToOneRow": true
+    },
+    {
+      "verseKey": "58:10",
+      "emotionKey": "repentant",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/overlaps.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "3"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "overlap"
+      ],
+      "sourceEmotionKeys": [
+        "betrayed"
+      ],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-19-58-10-repentant-reject",
+      "reason": "Owner explicitly approved REMOVE for this previously flagged weak connection (connections finalization, 2026-10-19). The ayah is about secret conspiratorial talk (najwa) from Satan meant to grieve believers; applying it to repentance extends it beyond its context."
     },
     {
       "verseKey": "58:10",
@@ -14396,6 +14774,30 @@
     },
     {
       "verseKey": "61:2",
+      "emotionKey": "confused",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-4/overlaps.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "4"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "overlap"
+      ],
+      "sourceEmotionKeys": [
+        "rejected"
+      ],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-19-61-2-confused-reject",
+      "reason": "Owner explicitly approved REMOVE for this previously flagged weak connection (connections finalization, 2026-10-19). The ayah rebukes believers for saying what they do not do; its link to confusion is indirect."
+    },
+    {
+      "verseKey": "61:2",
       "emotionKey": "rejected",
       "occurrences": 1,
       "sourceFiles": [
@@ -14411,6 +14813,30 @@
       "resolution": "blocked_by_hold",
       "finalRowIncluded": false,
       "collapsedToOneRow": false
+    },
+    {
+      "verseKey": "61:3",
+      "emotionKey": "confused",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-4/overlaps.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "4"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "overlap"
+      ],
+      "sourceEmotionKeys": [
+        "rejected"
+      ],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-19-61-3-confused-reject",
+      "reason": "Owner explicitly approved REMOVE for this previously flagged weak connection (connections finalization, 2026-10-19). The ayah states Allah's strong dislike of saying what one does not do; its link to confusion is indirect."
     },
     {
       "verseKey": "61:3",
@@ -15305,6 +15731,72 @@
       "resolution": "blocked_by_reject",
       "finalRowIncluded": false,
       "collapsedToOneRow": false
+    },
+    {
+      "verseKey": "69:21",
+      "emotionKey": "betrayed",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/final-review.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "3"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "supplemental_keep"
+      ],
+      "sourceEmotionKeys": [],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-20-69-21-betrayed-reject",
+      "reason": "Owner REMOVE decision in the ayah-connections review (decisions export 2026-10-20T00:07Z, QuranHeals_All_Connections_Review_Decisions.json)."
+    },
+    {
+      "verseKey": "69:21",
+      "emotionKey": "confused",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/final-review.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "3"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "supplemental_keep"
+      ],
+      "sourceEmotionKeys": [],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-20-69-21-confused-reject",
+      "reason": "Owner REMOVE decision in the ayah-connections review (decisions export 2026-10-20T00:07Z, QuranHeals_All_Connections_Review_Decisions.json)."
+    },
+    {
+      "verseKey": "69:22",
+      "emotionKey": "betrayed",
+      "occurrences": 2,
+      "sourceFiles": [
+        "batches/batch-3/final-review.json",
+        "updates/editorial-corrections.json"
+      ],
+      "sourceBatches": [
+        "3"
+      ],
+      "sourceTypes": [
+        "editorial_reject",
+        "supplemental_keep"
+      ],
+      "sourceEmotionKeys": [],
+      "resolution": "blocked_by_editorial_reject",
+      "finalRowIncluded": false,
+      "collapsedToOneRow": false,
+      "correctionId": "editorial-2026-10-20-69-22-betrayed-reject",
+      "reason": "Owner REMOVE decision in the ayah-connections review (decisions export 2026-10-20T00:07Z, QuranHeals_All_Connections_Review_Decisions.json)."
     },
     {
       "verseKey": "69:25",

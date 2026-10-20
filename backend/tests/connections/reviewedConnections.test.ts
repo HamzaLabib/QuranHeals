@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import {
   connectionUpdate,
   ConnectionValidationError,
+  EXCLUDED_CONNECTION_PAIRS,
   parseJsonRejectingDuplicateKeys,
   parseReviewedConnections,
   planConnectionChanges,
@@ -72,20 +73,46 @@ describe('the committed reviewed-connections.json', () => {
     }
   });
 
-  it('represents EVERY approved mapping exactly once (no more, no fewer)', () => {
+  it('represents every approved mapping exactly once, except the owner-excluded pairs (no more, no fewer)', () => {
     const pairs = (rows: { emotionKey: string; verseKey: string }[]) => rows.map((row) => `${row.emotionKey}|${row.verseKey}`).sort();
-    expect(pairs(entries)).toEqual(pairs(approvedRows));
+    // Holds both before and after the exclusions are rejected in the consolidated approved set.
+    const expected = pairs(approvedRows).filter((pair) => !EXCLUDED_CONNECTION_PAIRS.includes(pair));
+    expect(pairs(entries)).toEqual(expected);
   });
 
-  it('every entry is either the "..." placeholder in both languages, or real reviewed text', () => {
+  it('the 22 owner-excluded pairs are rejected in the consolidated approved set', () => {
+    expect(EXCLUDED_CONNECTION_PAIRS).toHaveLength(22);
+    for (const pair of EXCLUDED_CONNECTION_PAIRS) {
+      expect(approvedRows.some((row) => `${row.emotionKey}|${row.verseKey}` === pair), pair).toBe(false);
+    }
+    expect(entries).toHaveLength(1991);
+  });
+
+  it('names none of the 22 owner-excluded pairs', () => {
+    for (const entry of entries) expect(EXCLUDED_CONNECTION_PAIRS, `${entry.emotionKey} ${entry.verseKey}`).not.toContain(`${entry.emotionKey}|${entry.verseKey}`);
+  });
+
+  it('every entry has completed English and Arabic text — no "..." placeholder left', () => {
     for (const entry of entries) {
-      const isPlaceholder = entry.connection.en === '...' || entry.connection.ar === '...';
-      if (isPlaceholder) expect(entry.connection, `${entry.emotionKey} ${entry.verseKey}`).toEqual({ en: '...', ar: '...' });
-      else expect(entry.connection.en ?? entry.connection.ar).toBeTruthy();
+      const at = `${entry.emotionKey} ${entry.verseKey}`;
+      expect(entry.connection.en, at).toBeTruthy();
+      expect(entry.connection.ar, at).toBeTruthy();
+      expect(entry.connection.en, at).not.toContain('...');
+      expect(entry.connection.ar, at).not.toContain('...');
     }
   });
 
-  describe('"sad" is populated with the approved copy; every other emotion is untouched', () => {
+  it('every one of the 30 emotions has connection text', () => {
+    expect(new Set(entries.map((entry) => entry.emotionKey)).size).toBe(30);
+  });
+
+  it('keeps an owner-approved "Keep" text verbatim (lost 7:43)', () => {
+    const lost = entries.find((entry) => entry.emotionKey === 'lost' && entry.verseKey === '7:43');
+    expect(lost?.connection.en).toMatch(/^When you feel lost, unsure which path to take, this ayah reminds you that true guidance comes from Allah alone\./);
+    expect(lost?.connection.ar).toMatch(/^حين تشعر بالتوهان، وتتشابك أمامك الطرق فلا تدري أين تمضي/);
+  });
+
+  describe('"sad" keeps its approved copy unchanged', () => {
     const sadEntries = entries.filter((entry) => entry.emotionKey === 'sad');
     const sadByVerse = new Map(sadEntries.map((entry) => [entry.verseKey, entry.connection]));
 
@@ -124,11 +151,14 @@ describe('the committed reviewed-connections.json', () => {
       );
     });
 
-    it('5. every entry outside "sad" is still exactly the "..." placeholder (no other emotion was touched)', () => {
+    it('5. every other emotion has its own text — none copies the "sad" connection for the same verse', () => {
       const others = entries.filter((entry) => entry.emotionKey !== 'sad');
       expect(others.length).toBeGreaterThan(0);
       for (const entry of others) {
-        expect(entry.connection, `${entry.emotionKey} ${entry.verseKey}`).toEqual({ en: '...', ar: '...' });
+        const sad = sadByVerse.get(entry.verseKey);
+        if (!sad) continue;
+        expect(entry.connection.en, `${entry.emotionKey} ${entry.verseKey}`).not.toBe(sad.en);
+        expect(entry.connection.ar, `${entry.emotionKey} ${entry.verseKey}`).not.toBe(sad.ar);
       }
     });
 
@@ -157,6 +187,14 @@ describe('file validation (before any database access)', () => {
 
   it('2. rejects an unknown emotion', () => {
     expect(problemsOf(() => parseReviewedConnections(json({ melancholy: { '93:3': { en: 'x' } } })))).toEqual(['Unknown emotion "melancholy".']);
+  });
+
+  it('rejects a pair excluded by an owner Remove decision', () => {
+    expect(problemsOf(() => parseReviewedConnections(json({ lonely: { '40:16': { en: 'x', ar: 'ب' } } })))).toEqual([
+      'lonely 40:16: excluded by an owner Remove decision; it must not receive connection text.',
+    ]);
+    // The same verse is fine for an emotion that was kept.
+    expect(parseReviewedConnections(json({ hopeless: { '40:16': { en: 'x' } } }))).toHaveLength(1);
   });
 
   it.each(['93:0', '115:1', '93-3', '093:3', '2:287', 'abc'])('3. rejects invalid verseKey %s', (verseKey) => {

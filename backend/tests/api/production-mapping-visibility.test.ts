@@ -147,7 +147,7 @@ describe('approved coverage of the catalog', () => {
 
   it('every catalog emotion has approved mappings, so approved-only production leaves none empty', () => {
     expect(current.emotionCount).toBe(30);
-    expect(current.totalPairs).toBe(2013);
+    expect(current.totalPairs).toBe(1991); // 2,013 minus the 22 owner connection-review rejects
     for (const emotion of EMOTION_CATALOG) {
       expect(current.countByEmotion[emotion.key], emotion.key).toBeGreaterThan(0);
     }
