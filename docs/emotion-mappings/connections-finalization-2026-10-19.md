@@ -11,14 +11,14 @@ Sources of decisions:
 
 | Group | Pairs | Treatment |
 | --- | ---: | --- |
-| Sad (finalized earlier) | 42 | Byte-identical to `HEAD` |
+| Sad (finalized earlier) | 42 | All 42 mappings kept. 21 texts refined in the Sad editorial pass below; the other 21 unchanged |
 | Explicit Keep | 157 | Your exported Arabic and English, verbatim |
 | Anxious texts from the earlier chat (`chat-approved` in the export) | 11 | Rewritten as drafts. The export labels them drafts; the 48 Anxious **mapping** approvals are unchanged |
 | Other drafts | 1,781 | Newly written, emotion-specific EN + AR |
 | **Total published entries** | **1,991** | Every one has `en` and `ar`. No `...` placeholders |
 | Remove | 22 | **Not in the file**, refused by the validator (`EXCLUDED_CONNECTION_PAIRS`), and REJECTed in the consolidated set |
 
-All remaining pairs, emotion keys and their order are preserved. The only text changes after the drafting are the 21 Keep corrections below. The set equals the consolidated approved set exactly (1,991). New English texts run 25–54 words (average 38). The longest new text is 291 characters, and the longest in the file is one of your Keeps at 623, well under the 2,000 limit. No generic sentence is reused across different ayahs. The same ayah is sometimes paraphrased the same way under different emotions.
+All remaining pairs, emotion keys and their order are preserved. The only text changes after the drafting are the 21 Keep corrections and the 21 Sad refinements below. The set equals the consolidated approved set exactly (1,991). New English texts run 25–54 words (average 38). The longest new text is 291 characters, and the longest in the file is one of your Keeps at 623, well under the 2,000 limit. No generic sentence is reused across different ayahs. The same ayah is sometimes paraphrased the same way under different emotions.
 
 ## Weak connections: decided — all 9 REMOVED (2026-10-19)
 
@@ -69,6 +69,27 @@ No other connection text changed.
 A whole-file scan finds none of the targeted claims left on these ayahs: Reckoning or Hereafter-justice phrasing on 39:62, 39:63, 7:42, 7:43, 35:35 and 2:255, sovereignty phrasing on 7:42, 35:35, 39:73 and 39:74, or 39:69's "shining earth" outside 39:69.
 
 Some Keeps still share identical text across two ayahs (`grateful` 55:54/55:76, `guilty` 69:21/69:22). These describe Paradise generally and fit both ayahs.
+
+## Sad editorial refinement: 21 of 42 refined (2026-10-19)
+
+An audit found the 42 Sad texts structurally thinner than the other 29 emotions: always one sentence, 132 English characters on average against 214, and rarely quoting or giving the context of the ayah. The owner approved 21 refinements, decided one by one. **`reviewed-connections.json` is the source of truth for the final wording.**
+
+| Treatment | Sad verses |
+| --- | --- |
+| Applied as proposed in the Sad review (14) | 2:112, 2:152, 2:255, 3:103, 3:186, 10:62, 12:84, 12:87, 16:127, 57:4, 58:10, 94:2; Arabic only for 9:40 and 21:89 (English unchanged) |
+| Owner replacement text (7) | 2:38, 2:155, 3:139, 39:67, 93:3, 94:5, 94:6 |
+| Unchanged (21) | 2:153, 2:156, 2:186, 3:120, 4:45, 4:148, 9:51, 9:129, 12:18, 12:83, 12:86, 14:42, 20:40, 20:46, 28:13, 39:53, 40:44, 42:28, 65:3, 70:5, 94:1 |
+
+- All 42 Sad mappings are kept. 3:103 was reviewed as a possible weak mapping (its link to grief is indirect, through the blessing of believing companionship); the owner kept it with new wording, and no REJECT was added.
+- Editorial rules from this pass:
+  - Published text states what the ayah says, not tafsir-only conclusions (e.g. «لن يغلب عسر يسرين» was left out of 94:6).
+  - It does not claim that «بشيء» limits a person's trial (2:155).
+  - It uses «آدم وزوجه» / "Adam and his wife" as the Quran does (2:38).
+  - It gives the occasion of revelation without asserting the Prophet's emotional state (93:3).
+  - English and Arabic must name the same emotion: 3:139 says "grief", matching «ولا تحزنوا».
+- «سيدنا» was removed from 21:89, the only use in the file. 93:3 now uses «ﷺ», as the owner wrote it.
+- Every Arabic quotation in the 21 changed texts matches the verified Uthmani text (`tools/quran-verification/input/quran-uthmani.txt`), ignoring the differences between Uthmani and modern spelling.
+- After this pass, Sad English averages 212 characters and Arabic 145.
 
 ## Removing the 22 pairs from the live mapping set (database step, not done)
 
@@ -126,7 +147,7 @@ PROD also needs `QURAN_HEALS_CONFIRM_PRODUCTION_WRITE=quranheals_prod`. After al
 
 1. ~~Decide the 21 Keep proposals~~: done (all 21 applied). `npm test` must stay green.
 2. Commit the file and code (not done here).
-3. DEV dry-run, from `backend` with the DEV environment: `npm run connections:apply`. Expect "1991 reviewed entries". The update count depends on what DEV already holds (1,991 if empty; 1,949 if the 42 Sad are already applied). Any non-approved or missing pair refuses the whole run. The 22 removed pairs are not in the file, so their status does not affect this step.
+3. DEV dry-run, from `backend` with the DEV environment: `npm run connections:apply`. Expect "1991 reviewed entries". DEV is already synchronized with commit `7452542` (all 1,949 non-Sad texts). The incremental Sad sync should therefore report **21 updates** (the refined Sad texts) and **1,970 current**. It involves 0 mapping deactivations, and all 42 Sad mappings are retained. An empty database would report 1,991 updates. Any non-approved or missing pair refuses the whole run. The 22 removed pairs are not in the file, so their status does not affect this step.
 4. DEV write: `npm run connections:apply -- --apply`. It writes a verified backup to `backend/backups/ayah-connections/`, then one transaction. Spot-check a few emotions in the app in EN and AR.
 5. PROD dry-run with the PROD environment: `npm run connections:apply`.
 6. PROD write: set `QURAN_HEALS_CONFIRM_PRODUCTION_WRITE=quranheals_prod`, then `npm run connections:apply -- --apply`. Keep the backup path it prints.

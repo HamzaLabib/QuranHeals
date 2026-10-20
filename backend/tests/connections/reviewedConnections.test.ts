@@ -112,7 +112,7 @@ describe('the committed reviewed-connections.json', () => {
     expect(lost?.connection.ar).toMatch(/^حين تشعر بالتوهان، وتتشابك أمامك الطرق فلا تدري أين تمضي/);
   });
 
-  describe('"sad" keeps its approved copy unchanged', () => {
+  describe('"sad" keeps its approved copy (2026-10-19 editorial refinement applied)', () => {
     const sadEntries = entries.filter((entry) => entry.emotionKey === 'sad');
     const sadByVerse = new Map(sadEntries.map((entry) => [entry.verseKey, entry.connection]));
 
@@ -142,12 +142,12 @@ describe('the committed reviewed-connections.json', () => {
       );
     });
 
-    it('3. sad + 39:67 resolves the approved revised wording', () => {
+    it('3. sad + 39:67 resolves the owner-approved refined wording', () => {
       expect(sadByVerse.get('39:67')?.en).toBe(
-        'When sadness makes your problem feel bigger than everything else, this ayah restores perspective by reminding you of Allah’s greatness and power; what weighs heavily on you is not greater than Allah’s power.',
+        '“They did not esteem Allah as He truly deserves.” The ayah then describes the whole earth in His grasp on the Day of Resurrection and the heavens folded in His right hand. Sadness can make one burden fill your entire horizon until you see nothing else. Yet what weighs on your heart is never beyond Allah\'s power. Remember His greatness when sorrow feels greater than you can bear.',
       );
       expect(sadByVerse.get('39:67')?.ar).toBe(
-        'حين يجعل الحزن مشكلتك تبدو أكبر من كل شيء، تعيد هذه الآية لقلبك المنظور الصحيح بتذكيرك بعظمة الله وقدرته؛ فما يثقل عليك ليس أكبر من قدرة الله.',
+        '«وما قدروا الله حق قدره»، ثم تصف الآية الأرض جميعًا في قبضته يوم القيامة والسماوات مطويّات بيمينه. قد يجعل الحزن همًّا واحدًا يملأ أفقك حتى لا ترى سواه. لكن ما أثقل قلبك لا يعجز الله؛ فاستحضر عظمته حين تشعر أن حزنك أكبر من قدرتك على الاحتمال.',
       );
     });
 
