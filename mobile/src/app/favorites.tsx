@@ -9,7 +9,7 @@ import { AyahCard } from '@/components/AyahCard';
 import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { ShareAyahSheet } from '@/components/ShareAyahSheet';
 import { StateView } from '@/components/StateView';
-import { radii, spacing, typography, type Palette } from '@/constants/theme';
+import { pageHeaderText, radii, spacing, typography, type Palette } from '@/constants/theme';
 import { useContentColumnStyle } from '@/layout/useWindowClass';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -185,21 +185,9 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     justifyContent: 'center',
     width: 48,
   },
-  headerText: {
-    flex: 1,
-    gap: 2,
-  },
-  title: {
-    color: colors.textPrimary,
-    fontSize: 25,
-    fontWeight: '700',
-    letterSpacing: 0,
-  },
-  subtitle: {
-    color: colors.textSecondary,
-    fontSize: typography.caption,
-    lineHeight: 18,
-  },
+  headerText: pageHeaderText(colors).block,
+  title: pageHeaderText(colors).title,
+  subtitle: pageHeaderText(colors).subtitle,
   favoriteItem: {
     gap: spacing.sm,
   },

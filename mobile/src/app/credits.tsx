@@ -4,7 +4,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { QURAN_SOURCES } from '@/constants/quranSources';
-import { radii, spacing, typography, type Palette } from '@/constants/theme';
+import { pageHeaderText, radii, spacing, typography, type Palette } from '@/constants/theme';
 import { useContentColumnStyle } from '@/layout/useWindowClass';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
@@ -107,13 +107,8 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     justifyContent: 'center',
     width: 48,
   },
-  title: {
-    color: colors.textPrimary,
-    flex: 1,
-    fontSize: 25,
-    fontWeight: '700',
-    letterSpacing: 0,
-  },
+  // No subtitle here: the title takes the space between the buttons, as the shared header block does.
+  title: { ...pageHeaderText(colors).title, flex: 1 },
   intro: {
     color: colors.textSecondary,
     fontSize: typography.body,

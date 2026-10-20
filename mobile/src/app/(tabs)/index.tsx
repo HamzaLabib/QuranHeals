@@ -431,7 +431,8 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     fontSize: typography.title,
     fontWeight: '700',
     letterSpacing: 0,
-    lineHeight: 40,
+    // 1.2× the size (34 / 40 before): room for Arabic marks when the question wraps.
+    lineHeight: 36,
   },
   grid: {
     flexDirection: 'row',

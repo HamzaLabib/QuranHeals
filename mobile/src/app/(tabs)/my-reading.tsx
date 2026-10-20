@@ -8,7 +8,7 @@ import { useAuth } from '@/auth/useAuth';
 import { ConfirmSheet } from '@/components/ConfirmSheet';
 import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { MushafIcon } from '@/components/MushafIcon';
-import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
+import { pageHeaderText, radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
 import { useKeyboardAvoidingKey } from '@/layout/useDismissKeyboardOnResize';
 import { useContentColumnStyle, useSheetFrameStyle } from '@/layout/useWindowClass';
 import { fill, localNumber } from '@/localization/fill';
@@ -500,9 +500,9 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     borderWidth: 1, height: 48, justifyContent: 'center', width: 48,
   },
   // The title and its subtitle (Home's subtitle style) share the header's flexible middle.
-  titleBlock: { flex: 1, gap: 2 },
-  title: { color: colors.textPrimary, fontSize: 26, fontWeight: '800' },
-  subtitle: { color: colors.textSecondary, fontSize: typography.body, lineHeight: 22 },
+  titleBlock: pageHeaderText(colors).block,
+  title: pageHeaderText(colors).title,
+  subtitle: pageHeaderText(colors).subtitle,
   // Fills the screen, so the pull works however short the content is.
   scroll: { flex: 1 },
   content: { gap: spacing.lg, paddingHorizontal: spacing.lg, paddingTop: spacing.sm },

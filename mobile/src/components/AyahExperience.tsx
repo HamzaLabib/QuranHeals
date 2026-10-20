@@ -25,7 +25,7 @@ import { ReportIssueSheet } from './ReportIssueSheet';
 import { SettingsHeaderButton } from './SettingsHeaderButton';
 import { ShareAyahSheet } from './ShareAyahSheet';
 import { StateView } from './StateView';
-import { radii, spacing, typography, type Palette } from '@/constants/theme';
+import { pageHeaderText, radii, spacing, typography, type Palette } from '@/constants/theme';
 import { useContentColumnStyle } from '@/layout/useWindowClass';
 import { LAYOUT_TOKENS } from '@/layout/windowClass';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
@@ -458,21 +458,9 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     justifyContent: 'center',
     width: 48,
   },
-  headerText: {
-    flex: 1,
-    gap: 2,
-  },
-  emotion: {
-    color: colors.textPrimary,
-    fontSize: 25,
-    fontWeight: '700',
-    letterSpacing: 0,
-  },
-  kicker: {
-    color: colors.textSecondary,
-    fontSize: typography.caption,
-    lineHeight: 18,
-  },
+  headerText: pageHeaderText(colors).block,
+  emotion: pageHeaderText(colors).title,
+  kicker: pageHeaderText(colors).subtitle,
   actions: {
     alignItems: 'center',
     flexDirection: 'row',

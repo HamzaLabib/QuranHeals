@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { radii, spacing, typography, type Palette } from '@/constants/theme';
+import { pageHeaderText, radii, spacing, typography, type Palette } from '@/constants/theme';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { DEFAULT_KHATM_DUA_SIZE, KHATM_DUA, KHATM_DUA_SIZES, type KhatmDuaText } from '@/mushaf/khatmDua';
@@ -133,10 +133,7 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   rowReverse: {
     flexDirection: 'row-reverse',
   },
-  headerText: {
-    flex: 1,
-    gap: 2,
-  },
+  headerText: pageHeaderText(colors).block,
   iconButton: {
     alignItems: 'center',
     backgroundColor: colors.surface,
@@ -151,9 +148,7 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     width: 48,
   },
   title: {
-    color: colors.textPrimary,
-    fontSize: 26,
-    fontWeight: '700',
+    ...pageHeaderText(colors).title,
     // Room above and below for the vowel marks, so none is clipped.
     lineHeight: 44,
   },

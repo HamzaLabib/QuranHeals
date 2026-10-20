@@ -253,12 +253,25 @@ export const typography = {
   small: 12,
   body: 16,
   bodyLarge: 18,
-  title: 34,
+  // Home's emotions question («How are you feeling?»), between the page titles (pageHeaderText, 25) and Home's app
+  // name (29). It was 34.
+  title: 30,
   // Used only by AyahCard's normal Quran Arabic display (see
   // AyahCard.tsx's `arabic` style for its paired lineHeight) — never by
   // unrelated Arabic UI text, which uses body/bodyLarge/title instead.
   arabic: 30,
 };
+
+/**
+ * Page header text: the title, the subtitle under it, and the block holding both between the header's Back / Settings
+ * buttons. The values are the ones approved on Saved Ayahs and My Reflections, shared by every full-screen page header.
+ * A long title wraps to more lines at the same size; it is never shrunk to fit one line. Font scaling stays on.
+ */
+export const pageHeaderText = (colors: Palette) => ({
+  block: { flex: 1, gap: 2 },
+  title: { color: colors.textPrimary, fontSize: 25, fontWeight: '700' as const, letterSpacing: 0 },
+  subtitle: { color: colors.textSecondary, fontSize: typography.caption, lineHeight: 18 },
+});
 
 export const shadows = {
   soft: Platform.select({
