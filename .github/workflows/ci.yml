@@ -64,7 +64,29 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-          cache-dependency-path: mobile/package-lock.json
+          cache-dependency-path: |
+            mobile/package-lock.json
+            tools/quran-audio/review/cloud/package-lock.json
+
+      # The audio review tests (tests/audioPublication, audioReviewCloud,
+      # audioSingleReview) run the cloud review service against a temporary
+      # PostgreSQL from its own pinned dev dependency, embedded-postgres, which
+      # they load from this separate package's node_modules
+      # (tools/quran-audio/review/cloud/README.md, "Tests").
+      - name: Install the audio review service's dependencies
+        working-directory: tools/quran-audio/review/cloud
+        run: npm ci --no-audit --no-fund
+
+      # The waveform tool those tests run (tools/quran-audio/review/dashboard/
+      # peaks.py) imports numpy and miniaudio from tools/quran-audio/pylib
+      # (git-ignored; tools/quran-audio/README.md), with the version ranges of
+      # the service's Dockerfile.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install the waveform tool's Python packages
+        working-directory: tools/quran-audio
+        run: python -m pip install --disable-pip-version-check --target pylib "numpy>=2,<3" "miniaudio>=1.61,<2"
 
       # The QCF V1 page-61 font (King Fahd Complex, via Quran Foundation's
       # public CDN) is kept out of this public repository: its terms allow it

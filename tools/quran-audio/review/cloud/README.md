@@ -254,7 +254,15 @@ On a fresh clone, install this folder's pinned dependencies once before `npm tes
 cd tools/quran-audio/review/cloud && npm ci
 ```
 
-`embedded-postgres` is a dev dependency only: the deployed image installs with `--omit=dev` (`Dockerfile`).
+Their waveform checks run `review/dashboard/peaks.py`, which needs numpy and miniaudio in `tools/quran-audio/pylib`
+(Python 3.12, the `Dockerfile`'s version ranges):
+
+```bash
+cd tools/quran-audio && python -m pip install --target pylib "numpy>=2,<3" "miniaudio>=1.61,<2"
+```
+
+CI does both (`.github/workflows/ci.yml`, mobile job). `embedded-postgres` is a dev dependency only: the deployed image
+installs with `--omit=dev` (`Dockerfile`).
 
 ## Files
 
