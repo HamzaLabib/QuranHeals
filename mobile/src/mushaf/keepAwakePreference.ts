@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
- * Keep Screen Awake (Settings, below Quran Language): while ON, the Mushaf reader stops the screen dimming and
+ * Keep Screen Awake (Settings, below Quran Translation): while ON, the Mushaf reader stops the screen dimming and
  * locking from inactivity (mushaf/useMushafKeepAwake.ts). A purely local device setting: never synced, no account,
  * no backend. ON for anyone who has never chosen; an explicit OFF is kept for good (nothing ever rewrites it).
  */

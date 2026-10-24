@@ -1,0 +1,1647 @@
+{
+ "saleh-talib": {
+  "enabled": [
+   12,
+   14,
+   19,
+   21,
+   29,
+   32,
+   48,
+   51,
+   62,
+   63,
+   67,
+   68,
+   69,
+   71,
+   87,
+   88,
+   89,
+   91,
+   92,
+   93,
+   94,
+   95,
+   97,
+   98,
+   99,
+   100,
+   101,
+   102,
+   104,
+   105,
+   106,
+   107,
+   109,
+   110,
+   112,
+   113,
+   114
+  ],
+  "blocked": {
+   "90": "very high risk start(s) 13: awaiting a person",
+   "103": "very high risk start(s) 2: awaiting a person",
+   "108": "very high risk start(s) 2: awaiting a person"
+  },
+  "how": {
+   "12": {
+    "evidence": "../Working progress/Audio packages pending import/saleh-talib-other-2026-10-24/aligned/saleh-talib/12.json",
+    "reviewer1": 0,
+    "automatic": 111,
+    "provider": "archive",
+    "url": "https://ia600903.us.archive.org/12/items/SheikhTalibSurahs626991-114/SurahYusufBySheikhTalib12-16thJan2013.mp3",
+    "rights": null
+   },
+   "14": {
+    "evidence": "review dashboard saleh-talib-14-archive (phase-4.7)",
+    "reviewer1": 0,
+    "automatic": 52,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/032.%20Surat%20Ibrahim%201%20-%2052.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "19": {
+    "evidence": "../Working progress/Audio packages pending import/saleh-talib-other-2026-10-24/aligned/saleh-talib/19.json",
+    "reviewer1": 0,
+    "automatic": 98,
+    "provider": "archive",
+    "url": "https://ia801001.us.archive.org/10/items/SheikhTalibSurahMaryam/SurahMaryamBy-SheikhTalib-.mp3",
+    "rights": null
+   },
+   "21": {
+    "evidence": "../Working progress/Audio packages pending import/saleh-talib-other-2026-10-24/aligned/saleh-talib/21.json",
+    "reviewer1": 0,
+    "automatic": 112,
+    "provider": "archive",
+    "url": "https://ia801607.us.archive.org/18/items/SuratAlAnbeyaShikhSalihAlTalib1436/surat_alAnbeya_shikh_salih_al%20Talib_1436.mp3",
+    "rights": null
+   },
+   "29": {
+    "evidence": "review dashboard saleh-talib-29-archive (phase-4.7)",
+    "reviewer1": 0,
+    "automatic": 69,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/063.%20Surat%20Al-%27Ankabut%201%20-%2069.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "32": {
+    "evidence": "review dashboard saleh-talib-32-archive (phase-4.7)",
+    "reviewer1": 0,
+    "automatic": 30,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/065.%20Surat%20As-Sajdah%201%20-%2030.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "48": {
+    "evidence": "review dashboard saleh-talib-48-archive (phase-4.7)",
+    "reviewer1": 0,
+    "automatic": 29,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/081.%20Surat%20Al-Fath%201%20-%2029.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "51": {
+    "evidence": "../Working progress/Audio packages pending import/saleh-talib-archive-2026-10-24/aligned/saleh-talib/51.json",
+    "reviewer1": 0,
+    "automatic": 60,
+    "provider": "archive",
+    "url": "https://ia600606.us.archive.org/7/items/saqrsm/084.%20Surat%20Ath-Thariyat%201%20-%2060.mp3",
+    "rights": null
+   },
+   "62": {
+    "evidence": "review dashboard saleh-talib-62-archive (phase-4.7)",
+    "reviewer1": 0,
+    "automatic": 11,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/092.%20Surat%20Al-Jumu%27ah%201%20-%2011.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "63": {
+    "evidence": "review dashboard saleh-talib-63-archive (phase-4.7)",
+    "reviewer1": 0,
+    "automatic": 11,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/093.%20Surat%20Al-Munafiqun%201%20-%2011.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "67": {
+    "evidence": "review dashboard saleh-talib-67-archive (phase-4.7)",
+    "reviewer1": 0,
+    "automatic": 30,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/095.%20Surat%20Al-Mulk%201%20-%2030.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "68": {
+    "evidence": "../Working progress/Audio packages pending import/saleh-talib-archive-2026-10-24/aligned/saleh-talib/68.json",
+    "reviewer1": 0,
+    "automatic": 52,
+    "provider": "archive",
+    "url": "https://ia600606.us.archive.org/7/items/saqrsm/096.%20Surat%20Al-Qalam%201%20-%2052.mp3",
+    "rights": null
+   },
+   "69": {
+    "evidence": "../Working progress/Audio packages pending import/saleh-talib-archive-2026-10-24/aligned/saleh-talib/69.json",
+    "reviewer1": 0,
+    "automatic": 52,
+    "provider": "archive",
+    "url": "https://ia600606.us.archive.org/7/items/saqrsm/097.%20Surat%20Al-Haqqah%201%20-%2052.mp3",
+    "rights": null
+   },
+   "71": {
+    "evidence": "review dashboard saleh-talib-71-archive (phase-4.7)",
+    "reviewer1": 0,
+    "automatic": 28,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/099.%20Surat%20Nuh%201%20-%2028.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "87": {
+    "evidence": "review dashboard saleh-talib-87-archive (phase-4.7)",
+    "reviewer1": 19,
+    "automatic": 0,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/113.%20Surat%20Al-A%27la%201%20-%2019.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "88": {
+    "evidence": "review dashboard saleh-talib-88-archive (phase-4.7)",
+    "reviewer1": 26,
+    "automatic": 0,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/114.%20Surat%20Al-Ghashiyah%201%20-%2026.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "89": {
+    "evidence": "../Working progress/Audio packages pending import/saleh-talib-archive-2026-10-24/aligned/saleh-talib/89.json",
+    "reviewer1": 0,
+    "automatic": 30,
+    "provider": "archive",
+    "url": "https://ia600606.us.archive.org/7/items/saqrsm/115.%20Surat%20Al-Fajr%201%20-%2030.mp3",
+    "rights": null
+   },
+   "91": {
+    "evidence": "review dashboard saleh-talib-91-archive (phase-4.7)",
+    "reviewer1": 0,
+    "automatic": 15,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/117.%20Surat%20Ash-Shams%201%20-%2015.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "92": {
+    "evidence": "../Working progress/Audio packages pending import/saleh-talib-archive-2026-10-24/aligned/saleh-talib/92.json",
+    "reviewer1": 0,
+    "automatic": 21,
+    "provider": "archive",
+    "url": "https://ia600606.us.archive.org/7/items/saqrsm/118.%20Surat%20Al-Lail%201%20-%2021.mp3",
+    "rights": null
+   },
+   "93": {
+    "evidence": "review dashboard saleh-talib-93-archive (phase-4.7)",
+    "reviewer1": 0,
+    "automatic": 11,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/119.%20Surat%20Adh-Dhuha%201%20-%2011.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "94": {
+    "evidence": "review dashboard saleh-talib-94-archive (phase-4.7)",
+    "reviewer1": 0,
+    "automatic": 8,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/120.%20Surat%20Ash-Sharh%201%20-%208.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "95": {
+    "evidence": "review dashboard saleh-talib-95-archive (phase-4.7)",
+    "reviewer1": 0,
+    "automatic": 8,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/121.%20Surat%20At-Tin%201%20-%208.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "97": {
+    "evidence": "review dashboard saleh-talib-97-archive (phase-4.7)",
+    "reviewer1": 0,
+    "automatic": 5,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/122.%20Surat%20Al-Qadr%201%20-%205.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "98": {
+    "evidence": "review dashboard saleh-talib-98-archive (phase-4.7)",
+    "reviewer1": 0,
+    "automatic": 8,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/123.%20Surat%20Al-Bayyinah%201%20-%208.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "99": {
+    "evidence": "review dashboard saleh-talib-99-archive (phase-4.7)",
+    "reviewer1": 0,
+    "automatic": 8,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/124.%20Surat%20Az-Zalzalah%201%20-%208.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "100": {
+    "evidence": "review dashboard saleh-talib-100-archive (phase-4.7)",
+    "reviewer1": 0,
+    "automatic": 11,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/125.%20Surat%20Al-%27Adiyat%201%20-%2011.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "101": {
+    "evidence": "review dashboard saleh-talib-101-archive (phase-4.7)",
+    "reviewer1": 11,
+    "automatic": 0,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/126.%20Surat%20Al-Qari%27ah%201%20-%2011.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "102": {
+    "evidence": "review dashboard saleh-talib-102-archive (phase-4.7)",
+    "reviewer1": 0,
+    "automatic": 8,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/127.%20Surat%20At-Takathur%201%20-%208.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "104": {
+    "evidence": "review dashboard saleh-talib-104-archive (phase-4.7)",
+    "reviewer1": 0,
+    "automatic": 9,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/129.%20Surat%20Al-Humazah%201%20-%209.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "105": {
+    "evidence": "review dashboard saleh-talib-105-archive (phase-4.7)",
+    "reviewer1": 0,
+    "automatic": 5,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/130.%20Surat%20Al-Fil%201%20-%205.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "106": {
+    "evidence": "../Working progress/Audio packages pending import/saleh-talib-archive-2026-10-24/aligned/saleh-talib/106.json",
+    "reviewer1": 0,
+    "automatic": 4,
+    "provider": "archive",
+    "url": "https://ia600606.us.archive.org/7/items/saqrsm/131.%20Surat%20Quraish%201%20-%204.mp3",
+    "rights": null
+   },
+   "107": {
+    "evidence": "../Working progress/Audio packages pending import/saleh-talib-archive-2026-10-24/aligned/saleh-talib/107.json",
+    "reviewer1": 0,
+    "automatic": 7,
+    "provider": "archive",
+    "url": "https://ia600606.us.archive.org/7/items/saqrsm/132.%20Surat%20Al-Ma%27un%201%20-%207.mp3",
+    "rights": null
+   },
+   "109": {
+    "evidence": "../Working progress/Audio packages pending import/saleh-talib-archive-2026-10-24/aligned/saleh-talib/109.json",
+    "reviewer1": 0,
+    "automatic": 6,
+    "provider": "archive",
+    "url": "https://ia600606.us.archive.org/7/items/saqrsm/134.%20Surat%20Al-Kafirun%201%20-%206.mp3",
+    "rights": null
+   },
+   "110": {
+    "evidence": "review dashboard saleh-talib-110-archive (phase-4.7)",
+    "reviewer1": 0,
+    "automatic": 3,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/135.%20Surat%20An-Nasr%201%20-%203.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   },
+   "112": {
+    "evidence": "../Working progress/Audio packages pending import/saleh-talib-archive-2026-10-24/aligned/saleh-talib/112.json",
+    "reviewer1": 0,
+    "automatic": 4,
+    "provider": "archive",
+    "url": "https://ia600606.us.archive.org/7/items/saqrsm/136.%20Surat%20Al-Ikhlas%201%20-%204.mp3",
+    "rights": null
+   },
+   "113": {
+    "evidence": "../Working progress/Audio packages pending import/saleh-talib-archive-2026-10-24/aligned/saleh-talib/113.json",
+    "reviewer1": 0,
+    "automatic": 5,
+    "provider": "archive",
+    "url": "https://ia600606.us.archive.org/7/items/saqrsm/137.%20Surat%20Al-Falaq%201%20-%205.mp3",
+    "rights": null
+   },
+   "114": {
+    "evidence": "review dashboard saleh-talib-114-archive (phase-4.7)",
+    "reviewer1": 0,
+    "automatic": 6,
+    "provider": "archive",
+    "url": "https://ia800606.us.archive.org/7/items/saqrsm/138.%20Surat%20An-Nas%201%20-6.mp3",
+    "rights": "no permission for app use (unknown); experimental alignment only (Phase 4.7)"
+   }
+  }
+ },
+ "islam-sobhi": {
+  "enabled": [
+   21,
+   23,
+   25,
+   29,
+   30,
+   38,
+   47,
+   48,
+   49,
+   52,
+   57,
+   62,
+   65,
+   72,
+   95,
+   98,
+   100,
+   101,
+   104,
+   105,
+   106,
+   107,
+   110,
+   111
+  ],
+  "blocked": {},
+  "how": {
+   "21": {
+    "evidence": "../Working progress/Audio packages pending import/sobhi-cbr-copies-2-2026-10-24/aligned/islam-sobhi/21.json",
+    "reviewer1": 0,
+    "automatic": 112,
+    "provider": "archive",
+    "url": "https://ia601405.us.archive.org/26/items/002_20231210_202312/021.mp3",
+    "rights": null,
+    "openingMs": 11950
+   },
+   "23": {
+    "evidence": "../Working progress/Audio packages pending import/vbr-cbr-copies-2026-10-24/aligned/islam-sobhi/23.json",
+    "reviewer1": 0,
+    "automatic": 118,
+    "provider": "archive",
+    "url": "https://ia801601.us.archive.org/23/items/islam-sobhi_202405/023%20Al-Mu%27minun%20%D8%A7%D9%84%D9%85%D8%A4%D9%85%D9%86%D9%88%D9%86.mp3",
+    "rights": null
+   },
+   "25": {
+    "evidence": "../Working progress/Audio packages pending import/sobhi-cbr-copies-2-2026-10-24/aligned/islam-sobhi/25.json",
+    "reviewer1": 0,
+    "automatic": 77,
+    "provider": "archive",
+    "url": "https://ia601405.us.archive.org/26/items/002_20231210_202312/025.mp3",
+    "rights": null,
+    "openingMs": 13280
+   },
+   "29": {
+    "evidence": "../Working progress/Audio packages pending import/sobhi-cbr-copies-2-2026-10-24/aligned/islam-sobhi/29.json",
+    "reviewer1": 0,
+    "automatic": 69,
+    "provider": "archive",
+    "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/029%20Al-Ankabut%20%D8%A7%D9%84%D8%B9%D9%86%D9%83%D8%A8%D9%88%D8%AA.mp3",
+    "rights": null,
+    "openingMs": 22770
+   },
+   "30": {
+    "evidence": "../Working progress/Audio packages pending import/vbr-cbr-copies-2026-10-24/aligned/islam-sobhi/30.json",
+    "reviewer1": 0,
+    "automatic": 60,
+    "provider": "archive",
+    "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/030-Ar-Room.mp3",
+    "rights": null
+   },
+   "38": {
+    "evidence": "../Working progress/Audio packages pending import/sobhi-cbr-copies-2-2026-10-24/aligned/islam-sobhi/38.json",
+    "reviewer1": 0,
+    "automatic": 88,
+    "provider": "archive",
+    "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/038%20Saad%20%D8%B5.mp3",
+    "rights": null,
+    "openingMs": 9620
+   },
+   "47": {
+    "evidence": "../Working progress/Audio packages pending import/sobhi-cbr-copies-2-2026-10-24/aligned/islam-sobhi/47.json",
+    "reviewer1": 0,
+    "automatic": 38,
+    "provider": "archive",
+    "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/047%20Muhammad%20%D9%85%D8%AD%D9%85%D8%AF.mp3",
+    "rights": null,
+    "openingMs": 13410
+   },
+   "48": {
+    "evidence": "../Working progress/Audio packages pending import/sobhi-cbr-copies-2-2026-10-24/aligned/islam-sobhi/48.json",
+    "reviewer1": 0,
+    "automatic": 29,
+    "provider": "archive",
+    "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/048%20Al-Fath%20%D8%A7%D9%84%D9%81%D8%AA%D8%AD.mp3",
+    "rights": null,
+    "transferred": "islam-sobhi-48 +10550 ms (own alignment within 20 ms)",
+    "openingMs": 10550
+   },
+   "49": {
+    "evidence": "../Working progress/Audio packages pending import/sobhi-cbr-copies-2-2026-10-24/aligned/islam-sobhi/49.json",
+    "reviewer1": 0,
+    "automatic": 18,
+    "provider": "archive",
+    "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/049%20Al-Hujurat%20%D8%A7%D9%84%D8%AD%D8%AC%D8%B1%D8%A7%D8%AA.mp3",
+    "rights": null,
+    "openingMs": 13940
+   },
+   "52": {
+    "evidence": "../Working progress/Audio packages pending import/sobhi-cbr-copies-2-2026-10-24/aligned/islam-sobhi/52.json",
+    "reviewer1": 0,
+    "automatic": 49,
+    "provider": "archive",
+    "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/052%20At-Tur%20%D8%A7%D9%84%D8%B7%D9%88%D8%B1.mp3",
+    "rights": null,
+    "openingMs": 11320
+   },
+   "57": {
+    "evidence": "../Working progress/Audio packages pending import/vbr-cbr-copies-2026-10-24/aligned/islam-sobhi/57.json",
+    "reviewer1": 0,
+    "automatic": 29,
+    "provider": "archive",
+    "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/057%20-%20Al-Hadid.mp3",
+    "rights": null
+   },
+   "62": {
+    "evidence": "../Working progress/Audio packages pending import/vbr-cbr-copies-2026-10-24/aligned/islam-sobhi/62.json",
+    "reviewer1": 0,
+    "automatic": 11,
+    "provider": "archive",
+    "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/062%20-%20Al-Jumua.mp3",
+    "rights": null
+   },
+   "65": {
+    "evidence": "review dashboard islam-sobhi-65-way2quran (phase-4.7)",
+    "reviewer1": 12,
+    "automatic": 0,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/islam-sobhi/hafs-an-asim/065.mp3",
+    "rights": "no permission for app use (permission-required); experimental alignment only (Phase 4.7)"
+   },
+   "72": {
+    "evidence": "../Working progress/Audio packages pending import/vbr-cbr-copies-2026-10-24/aligned/islam-sobhi/72.json",
+    "reviewer1": 0,
+    "automatic": 28,
+    "provider": "archive",
+    "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/072-Al-Jinn.mp3",
+    "rights": null
+   },
+   "95": {
+    "evidence": "../Working progress/Audio packages pending import/vbr-cbr-copies-2026-10-24/aligned/islam-sobhi/95.json",
+    "reviewer1": 0,
+    "automatic": 8,
+    "provider": "archive",
+    "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/095-At-Tin.mp3",
+    "rights": null
+   },
+   "98": {
+    "evidence": "../Working progress/Audio packages pending import/sobhi-cbr-copies-2-2026-10-24/aligned/islam-sobhi/98.json",
+    "reviewer1": 0,
+    "automatic": 8,
+    "provider": "archive",
+    "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/098-Bayyina.mp3",
+    "rights": null
+   },
+   "100": {
+    "evidence": "../Working progress/Audio packages pending import/vbr-cbr-copies-2026-10-24/aligned/islam-sobhi/100.json",
+    "reviewer1": 11,
+    "automatic": 0,
+    "provider": "archive",
+    "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/100-Al-Addiyat.mp3",
+    "rights": null,
+    "transferred": "islam-sobhi-100 +20 ms (own alignment within 11 ms)"
+   },
+   "101": {
+    "evidence": "../Working progress/Audio packages pending import/vbr-cbr-copies-2026-10-24/aligned/islam-sobhi/101.json",
+    "reviewer1": 0,
+    "automatic": 11,
+    "provider": "archive",
+    "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/101-Al-Qaria.mp3",
+    "rights": null
+   },
+   "104": {
+    "evidence": "../Working progress/Audio packages pending import/sobhi-cbr-copies-2-2026-10-24/aligned/islam-sobhi/104.json",
+    "reviewer1": 0,
+    "automatic": 9,
+    "provider": "archive",
+    "url": "https://ia801601.us.archive.org/23/items/islam-sobhi_202405/104%20Al-Humazah%20%D8%A7%D9%84%D9%87%D9%85%D8%B2%D8%A9%20.mp3",
+    "rights": null,
+    "transferred": "islam-sobhi-104 +-270 ms (own alignment within 10 ms)"
+   },
+   "105": {
+    "evidence": "../Working progress/Audio packages pending import/sobhi-cbr-copies-2-2026-10-24/aligned/islam-sobhi/105.json",
+    "reviewer1": 0,
+    "automatic": 5,
+    "provider": "archive",
+    "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/105-Al-Fil.mp3",
+    "rights": null
+   },
+   "106": {
+    "evidence": "../Working progress/Audio packages pending import/sobhi-cbr-copies-2-2026-10-24/aligned/islam-sobhi/106.json",
+    "reviewer1": 0,
+    "automatic": 4,
+    "provider": "archive",
+    "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/106-Quraysh.mp3",
+    "rights": null
+   },
+   "107": {
+    "evidence": "../Working progress/Audio packages pending import/sobhi-cbr-copies-2-2026-10-24/aligned/islam-sobhi/107.json",
+    "reviewer1": 0,
+    "automatic": 7,
+    "provider": "archive",
+    "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/107-Al-Maun.mp3",
+    "rights": null
+   },
+   "110": {
+    "evidence": "../Working progress/Audio packages pending import/sobhi-cbr-copies-2-2026-10-24/aligned/islam-sobhi/110.json",
+    "reviewer1": 0,
+    "automatic": 3,
+    "provider": "archive",
+    "url": "https://ia601405.us.archive.org/26/items/002_20231210_202312/110.mp3",
+    "rights": null,
+    "openingMs": 13580
+   },
+   "111": {
+    "evidence": "../Working progress/Audio packages pending import/sobhi-cbr-copies-2-2026-10-24/aligned/islam-sobhi/111.json",
+    "reviewer1": 0,
+    "automatic": 5,
+    "provider": "archive",
+    "url": "https://ia601405.us.archive.org/26/items/002_20231210_202312/111.mp3",
+    "rights": null,
+    "openingMs": 15340
+   }
+  }
+ },
+ "yasser-salama": {
+  "enabled": [
+   42
+  ],
+  "blocked": {},
+  "how": {
+   "42": {
+    "evidence": "../Working progress/Audio packages pending import/vbr-cbr-copies-2026-10-24/aligned/yasser-salama/42.json",
+    "reviewer1": 0,
+    "automatic": 53,
+    "provider": "archive",
+    "url": "https://ia800401.us.archive.org/7/items/YasserSalama_201801/042.mp3",
+    "rights": null
+   }
+  }
+ },
+ "ajmi": {
+  "enabled": [
+   42
+  ],
+  "blocked": {},
+  "how": {
+   "42": {
+    "evidence": "../Working progress/Audio packages pending import/ajmi-42-cbr-2026-10-24/aligned/ajmi/42.json",
+    "reviewer1": 0,
+    "automatic": 53,
+    "provider": "quranicaudio",
+    "url": "https://download.quranicaudio.com/quran/ahmed_ibn_3ali_al-3ajamy/042.mp3",
+    "rights": null
+   }
+  }
+ },
+ "ahmed-salama": {
+  "enabled": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   22,
+   23,
+   24,
+   25,
+   26,
+   27,
+   28,
+   29,
+   30,
+   31,
+   32,
+   33,
+   34,
+   35,
+   36,
+   37,
+   38,
+   39,
+   40,
+   41,
+   42,
+   43,
+   44,
+   45,
+   46,
+   47,
+   48,
+   49,
+   50,
+   51,
+   52,
+   53,
+   54,
+   55,
+   56,
+   57,
+   58,
+   59,
+   60,
+   61,
+   62,
+   63,
+   64,
+   65,
+   66,
+   67,
+   68,
+   69,
+   70,
+   71,
+   72,
+   73,
+   74,
+   75,
+   76,
+   77,
+   78,
+   79,
+   80,
+   81,
+   82,
+   83,
+   84,
+   85,
+   86,
+   87,
+   88,
+   89,
+   90,
+   91,
+   92,
+   93,
+   94,
+   95,
+   96,
+   97,
+   98,
+   99,
+   100,
+   101,
+   102,
+   103,
+   104,
+   105,
+   106,
+   107,
+   108,
+   109,
+   110,
+   111,
+   112,
+   113,
+   114
+  ],
+  "blocked": {},
+  "how": {
+   "1": {
+    "evidence": "review dashboard ahmed-salama-1-assabile (ahmed-salama)",
+    "reviewer1": 7,
+    "automatic": 0,
+    "provider": "assabile",
+    "url": "https://media.assabile.com/assabile/recitations_7892537823/mp3/ahmed-mohamed-salama/ahmed-mohamed-salama-001-al-fatiha-33592-210.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "2": {
+    "evidence": "review dashboard ahmed-salama-2-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 286,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/002.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "3": {
+    "evidence": "review dashboard ahmed-salama-3-way2quran (ahmed-salama)",
+    "reviewer1": 200,
+    "automatic": 0,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/003.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "4": {
+    "evidence": "review dashboard ahmed-salama-4-assabile (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 176,
+    "provider": "assabile",
+    "url": "https://media.assabile.com/assabile/recitations_7892537823/mp3/ahmed-mohamed-salama/ahmed-mohamed-salama-004-an-nisa-33595-8419.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "5": {
+    "evidence": "review dashboard ahmed-salama-5-assabile (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 120,
+    "provider": "assabile",
+    "url": "https://media.assabile.com/assabile/recitations_7892537823/mp3/ahmed-mohamed-salama/ahmed-mohamed-salama-005-al-mai-dah-33596-8888.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "6": {
+    "evidence": "review dashboard ahmed-salama-6-assabile (ahmed-salama)",
+    "reviewer1": 165,
+    "automatic": 0,
+    "provider": "assabile",
+    "url": "https://media.assabile.com/assabile/recitations_7892537823/mp3/ahmed-mohamed-salama/ahmed-mohamed-salama-006-al-ana-m-33597-4767.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "7": {
+    "evidence": "review dashboard ahmed-salama-7-assabile (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 206,
+    "provider": "assabile",
+    "url": "https://media.assabile.com/assabile/recitations_7892537823/mp3/ahmed-mohamed-salama/ahmed-mohamed-salama-007-al-a-raf-33598-3571.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "8": {
+    "evidence": "review dashboard ahmed-salama-8-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 75,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/008.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "9": {
+    "evidence": "review dashboard ahmed-salama-9-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 129,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/009.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "10": {
+    "evidence": "review dashboard ahmed-salama-10-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 109,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/010.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "11": {
+    "evidence": "review dashboard ahmed-salama-11-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 123,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/011.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "12": {
+    "evidence": "review dashboard ahmed-salama-12-assabile (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 111,
+    "provider": "assabile",
+    "url": "https://media.assabile.com/assabile/recitations_7892537823/mp3/ahmed-mohamed-salama/ahmed-mohamed-salama-012-youssef-33603-1621.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "13": {
+    "evidence": "review dashboard ahmed-salama-13-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 43,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/013.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "14": {
+    "evidence": "review dashboard ahmed-salama-14-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 52,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/014.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "15": {
+    "evidence": "review dashboard ahmed-salama-15-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 99,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/015.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "16": {
+    "evidence": "review dashboard ahmed-salama-16-assabile (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 128,
+    "provider": "assabile",
+    "url": "https://media.assabile.com/assabile/recitations_7892537823/mp3/ahmed-mohamed-salama/ahmed-mohamed-salama-016-an-nahl-33607-4835.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "17": {
+    "evidence": "review dashboard ahmed-salama-17-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 111,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/017.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "18": {
+    "evidence": "review dashboard ahmed-salama-18-assabile (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 110,
+    "provider": "assabile",
+    "url": "https://media.assabile.com/assabile/recitations_7892537823/mp3/ahmed-mohamed-salama/ahmed-mohamed-salama-018-al-kahf-33609-2268.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "19": {
+    "evidence": "review dashboard ahmed-salama-19-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 98,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/019.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "20": {
+    "evidence": "review dashboard ahmed-salama-20-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 135,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/020.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "21": {
+    "evidence": "review dashboard ahmed-salama-21-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 112,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/021.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "22": {
+    "evidence": "review dashboard ahmed-salama-22-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 78,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/022.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "23": {
+    "evidence": "review dashboard ahmed-salama-23-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 118,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/023.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "24": {
+    "evidence": "review dashboard ahmed-salama-24-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 64,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/024.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "25": {
+    "evidence": "review dashboard ahmed-salama-25-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 77,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/025.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "26": {
+    "evidence": "review dashboard ahmed-salama-26-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 227,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/026.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "27": {
+    "evidence": "review dashboard ahmed-salama-27-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 93,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/027.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "28": {
+    "evidence": "review dashboard ahmed-salama-28-assabile (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 88,
+    "provider": "assabile",
+    "url": "https://media.assabile.com/assabile/recitations_7892537823/mp3/ahmed-mohamed-salama/ahmed-mohamed-salama-028-al-qasas-33619-498.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "29": {
+    "evidence": "review dashboard ahmed-salama-29-assabile (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 69,
+    "provider": "assabile",
+    "url": "https://media.assabile.com/assabile/recitations_7892537823/mp3/ahmed-mohamed-salama/ahmed-mohamed-salama-029-al-ankabout-33620-6820.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "30": {
+    "evidence": "review dashboard ahmed-salama-30-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 60,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/030.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "31": {
+    "evidence": "review dashboard ahmed-salama-31-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 34,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/031.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "32": {
+    "evidence": "review dashboard ahmed-salama-32-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 30,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/032.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "33": {
+    "evidence": "review dashboard ahmed-salama-33-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 73,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/033.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "34": {
+    "evidence": "review dashboard ahmed-salama-34-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 54,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/034.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "35": {
+    "evidence": "review dashboard ahmed-salama-35-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 45,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/035.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "36": {
+    "evidence": "review dashboard ahmed-salama-36-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 83,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/036.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "37": {
+    "evidence": "review dashboard ahmed-salama-37-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 182,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/037.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "38": {
+    "evidence": "review dashboard ahmed-salama-38-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 88,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/038.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "39": {
+    "evidence": "review dashboard ahmed-salama-39-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 75,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/039.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "40": {
+    "evidence": "review dashboard ahmed-salama-40-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 85,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/040.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "41": {
+    "evidence": "review dashboard ahmed-salama-41-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 54,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/041.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "42": {
+    "evidence": "review dashboard ahmed-salama-42-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 53,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/042.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "43": {
+    "evidence": "review dashboard ahmed-salama-43-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 89,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/043.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "44": {
+    "evidence": "review dashboard ahmed-salama-44-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 59,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/044.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "45": {
+    "evidence": "review dashboard ahmed-salama-45-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 37,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/045.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "46": {
+    "evidence": "review dashboard ahmed-salama-46-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 35,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/046.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "47": {
+    "evidence": "review dashboard ahmed-salama-47-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 38,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/047.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "48": {
+    "evidence": "review dashboard ahmed-salama-48-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 29,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/048.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "49": {
+    "evidence": "review dashboard ahmed-salama-49-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 18,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/049.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "50": {
+    "evidence": "review dashboard ahmed-salama-50-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 45,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/050.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "51": {
+    "evidence": "review dashboard ahmed-salama-51-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 60,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/051.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "52": {
+    "evidence": "review dashboard ahmed-salama-52-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 49,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/052.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "53": {
+    "evidence": "review dashboard ahmed-salama-53-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 62,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/053.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "54": {
+    "evidence": "review dashboard ahmed-salama-54-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 55,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/054.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "55": {
+    "evidence": "review dashboard ahmed-salama-55-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 78,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/055.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "56": {
+    "evidence": "review dashboard ahmed-salama-56-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 96,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/056.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "57": {
+    "evidence": "review dashboard ahmed-salama-57-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 29,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/057.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "58": {
+    "evidence": "review dashboard ahmed-salama-58-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 22,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/058.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "59": {
+    "evidence": "review dashboard ahmed-salama-59-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 24,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/059.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "60": {
+    "evidence": "review dashboard ahmed-salama-60-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 13,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/060.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "61": {
+    "evidence": "review dashboard ahmed-salama-61-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 14,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/061.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "62": {
+    "evidence": "review dashboard ahmed-salama-62-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 11,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/062.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "63": {
+    "evidence": "review dashboard ahmed-salama-63-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 11,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/063.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "64": {
+    "evidence": "review dashboard ahmed-salama-64-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 18,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/064.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "65": {
+    "evidence": "review dashboard ahmed-salama-65-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 12,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/065.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "66": {
+    "evidence": "review dashboard ahmed-salama-66-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 12,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/066.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "67": {
+    "evidence": "review dashboard ahmed-salama-67-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 30,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/067.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "68": {
+    "evidence": "review dashboard ahmed-salama-68-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 52,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/068.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "69": {
+    "evidence": "review dashboard ahmed-salama-69-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 52,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/069.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "70": {
+    "evidence": "review dashboard ahmed-salama-70-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 44,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/070.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "71": {
+    "evidence": "review dashboard ahmed-salama-71-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 28,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/071.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "72": {
+    "evidence": "review dashboard ahmed-salama-72-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 28,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/072.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "73": {
+    "evidence": "review dashboard ahmed-salama-73-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 20,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/073.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "74": {
+    "evidence": "review dashboard ahmed-salama-74-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 56,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/074.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "75": {
+    "evidence": "review dashboard ahmed-salama-75-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 40,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/075.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "76": {
+    "evidence": "review dashboard ahmed-salama-76-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 31,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/076.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "77": {
+    "evidence": "review dashboard ahmed-salama-77-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 50,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/077.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "78": {
+    "evidence": "review dashboard ahmed-salama-78-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 40,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/078.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "79": {
+    "evidence": "review dashboard ahmed-salama-79-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 46,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/079.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "80": {
+    "evidence": "review dashboard ahmed-salama-80-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 42,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/080.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "81": {
+    "evidence": "review dashboard ahmed-salama-81-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 29,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/081.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "82": {
+    "evidence": "review dashboard ahmed-salama-82-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 19,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/082.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "83": {
+    "evidence": "review dashboard ahmed-salama-83-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 36,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/083.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "84": {
+    "evidence": "review dashboard ahmed-salama-84-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 25,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/084.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "85": {
+    "evidence": "review dashboard ahmed-salama-85-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 22,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/085.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "86": {
+    "evidence": "review dashboard ahmed-salama-86-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 17,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/086.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "87": {
+    "evidence": "review dashboard ahmed-salama-87-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 19,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/087.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "88": {
+    "evidence": "review dashboard ahmed-salama-88-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 26,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/088.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "89": {
+    "evidence": "review dashboard ahmed-salama-89-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 30,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/089.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "90": {
+    "evidence": "review dashboard ahmed-salama-90-way2quran (ahmed-salama)",
+    "reviewer1": 20,
+    "automatic": 0,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/090.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "91": {
+    "evidence": "review dashboard ahmed-salama-91-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 15,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/091.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "92": {
+    "evidence": "review dashboard ahmed-salama-92-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 21,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/092.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "93": {
+    "evidence": "review dashboard ahmed-salama-93-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 11,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/093.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "94": {
+    "evidence": "review dashboard ahmed-salama-94-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 8,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/094.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "95": {
+    "evidence": "review dashboard ahmed-salama-95-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 8,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/095.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "96": {
+    "evidence": "review dashboard ahmed-salama-96-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 19,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/096.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "97": {
+    "evidence": "review dashboard ahmed-salama-97-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 5,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/097.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "98": {
+    "evidence": "review dashboard ahmed-salama-98-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 8,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/098.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "99": {
+    "evidence": "review dashboard ahmed-salama-99-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 8,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/099.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "100": {
+    "evidence": "review dashboard ahmed-salama-100-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 11,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/100.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "101": {
+    "evidence": "review dashboard ahmed-salama-101-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 11,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/101.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "102": {
+    "evidence": "review dashboard ahmed-salama-102-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 8,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/102.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "103": {
+    "evidence": "review dashboard ahmed-salama-103-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 3,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/103.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "104": {
+    "evidence": "review dashboard ahmed-salama-104-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 9,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/104.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "105": {
+    "evidence": "review dashboard ahmed-salama-105-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 5,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/105.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "106": {
+    "evidence": "review dashboard ahmed-salama-106-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 4,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/106.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "107": {
+    "evidence": "review dashboard ahmed-salama-107-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 7,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/107.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "108": {
+    "evidence": "review dashboard ahmed-salama-108-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 3,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/108.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "109": {
+    "evidence": "review dashboard ahmed-salama-109-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 6,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/109.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "110": {
+    "evidence": "review dashboard ahmed-salama-110-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 3,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/110.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "111": {
+    "evidence": "review dashboard ahmed-salama-111-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 5,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/111.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "112": {
+    "evidence": "review dashboard ahmed-salama-112-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 4,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/112.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "113": {
+    "evidence": "review dashboard ahmed-salama-113-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 5,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/113.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   },
+   "114": {
+    "evidence": "review dashboard ahmed-salama-114-way2quran (ahmed-salama)",
+    "reviewer1": 0,
+    "automatic": 6,
+    "provider": "way2quran",
+    "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/114.mp3",
+    "rights": "no permission for app use (not cleared: no source grants use in an app (surah-sources/sources.mjs))."
+   }
+  }
+ }
+}

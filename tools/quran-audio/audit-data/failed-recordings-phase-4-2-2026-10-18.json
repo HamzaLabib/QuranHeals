@@ -1,0 +1,540 @@
+{
+ "checkedOn": "2026-10-18",
+ "phase": "4.2",
+ "about": "Root-cause investigation of the 12 surahs that failed automated validation in Phase 4.1. Evidence only (no audio, no third-party text). docs/audio/failed-recordings-phase-4-2-2026-10-18.md.",
+ "structural": {
+  "yasser-salama:90": {
+   "originalFailure": "structure: a candidate ayah has no length (ayah 13: 52470-52187 ms)",
+   "rootCause": "CONFIRMED shared defect in flag_boundaries.py boundary placement: 90:13 (فك رقبة, ~1.2 s) is shorter than the snapping window; the longest pause in it was the one AFTER the ayah (52240-52700 ms, 460 ms) rather than the one before it (50600-50980 ms, 380 ms), so 13 started at its own end and 14 had no room. Audio: voiced 51.0-52.3 s between those two pauses.",
+   "repair": "boundary rule: a start boundary lies after the previous boundary and before the ayah's own aligned end (flag past-own-end); 90:13 moved 52470 -> 50790 ms (inside 50600-50980, 23 dB below the recitation)",
+   "validation": {
+    "status": "candidate",
+    "why": [],
+    "boundaries": 19,
+    "flagged": 3,
+    "fingerprint": "b720db91",
+    "checks": "flag_boundaries.py 2026-10-18 (Phase 4.1: acoustic depth / reverberation tail, shallow-pause, anchored, extra-audio; Phase 4.2: boundaries kept between the previous boundary and each ayah’s own aligned end)",
+    "ends": {
+     "beforeFirstS": 3.8,
+     "afterLastS": 2.4
+    },
+    "medianScore": 0.527
+   }
+  },
+  "saleh-talib:86": {
+   "originalFailure": "structure: a candidate ayah has no length (ayah 14: 49850-49804 ms)",
+   "rootCause": "CONFIRMED same shared defect, verified independently in this file: 86:14 (إنه لقول فصل, ~1.6 s) snapped to the pause after it (49640-50060 ms, 420 ms) instead of the one before it (47820-48100 ms, 280 ms). Audio: voiced 48.1-49.8 s.",
+   "repair": "same rule; 86:14 moved 49850 -> 47960 ms (inside 47820-48100, 21.6 dB below)",
+   "validation": {
+    "status": "candidate",
+    "why": [],
+    "boundaries": 16,
+    "flagged": 4,
+    "fingerprint": "f8449799",
+    "checks": "flag_boundaries.py 2026-10-18 (Phase 4.1: acoustic depth / reverberation tail, shallow-pause, anchored, extra-audio; Phase 4.2: boundaries kept between the previous boundary and each ayah’s own aligned end)",
+    "ends": {
+     "beforeFirstS": 1.1,
+     "afterLastS": 1.5
+    },
+    "medianScore": 0.566
+   }
+  },
+  "sharedDefectAlsoCorrected": [
+   "banna:69 (2)",
+   "saleh-talib:74 (7)",
+   "saleh-talib:75 (8)",
+   "saleh-talib:80 (9: joined ayahs, no pause; aligned onset used, shallow, flagged)",
+   "yasser-salama:77 (13)",
+   "yasser-salama:89 (2)"
+  ],
+  "regression": "re-flagging all 441 candidates changed exactly these 8 surahs; the 14 reference surahs (554 boundaries) are byte-identical; alignment/test_flag_boundaries.py fails without the rule and passes with it"
+ },
+ "rifaat": {
+  "54": {
+   "originalFailure": "text not confirmed: median character score 0.152 (wrong-text controls 0.17-0.18)",
+   "evidence": {
+    "file": {
+     "kbps": 128,
+     "sampleRateHz": 44100,
+     "mode": "cbr",
+     "durationS": 1701
+    },
+    "alignment": {
+     "medianCharScore": 0.152,
+     "controlsWrongText": [
+      0.17,
+      0.18
+     ],
+     "completeFiles": [
+      0.46,
+      0.58
+     ],
+     "medianMsPerLetter": 381.6,
+     "ayahCoveragePct": 39,
+     "beforeFirstAyahS": 17.7,
+     "afterLastAyahS": 5
+    },
+    "sound": {
+     "bandsDbRe300to1k": {
+      "2-3k": -24,
+      "3-4k": -32,
+      "4-6k": -34
+     },
+     "digitalSilencePct": 38,
+     "digitalSilenceRuns": 200,
+     "shortRunsUnder300ms": 115
+    },
+    "quranAsr": {
+     "model": "tarteel-ai/whisper-base-ar-quran",
+     "expectedSurahRank": 46,
+     "ayahsRecognised": 8,
+     "ayahCount": 55,
+     "recognisedInOrder": false
+    }
+   },
+   "rootCause": "NOT CONFIRMED. Established: two independent recognisers cannot read the file (MMS forced alignment scores at the wrong-text level; a Quran-trained Whisper ranks the expected surah #46 of 114 and recognises 8/55 ayahs). Rejected by experiment (on surah 98 and clean recordings of the same surah): band-limiting to 2 kHz, restoration-style gating, both together, pitch shift, search window length. Observed but not sufficient on its own: 38% digital silence (200 runs), energy above 2 kHz -24 dB.",
+   "contentIndications": "recognised fragments mostly advance through the expected surah, with jumps (weak evidence the content is the expected surah)",
+   "classification": "not repairable automatically: requires a replacement recording (a cleaner transfer of the same Rifaat recording) or timing made by a listener; stays out of the review queue"
+  },
+  "73": {
+   "originalFailure": "text not confirmed: median character score 0.208 (wrong-text controls 0.17-0.18)",
+   "evidence": {
+    "file": {
+     "kbps": 128,
+     "sampleRateHz": 44100,
+     "mode": "cbr",
+     "durationS": 903
+    },
+    "alignment": {
+     "medianCharScore": 0.208,
+     "controlsWrongText": [
+      0.17,
+      0.18
+     ],
+     "completeFiles": [
+      0.46,
+      0.58
+     ],
+     "medianMsPerLetter": 476.5,
+     "ayahCoveragePct": 60,
+     "beforeFirstAyahS": 8.4,
+     "afterLastAyahS": 14.8
+    },
+    "sound": {
+     "bandsDbRe300to1k": {
+      "2-3k": -17,
+      "3-4k": -21,
+      "4-6k": -52
+     },
+     "digitalSilencePct": 38,
+     "digitalSilenceRuns": 38,
+     "shortRunsUnder300ms": 10
+    },
+    "quranAsr": {
+     "model": "tarteel-ai/whisper-base-ar-quran",
+     "expectedSurahRank": 43,
+     "ayahsRecognised": 5,
+     "ayahCount": 20,
+     "recognisedInOrder": false
+    }
+   },
+   "rootCause": "NOT CONFIRMED. Established: two independent recognisers cannot read the file (MMS forced alignment scores at the wrong-text level; a Quran-trained Whisper ranks the expected surah #43 of 114 and recognises 5/20 ayahs). Rejected by experiment (on surah 98 and clean recordings of the same surah): band-limiting to 2 kHz, restoration-style gating, both together, pitch shift, search window length. Observed but not sufficient on its own: 38% digital silence (38 runs), energy above 2 kHz -17 dB.",
+   "contentIndications": "recognised fragments mostly advance through the expected surah, with jumps (weak evidence the content is the expected surah)",
+   "classification": "not repairable automatically: requires a replacement recording (a cleaner transfer of the same Rifaat recording) or timing made by a listener; stays out of the review queue"
+  },
+  "75": {
+   "originalFailure": "text not confirmed: median character score 0.178 (wrong-text controls 0.17-0.18)",
+   "evidence": {
+    "file": {
+     "kbps": 128,
+     "sampleRateHz": 44100,
+     "mode": "cbr",
+     "durationS": 814
+    },
+    "alignment": {
+     "medianCharScore": 0.178,
+     "controlsWrongText": [
+      0.17,
+      0.18
+     ],
+     "completeFiles": [
+      0.46,
+      0.58
+     ],
+     "medianMsPerLetter": 468.7,
+     "ayahCoveragePct": 41,
+     "beforeFirstAyahS": 6.4,
+     "afterLastAyahS": 11.3
+    },
+    "sound": {
+     "bandsDbRe300to1k": {
+      "2-3k": -17,
+      "3-4k": -22,
+      "4-6k": -52
+     },
+     "digitalSilencePct": 41,
+     "digitalSilenceRuns": 33,
+     "shortRunsUnder300ms": 5
+    },
+    "quranAsr": {
+     "model": "tarteel-ai/whisper-base-ar-quran",
+     "expectedSurahRank": 55,
+     "ayahsRecognised": 3,
+     "ayahCount": 40,
+     "recognisedInOrder": true
+    }
+   },
+   "rootCause": "NOT CONFIRMED. Established: two independent recognisers cannot read the file (MMS forced alignment scores at the wrong-text level; a Quran-trained Whisper ranks the expected surah #55 of 114 and recognises 3/40 ayahs). Rejected by experiment (on surah 98 and clean recordings of the same surah): band-limiting to 2 kHz, restoration-style gating, both together, pitch shift, search window length. Observed but not sufficient on its own: 41% digital silence (33 runs), energy above 2 kHz -17 dB.",
+   "contentIndications": "recognised fragments advance through the expected surah (weak evidence the content is the expected surah)",
+   "classification": "not repairable automatically: requires a replacement recording (a cleaner transfer of the same Rifaat recording) or timing made by a listener; stays out of the review queue"
+  },
+  "76": {
+   "originalFailure": "text not confirmed: median character score 0.195 (wrong-text controls 0.17-0.18)",
+   "evidence": {
+    "file": {
+     "kbps": 128,
+     "sampleRateHz": 44100,
+     "mode": "cbr",
+     "durationS": 1402
+    },
+    "alignment": {
+     "medianCharScore": 0.195,
+     "controlsWrongText": [
+      0.17,
+      0.18
+     ],
+     "completeFiles": [
+      0.46,
+      0.58
+     ],
+     "medianMsPerLetter": 529.5,
+     "ayahCoveragePct": 46,
+     "beforeFirstAyahS": 11.6,
+     "afterLastAyahS": 10.4
+    },
+    "sound": {
+     "bandsDbRe300to1k": {
+      "2-3k": -16,
+      "3-4k": -22,
+      "4-6k": -50
+     },
+     "digitalSilencePct": 41,
+     "digitalSilenceRuns": 113,
+     "shortRunsUnder300ms": 74
+    },
+    "quranAsr": {
+     "model": "tarteel-ai/whisper-base-ar-quran",
+     "expectedSurahRank": 49,
+     "ayahsRecognised": 7,
+     "ayahCount": 31,
+     "recognisedInOrder": false
+    }
+   },
+   "rootCause": "NOT CONFIRMED. Established: two independent recognisers cannot read the file (MMS forced alignment scores at the wrong-text level; a Quran-trained Whisper ranks the expected surah #49 of 114 and recognises 7/31 ayahs). Rejected by experiment (on surah 98 and clean recordings of the same surah): band-limiting to 2 kHz, restoration-style gating, both together, pitch shift, search window length. Observed but not sufficient on its own: 41% digital silence (113 runs), energy above 2 kHz -16 dB.",
+   "contentIndications": "recognised fragments mostly advance through the expected surah, with jumps (weak evidence the content is the expected surah)",
+   "classification": "not repairable automatically: requires a replacement recording (a cleaner transfer of the same Rifaat recording) or timing made by a listener; stays out of the review queue"
+  },
+  "79": {
+   "originalFailure": "text not confirmed: median character score 0.201 (wrong-text controls 0.17-0.18)",
+   "evidence": {
+    "file": {
+     "kbps": 128,
+     "sampleRateHz": 44100,
+     "mode": "cbr",
+     "durationS": 836
+    },
+    "alignment": {
+     "medianCharScore": 0.201,
+     "controlsWrongText": [
+      0.17,
+      0.18
+     ],
+     "completeFiles": [
+      0.46,
+      0.58
+     ],
+     "medianMsPerLetter": 467.5,
+     "ayahCoveragePct": 49,
+     "beforeFirstAyahS": 10.3,
+     "afterLastAyahS": 7.2
+    },
+    "sound": {
+     "bandsDbRe300to1k": {
+      "2-3k": -32,
+      "3-4k": -45,
+      "4-6k": -56
+     },
+     "digitalSilencePct": 41,
+     "digitalSilenceRuns": 28,
+     "shortRunsUnder300ms": 3
+    },
+    "quranAsr": {
+     "model": "tarteel-ai/whisper-base-ar-quran",
+     "expectedSurahRank": 65,
+     "ayahsRecognised": 3,
+     "ayahCount": 46,
+     "recognisedInOrder": true
+    }
+   },
+   "rootCause": "NOT CONFIRMED. Established: two independent recognisers cannot read the file (MMS forced alignment scores at the wrong-text level; a Quran-trained Whisper ranks the expected surah #65 of 114 and recognises 3/46 ayahs). Rejected by experiment (on surah 98 and clean recordings of the same surah): band-limiting to 2 kHz, restoration-style gating, both together, pitch shift, search window length. Observed but not sufficient on its own: 41% digital silence (28 runs), energy above 2 kHz -32 dB.",
+   "contentIndications": "recognised fragments advance through the expected surah (weak evidence the content is the expected surah)",
+   "classification": "not repairable automatically: requires a replacement recording (a cleaner transfer of the same Rifaat recording) or timing made by a listener; stays out of the review queue"
+  },
+  "81": {
+   "originalFailure": "text not confirmed: median character score 0.116 (wrong-text controls 0.17-0.18)",
+   "evidence": {
+    "file": {
+     "kbps": 128,
+     "sampleRateHz": 44100,
+     "mode": "cbr",
+     "durationS": 448
+    },
+    "alignment": {
+     "medianCharScore": 0.116,
+     "controlsWrongText": [
+      0.17,
+      0.18
+     ],
+     "completeFiles": [
+      0.46,
+      0.58
+     ],
+     "medianMsPerLetter": 367.4,
+     "ayahCoveragePct": 41,
+     "beforeFirstAyahS": 19.9,
+     "afterLastAyahS": 5.2
+    },
+    "sound": {
+     "bandsDbRe300to1k": {
+      "2-3k": -32,
+      "3-4k": -46,
+      "4-6k": -58
+     },
+     "digitalSilencePct": 35,
+     "digitalSilenceRuns": 22,
+     "shortRunsUnder300ms": 5
+    },
+    "quranAsr": {
+     "model": "tarteel-ai/whisper-base-ar-quran",
+     "expectedSurahRank": 85,
+     "ayahsRecognised": 0,
+     "ayahCount": 29,
+     "recognisedInOrder": true
+    }
+   },
+   "rootCause": "NOT CONFIRMED. Established: two independent recognisers cannot read the file (MMS forced alignment scores at the wrong-text level; a Quran-trained Whisper ranks the expected surah #85 of 114 and recognises 0/29 ayahs). Rejected by experiment (on surah 98 and clean recordings of the same surah): band-limiting to 2 kHz, restoration-style gating, both together, pitch shift, search window length. Observed but not sufficient on its own: 35% digital silence (22 runs), energy above 2 kHz -32 dB.",
+   "contentIndications": "recognised fragments advance through the expected surah (weak evidence the content is the expected surah)",
+   "classification": "not repairable automatically: requires a replacement recording (a cleaner transfer of the same Rifaat recording) or timing made by a listener; stays out of the review queue"
+  },
+  "85": {
+   "originalFailure": "text not confirmed: median character score 0.125 (wrong-text controls 0.17-0.18)",
+   "evidence": {
+    "file": {
+     "kbps": 128,
+     "sampleRateHz": 44100,
+     "mode": "cbr",
+     "durationS": 507
+    },
+    "alignment": {
+     "medianCharScore": 0.125,
+     "controlsWrongText": [
+      0.17,
+      0.18
+     ],
+     "completeFiles": [
+      0.46,
+      0.58
+     ],
+     "medianMsPerLetter": 334.9,
+     "ayahCoveragePct": 45,
+     "beforeFirstAyahS": 13.4,
+     "afterLastAyahS": 3.6
+    },
+    "sound": {
+     "bandsDbRe300to1k": {
+      "2-3k": -34,
+      "3-4k": -71,
+      "4-6k": -63
+     },
+     "digitalSilencePct": 38,
+     "digitalSilenceRuns": 35,
+     "shortRunsUnder300ms": 13
+    },
+    "quranAsr": {
+     "model": "tarteel-ai/whisper-base-ar-quran",
+     "expectedSurahRank": 16,
+     "ayahsRecognised": 4,
+     "ayahCount": 22,
+     "recognisedInOrder": true
+    }
+   },
+   "rootCause": "NOT CONFIRMED. Established: two independent recognisers cannot read the file (MMS forced alignment scores at the wrong-text level; a Quran-trained Whisper ranks the expected surah #16 of 114 and recognises 4/22 ayahs). Rejected by experiment (on surah 98 and clean recordings of the same surah): band-limiting to 2 kHz, restoration-style gating, both together, pitch shift, search window length. Observed but not sufficient on its own: 38% digital silence (35 runs), energy above 2 kHz -34 dB.",
+   "contentIndications": "recognised fragments advance through the expected surah (weak evidence the content is the expected surah)",
+   "classification": "not repairable automatically: requires a replacement recording (a cleaner transfer of the same Rifaat recording) or timing made by a listener; stays out of the review queue"
+  },
+  "89": {
+   "originalFailure": "text not confirmed: median character score 0.188 (wrong-text controls 0.17-0.18)",
+   "evidence": {
+    "file": {
+     "kbps": 128,
+     "sampleRateHz": 44100,
+     "mode": "cbr",
+     "durationS": 726
+    },
+    "alignment": {
+     "medianCharScore": 0.188,
+     "controlsWrongText": [
+      0.17,
+      0.18
+     ],
+     "completeFiles": [
+      0.46,
+      0.58
+     ],
+     "medianMsPerLetter": 373.3,
+     "ayahCoveragePct": 35,
+     "beforeFirstAyahS": 9.9,
+     "afterLastAyahS": 1.3
+    },
+    "sound": {
+     "bandsDbRe300to1k": {
+      "2-3k": -33,
+      "3-4k": -54,
+      "4-6k": -57
+     },
+     "digitalSilencePct": 39,
+     "digitalSilenceRuns": 33,
+     "shortRunsUnder300ms": 13
+    },
+    "quranAsr": {
+     "model": "tarteel-ai/whisper-base-ar-quran",
+     "expectedSurahRank": 49,
+     "ayahsRecognised": 4,
+     "ayahCount": 30,
+     "recognisedInOrder": true
+    }
+   },
+   "rootCause": "NOT CONFIRMED. Established: two independent recognisers cannot read the file (MMS forced alignment scores at the wrong-text level; a Quran-trained Whisper ranks the expected surah #49 of 114 and recognises 4/30 ayahs). Rejected by experiment (on surah 98 and clean recordings of the same surah): band-limiting to 2 kHz, restoration-style gating, both together, pitch shift, search window length. Observed but not sufficient on its own: 39% digital silence (33 runs), energy above 2 kHz -33 dB.",
+   "contentIndications": "recognised fragments advance through the expected surah (weak evidence the content is the expected surah)",
+   "classification": "not repairable automatically: requires a replacement recording (a cleaner transfer of the same Rifaat recording) or timing made by a listener; stays out of the review queue"
+  },
+  "96": {
+   "originalFailure": "text not confirmed: median character score 0.158 (wrong-text controls 0.17-0.18)",
+   "evidence": {
+    "file": {
+     "kbps": 128,
+     "sampleRateHz": 44100,
+     "mode": "cbr",
+     "durationS": 369
+    },
+    "alignment": {
+     "medianCharScore": 0.158,
+     "controlsWrongText": [
+      0.17,
+      0.18
+     ],
+     "completeFiles": [
+      0.46,
+      0.58
+     ],
+     "medianMsPerLetter": 313.1,
+     "ayahCoveragePct": 30,
+     "beforeFirstAyahS": 42.5,
+     "afterLastAyahS": 23.2
+    },
+    "sound": {
+     "bandsDbRe300to1k": {
+      "2-3k": -42,
+      "3-4k": -63,
+      "4-6k": -64
+     },
+     "digitalSilencePct": 34,
+     "digitalSilenceRuns": 22,
+     "shortRunsUnder300ms": 7
+    },
+    "quranAsr": {
+     "model": "tarteel-ai/whisper-base-ar-quran",
+     "expectedSurahRank": 83,
+     "ayahsRecognised": 1,
+     "ayahCount": 19,
+     "recognisedInOrder": true
+    }
+   },
+   "rootCause": "NOT CONFIRMED. Established: two independent recognisers cannot read the file (MMS forced alignment scores at the wrong-text level; a Quran-trained Whisper ranks the expected surah #83 of 114 and recognises 1/19 ayahs). Rejected by experiment (on surah 98 and clean recordings of the same surah): band-limiting to 2 kHz, restoration-style gating, both together, pitch shift, search window length. Observed but not sufficient on its own: 34% digital silence (22 runs), energy above 2 kHz -42 dB.",
+   "contentIndications": "recognised fragments advance through the expected surah (weak evidence the content is the expected surah)",
+   "classification": "not repairable automatically: requires a replacement recording (a cleaner transfer of the same Rifaat recording) or timing made by a listener; stays out of the review queue"
+  },
+  "98": {
+   "originalFailure": "text not confirmed: median character score 0.162 (wrong-text controls 0.17-0.18)",
+   "evidence": {
+    "file": {
+     "kbps": 128,
+     "sampleRateHz": 44100,
+     "mode": "cbr",
+     "durationS": 357
+    },
+    "alignment": {
+     "medianCharScore": 0.162,
+     "controlsWrongText": [
+      0.17,
+      0.18
+     ],
+     "completeFiles": [
+      0.46,
+      0.58
+     ],
+     "medianMsPerLetter": 368.7,
+     "ayahCoveragePct": 53,
+     "beforeFirstAyahS": 17.6,
+     "afterLastAyahS": 6.5
+    },
+    "sound": {
+     "bandsDbRe300to1k": {
+      "2-3k": -48,
+      "3-4k": -69,
+      "4-6k": -68
+     },
+     "digitalSilencePct": 24,
+     "digitalSilenceRuns": 40,
+     "shortRunsUnder300ms": 27
+    },
+    "quranAsr": {
+     "model": "tarteel-ai/whisper-base-ar-quran",
+     "expectedSurahRank": 62,
+     "ayahsRecognised": 2,
+     "ayahCount": 8,
+     "recognisedInOrder": true
+    },
+    "spotting": {
+     "rifaat": [
+      0.206,
+      false
+     ],
+     "rifaatWrongText99": [
+      0.211,
+      false
+     ],
+     "cleanYasserSalama": [
+      0.534,
+      true
+     ],
+     "clean2kHz": [
+      0.525,
+      true
+     ],
+     "cleanGated22pct2kHz": [
+      0.437,
+      true
+     ],
+     "rifaatPitchMinus4": [
+      0.156,
+      false
+     ]
+    }
+   },
+   "rootCause": "NOT CONFIRMED. Established: two independent recognisers cannot read the file (MMS forced alignment scores at the wrong-text level; a Quran-trained Whisper ranks the expected surah #62 of 114 and recognises 2/8 ayahs). Rejected by experiment (on surah 98 and clean recordings of the same surah): band-limiting to 2 kHz, restoration-style gating, both together, pitch shift, search window length. Observed but not sufficient on its own: 24% digital silence (40 runs), energy above 2 kHz -48 dB.",
+   "contentIndications": "recognised fragments advance through the expected surah (weak evidence the content is the expected surah)",
+   "classification": "not repairable automatically: requires a replacement recording (a cleaner transfer of the same Rifaat recording) or timing made by a listener; stays out of the review queue"
+  }
+ }
+}

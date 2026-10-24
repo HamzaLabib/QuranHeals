@@ -1,0 +1,2743 @@
+{
+ "checkedOn": "2026-10-18",
+ "phase": "4.3",
+ "about": "The 32 VBR files blocked in Phase 4.1: why the app cannot seek them, and two validated recoveries. Evidence only; the recovered files stay in local scratch storage (rights: modified copies may not be hosted without permission). docs/audio/vbr-recovery-phase-4-3-2026-10-18.md",
+ "player": "expo-audio 57.0.5: Android androidx.media3 1.9.0 ProgressiveMediaSource with default Mp3Extractor flags (SeekParameters.EXACT); iOS AVPlayer seek(to:) with zero tolerance (not tested).",
+ "method": {
+  "realExtractor": "audit/SeekProbe (scratch): the real media3 1.9.0 Mp3Extractor run on the JVM; error = true start of the first frame kept (label >= target) minus target",
+  "mllt": "audit/vbr_recover.py mllt: ID3v2 MLLT (one reference per audio frame) + TLEN added; all other bytes unchanged",
+  "cbr": "audit/vbr_recover.py cbr: LAME CBR via lameenc 1.7.0, quality 2, bitrate = smallest standard >= max(128, 1.25 x source mean)"
+ },
+ "baselineProductionCbrMs": [
+  0.0,
+  26.1
+ ],
+ "recordings": {
+  "yasser-salama:42": {
+   "url": "https://cdn.mp3quran.net/audio/yasser-salama/r1/042.mp3",
+   "file": {
+    "bytes": 10754249,
+    "durationS": 1048.372,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 8973,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 40133,
+    "audioFrames": 40133,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.99r",
+     "delay": 576,
+     "padding": 576
+    },
+    "kbpsRange": [
+     32,
+     192
+    ],
+    "kbpsMean": 82.0,
+    "distinctBitrates": 11,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 152,
+    "errorRangeMs": [
+     -4278.1,
+     2093.8
+    ],
+    "over50ms": 149
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 55220,
+    "references": 40132,
+    "tlenMs": 1048372,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 152,
+     "errorRangeMs": [
+      -0.2,
+      25.1
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 128,
+    "bytes": 16773955,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99929,
+    "snrDb": 26.0,
+    "worstBlockLevelDiffDb": 0.45,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 113,
+     "errorRangeMs": [
+      0.8,
+      26.1
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     52,
+     52
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "yasser-salama:48": {
+   "url": "https://cdn.mp3quran.net/audio/yasser-salama/r1/048.mp3",
+   "file": {
+    "bytes": 12397403,
+    "durationS": 677.198,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 293,
+    "trailer": [],
+    "seekHeader": "Xing",
+    "xingFrames": 25924,
+    "audioFrames": 25924,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 1614
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 146.4,
+    "distinctBitrates": 14,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 129,
+    "errorRangeMs": [
+     -4025.6,
+     2449.2
+    ],
+    "over50ms": 126
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 35682,
+    "references": 25923,
+    "tlenMs": 677198,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 129,
+     "errorRangeMs": [
+      0.1,
+      25.5
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 192,
+    "bytes": 16252760,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99957,
+    "snrDb": 29.3,
+    "worstBlockLevelDiffDb": 0.28,
+    "extraSamples": 2190,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 89,
+     "errorRangeMs": [
+      0.3,
+      26.1
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     28,
+     28
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "ajmi:42": {
+   "url": "https://cdn.mp3quran.net/audio/ahmad-ajmi/r1/042.mp3",
+   "file": {
+    "bytes": 20026710,
+    "durationS": 999.027,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25669,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 38244,
+    "audioFrames": 38244,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.93",
+     "delay": 576,
+     "padding": 1728
+    },
+    "kbpsRange": [
+     32,
+     192
+    ],
+    "kbpsMean": 160.2,
+    "distinctBitrates": 4,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 152,
+    "errorRangeMs": [
+     -4611.8,
+     1271.4
+    ],
+    "over50ms": 150
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 52622,
+    "references": 38243,
+    "tlenMs": 999027,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 152,
+     "errorRangeMs": [
+      -0.4,
+      25.6
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 224,
+    "bytes": 27972023,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.9988,
+    "snrDb": 31.7,
+    "worstBlockLevelDiffDb": 0.36,
+    "extraSamples": 1152,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 113,
+     "errorRangeMs": [
+      0.2,
+      26.0
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     52,
+     52
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:17": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/017.mp3",
+   "file": {
+    "bytes": 37920330,
+    "durationS": 2041.496,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 512,
+    "trailer": [],
+    "seekHeader": "Xing",
+    "xingFrames": 78151,
+    "audioFrames": 78151,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 1322
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 148.6,
+    "distinctBitrates": 13,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 211,
+    "errorRangeMs": [
+     -8348.4,
+     5352.7
+    ],
+    "over50ms": 210
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 107495,
+    "references": 78150,
+    "tlenMs": 2041496,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 211,
+     "errorRangeMs": [
+      -0.4,
+      25.5
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 192,
+    "bytes": 48995892,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99958,
+    "snrDb": 28.3,
+    "worstBlockLevelDiffDb": 0.3,
+    "extraSamples": 1898,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 171,
+     "errorRangeMs": [
+      0.6,
+      25.9
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     109,
+     110
+    ],
+    "boundaryClassChanges": [
+     [
+      82,
+      "reverb-tail",
+      "shallow",
+      12.0,
+      11.8
+     ]
+    ]
+   }
+  },
+  "islam-sobhi:21": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/021.mp3",
+   "file": {
+    "bytes": 28734345,
+    "durationS": 1425.894,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 453,
+    "trailer": [],
+    "seekHeader": "Xing",
+    "xingFrames": 54585,
+    "audioFrames": 54585,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 1281
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 161.2,
+    "distinctBitrates": 8,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 212,
+    "errorRangeMs": [
+     -5028.2,
+     4978.8
+    ],
+    "over50ms": 206
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 75091,
+    "references": 54584,
+    "tlenMs": 1425894,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 212,
+     "errorRangeMs": [
+      -0.4,
+      25.5
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 224,
+    "bytes": 39925029,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99928,
+    "snrDb": 31.6,
+    "worstBlockLevelDiffDb": 0.2,
+    "extraSamples": 1857,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 172,
+     "errorRangeMs": [
+      0.0,
+      25.9
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     111,
+     111
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:23": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/023.mp3",
+   "file": {
+    "bytes": 28250384,
+    "durationS": 1366.728,
+    "sampleRate": [
+     48000
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25920,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 56947,
+    "audioFrames": 56947,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 1296
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 165.2,
+    "distinctBitrates": 10,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 218,
+    "errorRangeMs": [
+     -6828.0,
+     3594.0
+    ],
+    "over50ms": 215
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 78339,
+    "references": 56946,
+    "tlenMs": 1366728,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 218,
+     "errorRangeMs": [
+      0.0,
+      23.0
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 224,
+    "bytes": 38268384,
+    "delaySamples": 1105,
+    "delayMs": 23.02,
+    "driftSamples": 0,
+    "minCorrelation": 0.99967,
+    "snrDb": 31.2,
+    "worstBlockLevelDiffDb": 0.2,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 178,
+     "errorRangeMs": [
+      0.3,
+      23.4
+     ]
+    },
+    "timestamps": "+23.02 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     117,
+     117
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:24": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/024.mp3",
+   "file": {
+    "bytes": 37858408,
+    "durationS": 1753.92,
+    "sampleRate": [
+     48000
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25928,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 73080,
+    "audioFrames": 73080,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 1151
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 172.6,
+    "distinctBitrates": 10,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 164,
+    "errorRangeMs": [
+     -7441.0,
+     2962.0
+    ],
+    "over50ms": 159
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 100522,
+    "references": 73079,
+    "tlenMs": 1753920,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 164,
+     "errorRangeMs": [
+      0.0,
+      23.0
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 224,
+    "bytes": 49109760,
+    "delaySamples": 1105,
+    "delayMs": 23.02,
+    "driftSamples": 0,
+    "minCorrelation": 0.99857,
+    "snrDb": 30.5,
+    "worstBlockLevelDiffDb": 0.23,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 124,
+     "errorRangeMs": [
+      0.6,
+      23.9
+     ]
+    },
+    "timestamps": "+23.02 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     63,
+     63
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:25": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/025.mp3",
+   "file": {
+    "bytes": 24483474,
+    "durationS": 1055.086,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25676,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 40390,
+    "audioFrames": 40390,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 912
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 185.4,
+    "distinctBitrates": 10,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 177,
+    "errorRangeMs": [
+     -5103.1,
+     1769.4
+    ],
+    "over50ms": 172
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 55573,
+    "references": 40389,
+    "tlenMs": 1055086,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 177,
+     "errorRangeMs": [
+      -0.4,
+      25.5
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 256,
+    "bytes": 33762742,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.9998,
+    "snrDb": 35.3,
+    "worstBlockLevelDiffDb": 0.04,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 137,
+     "errorRangeMs": [
+      0.1,
+      26.1
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     76,
+     76
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:29": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/029.mp3",
+   "file": {
+    "bytes": 25223760,
+    "durationS": 1197.871,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25706,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 45856,
+    "audioFrames": 45856,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 1490
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 168.3,
+    "distinctBitrates": 8,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 169,
+    "errorRangeMs": [
+     -4316.3,
+     2286.9
+    ],
+    "over50ms": 163
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 63089,
+    "references": 45855,
+    "tlenMs": 1197871,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 169,
+     "errorRangeMs": [
+      -0.3,
+      25.3
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 224,
+    "bytes": 33540389,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.9996,
+    "snrDb": 31.1,
+    "worstBlockLevelDiffDb": 0.21,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 129,
+     "errorRangeMs": [
+      0.2,
+      25.8
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     68,
+     68
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:30": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/030.mp3",
+   "file": {
+    "bytes": 21088015,
+    "durationS": 996.362,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25662,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 38142,
+    "audioFrames": 38142,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 1441
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 169.1,
+    "distinctBitrates": 10,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 160,
+    "errorRangeMs": [
+     -4531.6,
+     1342.4
+    ],
+    "over50ms": 160
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 52481,
+    "references": 38141,
+    "tlenMs": 996362,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 160,
+     "errorRangeMs": [
+      -0.3,
+      25.4
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 224,
+    "bytes": 27898149,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99941,
+    "snrDb": 30.9,
+    "worstBlockLevelDiffDb": 0.22,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 120,
+     "errorRangeMs": [
+      0.1,
+      26.0
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     59,
+     59
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:38": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/038.mp3",
+   "file": {
+    "bytes": 21671652,
+    "durationS": 958.694,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25654,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 36700,
+    "audioFrames": 36700,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 986
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 180.6,
+    "distinctBitrates": 11,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 188,
+    "errorRangeMs": [
+     -5091.0,
+     1418.2
+    ],
+    "over50ms": 186
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 50499,
+    "references": 36699,
+    "tlenMs": 958694,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 188,
+     "errorRangeMs": [
+      -0.2,
+      25.6
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 256,
+    "bytes": 30678204,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99975,
+    "snrDb": 36.2,
+    "worstBlockLevelDiffDb": 0.03,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 148,
+     "errorRangeMs": [
+      0.2,
+      26.1
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     87,
+     87
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:47": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/047.mp3",
+   "file": {
+    "bytes": 12757750,
+    "durationS": 617.744,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 410,
+    "trailer": [],
+    "seekHeader": "Xing",
+    "xingFrames": 23648,
+    "audioFrames": 23648,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 1431
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 165.2,
+    "distinctBitrates": 10,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 138,
+    "errorRangeMs": [
+     -2100.0,
+     1048.8
+    ],
+    "over50ms": 135
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 32552,
+    "references": 23647,
+    "tlenMs": 617744,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 138,
+     "errorRangeMs": [
+      -0.4,
+      25.5
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 224,
+    "bytes": 17296823,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99965,
+    "snrDb": 30.9,
+    "worstBlockLevelDiffDb": 0.2,
+    "extraSamples": 2007,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 98,
+     "errorRangeMs": [
+      0.2,
+      25.7
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     37,
+     37
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:48": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/048.mp3",
+   "file": {
+    "bytes": 14058188,
+    "durationS": 671.06,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25694,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 25689,
+    "audioFrames": 25689,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 1006
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 167.3,
+    "distinctBitrates": 10,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 129,
+    "errorRangeMs": [
+     -3396.9,
+     2879.9
+    ],
+    "over50ms": 128
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 35358,
+    "references": 25688,
+    "tlenMs": 671060,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 129,
+     "errorRangeMs": [
+      -0.1,
+      25.6
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 224,
+    "bytes": 18789669,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99937,
+    "snrDb": 30.7,
+    "worstBlockLevelDiffDb": 0.21,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 89,
+     "errorRangeMs": [
+      0.0,
+      26.0
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     28,
+     28
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:49": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/049.mp3",
+   "file": {
+    "bytes": 10526881,
+    "durationS": 477.074,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25678,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 18263,
+    "audioFrames": 18263,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 926
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 176.1,
+    "distinctBitrates": 10,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 118,
+    "errorRangeMs": [
+     -1690.2,
+     958.7
+    ],
+    "over50ms": 111
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 25148,
+    "references": 18262,
+    "tlenMs": 477074,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 118,
+     "errorRangeMs": [
+      -0.0,
+      25.3
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 224,
+    "bytes": 13358080,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99936,
+    "snrDb": 31.1,
+    "worstBlockLevelDiffDb": 0.2,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 78,
+     "errorRangeMs": [
+      0.1,
+      26.0
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     17,
+     17
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:52": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/052.mp3",
+   "file": {
+    "bytes": 7993474,
+    "durationS": 417.576,
+    "sampleRate": [
+     48000
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25658,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 17399,
+    "audioFrames": 17399,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 1063
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 152.6,
+    "distinctBitrates": 11,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 149,
+    "errorRangeMs": [
+     -2602.0,
+     978.0
+    ],
+    "over50ms": 145
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 23960,
+    "references": 17398,
+    "tlenMs": 417576,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 149,
+     "errorRangeMs": [
+      0.0,
+      23.0
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 192,
+    "bytes": 10021824,
+    "delaySamples": 1105,
+    "delayMs": 23.02,
+    "driftSamples": 0,
+    "minCorrelation": 0.99909,
+    "snrDb": 29.3,
+    "worstBlockLevelDiffDb": 0.29,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 109,
+     "errorRangeMs": [
+      0.3,
+      23.8
+     ]
+    },
+    "timestamps": "+23.02 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     47,
+     48
+    ],
+    "boundaryClassChanges": [
+     [
+      5,
+      "shallow",
+      "silence",
+      13.1,
+      13.2
+     ]
+    ]
+   }
+  },
+  "islam-sobhi:57": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/057.mp3",
+   "file": {
+    "bytes": 13726004,
+    "durationS": 685.32,
+    "sampleRate": [
+     48000
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25692,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 28555,
+    "audioFrames": 28555,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 963
+    },
+    "kbpsRange": [
+     40,
+     320
+    ],
+    "kbpsMean": 159.9,
+    "distinctBitrates": 12,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 129,
+    "errorRangeMs": [
+     -2702.0,
+     2483.0
+    ],
+    "over50ms": 125
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 39299,
+    "references": 28554,
+    "tlenMs": 685320,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 129,
+     "errorRangeMs": [
+      0.0,
+      23.0
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 224,
+    "bytes": 19188960,
+    "delaySamples": 1105,
+    "delayMs": 23.02,
+    "driftSamples": 0,
+    "minCorrelation": 0.99954,
+    "snrDb": 32.8,
+    "worstBlockLevelDiffDb": 0.2,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 89,
+     "errorRangeMs": [
+      0.0,
+      23.8
+     ]
+    },
+    "timestamps": "+23.02 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     28,
+     28
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:62": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/062.mp3",
+   "file": {
+    "bytes": 4922407,
+    "durationS": 236.042,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25692,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 9036,
+    "audioFrames": 9036,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 586
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 165.9,
+    "distinctBitrates": 9,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 111,
+    "errorRangeMs": [
+     -948.8,
+     494.9
+    ],
+    "over50ms": 99
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 12461,
+    "references": 9035,
+    "tlenMs": 236042,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 111,
+     "errorRangeMs": [
+      0.3,
+      25.5
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 224,
+    "bytes": 6609189,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99974,
+    "snrDb": 32.4,
+    "worstBlockLevelDiffDb": 0.2,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 71,
+     "errorRangeMs": [
+      0.8,
+      25.5
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     10,
+     10
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:72": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/072.mp3",
+   "file": {
+    "bytes": 5597209,
+    "durationS": 357.198,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25706,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 13674,
+    "audioFrames": 13674,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.98r",
+     "delay": 576,
+     "padding": 1105
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 124.8,
+    "distinctBitrates": 11,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 128,
+    "errorRangeMs": [
+     -1830.0,
+     1044.1
+    ],
+    "over50ms": 119
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 18838,
+    "references": 13673,
+    "tlenMs": 357198,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 128,
+     "errorRangeMs": [
+      -0.4,
+      25.3
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 160,
+    "bytes": 7143967,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99881,
+    "snrDb": 24.5,
+    "worstBlockLevelDiffDb": 0.51,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 88,
+     "errorRangeMs": [
+      0.2,
+      25.7
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     27,
+     27
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:74": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/074.mp3",
+   "file": {
+    "bytes": 7477780,
+    "durationS": 313.469,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25722,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 12000,
+    "audioFrames": 12000,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 1108
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 190.2,
+    "distinctBitrates": 9,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 156,
+    "errorRangeMs": [
+     -914.0,
+     760.4
+    ],
+    "over50ms": 143
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 16536,
+    "references": 11999,
+    "tlenMs": 313469,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 156,
+     "errorRangeMs": [
+      0.3,
+      25.4
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 256,
+    "bytes": 10031020,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99982,
+    "snrDb": 37.4,
+    "worstBlockLevelDiffDb": 0.01,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 116,
+     "errorRangeMs": [
+      1.2,
+      26.1
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     55,
+     55
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:95": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/095.mp3",
+   "file": {
+    "bytes": 1311091,
+    "durationS": 57.704,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25684,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 2209,
+    "audioFrames": 2209,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 1354
+    },
+    "kbpsRange": [
+     40,
+     320
+    ],
+    "kbpsMean": 178.1,
+    "distinctBitrates": 8,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 108,
+    "errorRangeMs": [
+     -206.6,
+     159.8
+    ],
+    "over50ms": 64
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 3072,
+    "references": 2208,
+    "tlenMs": 57704,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 108,
+     "errorRangeMs": [
+      -0.4,
+      25.5
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 224,
+    "bytes": 1615726,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99964,
+    "snrDb": 30.9,
+    "worstBlockLevelDiffDb": 0.2,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 68,
+     "errorRangeMs": [
+      0.2,
+      24.6
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     7,
+     7
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:98": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/098.mp3",
+   "file": {
+    "bytes": 2447825,
+    "durationS": 106.789,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25718,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 4088,
+    "audioFrames": 4088,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 713
+    },
+    "kbpsRange": [
+     128,
+     320
+    ],
+    "kbpsMean": 181.4,
+    "distinctBitrates": 6,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 108,
+    "errorRangeMs": [
+     -379.4,
+     290.3
+    ],
+    "over50ms": 75
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 5657,
+    "references": 4087,
+    "tlenMs": 106789,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 108,
+     "errorRangeMs": [
+      0.3,
+      25.4
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 256,
+    "bytes": 3417234,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99982,
+    "snrDb": 38.0,
+    "worstBlockLevelDiffDb": 0.03,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 68,
+     "errorRangeMs": [
+      0.1,
+      25.1
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     7,
+     7
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:99": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/099.mp3",
+   "file": {
+    "bytes": 1158761,
+    "durationS": 46.263,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25712,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 1771,
+    "audioFrames": 1771,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 1682
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 195.8,
+    "distinctBitrates": 8,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 108,
+    "errorRangeMs": [
+     -222.4,
+     132.9
+    ],
+    "over50ms": 62
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 2470,
+    "references": 1770,
+    "tlenMs": 46263,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 108,
+     "errorRangeMs": [
+      0.8,
+      25.5
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 256,
+    "bytes": 1480411,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99981,
+    "snrDb": 37.3,
+    "worstBlockLevelDiffDb": 0.01,
+    "extraSamples": 2258,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 68,
+     "errorRangeMs": [
+      0.8,
+      26.1
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     7,
+     7
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:100": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/100.mp3",
+   "file": {
+    "bytes": 1234326,
+    "durationS": 50.024,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25712,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 1915,
+    "audioFrames": 1915,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 783
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 193.2,
+    "distinctBitrates": 7,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 111,
+    "errorRangeMs": [
+     -232.3,
+     129.7
+    ],
+    "over50ms": 67
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 2668,
+    "references": 1914,
+    "tlenMs": 50024,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 111,
+     "errorRangeMs": [
+      -0.2,
+      25.6
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 256,
+    "bytes": 1600783,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99975,
+    "snrDb": 37.8,
+    "worstBlockLevelDiffDb": 0.01,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 71,
+     "errorRangeMs": [
+      0.3,
+      25.9
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     10,
+     10
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:101": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/101.mp3",
+   "file": {
+    "bytes": 1135864,
+    "durationS": 47.464,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25716,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 1817,
+    "audioFrames": 1817,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 1661
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 187.0,
+    "distinctBitrates": 8,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 111,
+    "errorRangeMs": [
+     -148.8,
+     140.1
+    ],
+    "over50ms": 41
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 2533,
+    "references": 1816,
+    "tlenMs": 47464,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 111,
+     "errorRangeMs": [
+      -0.1,
+      24.8
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 256,
+    "bytes": 1518863,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99983,
+    "snrDb": 38.6,
+    "worstBlockLevelDiffDb": 0.01,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 71,
+     "errorRangeMs": [
+      0.1,
+      25.7
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     10,
+     10
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:104": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/104.mp3",
+   "file": {
+    "bytes": 1008824,
+    "durationS": 40.49,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25706,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 1550,
+    "audioFrames": 1550,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 801
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 194.1,
+    "distinctBitrates": 8,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 109,
+    "errorRangeMs": [
+     -141.0,
+     317.8
+    ],
+    "over50ms": 44
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 2166,
+    "references": 1549,
+    "tlenMs": 40490,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 109,
+     "errorRangeMs": [
+      -0.2,
+      25.3
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 256,
+    "bytes": 1295673,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99985,
+    "snrDb": 38.0,
+    "worstBlockLevelDiffDb": 0.01,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 69,
+     "errorRangeMs": [
+      0.0,
+      26.0
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     8,
+     8
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:105": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/105.mp3",
+   "file": {
+    "bytes": 699157,
+    "durationS": 32.47,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 441,
+    "trailer": [],
+    "seekHeader": "Xing",
+    "xingFrames": 1243,
+    "audioFrames": 1243,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 1568
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 172.0,
+    "distinctBitrates": 8,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 105,
+    "errorRangeMs": [
+     -126.5,
+     58.0
+    ],
+    "over50ms": 29
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 1744,
+    "references": 1242,
+    "tlenMs": 32470,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 105,
+     "errorRangeMs": [
+      -0.3,
+      25.6
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 224,
+    "bytes": 909166,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.9997,
+    "snrDb": 31.3,
+    "worstBlockLevelDiffDb": 0.19,
+    "extraSamples": 2144,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 65,
+     "errorRangeMs": [
+      0.5,
+      25.6
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     4,
+     4
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:106": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/106.mp3",
+   "file": {
+    "bytes": 653694,
+    "durationS": 26.671,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25684,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 1021,
+    "audioFrames": 1021,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 1108
+    },
+    "kbpsRange": [
+     112,
+     320
+    ],
+    "kbpsMean": 188.2,
+    "distinctBitrates": 7,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 103,
+    "errorRangeMs": [
+     -88.4,
+     84.0
+    ],
+    "over50ms": 18
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 1439,
+    "references": 1020,
+    "tlenMs": 26671,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 103,
+     "errorRangeMs": [
+      -0.2,
+      25.5
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 256,
+    "bytes": 853472,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99983,
+    "snrDb": 37.5,
+    "worstBlockLevelDiffDb": 0.01,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 64,
+     "errorRangeMs": [
+      0.0,
+      25.7
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     3,
+     3
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:107": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/107.mp3",
+   "file": {
+    "bytes": 990821,
+    "durationS": 39.654,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25710,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 1518,
+    "audioFrames": 1518,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 1007
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 194.6,
+    "distinctBitrates": 8,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 106,
+    "errorRangeMs": [
+     -169.2,
+     53.8
+    ],
+    "over50ms": 60
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 2122,
+    "references": 1517,
+    "tlenMs": 39654,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 106,
+     "errorRangeMs": [
+      -0.5,
+      25.4
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 256,
+    "bytes": 1268924,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99974,
+    "snrDb": 37.8,
+    "worstBlockLevelDiffDb": 0.01,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 67,
+     "errorRangeMs": [
+      0.9,
+      26.1
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     6,
+     6
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:108": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/108.mp3",
+   "file": {
+    "bytes": 419131,
+    "durationS": 16.953,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25718,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 649,
+    "audioFrames": 649,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 1405
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 185.4,
+    "distinctBitrates": 7,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 103,
+    "errorRangeMs": [
+     -72.0,
+     26.1
+    ],
+    "over50ms": 11
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 927,
+    "references": 648,
+    "tlenMs": 16953,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 103,
+     "errorRangeMs": [
+      -0.4,
+      25.5
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 256,
+    "bytes": 542511,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99975,
+    "snrDb": 37.5,
+    "worstBlockLevelDiffDb": 0.0,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 63,
+     "errorRangeMs": [
+      0.8,
+      25.7
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     2,
+     2
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:109": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/109.mp3",
+   "file": {
+    "bytes": 1063866,
+    "durationS": 41.535,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25718,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 1590,
+    "audioFrames": 1590,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 1265
+    },
+    "kbpsRange": [
+     56,
+     320
+    ],
+    "kbpsMean": 199.9,
+    "distinctBitrates": 7,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 105,
+    "errorRangeMs": [
+     -186.1,
+     63.3
+    ],
+    "over50ms": 60
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 2221,
+    "references": 1589,
+    "tlenMs": 41535,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 105,
+     "errorRangeMs": [
+      -0.5,
+      25.5
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 256,
+    "bytes": 1329110,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99989,
+    "snrDb": 39.0,
+    "worstBlockLevelDiffDb": 0.01,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 66,
+     "errorRangeMs": [
+      0.6,
+      26.1
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     5,
+     5
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:110": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/110.mp3",
+   "file": {
+    "bytes": 577448,
+    "durationS": 23.484,
+    "sampleRate": [
+     44100
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25688,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 899,
+    "audioFrames": 899,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 1540
+    },
+    "kbpsRange": [
+     32,
+     320
+    ],
+    "kbpsMean": 187.8,
+    "distinctBitrates": 7,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 103,
+    "errorRangeMs": [
+     -114.9,
+     58.6
+    ],
+    "over50ms": 33
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 1271,
+    "references": 898,
+    "tlenMs": 23484,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 103,
+     "errorRangeMs": [
+      -0.5,
+      25.5
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 256,
+    "bytes": 751490,
+    "delaySamples": 1105,
+    "delayMs": 25.06,
+    "driftSamples": 0,
+    "minCorrelation": 0.99981,
+    "snrDb": 36.9,
+    "worstBlockLevelDiffDb": 0.01,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 63,
+     "errorRangeMs": [
+      0.4,
+      26.0
+     ]
+    },
+    "timestamps": "+25.06 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     2,
+     2
+    ],
+    "boundaryClassChanges": []
+   }
+  },
+  "islam-sobhi:111": {
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/111.mp3",
+   "file": {
+    "bytes": 624726,
+    "durationS": 26.712,
+    "sampleRate": [
+     48000
+    ],
+    "channels": [
+     "stereo"
+    ],
+    "id3v2Bytes": 25702,
+    "trailer": [
+     "ID3v1"
+    ],
+    "seekHeader": "Xing",
+    "xingFrames": 1113,
+    "audioFrames": 1113,
+    "xingToc": true,
+    "encoder": {
+     "encoder": "LAME3.100",
+     "delay": 576,
+     "padding": 1332
+    },
+    "kbpsRange": [
+     80,
+     320
+    ],
+    "kbpsMean": 179.2,
+    "distinctBitrates": 8,
+    "problems": []
+   },
+   "originalSeek": {
+    "seeker": "XingSeeker",
+    "targets": 105,
+    "errorRangeMs": [
+     -119.0,
+     64.0
+    ],
+    "over50ms": 15
+   },
+   "mllt": {
+    "audioFramesIdentical": true,
+    "xingLameFrameKept": true,
+    "decodedPcmIdentical": true,
+    "addedBytes": 1565,
+    "references": 1112,
+    "tlenMs": 26712,
+    "seek": {
+     "seeker": "MlltSeeker",
+     "targets": 105,
+     "errorRangeMs": [
+      0.0,
+      23.0
+     ],
+     "over50ms": 0
+    },
+    "timestamps": "unchanged (identical decoded audio)"
+   },
+   "cbr": {
+    "kbps": 224,
+    "bytes": 747936,
+    "delaySamples": 1105,
+    "delayMs": 23.02,
+    "driftSamples": 0,
+    "minCorrelation": 0.99884,
+    "snrDb": 32.4,
+    "worstBlockLevelDiffDb": 0.18,
+    "extraSamples": 2257,
+    "seek": {
+     "seeker": "ConstantBitrateSeeker",
+     "targets": 65,
+     "errorRangeMs": [
+      0.5,
+      23.8
+     ]
+    },
+    "timestamps": "+23.02 ms (measured constant encoder+decoder delay)",
+    "boundaryClassesKept": [
+     4,
+     4
+    ],
+    "boundaryClassChanges": []
+   }
+  }
+ }
+}

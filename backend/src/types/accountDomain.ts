@@ -177,10 +177,23 @@ export const ISSUE_REPORT_CATEGORIES = [
   'quran_text_display',
   'translation_issue',
   'app_technical_issue',
+  'audio_issue',
   'other',
 ] as const;
 
 export type IssueReportCategory = (typeof ISSUE_REPORT_CATEGORIES)[number];
+
+/** An Audio Issue's kind of problem (category 'audio_issue' only). */
+export const AUDIO_ISSUE_PROBLEMS = [
+  'not_playing',
+  'wrong_reciter',
+  'missing_ayah',
+  'timing_highlight',
+  'stopped',
+  'other',
+] as const;
+
+export type AudioIssueProblem = (typeof AUDIO_ISSUE_PROBLEMS)[number];
 
 /**
  * One reporting system, two kinds of submission: 'issue' (a problem, with a
@@ -213,6 +226,11 @@ export type IssueReportEntity = {
   verseKey?: string;
   surahNumber?: number;
   ayahNumber?: number;
+  /** Audio Issues only: what went wrong, and the recording's context as the app knew it (no personal data). */
+  audioProblem?: AudioIssueProblem;
+  reciterId?: string;
+  audioSource?: string;
+  playbackContext?: string;
   appLocale?: string;
   translationDisplayMode?: TranslationDisplayMode;
   appVersion?: string;

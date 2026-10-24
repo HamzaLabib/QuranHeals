@@ -1,0 +1,586 @@
+{
+ "checkedOn": "2026-10-18",
+ "phase": "4.4",
+ "about": "Cross-platform VBR seeking experiments. docs/audio/vbr-cross-platform-phase-4-4-2026-10-18.md",
+ "versions": {
+  "expo": "57.0.29",
+  "expo-audio": "57.0.5",
+  "react-native": "0.86.3",
+  "media3": "1.9.0"
+ },
+ "experiments": {
+  "E1_media3Flags": "Real Mp3Extractor (JVM), islam-sobhi 17, flags 0,1,2,4,5,7 (CBR seeking, CBR always, index seeking): XingSeeker in every case, identical seek points; index seeking only applies to unseekable seekers (Mp3Extractor.computeSeeker).",
+  "E2_virtualMlltStream": {
+   "method": "in-memory rebuilt ID3 tag (original tag + MLLT + TLEN) followed by the UNMODIFIED original bytes; real Mp3Extractor (JVM)",
+   "byteIdenticalToPhase43Copy": "32/32",
+   "seeker": "MlltSeeker 32/32",
+   "targets": 4379,
+   "errorRangeMs": [
+    -0.5,
+    25.6
+   ],
+   "mlltPayloadKB": {
+    "total": 937,
+    "max": 105
+   }
+  },
+  "E3_emulatorPlayback": {
+   "device": "Android 17 emulator (AVD Error), local debug dev client: expo-audio 57.0.5 / media3 1.9.0, app seekTo(t,0,0) as mobile/src/audio/expoOutput.ts",
+   "method": "temporary isolated screen (removed); host WASAPI loopback capture of the emulator output; each burst matched to the decoded source; end-of-burst method (player-reported position at pause vs source position of the cut, clock-free) minus each run's unseeked baseline; start method (logged play time + calibrated latency) where reliable. Resolution about +-20-40 ms.",
+   "originalsStreamedFrom": "cdn.mp3quran.net (unchanged URLs)",
+   "runs": {
+    "cbr_islam-sobhi_17": {
+     "file": "islam-sobhi:17",
+     "variant": "cbr",
+     "baselineAssumed": false,
+     "rows": [
+      {
+       "ayah": 1,
+       "targetMs": 14270,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": 17.6,
+       "measuredStartMethodMs": 9.7
+      },
+      {
+       "ayah": 2,
+       "targetMs": 35110,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": -0.5,
+       "measuredStartMethodMs": 20.8
+      },
+      {
+       "ayah": 50,
+       "targetMs": 904090,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": 15.3,
+       "measuredStartMethodMs": -5.3
+      },
+      {
+       "ayah": 56,
+       "targetMs": 1001830,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": 9.5,
+       "measuredStartMethodMs": 10.6
+      },
+      {
+       "ayah": 106,
+       "targetMs": 1936650,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": 0.6,
+       "measuredStartMethodMs": 17.2
+      },
+      {
+       "ayah": 4,
+       "targetMs": 61782,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": -1.1,
+       "measuredStartMethodMs": 7.1
+      },
+      {
+       "ayah": 110,
+       "targetMs": 1991540,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": -2.7,
+       "measuredStartMethodMs": 20.5
+      },
+      {
+       "ayah": 111,
+       "targetMs": 2016630,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": 10.7,
+       "measuredStartMethodMs": 20.1
+      },
+      {
+       "ayah": "random",
+       "targetMs": 1064286,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": -5.0,
+       "measuredStartMethodMs": 22.0
+      }
+     ]
+    },
+    "cbr_islam-sobhi_74": {
+     "file": "islam-sobhi:74",
+     "variant": "cbr",
+     "baselineAssumed": false,
+     "rows": [
+      {
+       "ayah": 1,
+       "targetMs": 3582,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": 27.8,
+       "measuredStartMethodMs": 28.4
+      },
+      {
+       "ayah": 2,
+       "targetMs": 8370,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": 25.9,
+       "measuredStartMethodMs": 19.4
+      },
+      {
+       "ayah": 5,
+       "targetMs": 15570,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": 16.5,
+       "measuredStartMethodMs": 6.8
+      },
+      {
+       "ayah": 29,
+       "targetMs": 109790,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": 24.6,
+       "measuredStartMethodMs": 14.1
+      },
+      {
+       "ayah": 55,
+       "targetMs": 291470,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": 26.0,
+       "measuredStartMethodMs": 2.8
+      },
+      {
+       "ayah": 56,
+       "targetMs": 296430,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": 17.3,
+       "measuredStartMethodMs": 11.7
+      },
+      {
+       "ayah": "random",
+       "targetMs": 247871,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": 18.4,
+       "measuredStartMethodMs": -6.3
+      }
+     ]
+    },
+    "cbr_yasser-salama_42": {
+     "file": "yasser-salama:42",
+     "variant": "cbr",
+     "baselineAssumed": true,
+     "rows": [
+      {
+       "ayah": 1,
+       "targetMs": 6164,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": null,
+       "measuredStartMethodMs": 2.9
+      },
+      {
+       "ayah": 2,
+       "targetMs": 11610,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": 22.1,
+       "measuredStartMethodMs": 28.2
+      },
+      {
+       "ayah": 32,
+       "targetMs": 646140,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": 20.1,
+       "measuredStartMethodMs": 36.6
+      },
+      {
+       "ayah": 27,
+       "targetMs": 565480,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": 8.4,
+       "measuredStartMethodMs": 20.5
+      },
+      {
+       "ayah": 53,
+       "targetMs": 1032440,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": 24.6,
+       "measuredStartMethodMs": 31.4
+      },
+      {
+       "ayah": 52,
+       "targetMs": 1002750,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": 17.9,
+       "measuredStartMethodMs": 19.1
+      },
+      {
+       "ayah": "random",
+       "targetMs": 661959,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": 26.1,
+       "measuredStartMethodMs": 6.4
+      }
+     ]
+    },
+    "mllt_islam-sobhi_17": {
+     "file": "islam-sobhi:17",
+     "variant": "mllt",
+     "baselineAssumed": false,
+     "rows": [
+      {
+       "ayah": 1,
+       "targetMs": 14270,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": -14.2,
+       "measuredStartMethodMs": 6.9
+      },
+      {
+       "ayah": 2,
+       "targetMs": 35110,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": -14.3,
+       "measuredStartMethodMs": 5.6
+      },
+      {
+       "ayah": 50,
+       "targetMs": 904090,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": -15.2,
+       "measuredStartMethodMs": -24.8
+      },
+      {
+       "ayah": 56,
+       "targetMs": 1001830,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": -25.3,
+       "measuredStartMethodMs": -7.2
+      },
+      {
+       "ayah": 106,
+       "targetMs": 1936650,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": -24.2,
+       "measuredStartMethodMs": -9.0
+      },
+      {
+       "ayah": 4,
+       "targetMs": 61782,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": -25.9,
+       "measuredStartMethodMs": -0.4
+      },
+      {
+       "ayah": 110,
+       "targetMs": 1991540,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": -32.0,
+       "measuredStartMethodMs": -13.4
+      },
+      {
+       "ayah": 111,
+       "targetMs": 2016630,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": -17.0,
+       "measuredStartMethodMs": 8.0
+      },
+      {
+       "ayah": "random",
+       "targetMs": 1064286,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": -35.3,
+       "measuredStartMethodMs": 4.8
+      }
+     ]
+    },
+    "mllt_islam-sobhi_74": {
+     "file": "islam-sobhi:74",
+     "variant": "mllt",
+     "baselineAssumed": false,
+     "rows": [
+      {
+       "ayah": 1,
+       "targetMs": 3582,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": null,
+       "measuredStartMethodMs": null
+      },
+      {
+       "ayah": 2,
+       "targetMs": 8370,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": null,
+       "measuredStartMethodMs": null
+      },
+      {
+       "ayah": 5,
+       "targetMs": 15570,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": null,
+       "measuredStartMethodMs": null
+      },
+      {
+       "ayah": 29,
+       "targetMs": 109790,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": null,
+       "measuredStartMethodMs": null
+      },
+      {
+       "ayah": 55,
+       "targetMs": 291470,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": null,
+       "measuredStartMethodMs": null
+      },
+      {
+       "ayah": 56,
+       "targetMs": 296430,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": 12.4,
+       "measuredStartMethodMs": null
+      },
+      {
+       "ayah": "random",
+       "targetMs": 247871,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": null,
+       "measuredStartMethodMs": null
+      }
+     ]
+    },
+    "mllt_yasser-salama_42": {
+     "file": "yasser-salama:42",
+     "variant": "mllt",
+     "baselineAssumed": true,
+     "rows": [
+      {
+       "ayah": 1,
+       "targetMs": 6164,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": null,
+       "measuredStartMethodMs": -26.3
+      },
+      {
+       "ayah": 2,
+       "targetMs": 11610,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": 1.2,
+       "measuredStartMethodMs": -11.7
+      },
+      {
+       "ayah": 32,
+       "targetMs": 646140,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": 0.9,
+       "measuredStartMethodMs": -3.0
+      },
+      {
+       "ayah": 27,
+       "targetMs": 565480,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": -13.2,
+       "measuredStartMethodMs": -10.5
+      },
+      {
+       "ayah": 53,
+       "targetMs": 1032440,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": -9.1,
+       "measuredStartMethodMs": -7.6
+      },
+      {
+       "ayah": 52,
+       "targetMs": 1002750,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": -8.5,
+       "measuredStartMethodMs": 3.9
+      },
+      {
+       "ayah": "random",
+       "targetMs": 661959,
+       "extractorPredictedMs": null,
+       "measuredEndMethodMs": -4.9,
+       "measuredStartMethodMs": -16.5
+      }
+     ]
+    },
+    "orig_islam-sobhi_17": {
+     "file": "islam-sobhi:17",
+     "variant": "orig",
+     "baselineAssumed": false,
+     "rows": [
+      {
+       "ayah": 1,
+       "targetMs": 14270,
+       "extractorPredictedMs": 3075,
+       "measuredEndMethodMs": -5.7,
+       "measuredStartMethodMs": null
+      },
+      {
+       "ayah": 2,
+       "targetMs": 35110,
+       "extractorPredictedMs": 1697,
+       "measuredEndMethodMs": null,
+       "measuredStartMethodMs": null
+      },
+      {
+       "ayah": 50,
+       "targetMs": 904090,
+       "extractorPredictedMs": -1089,
+       "measuredEndMethodMs": null,
+       "measuredStartMethodMs": null
+      },
+      {
+       "ayah": 56,
+       "targetMs": 1001830,
+       "extractorPredictedMs": -2490,
+       "measuredEndMethodMs": -2513.2,
+       "measuredStartMethodMs": -2573.6
+      },
+      {
+       "ayah": 106,
+       "targetMs": 1936650,
+       "extractorPredictedMs": -6985,
+       "measuredEndMethodMs": -6999.8,
+       "measuredStartMethodMs": -7064.4
+      },
+      {
+       "ayah": 4,
+       "targetMs": 61782,
+       "extractorPredictedMs": 5353,
+       "measuredEndMethodMs": 5328.1,
+       "measuredStartMethodMs": 5268.8
+      },
+      {
+       "ayah": 110,
+       "targetMs": 1991540,
+       "extractorPredictedMs": -4614,
+       "measuredEndMethodMs": -4659.0,
+       "measuredStartMethodMs": -4687.3
+      },
+      {
+       "ayah": 111,
+       "targetMs": 2016630,
+       "extractorPredictedMs": -4392,
+       "measuredEndMethodMs": -4644.9,
+       "measuredStartMethodMs": -4694.3
+      },
+      {
+       "ayah": "random",
+       "targetMs": 1064286,
+       "extractorPredictedMs": -1207,
+       "measuredEndMethodMs": -1258.5,
+       "measuredStartMethodMs": -1277.4
+      }
+     ]
+    },
+    "orig_islam-sobhi_74": {
+     "file": "islam-sobhi:74",
+     "variant": "orig",
+     "baselineAssumed": false,
+     "rows": [
+      {
+       "ayah": 1,
+       "targetMs": 3582,
+       "extractorPredictedMs": -578,
+       "measuredEndMethodMs": 9.2,
+       "measuredStartMethodMs": 35.8
+      },
+      {
+       "ayah": 2,
+       "targetMs": 8370,
+       "extractorPredictedMs": -141,
+       "measuredEndMethodMs": 5.0,
+       "measuredStartMethodMs": -10.4
+      },
+      {
+       "ayah": 5,
+       "targetMs": 15570,
+       "extractorPredictedMs": -341,
+       "measuredEndMethodMs": 15.0,
+       "measuredStartMethodMs": 41.0
+      },
+      {
+       "ayah": 29,
+       "targetMs": 109790,
+       "extractorPredictedMs": -598,
+       "measuredEndMethodMs": -614.0,
+       "measuredStartMethodMs": -597.2
+      },
+      {
+       "ayah": 55,
+       "targetMs": 291470,
+       "extractorPredictedMs": -910,
+       "measuredEndMethodMs": -916.8,
+       "measuredStartMethodMs": -887.4
+      },
+      {
+       "ayah": 56,
+       "targetMs": 296430,
+       "extractorPredictedMs": 426,
+       "measuredEndMethodMs": -906.1,
+       "measuredStartMethodMs": -902.2
+      },
+      {
+       "ayah": "random",
+       "targetMs": 247871,
+       "extractorPredictedMs": -544,
+       "measuredEndMethodMs": -556.5,
+       "measuredStartMethodMs": -539.0
+      }
+     ]
+    },
+    "orig_yasser-salama_42": {
+     "file": "yasser-salama:42",
+     "variant": "orig",
+     "baselineAssumed": true,
+     "rows": [
+      {
+       "ayah": 1,
+       "targetMs": 6164,
+       "extractorPredictedMs": -417,
+       "measuredEndMethodMs": null,
+       "measuredStartMethodMs": -11.3
+      },
+      {
+       "ayah": 2,
+       "targetMs": 11610,
+       "extractorPredictedMs": -1030,
+       "measuredEndMethodMs": -10.1,
+       "measuredStartMethodMs": 14.3
+      },
+      {
+       "ayah": 32,
+       "targetMs": 646140,
+       "extractorPredictedMs": -654,
+       "measuredEndMethodMs": -666.4,
+       "measuredStartMethodMs": -673.2
+      },
+      {
+       "ayah": 27,
+       "targetMs": 565480,
+       "extractorPredictedMs": 1926,
+       "measuredEndMethodMs": 1912.8,
+       "measuredStartMethodMs": 1901.8
+      },
+      {
+       "ayah": 53,
+       "targetMs": 1032440,
+       "extractorPredictedMs": -4078,
+       "measuredEndMethodMs": -4087.4,
+       "measuredStartMethodMs": -4070.7
+      },
+      {
+       "ayah": 52,
+       "targetMs": 1002750,
+       "extractorPredictedMs": -902,
+       "measuredEndMethodMs": -913.6,
+       "measuredStartMethodMs": -919.0
+      },
+      {
+       "ayah": "random",
+       "targetMs": 661959,
+       "extractorPredictedMs": -695,
+       "measuredEndMethodMs": -715.8,
+       "measuredStartMethodMs": -713.9
+      }
+     ]
+    }
+   }
+  },
+  "E4_hlsByteRange": {
+   "method": "HLS media playlists (6 s byte-range segments of the unmodified MP3, exact EXTINF) on MP3Quran URLs and on local copies; same emulator lab",
+   "result": "not viable: playback stalled after 15/24 bursts and produced almost no audio (11/254 and 12/274 captured seconds audible) with both remote and local segments; root cause not established (media3 packed-audio MP3 segments without ID3 PRIV timestamps); RFC 8216 requires those timestamps, so iOS compliance is also doubtful"
+  },
+  "iOS": "no macOS/iOS device available: not tested. Source: expo-audio creates AVURLAsset(url, options: [AVURLAssetHTTPHeaderFieldsKey]) only - AVURLAssetPreferPreciseDurationAndTimingKey is not set (default false) - and seeks with zero tolerance."
+ }
+}

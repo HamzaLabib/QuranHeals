@@ -1,0 +1,7121 @@
+{
+ "1": {
+  "durationS": 219.4,
+  "candidates": [
+   "01_fatha_alktab_-_swt_alkahra.MP3",
+   "01_fatha_alktab_-_swt_alkahra.MP3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "01_fatha_alktab_-_swt_alkahra.MP3",
+    "score": 0.63,
+    "at": 72.16
+   },
+   {
+    "t": 40.0,
+    "file": "01_fatha_alktab_-_swt_alkahra.MP3",
+    "score": 0.852,
+    "at": 54.62
+   },
+   {
+    "t": 80.0,
+    "file": "01_fatha_alktab_-_swt_alkahra.MP3",
+    "score": 0.745,
+    "at": 33.24
+   },
+   {
+    "t": 120.0,
+    "file": "01_fatha_alktab_-_swt_alkahra.MP3",
+    "score": 0.762,
+    "at": 117.84
+   },
+   {
+    "t": 160.0,
+    "file": "01_fatha_alktab_-_swt_alkahra.MP3",
+    "score": 0.43,
+    "at": 165.34
+   }
+  ]
+ },
+ "98": {
+  "durationS": 357.4,
+  "candidates": [
+   "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+   "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.509,
+    "at": 1995.3
+   },
+   {
+    "t": 40.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.753,
+    "at": 1727.98
+   },
+   {
+    "t": 80.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.449,
+    "at": 793.32
+   },
+   {
+    "t": 120.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.659,
+    "at": 1722.42
+   },
+   {
+    "t": 160.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.693,
+    "at": 1771.84
+   },
+   {
+    "t": 200.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.769,
+    "at": 928.02
+   },
+   {
+    "t": 240.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.716,
+    "at": 1723.18
+   },
+   {
+    "t": 280.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.663,
+    "at": 1719.0
+   },
+   {
+    "t": 320.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.479,
+    "at": 1114.62
+   }
+  ]
+ },
+ "100": {
+  "durationS": 278.4,
+  "candidates": [
+   "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+   "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.575,
+    "at": 1308.02
+   },
+   {
+    "t": 40.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.518,
+    "at": 1357.2
+   },
+   {
+    "t": 80.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.584,
+    "at": 2165.06
+   },
+   {
+    "t": 120.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.654,
+    "at": 1461.74
+   },
+   {
+    "t": 160.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.754,
+    "at": 1737.88
+   },
+   {
+    "t": 200.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.612,
+    "at": 2167.14
+   },
+   {
+    "t": 240.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.449,
+    "at": 1123.7
+   }
+  ]
+ },
+ "86": {
+  "durationS": 296.0,
+  "candidates": [
+   "86-1_altark_walbld_-tlawa_awle-_nskha_alaza3a.mp3",
+   "86-1_altark_walbld_-tlawa_awle-_nskha_alaza3a.mp3",
+   "86-2_altark_walbld_-mbtwra_awlha-tlawa_sanea_mkhtlfa.mp3",
+   "86-2_altark_walbld_-mbtwra_awlha-tlawa_sanea_mkhtlfa.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "86-1_altark_walbld_-tlawa_awle-_nskha_alaza3a.mp3",
+    "score": 0.685,
+    "at": 451.46
+   },
+   {
+    "t": 40.0,
+    "file": "86-1_altark_walbld_-tlawa_awle-_nskha_alaza3a.mp3",
+    "score": 0.878,
+    "at": 35.88
+   },
+   {
+    "t": 80.0,
+    "file": "86-1_altark_walbld_-tlawa_awle-_nskha_alaza3a.mp3",
+    "score": 0.462,
+    "at": 596.56
+   },
+   {
+    "t": 120.0,
+    "file": "86-1_altark_walbld_-tlawa_awle-_nskha_alaza3a.mp3",
+    "score": 0.874,
+    "at": 98.46
+   },
+   {
+    "t": 160.0,
+    "file": "86-1_altark_walbld_-tlawa_awle-_nskha_alaza3a.mp3",
+    "score": 0.626,
+    "at": 595.38
+   },
+   {
+    "t": 200.0,
+    "file": "86-1_altark_walbld_-tlawa_awle-_nskha_alaza3a.mp3",
+    "score": 0.865,
+    "at": 351.1
+   },
+   {
+    "t": 240.0,
+    "file": "86-1_altark_walbld_-tlawa_awle-_nskha_alaza3a.mp3",
+    "score": 0.847,
+    "at": 285.9
+   }
+  ]
+ },
+ "96": {
+  "durationS": 369.2,
+  "candidates": [
+   "73-1_almzml1-20_aldhe_alshrh_alten_wal3lk.mp3",
+   "73-1_almzml1-20_aldhe_alshrh_alten_wal3lk.mp3",
+   "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+   "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.6,
+    "at": 2095.16
+   },
+   {
+    "t": 40.0,
+    "file": "73-1_almzml1-20_aldhe_alshrh_alten_wal3lk.mp3",
+    "score": 0.548,
+    "at": 19.82
+   },
+   {
+    "t": 80.0,
+    "file": "73-1_almzml1-20_aldhe_alshrh_alten_wal3lk.mp3",
+    "score": 0.743,
+    "at": 880.94
+   },
+   {
+    "t": 120.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.763,
+    "at": 980.98
+   },
+   {
+    "t": 160.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.759,
+    "at": 1604.52
+   },
+   {
+    "t": 200.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.461,
+    "at": 257.86
+   },
+   {
+    "t": 240.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.366,
+    "at": 305.66
+   },
+   {
+    "t": 280.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.755,
+    "at": 1737.96
+   },
+   {
+    "t": 320.0,
+    "file": "96-1_al3lk-kdr-bena-zlzla-3adeat-kar3a-tkaear-hmza-fel-kresh-_nskha_swt_alkahra.mp3",
+    "score": 0.648,
+    "at": 1719.84
+   }
+  ]
+ },
+ "77": {
+  "durationS": 372.7,
+  "candidates": [
+   "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+   "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+   "75-1_alkeama_1-40_walansan_1-31_walmrslat_1-23_nskha_alaza3a.mp3",
+   "75-1_alkeama_1-40_walansan_1-31_walmrslat_1-23_nskha_alaza3a.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.697,
+    "at": 112.08
+   },
+   {
+    "t": 40.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_walmrslat_1-23_nskha_alaza3a.mp3",
+    "score": 0.624,
+    "at": 2228.76
+   },
+   {
+    "t": 80.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.915,
+    "at": 2435.42
+   },
+   {
+    "t": 120.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.923,
+    "at": 2431.72
+   },
+   {
+    "t": 160.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.901,
+    "at": 899.7
+   },
+   {
+    "t": 200.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.878,
+    "at": 219.0
+   },
+   {
+    "t": 240.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.724,
+    "at": 234.58
+   },
+   {
+    "t": 280.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_walmrslat_1-23_nskha_alaza3a.mp3",
+    "score": 0.539,
+    "at": 2441.16
+   },
+   {
+    "t": 320.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.827,
+    "at": 2691.26
+   }
+  ]
+ },
+ "81": {
+  "durationS": 448.4,
+  "candidates": [
+   "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+   "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.807,
+    "at": 2109.28
+   },
+   {
+    "t": 40.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.837,
+    "at": 20.32
+   },
+   {
+    "t": 80.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.516,
+    "at": 2186.56
+   },
+   {
+    "t": 120.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.8,
+    "at": 6.58
+   },
+   {
+    "t": 160.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.641,
+    "at": 214.56
+   },
+   {
+    "t": 200.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.736,
+    "at": 217.38
+   },
+   {
+    "t": 240.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.784,
+    "at": 217.2
+   },
+   {
+    "t": 280.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.822,
+    "at": 206.0
+   },
+   {
+    "t": 320.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.723,
+    "at": 215.74
+   },
+   {
+    "t": 360.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.757,
+    "at": 2455.72
+   },
+   {
+    "t": 400.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.738,
+    "at": 2494.4
+   }
+  ]
+ },
+ "85": {
+  "durationS": 507.4,
+  "candidates": [
+   "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+   "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+   "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+   "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+   "82-1_alenftar_walmtffen_alenshkak_mn1_ele15_walbrwg_kamla.mp3",
+   "82-1_alenftar_walmtffen_alenshkak_mn1_ele15_walbrwg_kamla.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.778,
+    "at": 1244.5
+   },
+   {
+    "t": 40.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.942,
+    "at": 1284.36
+   },
+   {
+    "t": 80.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.952,
+    "at": 1324.22
+   },
+   {
+    "t": 120.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.96,
+    "at": 1369.98
+   },
+   {
+    "t": 160.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.831,
+    "at": 215.12
+   },
+   {
+    "t": 200.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.961,
+    "at": 1450.48
+   },
+   {
+    "t": 240.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.943,
+    "at": 1490.36
+   },
+   {
+    "t": 280.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.91,
+    "at": 1530.26
+   },
+   {
+    "t": 320.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.926,
+    "at": 1570.12
+   },
+   {
+    "t": 360.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.96,
+    "at": 1609.9
+   },
+   {
+    "t": 400.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.691,
+    "at": 1649.72
+   },
+   {
+    "t": 440.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.87,
+    "at": 1689.64
+   },
+   {
+    "t": 480.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.679,
+    "at": 118.3
+   }
+  ]
+ },
+ "89": {
+  "durationS": 726.4,
+  "candidates": [
+   "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+   "87_ala3le_walghashea_w_alfgr_walbld.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.721,
+    "at": 1452.88
+   },
+   {
+    "t": 40.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.546,
+    "at": 1490.3
+   },
+   {
+    "t": 80.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.561,
+    "at": 1528.04
+   },
+   {
+    "t": 120.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.808,
+    "at": 2239.58
+   },
+   {
+    "t": 160.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.851,
+    "at": 2244.2
+   },
+   {
+    "t": 200.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.815,
+    "at": 1472.8
+   },
+   {
+    "t": 240.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.847,
+    "at": 1140.42
+   },
+   {
+    "t": 280.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.84,
+    "at": 1138.86
+   },
+   {
+    "t": 320.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.752,
+    "at": 1752.64
+   },
+   {
+    "t": 360.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.813,
+    "at": 884.78
+   },
+   {
+    "t": 400.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.789,
+    "at": 2303.04
+   },
+   {
+    "t": 440.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.848,
+    "at": 2399.12
+   },
+   {
+    "t": 480.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.841,
+    "at": 1994.64
+   },
+   {
+    "t": 520.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.826,
+    "at": 1473.92
+   },
+   {
+    "t": 560.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.838,
+    "at": 859.62
+   },
+   {
+    "t": 600.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.756,
+    "at": 2251.72
+   },
+   {
+    "t": 640.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.683,
+    "at": 2289.78
+   },
+   {
+    "t": 680.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.361,
+    "at": 2121.42
+   }
+  ]
+ },
+ "88": {
+  "durationS": 908.4,
+  "candidates": [
+   "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+   "87_ala3le_walghashea_w_alfgr_walbld.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.576,
+    "at": 1648.48
+   },
+   {
+    "t": 40.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.46,
+    "at": 638.6
+   },
+   {
+    "t": 80.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.786,
+    "at": 675.88
+   },
+   {
+    "t": 120.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.239,
+    "at": 2260.06
+   },
+   {
+    "t": 160.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.675,
+    "at": 2300.62
+   },
+   {
+    "t": 200.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.838,
+    "at": 1648.06
+   },
+   {
+    "t": 240.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.45,
+    "at": 823.98
+   },
+   {
+    "t": 280.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.853,
+    "at": 860.58
+   },
+   {
+    "t": 320.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.239,
+    "at": 2260.06
+   },
+   {
+    "t": 360.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.788,
+    "at": 2303.5
+   },
+   {
+    "t": 400.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.531,
+    "at": 2255.42
+   },
+   {
+    "t": 440.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.239,
+    "at": 2260.06
+   },
+   {
+    "t": 480.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.822,
+    "at": 2271.28
+   },
+   {
+    "t": 520.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.782,
+    "at": 1645.78
+   },
+   {
+    "t": 560.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.218,
+    "at": 36.12
+   },
+   {
+    "t": 600.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.84,
+    "at": 862.36
+   },
+   {
+    "t": 640.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.83,
+    "at": 1138.62
+   },
+   {
+    "t": 680.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.844,
+    "at": 1140.44
+   },
+   {
+    "t": 720.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.835,
+    "at": 1139.28
+   },
+   {
+    "t": 760.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.811,
+    "at": 2241.76
+   },
+   {
+    "t": 800.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.618,
+    "at": 1682.14
+   },
+   {
+    "t": 840.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.423,
+    "at": 1380.46
+   },
+   {
+    "t": 880.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.568,
+    "at": 1416.9
+   }
+  ]
+ },
+ "73": {
+  "durationS": 902.9,
+  "candidates": [
+   "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+   "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+   "73-1_almzml1-20_aldhe_alshrh_alten_wal3lk.mp3",
+   "73-1_almzml1-20_aldhe_alshrh_alten_wal3lk.mp3",
+   "73-1_almzml_1-20.mp3",
+   "73-1_almzml_1-20.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.786,
+    "at": 1678.94
+   },
+   {
+    "t": 40.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.922,
+    "at": 1717.98
+   },
+   {
+    "t": 80.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.909,
+    "at": 1756.96
+   },
+   {
+    "t": 120.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.883,
+    "at": 1674.7
+   },
+   {
+    "t": 160.0,
+    "file": "73-1_almzml_1-20.mp3",
+    "score": 0.869,
+    "at": 847.24
+   },
+   {
+    "t": 200.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.927,
+    "at": 691.16
+   },
+   {
+    "t": 240.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.536,
+    "at": 1913.92
+   },
+   {
+    "t": 280.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.909,
+    "at": 1672.1
+   },
+   {
+    "t": 320.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.905,
+    "at": 1992.14
+   },
+   {
+    "t": 360.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.927,
+    "at": 2031.3
+   },
+   {
+    "t": 400.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.864,
+    "at": 1675.7
+   },
+   {
+    "t": 440.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.885,
+    "at": 1674.32
+   },
+   {
+    "t": 480.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.883,
+    "at": 2158.04
+   },
+   {
+    "t": 520.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.932,
+    "at": 2197.08
+   },
+   {
+    "t": 560.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.857,
+    "at": 2236.42
+   },
+   {
+    "t": 600.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.888,
+    "at": 2275.6
+   },
+   {
+    "t": 640.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.872,
+    "at": 2314.68
+   },
+   {
+    "t": 680.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.925,
+    "at": 1205.68
+   },
+   {
+    "t": 720.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.896,
+    "at": 2393.02
+   },
+   {
+    "t": 760.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.856,
+    "at": 2432.38
+   },
+   {
+    "t": 800.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.904,
+    "at": 2471.54
+   },
+   {
+    "t": 840.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.874,
+    "at": 1674.9
+   },
+   {
+    "t": 880.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.662,
+    "at": 2550.18
+   }
+  ]
+ },
+ "75": {
+  "durationS": 814.5,
+  "candidates": [
+   "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+   "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+   "75-1_alkeama_1-40_walansan_1-31_walmrslat_1-23_nskha_alaza3a.mp3",
+   "75-1_alkeama_1-40_walansan_1-31_walmrslat_1-23_nskha_alaza3a.mp3",
+   "75-1_alkeama_1-40_walansan_5-21_nskha_alaza3a.mp3",
+   "75-1_alkeama_1-40_walansan_5-21_nskha_alaza3a.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.822,
+    "at": 28.8
+   },
+   {
+    "t": 40.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.943,
+    "at": 70.74
+   },
+   {
+    "t": 80.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.856,
+    "at": 111.46
+   },
+   {
+    "t": 120.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.909,
+    "at": 608.46
+   },
+   {
+    "t": 160.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.938,
+    "at": 896.08
+   },
+   {
+    "t": 200.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.868,
+    "at": 151.38
+   },
+   {
+    "t": 240.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.926,
+    "at": 68.02
+   },
+   {
+    "t": 280.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.916,
+    "at": 318.74
+   },
+   {
+    "t": 320.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.93,
+    "at": 69.06
+   },
+   {
+    "t": 360.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.912,
+    "at": 2324.72
+   },
+   {
+    "t": 400.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.92,
+    "at": 1259.72
+   },
+   {
+    "t": 440.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.925,
+    "at": 2433.46
+   },
+   {
+    "t": 480.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.883,
+    "at": 2004.7
+   },
+   {
+    "t": 520.0,
+    "file": "75-1_alkeama_1-40_walansan_5-21_nskha_alaza3a.mp3",
+    "score": 0.563,
+    "at": 524.92
+   },
+   {
+    "t": 560.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.908,
+    "at": 607.94
+   },
+   {
+    "t": 600.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.925,
+    "at": 1996.74
+   },
+   {
+    "t": 640.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.928,
+    "at": 298.2
+   },
+   {
+    "t": 680.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.921,
+    "at": 896.92
+   },
+   {
+    "t": 720.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_walmrslat_1-23_nskha_alaza3a.mp3",
+    "score": 0.401,
+    "at": 712.02
+   },
+   {
+    "t": 760.0,
+    "file": "75-1_alkeama_1-40_walansan_5-21_nskha_alaza3a.mp3",
+    "score": 0.797,
+    "at": 1751.4
+   }
+  ]
+ },
+ "56": {
+  "durationS": 624.8,
+  "candidates": [
+   "54-1_alkmr_1-32_alwak3a_1-38_tnsb_ale_msgd_fadl_basha.mp3",
+   "54-1_alkmr_1-32_alwak3a_1-38_tnsb_ale_msgd_fadl_basha.mp3",
+   "55-2_alrhmn_1-78_m3_alwak3a_1-38_aslea2.mp3",
+   "55-2_alrhmn_1-78_m3_alwak3a_1-38_aslea2.mp3",
+   "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+   "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_aslea2.mp3",
+    "score": 0.826,
+    "at": 2011.5
+   },
+   {
+    "t": 40.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.955,
+    "at": 2006.58
+   },
+   {
+    "t": 80.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.636,
+    "at": 1043.12
+   },
+   {
+    "t": 120.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.93,
+    "at": 2082.62
+   },
+   {
+    "t": 160.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.959,
+    "at": 2121.46
+   },
+   {
+    "t": 200.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.957,
+    "at": 2159.62
+   },
+   {
+    "t": 240.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_aslea2.mp3",
+    "score": 0.746,
+    "at": 2249.18
+   },
+   {
+    "t": 280.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_aslea2.mp3",
+    "score": 0.722,
+    "at": 2288.78
+   },
+   {
+    "t": 320.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.95,
+    "at": 851.62
+   },
+   {
+    "t": 360.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.957,
+    "at": 1945.9
+   },
+   {
+    "t": 400.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.908,
+    "at": 2374.72
+   },
+   {
+    "t": 440.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_aslea2.mp3",
+    "score": 0.778,
+    "at": 2447.32
+   },
+   {
+    "t": 480.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.955,
+    "at": 2475.84
+   },
+   {
+    "t": 520.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.942,
+    "at": 2514.1
+   },
+   {
+    "t": 560.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.928,
+    "at": 353.38
+   },
+   {
+    "t": 600.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_aslea2.mp3",
+    "score": 0.83,
+    "at": 2606.44
+   }
+  ]
+ },
+ "69": {
+  "durationS": 696.7,
+  "candidates": [
+   "55-1_alrhmn_1-78_walhaka_1-24.mp3",
+   "55-1_alrhmn_1-78_walhaka_1-24.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "55-1_alrhmn_1-78_walhaka_1-24.mp3",
+    "score": 0.724,
+    "at": 1873.54
+   },
+   {
+    "t": 40.0,
+    "file": "55-1_alrhmn_1-78_walhaka_1-24.mp3",
+    "score": 0.908,
+    "at": 102.88
+   },
+   {
+    "t": 80.0,
+    "file": "55-1_alrhmn_1-78_walhaka_1-24.mp3",
+    "score": 0.365,
+    "at": 1948.78
+   },
+   {
+    "t": 120.0,
+    "file": "55-1_alrhmn_1-78_walhaka_1-24.mp3",
+    "score": 0.879,
+    "at": 108.76
+   },
+   {
+    "t": 160.0,
+    "file": "55-1_alrhmn_1-78_walhaka_1-24.mp3",
+    "score": 0.338,
+    "at": 271.9
+   },
+   {
+    "t": 200.0,
+    "file": "55-1_alrhmn_1-78_walhaka_1-24.mp3",
+    "score": 0.926,
+    "at": 2060.92
+   },
+   {
+    "t": 240.0,
+    "file": "55-1_alrhmn_1-78_walhaka_1-24.mp3",
+    "score": 0.887,
+    "at": 194.26
+   },
+   {
+    "t": 280.0,
+    "file": "55-1_alrhmn_1-78_walhaka_1-24.mp3",
+    "score": 0.922,
+    "at": 93.9
+   },
+   {
+    "t": 320.0,
+    "file": "55-1_alrhmn_1-78_walhaka_1-24.mp3",
+    "score": 0.649,
+    "at": 2173.7
+   },
+   {
+    "t": 360.0,
+    "file": "55-1_alrhmn_1-78_walhaka_1-24.mp3",
+    "score": 0.869,
+    "at": 107.7
+   },
+   {
+    "t": 400.0,
+    "file": "55-1_alrhmn_1-78_walhaka_1-24.mp3",
+    "score": 0.825,
+    "at": 110.56
+   },
+   {
+    "t": 440.0,
+    "file": "55-1_alrhmn_1-78_walhaka_1-24.mp3",
+    "score": 0.923,
+    "at": 2286.18
+   },
+   {
+    "t": 480.0,
+    "file": "55-1_alrhmn_1-78_walhaka_1-24.mp3",
+    "score": 0.807,
+    "at": 2324.26
+   },
+   {
+    "t": 520.0,
+    "file": "55-1_alrhmn_1-78_walhaka_1-24.mp3",
+    "score": 0.867,
+    "at": 55.14
+   },
+   {
+    "t": 560.0,
+    "file": "55-1_alrhmn_1-78_walhaka_1-24.mp3",
+    "score": 0.864,
+    "at": 108.64
+   },
+   {
+    "t": 600.0,
+    "file": "55-1_alrhmn_1-78_walhaka_1-24.mp3",
+    "score": 0.416,
+    "at": 2436.42
+   },
+   {
+    "t": 640.0,
+    "file": "55-1_alrhmn_1-78_walhaka_1-24.mp3",
+    "score": 0.835,
+    "at": 14.66
+   }
+  ]
+ },
+ "79": {
+  "durationS": 835.8,
+  "candidates": [
+   "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+   "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.74,
+    "at": 27.26
+   },
+   {
+    "t": 40.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.872,
+    "at": 21.4
+   },
+   {
+    "t": 80.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.844,
+    "at": 155.66
+   },
+   {
+    "t": 120.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.702,
+    "at": 1422.24
+   },
+   {
+    "t": 160.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.565,
+    "at": 1460.82
+   },
+   {
+    "t": 200.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.759,
+    "at": 1499.52
+   },
+   {
+    "t": 240.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.368,
+    "at": 1537.64
+   },
+   {
+    "t": 280.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.332,
+    "at": 1576.1
+   },
+   {
+    "t": 320.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.819,
+    "at": 219.36
+   },
+   {
+    "t": 360.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.803,
+    "at": 194.26
+   },
+   {
+    "t": 400.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.75,
+    "at": 1407.64
+   },
+   {
+    "t": 440.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.796,
+    "at": 1730.06
+   },
+   {
+    "t": 480.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.509,
+    "at": 1768.74
+   },
+   {
+    "t": 520.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.555,
+    "at": 1807.18
+   },
+   {
+    "t": 560.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.224,
+    "at": 1811.74
+   },
+   {
+    "t": 600.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.821,
+    "at": 20.32
+   },
+   {
+    "t": 640.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.853,
+    "at": 157.26
+   },
+   {
+    "t": 680.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.841,
+    "at": 22.6
+   },
+   {
+    "t": 720.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.224,
+    "at": 1811.74
+   },
+   {
+    "t": 760.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.817,
+    "at": 102.54
+   },
+   {
+    "t": 800.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.292,
+    "at": 2076.34
+   }
+  ]
+ },
+ "82": {
+  "durationS": 635.2,
+  "candidates": [
+   "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+   "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+   "82-1_alenftar_walmtffen_alenshkak_mn1_ele15_walbrwg_kamla.mp3",
+   "82-1_alenftar_walmtffen_alenshkak_mn1_ele15_walbrwg_kamla.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.653,
+    "at": 598.22
+   },
+   {
+    "t": 40.0,
+    "file": "82-1_alenftar_walmtffen_alenshkak_mn1_ele15_walbrwg_kamla.mp3",
+    "score": 0.886,
+    "at": 221.78
+   },
+   {
+    "t": 80.0,
+    "file": "82-1_alenftar_walmtffen_alenshkak_mn1_ele15_walbrwg_kamla.mp3",
+    "score": 0.882,
+    "at": 225.06
+   },
+   {
+    "t": 120.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.841,
+    "at": 136.82
+   },
+   {
+    "t": 160.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.593,
+    "at": 176.52
+   },
+   {
+    "t": 200.0,
+    "file": "82-1_alenftar_walmtffen_alenshkak_mn1_ele15_walbrwg_kamla.mp3",
+    "score": 0.844,
+    "at": 187.76
+   },
+   {
+    "t": 240.0,
+    "file": "82-1_alenftar_walmtffen_alenshkak_mn1_ele15_walbrwg_kamla.mp3",
+    "score": 0.863,
+    "at": 225.52
+   },
+   {
+    "t": 280.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.868,
+    "at": 295.08
+   },
+   {
+    "t": 320.0,
+    "file": "82-1_alenftar_walmtffen_alenshkak_mn1_ele15_walbrwg_kamla.mp3",
+    "score": 0.834,
+    "at": 301.52
+   },
+   {
+    "t": 360.0,
+    "file": "82-1_alenftar_walmtffen_alenshkak_mn1_ele15_walbrwg_kamla.mp3",
+    "score": 0.878,
+    "at": 338.8
+   },
+   {
+    "t": 400.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.565,
+    "at": 414.26
+   },
+   {
+    "t": 440.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.674,
+    "at": 453.94
+   },
+   {
+    "t": 480.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.854,
+    "at": 493.54
+   },
+   {
+    "t": 520.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.84,
+    "at": 533.22
+   },
+   {
+    "t": 560.0,
+    "file": "82-1_alenftar_walmtffen_alenshkak_mn1_ele15_walbrwg_kamla.mp3",
+    "score": 0.429,
+    "at": 527.82
+   },
+   {
+    "t": 600.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.563,
+    "at": 612.4
+   }
+  ]
+ },
+ "83": {
+  "durationS": 1195.5,
+  "candidates": [
+   "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+   "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+   "82-1_alenftar_walmtffen_alenshkak_mn1_ele15_walbrwg_kamla.mp3",
+   "82-1_alenftar_walmtffen_alenshkak_mn1_ele15_walbrwg_kamla.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "82-1_alenftar_walmtffen_alenshkak_mn1_ele15_walbrwg_kamla.mp3",
+    "score": 0.784,
+    "at": 597.9
+   },
+   {
+    "t": 40.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.859,
+    "at": 687.06
+   },
+   {
+    "t": 80.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.907,
+    "at": 726.66
+   },
+   {
+    "t": 120.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.639,
+    "at": 766.12
+   },
+   {
+    "t": 160.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.724,
+    "at": 814.68
+   },
+   {
+    "t": 200.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.828,
+    "at": 854.38
+   },
+   {
+    "t": 240.0,
+    "file": "82-1_alenftar_walmtffen_alenshkak_mn1_ele15_walbrwg_kamla.mp3",
+    "score": 0.869,
+    "at": 224.76
+   },
+   {
+    "t": 280.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.882,
+    "at": 933.8
+   },
+   {
+    "t": 320.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.834,
+    "at": 973.54
+   },
+   {
+    "t": 360.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.432,
+    "at": 0.0
+   },
+   {
+    "t": 400.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.896,
+    "at": 1052.82
+   },
+   {
+    "t": 440.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.878,
+    "at": 1092.2
+   },
+   {
+    "t": 480.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.914,
+    "at": 1144.54
+   },
+   {
+    "t": 520.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.916,
+    "at": 1183.8
+   },
+   {
+    "t": 560.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.842,
+    "at": 1223.82
+   },
+   {
+    "t": 600.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.855,
+    "at": 1263.7
+   },
+   {
+    "t": 640.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.918,
+    "at": 1303.42
+   },
+   {
+    "t": 680.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.842,
+    "at": 1342.98
+   },
+   {
+    "t": 720.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.913,
+    "at": 1382.62
+   },
+   {
+    "t": 760.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.788,
+    "at": 1422.44
+   },
+   {
+    "t": 800.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.9,
+    "at": 1462.24
+   },
+   {
+    "t": 840.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.919,
+    "at": 1502.5
+   },
+   {
+    "t": 880.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.432,
+    "at": 0.0
+   },
+   {
+    "t": 920.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.903,
+    "at": 1581.78
+   },
+   {
+    "t": 960.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.873,
+    "at": 1621.56
+   },
+   {
+    "t": 1000.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.701,
+    "at": 1674.2
+   },
+   {
+    "t": 1040.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.732,
+    "at": 1713.9
+   },
+   {
+    "t": 1080.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.643,
+    "at": 1753.8
+   },
+   {
+    "t": 1120.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.918,
+    "at": 1793.2
+   },
+   {
+    "t": 1160.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "score": 0.903,
+    "at": 1833.5
+   }
+  ]
+ },
+ "87": {
+  "durationS": 635.8,
+  "candidates": [
+   "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+   "87_ala3le_walghashea_w_alfgr_walbld.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.697,
+    "at": 0.2
+   },
+   {
+    "t": 40.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.699,
+    "at": 37.34
+   },
+   {
+    "t": 80.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.792,
+    "at": 867.28
+   },
+   {
+    "t": 120.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.469,
+    "at": 111.86
+   },
+   {
+    "t": 160.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.545,
+    "at": 205.78
+   },
+   {
+    "t": 200.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.817,
+    "at": 859.9
+   },
+   {
+    "t": 240.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.795,
+    "at": 1447.9
+   },
+   {
+    "t": 280.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.816,
+    "at": 595.26
+   },
+   {
+    "t": 320.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.822,
+    "at": 861.72
+   },
+   {
+    "t": 360.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.347,
+    "at": 710.04
+   },
+   {
+    "t": 400.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.729,
+    "at": 386.02
+   },
+   {
+    "t": 440.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.748,
+    "at": 2268.74
+   },
+   {
+    "t": 480.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.837,
+    "at": 2245.74
+   },
+   {
+    "t": 520.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.831,
+    "at": 2240.54
+   },
+   {
+    "t": 560.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.835,
+    "at": 2244.06
+   },
+   {
+    "t": 600.0,
+    "file": "87_ala3le_walghashea_w_alfgr_walbld.mp3",
+    "score": 0.786,
+    "at": 571.52
+   }
+  ]
+ },
+ "72": {
+  "durationS": 1597.5,
+  "candidates": [
+   "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+   "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+   "72-1_algn_1-28_nskha_aza3a_alkran_alkrem.mp3",
+   "72-1_algn_1-28_nskha_aza3a_alkran_alkrem.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "72-1_algn_1-28_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.789,
+    "at": 15.52
+   },
+   {
+    "t": 40.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.92,
+    "at": 1206.96
+   },
+   {
+    "t": 80.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.907,
+    "at": 649.16
+   },
+   {
+    "t": 120.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.921,
+    "at": 653.32
+   },
+   {
+    "t": 160.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.911,
+    "at": 1672.02
+   },
+   {
+    "t": 200.0,
+    "file": "72-1_algn_1-28_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.895,
+    "at": 196.92
+   },
+   {
+    "t": 240.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.908,
+    "at": 1671.96
+   },
+   {
+    "t": 280.0,
+    "file": "72-1_algn_1-28_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.66,
+    "at": 277.86
+   },
+   {
+    "t": 320.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.437,
+    "at": 332.24
+   },
+   {
+    "t": 360.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.788,
+    "at": 371.44
+   },
+   {
+    "t": 400.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.779,
+    "at": 1678.16
+   },
+   {
+    "t": 440.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.493,
+    "at": 449.4
+   },
+   {
+    "t": 480.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.915,
+    "at": 488.48
+   },
+   {
+    "t": 520.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.93,
+    "at": 527.4
+   },
+   {
+    "t": 560.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.918,
+    "at": 600.04
+   },
+   {
+    "t": 600.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.916,
+    "at": 605.48
+   },
+   {
+    "t": 640.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.895,
+    "at": 644.48
+   },
+   {
+    "t": 680.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.886,
+    "at": 683.54
+   },
+   {
+    "t": 720.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.928,
+    "at": 722.74
+   },
+   {
+    "t": 760.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.945,
+    "at": 761.74
+   },
+   {
+    "t": 800.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.917,
+    "at": 800.78
+   },
+   {
+    "t": 840.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.835,
+    "at": 875.82
+   },
+   {
+    "t": 880.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.931,
+    "at": 878.88
+   },
+   {
+    "t": 920.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.919,
+    "at": 918.0
+   },
+   {
+    "t": 960.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.704,
+    "at": 964.84
+   },
+   {
+    "t": 1000.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.836,
+    "at": 1013.68
+   },
+   {
+    "t": 1040.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.936,
+    "at": 1052.84
+   },
+   {
+    "t": 1080.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.924,
+    "at": 1096.58
+   },
+   {
+    "t": 1120.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.916,
+    "at": 1137.98
+   },
+   {
+    "t": 1160.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.729,
+    "at": 1177.36
+   },
+   {
+    "t": 1200.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.927,
+    "at": 1234.12
+   },
+   {
+    "t": 1240.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.894,
+    "at": 1280.66
+   },
+   {
+    "t": 1280.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.903,
+    "at": 1335.34
+   },
+   {
+    "t": 1320.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.854,
+    "at": 1374.42
+   },
+   {
+    "t": 1360.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.704,
+    "at": 1419.76
+   },
+   {
+    "t": 1400.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.548,
+    "at": 1468.0
+   },
+   {
+    "t": 1440.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.817,
+    "at": 1507.08
+   },
+   {
+    "t": 1480.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.571,
+    "at": 1546.26
+   },
+   {
+    "t": 1520.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.657,
+    "at": 1592.84
+   },
+   {
+    "t": 1560.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "score": 0.69,
+    "at": 1637.06
+   }
+  ]
+ },
+ "76": {
+  "durationS": 1402.2,
+  "candidates": [
+   "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+   "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+   "75-1_alkeama_1-40_walansan_1-31_walmrslat_1-23_nskha_alaza3a.mp3",
+   "75-1_alkeama_1-40_walansan_1-31_walmrslat_1-23_nskha_alaza3a.mp3",
+   "75-1_alkeama_1-40_walansan_5-21_nskha_alaza3a.mp3",
+   "75-1_alkeama_1-40_walansan_5-21_nskha_alaza3a.mp3",
+   "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+   "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.92,
+    "at": 17.54
+   },
+   {
+    "t": 40.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.939,
+    "at": 67.44
+   },
+   {
+    "t": 80.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.955,
+    "at": 277.26
+   },
+   {
+    "t": 120.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_walmrslat_1-23_nskha_alaza3a.mp3",
+    "score": 0.668,
+    "at": 926.22
+   },
+   {
+    "t": 160.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.938,
+    "at": 188.4
+   },
+   {
+    "t": 200.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.968,
+    "at": 227.82
+   },
+   {
+    "t": 240.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.918,
+    "at": 223.1
+   },
+   {
+    "t": 280.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.962,
+    "at": 322.1
+   },
+   {
+    "t": 320.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.48,
+    "at": 761.7
+   },
+   {
+    "t": 360.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.969,
+    "at": 381.9
+   },
+   {
+    "t": 400.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.899,
+    "at": 342.24
+   },
+   {
+    "t": 440.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.969,
+    "at": 381.02
+   },
+   {
+    "t": 480.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.879,
+    "at": 1354.16
+   },
+   {
+    "t": 520.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.384,
+    "at": 289.82
+   },
+   {
+    "t": 560.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.946,
+    "at": 512.48
+   },
+   {
+    "t": 600.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.942,
+    "at": 549.8
+   },
+   {
+    "t": 640.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.961,
+    "at": 674.08
+   },
+   {
+    "t": 680.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.935,
+    "at": 714.68
+   },
+   {
+    "t": 720.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.608,
+    "at": 757.32
+   },
+   {
+    "t": 760.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.95,
+    "at": 278.34
+   },
+   {
+    "t": 800.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.945,
+    "at": 398.2
+   },
+   {
+    "t": 840.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.954,
+    "at": 889.94
+   },
+   {
+    "t": 880.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.936,
+    "at": 396.04
+   },
+   {
+    "t": 920.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.932,
+    "at": 961.02
+   },
+   {
+    "t": 960.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.917,
+    "at": 105.2
+   },
+   {
+    "t": 1000.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_walmrslat_1-23_nskha_alaza3a.mp3",
+    "score": 0.547,
+    "at": 1821.82
+   },
+   {
+    "t": 1040.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.885,
+    "at": 1136.22
+   },
+   {
+    "t": 1080.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.914,
+    "at": 1175.5
+   },
+   {
+    "t": 1120.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.949,
+    "at": 321.38
+   },
+   {
+    "t": 1160.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.619,
+    "at": 311.3
+   },
+   {
+    "t": 1200.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.96,
+    "at": 307.36
+   },
+   {
+    "t": 1240.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.918,
+    "at": 98.46
+   },
+   {
+    "t": 1280.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.382,
+    "at": 291.6
+   },
+   {
+    "t": 1320.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.946,
+    "at": 324.64
+   },
+   {
+    "t": 1360.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "score": 0.818,
+    "at": 2295.14
+   }
+  ]
+ },
+ "78": {
+  "durationS": 1277.8,
+  "candidates": [
+   "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+   "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.686,
+    "at": 0.0
+   },
+   {
+    "t": 40.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.881,
+    "at": 40.1
+   },
+   {
+    "t": 80.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.854,
+    "at": 50.8
+   },
+   {
+    "t": 120.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.89,
+    "at": 116.82
+   },
+   {
+    "t": 160.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.879,
+    "at": 155.22
+   },
+   {
+    "t": 200.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.878,
+    "at": 194.5
+   },
+   {
+    "t": 240.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.867,
+    "at": 84.18
+   },
+   {
+    "t": 280.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.854,
+    "at": 167.28
+   },
+   {
+    "t": 320.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.803,
+    "at": 1517.72
+   },
+   {
+    "t": 360.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.828,
+    "at": 361.08
+   },
+   {
+    "t": 400.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.835,
+    "at": 399.8
+   },
+   {
+    "t": 440.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.429,
+    "at": 438.16
+   },
+   {
+    "t": 480.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.858,
+    "at": 192.34
+   },
+   {
+    "t": 520.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.865,
+    "at": 515.6
+   },
+   {
+    "t": 560.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.748,
+    "at": 554.06
+   },
+   {
+    "t": 600.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.848,
+    "at": 191.94
+   },
+   {
+    "t": 640.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.775,
+    "at": 25.76
+   },
+   {
+    "t": 680.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.631,
+    "at": 681.62
+   },
+   {
+    "t": 720.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.828,
+    "at": 219.54
+   },
+   {
+    "t": 760.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.863,
+    "at": 146.28
+   },
+   {
+    "t": 800.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.855,
+    "at": 109.42
+   },
+   {
+    "t": 840.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.81,
+    "at": 149.0
+   },
+   {
+    "t": 880.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.808,
+    "at": 149.68
+   },
+   {
+    "t": 920.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.388,
+    "at": 932.0
+   },
+   {
+    "t": 960.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.462,
+    "at": 971.28
+   },
+   {
+    "t": 1000.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.439,
+    "at": 1009.56
+   },
+   {
+    "t": 1040.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.486,
+    "at": 1056.24
+   },
+   {
+    "t": 1080.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.736,
+    "at": 1094.64
+   },
+   {
+    "t": 1120.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.709,
+    "at": 1133.0
+   },
+   {
+    "t": 1160.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.775,
+    "at": 1186.34
+   },
+   {
+    "t": 1200.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.807,
+    "at": 1237.46
+   },
+   {
+    "t": 1240.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "score": 0.575,
+    "at": 1275.9
+   }
+  ]
+ },
+ "48": {
+  "durationS": 1761.3,
+  "candidates": [
+   "48-1_alfth_1-11_nskha_alaza3a.mp3",
+   "48-1_alfth_1-11_nskha_alaza3a.mp3",
+   "48-1_alfth_1-11_sm_17-20_aza3a_alkran_alkrem.mp3",
+   "48-1_alfth_1-11_sm_17-20_aza3a_alkran_alkrem.mp3",
+   "48-2_alfth_17-20.mp3",
+   "48-2_alfth_17-20.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "48-2_alfth_17-20.mp3",
+    "score": 0.588,
+    "at": 6.36
+   },
+   {
+    "t": 40.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.844,
+    "at": 111.66
+   },
+   {
+    "t": 80.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.874,
+    "at": 75.4
+   },
+   {
+    "t": 120.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.913,
+    "at": 182.68
+   },
+   {
+    "t": 160.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.841,
+    "at": 272.6
+   },
+   {
+    "t": 200.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.923,
+    "at": 192.3
+   },
+   {
+    "t": 240.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.675,
+    "at": 324.62
+   },
+   {
+    "t": 280.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.866,
+    "at": 275.5
+   },
+   {
+    "t": 320.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.822,
+    "at": 393.82
+   },
+   {
+    "t": 360.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.893,
+    "at": 432.94
+   },
+   {
+    "t": 400.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.905,
+    "at": 473.82
+   },
+   {
+    "t": 440.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.694,
+    "at": 497.62
+   },
+   {
+    "t": 480.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.825,
+    "at": 529.64
+   },
+   {
+    "t": 520.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.715,
+    "at": 567.18
+   },
+   {
+    "t": 560.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.498,
+    "at": 603.16
+   },
+   {
+    "t": 600.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.935,
+    "at": 629.64
+   },
+   {
+    "t": 640.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.91,
+    "at": 666.14
+   },
+   {
+    "t": 680.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.875,
+    "at": 1122.48
+   },
+   {
+    "t": 720.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.871,
+    "at": 715.34
+   },
+   {
+    "t": 760.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.356,
+    "at": 1105.26
+   },
+   {
+    "t": 800.0,
+    "file": "48-2_alfth_17-20.mp3",
+    "score": 0.839,
+    "at": 441.12
+   },
+   {
+    "t": 840.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.738,
+    "at": 120.24
+   },
+   {
+    "t": 880.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.838,
+    "at": 781.0
+   },
+   {
+    "t": 920.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.914,
+    "at": 1054.82
+   },
+   {
+    "t": 960.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.891,
+    "at": 986.44
+   },
+   {
+    "t": 1000.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.778,
+    "at": 916.96
+   },
+   {
+    "t": 1040.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.859,
+    "at": 484.92
+   },
+   {
+    "t": 1080.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.918,
+    "at": 1114.62
+   },
+   {
+    "t": 1120.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.764,
+    "at": 1154.16
+   },
+   {
+    "t": 1160.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.829,
+    "at": 1204.78
+   },
+   {
+    "t": 1200.0,
+    "file": "48-2_alfth_17-20.mp3",
+    "score": 0.665,
+    "at": 11.2
+   },
+   {
+    "t": 1240.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.877,
+    "at": 1091.46
+   },
+   {
+    "t": 1280.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.86,
+    "at": 709.98
+   },
+   {
+    "t": 1320.0,
+    "file": "48-2_alfth_17-20.mp3",
+    "score": 0.468,
+    "at": 129.52
+   },
+   {
+    "t": 1360.0,
+    "file": "48-2_alfth_17-20.mp3",
+    "score": 0.44,
+    "at": 169.78
+   },
+   {
+    "t": 1400.0,
+    "file": "48-2_alfth_17-20.mp3",
+    "score": 0.281,
+    "at": 160.86
+   },
+   {
+    "t": 1440.0,
+    "file": "48-2_alfth_17-20.mp3",
+    "score": 0.472,
+    "at": 167.68
+   },
+   {
+    "t": 1480.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.753,
+    "at": 210.6
+   },
+   {
+    "t": 1520.0,
+    "file": "48-2_alfth_17-20.mp3",
+    "score": 0.259,
+    "at": 251.1
+   },
+   {
+    "t": 1560.0,
+    "file": "48-2_alfth_17-20.mp3",
+    "score": 0.911,
+    "at": 274.1
+   },
+   {
+    "t": 1600.0,
+    "file": "48-2_alfth_17-20.mp3",
+    "score": 0.362,
+    "at": 379.38
+   },
+   {
+    "t": 1640.0,
+    "file": "48-2_alfth_17-20.mp3",
+    "score": 0.65,
+    "at": 426.54
+   },
+   {
+    "t": 1680.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "score": 0.707,
+    "at": 24.92
+   },
+   {
+    "t": 1720.0,
+    "file": "48-1_alfth_1-11_sm_17-20_aza3a_alkran_alkrem.mp3",
+    "score": 0.367,
+    "at": 1739.96
+   }
+  ]
+ },
+ "54": {
+  "durationS": 1700.8,
+  "candidates": [
+   "54-1__alkmr_1-32_hflh.mp3",
+   "54-1__alkmr_1-32_hflh.mp3",
+   "54-1_alkmr_1-32_alwak3a_1-38_tnsb_ale_msgd_fadl_basha.mp3",
+   "54-1_alkmr_1-32_alwak3a_1-38_tnsb_ale_msgd_fadl_basha.mp3",
+   "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+   "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+   "54-1_alkmr_1-32_nskha_akhre.mp3",
+   "54-1_alkmr_1-32_nskha_akhre.mp3",
+   "54-2_alkmr_37-50_mkt3_mn_tlawa.mp3",
+   "54-2_alkmr_37-50_mkt3_mn_tlawa.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "54-1_alkmr_1-32_nskha_akhre.mp3",
+    "score": 0.856,
+    "at": 0.84
+   },
+   {
+    "t": 40.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.929,
+    "at": 37.98
+   },
+   {
+    "t": 80.0,
+    "file": "54-1_alkmr_1-32_nskha_akhre.mp3",
+    "score": 0.719,
+    "at": 80.96
+   },
+   {
+    "t": 120.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.816,
+    "at": 115.92
+   },
+   {
+    "t": 160.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.928,
+    "at": 154.98
+   },
+   {
+    "t": 200.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.928,
+    "at": 194.08
+   },
+   {
+    "t": 240.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.931,
+    "at": 233.0
+   },
+   {
+    "t": 280.0,
+    "file": "54-1_alkmr_1-32_nskha_akhre.mp3",
+    "score": 0.751,
+    "at": 281.14
+   },
+   {
+    "t": 320.0,
+    "file": "54-1_alkmr_1-32_nskha_akhre.mp3",
+    "score": 0.81,
+    "at": 321.16
+   },
+   {
+    "t": 360.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.957,
+    "at": 350.08
+   },
+   {
+    "t": 400.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.938,
+    "at": 389.14
+   },
+   {
+    "t": 440.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.953,
+    "at": 428.2
+   },
+   {
+    "t": 480.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.946,
+    "at": 467.26
+   },
+   {
+    "t": 520.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.954,
+    "at": 505.94
+   },
+   {
+    "t": 560.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.93,
+    "at": 545.02
+   },
+   {
+    "t": 600.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.937,
+    "at": 584.02
+   },
+   {
+    "t": 640.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.944,
+    "at": 507.76
+   },
+   {
+    "t": 680.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.961,
+    "at": 662.3
+   },
+   {
+    "t": 720.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.956,
+    "at": 701.5
+   },
+   {
+    "t": 760.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.877,
+    "at": 740.64
+   },
+   {
+    "t": 800.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.955,
+    "at": 779.78
+   },
+   {
+    "t": 840.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.931,
+    "at": 818.94
+   },
+   {
+    "t": 880.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.872,
+    "at": 858.2
+   },
+   {
+    "t": 920.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.887,
+    "at": 897.1
+   },
+   {
+    "t": 960.0,
+    "file": "54-1_alkmr_1-32_nskha_akhre.mp3",
+    "score": 0.69,
+    "at": 887.4
+   },
+   {
+    "t": 1000.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.874,
+    "at": 975.32
+   },
+   {
+    "t": 1040.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.957,
+    "at": 1014.44
+   },
+   {
+    "t": 1080.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.918,
+    "at": 1053.48
+   },
+   {
+    "t": 1120.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.907,
+    "at": 1092.78
+   },
+   {
+    "t": 1160.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.944,
+    "at": 1131.66
+   },
+   {
+    "t": 1200.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.944,
+    "at": 1170.5
+   },
+   {
+    "t": 1240.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.955,
+    "at": 1209.74
+   },
+   {
+    "t": 1280.0,
+    "file": "54-2_alkmr_37-50_mkt3_mn_tlawa.mp3",
+    "score": 0.85,
+    "at": 19.3
+   },
+   {
+    "t": 1320.0,
+    "file": "54-2_alkmr_37-50_mkt3_mn_tlawa.mp3",
+    "score": 0.883,
+    "at": 59.3
+   },
+   {
+    "t": 1360.0,
+    "file": "54-2_alkmr_37-50_mkt3_mn_tlawa.mp3",
+    "score": 0.886,
+    "at": 99.32
+   },
+   {
+    "t": 1400.0,
+    "file": "54-2_alkmr_37-50_mkt3_mn_tlawa.mp3",
+    "score": 0.92,
+    "at": 139.38
+   },
+   {
+    "t": 1440.0,
+    "file": "54-2_alkmr_37-50_mkt3_mn_tlawa.mp3",
+    "score": 0.661,
+    "at": 175.42
+   },
+   {
+    "t": 1480.0,
+    "file": "54-2_alkmr_37-50_mkt3_mn_tlawa.mp3",
+    "score": 0.881,
+    "at": 219.38
+   },
+   {
+    "t": 1520.0,
+    "file": "54-2_alkmr_37-50_mkt3_mn_tlawa.mp3",
+    "score": 0.885,
+    "at": 259.38
+   },
+   {
+    "t": 1560.0,
+    "file": "54-2_alkmr_37-50_mkt3_mn_tlawa.mp3",
+    "score": 0.94,
+    "at": 299.4
+   },
+   {
+    "t": 1600.0,
+    "file": "54-2_alkmr_37-50_mkt3_mn_tlawa.mp3",
+    "score": 0.894,
+    "at": 339.4
+   },
+   {
+    "t": 1640.0,
+    "file": "54-2_alkmr_37-50_mkt3_mn_tlawa.mp3",
+    "score": 0.661,
+    "at": 175.42
+   },
+   {
+    "t": 1680.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "score": 0.691,
+    "at": 1737.32
+   }
+  ]
+ },
+ "55": {
+  "durationS": 1745.7,
+  "candidates": [
+   "55-1_alrhmn_1-78_altlawa_alawle.mp3",
+   "55-1_alrhmn_1-78_altlawa_alawle.mp3",
+   "55-1_alrhmn_1-78_walhaka_1-24.mp3",
+   "55-1_alrhmn_1-78_walhaka_1-24.mp3",
+   "55-2_alrhmn_1-78_m3_alwak3a_1-38_aslea2.mp3",
+   "55-2_alrhmn_1-78_m3_alwak3a_1-38_aslea2.mp3",
+   "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+   "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+   "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+   "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+   "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_shkhsea.mp3",
+   "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_shkhsea.mp3",
+   "55-4_alrhmn_14-55_mbtwra_awlha_wakhrha-_altlawa_alrab3a.mp3",
+   "55-4_alrhmn_14-55_mbtwra_awlha_wakhrha-_altlawa_alrab3a.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.797,
+    "at": 11.24
+   },
+   {
+    "t": 40.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.948,
+    "at": 45.98
+   },
+   {
+    "t": 80.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.942,
+    "at": 22.18
+   },
+   {
+    "t": 120.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.915,
+    "at": 155.14
+   },
+   {
+    "t": 160.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.622,
+    "at": 175.32
+   },
+   {
+    "t": 200.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.883,
+    "at": 216.24
+   },
+   {
+    "t": 240.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.933,
+    "at": 256.96
+   },
+   {
+    "t": 280.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.927,
+    "at": 297.8
+   },
+   {
+    "t": 320.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.675,
+    "at": 338.44
+   },
+   {
+    "t": 360.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.871,
+    "at": 381.78
+   },
+   {
+    "t": 400.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.927,
+    "at": 1981.9
+   },
+   {
+    "t": 440.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.915,
+    "at": 460.12
+   },
+   {
+    "t": 480.0,
+    "file": "55-1_alrhmn_1-78_walhaka_1-24.mp3",
+    "score": 0.884,
+    "at": 481.7
+   },
+   {
+    "t": 520.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.669,
+    "at": 542.0
+   },
+   {
+    "t": 560.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.914,
+    "at": 362.7
+   },
+   {
+    "t": 600.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.909,
+    "at": 199.42
+   },
+   {
+    "t": 640.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.634,
+    "at": 593.4
+   },
+   {
+    "t": 680.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.92,
+    "at": 709.92
+   },
+   {
+    "t": 720.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.919,
+    "at": 750.66
+   },
+   {
+    "t": 760.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.933,
+    "at": 935.68
+   },
+   {
+    "t": 800.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.648,
+    "at": 976.46
+   },
+   {
+    "t": 840.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.937,
+    "at": 1016.12
+   },
+   {
+    "t": 880.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.849,
+    "at": 1060.16
+   },
+   {
+    "t": 920.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.912,
+    "at": 1100.98
+   },
+   {
+    "t": 960.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.92,
+    "at": 1142.06
+   },
+   {
+    "t": 1000.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.93,
+    "at": 353.54
+   },
+   {
+    "t": 1040.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.939,
+    "at": 1223.94
+   },
+   {
+    "t": 1080.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.941,
+    "at": 1207.5
+   },
+   {
+    "t": 1120.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.9,
+    "at": 27.86
+   },
+   {
+    "t": 1160.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.917,
+    "at": 163.98
+   },
+   {
+    "t": 1200.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.894,
+    "at": 23.56
+   },
+   {
+    "t": 1240.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.914,
+    "at": 1435.72
+   },
+   {
+    "t": 1280.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.894,
+    "at": 29.28
+   },
+   {
+    "t": 1320.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.891,
+    "at": 25.64
+   },
+   {
+    "t": 1360.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.905,
+    "at": 31.92
+   },
+   {
+    "t": 1400.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.867,
+    "at": 1603.72
+   },
+   {
+    "t": 1440.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.944,
+    "at": 1645.52
+   },
+   {
+    "t": 1480.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.625,
+    "at": 1687.62
+   },
+   {
+    "t": 1520.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.643,
+    "at": 1730.02
+   },
+   {
+    "t": 1560.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.577,
+    "at": 1772.32
+   },
+   {
+    "t": 1600.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.555,
+    "at": 1814.1
+   },
+   {
+    "t": 1640.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.668,
+    "at": 1855.72
+   },
+   {
+    "t": 1680.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "score": 0.905,
+    "at": 22.94
+   },
+   {
+    "t": 1720.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "score": 0.829,
+    "at": 1932.42
+   }
+  ]
+ },
+ "17": {
+  "durationS": 2510.5,
+  "candidates": [
+   "17-1_alasraa1-14_mbtwra_akhrha.mp3",
+   "17-1_alasraa1-14_mbtwra_akhrha.mp3",
+   "17-2_alasraa_1-19_msgd_alhsen_1937.mp3",
+   "17-2_alasraa_1-19_msgd_alhsen_1937.mp3",
+   "17-3_alesraa_1-22_nskha_akhre.mp3",
+   "17-3_alesraa_1-22_nskha_akhre.mp3",
+   "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+   "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+   "17-3_alesraa_9-14_mkt3_mn_altlawa_bnskhtha_alaslea.mp3",
+   "17-3_alesraa_9-14_mkt3_mn_altlawa_bnskhtha_alaslea.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "17-3_alesraa_1-22_nskha_akhre.mp3",
+    "score": 0.803,
+    "at": 0.04
+   },
+   {
+    "t": 40.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.83,
+    "at": 215.28
+   },
+   {
+    "t": 80.0,
+    "file": "17-3_alesraa_1-22_nskha_akhre.mp3",
+    "score": 0.844,
+    "at": 74.14
+   },
+   {
+    "t": 120.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.744,
+    "at": 106.52
+   },
+   {
+    "t": 160.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.843,
+    "at": 198.2
+   },
+   {
+    "t": 200.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.671,
+    "at": 166.88
+   },
+   {
+    "t": 240.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.818,
+    "at": 195.88
+   },
+   {
+    "t": 280.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.401,
+    "at": 4.52
+   },
+   {
+    "t": 320.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.869,
+    "at": 250.84
+   },
+   {
+    "t": 360.0,
+    "file": "17-3_alesraa_1-22_nskha_akhre.mp3",
+    "score": 0.791,
+    "at": 371.26
+   },
+   {
+    "t": 400.0,
+    "file": "17-3_alesraa_1-22_nskha_akhre.mp3",
+    "score": 0.803,
+    "at": 521.5
+   },
+   {
+    "t": 440.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.898,
+    "at": 918.56
+   },
+   {
+    "t": 480.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.875,
+    "at": 1036.08
+   },
+   {
+    "t": 520.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.865,
+    "at": 1249.94
+   },
+   {
+    "t": 560.0,
+    "file": "17-3_alesraa_9-14_mkt3_mn_altlawa_bnskhtha_alaslea.mp3",
+    "score": 0.648,
+    "at": 227.58
+   },
+   {
+    "t": 600.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.81,
+    "at": 396.08
+   },
+   {
+    "t": 640.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.838,
+    "at": 427.1
+   },
+   {
+    "t": 680.0,
+    "file": "17-3_alesraa_1-22_nskha_akhre.mp3",
+    "score": 0.806,
+    "at": 1779.34
+   },
+   {
+    "t": 720.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.669,
+    "at": 533.28
+   },
+   {
+    "t": 760.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.457,
+    "at": 567.98
+   },
+   {
+    "t": 800.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.916,
+    "at": 593.9
+   },
+   {
+    "t": 840.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.865,
+    "at": 714.08
+   },
+   {
+    "t": 880.0,
+    "file": "17-3_alesraa_1-22_nskha_akhre.mp3",
+    "score": 0.834,
+    "at": 817.22
+   },
+   {
+    "t": 920.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.853,
+    "at": 249.82
+   },
+   {
+    "t": 960.0,
+    "file": "17-3_alesraa_1-22_nskha_akhre.mp3",
+    "score": 0.79,
+    "at": 892.34
+   },
+   {
+    "t": 1000.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.907,
+    "at": 823.86
+   },
+   {
+    "t": 1040.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.568,
+    "at": 772.22
+   },
+   {
+    "t": 1080.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.885,
+    "at": 1542.08
+   },
+   {
+    "t": 1120.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.868,
+    "at": 412.2
+   },
+   {
+    "t": 1160.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.883,
+    "at": 1039.04
+   },
+   {
+    "t": 1200.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.888,
+    "at": 420.08
+   },
+   {
+    "t": 1240.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.881,
+    "at": 412.9
+   },
+   {
+    "t": 1280.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.883,
+    "at": 408.82
+   },
+   {
+    "t": 1320.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.878,
+    "at": 1539.22
+   },
+   {
+    "t": 1360.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.831,
+    "at": 186.34
+   },
+   {
+    "t": 1400.0,
+    "file": "17-2_alasraa_1-19_msgd_alhsen_1937.mp3",
+    "score": 0.347,
+    "at": 1382.58
+   },
+   {
+    "t": 1440.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.885,
+    "at": 1078.12
+   },
+   {
+    "t": 1480.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.854,
+    "at": 417.06
+   },
+   {
+    "t": 1520.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.889,
+    "at": 419.4
+   },
+   {
+    "t": 1560.0,
+    "file": "17-3_alesraa_1-22_nskha_akhre.mp3",
+    "score": 0.844,
+    "at": 1777.68
+   },
+   {
+    "t": 1600.0,
+    "file": "17-3_alesraa_1-22_nskha_akhre.mp3",
+    "score": 0.786,
+    "at": 521.64
+   },
+   {
+    "t": 1640.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.869,
+    "at": 1067.92
+   },
+   {
+    "t": 1680.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.804,
+    "at": 301.84
+   },
+   {
+    "t": 1720.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.891,
+    "at": 410.06
+   },
+   {
+    "t": 1760.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.886,
+    "at": 1133.44
+   },
+   {
+    "t": 1800.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.891,
+    "at": 1039.54
+   },
+   {
+    "t": 1840.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.792,
+    "at": 1349.76
+   },
+   {
+    "t": 1880.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.749,
+    "at": 1386.0
+   },
+   {
+    "t": 1920.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.901,
+    "at": 1419.5
+   },
+   {
+    "t": 1960.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.685,
+    "at": 1458.96
+   },
+   {
+    "t": 2000.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.873,
+    "at": 1497.08
+   },
+   {
+    "t": 2040.0,
+    "file": "17-3_alesraa_1-22_nskha_akhre.mp3",
+    "score": 0.77,
+    "at": 814.12
+   },
+   {
+    "t": 2080.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.888,
+    "at": 1573.18
+   },
+   {
+    "t": 2120.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.485,
+    "at": 1562.94
+   },
+   {
+    "t": 2160.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.599,
+    "at": 1595.34
+   },
+   {
+    "t": 2200.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.612,
+    "at": 1626.78
+   },
+   {
+    "t": 2240.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.839,
+    "at": 402.76
+   },
+   {
+    "t": 2280.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.882,
+    "at": 237.22
+   },
+   {
+    "t": 2320.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.86,
+    "at": 855.9
+   },
+   {
+    "t": 2360.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.857,
+    "at": 1544.06
+   },
+   {
+    "t": 2400.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.865,
+    "at": 1482.86
+   },
+   {
+    "t": 2440.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.315,
+    "at": 1516.36
+   },
+   {
+    "t": 2480.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "score": 0.694,
+    "at": 1436.22
+   }
+  ]
+ },
+ "19": {
+  "durationS": 2352.4,
+  "candidates": [
+   "19-1_mrem_1-24_mbtwra-__nskha_astwana.mp3",
+   "19-1_mrem_1-24_mbtwra-__nskha_astwana.mp3",
+   "19-1_mrem_1-36_nskha_swt_alkahra.mp3",
+   "19-1_mrem_1-36_nskha_swt_alkahra.mp3",
+   "19-2_mrem_1-17__mn_aza3a_lndn.mp3",
+   "19-2_mrem_1-17__mn_aza3a_lndn.mp3",
+   "19-3_mrem_22-36_mbtwra_awlha.mp3",
+   "19-3_mrem_22-36_mbtwra_awlha.mp3",
+   "19-3_mrem_22-36_mbtwra_awlha_-m3_algmhwr.mp3",
+   "19-3_mrem_22-36_mbtwra_awlha_-m3_algmhwr.mp3",
+   "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+   "19-4__mrem_36-40_gza_mn_tlawa.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.814,
+    "at": 40.6
+   },
+   {
+    "t": 40.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.888,
+    "at": 15.62
+   },
+   {
+    "t": 80.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.92,
+    "at": 16.86
+   },
+   {
+    "t": 120.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.895,
+    "at": 54.94
+   },
+   {
+    "t": 160.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.932,
+    "at": 101.34
+   },
+   {
+    "t": 200.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.934,
+    "at": 181.26
+   },
+   {
+    "t": 240.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.951,
+    "at": 62.9
+   },
+   {
+    "t": 280.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.962,
+    "at": 64.16
+   },
+   {
+    "t": 320.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.956,
+    "at": 61.38
+   },
+   {
+    "t": 360.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.958,
+    "at": 21.02
+   },
+   {
+    "t": 400.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.954,
+    "at": 232.42
+   },
+   {
+    "t": 440.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.91,
+    "at": 35.6
+   },
+   {
+    "t": 480.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.945,
+    "at": 79.94
+   },
+   {
+    "t": 520.0,
+    "file": "19-1_mrem_1-36_nskha_swt_alkahra.mp3",
+    "score": 0.918,
+    "at": 575.8
+   },
+   {
+    "t": 560.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.923,
+    "at": 16.42
+   },
+   {
+    "t": 600.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.958,
+    "at": 21.32
+   },
+   {
+    "t": 640.0,
+    "file": "19-1_mrem_1-36_nskha_swt_alkahra.mp3",
+    "score": 0.825,
+    "at": 724.04
+   },
+   {
+    "t": 680.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.9,
+    "at": 16.68
+   },
+   {
+    "t": 720.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.961,
+    "at": 96.76
+   },
+   {
+    "t": 760.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.927,
+    "at": 82.72
+   },
+   {
+    "t": 800.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.821,
+    "at": 4.06
+   },
+   {
+    "t": 840.0,
+    "file": "19-1_mrem_1-24_mbtwra-__nskha_astwana.mp3",
+    "score": 0.895,
+    "at": 609.74
+   },
+   {
+    "t": 880.0,
+    "file": "19-1_mrem_1-36_nskha_swt_alkahra.mp3",
+    "score": 0.904,
+    "at": 1005.9
+   },
+   {
+    "t": 920.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.967,
+    "at": 97.12
+   },
+   {
+    "t": 960.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.932,
+    "at": 18.82
+   },
+   {
+    "t": 1000.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.945,
+    "at": 19.06
+   },
+   {
+    "t": 1040.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.934,
+    "at": 17.28
+   },
+   {
+    "t": 1080.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.942,
+    "at": 75.14
+   },
+   {
+    "t": 1120.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.952,
+    "at": 22.82
+   },
+   {
+    "t": 1160.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.963,
+    "at": 95.26
+   },
+   {
+    "t": 1200.0,
+    "file": "19-1_mrem_1-36_nskha_swt_alkahra.mp3",
+    "score": 0.794,
+    "at": 1358.92
+   },
+   {
+    "t": 1240.0,
+    "file": "19-1_mrem_1-36_nskha_swt_alkahra.mp3",
+    "score": 0.88,
+    "at": 1410.26
+   },
+   {
+    "t": 1280.0,
+    "file": "19-1_mrem_1-24_mbtwra-__nskha_astwana.mp3",
+    "score": 0.772,
+    "at": 619.94
+   },
+   {
+    "t": 1320.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.815,
+    "at": 57.86
+   },
+   {
+    "t": 1360.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.881,
+    "at": 261.34
+   },
+   {
+    "t": 1400.0,
+    "file": "19-1_mrem_1-36_nskha_swt_alkahra.mp3",
+    "score": 0.768,
+    "at": 1601.36
+   },
+   {
+    "t": 1440.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.942,
+    "at": 78.26
+   },
+   {
+    "t": 1480.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.956,
+    "at": 62.68
+   },
+   {
+    "t": 1520.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.937,
+    "at": 28.96
+   },
+   {
+    "t": 1560.0,
+    "file": "19-1_mrem_1-36_nskha_swt_alkahra.mp3",
+    "score": 0.9,
+    "at": 1767.8
+   },
+   {
+    "t": 1600.0,
+    "file": "19-1_mrem_1-36_nskha_swt_alkahra.mp3",
+    "score": 0.824,
+    "at": 1807.8
+   },
+   {
+    "t": 1640.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.918,
+    "at": 18.48
+   },
+   {
+    "t": 1680.0,
+    "file": "19-1_mrem_1-36_nskha_swt_alkahra.mp3",
+    "score": 0.839,
+    "at": 1901.26
+   },
+   {
+    "t": 1720.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.925,
+    "at": 17.52
+   },
+   {
+    "t": 1760.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.959,
+    "at": 96.2
+   },
+   {
+    "t": 1800.0,
+    "file": "19-1_mrem_1-36_nskha_swt_alkahra.mp3",
+    "score": 0.882,
+    "at": 2034.22
+   },
+   {
+    "t": 1840.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.895,
+    "at": 85.72
+   },
+   {
+    "t": 1880.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.881,
+    "at": 256.96
+   },
+   {
+    "t": 1920.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.927,
+    "at": 28.54
+   },
+   {
+    "t": 1960.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.892,
+    "at": 26.74
+   },
+   {
+    "t": 2000.0,
+    "file": "19-1_mrem_1-36_nskha_swt_alkahra.mp3",
+    "score": 0.801,
+    "at": 2153.24
+   },
+   {
+    "t": 2040.0,
+    "file": "19-1_mrem_1-36_nskha_swt_alkahra.mp3",
+    "score": 0.722,
+    "at": 2358.78
+   },
+   {
+    "t": 2080.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.925,
+    "at": 13.96
+   },
+   {
+    "t": 2120.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.955,
+    "at": 54.26
+   },
+   {
+    "t": 2160.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.965,
+    "at": 105.26
+   },
+   {
+    "t": 2200.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.966,
+    "at": 145.46
+   },
+   {
+    "t": 2240.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.903,
+    "at": 197.88
+   },
+   {
+    "t": 2280.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.953,
+    "at": 248.6
+   },
+   {
+    "t": 2320.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "score": 0.732,
+    "at": 288.9
+   }
+  ]
+ },
+ "20": {
+  "durationS": 2489.4,
+  "candidates": [
+   "20-1_th_1-52_nskha_alaza3a.mp3",
+   "20-1_th_1-52_nskha_alaza3a.mp3",
+   "20-2__th_83-98.mp3",
+   "20-2__th_83-98.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.549,
+    "at": 1350.24
+   },
+   {
+    "t": 40.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.45,
+    "at": 1239.78
+   },
+   {
+    "t": 80.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.727,
+    "at": 61.2
+   },
+   {
+    "t": 120.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.351,
+    "at": 100.12
+   },
+   {
+    "t": 160.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.779,
+    "at": 622.06
+   },
+   {
+    "t": 200.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.714,
+    "at": 171.28
+   },
+   {
+    "t": 240.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.796,
+    "at": 621.96
+   },
+   {
+    "t": 280.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.732,
+    "at": 243.46
+   },
+   {
+    "t": 320.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.563,
+    "at": 1708.76
+   },
+   {
+    "t": 360.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.38,
+    "at": 316.78
+   },
+   {
+    "t": 400.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.814,
+    "at": 351.86
+   },
+   {
+    "t": 440.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.8,
+    "at": 1201.26
+   },
+   {
+    "t": 480.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.619,
+    "at": 424.96
+   },
+   {
+    "t": 520.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.633,
+    "at": 460.82
+   },
+   {
+    "t": 560.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.758,
+    "at": 491.42
+   },
+   {
+    "t": 600.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.808,
+    "at": 1212.9
+   },
+   {
+    "t": 640.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.774,
+    "at": 1052.58
+   },
+   {
+    "t": 680.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.703,
+    "at": 1166.48
+   },
+   {
+    "t": 720.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.761,
+    "at": 1559.78
+   },
+   {
+    "t": 760.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.746,
+    "at": 1346.54
+   },
+   {
+    "t": 800.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.563,
+    "at": 1708.76
+   },
+   {
+    "t": 840.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.787,
+    "at": 1347.52
+   },
+   {
+    "t": 880.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.741,
+    "at": 1204.74
+   },
+   {
+    "t": 920.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.775,
+    "at": 617.1
+   },
+   {
+    "t": 960.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.775,
+    "at": 613.36
+   },
+   {
+    "t": 1000.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.816,
+    "at": 1052.94
+   },
+   {
+    "t": 1040.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.791,
+    "at": 69.94
+   },
+   {
+    "t": 1080.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.749,
+    "at": 1113.32
+   },
+   {
+    "t": 1120.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.558,
+    "at": 1151.18
+   },
+   {
+    "t": 1160.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.848,
+    "at": 1195.38
+   },
+   {
+    "t": 1200.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.758,
+    "at": 1350.94
+   },
+   {
+    "t": 1240.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.713,
+    "at": 1263.1
+   },
+   {
+    "t": 1280.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.722,
+    "at": 1203.66
+   },
+   {
+    "t": 1320.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.825,
+    "at": 1342.78
+   },
+   {
+    "t": 1360.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.545,
+    "at": 1711.76
+   },
+   {
+    "t": 1400.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.68,
+    "at": 1703.96
+   },
+   {
+    "t": 1440.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.778,
+    "at": 1359.26
+   },
+   {
+    "t": 1480.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.677,
+    "at": 1401.18
+   },
+   {
+    "t": 1520.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.563,
+    "at": 1708.76
+   },
+   {
+    "t": 1560.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.835,
+    "at": 1550.4
+   },
+   {
+    "t": 1600.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.792,
+    "at": 928.5
+   },
+   {
+    "t": 1640.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.711,
+    "at": 1617.32
+   },
+   {
+    "t": 1680.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.76,
+    "at": 1655.92
+   },
+   {
+    "t": 1720.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.794,
+    "at": 1688.26
+   },
+   {
+    "t": 1760.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.828,
+    "at": 1347.16
+   },
+   {
+    "t": 1800.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.525,
+    "at": 1755.5
+   },
+   {
+    "t": 1840.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.555,
+    "at": 686.42
+   },
+   {
+    "t": 1880.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.581,
+    "at": 408.36
+   },
+   {
+    "t": 1920.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.762,
+    "at": 135.84
+   },
+   {
+    "t": 1960.0,
+    "file": "20-2__th_83-98.mp3",
+    "score": 0.579,
+    "at": 118.8
+   },
+   {
+    "t": 2000.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.61,
+    "at": 90.78
+   },
+   {
+    "t": 2040.0,
+    "file": "20-2__th_83-98.mp3",
+    "score": 0.615,
+    "at": 198.8
+   },
+   {
+    "t": 2080.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.603,
+    "at": 690.84
+   },
+   {
+    "t": 2120.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.77,
+    "at": 137.46
+   },
+   {
+    "t": 2160.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.507,
+    "at": 175.56
+   },
+   {
+    "t": 2200.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.652,
+    "at": 62.74
+   },
+   {
+    "t": 2240.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.8,
+    "at": 65.58
+   },
+   {
+    "t": 2280.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.728,
+    "at": 63.28
+   },
+   {
+    "t": 2320.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.728,
+    "at": 481.7
+   },
+   {
+    "t": 2360.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.754,
+    "at": 478.84
+   },
+   {
+    "t": 2400.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.72,
+    "at": 88.36
+   },
+   {
+    "t": 2440.0,
+    "file": "20-1_th_1-52_nskha_alaza3a.mp3",
+    "score": 0.774,
+    "at": 130.42
+   }
+  ]
+ },
+ "12": {
+  "durationS": 2916.2,
+  "candidates": [
+   "12-1_ewsf_1-27.mp3",
+   "12-1_ewsf_1-27.mp3",
+   "12-1_ewsf_1-27_nskha_akhre.mp3",
+   "12-1_ewsf_1-27_nskha_akhre.mp3",
+   "12-2_ewsf_53-82.mp3",
+   "12-2_ewsf_53-82.mp3",
+   "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+   "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+   "12-3_ewsf_96-111.mp3",
+   "12-3_ewsf_96-111.mp3",
+   "12-3_ewsf_96-111_alr3d_1-9.mp3",
+   "12-3_ewsf_96-111_alr3d_1-9.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "12-3_ewsf_96-111.mp3",
+    "score": 0.656,
+    "at": 1.2
+   },
+   {
+    "t": 40.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.488,
+    "at": 1883.36
+   },
+   {
+    "t": 80.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.453,
+    "at": 120.24
+   },
+   {
+    "t": 120.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.51,
+    "at": 2062.08
+   },
+   {
+    "t": 160.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.201,
+    "at": 287.42
+   },
+   {
+    "t": 200.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.517,
+    "at": 2062.9
+   },
+   {
+    "t": 240.0,
+    "file": "12-3_ewsf_96-111_alr3d_1-9.mp3",
+    "score": 0.268,
+    "at": 1929.08
+   },
+   {
+    "t": 280.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.602,
+    "at": 1879.24
+   },
+   {
+    "t": 320.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.501,
+    "at": 1924.22
+   },
+   {
+    "t": 360.0,
+    "file": "12-1_ewsf_1-27.mp3",
+    "score": 0.278,
+    "at": 973.52
+   },
+   {
+    "t": 400.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.518,
+    "at": 2347.14
+   },
+   {
+    "t": 440.0,
+    "file": "12-1_ewsf_1-27.mp3",
+    "score": 0.413,
+    "at": 1094.64
+   },
+   {
+    "t": 480.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.521,
+    "at": 1880.42
+   },
+   {
+    "t": 520.0,
+    "file": "12-1_ewsf_1-27.mp3",
+    "score": 0.5,
+    "at": 1257.98
+   },
+   {
+    "t": 560.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.513,
+    "at": 967.38
+   },
+   {
+    "t": 600.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.67,
+    "at": 1229.32
+   },
+   {
+    "t": 640.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.549,
+    "at": 1283.2
+   },
+   {
+    "t": 680.0,
+    "file": "12-1_ewsf_1-27.mp3",
+    "score": 0.422,
+    "at": 1629.3
+   },
+   {
+    "t": 720.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.509,
+    "at": 1884.0
+   },
+   {
+    "t": 760.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.503,
+    "at": 1507.72
+   },
+   {
+    "t": 800.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.512,
+    "at": 1889.12
+   },
+   {
+    "t": 840.0,
+    "file": "12-1_ewsf_1-27.mp3",
+    "score": 0.636,
+    "at": 1928.4
+   },
+   {
+    "t": 880.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.579,
+    "at": 1712.1
+   },
+   {
+    "t": 920.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.456,
+    "at": 2355.1
+   },
+   {
+    "t": 960.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.553,
+    "at": 1819.1
+   },
+   {
+    "t": 1000.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.465,
+    "at": 1874.78
+   },
+   {
+    "t": 1040.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.656,
+    "at": 1886.88
+   },
+   {
+    "t": 1080.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.565,
+    "at": 1844.66
+   },
+   {
+    "t": 1120.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.612,
+    "at": 252.94
+   },
+   {
+    "t": 1160.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.497,
+    "at": 1884.4
+   },
+   {
+    "t": 1200.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.632,
+    "at": 246.02
+   },
+   {
+    "t": 1240.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.628,
+    "at": 328.14
+   },
+   {
+    "t": 1280.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.6,
+    "at": 975.8
+   },
+   {
+    "t": 1320.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.297,
+    "at": 493.9
+   },
+   {
+    "t": 1360.0,
+    "file": "12-2_ewsf_53-82.mp3",
+    "score": 0.392,
+    "at": 571.04
+   },
+   {
+    "t": 1400.0,
+    "file": "12-2_ewsf_53-82.mp3",
+    "score": 0.273,
+    "at": 669.52
+   },
+   {
+    "t": 1440.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.686,
+    "at": 865.36
+   },
+   {
+    "t": 1480.0,
+    "file": "12-2_ewsf_53-82.mp3",
+    "score": 0.595,
+    "at": 908.5
+   },
+   {
+    "t": 1520.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.529,
+    "at": 1879.74
+   },
+   {
+    "t": 1560.0,
+    "file": "12-2_ewsf_53-82.mp3",
+    "score": 0.644,
+    "at": 1055.96
+   },
+   {
+    "t": 1600.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.579,
+    "at": 1124.2
+   },
+   {
+    "t": 1640.0,
+    "file": "12-2_ewsf_53-82.mp3",
+    "score": 0.274,
+    "at": 1196.06
+   },
+   {
+    "t": 1680.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.532,
+    "at": 1923.6
+   },
+   {
+    "t": 1720.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.514,
+    "at": 1924.98
+   },
+   {
+    "t": 1760.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.532,
+    "at": 1650.36
+   },
+   {
+    "t": 1800.0,
+    "file": "12-2_ewsf_53-82.mp3",
+    "score": 0.461,
+    "at": 1747.26
+   },
+   {
+    "t": 1840.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.508,
+    "at": 1881.6
+   },
+   {
+    "t": 1880.0,
+    "file": "12-2_ewsf_53-82.mp3",
+    "score": 0.413,
+    "at": 1912.02
+   },
+   {
+    "t": 1920.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.538,
+    "at": 1846.46
+   },
+   {
+    "t": 1960.0,
+    "file": "12-2_ewsf_53-82.mp3",
+    "score": 0.412,
+    "at": 2130.66
+   },
+   {
+    "t": 2000.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.544,
+    "at": 2037.64
+   },
+   {
+    "t": 2040.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.524,
+    "at": 2090.42
+   },
+   {
+    "t": 2080.0,
+    "file": "12-3_ewsf_96-111.mp3",
+    "score": 0.599,
+    "at": 2.04
+   },
+   {
+    "t": 2120.0,
+    "file": "12-2_ewsf_53-82.mp3",
+    "score": 0.356,
+    "at": 2386.46
+   },
+   {
+    "t": 2160.0,
+    "file": "12-2_ewsf_53-82.mp3",
+    "score": 0.42,
+    "at": 2476.06
+   },
+   {
+    "t": 2200.0,
+    "file": "12-2_ewsf_53-82.mp3",
+    "score": 0.422,
+    "at": 2533.36
+   },
+   {
+    "t": 2240.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.274,
+    "at": 201.78
+   },
+   {
+    "t": 2280.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.498,
+    "at": 246.74
+   },
+   {
+    "t": 2320.0,
+    "file": "12-3_ewsf_96-111_alr3d_1-9.mp3",
+    "score": 0.382,
+    "at": 101.68
+   },
+   {
+    "t": 2360.0,
+    "file": "12-3_ewsf_96-111_alr3d_1-9.mp3",
+    "score": 0.359,
+    "at": 169.16
+   },
+   {
+    "t": 2400.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.278,
+    "at": 121.08
+   },
+   {
+    "t": 2440.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.574,
+    "at": 656.34
+   },
+   {
+    "t": 2480.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.528,
+    "at": 255.24
+   },
+   {
+    "t": 2520.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.576,
+    "at": 251.68
+   },
+   {
+    "t": 2560.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.544,
+    "at": 1922.64
+   },
+   {
+    "t": 2600.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.492,
+    "at": 247.8
+   },
+   {
+    "t": 2640.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.577,
+    "at": 975.18
+   },
+   {
+    "t": 2680.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.637,
+    "at": 1877.24
+   },
+   {
+    "t": 2720.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.613,
+    "at": 1877.1
+   },
+   {
+    "t": 2760.0,
+    "file": "12-3_ewsf_96-111_alr3d_1-9.mp3",
+    "score": 0.472,
+    "at": 2240.02
+   },
+   {
+    "t": 2800.0,
+    "file": "12-1_ewsf_1-27_nskha_akhre.mp3",
+    "score": 0.451,
+    "at": 1146.76
+   },
+   {
+    "t": 2840.0,
+    "file": "12-2_ewsf_53-82_aza3a_alkran_alkrem.mp3",
+    "score": 0.593,
+    "at": 1880.14
+   },
+   {
+    "t": 2880.0,
+    "file": "12-1_ewsf_1-27.mp3",
+    "score": 0.268,
+    "at": 22.74
+   }
+  ]
+ },
+ "11": {
+  "durationS": 4132.9,
+  "candidates": [
+   "11-1_hwd_1_-_17.mp3",
+   "11-1_hwd_1_-_17.mp3",
+   "11-2_hwd_23-28_gza_mn_tlawa_mfkwda.mp3",
+   "11-2_hwd_23-28_gza_mn_tlawa_mfkwda.mp3",
+   "11-3_hwd_61-75_sm_84-87__aza3a_alkran_alkrem.mp3",
+   "11-3_hwd_61-75_sm_84-87__aza3a_alkran_alkrem.mp3",
+   "11-3_hwd_61-75_sm_84-90_alnskha_alkamla.mp3",
+   "11-3_hwd_61-75_sm_84-90_alnskha_alkamla.mp3",
+   "11-3_hwd_61-75_sm_84-90_alnskha_alkamla_-akhrem3_algmhwr.mp3",
+   "11-3_hwd_61-75_sm_84-90_alnskha_alkamla_-akhrem3_algmhwr.mp3",
+   "11-4_hwd_-_alaea_108-_gza_mn_tlawa_mfkwda.mp3",
+   "11-4_hwd_-_alaea_108-_gza_mn_tlawa_mfkwda.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.757,
+    "at": 0.08
+   },
+   {
+    "t": 40.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.884,
+    "at": 40.08
+   },
+   {
+    "t": 80.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.886,
+    "at": 80.08
+   },
+   {
+    "t": 120.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.88,
+    "at": 120.08
+   },
+   {
+    "t": 160.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.87,
+    "at": 160.08
+   },
+   {
+    "t": 200.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.878,
+    "at": 200.08
+   },
+   {
+    "t": 240.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.876,
+    "at": 240.08
+   },
+   {
+    "t": 280.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.852,
+    "at": 280.08
+   },
+   {
+    "t": 320.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.884,
+    "at": 320.12
+   },
+   {
+    "t": 360.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.86,
+    "at": 360.12
+   },
+   {
+    "t": 400.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.836,
+    "at": 400.12
+   },
+   {
+    "t": 440.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.857,
+    "at": 440.12
+   },
+   {
+    "t": 480.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.875,
+    "at": 480.12
+   },
+   {
+    "t": 520.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.876,
+    "at": 520.12
+   },
+   {
+    "t": 560.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.843,
+    "at": 560.12
+   },
+   {
+    "t": 600.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.723,
+    "at": 600.12
+   },
+   {
+    "t": 640.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.868,
+    "at": 640.18
+   },
+   {
+    "t": 680.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.812,
+    "at": 680.18
+   },
+   {
+    "t": 720.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.817,
+    "at": 720.18
+   },
+   {
+    "t": 760.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.836,
+    "at": 627.94
+   },
+   {
+    "t": 800.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.838,
+    "at": 800.18
+   },
+   {
+    "t": 840.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.901,
+    "at": 840.18
+   },
+   {
+    "t": 880.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.868,
+    "at": 880.18
+   },
+   {
+    "t": 920.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.877,
+    "at": 920.18
+   },
+   {
+    "t": 960.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.777,
+    "at": 960.18
+   },
+   {
+    "t": 1000.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.832,
+    "at": 1009.46
+   },
+   {
+    "t": 1040.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.791,
+    "at": 1052.24
+   },
+   {
+    "t": 1080.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.836,
+    "at": 1092.24
+   },
+   {
+    "t": 1120.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.792,
+    "at": 1130.38
+   },
+   {
+    "t": 1160.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.807,
+    "at": 1170.44
+   },
+   {
+    "t": 1200.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.888,
+    "at": 1210.46
+   },
+   {
+    "t": 1240.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.835,
+    "at": 1250.46
+   },
+   {
+    "t": 1280.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.824,
+    "at": 1290.46
+   },
+   {
+    "t": 1320.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.864,
+    "at": 1330.46
+   },
+   {
+    "t": 1360.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.775,
+    "at": 849.22
+   },
+   {
+    "t": 1400.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.881,
+    "at": 1410.46
+   },
+   {
+    "t": 1440.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.876,
+    "at": 1450.46
+   },
+   {
+    "t": 1480.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.866,
+    "at": 1490.46
+   },
+   {
+    "t": 1520.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.659,
+    "at": 831.26
+   },
+   {
+    "t": 1560.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.686,
+    "at": 589.74
+   },
+   {
+    "t": 1600.0,
+    "file": "11-2_hwd_23-28_gza_mn_tlawa_mfkwda.mp3",
+    "score": 0.472,
+    "at": 53.56
+   },
+   {
+    "t": 1640.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.7,
+    "at": 588.92
+   },
+   {
+    "t": 1680.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.782,
+    "at": 835.72
+   },
+   {
+    "t": 1720.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.731,
+    "at": 706.2
+   },
+   {
+    "t": 1760.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.603,
+    "at": 1461.28
+   },
+   {
+    "t": 1800.0,
+    "file": "11-2_hwd_23-28_gza_mn_tlawa_mfkwda.mp3",
+    "score": 0.775,
+    "at": 268.56
+   },
+   {
+    "t": 1840.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.683,
+    "at": 745.22
+   },
+   {
+    "t": 1880.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.693,
+    "at": 1217.14
+   },
+   {
+    "t": 1920.0,
+    "file": "11-2_hwd_23-28_gza_mn_tlawa_mfkwda.mp3",
+    "score": 0.678,
+    "at": 398.46
+   },
+   {
+    "t": 1960.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.806,
+    "at": 144.94
+   },
+   {
+    "t": 2000.0,
+    "file": "11-2_hwd_23-28_gza_mn_tlawa_mfkwda.mp3",
+    "score": 0.605,
+    "at": 482.58
+   },
+   {
+    "t": 2040.0,
+    "file": "11-2_hwd_23-28_gza_mn_tlawa_mfkwda.mp3",
+    "score": 0.666,
+    "at": 522.56
+   },
+   {
+    "t": 2080.0,
+    "file": "11-3_hwd_61-75_sm_84-90_alnskha_alkamla_-akhrem3_algmhwr.mp3",
+    "score": 0.695,
+    "at": 501.74
+   },
+   {
+    "t": 2120.0,
+    "file": "11-3_hwd_61-75_sm_84-90_alnskha_alkamla_-akhrem3_algmhwr.mp3",
+    "score": 0.75,
+    "at": 497.1
+   },
+   {
+    "t": 2160.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.773,
+    "at": 51.08
+   },
+   {
+    "t": 2200.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.695,
+    "at": 47.88
+   },
+   {
+    "t": 2240.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.794,
+    "at": 52.26
+   },
+   {
+    "t": 2280.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.755,
+    "at": 50.82
+   },
+   {
+    "t": 2320.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.731,
+    "at": 832.6
+   },
+   {
+    "t": 2360.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.636,
+    "at": 46.58
+   },
+   {
+    "t": 2400.0,
+    "file": "11-3_hwd_61-75_sm_84-87__aza3a_alkran_alkrem.mp3",
+    "score": 0.522,
+    "at": 270.72
+   },
+   {
+    "t": 2440.0,
+    "file": "11-3_hwd_61-75_sm_84-90_alnskha_alkamla_-akhrem3_algmhwr.mp3",
+    "score": 0.421,
+    "at": 294.68
+   },
+   {
+    "t": 2480.0,
+    "file": "11-3_hwd_61-75_sm_84-87__aza3a_alkran_alkrem.mp3",
+    "score": 0.414,
+    "at": 391.8
+   },
+   {
+    "t": 2520.0,
+    "file": "11-3_hwd_61-75_sm_84-90_alnskha_alkamla_-akhrem3_algmhwr.mp3",
+    "score": 0.762,
+    "at": 361.76
+   },
+   {
+    "t": 2560.0,
+    "file": "11-3_hwd_61-75_sm_84-90_alnskha_alkamla_-akhrem3_algmhwr.mp3",
+    "score": 0.746,
+    "at": 398.66
+   },
+   {
+    "t": 2600.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.727,
+    "at": 325.96
+   },
+   {
+    "t": 2640.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.829,
+    "at": 839.76
+   },
+   {
+    "t": 2680.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.512,
+    "at": 1461.6
+   },
+   {
+    "t": 2720.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.712,
+    "at": 349.04
+   },
+   {
+    "t": 2760.0,
+    "file": "11-3_hwd_61-75_sm_84-90_alnskha_alkamla_-akhrem3_algmhwr.mp3",
+    "score": 0.768,
+    "at": 498.98
+   },
+   {
+    "t": 2800.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.512,
+    "at": 487.78
+   },
+   {
+    "t": 2840.0,
+    "file": "11-3_hwd_61-75_sm_84-90_alnskha_alkamla.mp3",
+    "score": 0.75,
+    "at": 1008.1
+   },
+   {
+    "t": 2880.0,
+    "file": "11-3_hwd_61-75_sm_84-90_alnskha_alkamla_-akhrem3_algmhwr.mp3",
+    "score": 0.48,
+    "at": 690.26
+   },
+   {
+    "t": 2920.0,
+    "file": "11-3_hwd_61-75_sm_84-87__aza3a_alkran_alkrem.mp3",
+    "score": 0.573,
+    "at": 1139.1
+   },
+   {
+    "t": 2960.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.683,
+    "at": 524.44
+   },
+   {
+    "t": 3000.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.778,
+    "at": 1301.58
+   },
+   {
+    "t": 3040.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.708,
+    "at": 1459.88
+   },
+   {
+    "t": 3080.0,
+    "file": "11-3_hwd_61-75_sm_84-90_alnskha_alkamla.mp3",
+    "score": 0.81,
+    "at": 1250.18
+   },
+   {
+    "t": 3120.0,
+    "file": "11-3_hwd_61-75_sm_84-90_alnskha_alkamla.mp3",
+    "score": 0.709,
+    "at": 1294.58
+   },
+   {
+    "t": 3160.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.684,
+    "at": 339.5
+   },
+   {
+    "t": 3200.0,
+    "file": "11-3_hwd_61-75_sm_84-87__aza3a_alkran_alkrem.mp3",
+    "score": 0.566,
+    "at": 1757.4
+   },
+   {
+    "t": 3240.0,
+    "file": "11-3_hwd_61-75_sm_84-90_alnskha_alkamla_-akhrem3_algmhwr.mp3",
+    "score": 0.619,
+    "at": 1058.22
+   },
+   {
+    "t": 3280.0,
+    "file": "11-3_hwd_61-75_sm_84-87__aza3a_alkran_alkrem.mp3",
+    "score": 0.565,
+    "at": 1659.2
+   },
+   {
+    "t": 3320.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.7,
+    "at": 485.42
+   },
+   {
+    "t": 3360.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.583,
+    "at": 484.88
+   },
+   {
+    "t": 3400.0,
+    "file": "11-3_hwd_61-75_sm_84-90_alnskha_alkamla.mp3",
+    "score": 0.451,
+    "at": 1698.18
+   },
+   {
+    "t": 3440.0,
+    "file": "11-3_hwd_61-75_sm_84-90_alnskha_alkamla.mp3",
+    "score": 0.435,
+    "at": 1748.46
+   },
+   {
+    "t": 3480.0,
+    "file": "11-3_hwd_61-75_sm_84-90_alnskha_alkamla.mp3",
+    "score": 0.689,
+    "at": 1788.46
+   },
+   {
+    "t": 3520.0,
+    "file": "11-3_hwd_61-75_sm_84-90_alnskha_alkamla.mp3",
+    "score": 0.543,
+    "at": 2056.4
+   },
+   {
+    "t": 3560.0,
+    "file": "11-3_hwd_61-75_sm_84-90_alnskha_alkamla_-akhrem3_algmhwr.mp3",
+    "score": 0.708,
+    "at": 499.3
+   },
+   {
+    "t": 3600.0,
+    "file": "11-3_hwd_61-75_sm_84-87__aza3a_alkran_alkrem.mp3",
+    "score": 0.51,
+    "at": 1747.32
+   },
+   {
+    "t": 3640.0,
+    "file": "11-3_hwd_61-75_sm_84-90_alnskha_alkamla.mp3",
+    "score": 0.373,
+    "at": 1956.72
+   },
+   {
+    "t": 3680.0,
+    "file": "11-3_hwd_61-75_sm_84-90_alnskha_alkamla.mp3",
+    "score": 0.793,
+    "at": 2002.3
+   },
+   {
+    "t": 3720.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.596,
+    "at": 0.72
+   },
+   {
+    "t": 3760.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.367,
+    "at": 525.68
+   },
+   {
+    "t": 3800.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.72,
+    "at": 485.0
+   },
+   {
+    "t": 3840.0,
+    "file": "11-4_hwd_-_alaea_108-_gza_mn_tlawa_mfkwda.mp3",
+    "score": 0.508,
+    "at": 75.34
+   },
+   {
+    "t": 3880.0,
+    "file": "11-4_hwd_-_alaea_108-_gza_mn_tlawa_mfkwda.mp3",
+    "score": 0.772,
+    "at": 220.2
+   },
+   {
+    "t": 3920.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.791,
+    "at": 1301.5
+   },
+   {
+    "t": 3960.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.83,
+    "at": 840.32
+   },
+   {
+    "t": 4000.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.693,
+    "at": 914.82
+   },
+   {
+    "t": 4040.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "score": 0.771,
+    "at": 702.04
+   },
+   {
+    "t": 4080.0,
+    "file": "11-4_hwd_-_alaea_108-_gza_mn_tlawa_mfkwda.mp3",
+    "score": 0.781,
+    "at": 317.36
+   }
+  ]
+ },
+ "10": {
+  "durationS": 4965.8,
+  "candidates": [
+   "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+   "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+   "10-1_ewns_18-31_nskha_aslea.mp3",
+   "10-1_ewns_18-31_nskha_aslea.mp3",
+   "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+   "10-2_ewns__53_-_64_sm_67_-_72.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.639,
+    "at": 1241.76
+   },
+   {
+    "t": 40.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.882,
+    "at": 398.52
+   },
+   {
+    "t": 80.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.845,
+    "at": 119.28
+   },
+   {
+    "t": 120.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.855,
+    "at": 137.18
+   },
+   {
+    "t": 160.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.854,
+    "at": 98.16
+   },
+   {
+    "t": 200.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.883,
+    "at": 317.74
+   },
+   {
+    "t": 240.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.867,
+    "at": 52.1
+   },
+   {
+    "t": 280.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.67,
+    "at": 265.84
+   },
+   {
+    "t": 320.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.865,
+    "at": 391.62
+   },
+   {
+    "t": 360.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.869,
+    "at": 1021.54
+   },
+   {
+    "t": 400.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.722,
+    "at": 57.56
+   },
+   {
+    "t": 440.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.222,
+    "at": 1300.48
+   },
+   {
+    "t": 480.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.831,
+    "at": 53.18
+   },
+   {
+    "t": 520.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.866,
+    "at": 466.34
+   },
+   {
+    "t": 560.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.791,
+    "at": 1069.98
+   },
+   {
+    "t": 600.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.843,
+    "at": 244.72
+   },
+   {
+    "t": 640.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.835,
+    "at": 166.82
+   },
+   {
+    "t": 680.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.847,
+    "at": 715.04
+   },
+   {
+    "t": 720.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.83,
+    "at": 98.46
+   },
+   {
+    "t": 760.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.838,
+    "at": 108.94
+   },
+   {
+    "t": 800.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.835,
+    "at": 111.72
+   },
+   {
+    "t": 840.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.859,
+    "at": 52.54
+   },
+   {
+    "t": 880.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.178,
+    "at": 1920.34
+   },
+   {
+    "t": 920.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.715,
+    "at": 263.14
+   },
+   {
+    "t": 960.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.876,
+    "at": 45.28
+   },
+   {
+    "t": 1000.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.854,
+    "at": 83.92
+   },
+   {
+    "t": 1040.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.862,
+    "at": 66.08
+   },
+   {
+    "t": 1080.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.882,
+    "at": 161.24
+   },
+   {
+    "t": 1120.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.847,
+    "at": 271.74
+   },
+   {
+    "t": 1160.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.894,
+    "at": 237.86
+   },
+   {
+    "t": 1200.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.895,
+    "at": 278.98
+   },
+   {
+    "t": 1240.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.45,
+    "at": 316.38
+   },
+   {
+    "t": 1280.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.868,
+    "at": 269.32
+   },
+   {
+    "t": 1320.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.885,
+    "at": 396.04
+   },
+   {
+    "t": 1360.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.387,
+    "at": 429.52
+   },
+   {
+    "t": 1400.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.36,
+    "at": 467.02
+   },
+   {
+    "t": 1440.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.87,
+    "at": 375.46
+   },
+   {
+    "t": 1480.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.898,
+    "at": 398.8
+   },
+   {
+    "t": 1520.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.861,
+    "at": 584.62
+   },
+   {
+    "t": 1560.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.351,
+    "at": 1419.52
+   },
+   {
+    "t": 1600.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.862,
+    "at": 716.74
+   },
+   {
+    "t": 1640.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.674,
+    "at": 487.7
+   },
+   {
+    "t": 1680.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.825,
+    "at": 380.32
+   },
+   {
+    "t": 1720.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.885,
+    "at": 1022.58
+   },
+   {
+    "t": 1760.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.892,
+    "at": 1020.08
+   },
+   {
+    "t": 1800.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.883,
+    "at": 106.48
+   },
+   {
+    "t": 1840.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.885,
+    "at": 901.44
+   },
+   {
+    "t": 1880.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.846,
+    "at": 451.48
+   },
+   {
+    "t": 1920.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.831,
+    "at": 283.08
+   },
+   {
+    "t": 1960.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.899,
+    "at": 1018.12
+   },
+   {
+    "t": 2000.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.766,
+    "at": 1057.0
+   },
+   {
+    "t": 2040.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.53,
+    "at": 1093.96
+   },
+   {
+    "t": 2080.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.846,
+    "at": 53.6
+   },
+   {
+    "t": 2120.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.883,
+    "at": 1165.86
+   },
+   {
+    "t": 2160.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.351,
+    "at": 1419.52
+   },
+   {
+    "t": 2200.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.832,
+    "at": 1244.34
+   },
+   {
+    "t": 2240.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.718,
+    "at": 1820.56
+   },
+   {
+    "t": 2280.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.861,
+    "at": 106.84
+   },
+   {
+    "t": 2320.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.861,
+    "at": 1356.06
+   },
+   {
+    "t": 2360.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.865,
+    "at": 1391.3
+   },
+   {
+    "t": 2400.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.563,
+    "at": 1188.02
+   },
+   {
+    "t": 2440.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.766,
+    "at": 1216.56
+   },
+   {
+    "t": 2480.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.816,
+    "at": 1253.3
+   },
+   {
+    "t": 2520.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.87,
+    "at": 395.06
+   },
+   {
+    "t": 2560.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.489,
+    "at": 488.06
+   },
+   {
+    "t": 2600.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.779,
+    "at": 1315.98
+   },
+   {
+    "t": 2640.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.428,
+    "at": 1662.3
+   },
+   {
+    "t": 2680.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.872,
+    "at": 1022.82
+   },
+   {
+    "t": 2720.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.876,
+    "at": 1738.82
+   },
+   {
+    "t": 2760.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.758,
+    "at": 1776.12
+   },
+   {
+    "t": 2800.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.877,
+    "at": 1020.74
+   },
+   {
+    "t": 2840.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.845,
+    "at": 1488.96
+   },
+   {
+    "t": 2880.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.876,
+    "at": 1889.32
+   },
+   {
+    "t": 2920.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.856,
+    "at": 313.94
+   },
+   {
+    "t": 2960.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.854,
+    "at": 1635.14
+   },
+   {
+    "t": 3000.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.783,
+    "at": 35.68
+   },
+   {
+    "t": 3040.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.55,
+    "at": 2042.86
+   },
+   {
+    "t": 3080.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.891,
+    "at": 1040.06
+   },
+   {
+    "t": 3120.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.869,
+    "at": 1682.08
+   },
+   {
+    "t": 3160.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.895,
+    "at": 1716.3
+   },
+   {
+    "t": 3200.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.88,
+    "at": 395.12
+   },
+   {
+    "t": 3240.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.737,
+    "at": 1026.34
+   },
+   {
+    "t": 3280.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.886,
+    "at": 2279.98
+   },
+   {
+    "t": 3320.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.842,
+    "at": 194.9
+   },
+   {
+    "t": 3360.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.688,
+    "at": 1881.22
+   },
+   {
+    "t": 3400.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.681,
+    "at": 1921.22
+   },
+   {
+    "t": 3440.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.825,
+    "at": 1961.22
+   },
+   {
+    "t": 3480.0,
+    "file": "10-1_ewns_18-27_nskha_alkran_alkrem.mp3",
+    "score": 0.882,
+    "at": 1994.12
+   },
+   {
+    "t": 3520.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.75,
+    "at": 9.08
+   },
+   {
+    "t": 3560.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.885,
+    "at": 48.68
+   },
+   {
+    "t": 3600.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.89,
+    "at": 88.04
+   },
+   {
+    "t": 3640.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.892,
+    "at": 127.56
+   },
+   {
+    "t": 3680.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.887,
+    "at": 166.88
+   },
+   {
+    "t": 3720.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.875,
+    "at": 315.46
+   },
+   {
+    "t": 3760.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.787,
+    "at": 245.62
+   },
+   {
+    "t": 3800.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.877,
+    "at": 285.16
+   },
+   {
+    "t": 3840.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.89,
+    "at": 324.82
+   },
+   {
+    "t": 3880.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.651,
+    "at": 364.24
+   },
+   {
+    "t": 3920.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.879,
+    "at": 403.82
+   },
+   {
+    "t": 3960.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.925,
+    "at": 443.22
+   },
+   {
+    "t": 4000.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.351,
+    "at": 1419.52
+   },
+   {
+    "t": 4040.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.876,
+    "at": 1023.3
+   },
+   {
+    "t": 4080.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.862,
+    "at": 561.6
+   },
+   {
+    "t": 4120.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.635,
+    "at": 599.32
+   },
+   {
+    "t": 4160.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.89,
+    "at": 638.76
+   },
+   {
+    "t": 4200.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.724,
+    "at": 1036.52
+   },
+   {
+    "t": 4240.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.573,
+    "at": 490.88
+   },
+   {
+    "t": 4280.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.91,
+    "at": 757.4
+   },
+   {
+    "t": 4320.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.911,
+    "at": 812.62
+   },
+   {
+    "t": 4360.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.88,
+    "at": 864.76
+   },
+   {
+    "t": 4400.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.794,
+    "at": 907.82
+   },
+   {
+    "t": 4440.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.886,
+    "at": 947.12
+   },
+   {
+    "t": 4480.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.881,
+    "at": 986.66
+   },
+   {
+    "t": 4520.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.834,
+    "at": 1037.18
+   },
+   {
+    "t": 4560.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.69,
+    "at": 1076.34
+   },
+   {
+    "t": 4600.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.627,
+    "at": 1126.28
+   },
+   {
+    "t": 4640.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.78,
+    "at": 1165.92
+   },
+   {
+    "t": 4680.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.717,
+    "at": 1227.54
+   },
+   {
+    "t": 4720.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.825,
+    "at": 1272.42
+   },
+   {
+    "t": 4760.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.849,
+    "at": 1327.68
+   },
+   {
+    "t": 4800.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.905,
+    "at": 1367.72
+   },
+   {
+    "t": 4840.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.927,
+    "at": 1407.8
+   },
+   {
+    "t": 4880.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "score": 0.789,
+    "at": 1869.58
+   },
+   {
+    "t": 4920.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "score": 0.867,
+    "at": 1500.86
+   }
+  ]
+ },
+ "18": {
+  "durationS": 5168.4,
+  "candidates": [
+   "18-1_alkhf_1-21_m3_alazan.mp3",
+   "18-1_alkhf_1-21_m3_alazan.mp3",
+   "18-1_alkhf_1-21_nskha_almhfl_mn_aza3a_alkran_alkrem.mp3",
+   "18-1_alkhf_1-21_nskha_almhfl_mn_aza3a_alkran_alkrem.mp3",
+   "18-2_alkhf_46-74_nskha_alaslea.mp3",
+   "18-2_alkhf_46-74_nskha_alaslea.mp3",
+   "18-2_alkhf_46-74_nskha_alaza3a.mp3",
+   "18-2_alkhf_46-74_nskha_alaza3a.mp3",
+   "18-2_alkhf_46-74_nskha_shrka_swt_alkahra.mp3",
+   "18-2_alkhf_46-74_nskha_shrka_swt_alkahra.mp3",
+   "18-2_alkhf__46_-74_hfla.mp3",
+   "18-2_alkhf__46_-74_hfla.mp3",
+   "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+   "18-3_alkhf_60-84_nskha_alaa3a.mp3"
+  ],
+  "pieces": [
+   {
+    "t": 0.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.653,
+    "at": 11.8
+   },
+   {
+    "t": 40.0,
+    "file": "18-1_alkhf_1-21_nskha_almhfl_mn_aza3a_alkran_alkrem.mp3",
+    "score": 0.702,
+    "at": 40.9
+   },
+   {
+    "t": 80.0,
+    "file": "18-1_alkhf_1-21_nskha_almhfl_mn_aza3a_alkran_alkrem.mp3",
+    "score": 0.635,
+    "at": 72.94
+   },
+   {
+    "t": 120.0,
+    "file": "18-1_alkhf_1-21_nskha_almhfl_mn_aza3a_alkran_alkrem.mp3",
+    "score": 0.669,
+    "at": 111.1
+   },
+   {
+    "t": 160.0,
+    "file": "18-1_alkhf_1-21_nskha_almhfl_mn_aza3a_alkran_alkrem.mp3",
+    "score": 0.779,
+    "at": 148.26
+   },
+   {
+    "t": 200.0,
+    "file": "18-1_alkhf_1-21_nskha_almhfl_mn_aza3a_alkran_alkrem.mp3",
+    "score": 0.703,
+    "at": 175.84
+   },
+   {
+    "t": 240.0,
+    "file": "18-1_alkhf_1-21_nskha_almhfl_mn_aza3a_alkran_alkrem.mp3",
+    "score": 0.791,
+    "at": 215.86
+   },
+   {
+    "t": 280.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.791,
+    "at": 1490.52
+   },
+   {
+    "t": 320.0,
+    "file": "18-1_alkhf_1-21_nskha_almhfl_mn_aza3a_alkran_alkrem.mp3",
+    "score": 0.668,
+    "at": 275.0
+   },
+   {
+    "t": 360.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.686,
+    "at": 743.12
+   },
+   {
+    "t": 400.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.78,
+    "at": 859.24
+   },
+   {
+    "t": 440.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.686,
+    "at": 328.28
+   },
+   {
+    "t": 480.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.523,
+    "at": 1446.38
+   },
+   {
+    "t": 520.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.749,
+    "at": 143.08
+   },
+   {
+    "t": 560.0,
+    "file": "18-1_alkhf_1-21_nskha_almhfl_mn_aza3a_alkran_alkrem.mp3",
+    "score": 0.694,
+    "at": 462.16
+   },
+   {
+    "t": 600.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.716,
+    "at": 923.36
+   },
+   {
+    "t": 640.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.498,
+    "at": 0.0
+   },
+   {
+    "t": 680.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.745,
+    "at": 1899.1
+   },
+   {
+    "t": 720.0,
+    "file": "18-1_alkhf_1-21_nskha_almhfl_mn_aza3a_alkran_alkrem.mp3",
+    "score": 0.666,
+    "at": 613.8
+   },
+   {
+    "t": 760.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.345,
+    "at": 1043.26
+   },
+   {
+    "t": 800.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.788,
+    "at": 591.24
+   },
+   {
+    "t": 840.0,
+    "file": "18-1_alkhf_1-21_nskha_almhfl_mn_aza3a_alkran_alkrem.mp3",
+    "score": 0.752,
+    "at": 725.1
+   },
+   {
+    "t": 880.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.611,
+    "at": 698.42
+   },
+   {
+    "t": 920.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.746,
+    "at": 143.8
+   },
+   {
+    "t": 960.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.777,
+    "at": 747.64
+   },
+   {
+    "t": 1000.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.498,
+    "at": 0.0
+   },
+   {
+    "t": 1040.0,
+    "file": "18-1_alkhf_1-21_nskha_almhfl_mn_aza3a_alkran_alkrem.mp3",
+    "score": 0.695,
+    "at": 899.16
+   },
+   {
+    "t": 1080.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.784,
+    "at": 864.66
+   },
+   {
+    "t": 1120.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.822,
+    "at": 967.8
+   },
+   {
+    "t": 1160.0,
+    "file": "18-1_alkhf_1-21_nskha_almhfl_mn_aza3a_alkran_alkrem.mp3",
+    "score": 0.636,
+    "at": 952.54
+   },
+   {
+    "t": 1200.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.838,
+    "at": 994.36
+   },
+   {
+    "t": 1240.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.705,
+    "at": 978.84
+   },
+   {
+    "t": 1280.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.767,
+    "at": 61.48
+   },
+   {
+    "t": 1320.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.498,
+    "at": 0.0
+   },
+   {
+    "t": 1360.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.795,
+    "at": 1345.04
+   },
+   {
+    "t": 1400.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.654,
+    "at": 1387.76
+   },
+   {
+    "t": 1440.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.564,
+    "at": 1230.38
+   },
+   {
+    "t": 1480.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.803,
+    "at": 1268.94
+   },
+   {
+    "t": 1520.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.71,
+    "at": 698.48
+   },
+   {
+    "t": 1560.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.82,
+    "at": 913.24
+   },
+   {
+    "t": 1600.0,
+    "file": "18-2_alkhf_46-74_nskha_shrka_swt_alkahra.mp3",
+    "score": 0.763,
+    "at": 1137.98
+   },
+   {
+    "t": 1640.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.817,
+    "at": 1104.08
+   },
+   {
+    "t": 1680.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.834,
+    "at": 1558.82
+   },
+   {
+    "t": 1720.0,
+    "file": "18-2_alkhf_46-74_nskha_shrka_swt_alkahra.mp3",
+    "score": 0.742,
+    "at": 1138.18
+   },
+   {
+    "t": 1760.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.839,
+    "at": 921.16
+   },
+   {
+    "t": 1800.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.77,
+    "at": 1080.98
+   },
+   {
+    "t": 1840.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.841,
+    "at": 1716.06
+   },
+   {
+    "t": 1880.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.585,
+    "at": 1754.86
+   },
+   {
+    "t": 1920.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.557,
+    "at": 1793.98
+   },
+   {
+    "t": 1960.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.498,
+    "at": 0.0
+   },
+   {
+    "t": 2000.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.645,
+    "at": 1897.46
+   },
+   {
+    "t": 2040.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.828,
+    "at": 2160.8
+   },
+   {
+    "t": 2080.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.734,
+    "at": 978.48
+   },
+   {
+    "t": 2120.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.703,
+    "at": 1988.1
+   },
+   {
+    "t": 2160.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.721,
+    "at": 2047.5
+   },
+   {
+    "t": 2200.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.597,
+    "at": 426.66
+   },
+   {
+    "t": 2240.0,
+    "file": "18-1_alkhf_1-21_nskha_almhfl_mn_aza3a_alkran_alkrem.mp3",
+    "score": 0.821,
+    "at": 2300.16
+   },
+   {
+    "t": 2280.0,
+    "file": "18-1_alkhf_1-21_nskha_almhfl_mn_aza3a_alkran_alkrem.mp3",
+    "score": 0.558,
+    "at": 2082.68
+   },
+   {
+    "t": 2320.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.835,
+    "at": 2210.5
+   },
+   {
+    "t": 2360.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.833,
+    "at": 2001.14
+   },
+   {
+    "t": 2400.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.549,
+    "at": 29.32
+   },
+   {
+    "t": 2440.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.722,
+    "at": 771.68
+   },
+   {
+    "t": 2480.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.743,
+    "at": 742.3
+   },
+   {
+    "t": 2520.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.72,
+    "at": 743.78
+   },
+   {
+    "t": 2560.0,
+    "file": "18-2_alkhf_46-74_nskha_shrka_swt_alkahra.mp3",
+    "score": 0.618,
+    "at": 145.74
+   },
+   {
+    "t": 2600.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.636,
+    "at": 746.84
+   },
+   {
+    "t": 2640.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.777,
+    "at": 741.48
+   },
+   {
+    "t": 2680.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.751,
+    "at": 741.7
+   },
+   {
+    "t": 2720.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.576,
+    "at": 319.14
+   },
+   {
+    "t": 2760.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.579,
+    "at": 320.62
+   },
+   {
+    "t": 2800.0,
+    "file": "18-2_alkhf_46-74_nskha_shrka_swt_alkahra.mp3",
+    "score": 0.632,
+    "at": 388.12
+   },
+   {
+    "t": 2840.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.618,
+    "at": 448.38
+   },
+   {
+    "t": 2880.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.766,
+    "at": 1555.2
+   },
+   {
+    "t": 2920.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.731,
+    "at": 1526.24
+   },
+   {
+    "t": 2960.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.78,
+    "at": 907.06
+   },
+   {
+    "t": 3000.0,
+    "file": "18-1_alkhf_1-21_nskha_almhfl_mn_aza3a_alkran_alkrem.mp3",
+    "score": 0.624,
+    "at": 2448.72
+   },
+   {
+    "t": 3040.0,
+    "file": "18-2_alkhf_46-74_nskha_shrka_swt_alkahra.mp3",
+    "score": 0.635,
+    "at": 630.82
+   },
+   {
+    "t": 3080.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.842,
+    "at": 691.74
+   },
+   {
+    "t": 3120.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.778,
+    "at": 916.84
+   },
+   {
+    "t": 3160.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.808,
+    "at": 858.34
+   },
+   {
+    "t": 3200.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.82,
+    "at": 1156.08
+   },
+   {
+    "t": 3240.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.617,
+    "at": 979.18
+   },
+   {
+    "t": 3280.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.72,
+    "at": 1899.1
+   },
+   {
+    "t": 3320.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.738,
+    "at": 933.36
+   },
+   {
+    "t": 3360.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.788,
+    "at": 973.86
+   },
+   {
+    "t": 3400.0,
+    "file": "18-2_alkhf_46-74_nskha_shrka_swt_alkahra.mp3",
+    "score": 0.667,
+    "at": 995.34
+   },
+   {
+    "t": 3440.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.77,
+    "at": 1076.66
+   },
+   {
+    "t": 3480.0,
+    "file": "18-1_alkhf_1-21_m3_alazan.mp3",
+    "score": 0.817,
+    "at": 913.82
+   },
+   {
+    "t": 3520.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.652,
+    "at": 1036.06
+   },
+   {
+    "t": 3560.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.718,
+    "at": 38.3
+   },
+   {
+    "t": 3600.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.507,
+    "at": 81.3
+   },
+   {
+    "t": 3640.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.57,
+    "at": 125.42
+   },
+   {
+    "t": 3680.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.6,
+    "at": 176.42
+   },
+   {
+    "t": 3720.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.636,
+    "at": 1006.38
+   },
+   {
+    "t": 3760.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.57,
+    "at": 272.14
+   },
+   {
+    "t": 3800.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.593,
+    "at": 320.94
+   },
+   {
+    "t": 3840.0,
+    "file": "18-2_alkhf_46-74_nskha_shrka_swt_alkahra.mp3",
+    "score": 0.713,
+    "at": 1140.16
+   },
+   {
+    "t": 3880.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.712,
+    "at": 737.24
+   },
+   {
+    "t": 3920.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.63,
+    "at": 482.56
+   },
+   {
+    "t": 3960.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.682,
+    "at": 528.34
+   },
+   {
+    "t": 4000.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.713,
+    "at": 578.72
+   },
+   {
+    "t": 4040.0,
+    "file": "18-2_alkhf_46-74_nskha_alaza3a.mp3",
+    "score": 0.778,
+    "at": 1252.64
+   },
+   {
+    "t": 4080.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.72,
+    "at": 661.98
+   },
+   {
+    "t": 4120.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.83,
+    "at": 700.76
+   },
+   {
+    "t": 4160.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.82,
+    "at": 739.64
+   },
+   {
+    "t": 4200.0,
+    "file": "18-2_alkhf_46-74_nskha_shrka_swt_alkahra.mp3",
+    "score": 0.773,
+    "at": 1138.22
+   },
+   {
+    "t": 4240.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.688,
+    "at": 817.08
+   },
+   {
+    "t": 4280.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.698,
+    "at": 1898.84
+   },
+   {
+    "t": 4320.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.815,
+    "at": 894.54
+   },
+   {
+    "t": 4360.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.792,
+    "at": 1147.36
+   },
+   {
+    "t": 4400.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.466,
+    "at": 969.08
+   },
+   {
+    "t": 4440.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.821,
+    "at": 1002.0
+   },
+   {
+    "t": 4480.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.646,
+    "at": 698.14
+   },
+   {
+    "t": 4520.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.843,
+    "at": 1083.02
+   },
+   {
+    "t": 4560.0,
+    "file": "18-2_alkhf_46-74_nskha_alaza3a.mp3",
+    "score": 0.763,
+    "at": 1251.62
+   },
+   {
+    "t": 4600.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.797,
+    "at": 1164.74
+   },
+   {
+    "t": 4640.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.761,
+    "at": 1195.42
+   },
+   {
+    "t": 4680.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.789,
+    "at": 1232.88
+   },
+   {
+    "t": 4720.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.7,
+    "at": 1270.22
+   },
+   {
+    "t": 4760.0,
+    "file": "18-2_alkhf_46-74_nskha_alaslea.mp3",
+    "score": 0.681,
+    "at": 1898.62
+   },
+   {
+    "t": 4800.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.772,
+    "at": 1354.04
+   },
+   {
+    "t": 4840.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.821,
+    "at": 1403.04
+   },
+   {
+    "t": 4880.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.836,
+    "at": 1450.84
+   },
+   {
+    "t": 4920.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.849,
+    "at": 1493.76
+   },
+   {
+    "t": 4960.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.733,
+    "at": 1540.0
+   },
+   {
+    "t": 5000.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.83,
+    "at": 1577.84
+   },
+   {
+    "t": 5040.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.76,
+    "at": 1616.9
+   },
+   {
+    "t": 5080.0,
+    "file": "18-1_alkhf_1-21_nskha_almhfl_mn_aza3a_alkran_alkrem.mp3",
+    "score": 0.369,
+    "at": 257.6
+   },
+   {
+    "t": 5120.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "score": 0.59,
+    "at": 1696.32
+   }
+  ]
+ }
+}

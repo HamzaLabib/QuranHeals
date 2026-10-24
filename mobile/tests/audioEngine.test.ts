@@ -130,20 +130,22 @@ describe('starting playback', () => {
     expect(t.loads()).toEqual([]);
   });
 
-  it('a reciter with no verified timing at all never plays (Yasser Salama; Ahmed Mohamed Salama has no recording)', async () => {
+  it('a reciter with no verified timing at all never plays itself: Al-Minshawi (verified) plays instead; neither: unavailable', async () => {
     for (const reciterId of ['yasser-salama', 'ahmed-salama']) {
       const t = setup();
       t.engine.start({ surah: 1, ayah: 1 }, { mode: 'continuous', reciterId });
       await t.settle();
-      expect(t.engine.getState()).toMatchObject({ phase: 'error', reciterId, error: { kind: 'unavailable', surah: 1, reciterId } });
-      // No source is ever resolved: no URL is built (Ahmed Mohamed Salama has no server at all).
-      expect(t.loads()).toEqual([]);
-      t.engine.skip(1);
-      t.engine.skipPage(1);
-      t.engine.retry();
-      await t.settle();
-      expect(t.loads()).toEqual([]);
-      expect(t.engine.getState().reciterId).toBe(reciterId);
+      expect(t.engine.getState()).toMatchObject({ phase: 'playing', reciterId: 'minshawi', preferredReciterId: reciterId, error: null });
+      // Never a URL of the reciter asked for (Ahmed Mohamed Salama has no server at all): Al-Minshawi's own file.
+      expect(t.loads()).toEqual([`load ${url(minshawi, 1)} @0`]);
+      // Surah 9: Al-Minshawi has no verified timing either (release catalogue): the usual error, nothing loaded.
+      const u = setup();
+      u.engine.start({ surah: 9, ayah: 1 }, { mode: 'continuous', reciterId });
+      await u.settle();
+      expect(u.engine.getState()).toMatchObject({ phase: 'error', reciterId, error: { kind: 'unavailable', surah: 9, reciterId } });
+      u.engine.retry();
+      await u.settle();
+      expect(u.loads()).toEqual([]);
     }
   });
 
@@ -618,33 +620,34 @@ describe('page jumps (the audio window`s Previous / Next page)', () => {
   });
 });
 
-describe('a reciter with measured timing (Ali Al-Hudhaifi)', () => {
-  const hudhaifi = getReciter('hudhaifi')!;
+// The measured-timing path (also Ali Al-Hudhaifi's), here with Mahmoud Ali Al-Banna (surah 108, measured for his MP3Quran file).
+describe('a reciter with measured timing (Mahmoud Ali Al-Banna)', () => {
+  const banna = getReciter('banna')!;
   /** The timing the app would load: the shipped measured timing, verified against the catalogue. */
   const real = (reciter: Reciter, surah: number): TimingResult => {
     const timing = verifyTiming(reciter, surah, measuredTimingEntries(reciter.id, surah) ?? []);
     return timing ? { ok: true, timing } : { ok: false, reason: 'unavailable' };
   };
-  const surah = [112, ...Object.keys(hudhaifi.timed).map(Number)].find((s) => hudhaifi.timed[s] && SURAH_AYAH_COUNTS[s - 1] >= 3)!;
-  const timing = (real(hudhaifi, surah) as { ok: true; timing: SurahTiming }).timing;
+  const surah = [112, ...Object.keys(banna.timed).map(Number)].find((s) => banna.timed[s] && SURAH_AYAH_COUNTS[s - 1] >= 3)!;
+  const timing = (real(banna, surah) as { ok: true; timing: SurahTiming }).timing;
 
   it('starts the MP3Quran file at the measured start of the ayah, and carries on through the next without reloading', async () => {
     const t = setup({ timing: real });
-    t.engine.start({ surah, ayah: 2 }, { mode: 'continuous', reciterId: 'hudhaifi' });
+    t.engine.start({ surah, ayah: 2 }, { mode: 'continuous', reciterId: 'banna' });
     await t.settle();
-    expect(t.loads()).toEqual([`load ${url(hudhaifi, surah)} @${timing.ayahs[1].startMs}`]);
-    expect(url(hudhaifi, surah)).toMatch(/^https:\/\/cdn\.mp3quran\.net\/audio\/ali-hudhaifi\/r1\//);
+    expect(t.loads()).toEqual([`load ${url(banna, surah)} @${timing.ayahs[1].startMs}`]);
+    expect(url(banna, surah)).toMatch(/^https:\/\/cdn\.mp3quran\.net\/audio\/mahmoud-banna\/r1\//);
     await t.at(timing.ayahs[1].startMs + 100);
     await t.at(timing.ayahs[1].endMs);
-    expect(t.engine.getState()).toMatchObject({ phase: 'playing', position: { surah, ayah: 3 }, reciterId: 'hudhaifi' });
+    expect(t.engine.getState()).toMatchObject({ phase: 'playing', position: { surah, ayah: 3 }, reciterId: 'banna' });
     expect(t.loads()).toHaveLength(1);
   });
 
   it('plays ayah 1 from the start of the file, and a single ayah stops at its measured end', async () => {
     const t = setup({ timing: real });
-    t.engine.start({ surah, ayah: 1 }, { mode: 'single', reciterId: 'hudhaifi' });
+    t.engine.start({ surah, ayah: 1 }, { mode: 'single', reciterId: 'banna' });
     await t.settle();
-    expect(t.loads()).toEqual([`load ${url(hudhaifi, surah)} @0`]);
+    expect(t.loads()).toEqual([`load ${url(banna, surah)} @0`]);
     await t.at(timing.ayahs[0].startMs + 100);
     await t.at(timing.ayahs[0].endMs - 100);
     expect(t.engine.getState().phase).toBe('playing');
@@ -652,13 +655,111 @@ describe('a reciter with measured timing (Ali Al-Hudhaifi)', () => {
     expect(t.engine.getState()).toMatchObject({ phase: 'ended', position: { surah, ayah: 1 } });
   });
 
-  it('a surah without measured timing is refused, never played with other timing or another voice', async () => {
-    const missing = Array.from({ length: 114 }, (_, i) => i + 1).find((s) => !hudhaifi.timed[s]);
+  it('a surah without measured timing is never played with other timing: the default reciter plays it, with his own', async () => {
+    const missing = Array.from({ length: 114 }, (_, i) => i + 1).find((s) => !banna.timed[s] && minshawi.timed[s]);
     if (missing === undefined) return;
-    const t = setup({ timing: real });
-    t.engine.start({ surah: missing, ayah: 1 }, { mode: 'continuous', reciterId: 'hudhaifi' });
+    const t = setup();
+    t.engine.start({ surah: missing, ayah: 1 }, { mode: 'continuous', reciterId: 'banna' });
     await t.settle();
-    expect(t.engine.getState()).toMatchObject({ phase: 'error', error: { kind: 'unavailable', surah: missing, reciterId: 'hudhaifi' } });
-    expect(t.loads()).toEqual([]);
+    expect(t.engine.getState()).toMatchObject({ phase: 'playing', reciterId: 'minshawi', preferredReciterId: 'banna' });
+    expect(t.loads()).toEqual([`load ${url(minshawi, missing)} @0`]);
+  });
+});
+
+// Owner, 2026-10-24: Al-Minshawi is the default reciter and the fallback where the reciter asked for has no verified
+// recording of a surah (reciters.ts DEFAULT_RECITER_ID, engine.ts voiceFor). Release catalogue: Maher has 6 and 8 but not
+// 7; Al-Minshawi has 7 but not 9; Banna has neither 8 nor 9.
+describe('fallback to Al-Minshawi', () => {
+  const last = (surah: number) => SURAH_AYAH_COUNTS[surah - 1];
+
+  it('the reciter asked for plays wherever it has a verified recording: no fallback', async () => {
+    const t = setup();
+    t.engine.start({ surah: 8, ayah: 3 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    expect(t.engine.getState()).toMatchObject({ phase: 'playing', reciterId: 'maher', preferredReciterId: 'maher' });
+    expect(t.loads().join(' ')).not.toContain('minshawi');
+  });
+
+  it('continuous: into a surah it has no recording of, Al-Minshawi at the ayah boundary; back at the next surah it has', async () => {
+    const t = setup();
+    t.engine.start({ surah: 6, ayah: last(6) }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    await t.at(startOf(last(6)) + 100);
+    await t.at(endOf(last(6)));
+    // A new surah: switched exactly at the boundary, from 7:1 (no ayah skipped, nothing mid-ayah).
+    expect(t.engine.getState()).toMatchObject({ phase: 'playing', position: { surah: 7, ayah: 1 }, reciterId: 'minshawi', preferredReciterId: 'maher' });
+    expect(t.loads().at(-1)).toBe(`load ${url(minshawi, 7)} @0`);
+    // Within the surah: the same voice, the same file, ayah after ayah.
+    await t.at(startOf(1) + 100);
+    await t.at(endOf(1));
+    expect(t.engine.getState()).toMatchObject({ position: { surah: 7, ayah: 2 }, reciterId: 'minshawi' });
+    // The last ayah of 7, then 8, where Maher has a recording again.
+    const u = setup();
+    u.engine.start({ surah: 7, ayah: last(7) }, { mode: 'continuous', reciterId: 'maher' });
+    await u.settle();
+    expect(u.engine.getState()).toMatchObject({ reciterId: 'minshawi', preferredReciterId: 'maher' });
+    await u.at(startOf(last(7)) + 100);
+    await u.at(endOf(last(7)));
+    expect(u.engine.getState()).toMatchObject({ phase: 'playing', position: { surah: 8, ayah: 1 }, reciterId: 'maher', preferredReciterId: 'maher' });
+    expect(u.loads().at(-1)).toBe(`load ${url(maher, 8)} @0`);
+  });
+
+  it('neither has a recording: the usual unavailable error at that surah, never a skip and never a third voice', async () => {
+    const t = setup();
+    t.engine.start({ surah: 8, ayah: last(8) }, { mode: 'continuous', reciterId: 'banna' });
+    await t.settle();
+    expect(t.engine.getState()).toMatchObject({ reciterId: 'minshawi', preferredReciterId: 'banna' });
+    await t.at(startOf(last(8)) + 100);
+    await t.at(endOf(last(8)));
+    expect(t.engine.getState()).toMatchObject({ phase: 'error', position: { surah: 9, ayah: 1 }, error: { kind: 'unavailable', surah: 9, reciterId: 'banna' } });
+    expect(t.loads().some((c) => c.includes('/009.mp3') || c.includes('/010.mp3'))).toBe(false);
+  });
+
+  it('the ayah screens, Full Surah, Repeat and skips use the same rule; the reciter asked for is never replaced', async () => {
+    const single = setup();
+    single.engine.start({ surah: 7, ayah: 3 }, { mode: 'single', reciterId: 'maher' });
+    await single.settle();
+    expect(single.engine.getState()).toMatchObject({ phase: 'playing', mode: 'single', reciterId: 'minshawi', preferredReciterId: 'maher' });
+    expect(single.loads()).toEqual([`load ${url(minshawi, 7)} @${startOf(3)}`]);
+
+    const full = setup();
+    full.engine.startFullSurah(7, 'maher');
+    await full.settle();
+    expect(full.engine.getState()).toMatchObject({ mode: 'fullSurah', reciterId: 'minshawi', preferredReciterId: 'maher' });
+    full.engine.skip(1);
+    await full.settle();
+    expect(full.engine.getState()).toMatchObject({ position: { surah: 7, ayah: 2 }, reciterId: 'minshawi' });
+
+    const repeat = setup();
+    repeat.engine.setRepeat(1);
+    repeat.engine.start({ surah: 7, ayah: 2 }, { mode: 'continuous', reciterId: 'maher' });
+    await repeat.settle();
+    await repeat.at(startOf(2) + 100);
+    await repeat.at(endOf(2));
+    expect(repeat.engine.getState()).toMatchObject({ position: { surah: 7, ayah: 2 }, reciterId: 'minshawi' });
+    expect(repeat.loads().at(-1)).toBe(`seek @${startOf(2)}`);
+
+    // Previous from 8:1 (Maher) into 7 (none): Al-Minshawi; Next back into 8: Maher.
+    const skip = setup();
+    skip.engine.start({ surah: 8, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    await skip.settle();
+    skip.engine.skip(-1);
+    await skip.settle();
+    expect(skip.engine.getState()).toMatchObject({ position: { surah: 7, ayah: last(7) }, reciterId: 'minshawi', preferredReciterId: 'maher' });
+    skip.engine.skip(1);
+    await skip.settle();
+    expect(skip.engine.getState()).toMatchObject({ position: { surah: 8, ayah: 1 }, reciterId: 'maher' });
+  });
+
+  it('a reciter chosen in the player is the one asked for from then on; idle again after stop', async () => {
+    const t = setup();
+    t.engine.start({ surah: 6, ayah: 2 }, { mode: 'continuous', reciterId: 'abdulbasit' });
+    await t.settle();
+    t.engine.selectReciter('maher');
+    await t.at(startOf(2) + 100);
+    await t.at(endOf(2));
+    expect(t.engine.getState()).toMatchObject({ reciterId: 'maher', preferredReciterId: 'maher' });
+    t.engine.stop();
+    expect(t.engine.getState()).toMatchObject({ phase: 'idle', reciterId: null, preferredReciterId: null });
   });
 });

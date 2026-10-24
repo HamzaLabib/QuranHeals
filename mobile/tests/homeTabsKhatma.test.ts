@@ -173,9 +173,9 @@ describe('the five bottom tabs', () => {
     expect(navigation.navigate).toHaveBeenCalledWith('my-reading', undefined);
   });
 
-  it('exactly five tabs: Home, How I Feel, Mushaf, Recitating, Reflections — in this order, with the approved labels in every language', async () => {
+  it('exactly five tabs: Home, How I Feel, Mushaf, My Reciting, Reflections — in this order, with the approved labels in every language', async () => {
     expect(APP_TABS).toEqual(['index', 'emotions', 'mushaf', 'my-reading', 'reflections']);
-    const expected = { en: ['Home', 'How I Feel', 'Mushaf', 'Recitating', 'Reflections'], ar: ['الرئيسية', 'مشاعري', 'المصحف', 'الوِرد', 'خواطري'], 'ar-EG': ['الرئيسية', 'مشاعري', 'المصحف', 'الوِرد', 'خواطري'] } as const;
+    const expected = { en: ['Home', 'How I Feel', 'Mushaf', 'My Reciting', 'Reflections'], ar: ['الرئيسية', 'مشاعري', 'المصحف', 'الوِرد', 'خواطري'], 'ar-EG': ['الرئيسية', 'مشاعري', 'المصحف', 'الوِرد', 'خواطري'] } as const;
     for (const locale of ['en', 'ar', 'ar-EG'] as const) {
       state.locale = locale;
       await mount(createElement(AppTabBar, props(0).props));
@@ -297,14 +297,14 @@ describe('Home', () => {
     expect(MESSAGES.ar.continueReading.title).toBe('متابعة التلاوة');
     expect(MESSAGES['ar-EG'].continueReading.title).toBe('متابعة التلاوة');
     // The page keeps its full title; only the tab is shortened.
-    expect(MESSAGES.en.myReading.title).toBe('Recitings and Khatmas');
+    expect(MESSAGES.en.myReading.title).toBe('My Reciting and Khatmas');
     expect(MESSAGES.ar.myReading.title).toBe('الوِرد والختمات');
     expect(MESSAGES['ar-EG'].myReading.title).toBe('الوِرد والختمات');
-    expect(MESSAGES.en.tabs.myReading).toBe('Recitating');
+    expect(MESSAGES.en.tabs.myReading).toBe('My Reciting');
     expect(MESSAGES.ar.tabs.myReading).toBe('الوِرد');
     expect(MESSAGES['ar-EG'].tabs.myReading).toBe('الوِرد');
     // The Continue Reciting card's button: the combined section's name.
-    expect(MESSAGES.en.continueReading.myReading).toBe('Recitings and Khatmas');
+    expect(MESSAGES.en.continueReading.myReading).toBe('My Reciting and Khatmas');
     expect(MESSAGES.ar.continueReading.myReading).toBe('الوِرد والختمات');
     expect(MESSAGES['ar-EG'].continueReading.myReading).toBe('الوِرد والختمات');
   });
@@ -955,14 +955,14 @@ describe('the Khatma completion screen (/khatma-complete)', () => {
   const actionIds = () => root.root.findByProps({ testID: 'khatma-complete-dua' }).parent!.children.map((child) => (child as ReactTestInstance).props.testID);
 
   for (const locale of ['en', 'ar', 'ar-EG'] as const) {
-    it(`${locale}: three stacked actions — Back to Mushaf, Back to My Recitations, the du\`a — in the App Language`, async () => {
+    it(`${locale}: three stacked actions — Back to Mushaf, Back to My Reciting and Khatmas, the du\`a — in the App Language`, async () => {
       state.locale = locale;
       await confirmedFajr();
       await mount(createElement(KhatmaCompleteScreen));
       expect(actionIds()).toEqual(['khatma-complete-mushaf', 'khatma-complete-back', 'khatma-complete-dua']);
       const en = locale === 'en';
       expect(textOf(byId('khatma-complete-mushaf'))).toBe(en ? 'Back to Mushaf' : 'العودة إلى المصحف');
-      expect(textOf(byId('khatma-complete-back'))).toBe(en ? 'Back to Recitings and Khatmas' : 'العودة إلى الوِرد والختمات');
+      expect(textOf(byId('khatma-complete-back'))).toBe(en ? 'Back to My Reciting and Khatmas' : 'العودة إلى الوِرد والختمات');
       expect(textOf(byId('khatma-complete-dua'))).toBe(en ? 'Read the Khatma Du’a' : 'قراءة دعاء ختم القرآن');
       // Each a full-width, 54 pt button in the app's palette (Light and Dark follow from it); the icon side mirrors in Arabic.
       const style = (id: string) => Object.assign({}, ...[byId(id).props.style({ pressed: false })].flat(3).filter(Boolean));
@@ -1013,7 +1013,7 @@ describe('the Khatma completion screen (/khatma-complete)', () => {
     expect((await loadReadingData()).stats.total).toBe(1);
   });
 
-  it('My Recitations and the du`a keep their navigation; nothing on this screen records or confirms a Khatma', async () => {
+  it('My Reciting and Khatmas and the du`a keep their navigation; nothing on this screen records or confirms a Khatma', async () => {
     await confirmedFajr();
     await mount(createElement(KhatmaCompleteScreen));
     await press('khatma-complete-back');

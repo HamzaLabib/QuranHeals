@@ -1,6 +1,7 @@
 import { looksLikeMp3, type AudioFiles, type FileDownload } from './downloads';
 import { getReciter, RECITERS } from './reciters';
 import type { TimingStore } from './timing';
+import type { VerifiedTimingStore } from './verifiedTiming';
 
 /**
  * Quran audio on the device, in the app's documents (kept across launches and never purged by the system, unlike the
@@ -43,6 +44,51 @@ export const timingStore: TimingStore = {
     const file = new m.File(dir, `${surah}.json`);
     if (!file.exists) file.create();
     file.write(text);
+  },
+};
+
+/**
+ * Phase 4.8.3: the published human-verified timing kept on the device (verifiedTiming.ts): one manifest per app
+ * environment, and one immutable document per version (named by its version id, so two versions never mix).
+ */
+const VERSION_FILE = /^(tv_[0-9a-f]{24})\.json$/;
+export const verifiedTimingStore: VerifiedTimingStore = {
+  async readManifest(environment) {
+    const m = await fs();
+    const file = new m.File(new m.Directory(m.Paths.document, 'quran-audio', 'verified'), `manifest-${environment}.json`);
+    return file.exists ? file.text() : null;
+  },
+  async writeManifest(environment, text) {
+    const m = await fs();
+    const dir = new m.Directory(m.Paths.document, 'quran-audio', 'verified');
+    ensureDir(dir);
+    const file = new m.File(dir, `manifest-${environment}.json`);
+    if (!file.exists) file.create();
+    file.write(text);
+  },
+  async readVersion(versionId) {
+    const m = await fs();
+    const file = new m.File(new m.Directory(m.Paths.document, 'quran-audio', 'verified', 'versions'), `${versionId}.json`);
+    return file.exists ? file.text() : null;
+  },
+  async writeVersion(versionId, text) {
+    const m = await fs();
+    const dir = new m.Directory(m.Paths.document, 'quran-audio', 'verified', 'versions');
+    ensureDir(dir);
+    const file = new m.File(dir, `${versionId}.json`);
+    if (!file.exists) file.create();
+    file.write(text);
+  },
+  async listVersions() {
+    const m = await fs();
+    const dir = new m.Directory(m.Paths.document, 'quran-audio', 'verified', 'versions');
+    if (!dir.exists) return [];
+    return dir.list().flatMap((entry) => (entry instanceof m.File ? (VERSION_FILE.exec(entry.name)?.[1] ?? []) : []));
+  },
+  async removeVersion(versionId) {
+    const m = await fs();
+    const file = new m.File(new m.Directory(m.Paths.document, 'quran-audio', 'verified', 'versions'), `${versionId}.json`);
+    if (file.exists) file.delete();
   },
 };
 

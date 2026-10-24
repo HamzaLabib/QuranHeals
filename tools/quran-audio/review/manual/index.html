@@ -1,0 +1,1468 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual Ayah Timing</title>
+<!--
+  Manual ayah timing (Phase 4.6A), served by review/manual/server.mjs. A person places every ayah start by listening.
+  The page never places, moves or approves a marker: the Phase 4.5 brackets, pauses and evidence windows are shown
+  read-only, as places to listen. Two reviewers work blind to each other; the server keeps an append-only log.
+  Phase 4.8: also the review page of the unified dashboard (review/dashboard/server.mjs, at /review). A recording that
+  comes from an aligned or development package shows the automatic PROPOSAL read-only (dashed markers); a start
+  counts only when a reviewer confirms it (C: confirm the proposed time, or place it by ear and judge it 1).
+  Phase 4.8.4 (review workstation): Full Surah Overview, Zoomed Ayah Waveform, Current Ayah panel (canonical text,
+  inline actions, Play | At Playhead | Go Playhead), Enter = confirm + next pending, Up/Down = previous/next ayah,
+  color-coded markers, comparison with Agree / Accept, automatic YES/NO objective checks beside the human questions.
+  Phase 4.8.4.1: no listening gate. Confirming is the reviewer's own judgement: how much to listen is theirs to decide
+  (Play and Replay stay available), and the page records no playback evidence. Accept Proposed Boundary; bulk Accept All
+  Proposed / Reject All Proposed / Accept All Edited with a preview, applied by one audited server event. Nothing submits.
+-->
+<style>
+  :root {
+    --bg: #f6f2e7; --card: #fffdf6; --raise: #f1ebda; --text: #1e2a21; --muted: #5f6a5a; --accent: #2f5d3a; --accent-ink: #fffdf6;
+    --ok: #2c7443; --warn: #9a6a00; --bad: #a3392a; --line: #ddd4bf; --focus: #c58b1c;
+    --wave: #4c6b55; --wave-bg: #fbf8ef; --quiet: rgba(95,106,90,.16); --cand: rgba(197,139,28,.38); --bracket: rgba(47,93,58,.10);
+    --win-ok: rgba(44,116,67,.30); --win-weak: rgba(95,106,90,.12); --play: #c2412d; --other: #3c5a9a; --sel: rgba(60,90,154,.18);
+    --auto: #7a5ca8; --auto-pause: rgba(122,92,168,.16);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --auto: #c3a8ef; --auto-pause: rgba(195,168,239,.16); } }
+  :root[data-theme="dark"] { --auto: #c3a8ef; --auto-pause: rgba(195,168,239,.16); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #131814; --card: #1b221d; --raise: #232c25; --text: #e6ecdf; --muted: #9ba696; --accent: #8fc79c; --accent-ink: #131814; --ok: #7fd197; --warn: #e6b450; --bad: #f08a7a; --line: #323c34; --focus: #e6b450;
+      --wave: #9cc7a6; --wave-bg: #171d18; --quiet: rgba(155,166,150,.14); --cand: rgba(230,180,80,.35); --bracket: rgba(143,199,156,.10); --win-ok: rgba(127,209,151,.28); --win-weak: rgba(155,166,150,.10); --play: #f08a7a; --other: #9db8f0; --sel: rgba(157,184,240,.18); color-scheme: dark; }
+  }
+  :root[data-theme="dark"] { --bg: #131814; --card: #1b221d; --raise: #232c25; --text: #e6ecdf; --muted: #9ba696; --accent: #8fc79c; --accent-ink: #131814; --ok: #7fd197; --warn: #e6b450; --bad: #f08a7a; --line: #323c34; --focus: #e6b450;
+    --wave: #9cc7a6; --wave-bg: #171d18; --quiet: rgba(155,166,150,.14); --cand: rgba(230,180,80,.35); --bracket: rgba(143,199,156,.10); --win-ok: rgba(127,209,151,.28); --win-weak: rgba(155,166,150,.10); --play: #f08a7a; --other: #9db8f0; --sel: rgba(157,184,240,.18); color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { position: sticky; top: 0; z-index: 5; background: var(--card); border-bottom: 1px solid var(--line); padding: 8px 16px; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+  header h1 { font-size: 16px; margin: 0 8px 0 0; }
+  main { padding: 12px 16px 80px; max-width: 1500px; margin: 0 auto; }
+  label { display: inline-flex; gap: 6px; align-items: center; }
+  input, select, textarea, button { font: inherit; color: inherit; }
+  input[type=text], input[type=number], select, textarea { background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; }
+  textarea { width: 100%; min-height: 54px; }
+  button { background: var(--raise); border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button[aria-pressed=true] { outline: 2px solid var(--focus); }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin: 12px 0; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+  .muted { color: var(--muted); } .small { font-size: 12px; }
+  .chip { display: inline-block; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); font-size: 12px; margin-right: 4px; white-space: nowrap; }
+  .chip.ok { border-color: var(--ok); color: var(--ok); } .chip.warn { border-color: var(--warn); color: var(--warn); } .chip.bad { border-color: var(--bad); color: var(--bad); }
+  .banner { border-left: 4px solid var(--warn); padding: 8px 12px; background: var(--raise); border-radius: 6px; margin: 8px 0; }
+  .banner.bad { border-color: var(--bad); } .banner.syn { border-color: var(--bad); font-weight: 600; }
+  #waves { position: relative; }
+  canvas { display: block; width: 100%; border-radius: 6px; background: var(--wave-bg); touch-action: none; }
+  #overview { height: 46px; cursor: pointer; margin-bottom: 6px; }
+  #main { height: 230px; cursor: crosshair; }
+  .grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(280px, 2fr); gap: 12px; }
+  @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+  table { border-collapse: collapse; width: 100%; }
+  td, th { border-bottom: 1px solid var(--line); padding: 4px 6px; text-align: left; vertical-align: top; }
+  .ayah { cursor: pointer; }
+  .ayah.sel { background: var(--raise); }
+  .ar { font-family: "Amiri Quran", "Amiri", "Scheherazade New", "Traditional Arabic", "Noto Naskh Arabic", serif; font-size: 20px; line-height: 1.8; direction: rtl; text-align: right; unicode-bidi: isolate; }
+  .num { font-variant-numeric: tabular-nums; }
+  .t { width: 116px; }
+  .status button { padding: 2px 6px; font-size: 12px; }
+  .s-confirmed { color: var(--ok); } .s-uncertain { color: var(--warn); } .s-rejected { color: var(--bad); }
+  kbd { border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; font-size: 12px; background: var(--raise); }
+  #problems li { color: var(--bad); }
+  .legend span { display: inline-flex; align-items: center; gap: 4px; margin-right: 12px; }
+  .sw { width: 14px; height: 10px; border-radius: 2px; display: inline-block; }
+  #toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 6px 12px; border-radius: 6px; display: none; z-index: 9; max-width: 90vw; }
+  .proposed { color: var(--auto); font-size: 12px; }
+  .chip.auto { border-color: var(--auto); color: var(--auto); }
+  .chip.t-veryhigh { border-color: var(--bad); background: var(--bad); color: var(--bg); font-weight: 600; } .chip.t-high { border-color: var(--bad); color: var(--bad); } .chip.t-medium { border-color: var(--warn); color: var(--warn); } .chip.t-check { border-color: var(--accent); color: var(--accent); }
+  tr.ayah.out { opacity: .5; }
+  tr.ayah.now td:first-child { box-shadow: inset 4px 0 0 var(--play); }
+  #prep { padding: 18px; text-align: center; }
+  #prep progress { width: min(420px, 90%); }
+  .bigstat { font-size: 15px; font-weight: 600; }
+  a.back { text-decoration: none; font-weight: 600; color: var(--accent); }
+  .qa { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; margin-top: 8px; }
+  .qa .def { color: var(--muted); font-style: italic; }
+  :root { --m-red: #c0392b; --m-orange: #d9822b; --m-yellow: #b8941c; --m-neutral: #8a8f87; --m-green: #2c7443; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --m-red: #f0786a; --m-orange: #f0a35a; --m-yellow: #e6c450; --m-neutral: #9ba696; --m-green: #7fd197; } }
+  :root[data-theme="dark"] { --m-red: #f0786a; --m-orange: #f0a35a; --m-yellow: #e6c450; --m-neutral: #9ba696; --m-green: #7fd197; }
+  [hidden] { display: none !important; }
+  h2.wtitle { font-size: 15px; margin: 0 0 4px; }
+  #overview { height: 64px; margin-bottom: 0; }
+  #main { height: 210px; }
+  .curAr { font-family: "Amiri Quran", "Amiri", "Scheherazade New", "Traditional Arabic", "Noto Naskh Arabic", serif; font-size: 30px; line-height: 2.1; direction: rtl; text-align: right; unicode-bidi: isolate; margin: 4px 0 8px; }
+  .mk-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+  .chk { display: flex; gap: 8px; align-items: flex-start; padding: 6px 0; border-bottom: 1px solid var(--line); }
+  .chk .q { flex: 1; }
+  .res { font-weight: 700; font-size: 11px; border-radius: 6px; padding: 1px 6px; white-space: nowrap; border: 1px solid; min-width: 104px; text-align: center; }
+  .res.yes { color: var(--ok); border-color: var(--ok); } .res.no { color: var(--bad); border-color: var(--bad); } .res.unknown { color: var(--warn); border-color: var(--warn); }
+  .seg { display: inline-flex; gap: 2px; } .seg button { padding: 2px 8px; font-size: 12px; } .seg button[aria-pressed=true] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); outline: none; }
+  .evidence { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  #listBox { max-height: 70vh; overflow: auto; }
+  .kbdline { font-size: 11px; color: var(--muted); margin-top: 8px; }
+  dialog#bulkDlg { border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text); max-width: min(680px, calc(100vw - 32px)); padding: 16px; }
+  dialog#bulkDlg::backdrop { background: rgba(0,0,0,.35); }
+  #bulkDlg ul { margin: 4px 0 8px; padding-left: 18px; }
+  .bulkbar { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 6px 0; }
+  td.pick { width: 1%; } td.pick input { margin: 0 4px 0 0; }
+</style>
+</head>
+<body>
+<header>
+  <a id="backLink" class="back" href="/" hidden>← Dashboard</a>
+  <h1 id="pageTitle">Manual ayah timing</h1>
+  <label>Recording <select id="rec" aria-label="Recording"></select></label>
+  <label>Your name <input id="name" type="text" placeholder="Reviewer name" autocomplete="name" size="16"></label>
+  <span id="roleBox"></span>
+  <span id="statusChip"></span>
+  <span id="saveState" class="small muted"></span>
+  <span style="flex:1"></span>
+  <button id="helpBtn" aria-expanded="false">Shortcuts</button>
+  <a id="exportBtn" class="small" href="#">Export review (JSON)</a>
+</header>
+<main>
+  <div id="banners"></div>
+  <section class="card" id="help" hidden>
+    <strong>Keyboard</strong> (not while typing in a field):
+    <span class="small"><kbd>Space</kbd> play/pause · <kbd>←</kbd>/<kbd>→</kbd> 2 s (<kbd>Shift</kbd> 10 s) · <kbd>J</kbd>/<kbd>K</kbd> previous/next ayah ·
+    <kbd>Enter</kbd> confirm and save the selected boundary, then go to the next pending ayah · <kbd>↑</kbd>/<kbd>↓</kbd> previous/next ayah in the queue · <kbd>F</kbd> fit the zoom to the ayah ·
+    <kbd>M</kbd> place the selected ayah's start at the playhead · <kbd>E</kbd> place the recitation end at the playhead ·
+    <kbd>[</kbd>/<kbd>]</kbd> nudge the selected marker 10 ms (<kbd>Shift</kbd> 100 ms) · <kbd>R</kbd> replay around the selected marker ·
+    <kbd>P</kbd> play from the selected marker · <kbd>1</kbd> confirmed · <kbd>2</kbd> uncertain · <kbd>3</kbd> rejected ·
+    <kbd>+</kbd>/<kbd>-</kbd> zoom · <kbd>B</kbd> zoom to the selected ayah's Phase 4.5 bracket · <kbd>0</kbd> whole recording.</span><br>
+    <span class="small"><strong>Also:</strong> <kbd>C</kbd> confirm the automatic proposal for the selected ayah · <kbd>A</kbd> play the selected ayah only ·
+    <kbd>Q</kbd> replay the seconds before the selected start · <kbd>W</kbd> replay the seconds after it · <kbd>S</kbd> save now · <kbd>N</kbd> next start you have not submitted.</span><br>
+    <span class="small"><strong>Listening:</strong> how much you listen is your decision: no minimum playback is required, and the page records none. Every confirmation is your judgement. <strong>Bulk:</strong> Accept All Proposed, Reject All Proposed and Accept All Edited (top of the ayah list) show a preview first and never submit.</span><br>
+    <span class="small"><strong>Mouse:</strong> click the waveform to move the playhead · double-click to place the selected ayah's start there · drag a marker to move it ·
+    <kbd>Shift</kbd>-drag to select a time range (for a flag) · wheel to zoom, <kbd>Shift</kbd>+wheel to scroll · click the overview strip to jump.</span><br>
+    <span class="small"><strong>Where to place a start:</strong> at the onset of the ayah's first sound (the first letter, or the breath right before it), not in the middle of the preceding silence. Seeking to an ayah must begin its recitation promptly.</span>
+  </section>
+
+  <div id="prep" hidden></div>
+  <div id="workstation">
+      <section class="card">
+        <div class="row" style="justify-content:space-between"><h2 class="wtitle">Full Surah Overview</h2><span class="small muted num" id="ovInfo"></span></div>
+        <p class="small muted" style="margin:0 0 4px">The waveform of the complete recording. Click a marker to select its ayah; click elsewhere to move the playhead there.</p>
+        <canvas id="overview" aria-label="Full Surah Overview: the whole recording. Click a marker to select its ayah, elsewhere to move the playhead"></canvas>
+        <div class="legend small muted" style="margin-top:4px">
+          <span><i class="mk-dot" style="background:var(--m-red)"></i>disputed / critical</span>
+          <span><i class="mk-dot" style="background:var(--m-orange)"></i>high priority</span>
+          <span><i class="mk-dot" style="background:var(--m-yellow)"></i>needs verification / uncertain</span>
+          <span><i class="mk-dot" style="background:var(--m-neutral)"></i>pending</span>
+          <span><i class="mk-dot" style="background:var(--m-green)"></i>confirmed by you, or verified by both (labelled)</span>
+          <span><i class="sw" style="background:var(--sel)"></i>zoomed view</span>
+          <span><i class="sw" style="background:var(--play)"></i>playhead</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="row" style="justify-content:space-between"><h2 class="wtitle">Zoomed Ayah Waveform</h2><span class="small muted num" id="viewInfo"></span></div>
+        <div class="row">
+          <button id="play" class="primary" style="min-width:76px">Play</button>
+          <button id="back">−2 s</button><button id="fwd">+2 s</button>
+          <span class="num bigstat" id="clock">0:00.000</span>
+          <button id="replay" title="Replays the listening context around the selected boundary (R)">Replay boundary (R)</button>
+          <button id="replayBefore" title="Plays the seconds before the selected start, stopping at it (Q)">Before (Q)</button>
+          <button id="replayAfter" title="Plays from the selected start for the seconds after (W)">After (W)</button>
+          <button id="playAyah" title="Plays the selected ayah only, to the next start (A)">Play ayah (A)</button>
+          <label class="small">context before <input id="pre" type="number" min="0.5" max="30" step="0.5" value="3" style="width:52px"> s</label>
+          <label class="small">after <input id="post" type="number" min="0.5" max="30" step="0.5" value="3" style="width:52px"> s</label>
+        </div>
+        <div class="row" style="margin-top:6px">
+          <button id="zout" title="−">Zoom out</button><button id="zin" title="+">Zoom in</button><button id="zreset" title="16 s around the selected boundary">Reset zoom</button><button id="zfit" title="From this start to the next (F)">Fit to ayah (F)</button>
+          <button id="panL" title="Pan left">◀ Pan</button><button id="panR" title="Pan right">Pan ▶</button><button id="zall" title="0">Whole recording</button><button id="zbr" title="B">Bracket (B)</button>
+        </div>
+        <canvas id="main" style="margin-top:6px" aria-label="Zoomed Ayah Waveform: click to move the playhead, drag your marker to adjust it, double-click to place the selected start"></canvas>
+        <div class="legend small muted" style="margin-top:6px">
+          <span><i class="sw" style="background:var(--m-green)"></i>your boundary (colour = its status; drag to adjust)</span>
+          <span class="autoLegend" hidden><i class="sw" style="background:var(--auto)"></i>automatic proposal (dashed, read-only; not a decision)</span>
+          <span class="autoLegend" hidden><i class="sw" style="background:var(--auto-pause)"></i>the aligner's pause for the selected start</span>
+          <span><i class="sw" style="background:var(--other)"></i>other reviewer (only for ayahs you have both submitted)</span>
+          <span><i class="sw" style="background:var(--quiet)"></i>quiet region</span>
+          <span><i class="sw" style="background:var(--win-ok)"></i>Phase 4.5 window confirmed</span>
+          <span><i class="sw" style="background:var(--bracket)"></i>selected ayah's bracket</span>
+          <span><i class="sw" style="background:var(--cand)"></i>pause candidate</span>
+          <span><i class="sw" style="background:var(--sel)"></i>selected range</span>
+        </div>
+        <div class="small muted" id="selInfo" style="margin-top:4px"></div>
+      </section>
+
+      <section class="card" id="currentCard">
+        <div class="row" style="justify-content:space-between"><h2 class="wtitle" id="curTitle">Current Ayah</h2><span class="small muted" id="nowAyah"></span></div>
+        <div id="currentPanel"></div>
+        <div class="kbdline"><kbd>Enter</kbd> confirm &amp; next pending · <kbd>↑</kbd>/<kbd>↓</kbd> previous/next ayah · <kbd>N</kbd> next unreviewed · <kbd>R</kbd> replay boundary · <kbd>Space</kbd> play/pause · <kbd>C</kbd> confirm proposed · <kbd>M</kbd> at playhead · <kbd>[</kbd>/<kbd>]</kbd> nudge 10 ms (<kbd>Shift</kbd> 100) · <kbd>2</kbd> uncertain · <kbd>F</kbd> fit · <kbd>S</kbd> save · <a href="#" id="allKeys">all shortcuts</a></div>
+      </section>
+
+      <section class="card" id="checksCard">
+        <h2 class="wtitle">Verification Questions</h2>
+        <div id="checkSummary" class="bigstat"></div>
+        <p class="small muted" style="margin:4px 0">Automatic checks are software validations of the data. They never answer a human question: those are yours alone.</p>
+        <div id="objChecks"></div>
+        <h3 class="small" style="margin:10px 0 2px">Your judgements <span class="muted">(human questions about the whole recording: answered only by you)</span></h3>
+        <div id="checks"></div>
+      </section>
+
+      <section class="card" id="submitCard"></section>
+      <section class="card" id="compareCard" hidden></section>
+
+      <section class="card">
+        <div class="row" style="justify-content:space-between"><h2 class="wtitle">Complete Ayah Review List</h2><span class="small muted" id="progress"></span></div>
+        <div class="small"><strong id="surahTitle"></strong></div>
+        <div id="basmala" class="ar muted"></div>
+        <div class="row" style="margin:6px 0">
+          <button id="prevAyah" title="↑ (also J)">↑ Previous ayah</button><button id="nextAyah" title="↓ (also K)">↓ Next ayah</button>
+          <button id="nextOpen" title="The next start you have not submitted (N)">Next unreviewed ayah (N)</button>
+          <span class="bigstat" id="reviewedCount"></span>
+          <span id="stateCounts" class="small"></span>
+          <span style="flex:1"></span>
+          <button id="saveBtn" title="Every change is saved automatically within a second; this saves at once (S)">Save progress (S)</button>
+        </div>
+        <div class="row bulkbar" id="bulkBar">
+          <strong class="small">Bulk review:</strong>
+          <button id="bulkAcceptProp" title="Confirm the proposed boundary of every eligible ayah (preview first; nothing is submitted)">Accept All Proposed</button>
+          <button id="bulkRejectProp" title="Reject the proposed boundary of every eligible ayah, keeping its time for later correction (preview first)">Reject All Proposed</button>
+          <button id="bulkAcceptEdit" title="Confirm your own adjusted boundaries that are not judged yet (preview first; nothing is submitted)">Accept All Edited</button>
+          <span class="small muted" id="bulkPick"></span>
+        </div>
+        <div class="row small" style="margin:6px 0">Show <select id="ayahFilter" aria-label="Show starts"><option value="pending">Pending (not yet reviewed)</option><option value="reviewed">Reviewed</option><option value="all">All</option><option value="saved">in progress (saved, not submitted)</option><option value="submitted">submitted (awaiting the other reviewer)</option><option value="verified">verified</option><option value="disputed">disputed</option></select></div>
+        <div id="listBox"><table><thead><tr><th><input type="checkbox" id="pickAll" title="Select every ayah shown (for &quot;Selected ayahs only&quot;)" aria-label="Select every ayah shown"> #</th><th>Ayah</th><th>Start</th><th>Your judgement</th></tr></thead><tbody id="ayahs"></tbody></table></div>
+      </section>
+      <section class="card"><strong>Flags</strong> <span class="small muted">repetitions, missing passages, noise, interruptions</span>
+        <div id="flags"></div>
+        <div class="row small" style="margin-top:8px">
+          <select id="fKind"><option value="repetition">repetition</option><option value="missing-passage">missing passage</option><option value="background-noise">background noise</option><option value="interruption">non-Quran interruption</option><option value="other">other</option></select>
+          <label>from <input id="fFrom" type="text" class="t" placeholder="m:ss.mmm"></label>
+          <label>to <input id="fTo" type="text" class="t" placeholder="m:ss.mmm"></label>
+          <label>ayahs <input id="fA" type="number" min="1" style="width:56px">–<input id="fB" type="number" min="1" style="width:56px"></label>
+          <select id="fImp" title="What the repetition means for one-start-per-ayah timing"></select>
+          <input id="fNote" type="text" placeholder="note" style="flex:1;min-width:120px">
+          <button id="fUseSel">Use selected range</button><button id="fAdd">Add flag</button>
+        </div>
+        <p class="small muted" id="impHelp"></p>
+      </section>
+      <section class="card"><strong>Comments</strong><textarea id="comments" placeholder="Anything another reviewer or the owner should know"></textarea></section>
+  </div>
+</main>
+<dialog id="bulkDlg" aria-labelledby="bulkTitle"><div id="bulkBody"></div></dialog>
+<div id="toast" role="status"></div>
+<audio id="audio" preload="auto"></audio>
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const fmt = (ms) => { if (ms == null || !Number.isFinite(ms)) return '–'; const s = ms / 1000; const m = Math.floor(s / 60); return `${m}:${(s - m * 60).toFixed(3).padStart(6, '0')}`; };
+const parseT = (t) => { t = String(t).trim(); if (!t) return null; const m = /^(?:(\d+):)?(\d+(?:\.\d+)?)$/.exec(t); if (!m) return NaN; return Math.round(((Number(m[1] ?? 0) * 60) + Number(m[2])) * 1000); };
+const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+const toast = (msg) => { const t = $('toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(toast.h); toast.h = setTimeout(() => (t.style.display = 'none'), 3200); };
+const audio = $('audio');
+const CHECKS = { identity: 'The voice is the named reciter throughout (as far as you can judge)', surah: 'It is this surah', complete: 'Every ayah of the surah is recited (no omission)', order: 'The ayahs are recited in the canonical order (repetitions documented as flags)', extraAudio: 'Any non-recitation audio (introduction, audience, announcer, music) is documented as a flag', playback: 'Seeking to each agreed start plays that ayah from its first sound: nothing cut off, no lag, no skips' };
+const checkText = (k) => (k === 'identity' && S ? `The voice is ${S.dashboard?.reciterEn ?? (S.reciterEn && S.reciterEn !== S.reciterId ? S.reciterEn : 'Sheikh Muhammad Rifaat')} throughout (as far as you can judge)` : CHECKS[k]);
+const TIER_TEXT = { veryhigh: 'VERY HIGH RISK', high: 'high risk', medium: 'medium risk', check: 'check', routine: '' };
+// Phase 4.8.9: the per-start Yes / No questions (manual-lib QUESTIONS). Default Yes; a No means the start is not right.
+const QUESTIONS = { complete: 'Is the ayah complete (nothing cut off at its beginning or end)?', order: 'Is the ayah in the correct order?', overlap: 'Is there no incorrect overlap with the neighbouring ayahs?', timestamp: 'Is the timestamp correct?', aligned: 'Is the recitation aligned correctly?' };
+const answerOf = (m, q) => m?.answers?.[q] ?? { v: 'yes', confirmed: false };
+const anyNo = (m) => Object.keys(QUESTIONS).some((q) => answerOf(m, q).v === 'no');
+const withDefaults = (m) => ({ ...Object.fromEntries(Object.keys(QUESTIONS).map((q) => [q, { v: 'yes', confirmed: false }])), ...(m.answers ?? {}) });
+let DASH = false;
+// Phase 4.8: a production boundary check covers only S.scope (the starts the source audit left for listening).
+const scope = () => (S && Array.isArray(S.scope) && S.scope.length ? S.scope : null);
+const inScope = (k) => !scope() || (k !== 'end' && scope().includes(k));
+const required = () => (scope() ? ['playback'] : Object.keys(CHECKS));
+const order = () => scope() ? [...scope()] : [...S.ayahs.map((a) => a.ayah), 'end'];
+const IMPL = { 'within-one-ayah': 'Within one ayah: the same ayah recited again in place; both recitations inside its own span (highlighting stays truthful)', 'returns-to-earlier-ayahs': 'Returns to earlier ayahs: one start per ayah cannot represent it (the recording becomes unresolved)', unsure: 'Unsure (the recording stays unresolved until decided)' };
+$('fImp').innerHTML = Object.entries(IMPL).map(([k, v]) => `<option value="${k}">${esc(v.split(':')[0])}</option>`).join('');
+$('impHelp').textContent = 'For a repetition, choose what it means for timing. ' + Object.values(IMPL).join(' · ');
+
+let queue = [], key = null, S = null, V = null, work = null, sel = 1, peaks = null;
+let view = { start: 0, span: 60000 }, range = null, dirty = false, saveTimer = null, replayStop = null;
+const me = () => (V && V.me ? V.reviewers[V.me] : null);
+const submitted = () => !!me()?.submittedAt;
+let amending = false, amendReason = '';
+const editable = () => !!me() && (amending || !submitted());
+// Phase 4.8.1: starts are submitted in batches. A submitted start is frozen; it changes only by a correction (with a reason).
+let correcting = {}; // key -> reason, while a submitted start is being corrected in this browser
+let ayahFilter = 'pending';
+/**
+ * Phase 4.8.6: a start is reviewed once it has an accepted submission (one reviewer is enough to leave the queue); saved,
+ * uncertain and rejected starts stay pending. The server decides (manual-lib reviewedStarts, blind-safe); a server older
+ * than Phase 4.8.6 sends nothing, and then this reviewer's own accepted submissions count.
+ */
+/** Phase 4.8.7: a check / routine start the dashboard accepted automatically (never a reviewer's submission). */
+const isAuto = (k) => !!V?.review?.autoAcceptedKeys?.includes(String(k)) && !mySub()[String(k)];
+const isReviewed = (k) => {
+  if (k === 'end') return mySub().end?.status === 'confirmed';
+  if (isAuto(k)) return true; // Phase 4.8.7: accepted automatically (risk policy); still open to a correction by a reviewer
+  const keys = V?.review?.reviewedKeys;
+  return Array.isArray(keys) ? keys.includes(String(k)) : mySub()[String(k)]?.status === 'confirmed' || ayahState(k) === 'verified';
+};
+const shownBy = (k) => (ayahFilter === 'all' ? true : !inScope(k) ? false : ayahFilter === 'pending' ? !isReviewed(k) : ayahFilter === 'reviewed' ? isReviewed(k) : ayahState(k) === ayahFilter);
+const pendingCount = () => order().filter((k) => !isReviewed(k)).length;
+// Phase 4.8.4: the per-recording "no more pending" state. Phase 4.8.4.1 removed the listening gate: a confirmation is
+// the reviewer's own judgement; how much to listen is theirs to decide, and the page keeps no playback record.
+let noPending = false;
+// Phase 4.8.4.1: ayahs ticked in the list (for "Selected ayahs only"), and an Enter already in progress.
+let picked = new Set(), entering = false;
+/**
+ * Phase 4.8.8 opening rule (server: review/manual/opening.mjs): the opening ayah of a complete recording plays from
+ * 0:00.000. Whatever time a marker of ayah 1 holds (an earlier placement), it is shown, sought and drawn at 0; its
+ * first timestamp is kept only as the ayah-1 onset (S.opening.onsetMs, highlighting).
+ */
+const isOpening = (k) => k === 1 && !!S?.opening?.applies;
+const shownMs = (k, ms) => (ms != null && isOpening(k) ? 0 : ms);
+/** Where this reviewer's boundary for a start is: your own marker, else the automatic proposal (never another reviewer's). */
+const boundaryMs = (k) => shownMs(k, getMarker(k)?.ms ?? proposedMs(k) ?? null);
+/** The review tier of a start, from the automatic proposal or the Phase 4.5 evidence only (never invented). */
+function tierOfKey(k) {
+  if (k === 'end') return { tier: null, reason: '' };
+  if (isOpening(k)) return { tier: 'check', reason: 'opening: plays from 0:00.000 (opening rule)' };
+  // Phase 4.8.9: the dashboard sends the registry's tiers (very high risk included), with their reasons.
+  const reg = S.dashboard?.risk?.[k - 1];
+  if (reg) return { tier: reg[0] === 'routine' || reg[0] === 'n/a' ? null : reg[0], reason: reg[1] ?? '' };
+  const b = prop(k);
+  if (b) { const why = (b.flags ?? []).join(', '); return b.priority === 1 ? { tier: 'high', reason: why || 'priority 1' } : b.priority === 2 ? { tier: 'medium', reason: why || 'priority 2' } : (S.proposal.worklist.includes(k) || b.opening) ? { tier: 'check', reason: b.opening ? 'opening' : 'worklist sample' } : { tier: null, reason: '' }; }
+  const e = ev45(k);
+  if (e) return e.kind === 'conflict' || e.kind === 'unbracketed' ? { tier: 'high', reason: `Phase 4.5: ${e.kind}` } : e.kind === 'single pause' ? { tier: 'check', reason: 'Phase 4.5: one pause in the bracket' } : { tier: 'medium', reason: 'Phase 4.5: several pauses in the bracket' };
+  return { tier: null, reason: '' };
+}
+/** The colour class of a marker, with its explanation. Verified/confirmed are labelled apart; automatic evidence is never a confirmation. */
+function markerClass(k) {
+  const st = ayahState(k);
+  const m = getMarker(k);
+  const sub = mySub()[String(k)];
+  const t = tierOfKey(k);
+  const c = (V?.status?.comparison ?? V?.revealed ?? []).find((x) => String(x.key) === String(k));
+  if (st === 'verified') return { color: '--m-green', label: 'verified by both reviewers', short: 'verified' };
+  if (st === 'disputed') return { color: '--m-red', label: `disputed: ${(c?.why ?? []).join('; ') || 'the two reviews differ'}`, short: 'disputed' };
+  const mm = correcting[String(k)] ? m : sub ?? m;
+  if (mm?.status === 'rejected') return { color: '--m-red', label: 'rejected by you', short: 'rejected' };
+  if (mm?.status === 'confirmed') return { color: '--m-green', label: sub ? 'submitted by you (awaiting the other reviewer)' : 'confirmed by you (saved, not submitted)', short: sub ? 'submitted' : 'confirmed' };
+  if (mm?.status === 'uncertain') return { color: '--m-yellow', label: m?.markedUncertain ? 'marked uncertain by you' : 'adjusted by you, not yet confirmed', short: 'uncertain' };
+  if (isAuto(k)) return { color: '--m-neutral', label: isOpening(k) ? `accepted automatically (${V.review.autoPolicy ?? 'risk policy'}: the opening plays from 0:00.000 by rule; not a person's review)` : `accepted automatically (${V.review.autoPolicy ?? 'risk policy'}: ${t.tier ?? 'routine'} start at the proposed time; not a person's review)`, short: 'auto-accepted' };
+  if (t.tier === 'veryhigh') return { color: '--m-red', label: t.reason || 'very high risk', short: 'VERY HIGH' };
+  // Phase 4.8.10: a per-ayah file that cannot be assessed automatically (severity.mjs exception): blocked, for a person.
+  const pr = k !== 'end' ? S.proposal?.perAyah?.risk?.[k] : null;
+  if (pr?.tier === 'exception') return { color: '--m-orange', label: `unresolved exception (not accepted automatically): ${(pr.severity?.codes ?? []).filter((x) => x.tier === 'exception').map((x) => `${x.label}: ${x.why}`).join('; ') || t.reason}`, short: 'EXCEPTION' };
+  if (t.tier === 'high') return { color: '--m-orange', label: `high priority: ${t.reason}`, short: 'high' };
+  if (t.tier === 'medium') return { color: '--m-yellow', label: `needs verification: ${t.reason}`, short: 'verify' };
+  return { color: '--m-neutral', label: t.tier === 'check' ? `pending (${t.reason})` : 'pending', short: 'pending' };
+}
+/** The next start that needs this reviewer's action (not confirmed, not submitted, or disputed), after `from`. */
+function nextPendingKey(from = sel) {
+  const o = order();
+  const i = Math.max(-1, o.indexOf(from));
+  const needs = (k) => ayahState(k) === 'disputed' || (!isSub(k) && getMarker(k)?.status !== 'confirmed');
+  return [...o.slice(i + 1), ...o.slice(0, i + 1)].find((k) => k !== from && needs(k)) ?? (needs(from) ? null : null);
+}
+function advancePending() {
+  const k = nextPendingKey();
+  if (k == null) { noPending = true; renderCurrent(); toast('No More Pending Ayahs.'); return; }
+  noPending = false;
+  select(k, true);
+}
+function centerOn(ms) { const span = view.span > 60000 || view.span < 1000 ? 16000 : view.span; zoomTo(ms - span / 2, ms + span / 2); }
+/** Go Playhead: the playhead moves to this start's boundary (yours, else the proposal); nothing is edited or played. */
+function goPlayhead(k) {
+  const pos = boundaryMs(k);
+  if (pos == null) { toast('No boundary to go to yet: place it first.'); return; }
+  const paused = audio.paused;
+  cancelReplay();
+  sel = k;
+  seek(pos);
+  if (paused && !audio.paused) audio.pause();
+  centerOn(pos);
+  renderAyahs(); renderCurrent();
+  const check = () => { if (Math.abs(audio.currentTime * 1000 - pos) > 150) toast(`Seeking failed: the playhead is at ${fmt(audio.currentTime * 1000)}, not ${fmt(pos)}.`); };
+  if (audio.seeking) audio.addEventListener('seeked', check, { once: true }); else setTimeout(check, 50);
+}
+/** Enter: confirm and save the selected boundary, then the next pending ayah. Never submits; one Enter at a time. */
+async function enterConfirmAdvance() {
+  if (entering) return;
+  entering = true;
+  try { await enterConfirmAdvanceOnce(); } finally { entering = false; }
+}
+async function enterConfirmAdvanceOnce() {
+  const k = sel;
+  if (k == null || !V?.me) { toast('Choose your reviewer role first.'); return; }
+  if (correcting[String(k)]) { toast('A correction is open: press "Submit correction" (or Cancel) first.'); return; }
+  if (isSub(k) || ayahState(k) === 'verified') { advancePending(); return; }
+  const m = getMarker(k);
+  if (!keyEditable(k)) { toast(lockedMsg(k)); return; }
+  if (!m) {
+    if (proposedMs(k) == null) { toast(`Place ${k === 'end' ? 'the recitation end' : `ayah ${k}'s start`} first (M or At Playhead).`); return; }
+    if (!confirmProposal(k)) return;
+  } else if (m.status !== 'confirmed') {
+    if (m.markedUncertain) { toast('Marked uncertain: confirm it explicitly (Confirm Boundary or 1) when you are sure.'); return; }
+    if (m.status === 'rejected') { toast('Rejected by you: change the judgement explicitly first.'); return; }
+    if (!setStatus(k, 'confirmed')) return;
+  }
+  if (dirty) { await saveNow(); if (dirty) { toast('Not saved: staying on this ayah.'); return; } }
+  advancePending();
+}
+const mySub = () => me()?.submitted ?? {};
+const isSub = (k) => !!mySub()[String(k)];
+const keyEditable = (k) => !!me() && (amending || !!correcting[String(k)] || (!submitted() && !isSub(k)));
+const lockedMsg = (k) => (isSub(k) ? `${k === 'end' ? 'The recitation end' : `Ayah ${k}`} is submitted: press Correct to change it (with a reason).` : V?.me ? 'Submitted: start an amendment to change placements.' : 'Choose your reviewer role first.');
+/** The outcome of a start both reviewers have submitted (agreed, resolved, disputed, unresolved), else null. */
+const outcomeOf = (k) => (V?.status?.comparison ?? V?.revealed ?? []).find((c) => String(c.key) === String(k))?.outcome ?? null;
+function ayahState(k) {
+  const o = outcomeOf(k);
+  if (o === 'agreed' || o === 'resolved') return 'verified';
+  if (o) return 'disputed';
+  if (isSub(k)) return 'submitted';
+  if (getMarker(k)) return 'saved';
+  return 'pending';
+}
+const STATE_CHIP = { verified: ['ok', 'verified'], disputed: ['bad', 'disputed'], submitted: ['ok', 'submitted'], saved: ['warn', 'saved, not submitted'], pending: ['', 'pending'] };
+/** Starts ready to submit: placed, judged confirmed (or rejected) by this reviewer, and not yet submitted. */
+const readyKeys = () => (work ? order().filter((k) => !isSub(k) && !correcting[String(k)] && ['confirmed', 'rejected'].includes(getMarker(k)?.status)) : []);
+const ranges = (keys) => { const nums = keys.filter((k) => k !== 'end'); const out = []; for (const k of nums) { const last = out.at(-1); if (last && k === last[1] + 1) last[1] = k; else out.push([k, k]); } return [...out.map(([a, b]) => (a === b ? `${a}` : `${a}–${b}`)), ...(keys.includes('end') ? ['end'] : [])].join(', '); };
+const nextUnfinished = (from = sel) => { const o = order(); const i = Math.max(0, o.indexOf(from)); return [...o.slice(i + 1), ...o.slice(0, i + 1)].find((k) => !isSub(k)) ?? null; };
+/** What a draft sends: submitted starts exactly as submitted (a correction in progress is sent as a revision instead). */
+function draftWork() {
+  const w = structuredClone(work);
+  for (const [k, x] of Object.entries(mySub())) { const m = { ms: x.ms, status: x.status, note: x.note ?? '', ...(x.origin ? { origin: x.origin } : {}), ...(x.answers ? { answers: structuredClone(x.answers) } : {}) }; if (k === 'end') w.end = m; else w.markers[k] = m; }
+  return w;
+}
+$('name').value = store.get('qh-manual-name') || '';
+/**
+ * Phase 4.8.8: the remembered reviewer. This browser's own choice ('qh-reviewer': { name, role }), else the local
+ * dashboard's default (dashboard.config.json localReviewer, Reviewer 1). When it is Reviewer 1 and the recording has no
+ * Reviewer 1 yet, the page works as that reviewer at once; the join is written with the first real change (post), so
+ * opening a recording creates nothing. Only Reviewer 1 is ever assumed: Reviewer 2 is always chosen by hand, and the
+ * cloud dashboard (signed-in accounts) never uses this.
+ */
+let LOCAL_REVIEWER = null;
+const sameName = (a, b) => String(a ?? '').trim().toLowerCase() === String(b ?? '').trim().toLowerCase();
+const remembered = () => store.get('qh-reviewer') ?? (LOCAL_REVIEWER ? { name: LOCAL_REVIEWER.name, role: 1, source: 'default' } : null);
+const remembersR1 = () => { const r = remembered(); return !!r && r.role === 1 && !!$('name').value.trim() && sameName(r.name, $('name').value); };
+function withRememberedRole(v) {
+  if (v.me || v.reviewers[1] || !remembersR1()) return v;
+  const name = $('name').value.trim();
+  return { ...v, me: 1, pendingJoin: true, reviewers: { ...v.reviewers, 1: { name, role: 1, joinedAt: null, work: { markers: {}, end: null, flags: [], checks: {}, comments: '' }, submittedAt: null, amendments: [], submitted: {}, revisions: [] } } };
+}
+
+async function api(p, opts) { const r = await fetch(p, opts); const j = await r.json(); if (!r.ok) throw new Error(j.error || r.statusText); return j; }
+async function loadQueue() {
+  let info = null;
+  try { info = await api('/api/info'); DASH = info.mode === 'dashboard' || info.mode === 'cloud'; } catch { DASH = false; }
+  // Phase 4.8.2: in the cloud dashboard the reviewer is the signed-in account; the name cannot be typed.
+  if (info?.mode === 'cloud') {
+    $('name').value = info.account.reviewerName; $('name').disabled = true; $('name').title = 'Your reviewer name comes from your signed-in account';
+    $('name').insertAdjacentHTML('afterend', ' <button id="logout" title="Sign out of the audio review dashboard">Sign out</button>');
+    $('logout').onclick = async () => { await fetch('/auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }); location.href = '/login'; };
+  }
+  if (info?.readOnly) toast(`Read-only: ${info.readOnly.reason ?? ''} Nothing can be saved now.`);
+  if (info?.mode === 'dashboard' && !info.readOnly) {
+    LOCAL_REVIEWER = info.localReviewer ?? null;
+    if (!$('name').value.trim() && remembered()?.name) { $('name').value = remembered().name; store.set('qh-manual-name', $('name').value); }
+  }
+  if (DASH) { $('backLink').hidden = false; $('pageTitle').textContent = 'Listening review'; document.title = 'Listening Review'; }
+  queue = await api('/api/queue');
+  const opt = (q) => `<option value="${q.key}">${q.synthetic ? '[SYNTHETIC] ' : ''}${q.surah} ${esc(q.surahEn)} — ${q.ayahCount} ayahs, ${fmt(q.durationMs).replace(/\.\d+$/, '')} — ${q.status}${q.group ? ` · ${esc(q.group)}` : ''}</option>`;
+  if (queue.some((q) => q.reciterEn)) {
+    const groups = new Map();
+    for (const q of queue) { const g = q.reciterEn ?? ''; if (!groups.has(g)) groups.set(g, []); groups.get(g).push(q); }
+    $('rec').innerHTML = [...groups].map(([g, qs]) => `<optgroup label="${esc(g)}">${qs.sort((a, b) => a.surah - b.surah).map(opt).join('')}</optgroup>`).join('');
+  } else $('rec').innerHTML = queue.map(opt).join('');
+  const params = new URLSearchParams(location.search);
+  const want = params.get('rec') || store.get('qh-manual-rec');
+  if (want && queue.some((q) => q.key === want)) $('rec').value = want;
+  await openRec($('rec').value, Number(params.get('ayah')) || null);
+}
+const dec = (b64) => { const bin = atob(b64); const a = new Int8Array(bin.length); for (let i = 0; i < bin.length; i++) a[i] = (bin.charCodeAt(i) << 24) >> 24; return a; };
+async function openRec(k, ayah = null) {
+  if (dirty) await saveNow();
+  key = k; store.set('qh-manual-rec', k);
+  if (DASH) history.replaceState(null, '', `/review?rec=${encodeURIComponent(k)}${ayah ? `&ayah=${ayah}` : ''}`);
+  audio.removeAttribute('src'); audio.load();
+  S = await api(`/api/session/${k}`);
+  peaks = null; ovCache = null;
+  if (S.waveformPending) {
+    renderPrep(S.dashboard?.audio?.prepared);
+    $('ayahs').innerHTML = ''; $('banners').innerHTML = ''; $('surahTitle').textContent = `${S.surah} ${S.surahEn}`;
+    try { await prepareAudio(k); } catch { return; } // the panel shows why; the task stays on the dashboard
+    if (key !== k) return;
+    S = await api(`/api/session/${k}`);
+  }
+  $('prep').hidden = true;
+  if (S.peaks) peaks = { bin: S.peaks.binMs, min: dec(S.peaks.min), max: dec(S.peaks.max) };
+  audio.src = `/audio/${k}`;
+  view = { start: 0, span: Math.min(S.durationMs, 60000) };
+  sel = ayah && ayah >= 1 && ayah <= S.ayahCount ? ayah : (S.scope?.[0] ?? 1); range = null; waveCache = null; noPending = false; picked = new Set();
+  document.querySelectorAll('.autoLegend').forEach((e) => (e.hidden = !S.proposal));
+  correcting = {};
+  await refreshView();
+  // Resume: without a requested ayah, open at the first start this reviewer has not submitted yet.
+  if (!ayah && V?.me && Object.keys(mySub()).length) { const k = nextUnfinished(order().at(-1)); if (k != null) sel = k; }
+  renderAll();
+  if (ayah || (V?.me && Object.keys(mySub()).length)) select(sel, true);
+}
+// Dashboard recordings may need their local copy fetched (original URL, size checked) and their waveform drawn first.
+function renderPrep(p) {
+  const box = $('prep'); box.hidden = false;
+  const pct = p?.total ? Math.round((p.done / p.total) * 100) : null;
+  box.innerHTML = p?.state === 'error'
+    ? `<div class="banner bad"><strong>This recording cannot be played yet.</strong> ${esc(p.error)}<br>Its review task stays on the dashboard. <button id="prepRetry">Try again</button></div>`
+    : `<p><strong>Preparing the recording…</strong> ${esc(p?.step ?? '')}</p>${pct != null ? `<progress max="100" value="${pct}"></progress> <span class="small num">${(p.done / 1e6).toFixed(1)} / ${(p.total / 1e6).toFixed(1)} MB</span>` : '<progress></progress>'}<p class="small muted">The audio is never modified; a VBR file is also decoded losslessly so that seeking is exact.</p>`;
+  const r = $('prepRetry'); if (r) r.onclick = () => openRec(key);
+}
+async function prepareAudio(k) {
+  let p = await api(`/api/prepare/${k}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+  while (p.state === 'working' && key === k) { renderPrep(p); await new Promise((r) => setTimeout(r, 600)); p = await api(`/api/prepare/${k}`); }
+  renderPrep(p);
+  if (p.state === 'error') throw new Error(p.error);
+}
+async function refreshView(v) {
+  V = withRememberedRole(v ?? await api(`/api/view/${key}?name=${encodeURIComponent($('name').value.trim())}`));
+  const mine = me();
+  const local = store.get(draftKey());
+  const keep = Object.keys(correcting).map((k) => [k, getMarker(k === 'end' ? 'end' : Number(k))]);
+  work = mine ? structuredClone(mine.work) : null;
+  if (work) for (const [k, m] of keep) if (m && mySub()[k]) { if (k === 'end') work.end = m; else work.markers[k] = m; } else delete correcting[k];
+  // A local draft the server never received (e.g. the server was down) is offered back.
+  if (mine && !mine.submittedAt && local && local.serverHas === false && JSON.stringify(local.work) !== JSON.stringify(mine.work)) {
+    if (confirm('This browser holds unsaved changes for this recording that the server does not have. Restore them?')) { work = local.work; dirty = true; scheduleSave(); }
+  }
+}
+
+// ---------------------------------------------------------------- events
+async function post(type, payload = {}, role = V?.me) {
+  const name = $('name').value.trim();
+  if (!name) throw new Error('enter your name first');
+  // The remembered Reviewer 1 joins with the first real change (never Reviewer 2, never another name).
+  if (V?.pendingJoin && type !== 'join' && role === 1) {
+    const j = await api(`/api/event/${key}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reviewer: name, role: 1, type: 'join', payload: {} }) });
+    V = { ...j, pendingJoin: false };
+  }
+  const v = await api(`/api/event/${key}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reviewer: name, role, type, payload }) });
+  return v;
+}
+const draftKey = () => `qh-manual-draft:${key}:${$('name').value.trim().toLowerCase()}`;
+function markDirty() {
+  if (!editable()) return;
+  if (Object.keys(correcting).length && !amending) { $('saveState').textContent = 'correction not submitted yet'; if (submitted()) return; }
+  if (submitted()) { $('saveState').textContent = 'amendment not saved yet'; return; } // amendments are saved explicitly, with their reason
+  dirty = true; $('saveState').textContent = 'unsaved changes…';
+  store.set(draftKey(), { savedAt: new Date().toISOString(), work, serverHas: false });
+  scheduleSave();
+}
+function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 1200); }
+async function saveNow() {
+  clearTimeout(saveTimer);
+  if (!dirty || !editable()) return;
+  try {
+    const v = await post('draft', { work: draftWork() });
+    dirty = false; V = v; $('saveState').textContent = `saved ${new Date().toLocaleTimeString()}`;
+    store.set(draftKey(), { savedAt: new Date().toISOString(), work, serverHas: true });
+  } catch (e) { $('saveState').textContent = `NOT SAVED: ${e.message}`; toast(`Not saved: ${e.message}`); }
+  renderSubmit();
+}
+window.addEventListener('beforeunload', (e) => { if (dirty) { saveNow(); e.preventDefault(); e.returnValue = ''; } });
+
+// ---------------------------------------------------------------- rendering
+function renderAll() { renderBanners(); renderRole(); renderAyahs(); renderCurrent(); renderChecks(); renderFlags(); $('comments').value = work?.comments ?? ''; $('comments').disabled = !editable(); renderSubmit(); renderCompare(); draw(); }
+function renderBanners() {
+  const b = [];
+  if (S.synthetic) b.push('<div class="banner syn">SYNTHETIC TEST DATA — not a recitation, not a review of any real recording. Nothing here may be used as listening evidence.</div>');
+  if (S.rights && !S.rights.cleared) b.push(`<div class="banner bad"><strong>Rights not cleared.</strong> ${esc(S.rights.reason)} Review may proceed; nothing reaches the app until the owner clears this.</div>`);
+  const qi = queue.find((q) => q.key === key);
+  if (qi?.note) b.push(`<div class="banner"><strong>Queue note (${esc(qi.group)}):</strong> ${esc(qi.note)}</div>`);
+  if (S.evidence) b.push(`<div class="banner">Phase 4.5 evidence (read-only, <code>${esc(S.evidence.source)}</code>): <strong>${esc(S.evidence.verdict)}</strong>. ${esc(S.evidence.note)}</div>`);
+  const D = S.dashboard;
+  if (S.proposal) {
+    const p = S.proposal;
+    b.push(`<div class="banner"><strong>${S.reviewType === 'development-verification' ? 'Development-stage timing' : 'Automatic alignment'} (${esc(p.source)}, ${esc(p.fingerprint)}${D?.phase ? `, Phase ${esc(D.phase)}` : ''}):</strong> shown dashed and read-only. It is a starting point, not a decision: confirm each start you judge right (<kbd>C</kbd>, or Accept Proposed Boundary), or place it yourself (<kbd>M</kbd>) and judge it (<kbd>1</kbd>). How much you listen is up to you. Every start must be confirmed by both reviewers.${p.intro ? ` Intro before ayah 1 (Basmala/isti'adha): ${fmt(p.intro[0])}–${fmt(p.intro[1])}.` : ''}${p.experiment?.basmala ? ` ${esc(p.experiment.basmala)}` : ''}</div>`);
+  }
+  if (S.opening?.applies) b.push(`<div class="banner" id="openingBanner"><strong>Opening rule (${esc(S.opening.rule)}):</strong> ayah 1 plays from <strong class="num">0:00.000</strong>, the very start of the file; no later start moves.${S.opening.onsetMs > 0 ? ` The first timestamp ${fmt(S.opening.onsetMs)}${S.opening.introMs ? ` (after an introduction ${fmt(S.opening.introMs[0])}–${fmt(S.opening.introMs[1])})` : ''} is kept only as where ayah 1's words begin, for highlighting.` : ''}</div>`);
+  else if (S.opening?.status === 'excluded') b.push(`<div class="banner bad" id="openingBanner"><strong>Opening rule not applied:</strong> ${esc(S.opening.reason)}. Reported as an exception.</div>`);
+  for (const c of D?.concerns ?? []) b.push(`<div class="banner ${c.kind === 'content' || c.kind === 'repetition' ? 'bad' : ''}"><strong>Known ${esc(c.kind)} concern:</strong> ${esc(c.text)} <span class="small muted">(${esc(c.source)})</span></div>`);
+  for (const x of D?.playbackBlocked ?? []) b.push(`<div class="banner"><strong>Cannot reach the app yet (independent of this review):</strong> ${esc(x)}</div>`);
+  if (D?.audio?.pcm) b.push('<div class="banner">VBR file: playing a lossless PCM decode of the unmodified file, so that seeking is exact. The times are the same as the original\'s decoded timeline.</div>');
+  if (D?.timelineWarning) b.push(`<div class="banner bad"><strong>Timeline:</strong> ${esc(D.timelineWarning)}.</div>`);
+  if (scope()) b.push(`<div class="banner"><strong>Production boundary check:</strong> this recording already plays in the app. Only the ${scope().length} start(s) the source audit left for listening are checked (${scope().join(', ')}); the other ayahs are shown for context. Confirm each production start that is right (<kbd>C</kbd>), or place it by ear where it is not. A disagreement with production becomes a finding for the owner; nothing here changes the app's timing.</div>`);
+  if (D?.activeInDevelopment) b.push('<div class="banner">This timing already plays in development builds (measured, never listening-verified).</div>');
+  if (V?.blind && V.me) b.push(`<div class="banner">Independent review: the other reviewer's time for a start appears only after you have <em>both</em> submitted that start. Submit starts in batches whenever you like; the rest stay pending.</div>`);
+  const done = Object.keys(mySub()).length;
+  if (V?.me && done && !submitted() && nextUnfinished(order()[0]) != null) b.push(`<div class="banner"><strong>Welcome back.</strong> You have submitted ${done} of ${order().length}; the rest are pending. <button id="continueBtn" class="primary">Continue review (ayah ${nextUnfinished(order().at(-1))})</button></div>`);
+  $('banners').innerHTML = b.join('');
+  const cb = $('continueBtn'); if (cb) cb.onclick = () => { const k = nextUnfinished(order().at(-1)); if (k != null) select(k, true); };
+  $('surahTitle').innerHTML = `${D?.reciterEn ? `${esc(D.reciterEn)} <span class="ar" style="font-size:18px">${esc(D.reciterAr)}</span> — ` : ''}${S.surah} ${esc(S.surahEn)} <span class="ar" style="font-size:18px">${esc(S.surahAr)}</span> <span class="small muted">· ${S.ayahCount} ayahs · ${fmt(S.durationMs)} · ${esc(S.recording ?? '')}</span>`;
+  $('basmala').textContent = S.basmala ?? '';
+  const st = V?.status?.status ?? '–';
+  const tone = st === 'approved-for-development-consideration' ? 'ok' : st === 'awaiting-review' ? '' : st === 'blocked-by-permissions' ? 'warn' : 'bad';
+  $('statusChip').innerHTML = `<span class="chip ${tone}" title="${esc((V?.status?.reasons ?? []).join('\n'))}">${esc(st)}</span>`;
+}
+function renderRole() {
+  const name = $('name').value.trim();
+  const r1 = V.reviewers[1], r2 = V.reviewers[2];
+  let h = '';
+  if (V.me) h = `<span class="chip ok" id="reviewerChip">${V.pendingJoin ? `Reviewer 1 — ${esc(name)} (remembered${remembered()?.source === 'default' ? ' on this computer' : ''})` : `You are Reviewer ${V.me} — ${esc(V.reviewers[V.me].name)}`}${submitted() ? ' · review complete' : ` · ${Object.keys(mySub()).length}/${order().length} submitted`}</span>`;
+  else if (!name) h = '<span class="chip warn">Enter your name</span>';
+  else {
+    const can1 = !r1, can2 = r1 && !r2 && r1.name.toLowerCase() !== name.toLowerCase();
+    h = `${can1 ? '<button id="join1" class="primary">Start as Reviewer 1</button>' : ''}${can2 ? '<button id="join2" class="primary">Start as Reviewer 2 (independent)</button>' : ''}${!can1 && !can2 ? '<span class="chip">Both reviewer places are taken — view only</span>' : ''}`;
+  }
+  if (DASH && (V.me || remembered()?.name)) h += ' <button id="switchReviewer" title="Work as another reviewer: type the name, then choose the role">Switch reviewer</button>';
+  const cnt = (r) => (r.submittedAt ? ' ✓' : ` (${(r.submittedKeys ?? Object.keys(r.submitted ?? {})).length} submitted)`);
+  h += ` <span class="small muted">R1: ${r1 ? esc(r1.name) + cnt(r1) : V.pendingJoin ? `${esc(name)} (joins with your first change)` : '–'} · R2: ${r2 ? esc(r2.name) + cnt(r2) : '–'}</span>`;
+  $('roleBox').innerHTML = h;
+  // Choosing a role by hand is remembered: Reviewer 1 is then assumed on every recording; Reviewer 2 never is.
+  for (const role of [1, 2]) { const b = $(`join${role}`); if (b) b.onclick = async () => { try { V = await post('join', {}, role); store.set('qh-reviewer', { name: $('name').value.trim(), role: role === 1 ? 1 : null }); await refreshView(V); renderAll(); } catch (e) { toast(e.message); } }; }
+  const sw = $('switchReviewer');
+  if (sw) sw.onclick = async () => { if (dirty) await saveNow(); store.set('qh-reviewer', { name: '', role: null }); $('name').value = ''; store.set('qh-manual-name', ''); await refreshView(); renderAll(); $('name').focus(); toast('Type the reviewer name, then choose the role.'); };
+}
+const ev45 = (a) => S.evidence?.starts?.find((x) => x.ayah === a);
+const prop = (a) => (S.proposal && a !== 'end' ? S.proposal.boundaries.find((x) => x.ayah === a) ?? null : null);
+// Phase 4.8.8: the opening is proposed at 0:00.000 by the rule, also for a manual-timing recording (no proposal).
+const proposedMs = (k) => (isOpening(k) ? 0 : !S.proposal ? null : k === 'end' ? S.proposal.endMs : S.proposal.starts[k] ?? null);
+const tierOf = (b) => (!b ? null : b.priority === 1 ? 'high' : b.priority === 2 ? 'medium' : S.proposal.worklist.includes(b.ayah) || b.opening ? 'check' : null);
+function renderAyahs() {
+  const rows = S.ayahs.map((a) => {
+    const m = work?.markers?.[a.ayah];
+    const e = ev45(a.ayah);
+    const tag = e ? `<span class="chip ${e.kind === 'conflict' ? 'bad' : e.kind === 'unbracketed' ? 'warn' : ''}" title="${esc(e.evidence)}">4.5: ${esc(e.kind)}${e.kind !== 'unbracketed' ? ` ${fmt(e.bracketMs[0]).replace(/\.\d+$/, '')}–${fmt(e.bracketMs[1]).replace(/\.\d+$/, '')}` : ''}</span>` : '';
+    const b = prop(a.ayah);
+    const tier = S.dashboard?.risk ? tierOfKey(a.ayah).tier : tierOf(b);
+    const ptag = (tier === 'veryhigh' && !b ? `<span class="chip t-veryhigh" title="${esc(tierOfKey(a.ayah).reason)}">${TIER_TEXT.veryhigh}</span>` : '') + (b ? `<span class="chip auto" title="Automatic proposal: not a decision">proposed ${fmt(b.ms)}</span>${tier ? `<span class="chip t-${tier}" title="${esc(tierOfKey(a.ayah).reason)}">${TIER_TEXT[tier]}</span>` : ''}${b.flags.map((f) => `<span class="chip">${esc(f)}</span>`).join('')}${b.acoustic ? `<span class="chip" title="the computer's measurement at the proposed point">${esc(b.acoustic.kind)}${b.acoustic.depth_db != null ? ` ${b.acoustic.depth_db} dB` : ''}</span>` : ''}${b.opening ? '<span class="chip">opening: listen from the file start</span>' : ''}` : '');
+    const ed = keyEditable(a.ayah);
+    const canConfirm = ed && b && b.ms != null && !(m && m.ms === b.ms && m.status === 'confirmed');
+    const stv = ayahState(a.ayah);
+    const op = isOpening(a.ayah) ? `<span class="chip ok" data-opening title="${esc(S.opening.reason)}">plays from 0:00.000 (opening rule)</span>${S.opening.onsetMs > 0 ? `<span class="chip" title="the original first timestamp, kept only for highlighting">ayah 1 heard from ${fmt(S.opening.onsetMs)}</span>` : ''}${(S.opening.exceptions ?? []).filter((x) => x.kind !== 'lead-in').map((x) => `<span class="chip warn" title="${esc(x.text)}">exception: ${esc(x.kind)}</span>`).join('')}` : '';
+    if (!shownBy(a.ayah)) return '';
+    if (!inScope(a.ayah)) return `<tr class="ayah out" data-a="${a.ayah}"><td class="num">${a.ayah}</td><td><div class="ar">${esc(a.text)}</div><div class="small muted">not part of this check (production timing unchanged)</div></td><td></td><td></td></tr>`;
+    return `<tr class="ayah ${sel === a.ayah ? 'sel' : ''}" data-a="${a.ayah}">
+      <td class="num"><input type="checkbox" data-pick="${a.ayah}" ${picked.has(String(a.ayah)) ? 'checked' : ''} aria-label="Select ayah ${a.ayah}">${a.ayah}<div>${stateCell(a.ayah)}</div></td>
+      <td><div class="ar">${esc(a.text)}</div><div class="small">${tag}${ptag}${op}</div></td>
+      <td><input class="t num" data-t="${a.ayah}" value="${m ? fmt(shownMs(a.ayah, m.ms)) : ''}" placeholder="m:ss.mmm" ${ed && !isOpening(a.ayah) ? '' : 'disabled'} aria-label="Start of ayah ${a.ayah}"${isOpening(a.ayah) ? ' title="Ayah 1 plays from 0:00.000 (opening rule)"' : ''}>
+        <div class="small"><span class="seg"><button data-go="${a.ayah}" ${m || b || isOpening(a.ayah) ? '' : 'disabled'}>Play</button><button data-here="${a.ayah}" ${ed ? '' : 'disabled'}>At Playhead</button><button data-seek="${a.ayah}" ${m || (b && b.ms != null) || isOpening(a.ayah) ? '' : 'disabled'}>Go Playhead</button></span>
+        ${b ? `<button data-confirm="${a.ayah}" ${canConfirm ? '' : 'disabled'} title="The start is right where proposed (C): your judgement">Confirm proposed</button>` : ''}
+        <button data-flag="${a.ayah}" ${editable() ? '' : 'disabled'} title="Describe a problem at this ayah (fills in the flag form)">Flag problem</button>${correctButtons(a.ayah)}</div></td>
+      <td class="status">${statusButtons(a.ayah, m)}<input type="text" data-note="${a.ayah}" value="${esc(m?.note ?? '')}" placeholder="note" ${ed && m ? '' : 'disabled'} style="width:100%;margin-top:4px"></td></tr>`;
+  });
+  const e = work?.end;
+  const edE = keyEditable('end');
+  if (!scope() && shownBy('end')) rows.push(`<tr class="ayah ${sel === 'end' ? 'sel' : ''}" data-a="end"><td><input type="checkbox" data-pick="end" ${picked.has('end') ? 'checked' : ''} aria-label="Select the recitation end">end<div>${stateCell('end')}</div></td><td class="small">Recitation end: where the last ayah's recitation (and any «صدق الله العظيم» you consider part of it) finishes. Playback of the last ayah stops here.</td>
+    <td><input class="t num" data-t="end" value="${e ? fmt(e.ms) : ''}" placeholder="m:ss.mmm" ${edE ? '' : 'disabled'}><div class="small"><button data-here="end" ${edE ? '' : 'disabled'}>at playhead</button>
+      ${S.proposal ? `<span class="chip auto">proposed ${fmt(S.proposal.endMs)}</span> <button data-confirm="end" ${edE && !(e && e.ms === S.proposal.endMs && e.status === 'confirmed') ? '' : 'disabled'}>Confirm proposed</button>` : ''}${correctButtons('end')}</div></td>
+    <td class="status">${statusButtons('end', e)}<input type="text" data-note="end" value="${esc(e?.note ?? '')}" placeholder="note" ${edE && e ? '' : 'disabled'} style="width:100%;margin-top:4px"></td></tr>`);
+  $('ayahs').innerHTML = rows.join('') || `<tr><td colspan="4" class="muted">${ayahFilter === 'pending' ? 'No pending ayahs: every start is reviewed. Show <b>Reviewed</b> or <b>All</b> to inspect them (a change is a correction, with its reason).' : 'No start in this state.'}</td></tr>`;
+  const placed = Object.keys(work?.markers ?? {}).length;
+  const inScopeKeys = scope() ?? S.ayahs.map((x) => x.ayah);
+  const confirmed = inScopeKeys.filter((a) => work?.markers?.[a]?.status === 'confirmed').length;
+  $('progress').textContent = work ? `${placed}/${S.ayahCount} starts placed${work.end ? ' · end placed' : ''}` : '';
+  const cntS = (st) => order().filter((k) => ayahState(k) === st).length;
+  // Phase 4.8.6: reviewed = submitted as accepted (saved confirmations are not yet reviewed).
+  const reviewedN = inScopeKeys.filter((a) => isReviewed(a)).length;
+  $('reviewedCount').textContent = work ? `${scope() ? 'Start' : 'Ayah'}s reviewed: ${reviewedN} of ${inScopeKeys.length} · ${inScopeKeys.length - reviewedN} pending${confirmed - reviewedN > 0 ? ` (${confirmed - reviewedN} confirmed, not yet submitted)` : ''}` : V?.me ? '' : 'Start as a reviewer to place and confirm starts';
+  $('stateCounts').innerHTML = work ? ['submitted', 'saved', 'pending', 'verified', 'disputed'].map((st) => `<span class="chip ${STATE_CHIP[st][0]}">${cntS(st)} ${STATE_CHIP[st][1]}</span>`).join('') : '';
+  $('ayahs').querySelectorAll('button[data-fix]').forEach((bt) => (bt.onclick = () => startCorrection(bt.dataset.fix === 'end' ? 'end' : Number(bt.dataset.fix))));
+  $('ayahs').querySelectorAll('button[data-fixsend]').forEach((bt) => (bt.onclick = () => sendCorrection(bt.dataset.fixsend === 'end' ? 'end' : Number(bt.dataset.fixsend))));
+  $('ayahs').querySelectorAll('button[data-fixcancel]').forEach((bt) => (bt.onclick = () => cancelCorrection(bt.dataset.fixcancel)));
+  $('ayahs').querySelectorAll('button[data-confirm]').forEach((bt) => (bt.onclick = () => { const k = bt.dataset.confirm === 'end' ? 'end' : Number(bt.dataset.confirm); select(k); confirmProposal(k); }));
+  $('ayahs').querySelectorAll('input[data-pick]').forEach((cb) => cb.addEventListener('change', () => { if (cb.checked) picked.add(cb.dataset.pick); else picked.delete(cb.dataset.pick); renderBulkBar(); }));
+  renderBulkBar();
+  $('ayahs').querySelectorAll('button[data-flag]').forEach((bt) => (bt.onclick = () => flagAt(Number(bt.dataset.flag))));
+  markNow(true);
+  $('ayahs').querySelectorAll('tr.ayah').forEach((tr) => tr.addEventListener('click', (ev) => { if (ev.target.closest('input,button')) return; select(tr.dataset.a === 'end' ? 'end' : Number(tr.dataset.a), true); }));
+  $('ayahs').querySelectorAll('input[data-t]').forEach((inp) => inp.addEventListener('change', () => { const k = inp.dataset.t === 'end' ? 'end' : Number(inp.dataset.t); const ms = parseT(inp.value); if (ms === null) { removeMarker(k); return; } if (!Number.isFinite(ms)) { toast('Use m:ss.mmm, e.g. 1:23.450'); renderAyahs(); return; } setMarker(k, ms); }));
+  $('ayahs').querySelectorAll('button[data-here]').forEach((b) => (b.onclick = () => { const k = b.dataset.here === 'end' ? 'end' : Number(b.dataset.here); select(k); setMarker(k, Math.round(audio.currentTime * 1000)); }));
+  $('ayahs').querySelectorAll('button[data-seek]').forEach((b) => (b.onclick = () => goPlayhead(Number(b.dataset.seek))));
+  $('ayahs').querySelectorAll('button[data-go]').forEach((b) => (b.onclick = () => { const k = Number(b.dataset.go); select(k); playFrom(refMs(k)); }));
+  $('ayahs').querySelectorAll('button[data-st]').forEach((b) => (b.onclick = () => { const k = b.dataset.k === 'end' ? 'end' : Number(b.dataset.k); select(k); setStatus(k, b.dataset.st); }));
+  $('ayahs').querySelectorAll('input[data-note]').forEach((inp) => inp.addEventListener('change', () => { const k = inp.dataset.note === 'end' ? 'end' : Number(inp.dataset.note); const m = getMarker(k); if (m && keyEditable(k)) { m.note = inp.value; markDirty(); } }));
+}
+function statusButtons(k, m) {
+  return ['confirmed', 'uncertain', 'rejected'].map((s, i) => `<button class="s-${s}" data-st="${s}" data-k="${k}" aria-pressed="${m?.status === s}" ${keyEditable(k) && m ? '' : 'disabled'} title="${i + 1}">${s}</button>`).join(' ');
+}
+function stateCell(k) {
+  const st = ayahState(k);
+  const sub = mySub()[String(k)];
+  const other = (V?.revealed ?? []).find((c) => String(c.key) === String(k));
+  const theirs = other ? (V.me === 1 ? other.r2 : other.r1) : null;
+  return `<span class="chip ${STATE_CHIP[st][0]}" title="${sub ? `submitted ${esc(sub.at)}${sub.rev > 1 ? ` · revision ${sub.rev}` : ''}` : ''}">${STATE_CHIP[st][1]}${sub?.rev > 1 ? ` r${sub.rev}` : ''}</span>${theirs ? `<div class="small muted">other: ${fmt(theirs.ms)}</div>` : ''}`;
+}
+function correctButtons(k) {
+  if (!V?.me || !isSub(k) || amending) return '';
+  return correcting[String(k)] ? ` <button data-fixsend="${k}" class="primary">Submit correction</button> <button data-fixcancel="${k}">Cancel</button>` : ` <button data-fix="${k}" title="Change a submitted start: the earlier submission stays in the history">Correct</button>`;
+}
+function startCorrection(k) {
+  const reason = prompt(`Why are you correcting ${k === 'end' ? 'the recitation end' : `ayah ${k}`}? (kept in the log)`);
+  if (!reason || !reason.trim()) return;
+  correcting[String(k)] = reason.trim(); select(k); renderAyahs(); renderSubmit();
+  toast('Correction: move the start, judge it, then press "Submit correction".');
+}
+function cancelCorrection(k) {
+  const x = mySub()[k]; delete correcting[k];
+  if (x) { const m = { ms: x.ms, status: x.status, note: x.note ?? '', ...(x.origin ? { origin: x.origin } : {}), ...(x.answers ? { answers: structuredClone(x.answers) } : {}) }; if (k === 'end') work.end = m; else work.markers[k] = m; }
+  renderAyahs(); renderSubmit(); draw();
+}
+async function sendCorrection(k) {
+  try {
+    const reason = correcting[String(k)];
+    V = await post('revise', { key: String(k), marker: getMarker(k), reason });
+    delete correcting[String(k)];
+    await refreshView(V); renderAll();
+    toast(`${k === 'end' ? 'Recitation end' : `Ayah ${k}`}: correction submitted (the earlier submission stays in the history).`);
+  } catch (e) { toast(e.message); }
+}
+/**
+ * Dashboard only: the next recording of this reciter with an open very high risk (or disputed) start, at that ayah
+ * (the queue's order: most urgent first). Submit what you confirmed first: unsubmitted work stays saved, never sent.
+ */
+async function nextHighRiskRecording() {
+  try {
+    if (dirty) await saveNow();
+    const q = new URLSearchParams({ name: $('name').value.trim(), tiers: 'veryhigh,disputed', show: 'pending', todo: '1', reciter: S.reciterId ?? '', limit: '300' });
+    const next = (await api(`/api/attention?${q}`)).rows.find((r) => r.key !== key);
+    if (!next) { toast('No other recording of this reciter has open very high risk ayahs.'); return; }
+    $('rec').value = next.key;
+    await openRec(next.key, next.ayah);
+  } catch (e) { toast(e.message); }
+}
+function renderCurrent() {
+  const box = $('currentPanel');
+  if (!box || !S) return;
+  const k = sel;
+  const label = k === 'end' ? `${S.surah}: recitation end` : `${S.surah}:${k}`;
+  $('curTitle').textContent = `Current Ayah — ${label}${S.surahEn ? ` (${S.surahEn})` : ''}`;
+  if (noPending) {
+    box.innerHTML = `<p class="bigstat" style="color:var(--ok)">No More Pending Ayahs</p><p class="small muted">Every start is confirmed or submitted by you. Submit the confirmed ones below; ↑/↓ still visit every ayah.</p>${DASH ? '<button id="nextHighRec">Next Recording With Very High Risk Ayahs</button>' : ''}`;
+    $('nextHighRec')?.addEventListener('click', nextHighRiskRecording);
+    return;
+  }
+  const a = k === 'end' ? null : S.ayahs.find((x) => x.ayah === k);
+  const m = getMarker(k);
+  const sub = mySub()[String(k)];
+  const pm = proposedMs(k);
+  const mc = markerClass(k);
+  const t = tierOfKey(k);
+  const b = prop(k);
+  const e = k !== 'end' ? ev45(k) : null;
+  const ed = keyEditable(k);
+  const pos = boundaryMs(k);
+  // Phase 4.8.10: the exact serious problems of a per-ayah file (Cut Beginning, Ayah Overlap, ...) and its exceptions.
+  const sev = (k !== 'end' ? S.proposal?.perAyah?.risk?.[k]?.severity?.codes ?? [] : []).filter((x) => x.tier === 'veryhigh' || x.tier === 'exception');
+  const warn = [...sev.map((x) => `${x.tier === 'veryhigh' ? 'VERY HIGH: ' : ''}${x.label}`), ...(b?.flags ?? []), ...(b?.acoustic ? [`${b.acoustic.kind}${b.acoustic.depth_db != null ? ` ${b.acoustic.depth_db} dB` : ''}`] : []), ...(e ? [`Phase 4.5: ${e.kind}`] : []), ...(b?.check ? [b.check] : [])];
+  box.innerHTML = `${a ? `<div class="curAr" lang="ar">${esc(a.text)}</div>` : '<p class="small">Recitation end: where the last ayah\'s recitation finishes. Playback of the last ayah stops here.</p>'}
+    <div class="row small">
+      <span><i class="mk-dot" style="background:var(${mc.color})"></i> <strong>${esc(mc.label)}</strong></span>
+      ${t.tier ? `<span class="chip t-${t.tier}">${esc(TIER_TEXT[t.tier] || t.tier)}</span>` : ''}
+      ${warn.map((w) => `<span class="chip">${esc(w)}</span>`).join('')}
+    </div>
+    <div class="row small" style="margin-top:6px">
+      <span>Proposed: <strong class="num">${pm != null ? fmt(shownMs(k, pm)) : '—'}</strong>${pm == null && !S.proposal ? ' <span class="muted">(placed by ear)</span>' : ''}</span>
+      <label>Your boundary <input id="curT" class="t num" value="${m ? fmt(shownMs(k, m.ms)) : ''}" placeholder="m:ss.mmm" ${ed && !isOpening(k) ? '' : 'disabled'} aria-label="Your boundary, m:ss.mmm"></label>
+      ${sub ? `<span>Submitted: <strong class="num">${fmt(shownMs(k, sub.ms))}</strong>${sub.rev > 1 ? ` (revision ${sub.rev})` : ''}${isOpening(k) && sub.ms !== 0 ? ` <span class="muted">(placed at ${fmt(sub.ms)}; effective 0:00.000)</span>` : ''}</span>` : ''}
+    </div>
+    ${k !== 'end' ? `<div class="qa small" id="questions">${Object.entries(QUESTIONS).map(([q, text]) => { const x = answerOf(m, q); return `<span>${esc(text)} ${x.confirmed ? '<span class="chip ok">answered</span>' : '<span class="def">default</span>'}</span><span class="seg" role="radiogroup" aria-label="${esc(text)}">${['yes', 'no'].map((v) => `<button data-q="${q}" data-v="${v}" aria-pressed="${x.v === v}" ${ed ? '' : 'disabled'}>${v === 'yes' ? 'Yes' : 'No'}</button>`).join('')}</span>`; }).join('')}</div><p class="small muted" style="margin:2px 0 0">Every answer starts as Yes (default) and nothing is submitted until you press Submit. A No rejects the start.</p>` : ''}
+    ${isOpening(k) ? `<p class="small" id="openingNote" style="margin:6px 0 0"><strong>Opening rule:</strong> ayah 1 plays from <strong class="num">0:00.000</strong>, the start of the file (with any isti'adha, Basmala or introduction).${S.opening.onsetMs > 0 ? ` Its recitation is heard from ${fmt(S.opening.onsetMs)}: that time is kept only for highlighting.` : ''}${(S.opening.exceptions ?? []).filter((x) => x.kind !== 'lead-in').map((x) => ` <span class="chip warn">${esc(x.text)}</span>`).join('')}</p>` : ''}
+    <div class="row" style="margin-top:8px">
+      <button class="primary" id="cConfirm" ${ed && pos != null ? '' : 'disabled'} title="The boundary is right: your judgement (C for the proposal, 1 for yours)">Confirm Boundary</button>
+      <button id="cAccept" ${ed && pm != null && !(m && m.ms === pm && m.status === 'confirmed') ? '' : 'disabled'} title="The proposed boundary is right: confirmed at the proposed time and saved (no playback, nothing submitted)">Accept Proposed Boundary</button>
+      <button id="cAdjust" ${ed ? '' : 'disabled'} title="Drag your marker on the zoomed waveform, nudge it, or type the time">Adjust Boundary</button>
+      <button id="cUnc" ${ed && m ? '' : 'disabled'} title="Save it as undecided (2); Enter never confirms it">Mark Uncertain</button>
+      <button id="cReplay" ${pos != null ? '' : 'disabled'}>Replay Boundary</button>
+      <button id="cNext">Next Pending Ayah</button>
+      ${k !== 'end' ? '<button id="cPlay3" title="Play the previous, this and the next ayah, to compare their boundaries and repetitions">Play previous · this · next</button>' : ''}
+      ${correctButtons(k)}
+    </div>
+    <div class="row" style="margin-top:6px">
+      <span class="seg"><button id="cPlay" ${pos != null ? '' : 'disabled'} title="Play from the boundary (P)">Play</button><button id="cHere" ${ed ? '' : 'disabled'} title="Your boundary = the playhead (M); not confirmed, not submitted">At Playhead</button><button id="cGo" ${pos != null ? '' : 'disabled'} title="The playhead goes to the boundary; nothing is edited or played">Go Playhead</button></span>
+      <span class="seg">${[-100, -10, 10, 100].map((n) => `<button data-nudge="${n}" ${ed && m && !isOpening(k) ? '' : 'disabled'}>${n < 0 ? '−' : '+'}${Math.abs(n)}${n === 100 ? ' ms' : ''}</button>`).join('')}</span>
+    </div>`;
+  box.querySelectorAll('button[data-q]').forEach((bt) => (bt.onclick = () => answer(k, bt.dataset.q, bt.dataset.v)));
+  $('cConfirm').onclick = () => { if (!getMarker(k) && proposedMs(k) != null) confirmProposal(k); else setStatus(k, 'confirmed'); };
+  $('cAccept').onclick = () => acceptProposed(k);
+  $('cAdjust').onclick = () => { $('curT')?.focus(); toast('Adjust: drag your marker on the zoomed waveform, nudge with [ ] or the buttons, or type the time; then confirm it.'); };
+  $('cUnc').onclick = () => setStatus(k, 'uncertain');
+  $('cReplay').onclick = replayAround;
+  $('cNext').onclick = advancePending;
+  const p3 = $('cPlay3'); if (p3) p3.onclick = () => playAround(k);
+  $('cPlay').onclick = () => playFrom(boundaryMs(k));
+  $('cHere').onclick = () => setMarker(k, Math.round(audio.currentTime * 1000));
+  $('cGo').onclick = () => goPlayhead(k);
+  const ci = $('curT'); if (ci) ci.addEventListener('change', () => { const ms = parseT(ci.value); if (ms === null) { removeMarker(k); return; } if (!Number.isFinite(ms)) { toast('Use m:ss.mmm, e.g. 1:23.450'); renderCurrent(); return; } setMarker(k, ms); });
+  box.querySelectorAll('[data-nudge]').forEach((bt) => (bt.onclick = () => { const mm = getMarker(k); if (mm) setMarker(k, mm.ms + Number(bt.dataset.nudge)); }));
+  box.querySelectorAll('button[data-fix]').forEach((bt) => (bt.onclick = () => startCorrection(bt.dataset.fix === 'end' ? 'end' : Number(bt.dataset.fix))));
+  box.querySelectorAll('button[data-fixsend]').forEach((bt) => (bt.onclick = () => sendCorrection(bt.dataset.fixsend === 'end' ? 'end' : Number(bt.dataset.fixsend))));
+  box.querySelectorAll('button[data-fixcancel]').forEach((bt) => (bt.onclick = () => cancelCorrection(bt.dataset.fixcancel)));
+}
+const RESULT = { yes: 'YES — Check Passed', no: 'NO — Check Failed', unknown: 'Needs Review' };
+/** The objective checks this page can verify itself (the browser's own playback), plus timing checks on the current, possibly unsaved, work. */
+function clientChecks() {
+  const out = [];
+  const err = audio.error;
+  if (err) out.push({ id: 'loaded', label: 'The recording loaded for playback', result: err.code === 2 ? 'unknown' : 'no', detail: err.code === 2 ? 'network error: the recording could not be reached (not a validation failure)' : `the browser could not decode or play it (media error ${err.code})` });
+  else if (audio.readyState >= 1) out.push({ id: 'loaded', label: 'The recording loaded for playback', result: 'yes', detail: 'the browser read its metadata' });
+  else out.push({ id: 'loaded', label: 'The recording loaded for playback', result: 'unknown', detail: audio.src ? 'still loading' : 'not prepared yet' });
+  const d = audio.duration * 1000;
+  if (!Number.isFinite(d) || !(d > 0)) out.push({ id: 'duration', label: 'Its duration in the browser matches the reviewed recording', result: 'unknown', detail: 'no duration yet' });
+  else { const tol = Math.max(1000, S.durationMs * 0.01); out.push({ id: 'duration', label: 'Its duration in the browser matches the reviewed recording', result: Math.abs(d - S.durationMs) <= tol ? 'yes' : 'no', detail: `the browser reports ${fmt(d)}; the reviewed recording is ${fmt(S.durationMs)} (tolerance ${(tol / 1000).toFixed(1)} s; nothing needs to be played)` }); }
+  if (work) {
+    const keys = order();
+    const placed = keys.filter((k) => getMarker(k));
+    out.push({ id: 'timings-complete', label: 'Every required start has your timestamp', result: placed.length === keys.length ? 'yes' : 'unknown', detail: `${placed.length} of ${keys.length} placed (including unsaved changes)` });
+    const p = validate(false);
+    out.push({ id: 'timings-valid', label: 'Your timestamps are finite, in order and inside the recording', result: !placed.length ? 'unknown' : p.length ? 'no' : 'yes', detail: !placed.length ? 'nothing placed yet' : p.length ? p.slice(0, 2).join('; ') : `${placed.length} checked: no overlap, all inside the recording` });
+  }
+  return out;
+}
+/** The server's objective checks (text, identity, submission, audit history); "Needs Review" when the server gives none. */
+function serverChecks() {
+  const sv = V?.objective;
+  const ids = [['text', 'The canonical Arabic text has every ayah of the surah'], ['identity', 'The recording is the reviewed file (size and SHA-256)'], ['submission', 'Your submitted ayahs match your saved review'], ['audit', 'The audit history of this review is intact (hash chain)'], ...(S?.opening && S.opening.status !== 'out-of-scope' ? [['opening', 'The opening ayah plays from 0:00.000']] : [])];
+  return ids.map(([id, label]) => sv?.find((x) => x.id === id) ?? { id, label, result: 'unknown', detail: 'not available from this server (restart the dashboard to enable it)' });
+}
+/** Automatic evidence that SUPPORTS a human question (shown beside it, never as its answer). */
+function supportFor(k, objective) {
+  const r = (id) => objective.find((x) => x.id === id);
+  if (k === 'surah') return [r('text'), r('identity')];
+  if (k === 'complete') return [S.proposal?.completeness ? { label: 'Alignment completeness', result: S.proposal.completeness.collapsed === 0 ? 'yes' : 'no', detail: `${S.proposal.completeness.collapsed} ayah(s) collapsed in the alignment (median score ${S.proposal.completeness.median_score})` } : null, r('timings-complete')];
+  if (k === 'playback') return [r('loaded'), r('duration'), r('timings-valid')];
+  return [];
+}
+let lastObjective = [];
+function renderChecks() {
+  if (!S) return;
+  const objective = [...clientChecks().filter((c) => c.id === 'loaded' || c.id === 'duration'), ...serverChecks(), ...clientChecks().filter((c) => c.id.startsWith('timings'))];
+  lastObjective = objective;
+  const human = required().map((k) => ({ k, label: checkText(k), answer: work?.checks?.[k] ?? null }));
+  const hres = (a) => (a === 'yes' ? 'yes' : a === 'no' ? 'no' : 'unknown');
+  const all = [...objective.map((c) => c.result), ...human.map((h) => hres(h.answer))];
+  const n = (r) => all.filter((x) => x === r).length;
+  $('checkSummary').innerHTML = `Verification Checks: <span style="color:var(--ok)">${n('yes')} Passed</span> · <span style="color:var(--bad)">${n('no')} Failed</span> · <span style="color:var(--warn)">${n('unknown')} Need Review</span>`;
+  $('objChecks').innerHTML = `<div class="small muted" style="margin-top:4px">Automatic (software)</div>${objective.map((c) => `<div class="chk" data-check="${esc(c.id)}"><span class="res ${c.result}">${RESULT[c.result]}</span><span class="q small">${esc(c.label)}<div class="evidence">${esc(c.detail ?? '')}</div></span></div>`).join('')}`;
+  $('checks').innerHTML = human.map((h) => {
+    const sup = supportFor(h.k, objective).filter(Boolean);
+    return `<div class="chk" data-human="${h.k}"><span class="res ${hres(h.answer)}">${h.answer ? (h.answer === 'unsure' ? 'Needs Review' : RESULT[hres(h.answer)]) : 'Needs Review'}</span>
+      <span class="q small">${esc(h.label)}
+        <div class="seg" role="radiogroup" aria-label="${esc(h.label)}">${['yes', 'no'].map((v) => `<button data-ck="${h.k}" data-v="${v}" aria-pressed="${(h.answer ?? 'yes') === v}" ${editable() ? '' : 'disabled'}>${v === 'yes' ? 'Yes' : 'No'}</button>`).join('')}</div> ${h.answer == null || work?.checksDefaulted?.includes(h.k) ? '<span class="def small">default Yes (not confirmed)</span>' : h.answer === 'unsure' ? '<span class="small">earlier answer: unsure</span>' : '<span class="chip ok small">answered</span>'}
+        ${sup.length ? `<div class="evidence">automatic evidence (not your answer): ${sup.map((x) => `${esc(x.label)}: ${x.result === 'yes' ? 'passed' : x.result === 'no' ? 'FAILED' : 'needs review'}`).join(' · ')}</div>` : ''}
+      </span></div>`;
+  }).join('');
+  $('checks').querySelectorAll('button[data-ck]').forEach((bt) => (bt.onclick = () => { if (!work || !editable()) return; work.checks[bt.dataset.ck] = bt.dataset.v; work.checksDefaulted = (work.checksDefaulted ?? []).filter((x) => x !== bt.dataset.ck); if (!work.checksDefaulted.length) delete work.checksDefaulted; markDirty(); renderChecks(); }));
+  if (V) renderSubmit(); // the Finish gate follows the checks
+}
+function renderFlags() {
+  const fl = work?.flags ?? [];
+  $('flags').innerHTML = fl.length ? `<table class="small"><tr><th>Kind</th><th>Time</th><th>Ayahs</th><th>Timing implication / note</th><th></th></tr>${fl.map((f, i) => `<tr><td>${esc(f.kind)}</td><td class="num"><a href="#" data-fgo="${i}">${fmt(f.fromMs)}–${fmt(f.toMs)}</a></td><td>${f.ayahs ? f.ayahs.join('–') : ''}</td><td>${f.implication ? `<span class="chip ${f.implication === 'within-one-ayah' ? 'ok' : 'bad'}">${esc(f.implication)}</span>` : ''}${esc(f.note)}</td><td>${editable() ? `<button data-fdel="${i}">remove</button>` : ''}</td></tr>`).join('')}</table>` : '<p class="small muted">No flags.</p>';
+  $('flags').querySelectorAll('[data-fdel]').forEach((b) => (b.onclick = () => { work.flags.splice(Number(b.dataset.fdel), 1); markDirty(); renderFlags(); draw(); }));
+  $('flags').querySelectorAll('[data-fgo]').forEach((b) => (b.onclick = (e) => { e.preventDefault(); const f = fl[Number(b.dataset.fgo)]; range = [f.fromMs, f.toMs]; zoomTo(f.fromMs - 3000, f.toMs + 3000); seek(f.fromMs); }));
+  for (const id of ['fKind', 'fFrom', 'fTo', 'fA', 'fB', 'fImp', 'fNote', 'fUseSel', 'fAdd']) $(id).disabled = !editable();
+}
+function renderSubmit() {
+  const c = $('submitCard');
+  if (!V?.me) { c.innerHTML = '<p class="small muted">Choose your reviewer role (top) to start.</p>'; return; }
+  const problems = window.validate ? validate(true) : [];
+  if (!submitted()) {
+    const ready = readyKeys();
+    const pend = order().filter((k) => !isSub(k)).length;
+    const uncertain = order().filter((k) => !isSub(k) && getMarker(k)?.status === 'uncertain').length;
+    c.innerHTML = `<strong>Submit reviewed ayahs</strong>
+      <p class="small muted">Submit the starts you have judged; the rest stay pending, and you can return any time. A submitted start is frozen (a later change is a correction, with its reason). ${V.me === 2 ? 'Reviewer 1\'s time for a start appears once you have submitted that start.' : 'Reviewer 2 sees none of your times until they have submitted the same starts.'}</p>
+      <div class="row"><button class="primary" id="submitAyahsBtn" ${ready.length ? '' : 'disabled'}>Submit reviewed ayahs (${ready.length})</button>
+      <span class="small">${ready.length ? `will submit: ${esc(ranges(ready))}` : 'judge starts confirmed (1) or rejected (3) to submit them'}</span></div>
+      <p class="small muted">${Object.keys(mySub()).length} submitted · ${pend} pending${uncertain ? ` · ${uncertain} marked uncertain (judge them before submitting)` : ''}</p>
+      <hr style="border:0;border-top:1px solid var(--line)">
+      <strong>Finish the whole review</strong>`;
+    c.insertAdjacentHTML('beforeend', `<p class="small muted">When every start is placed, the recitation end too, and the whole-recording checks are answered: this completes your review (the remaining starts are submitted with it). A recording is verified only when both reviewers have finished.</p>
+      ${problems.length ? `<ul id="problems" class="small">${problems.slice(0, 12).map((p) => `<li>${esc(p)}</li>`).join('')}${problems.length > 12 ? `<li>… ${problems.length - 12} more</li>` : ''}</ul>` : '<p class="small" style="color:var(--ok)">Everything is placed and answered.</p>'}
+      ${lastObjective.some((c) => c.result === 'no') ? `<p class="small" style="color:var(--bad)">An automatic check failed (${esc(lastObjective.filter((c) => c.result === 'no').map((c) => c.label).join('; '))}): the review cannot be finished until it passes.</p>` : ''}
+      <button id="submitBtn" ${problems.length || lastObjective.some((c) => c.result === 'no') ? 'disabled' : ''}>Finish: submit the whole review</button>`);
+    $('submitAyahsBtn').onclick = submitAyahs;
+    const b = $('submitBtn'); if (b) b.onclick = async () => {
+      // Phase 4.8.9: the questions you left at the default Yes are recorded as defaults (never as confirmed answers).
+      const defaults = required().filter((k) => !work.checks[k]);
+      if (!confirm(`Submit? Your placements will be frozen (later changes are logged amendments).${defaults.length ? `\n${defaults.length} question(s) left at the default Yes will be recorded as defaults.` : ''}`)) return;
+      if (defaults.length) { for (const k of defaults) work.checks[k] = 'yes'; work.checksDefaulted = [...new Set([...(work.checksDefaulted ?? []), ...defaults])]; dirty = true; }
+      await saveNow(); if (dirty) return;
+      try { V = await post('submit'); await refreshView(V); renderAll(); toast('Submitted.'); } catch (e) { toast(e.message); } };
+  } else if (amending) {
+    const problems2 = validate(true);
+    c.innerHTML = `<strong>Amending your submitted review</strong> <span class="small">Reason: ${esc(amendReason)}</span>
+      ${problems2.length ? `<ul id="problems" class="small">${problems2.slice(0, 12).map((p) => `<li>${esc(p)}</li>`).join('')}</ul>` : ''}
+      <div class="row"><button class="primary" id="saveAmend" ${problems2.length ? 'disabled' : ''}>Save amendment</button> <button id="cancelAmend">Cancel</button></div>`;
+    $('saveAmend').onclick = async () => { try { V = await post('amend', { work, reason: amendReason }); amending = false; await refreshView(V); renderAll(); $('saveState').textContent = 'amendment saved'; toast('Amendment saved (logged with its reason).'); } catch (e) { toast(e.message); } };
+    $('cancelAmend').onclick = async () => { amending = false; await refreshView(); renderAll(); $('saveState').textContent = ''; };
+  } else {
+    c.innerHTML = `<strong>Submitted</strong> <span class="small muted">${esc(me().submittedAt)}${me().amendments.length ? ` · ${me().amendments.length} amendment(s)` : ''}</span>
+      <p class="small">To change a placement now, make an amendment (its reason and the previous placements stay in the log): <button id="amendBtn">Start amendment</button></p>`;
+    $('amendBtn').onclick = () => {
+      const reason = prompt('Reason for the amendment (kept in the log):');
+      if (!reason || !reason.trim()) return;
+      amendReason = reason.trim(); amending = true; renderAll(); toast('Amendment mode: change placements, then press "Save amendment".');
+    };
+  }
+}
+
+async function submitAyahs() {
+  const ready = readyKeys();
+  if (!ready.length) return;
+  await saveNow(); // the server submits what it has saved
+  if (dirty) return;
+  try {
+    V = await post('submit-ayahs', { keys: ready.map(String) });
+    await refreshView(V);
+    renderAll(); // the recording, the playhead and the view stay as they are
+    const pend = pendingCount();
+    $('saveState').textContent = `submitted ${ready.length} · ${new Date().toLocaleTimeString()}`;
+    toast(`${ready.length} submitted (${ranges(ready)}). ${pend} pending.`);
+    // The reviewed starts leave the Pending list: move on to the next one still needing work.
+    if (isReviewed(sel)) { const k = nextPendingKey(); if (k != null) select(k, true); }
+  } catch (e) { toast(`Not submitted: ${e.message}`); }
+}
+function renderCompare() {
+  const c = $('compareCard');
+  const st = V?.status;
+  const list = st?.comparison ?? V?.revealed ?? [];
+  if (!list.length || !V?.me) { c.hidden = true; return; }
+  c.hidden = false;
+  const s = V.summary;
+  const mine = (x) => (V.me === 1 ? x.r1 : x.r2);
+  const theirs = (x) => (V.me === 1 ? x.r2 : x.r1);
+  const myName = V.reviewers[V.me].name.toLowerCase();
+  const action = (x) => {
+    if (x.unresolvable) return `cannot be placed (${esc(x.unresolvable.by)}): ${esc(x.unresolvable.note)}`;
+    if (x.resolution) return `resolved at ${fmt(x.resolution.ms)}: proposed by ${esc(x.resolution.proposedBy)}, accepted by ${esc(x.resolution.acceptedBy)}`;
+    if (x.outcome === 'agreed') return '';
+    const p = x.proposal;
+    if (p && p.proposedBy.toLowerCase() === myName) return `you proposed ${fmt(p.ms)}: waiting for the other reviewer to accept`;
+    return [`<button data-crep="${x.key}">Replay</button>`,
+      p ? `<button class="primary" data-acc="${x.key}" data-ms="${p.ms}">Accept Proposed Resolution (${fmt(p.ms)})</button>` : `<button class="primary" data-agree="${x.key}" data-ms="${theirs(x).ms}">Agree With Other Reviewer</button>`,
+      `<button data-prop="${x.key}">Propose a time</button>`, `<button data-unres="${x.key}">Cannot be placed</button>`].join(' ');
+  };
+  c.innerHTML = `<strong>${st.comparison ? 'Reviewer comparison (both reviews complete)' : `Reviewer comparison: ayahs you have both submitted (${list.length} of ${s.total})`}</strong> <span class="small muted">agreement: both confirmed, ≤ 250 ms apart. The other reviewer's times appear only for ayahs you have both submitted.</span>
+    <div class="row small" style="margin:6px 0"><span class="chip ok">${s.agreed} agreed</span><span class="chip ok">${s.resolved} resolved</span><span class="chip bad">${s.disputed} disputed</span><span class="chip bad">${s.unresolved} unresolved</span></div>
+    ${st.comparison ? `<div class="small">${(st.reasons ?? []).map((r) => `<div>• ${esc(r)}</div>`).join('')}</div>` : ''}
+    <table class="small num" style="margin-top:8px"><tr><th>Ayah</th><th>My Timing</th><th>Other Timing</th><th>Difference</th><th>Status</th><th>Action</th></tr>
+    ${list.map((x) => `<tr><td>${x.key === 'end' ? 'end' : x.key}</td><td><a href="#" data-cgo="${mine(x).ms}">${fmt(mine(x).ms)}</a> <span class="s-${mine(x).status}">${mine(x).status}</span></td><td><a href="#" data-cgo="${theirs(x).ms}">${fmt(theirs(x).ms)}</a> <span class="s-${theirs(x).status}">${theirs(x).status}</span></td>
+      <td>${(V.me === 1 ? x.deltaMs : -x.deltaMs) > 0 ? '+' : ''}${V.me === 1 ? x.deltaMs : -x.deltaMs} ms</td>
+      <td><span class="chip ${x.outcome === 'agreed' || x.outcome === 'resolved' ? 'ok' : 'bad'}">${x.outcome}</span>${x.why.length ? `<div class="muted">${esc(x.why.join('; '))}</div>` : ''}</td><td>${action(x)}</td></tr>`).join('')}</table>`;
+  const key = (v) => (v === 'end' ? 'end' : Number(v));
+  c.querySelectorAll('[data-cgo]').forEach((a) => (a.onclick = (e) => { e.preventDefault(); const ms = Number(a.dataset.cgo); centerOn(ms); seek(Math.max(0, ms - Number($('pre').value) * 1000)); }));
+  c.querySelectorAll('[data-crep]').forEach((b) => (b.onclick = () => { select(key(b.dataset.crep), true); replayAround(); }));
+  const resolve = async (type, payload) => { try { V = await post(type, payload); await refreshView(V); renderAll(); } catch (e) { toast(e.message); } };
+  c.querySelectorAll('[data-agree]').forEach((b) => (b.onclick = () => {
+    const k = key(b.dataset.agree); const ms = Number(b.dataset.ms);
+    resolve('resolve-propose', { ayah: k, ms, note: "Agree With Other Reviewer: in my judgement the other reviewer's placement is right" });
+  }));
+  c.querySelectorAll('[data-acc]').forEach((b) => (b.onclick = () => {
+    const k = key(b.dataset.acc);
+    resolve('resolve-accept', { ayah: k, note: 'Accept Proposed Resolution: in my judgement the proposed time is right' });
+  }));
+  c.querySelectorAll('[data-prop]').forEach((b) => (b.onclick = () => {
+    const k = key(b.dataset.prop);
+    const t = prompt(`Proposed time for ${k === 'end' ? 'the recitation end' : `ayah ${k}`} (m:ss.mmm).`, fmt(Math.round(audio.currentTime * 1000)));
+    const ms = parseT(t ?? ''); if (!Number.isFinite(ms)) return;
+    const note = prompt('What did you hear? (required)'); if (!note) return;
+    resolve('resolve-propose', { ayah: k, ms, note });
+  }));
+  c.querySelectorAll('[data-unres]').forEach((b) => (b.onclick = () => {
+    const k = key(b.dataset.unres);
+    const note = prompt('Why can this boundary not be placed truthfully? (required)'); if (!note) return;
+    resolve('resolve-unresolvable', { ayah: k, note });
+  }));
+}
+function resolutionCell(x) {
+  if (x.unresolvable) return `unresolvable (${esc(x.unresolvable.by)}): ${esc(x.unresolvable.note)}`;
+  if (x.resolution) return `${fmt(x.resolution.ms)} — proposed by ${esc(x.resolution.proposedBy)}, accepted by ${esc(x.resolution.acceptedBy)}`;
+  if (x.outcome === 'agreed') return '';
+  const p = x.proposal;
+  const mine = p && V.me && p.proposedBy.toLowerCase() === V.reviewers[V.me].name.toLowerCase();
+  return `${p ? `<div>proposed ${fmt(p.ms)} by ${esc(p.proposedBy)}: ${esc(p.note)}</div>` : ''}${V.me ? `<button data-prop="${x.key}">Propose a time</button> ${p && !mine ? `<button data-acc="${x.key}" class="primary">Accept proposal</button>` : ''} <button data-unres="${x.key}">Cannot be placed</button>` : ''}`;
+}
+
+// ---------------------------------------------------------------- validation (mirrors manual-lib.mjs; the server re-checks)
+window.validate = function validate(full) {
+  if (!work) return [];
+  const p = [];
+  const placed = Object.entries(work.markers).map(([k, m]) => [Number(k), m.ms]).sort((a, b) => a[0] - b[0]);
+  for (const [a, ms] of placed) if (!(ms >= 0 && ms < S.durationMs)) p.push(`ayah ${a}: outside the audio`);
+  for (let i = 1; i < placed.length; i++) if (!(placed[i][1] > placed[i - 1][1])) p.push(`ayah ${placed[i][0]} starts before or at ayah ${placed[i - 1][0]}'s start`);
+  if (work.end && placed.length && !(work.end.ms > placed.at(-1)[1])) p.push('the recitation end is not after the last start');
+  for (const f of work.flags) if (f.kind === 'repetition' && f.implication === 'within-one-ayah' && f.ayahs && f.ayahs[0] !== f.ayahs[1]) p.push(`repetition ${f.ayahs.join('-')}: "within one ayah" needs a single ayah`);
+  if (full) {
+    for (const a of scope() ?? S.ayahs.map((x) => x.ayah)) if (!work.markers[a]) p.push(`ayah ${a}: no start placed`);
+    if (!scope() && !work.end) p.push('recitation end not placed');
+    // Phase 4.8.9: an unanswered whole-recording question is the default Yes, recorded as such when you finish.
+  }
+  return p;
+};
+
+// ---------------------------------------------------------------- markers
+const getMarker = (k) => (k === 'end' ? work?.end : work?.markers?.[k]);
+function setMarker(k, ms) {
+  if (!keyEditable(k)) { toast(lockedMsg(k)); return; }
+  if (!inScope(k)) { toast(`${k === 'end' ? 'The recitation end' : `Ayah ${k}`} is not part of this check.`); return; }
+  if (isOpening(k) && Math.round(ms) !== 0) { toast('Ayah 1 always plays from 0:00.000 (opening rule): its start stays at the beginning of the file.'); ms = 0; }
+  ms = Math.round(Math.max(0, Math.min(S.durationMs - (k === 'end' ? 0 : 1), ms)));
+  const m = getMarker(k);
+  // Order is enforced as you place: a start must lie between its neighbours.
+  const prev = k === 'end' ? Math.max(-1, ...Object.values(work.markers).map((x) => x.ms)) : Math.max(-1, ...Object.entries(work.markers).filter(([a]) => Number(a) < k).map(([, x]) => x.ms));
+  const next = k === 'end' ? Infinity : Math.min(work.end?.ms ?? Infinity, ...Object.entries(work.markers).filter(([a]) => Number(a) > k).map(([, x]) => x.ms));
+  if (!(ms > prev && ms < next)) { toast(`Not placed: ${k === 'end' ? 'the end' : `ayah ${k}`} must lie after ${fmt(prev)} and before ${fmt(next)} (canonical order).`); return; }
+  // Moving a marker clears its judgement: it must be judged again.
+  const nm = { ms, status: m && m.ms === ms ? m.status : 'uncertain', note: m?.note ?? '', ...(m && m.ms === ms && m.origin ? { origin: m.origin } : {}) };
+  if (k === 'end') work.end = nm; else work.markers[k] = nm;
+  markDirty(); renderAyahs(); renderSubmit(); renderCurrent(); renderChecks(); draw();
+}
+function removeMarker(k) { if (!keyEditable(k)) { toast(lockedMsg(k)); renderAyahs(); return; } if (k === 'end') work.end = null; else delete work.markers[k]; markDirty(); renderAyahs(); renderSubmit(); renderCurrent(); renderChecks(); draw(); }
+function setStatus(k, s) {
+  const m = getMarker(k);
+  if (!m) return false;
+  if (!keyEditable(k)) { toast(lockedMsg(k)); return false; }
+  if (s === 'confirmed' && k !== 'end' && anyNo(m)) { toast('You answered No to a question about this ayah: change it to Yes, or reject the start.'); return false; }
+  if (k !== 'end' && (s === 'confirmed' || m.answers)) m.answers = withDefaults(m);
+  m.status = s;
+  if (s === 'uncertain') m.markedUncertain = true; else delete m.markedUncertain;
+  markDirty(); renderAyahs(); renderSubmit(); renderCurrent(); renderChecks(); draw();
+  return true;
+}
+/** Phase 4.8.9: a Yes / No answer about the selected start (placed at the proposal first if it has no marker yet). */
+function answer(k, q, v) {
+  if (!keyEditable(k)) { toast(lockedMsg(k)); return; }
+  if (!getMarker(k)) { const pm = proposedMs(k); if (pm == null) { toast('Place the start first (M or At Playhead).'); return; } setMarker(k, pm); if (!getMarker(k)) return; }
+  const m = getMarker(k);
+  m.answers = withDefaults(m);
+  m.answers[q] = { v, confirmed: true };
+  if (v === 'no') { m.status = 'rejected'; delete m.markedUncertain; }
+  markDirty(); renderAyahs(); renderSubmit(); renderCurrent(); draw();
+  if (v === 'no') toast(`Answered No: ${k === 'end' ? 'the end' : `ayah ${k}`} is marked rejected (submit it when ready).`);
+}
+function select(k, zoom) {
+  sel = k; noPending = false; renderAyahs(); renderCurrent();
+  const pos = boundaryMs(k);
+  const e = k !== 'end' ? ev45(k) : null;
+  if (zoom) { if (pos != null) centerOn(pos); else if (e && e.kind !== 'unbracketed') zoomTo(e.bracketMs[0] - 3000, e.bracketMs[1] + 3000); }
+  draw();
+  // Keep the row visible inside the list's own scroll area (the workstation above does not move).
+  const box = $('listBox'); const row = document.querySelector(`tr.ayah[data-a="${k}"]`);
+  if (box && row) { const top = row.offsetTop - box.offsetTop; if (top < box.scrollTop || top > box.scrollTop + box.clientHeight - row.offsetHeight) box.scrollTop = Math.max(0, top - box.clientHeight / 3); }
+}
+/** The time the replay buttons use for a start: your marker, else the automatic proposal, else the playhead. */
+const refMs = (k) => shownMs(k, getMarker(k)?.ms ?? proposedMs(k)) ?? Math.round(audio.currentTime * 1000);
+/** Accept Proposed Boundary: the reviewer's decision that the proposal is right, saved at once (no seek, no playback). */
+async function acceptProposed(k) {
+  const pm = proposedMs(k);
+  const m = getMarker(k);
+  if (pm == null) { toast('No proposed boundary for this start: place it yourself (M or At Playhead).'); return false; }
+  if (!keyEditable(k)) { toast(lockedMsg(k)); return false; }
+  if (m && m.ms !== pm && !confirm(`Replace your boundary ${fmt(m.ms)} with the proposed ${fmt(pm)}? (Your earlier saved boundary stays in the history.)`)) return false;
+  if (!confirmProposal(k, true)) return false;
+  if (correcting[String(k)]) { toast('Accepted in your correction: press "Submit correction" to submit it.'); return true; }
+  await saveNow();
+  if (dirty) { toast('Not saved: the proposed boundary is accepted on this page but the server did not save it.'); return false; }
+  toast(`${k === 'end' ? 'Recitation end' : `Ayah ${k}`}: proposed boundary accepted and saved (not submitted).`);
+  renderAyahs(); renderCurrent(); renderSubmit(); draw();
+  return true;
+}
+/** A reviewer's explicit decision that the proposed time is right: places a marker there, confirmed. */
+function confirmProposal(k, quiet = false) {
+  const pm = proposedMs(k);
+  if (pm == null) { toast('No automatic proposal for this start: place it by ear (M).'); return false; }
+  if (!keyEditable(k)) { toast(lockedMsg(k)); return false; }
+  const m = getMarker(k);
+  if (!m || m.ms !== pm) { setMarker(k, pm); if (getMarker(k)?.ms !== pm) return false; }
+  getMarker(k).origin = 'proposal';
+  if (!setStatus(k, 'confirmed')) return false;
+  if (!quiet) toast(`${k === 'end' ? 'Recitation end' : `Ayah ${k}`}: proposed time confirmed by you.`);
+  return true;
+}
+// ---------------------------------------------------------------- bulk review (Phase 4.8.4.1)
+const BULK = {
+  'accept-proposed': { title: 'Accept All Proposed', verb: 'accepted at the proposed time', what: 'Each eligible boundary is confirmed at its proposed time: your judgement that the proposal is right. Your own edited boundaries and your explicit judgements are kept.' },
+  'reject-proposed': { title: 'Reject All Proposed', verb: 'rejected (proposed time kept)', what: 'Each eligible proposed boundary is marked rejected. Its proposed time is kept so you can correct it later; nothing is invented, nothing is deleted.' },
+  'accept-edited': { title: 'Accept All Edited', verb: 'confirmed at your edited time', what: 'Each of your own adjusted boundaries that is not judged yet is confirmed at your time (not the proposed one).' },
+};
+/** Why a start is excluded from a bulk action, or null (the same rules as the server's bulkExclusion). */
+function bulkWhy(k, action) {
+  if (!inScope(k)) return 'not part of this check';
+  if (isOpening(k)) return 'the opening plays from 0:00.000 by rule (confirm it on its own if you wish)';
+  if (correcting[String(k)]) return 'a correction is open';
+  if (isSub(k)) return 'already submitted (change it with Correct)';
+  const m = getMarker(k);
+  const pm = proposedMs(k);
+  if (action === 'accept-edited') {
+    if (!m) return 'no boundary of yours';
+    if (pm != null && m.ms === pm) return 'not edited (the proposed time)';
+    if (m.status === 'confirmed') return 'already confirmed';
+    if (m.status === 'rejected') return 'rejected by you';
+    if (m.markedUncertain) return 'marked uncertain by you';
+    return null;
+  }
+  if (pm == null || !Number.isFinite(pm)) return 'no proposed time';
+  if (!(pm >= 0 && pm <= S.durationMs)) return 'proposed time outside the recording';
+  if (m && m.ms !== pm) return 'your own edited boundary is kept';
+  if (m?.status === 'confirmed') return action === 'accept-proposed' ? 'already confirmed' : 'confirmed by you';
+  if (m?.status === 'rejected') return action === 'reject-proposed' ? 'already rejected' : 'rejected by you';
+  if (m?.markedUncertain) return 'marked uncertain by you';
+  return null;
+}
+/** The preview: which starts the action changes, which it leaves out and why (timing order checked as applied). */
+function bulkPlan(action, onlyPicked) {
+  const all = order();
+  const pool = onlyPicked ? all.filter((k) => picked.has(String(k))) : all;
+  const t = { markers: { ...(work?.markers ?? {}) }, end: work?.end ?? null };
+  const eligible = [], excluded = new Map();
+  for (const k of pool) {
+    let why = bulkWhy(k, action);
+    if (!why) {
+      const ms = action === 'accept-edited' ? getMarker(k).ms : proposedMs(k);
+      const prev = k === 'end' ? Math.max(-1, ...Object.values(t.markers).map((x) => x.ms)) : Math.max(-1, ...Object.entries(t.markers).filter(([a]) => Number(a) < k).map(([, x]) => x.ms));
+      const next = k === 'end' ? Infinity : Math.min(t.end?.ms ?? Infinity, ...Object.entries(t.markers).filter(([a]) => Number(a) > k).map(([, x]) => x.ms));
+      if (!(ms > prev && ms < next) || ms < 0 || ms > S.durationMs) why = 'out of order with a neighbouring boundary';
+      else if (k === 'end') t.end = { ms }; else t.markers[k] = { ms };
+    }
+    if (why) { if (!excluded.has(why)) excluded.set(why, []); excluded.get(why).push(k); } else eligible.push(k);
+  }
+  return { total: all.length, pool: pool.length, eligible, excluded };
+}
+function renderBulkBar() {
+  const bar = $('bulkBar'); if (!bar || !S) return;
+  const can = !!V?.me && !!work && !submitted() && !amending;
+  const why = !V?.me ? 'Choose your reviewer role first' : submitted() ? 'Your review is submitted: changes are amendments' : amending ? 'Not during an amendment' : '';
+  for (const [id, needsProposal] of [['bulkAcceptProp', true], ['bulkRejectProp', true], ['bulkAcceptEdit', false]]) {
+    const b = $(id); b.disabled = !can || (needsProposal && !S.proposal);
+    if (why) b.title = why; else if (needsProposal && !S.proposal) b.title = 'This recording has no automatic proposal';
+  }
+  $('bulkPick').innerHTML = picked.size ? `${picked.size} selected · <a href="#" id="pickClear">clear</a>` : 'tick ayahs in the list to act on selected ayahs only';
+  const pc = $('pickClear'); if (pc) pc.onclick = (e) => { e.preventDefault(); picked = new Set(); renderAyahs(); };
+}
+let bulkOpen = null;
+async function openBulk(action) {
+  if (!V?.me || !work) { toast('Choose your reviewer role first.'); return; }
+  if (dirty) { await saveNow(); if (dirty) { toast('Not saved: save your changes before a bulk action.'); return; } }
+  bulkOpen = { action, onlyPicked: picked.size > 0, rec: key, me: V.me };
+  renderBulk();
+  $('bulkDlg').showModal();
+}
+function renderBulk() {
+  const { action, onlyPicked } = bulkOpen;
+  const p = bulkPlan(action, onlyPicked);
+  const B = BULK[action];
+  const list = (keys) => esc(ranges(keys)) || '—';
+  $('bulkBody').innerHTML = `<h3 id="bulkTitle" style="margin:0 0 6px">${B.title}: preview</h3>
+    <p class="small" style="margin:0 0 8px">${esc(B.what)} Nothing is submitted, no audio is played, and only your review of this recording changes (Reviewer ${V.me}, ${esc(S.surah)} ${esc(S.surahEn ?? '')}).</p>
+    <div class="row small"><label><input type="radio" name="bulkScope" value="all" ${onlyPicked ? '' : 'checked'}> All eligible ayahs in this recording</label>
+      <label><input type="radio" name="bulkScope" value="picked" ${onlyPicked ? 'checked' : ''} ${picked.size ? '' : 'disabled'}> Selected ayahs only (${picked.size} selected)</label></div>
+    <p class="bigstat" style="margin:8px 0 2px">Total ayahs: ${p.total} · Eligible: <span id="bulkEligible">${p.eligible.length}</span> · Excluded: ${p.pool - p.eligible.length}${onlyPicked ? ` · not selected: ${p.total - p.pool}` : ''}</p>
+    <div class="small"><strong>Will change:</strong> <span id="bulkKeys" class="num">${list(p.eligible)}</span></div>
+    ${p.excluded.size ? `<div class="small" style="margin-top:6px"><strong>Excluded, and why:</strong><ul>${[...p.excluded].map(([why, keys]) => `<li>${esc(why)} (${keys.length}): <span class="num">${list(keys)}</span></li>`).join('')}</ul></div>` : ''}
+    <div class="row" style="justify-content:flex-end;margin-top:10px"><button id="bulkCancel">Cancel</button><button id="bulkGo" class="primary" ${p.eligible.length ? '' : 'disabled'}>Confirm: ${esc(B.title.split(' ')[0].toLowerCase())} ${p.eligible.length}</button></div>`;
+  $('bulkBody').querySelectorAll('input[name=bulkScope]').forEach((r) => (r.onchange = () => { bulkOpen.onlyPicked = r.value === 'picked'; renderBulk(); }));
+  $('bulkCancel').onclick = () => { $('bulkDlg').close(); bulkOpen = null; toast('Bulk action cancelled: nothing changed.'); };
+  $('bulkGo').onclick = () => runBulk(p.eligible);
+}
+async function runBulk(keys) {
+  const { action, rec, me: role } = bulkOpen;
+  $('bulkGo').disabled = true; // one request per confirmation
+  $('bulkDlg').close(); bulkOpen = null;
+  if (rec !== key || role !== V?.me) { toast('The recording or reviewer changed: nothing applied.'); return; }
+  try {
+    V = await post('bulk', { action, keys: keys.map(String) });
+    await refreshView(V); renderAll();
+    toast(`${keys.length} ${keys.length === 1 ? 'boundary' : 'boundaries'} ${BULK[action].verb} and saved (${ranges(keys)}). Nothing was submitted.`);
+    $('saveState').textContent = `saved ${new Date().toLocaleTimeString()}`;
+  } catch (e) {
+    toast(/unknown event bulk/.test(e.message) ? 'This dashboard server predates bulk review: restart the dashboard to enable it. Nothing was changed.' : `Not applied: ${e.message}`);
+    try { await refreshView(); renderAll(); } catch {}
+  }
+}
+$('bulkAcceptProp').onclick = () => openBulk('accept-proposed');
+$('bulkRejectProp').onclick = () => openBulk('reject-proposed');
+$('bulkAcceptEdit').onclick = () => openBulk('accept-edited');
+$('bulkDlg').addEventListener('cancel', () => { bulkOpen = null; });
+$('pickAll').addEventListener('change', () => { const on = $('pickAll').checked; document.querySelectorAll('#ayahs input[data-pick]').forEach((cb) => { if (on) picked.add(cb.dataset.pick); else picked.delete(cb.dataset.pick); }); renderAyahs(); });
+function flagAt(a) {
+  if (!editable()) return;
+  const t = refMs(a);
+  $('fKind').value = 'other'; $('fA').value = a; $('fB').value = a;
+  $('fFrom').value = fmt(Math.max(0, t - 1500)); $('fTo').value = fmt(Math.min(S.durationMs, t + 1500));
+  $('fNote').value = ''; $('fNote').placeholder = `What is wrong at ayah ${a}? (adjust kind and times, then Add flag)`;
+  $('fNote').scrollIntoView({ block: 'center' }); $('fNote').focus();
+}
+function replayBefore() { const t = refMs(sel); cancelReplay(); seek(Math.max(0, t - Number($('pre').value) * 1000)); replayStop = t; audio.play(); }
+function replayAfter() { const t = refMs(sel); cancelReplay(); seek(t); replayStop = t + Number($('post').value) * 1000; audio.play(); }
+function playAyah() {
+  if (sel === 'end') return;
+  const from = refMs(sel);
+  const nxt = sel < S.ayahCount ? (getMarker(sel + 1)?.ms ?? proposedMs(sel + 1)) : (work?.end?.ms ?? proposedMs('end'));
+  cancelReplay(); seek(from); replayStop = nxt != null && nxt > from ? nxt : null; audio.play();
+}
+/** Phase 4.8.10: plays the previous ayah, this one and the next one (their boundaries as you see them), then stops. */
+function playAround(k) {
+  const from = boundaryMs(k > 1 ? k - 1 : k) ?? boundaryMs(k);
+  const after = k + 2 <= S.ayahCount ? boundaryMs(k + 2) : (getMarker('end')?.ms ?? proposedMs('end') ?? S.durationMs);
+  if (from == null) { toast('No boundary for this ayah yet.'); return; }
+  cancelReplay(); seek(from); replayStop = after != null && after > from ? after : null; audio.play();
+  toast(`Playing ${k > 1 ? `${S.surah}:${k - 1}, ` : ''}${S.surah}:${k}${k < S.ayahCount ? ` and ${S.surah}:${k + 1}` : ''}`);
+}
+/** Marks the ayah being heard (by your starts, else the proposal) and shows it. */
+let nowA = null;
+function markNow(force) {
+  if (!S) return;
+  const t = audio.currentTime * 1000;
+  let a = null;
+  for (let k = 1; k <= S.ayahCount; k++) { const s = shownMs(k, getMarker(k)?.ms ?? proposedMs(k)); if (s != null && s <= t) a = k; }
+  if (a === nowA && !force) return;
+  nowA = a;
+  document.querySelectorAll('tr.ayah.now').forEach((r) => r.classList.remove('now'));
+  if (a) document.querySelector(`tr.ayah[data-a="${a}"]`)?.classList.add('now');
+  $('nowAyah').textContent = a ? `Now playing: ayah ${a} (by ${getMarker(a) ? 'your start' : 'the proposal'})` : '';
+}
+
+// ---------------------------------------------------------------- playback (rate is never changed: the recording is heard as it is)
+function seek(ms) { audio.currentTime = Math.max(0, Math.min(S.durationMs, ms)) / 1000; draw(); }
+function playFrom(ms) { cancelReplay(); seek(ms); audio.play(); }
+function cancelReplay() { replayStop = null; }
+function replayAround() {
+  // The reviewer-visible boundary: your marker, else the automatic proposal (never another reviewer's).
+  const at = boundaryMs(sel);
+  if (at == null) { toast('No boundary yet: place it first (M or At Playhead).'); return; }
+  const pre = Number($('pre').value) * 1000, post = Number($('post').value) * 1000;
+  cancelReplay(); seek(Math.max(0, at - pre)); replayStop = at + post; audio.play();
+}
+audio.addEventListener('play', () => { $('play').textContent = 'Pause'; tick(); });
+audio.addEventListener('pause', () => { $('play').textContent = 'Play'; draw(); });
+for (const e of ['loadedmetadata', 'durationchange', 'error', 'emptied']) audio.addEventListener(e, () => { if (S) renderChecks(); });
+function tick() {
+  if (replayStop != null && audio.currentTime * 1000 >= replayStop) { audio.pause(); replayStop = null; }
+  const t = audio.currentTime * 1000;
+  markNow();
+  if (!audio.paused && (t > view.start + view.span * 0.92 || t < view.start)) { view.start = Math.max(0, Math.min(S.durationMs - view.span, t - view.span * 0.1)); waveCache = null; }
+  draw();
+  if (!audio.paused) requestAnimationFrame(tick);
+}
+$('play').onclick = () => { cancelReplay(); audio.paused ? audio.play() : audio.pause(); };
+$('back').onclick = () => seek(audio.currentTime * 1000 - 2000);
+$('fwd').onclick = () => seek(audio.currentTime * 1000 + 2000);
+$('replay').onclick = replayAround;
+$('replayBefore').onclick = replayBefore; $('replayAfter').onclick = replayAfter; $('playAyah').onclick = playAyah;
+const stepAyah = (d) => { const o = order(); const i = o.indexOf(sel); select(o[Math.max(0, Math.min(o.length - 1, (i < 0 ? 0 : i + d)))], true); };
+$('prevAyah').onclick = () => stepAyah(-1); $('nextAyah').onclick = () => stepAyah(1);
+$('nextOpen').onclick = () => { const k = nextUnfinished(); if (k == null) toast('Every start is submitted.'); else select(k, true); };
+$('ayahFilter').onchange = () => { ayahFilter = $('ayahFilter').value; renderAyahs(); };
+$('saveBtn').onclick = async () => { if (!dirty) { $('saveState').textContent = `all changes saved · ${new Date().toLocaleTimeString()}`; return; } await saveNow(); };
+
+// ---------------------------------------------------------------- waveform
+let waveCache = null, ovCache = null, ovMarks = [];
+function zoomTo(a, b) { a = Math.max(0, a); b = Math.min(S.durationMs, b); if (b - a < 400) b = a + 400; view = { start: a, span: b - a }; waveCache = null; draw(); }
+function zoomBy(f, centerMs) { const c = centerMs ?? view.start + view.span / 2; const span = Math.max(400, Math.min(S.durationMs, view.span * f)); zoomTo(c - (c - view.start) * (span / view.span), c - (c - view.start) * (span / view.span) + span); }
+function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+function sizeCanvas(cv) { const r = cv.getBoundingClientRect(); const d = devicePixelRatio || 1; if (cv.width !== Math.round(r.width * d) || cv.height !== Math.round(r.height * d)) { cv.width = Math.round(r.width * d); cv.height = Math.round(r.height * d); waveCache = null; } return { w: cv.width, h: cv.height, d }; }
+function wavePath(ctx, w, h, y0, a, span, color) {
+  const binsPerPx = span / peaks.bin / w;
+  ctx.fillStyle = color;
+  for (let x = 0; x < w; x++) {
+    const b0 = Math.floor((a / peaks.bin) + x * binsPerPx), b1 = Math.max(b0 + 1, Math.floor((a / peaks.bin) + (x + 1) * binsPerPx));
+    let lo = 0, hi = 0;
+    for (let b = Math.max(0, b0); b < Math.min(peaks.min.length, b1); b++) { if (peaks.min[b] < lo) lo = peaks.min[b]; if (peaks.max[b] > hi) hi = peaks.max[b]; }
+    const yh = y0 + h / 2 - (hi / 127) * (h / 2), yl = y0 + h / 2 - (lo / 127) * (h / 2);
+    ctx.fillRect(x, yh, 1, Math.max(1, yl - yh));
+  }
+}
+function draw() {
+  if (!S || !peaks) return;
+  $('clock').textContent = fmt(audio.currentTime * 1000);
+  $('viewInfo').textContent = `view ${fmt(view.start)}–${fmt(view.start + view.span)} (${(view.span / 1000).toFixed(1)} s)`;
+  // Full Surah Overview: the whole recording (drawn once per size), every reviewer-visible boundary in its colour,
+  // the zoomed viewport and the playhead.
+  const ov = $('overview'); const o = sizeCanvas(ov); const oc = ov.getContext('2d');
+  if (!ovCache || ovCache.key !== `${o.w}:${o.h}`) { const off = document.createElement('canvas'); off.width = o.w; off.height = o.h; wavePath(off.getContext('2d'), o.w, o.h - 10 * o.d, 10 * o.d, 0, S.durationMs, css('--wave')); ovCache = { key: `${o.w}:${o.h}`, img: off }; }
+  oc.clearRect(0, 0, o.w, o.h); oc.drawImage(ovCache.img, 0, 0);
+  const ox = (ms) => (ms / S.durationMs) * o.w;
+  oc.fillStyle = css('--sel'); oc.fillRect(ox(view.start), 0, Math.max(2, ox(view.span)), o.h);
+  oc.strokeStyle = css('--accent'); oc.lineWidth = o.d; oc.strokeRect(ox(view.start), 0.5, Math.max(2, ox(view.span)), o.h - 1);
+  ovMarks = [];
+  for (const k of order()) {
+    const pos = boundaryMs(k); if (pos == null) continue;
+    const mc = markerClass(k); const x = ox(pos);
+    ovMarks.push({ k, x: x / o.d, label: mc.label });
+    oc.fillStyle = css(mc.color);
+    const isSel = String(sel) === String(k);
+    oc.fillRect(x - (isSel ? 1.5 : 0.75) * o.d, 0, (isSel ? 3 : 1.5) * o.d, isSel ? o.h : 10 * o.d);
+    if (isSel) { oc.beginPath(); oc.arc(x, 5 * o.d, 4 * o.d, 0, 7); oc.fill(); }
+  }
+  oc.fillStyle = css('--play'); oc.fillRect(ox(audio.currentTime * 1000), 0, 2 * o.d, o.h);
+  $('ovInfo').textContent = `${fmt(S.durationMs)} · playhead ${fmt(audio.currentTime * 1000)}${sel != null && boundaryMs(sel) != null ? ` · selected ${sel === 'end' ? 'end' : `ayah ${sel}`} at ${fmt(boundaryMs(sel))}` : ''}`;
+  // main
+  const cv = $('main'); const { w, h, d } = sizeCanvas(cv); const c = cv.getContext('2d');
+  const X = (ms) => ((ms - view.start) / view.span) * w;
+  const lane = 30 * d, waveTop = lane + 4 * d, waveH = h - waveTop - 18 * d;
+  if (!waveCache || waveCache.key !== `${view.start}:${view.span}:${w}:${h}`) {
+    const off = document.createElement('canvas'); off.width = w; off.height = h; const g = off.getContext('2d');
+    for (const q of S.quiet ?? []) { if (q.toMs < view.start || q.fromMs > view.start + view.span) continue; g.fillStyle = css('--quiet'); g.fillRect(X(q.fromMs), waveTop, Math.max(1, X(q.toMs) - X(q.fromMs)), waveH); }
+    wavePath(g, w, waveH, waveTop, view.start, view.span, css('--wave'));
+    waveCache = { key: `${view.start}:${view.span}:${w}:${h}`, img: off };
+  }
+  c.clearRect(0, 0, w, h);
+  // Phase 4.5 windows lane (read-only evidence)
+  c.font = `${11 * d}px system-ui`; c.textBaseline = 'middle';
+  for (const win of S.evidence?.windows ?? []) {
+    if (win.toMs < view.start || win.fromMs > view.start + view.span) continue;
+    c.fillStyle = win.confirmed ? css('--win-ok') : css('--win-weak');
+    const x0 = X(win.fromMs), x1 = X(win.toMs);
+    const row = (win.fromMs / 10000) % 3;
+    c.fillRect(x0, 2 * d + row * 9 * d, x1 - x0, 8 * d);
+    if (win.confirmed && x1 - x0 > 40 * d) { c.fillStyle = css('--text'); c.fillText(`${win.ayahs[0]}${win.ayahs[1] !== win.ayahs[0] ? '–' + win.ayahs[1] : ''}`, x0 + 3 * d, 6 * d + row * 9 * d); }
+  }
+  // selected ayah's bracket and pause candidates
+  const e = sel !== 'end' ? ev45(sel) : null;
+  if (e && e.kind !== 'unbracketed') { c.fillStyle = css('--bracket'); c.fillRect(X(e.bracketMs[0]), lane, X(e.bracketMs[1]) - X(e.bracketMs[0]), h - lane); }
+  c.drawImage(waveCache.img, 0, 0);
+  if (e) for (const p of e.pauseCandidates) { c.fillStyle = css('--cand'); c.fillRect(X(p.fromMs), waveTop, Math.max(2, X(p.toMs) - X(p.fromMs)), waveH); }
+  // automatic proposal (read-only): the aligner's pause for the selected start, and every proposed start, dashed
+  if (S.proposal) {
+    const sb = prop(sel);
+    // Phase 4.8.10: a per-ayah problem location (severity.mjs) is drawn in red; otherwise the aligner's pause.
+    if (sb?.pauseMs) { c.fillStyle = css(sb.problemAt ? '--m-red' : '--auto-pause'); if (sb.problemAt) c.globalAlpha = 0.28; c.fillRect(X(sb.pauseMs[0]), waveTop, Math.max(2, X(sb.pauseMs[1]) - X(sb.pauseMs[0])), waveH); c.globalAlpha = 1; if (sb.problemAt) { const lbl = 'suspected problem'; c.fillStyle = css('--m-red'); c.fillText(lbl, Math.max(2 * d, Math.min(X(sb.pauseMs[0]) + 3 * d, w - c.measureText(lbl).width - 4 * d)), waveTop + 22 * d); } }
+    c.strokeStyle = css('--auto'); c.fillStyle = css('--auto'); c.setLineDash([3 * d, 3 * d]); c.lineWidth = 1.2 * d;
+    for (const [a, ms] of [...Object.entries(S.proposal.starts), ['end', S.proposal.endMs]]) {
+      const x = X(ms); if (x < -10 || x > w + 10) continue;
+      c.beginPath(); c.moveTo(x, waveTop); c.lineTo(x, h - 18 * d); c.stroke();
+      c.fillText(`${a === 'end' ? 'end' : a}`, x + 2 * d, waveTop + 8 * d);
+    }
+    c.setLineDash([]);
+  }
+  if (range) { c.fillStyle = css('--sel'); c.fillRect(X(range[0]), lane, X(range[1]) - X(range[0]), h - lane); }
+  // flags
+  for (const f of work?.flags ?? []) { c.fillStyle = css('--warn'); c.fillRect(X(f.fromMs), h - 16 * d, Math.max(2, X(f.toMs) - X(f.fromMs)), 4 * d); }
+  // other reviewer's markers (only present after both submitted)
+  const other = V?.me && V.reviewers[V.me === 1 ? 2 : 1];
+  if (!other?.work && V?.revealed?.length) {
+    c.strokeStyle = css('--other'); c.setLineDash([5 * d, 4 * d]); c.lineWidth = 1.5 * d;
+    for (const x of V.revealed) { const m = V.me === 1 ? x.r2 : x.r1; const xx = X(m.ms); if (xx < 0 || xx > w) continue; c.beginPath(); c.moveTo(xx, lane); c.lineTo(xx, h); c.stroke(); c.fillStyle = css('--other'); c.fillText(`${x.key}`, xx + 3 * d, h - 8 * d); }
+    c.setLineDash([]);
+  }
+  if (other?.work) {
+    c.strokeStyle = css('--other'); c.setLineDash([5 * d, 4 * d]); c.lineWidth = 1.5 * d;
+    for (const [a, m] of [...Object.entries(other.work.markers), ...(other.work.end ? [['end', other.work.end]] : [])]) { const x = X(shownMs(Number(a), m.ms)); if (x < 0 || x > w) continue; c.beginPath(); c.moveTo(x, lane); c.lineTo(x, h); c.stroke(); c.fillStyle = css('--other'); c.fillText(`${a}`, x + 3 * d, h - 8 * d); }
+    c.setLineDash([]);
+  }
+  // own markers, in their review colour (status / priority / dispute), with ayah number and short status
+  for (const [a, m] of [...Object.entries(work?.markers ?? {}), ...(work?.end ? [['end', work.end]] : [])]) {
+    const at = drag?.kind === 'marker' && drag.moved && String(drag.key) === String(a) ? drag.ms : shownMs(Number(a), m.ms);
+    const x = X(at); if (x < -20 || x > w + 20) continue;
+    const isSel = String(sel) === String(a);
+    const mc = markerClass(a === 'end' ? 'end' : Number(a));
+    c.strokeStyle = css(mc.color);
+    c.lineWidth = (isSel ? 3 : 1.5) * d; c.beginPath(); c.moveTo(x, lane); c.lineTo(x, h); c.stroke();
+    const tag = `${a} ${mc.short}`;
+    const tw = c.measureText(tag).width + 8 * d;
+    const lx = Math.max(tw / 2, Math.min(w - tw / 2, x)); // a label at the very start (the opening, 0:00.000) stays readable
+    c.fillStyle = c.strokeStyle; c.fillRect(lx - tw / 2, lane, tw, 14 * d);
+    c.fillStyle = css('--bg'); c.textAlign = 'center'; c.fillText(tag, lx, lane + 7 * d); c.textAlign = 'left';
+  }
+  // proposals without a marker of yours: their review colour on the ayah number (the line stays the dashed proposal)
+  if (S.proposal) for (const [a, ms] of Object.entries(S.proposal.starts)) {
+    if (work?.markers?.[a]) continue;
+    const x = X(ms); if (x < -20 || x > w + 20) continue;
+    const mc = markerClass(Number(a));
+    const tag = `${a} ${mc.short}`; const tw = c.measureText(tag).width + 8 * d;
+    const lx = Math.max(tw / 2, Math.min(w - tw / 2, x));
+    c.fillStyle = css(mc.color); c.globalAlpha = 0.85; c.fillRect(lx - tw / 2, lane + 16 * d, tw, 13 * d); c.globalAlpha = 1;
+    c.fillStyle = css('--bg'); c.textAlign = 'center'; c.fillText(tag, lx, lane + 22.5 * d); c.textAlign = 'left';
+  }
+  // ruler + playhead
+  c.fillStyle = css('--muted'); const stepMs = [100, 250, 500, 1000, 2000, 5000, 10000, 30000, 60000, 120000].find((s) => (s / view.span) * w > 70 * d) ?? 300000;
+  for (let t = Math.ceil(view.start / stepMs) * stepMs; t < view.start + view.span; t += stepMs) { const x = X(t); c.fillRect(x, h - 4 * d, 1, 4 * d); c.fillText(fmt(t).replace(/(\.\d)\d\d$/, '$1'), x + 2 * d, h - 10 * d); }
+  const px = X(audio.currentTime * 1000); c.fillStyle = css('--play'); c.fillRect(px - d, lane, 2 * d, h - lane);
+  $('selInfo').textContent = range ? `Selected range ${fmt(range[0])}–${fmt(range[1])} (${((range[1] - range[0]) / 1000).toFixed(2)} s)` : '';
+}
+const msAt = (cv, clientX) => { const r = cv.getBoundingClientRect(); return view.start + ((clientX - r.left) / r.width) * view.span; };
+let drag = null;
+$('main').addEventListener('pointerdown', (ev) => {
+  const cv = $('main'); const ms = msAt(cv, ev.clientX); const r = cv.getBoundingClientRect();
+  if (ev.shiftKey) { drag = { kind: 'range', from: ms }; range = [ms, ms]; cv.setPointerCapture(ev.pointerId); return; }
+  // grab an own marker within 6 px
+  const tol = (6 / r.width) * view.span;
+  const hit = [...Object.entries(work?.markers ?? {}), ...(work?.end ? [['end', work.end]] : [])].find(([a, m]) => !isOpening(Number(a)) && Math.abs(m.ms - ms) <= tol);
+  if (hit && keyEditable(hit[0] === 'end' ? 'end' : Number(hit[0]))) { drag = { kind: 'marker', key: hit[0] === 'end' ? 'end' : Number(hit[0]), moved: false }; sel = drag.key; cv.setPointerCapture(ev.pointerId); renderAyahs(); return; }
+  drag = { kind: 'seek' }; seek(ms);
+});
+$('main').addEventListener('pointermove', (ev) => {
+  if (!drag) return; const ms = msAt($('main'), ev.clientX);
+  if (drag.kind === 'range') { range = [Math.min(drag.from, ms), Math.max(drag.from, ms)].map(Math.round); draw(); }
+  else if (drag.kind === 'marker') { drag.moved = true; drag.ms = ms; draw(); }
+});
+$('main').addEventListener('pointerup', (ev) => {
+  if (drag?.kind === 'marker' && drag.moved) setMarker(drag.key, drag.ms);
+  if (drag?.kind === 'range' && range && range[1] - range[0] < 50) range = null;
+  drag = null; draw();
+});
+$('main').addEventListener('dblclick', (ev) => { if (sel == null) return; setMarker(sel, msAt($('main'), ev.clientX)); });
+$('main').addEventListener('wheel', (ev) => { ev.preventDefault(); if (ev.shiftKey) { const dms = (ev.deltaY + ev.deltaX) / 600 * view.span; zoomTo(view.start + dms, view.start + dms + view.span); } else zoomBy(ev.deltaY > 0 ? 1.25 : 0.8, msAt($('main'), ev.clientX)); }, { passive: false });
+// Overview: a click on a marker selects its ayah (and centres the zoomed waveform); elsewhere it moves the playhead.
+const ovHit = (ev) => { const r = $('overview').getBoundingClientRect(); const x = ev.clientX - r.left; let best = null; for (const m of ovMarks) { const dx = Math.abs(m.x - x); if (dx <= 5 && (!best || dx < best.dx)) best = { ...m, dx }; } return best; };
+$('overview').addEventListener('pointerdown', (ev) => { const hit = ovHit(ev); if (hit) { select(hit.k, true); return; } const r = $('overview').getBoundingClientRect(); const ms = ((ev.clientX - r.left) / r.width) * S.durationMs; zoomTo(ms - view.span / 2, ms + view.span / 2); seek(ms); });
+$('overview').addEventListener('mousemove', (ev) => { const hit = ovHit(ev); $('overview').style.cursor = hit ? 'pointer' : 'crosshair'; $('overview').title = hit ? `${hit.k === 'end' ? 'recitation end' : `ayah ${hit.k}`}: ${hit.label}` : 'click to move the playhead here'; });
+$('zin').onclick = () => zoomBy(0.5, audio.currentTime * 1000); $('zout').onclick = () => zoomBy(2, audio.currentTime * 1000);
+$('zall').onclick = () => zoomTo(0, S.durationMs);
+$('zreset').onclick = () => { const p = boundaryMs(sel) ?? audio.currentTime * 1000; zoomTo(p - 8000, p + 8000); };
+function fitAyah() { const a = boundaryMs(sel); if (a == null) { toast('No boundary for this ayah yet.'); return; } const o = order(); const nk = o[o.indexOf(sel) + 1]; const b = nk != null ? boundaryMs(nk) : null; zoomTo(a - 1000, (b != null && b > a ? b : a + 8000) + 1000); }
+$('zfit').onclick = fitAyah;
+$('panL').onclick = () => zoomTo(view.start - view.span / 2, view.start + view.span / 2);
+$('panR').onclick = () => zoomTo(view.start + view.span / 2, view.start + view.span * 1.5);
+$('allKeys').onclick = (e) => { e.preventDefault(); $('helpBtn').click(); $('help').scrollIntoView({ block: 'nearest' }); };
+$('zbr').onclick = () => { const e = ev45(sel); if (e && e.kind !== 'unbracketed') zoomTo(e.bracketMs[0] - 2000, e.bracketMs[1] + 2000); else toast('No Phase 4.5 bracket for this ayah.'); };
+window.addEventListener('resize', () => { waveCache = null; draw(); });
+
+// ---------------------------------------------------------------- flags, comments
+$('fUseSel').onclick = () => { if (!range) { toast('Shift-drag on the waveform to select a range.'); return; } $('fFrom').value = fmt(range[0]); $('fTo').value = fmt(range[1]); };
+$('fAdd').onclick = () => {
+  const from = parseT($('fFrom').value), to = parseT($('fTo').value);
+  if (!Number.isFinite(from) || !Number.isFinite(to) || !(to > from) || to > S.durationMs) { toast('Give a valid time range inside the audio (m:ss.mmm).'); return; }
+  const kind = $('fKind').value; const a = Number($('fA').value), b = Number($('fB').value || $('fA').value);
+  const f = { kind, fromMs: from, toMs: to, note: $('fNote').value.trim() };
+  if ($('fA').value) { if (!(Number.isInteger(a) && Number.isInteger(b) && a >= 1 && b >= a && b <= S.ayahCount)) { toast(`Ayahs must be a range within 1–${S.ayahCount}.`); return; } f.ayahs = [a, b]; }
+  if (kind === 'repetition') { if (!f.ayahs) { toast('Name the repeated ayahs.'); return; } f.implication = $('fImp').value; if (f.implication === 'within-one-ayah' && a !== b) { toast('"Within one ayah" needs a single ayah.'); return; } }
+  work.flags.push(f); $('fNote').value = ''; markDirty(); renderFlags(); draw();
+};
+$('comments').addEventListener('input', () => { if (work) { work.comments = $('comments').value; markDirty(); } });
+$('name').addEventListener('change', async () => { store.set('qh-manual-name', $('name').value.trim()); if (dirty) await saveNow(); await refreshView(); renderAll(); });
+$('rec').addEventListener('change', () => openRec($('rec').value));
+$('helpBtn').onclick = () => { const h = $('help'); h.hidden = !h.hidden; $('helpBtn').setAttribute('aria-expanded', String(!h.hidden)); };
+$('exportBtn').onclick = (e) => { e.preventDefault(); location.href = `/api/export/${key}?name=${encodeURIComponent($('name').value.trim())}`; };
+
+// ---------------------------------------------------------------- keyboard
+window.addEventListener('keydown', (ev) => {
+  if ($('bulkDlg').open) return; // the bulk preview has its own buttons
+  if (!S || ev.target.closest('input,textarea,select,[contenteditable],[contenteditable=""]') || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+  const k = ev.key; const nudge = ev.shiftKey ? 100 : 10;
+  // Enter/Space on a focused button act on that button, not as shortcuts.
+  if ((k === 'Enter' || k === ' ') && ev.target.closest('button,a')) return;
+  if (k === 'Enter') { ev.preventDefault(); if (!ev.repeat) enterConfirmAdvance(); return; }
+  if (k === 'ArrowUp') { ev.preventDefault(); stepAyah(-1); return; }
+  if (k === 'ArrowDown') { ev.preventDefault(); stepAyah(1); return; }
+  if (k === 'f' || k === 'F') { fitAyah(); return; }
+  if (k === ' ') { ev.preventDefault(); $('play').click(); }
+  else if (k === 'ArrowLeft') { ev.preventDefault(); seek(audio.currentTime * 1000 - (ev.shiftKey ? 10000 : 2000)); }
+  else if (k === 'ArrowRight') { ev.preventDefault(); seek(audio.currentTime * 1000 + (ev.shiftKey ? 10000 : 2000)); }
+  else if (k === 'j' || k === 'J') stepAyah(-1);
+  else if (k === 'k' || k === 'K') stepAyah(1);
+  else if (k === 'm' || k === 'M') { if (sel !== 'end') setMarker(sel, audio.currentTime * 1000); }
+  else if (k === 'e' || k === 'E') { select('end'); setMarker('end', audio.currentTime * 1000); }
+  else if (k === '[' || k === '{') { const m = getMarker(sel); if (m) setMarker(sel, m.ms - nudge); }
+  else if (k === ']' || k === '}') { const m = getMarker(sel); if (m) setMarker(sel, m.ms + nudge); }
+  else if (k === 'r' || k === 'R') replayAround();
+  else if (k === 'p' || k === 'P') { const m = getMarker(sel); if (m) playFrom(shownMs(sel, m.ms)); }
+  else if (k === '1') setStatus(sel, 'confirmed'); else if (k === '2') setStatus(sel, 'uncertain'); else if (k === '3') setStatus(sel, 'rejected');
+  else if (k === '+' || k === '=') zoomBy(0.5, audio.currentTime * 1000); else if (k === '-') zoomBy(2, audio.currentTime * 1000);
+  else if (k === '0') zoomTo(0, S.durationMs);
+  else if (k === 'b' || k === 'B') $('zbr').click();
+  else if (k === 'c' || k === 'C') confirmProposal(sel);
+  else if (k === 'a' || k === 'A') playAyah();
+  else if (k === 'q' || k === 'Q') replayBefore();
+  else if (k === 'w' || k === 'W') replayAfter();
+  else if (k === 's' || k === 'S') $('saveBtn').click();
+  else if (k === 'n' || k === 'N') $('nextOpen').click();
+});
+
+loadQueue().catch((e) => { document.querySelector('main').innerHTML = `<div class="banner bad">Could not load: ${esc(e.message)}</div>`; });
+</script>
+</body>
+</html>

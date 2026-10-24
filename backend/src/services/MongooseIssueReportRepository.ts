@@ -27,6 +27,10 @@ export class MongooseIssueReportRepository implements IssueReportRepository {
           verseKey: input.verseKey,
           surahNumber: input.surahNumber,
           ayahNumber: input.ayahNumber,
+          audioProblem: input.audioProblem,
+          reciterId: input.reciterId,
+          audioSource: input.audioSource,
+          playbackContext: input.playbackContext,
           translationDisplayMode: input.translationDisplayMode,
         };
     const doc = await IssueReportModel.create({

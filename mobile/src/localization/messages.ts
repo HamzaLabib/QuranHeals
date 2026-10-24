@@ -453,6 +453,9 @@ export type Messages = {
     amiriWork: string;
     mp3quranName: string;
     mp3quranWork: string;
+    /** Surah Preview's main purpose (constants/quranSources.ts); shown only in builds that carry its dataset. */
+    tafsirCenterName: string;
+    tafsirCenterWork: string;
     website: string;
     license: string;
     terms: string;
@@ -474,12 +477,16 @@ export type Messages = {
     emotionsEnglish: string;
     emotionsArabicStandard: string;
     emotionsArabicEgyptian: string;
-    /** Quran Language (localization/quranLanguage.ts) and its one current mode. */
-    quranLanguageSection: string;
-    quranTextOption: string;
-    /** Keep Screen Awake (mushaf/keepAwakePreference.ts): a local switch, directly below Quran Language. */
+    /**
+     * Quran Translation's only option today (localization/quranLanguage.ts, mode 'quran-text'): the Arabic Quran text
+     * alone, without a translation. The setting's title is quranTranslationSection.
+     */
+    quranTranslationNone: string;
+    /** Keep Screen Awake (mushaf/keepAwakePreference.ts): a local switch, directly below Quran Translation. */
     keepAwakeTitle: string;
     keepAwakeDescription: string;
+    /** Word Meanings (mushaf/wordMeaningsVisibilityPreference.ts): a local switch, directly below Keep Screen Awake; shows or hides the Mushaf's المعاني button. */
+    wordMeaningsVisibleTitle: string;
     /** Settings → Quran → Mushaf Guide (its title only): opens the Mushaf's six-step guide again, from step 1. */
     mushafGuideTitle: string;
     offlineMushafTitle: string;
@@ -790,7 +797,6 @@ export type Messages = {
     retry: string;
     noticeReciterUnavailable: string;
     dismiss: string;
-    coverageComplete: string;
     coveragePartial: string;
     coverageNone: string;
     nowReciting: string;
@@ -850,6 +856,37 @@ export type Messages = {
     offlineStateUnavailable: string;
     offlineManageHint: string;
     close: string;
+    /** Whole-surah playback (a recording with no verified ayah timing): the surah is named, never an ayah. */
+    wholeSurah: string;
+    wholeSurahNote: string;
+    /** Listen on an ayah inside a surah the reciter can only play whole: the choice, never an approximate start. */
+    errorSurahOnly: string;
+    noticeReciterSurahOnly: string;
+    playWholeSurah: string;
+    cancel: string;
+    /** The stream is no longer the verified file (e.g. redirected to another recording). */
+    errorSource: string;
+    previousSurah: string;
+    nextSurah: string;
+    /** The whole-surah position bar: "{elapsed} of {total}". */
+    surahPosition: string;
+    seekBack: string;
+    seekForward: string;
+    wholeSurahOnly: string;
+    coveragePartialWhole: string;
+    /** Development builds only: a per-ayah recording on trial (audio/perAyah.ts), before its coverage line. */
+    developmentPreview: string;
+    /** The player's Full Surah button: this surah from its first ayah to its last, then stop. */
+    fullSurah: string;
+    fullSurahHint: string;
+    /** Repeat Ayah: the button's spoken label is "{repeatAyah}: {setting}". */
+    repeatAyah: string;
+    repeatHint: string;
+    repeatOff: string;
+    repeatOnce: string;
+    repeatTwice: string;
+    repeatThrice: string;
+    repeatInfinite: string;
   };
 };
 
@@ -860,7 +897,7 @@ const AR_APPLY_TO_WIRD = "حفظ في {name}";
 
 /** Quran audio in English. */
 const EN_AUDIO: Messages['audio'] = {
-  playPage: 'Play recitation from this page',
+  playPage: 'Play Audio from This Page',
   play: 'Play',
   pause: 'Pause',
   previousAyah: 'Previous ayah',
@@ -873,18 +910,17 @@ const EN_AUDIO: Messages['audio'] = {
   upNext: 'Up next: {reciter}',
   loading: 'Loading…',
   buffering: 'Buffering…',
-  followRecitation: 'Follow recitation',
+  followRecitation: 'Follow Along',
   ayahPosition: '{surah} · Ayah {ayah}',
   playingOffline: 'Playing from this device',
-  ended: 'Recitation complete',
+  ended: 'Playback Complete',
   errorUnavailable: '{reciter} has no verified recording of Surah {surah}. Choose another reciter.',
-  errorNetwork: "The recitation couldn't load. Check your connection.",
-  errorMismatch: "This recitation's ayah timing has changed at the source, so it can't be used until it is verified again.",
+  errorNetwork: "The audio couldn't load. Check your connection.",
+  errorMismatch: "This audio's ayah timing has changed at the source, so it can't be used until it is verified again.",
   errorPlayback: "This recording couldn't be played on this device.",
   retry: 'Try again',
   noticeReciterUnavailable: '{reciter} has no verified recording of Surah {surah}, so the current reciter continues.',
   dismiss: 'Dismiss',
-  coverageComplete: 'All 114 surahs',
   coveragePartial: '{n} of 114 surahs',
   coverageNone: 'Ayah-by-ayah playback not available',
   nowReciting: 'Reciting',
@@ -898,7 +934,7 @@ const EN_AUDIO: Messages['audio'] = {
   ayahUnavailable: '{reciter} has no verified recording of this surah. You can choose another Favorite Reciter in Settings.',
   favoriteTitle: 'Favorite Reciter',
   favoriteDescription: 'Recites in the Mushaf and on the ayah screens.',
-  sourceNote: 'Recitations: MP3Quran (mp3quran.net)',
+  sourceNote: 'Audio Source: MP3Quran (mp3quran.net)',
   offlineTitle: 'Offline listening',
   offlineDescription: 'Download {reciter} to listen without internet: {n} surahs, about {size}.',
   offlineNothing: "{reciter} has no surahs that can play ayah by ayah, so there's nothing to download.",
@@ -920,8 +956,8 @@ const EN_AUDIO: Messages['audio'] = {
   wifiBody: 'This download is about {size}. Wi-Fi is recommended. Download over mobile data anyway?',
   wifiConfirm: 'Download anyway',
   wifiCancel: 'Not now',
-  deleteTitle: 'Delete downloaded recitations?',
-  deleteBody: "Removes {reciter}'s downloaded recitations ({size}) from this device. You can download them again later.",
+  deleteTitle: 'Delete Downloaded Audio?',
+  deleteBody: "Removes {reciter}'s downloaded audio ({size}) from this device. You can download it again later.",
   deleteConfirm: 'Delete',
   deleteCancel: 'Keep',
   downloadErrorNetwork: 'The download stopped: no connection.',
@@ -934,8 +970,8 @@ const EN_AUDIO: Messages['audio'] = {
   nextPage: 'Next page',
   ayahOnly: 'Ayah {ayah}',
   surahProgress: 'Ayah {ayah} of {total}',
-  stopHint: 'Touch and hold to stop the recitation.',
-  offlineNotPermitted: "Offline downloads aren't available yet: they are waiting for MP3Quran to confirm permission for these recordings. Recitation streams as usual.",
+  stopHint: 'Touch and hold to stop playback.',
+  offlineNotPermitted: "Offline downloads aren't available yet: they are waiting for MP3Quran to confirm permission for these recordings. Audio streams as usual.",
   offlineStateNone: 'Not downloaded',
   offlineStateDownloading: 'Downloading',
   offlineStatePaused: 'Download paused',
@@ -944,6 +980,30 @@ const EN_AUDIO: Messages['audio'] = {
   offlineStateUnavailable: 'Offline download not available',
   offlineManageHint: 'Shows the offline download for this reciter.',
   close: 'Close',
+  wholeSurah: '{surah} · Whole surah',
+  wholeSurahNote: "This recording plays as a complete surah. Ayahs aren't followed or highlighted.",
+  errorSurahOnly: "{reciter}'s recording of Surah {surah} can only be played complete, from its beginning: it has no verified ayah timing, so it can't start at this ayah.",
+  noticeReciterSurahOnly: "{reciter}'s recording of Surah {surah} can only be played complete, from its beginning, so the current reciter continues.",
+  playWholeSurah: 'Play the whole surah',
+  cancel: 'Cancel',
+  errorSource: "This recording no longer matches the verified file at its source, so it isn't played.",
+  previousSurah: 'Previous surah',
+  nextSurah: 'Next surah',
+  surahPosition: '{elapsed} of {total}',
+  seekBack: 'Back 15 seconds',
+  seekForward: 'Forward 15 seconds',
+  wholeSurahOnly: 'Whole surah only',
+  coveragePartialWhole: '{n} of 114 surahs · {m} whole only',
+  developmentPreview: 'Development preview',
+  fullSurah: 'Full Surah',
+  fullSurahHint: 'Recites this surah from its first ayah to its last, then stops',
+  repeatAyah: 'Repeat ayah',
+  repeatHint: 'Changes how many times each ayah is repeated: off, once, twice, 3 times, or continuously',
+  repeatOff: 'off',
+  repeatOnce: 'once',
+  repeatTwice: 'twice',
+  repeatThrice: '3 times',
+  repeatInfinite: 'continuously',
 };
 
 /** Quran audio in Arabic: one Standard Arabic wording for ar and ar-EG alike. */
@@ -972,7 +1032,6 @@ const AR_AUDIO: Messages['audio'] = {
   retry: 'إعادة المحاولة',
   noticeReciterUnavailable: 'لا تتوفر لدى {reciter} تلاوة موثّقة لسورة {surah}، لذا يستمر القارئ الحالي.',
   dismiss: 'إغلاق',
-  coverageComplete: 'جميع السور (١١٤)',
   coveragePartial: '{n} من ١١٤ سورة',
   coverageNone: 'التشغيل آيةً بآية غير متاح',
   nowReciting: 'يتلو الآن',
@@ -1032,6 +1091,30 @@ const AR_AUDIO: Messages['audio'] = {
   offlineStateUnavailable: 'التنزيل غير متاح',
   offlineManageHint: 'يعرض خيارات التنزيل لهذا القارئ.',
   close: 'إغلاق',
+  wholeSurah: '{surah} · السورة كاملة',
+  wholeSurahNote: 'يُشغَّل هذا التسجيل سورةً كاملة، ولا تُتابَع الآيات ولا تُظلَّل.',
+  errorSurahOnly: 'تسجيل {reciter} لسورة {surah} لا يُشغَّل إلا كاملًا من بدايته، إذ لا توقيت موثّقًا لآياته، فلا يمكن البدء من هذه الآية.',
+  noticeReciterSurahOnly: 'تسجيل {reciter} لسورة {surah} لا يُشغَّل إلا كاملًا من بدايته، لذا يستمر القارئ الحالي.',
+  playWholeSurah: 'تشغيل السورة كاملة',
+  cancel: 'إلغاء',
+  errorSource: 'لم يعد هذا التسجيل مطابقًا للملف الموثّق في مصدره، لذا لا يُشغَّل.',
+  previousSurah: 'السورة السابقة',
+  nextSurah: 'السورة التالية',
+  surahPosition: '{elapsed} من {total}',
+  seekBack: 'رجوع ١٥ ثانية',
+  seekForward: 'تقدّم ١٥ ثانية',
+  wholeSurahOnly: 'السورة كاملة فقط',
+  coveragePartialWhole: '{n} من ١١٤ سورة · {m} كاملة فقط',
+  developmentPreview: 'معاينة للتطوير',
+  fullSurah: 'السورة كاملة',
+  fullSurahHint: 'يتلو هذه السورة من أول آية إلى آخر آية ثم يتوقف',
+  repeatAyah: 'تكرار الآية',
+  repeatHint: 'يغيّر عدد مرات تكرار كل آية: متوقف، مرة واحدة، مرتين، ٣ مرات، أو باستمرار',
+  repeatOff: 'متوقف',
+  repeatOnce: 'مرة واحدة',
+  repeatTwice: 'مرتين',
+  repeatThrice: '٣ مرات',
+  repeatInfinite: 'باستمرار',
 };
 
 export const MESSAGES: Record<AppLocale, Messages> = {
@@ -1168,12 +1251,12 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       pageLabel: 'Mushaf page',
       selectedAyah: 'Selected ayah',
       clearSelection: 'Clear selection',
-      readingStops: 'Recitings',
+      readingStops: 'My Reciting',
       stopNameLabel: 'Reciting name (e.g., Personal or Mosque)',
       saveStop: 'Save Reciting on this page',
       stopSaved: 'Saved',
       stopNameInvalid: 'Enter a name of up to 40 characters.',
-      tooManyStops: 'You have too many Recitings to add another. Remove one first.',
+      tooManyStops: "You can't add another Reciting until you remove one.",
       stopSaveFailed: "The Reciting couldn't be saved. Please try again.",
       noStops: 'No Reciting yet.',
       page: 'Page',
@@ -1228,9 +1311,9 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       exitFullScreen: 'Exit full-screen reading',
       wirdChoose: 'Choose a Reciting',
       wirdSelectorLabel: 'Active Reciting',
-      wirdSelectorHint: 'Shows your Recitings to switch between them.',
+      wirdSelectorHint: 'Opens your Reciting list to switch to another.',
       wirdAdd: 'Add a Reciting',
-      wirdNew: 'New Reciting on this page',
+      wirdNew: 'New Reciting on This Page',
       wirdClose: 'Close',
       navSurahTitle: "Surahs",
       navJuzTitle: "Juz'",
@@ -1300,19 +1383,19 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       home: 'Home',
       howIFeel: 'How I Feel',
       mushaf: 'Mushaf',
-      myReading: 'Recitating',
+      myReading: 'My Reciting',
       reflections: 'Reflections',
     },
     continueReading: {
       title: 'Continue Reciting',
       mushaf: 'Mushaf',
-      myReading: 'Recitings and Khatmas',
+      myReading: 'My Reciting and Khatmas',
       pageOf: 'Page {page} of {total}',
       activeWird: 'Current Reciting',
       lastSaved: 'Last saved Reciting',
       chooseWird: 'Choose a Reciting',
-      switchHint: 'Shows your Recitings to switch between them.',
-      firstTitle: 'Begin your recitation',
+      switchHint: 'Opens your Reciting list to switch to another.',
+      firstTitle: 'Start Reciting',
       firstBody: 'Open the Mushaf to its first page and reflect on its verses as you begin a new Reciting.',
     },
     emotionsAll: {
@@ -1322,32 +1405,32 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       back: 'Back',
     },
     myReading: {
-      title: 'Recitings and Khatmas',
+      title: 'My Reciting and Khatmas',
       subtitle: 'Recite and Rise',
       back: 'Back',
       statsTotal: 'Khatmas',
       statsRamadan: 'Ramadan Khatmas',
-      wirdsTitle: 'My Recitings',
+      wirdsTitle: 'My Reciting',
       newWird: 'New Reciting',
       emptyTitle: 'No Reciting yet',
       emptyBody: 'Create a Reciting to keep your place in the Mushaf. Each Reciting keeps its own page, progress and Khatmas.',
       pageOf: 'Page {page} of {total}',
       percent: 'Completion {percent}%',
       positionLabel: 'Completion, by the saved page in the Mushaf',
-      footnote: 'Your Recitings and Khatmas are saved on this device only. A Reciting’s completion is based on the page you last saved, not a count of pages recited; a Khatma is counted only when you confirm it.',
-      footnoteSynced: 'Your Recitings and Khatmas sync with your account across the devices signed in to it, and are always saved on this device first. A Reciting’s completion is based on the page you last saved, not a count of pages recited; a Khatma is counted only when you confirm it.',
+      footnote: 'Your Reciting progress and Khatmas are saved on this device only. A Reciting’s completion is based on the page you last saved, not a count of pages recited; a Khatma is counted only when you confirm it.',
+      footnoteSynced: 'Your Reciting progress and Khatmas sync with your account across the devices signed in to it, and are always saved on this device first. A Reciting’s completion is based on the page you last saved, not a count of pages recited; a Khatma is counted only when you confirm it.',
       syncSyncing: 'Syncing…',
       syncSynced: 'Synced with your account',
       syncPending: 'Saved on this device. It will sync with your account when you’re online.',
       khatmaCount: 'Khatmas: {count}',
       active: 'Current',
-      continue: 'Continue reciting',
+      continue: 'Continue Reciting',
       rename: 'Rename',
       delete: 'Delete',
       pendingTitle: 'This Reciting has reached page 604.',
       confirm: 'Confirm Khatma completion',
       unconfirmedTitle: 'Saved at page 604',
-      unconfirmedBody: 'This Reciting was saved at page 604 without a recorded recitation cycle (saved before Khatmas were tracked, or created on page 604). Nothing has been counted.',
+      unconfirmedBody: 'This Reciting was saved at page 604, but no completed Quran reading cycle was recorded (it was saved before Khatmas were tracked, or created on page 604). Nothing has been counted.',
       recordUnconfirmed: 'I completed a Khatma with this Reciting',
       unconfirmedConfirmTitle: 'Record a completed Khatma?',
       unconfirmedConfirmBody: 'Only if you have read the whole Quran with “{name}”. It will be counted once, and the Reciting will start again from page 1.',
@@ -1373,7 +1456,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       nameTaken: 'Another Reciting already has this name.',
       pageInvalid: 'Enter a page from 1 to 604.',
       saveFailed: 'This could not be saved. Please try again.',
-      loadFailed: 'Your Recitings could not be loaded.',
+      loadFailed: 'Your Reciting list could not be loaded.',
     },
     khatma: {
       reachedTitle: 'Masha’Allah, you have completed the Quran',
@@ -1382,16 +1465,16 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       completeTitle: 'May Allah accept your Khatma',
       completeBody: 'We ask Allah to make the Quran a light for your heart and an intercessor for you.',
       readDua: 'Read the Khatma Du’a',
-      backToKhatmas: 'Back to Recitings and Khatmas',
+      backToKhatmas: 'Back to My Reciting and Khatmas',
       backToMushaf: 'Back to Mushaf',
       failed: 'The Khatma could not be recorded. Please try again.',
       completeAction: 'إتمام الختمة',
       notReadyTitle: "This Reciting can't be completed here",
-      notReadyBody: 'Review it in Recitings and Khatmas. Nothing has been changed.',
+      notReadyBody: 'Review it in My Reciting and Khatmas. Nothing has been changed.',
       noWirdTitle: 'Select a Reciting first',
       noWirdBody: 'Choose the Reciting you have completed from the Reciting name below the page, then try again.',
       newCycleTitle: 'This Khatma is already recorded',
-      newCycleBody: 'This Reciting has started a new reading cycle. Save your progress as you read; you can complete the new cycle when you reach page 604 again. Nothing has been changed.',
+      newCycleBody: 'This Reciting has started a new Quran reading cycle. Save your progress as you read; you can complete the new cycle when you reach page 604 again. Nothing has been changed.',
       saveFailedTitle: 'The page could not be saved',
       saveFailedBody: 'Nothing was recorded. Please try again.',
       notReadyOk: 'OK',
@@ -1408,7 +1491,9 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       amiriName: 'Amiri Project Authors',
       amiriWork: 'The Amiri Bold font is used for Surah names, not Quran text. SIL Open Font License 1.1 permits embedding and commercial redistribution with software; the font may not be sold by itself. The required copyright notice and full license are bundled with the app. The decorative frame is original Quran Heals artwork.',
       mp3quranName: 'MP3Quran',
-      mp3quranWork: 'Quran recitations and their ayah timing, streamed from mp3quran.net and downloadable for offline listening. MP3Quran states that any visitor or developer may copy and use its material.',
+      mp3quranWork: 'Quran audio and its ayah timing, streamed from mp3quran.net and downloadable for offline listening. MP3Quran states that any visitor or developer may copy and use its material.',
+      tafsirCenterName: 'Tafsir Center for Quranic Studies',
+      tafsirCenterWork: 'Surah Preview’s main purpose: Al-Mukhtasar fi Tafsir al-Quran al-Karim (المختصر في تفسير القرآن الكريم), via QuranEnc.com. Makki/Madani and ayah count: Tanzil.',
       website: 'Website',
       license: 'Licence',
       terms: 'Terms of use',
@@ -1429,10 +1514,10 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       emotionsEnglish: 'English',
       emotionsArabicStandard: 'العربية الفصحى',
       emotionsArabicEgyptian: 'العربية المصرية',
-      quranLanguageSection: 'Quran Language',
-      quranTextOption: 'The Quranic Text',
+      quranTranslationNone: 'None',
       keepAwakeTitle: 'Keep Screen Awake',
       keepAwakeDescription: 'Prevent automatic screen locking while reading the Mushaf.',
+      wordMeaningsVisibleTitle: 'Word Meanings',
       mushafGuideTitle: 'Mushaf Guide',
       offlineMushafTitle: 'Offline Mushaf',
       offlineMushafAvailable: 'Available Offline',
@@ -1588,7 +1673,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     guestData: {
       title: "Add your local data to this account?",
-      body: "You have favorites, reflections, or Recitings and Khatmas saved on this device. Would you like to add them to this account? They will then sync across the devices signed in to this account.",
+      body: "You have favorites, reflections, or Reciting and Khatma progress saved on this device. Would you like to add them to this account? They will then sync across the devices signed in to this account.",
       add: "Add to this account",
       keepSeparate: "Keep separate",
     },
@@ -2048,6 +2133,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       amiriWork: 'يُستخدم خط Amiri Bold لكتابة أسماء السور فقط، وليس لنص القرآن. تسمح رخصة SIL OFL 1.1 بتضمين الخط وإعادة توزيعه تجاريًا مع التطبيقات، ولا تسمح ببيع الخط منفردًا. وقد أُرفق إشعار حقوق النشر ونص الرخصة كاملًا مع التطبيق. الإطار الزخرفي تصميم أصلي من Quran Heals.',
       mp3quranName: 'MP3Quran',
       mp3quranWork: 'تلاوات القرآن الكريم وتوقيت آياتها، تُبَثّ من موقع mp3quran.net ويمكن تنزيلها للاستماع دون اتصال. وينصّ الموقع على أنه يحق لأي زائر أو مطوّر استخدام أي مادة منه.',
+      tafsirCenterName: 'مركز تفسير للدراسات القرآنية',
+      tafsirCenterWork: 'مقصد السورة في «عن السورة»: المختصر في تفسير القرآن الكريم (موسوعة القرآن الكريم QuranEnc.com). المكي والمدني وعدد الآيات: تنزيل.',
       website: 'الموقع',
       license: 'الرخصة',
       terms: 'شروط الاستخدام',
@@ -2068,10 +2155,10 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       emotionsEnglish: 'الإنجليزية',
       emotionsArabicStandard: 'العربية الفصحى',
       emotionsArabicEgyptian: 'العربية المصرية',
-      quranLanguageSection: 'لغة القرآن',
-      quranTextOption: 'النص القرآني',
+      quranTranslationNone: 'بدون ترجمة',
       keepAwakeTitle: 'إبقاء الشاشة مضاءة',
       keepAwakeDescription: 'منع قفل الشاشة تلقائيًا أثناء قراءة المصحف.',
+      wordMeaningsVisibleTitle: 'معاني الكلمات',
       mushafGuideTitle: 'دليل المصحف',
       offlineMushafTitle: 'المصحف بدون إنترنت',
       offlineMushafAvailable: 'متاح بدون إنترنت',
@@ -2702,6 +2789,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       amiriWork: 'يُستخدم خط Amiri Bold لأسماء السور، وليس لنص القرآن. تسمح رخصة SIL OFL 1.1 بتضمين الخط وإعادة توزيعه تجاريًا مع التطبيقات، ولا تسمح ببيع الخط منفردًا. وقد أُرفق إشعار حقوق النشر ونص الرخصة كاملًا مع التطبيق. الإطار الزخرفي تصميم أصلي من Quran Heals.',
       mp3quranName: 'MP3Quran',
       mp3quranWork: 'تلاوات القرآن الكريم وتوقيت آياتها، تُبَثّ من موقع mp3quran.net ويمكن تنزيلها للاستماع دون اتصال. وينصّ الموقع على أنه يحق لأي زائر أو مطوّر استخدام أي مادة منه.',
+      tafsirCenterName: 'مركز تفسير للدراسات القرآنية',
+      tafsirCenterWork: 'مقصد السورة في «عن السورة»: المختصر في تفسير القرآن الكريم (موسوعة القرآن الكريم QuranEnc.com). المكي والمدني وعدد الآيات: تنزيل.',
       website: 'الموقع',
       license: 'الرخصة',
       terms: 'شروط الاستخدام',
@@ -2722,10 +2811,10 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       emotionsEnglish: 'الإنجليزية',
       emotionsArabicStandard: 'العربية الفصحى',
       emotionsArabicEgyptian: 'العربية المصرية',
-      quranLanguageSection: 'لغة القرآن',
-      quranTextOption: 'النص القرآني',
+      quranTranslationNone: 'بدون ترجمة',
       keepAwakeTitle: 'إبقاء الشاشة مضاءة',
       keepAwakeDescription: 'منع قفل الشاشة تلقائيًا أثناء قراءة المصحف.',
+      wordMeaningsVisibleTitle: 'معاني الكلمات',
       mushafGuideTitle: 'دليل المصحف',
       offlineMushafTitle: 'المصحف بدون إنترنت',
       offlineMushafAvailable: 'متاح بدون إنترنت',

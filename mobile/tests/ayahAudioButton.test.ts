@@ -142,13 +142,23 @@ describe('the ayah screens\' play button', () => {
     expect(audioEngine.getState().reciterId).toBe('abdulbasit');
   });
 
-  it('a Favorite Reciter without a verified recording of the surah plays nothing and says so (no other voice)', async () => {
-    favorite.reciterId = 'rifaat';
+  it('a Favorite Reciter without a verified recording of the surah: Al-Minshawi recites it; the Favorite Reciter is kept', async () => {
+    favorite.reciterId = 'yasser-salama';
     await render();
+    await press();
+    expect(audioEngine.getState()).toMatchObject({ phase: 'playing', mode: 'single', position: { surah: 94, ayah: 5 }, reciterId: 'minshawi', preferredReciterId: 'yasser-salama' });
+    expect(audio.loads).toEqual(['https://cdn.mp3quran.net/audio/muhammad-minshawi/r1/094.mp3@44000']);
+    expect(problem).toBeNull();
+    expect(favorite.reciterId).toBe('yasser-salama');
+  });
+
+  it('neither the Favorite Reciter nor Al-Minshawi has a verified recording of the surah: nothing plays, and it says so', async () => {
+    favorite.reciterId = 'yasser-salama';
+    await render(9, 5);
     await press();
     expect(audioEngine.getState().phase).toBe('idle');
     expect(audio.loads).toEqual([]);
-    expect(problem).toBe('Muhammad Rifaat has no verified recording of this surah. You can choose another Favorite Reciter in Settings.');
+    expect(problem).toBe('Yasser Mahmoud Salama has no verified recording of this surah. You can choose another Favorite Reciter in Settings.');
   });
 
   it('leaving the ayah stops its recitation', async () => {

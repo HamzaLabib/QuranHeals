@@ -1,4 +1,5 @@
 import type { AudioOutput, OutputStatus } from './engine';
+import { EXACT_MP3_SEEK_HEADER, EXACT_MP3_SEEK_VALUE } from './vbrSeek';
 
 /** A load that a newer load or a stop replaced: expected (switching ayahs), never an error to report. */
 export class LoadSupersededError extends Error {
@@ -23,8 +24,10 @@ type Player = ReturnType<ExpoAudio['createAudioPlayer']>;
  * with the screen locked, pauses other apps' audio (required for lock-screen controls), and shows play / pause on the
  * lock screen and in Android's media notification. Seeks are exact (no tolerance) so an ayah starts where its timing
  * says. expo-audio is loaded on first use, so importing this never loads native code (tests, web start-up).
+ * `exactSeekUrls`: VBR files the patched binary must seek exactly (vbrSeek.ts); they carry its marker header, which the
+ * native player removes before any request. Empty (the default): every source loads exactly as before.
  */
-export function createExpoOutput(load: () => Promise<ExpoAudio> = () => import('expo-audio')): AudioOutput {
+export function createExpoOutput(load: () => Promise<ExpoAudio> = () => import('expo-audio'), exactSeekUrls: ReadonlySet<string> = new Set()): AudioOutput {
   let module: ExpoAudio | null = null;
   let player: Player | null = null;
   let ready: Promise<Player> | null = null;
@@ -33,6 +36,22 @@ export function createExpoOutput(load: () => Promise<ExpoAudio> = () => import('
   let lockScreenActive = false;
   /** Bumped by every load and stop: a load still waiting for its source checks it, and gives up once replaced. */
   let generation = 0;
+  /**
+   * The source given to the player that has not become playable yet. A load of the same URL (the engine's retry after
+   * LOAD_TIMEOUT_MS) keeps waiting for it instead of replacing it: a host slow to answer (2026-10-24: archive.org's
+   * ia600903, 7–9 s before the first byte of every request, and iOS makes several before it can play) would otherwise
+   * start from nothing on every retry and never finish.
+   */
+  let pendingUri: string | null = null;
+
+  /** A seek that has not completed in LOAD_TIMEOUT_MS fails (the engine retries or reports it), never waits forever. */
+  const seekWithin = (p: Player, ms: number) => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new Error('seek timeout')), LOAD_TIMEOUT_MS);
+    });
+    return Promise.race([p.seekTo(ms / 1000, 0, 0), timeout]).finally(() => clearTimeout(timer));
+  };
 
   const ensure = () => (ready ??= (async () => {
     module = await load();
@@ -52,6 +71,7 @@ export function createExpoOutput(load: () => Promise<ExpoAudio> = () => import('
         loaded: Boolean(status.isLoaded),
         finished: Boolean(status.didJustFinish),
         error: status.error ?? null,
+        durationMs: Number.isFinite(status.duration) && status.duration > 0 ? Math.round(status.duration * 1000) : undefined,
       };
       for (const listener of listeners) listener(out);
     });
@@ -80,7 +100,10 @@ export function createExpoOutput(load: () => Promise<ExpoAudio> = () => import('
       const p = await ensure();
       if (mine !== generation) throw new LoadSupersededError();
       p.pause();
-      p.replace({ uri });
+      if (pendingUri !== uri || p.currentStatus?.error) {
+        p.replace(exactSeekUrls.has(uri) ? { uri, headers: { [EXACT_MP3_SEEK_HEADER]: EXACT_MP3_SEEK_VALUE } } : { uri });
+        pendingUri = uri;
+      }
       const started = Date.now();
       // Wait until the new source can play (polling: a status event of the previous source can still arrive first).
       // Replaced meanwhile (another ayah, a stop): stop waiting at once, and never report the newer source's state.
@@ -88,20 +111,24 @@ export function createExpoOutput(load: () => Promise<ExpoAudio> = () => import('
         const check = () => {
           if (mine !== generation) return reject(new LoadSupersededError());
           const status = p.currentStatus;
-          if (status?.error) reject(new Error(status.error));
-          else if (p.isLoaded) resolve();
-          else if (Date.now() - started > LOAD_TIMEOUT_MS) reject(new Error('load timeout'));
+          if (status?.error) {
+            pendingUri = null;
+            reject(new Error(status.error));
+          } else if (p.isLoaded) {
+            pendingUri = null;
+            resolve();
+          } else if (Date.now() - started > LOAD_TIMEOUT_MS) reject(new Error('load timeout'));
           else setTimeout(check, LOAD_POLL_MS);
         };
         setTimeout(check, LOAD_POLL_MS);
       });
       if (mine !== generation) throw new LoadSupersededError();
-      if (startMs > 0) await p.seekTo(startMs / 1000, 0, 0);
+      if (startMs > 0) await seekWithin(p, startMs);
       if (mine !== generation) throw new LoadSupersededError();
     },
     async seek(ms) {
       const p = await ensure();
-      await p.seekTo(ms / 1000, 0, 0);
+      await seekWithin(p, ms);
     },
     play() {
       if (!player) return;
@@ -114,6 +141,7 @@ export function createExpoOutput(load: () => Promise<ExpoAudio> = () => import('
     /** Safe to call any number of times, in any state (also before the player exists, or mid-load). */
     stop() {
       generation++;
+      pendingUri = null;
       if (!player) return;
       try {
         player.pause();

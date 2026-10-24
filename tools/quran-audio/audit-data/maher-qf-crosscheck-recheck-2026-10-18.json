@@ -1,0 +1,848 @@
+{
+ "checkedOn": "2026-10-18",
+ "corrects": "audit-data/maher-qf-crosscheck-2026-10-17.json (kept unchanged as the record of that run)",
+ "defect": "The 2026-10-17 pause test fetched each disagreement by byte range assuming the first audio frame at byte 6900 in every file. 11 files start elsewhere (~10.5 KB: 45, 79; ~23.5 KB: 3, 19, 28, 32, 34, 42, 68, 75, 76), so in them both candidate times were measured 0.3-1.4 s early. Re-run with each file's own first frame (audit/maher-qf-crosscheck.mjs now reads it).",
+ "changedVerdicts": [
+  {
+   "boundary": "3:166",
+   "from": "mp3quran wrong (inside recitation; the other timing is in a pause)",
+   "to": "mp3quran in a pause"
+  },
+  {
+   "boundary": "28:65",
+   "from": "neither in a pause",
+   "to": "mp3quran in a pause"
+  },
+  {
+   "boundary": "34:25",
+   "from": "mp3quran wrong (inside recitation; the other timing is in a pause)",
+   "to": "mp3quran in a pause"
+  },
+  {
+   "boundary": "42:53",
+   "from": "mp3quran wrong (inside recitation; the other timing is in a pause)",
+   "to": "mp3quran in a pause"
+  },
+  {
+   "boundary": "68:12",
+   "from": "mp3quran wrong (inside recitation; the other timing is in a pause)",
+   "to": "mp3quran in a pause"
+  }
+ ],
+ "mp3quranWrong": [
+  "3:2",
+  "7:2",
+  "19:2",
+  "26:2",
+  "29:2",
+  "32:2",
+  "36:2",
+  "40:2",
+  "41:2",
+  "42:3",
+  "44:2"
+ ],
+ "consequence": "Maher 34 and 68 were withdrawn from production on 34:25 and 68:12 alone; with the correct offsets MP3Quran is in a pause at both and the Quran Foundation time is not (68:12: inside the held initial mim of «مناع», sustained voicing at ~178 Hz). 3 and 42 stay withdrawn on their opening-letter boundaries (3:2, 42:3; boundary sweep evidence, unaffected). Production is NOT changed by this file: re-enabling 34 and 68 is an owner decision.",
+ "disagreements": [
+  {
+   "boundary": "1:6",
+   "firstFrameByte": 6912,
+   "mp3quranStartMs": 38320,
+   "disagreementS": 0.6,
+   "mp3quranRatio": 0.004,
+   "otherRatio": 0.005,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "2:257",
+   "firstFrameByte": 6891,
+   "mp3quranStartMs": 6891060,
+   "disagreementS": -0.5,
+   "mp3quranRatio": 0.003,
+   "otherRatio": 0.002,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "3:2",
+   "firstFrameByte": 23520,
+   "mp3quranStartMs": 15240,
+   "disagreementS": -1.7,
+   "mp3quranRatio": 1.025,
+   "otherRatio": 0,
+   "verdict": "mp3quran wrong (inside recitation; the other timing is in a pause)",
+   "verdict20261017": "mp3quran wrong (inside recitation; the other timing is in a pause)"
+  },
+  {
+   "boundary": "3:41",
+   "firstFrameByte": 23520,
+   "mp3quranStartMs": 994800,
+   "disagreementS": 0.8,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "3:166",
+   "firstFrameByte": 23520,
+   "mp3quranStartMs": 3871520,
+   "disagreementS": -0.6,
+   "mp3quranRatio": 0.017,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran wrong (inside recitation; the other timing is in a pause)"
+  },
+  {
+   "boundary": "4:63",
+   "firstFrameByte": 6889,
+   "mp3quranStartMs": 1924000,
+   "disagreementS": 1,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "7:2",
+   "firstFrameByte": 6891,
+   "mp3quranStartMs": 20820,
+   "disagreementS": -1.9,
+   "mp3quranRatio": 0.966,
+   "otherRatio": 0,
+   "verdict": "mp3quran wrong (inside recitation; the other timing is in a pause)",
+   "verdict20261017": "mp3quran wrong (inside recitation; the other timing is in a pause)"
+  },
+  {
+   "boundary": "8:53",
+   "firstFrameByte": 6891,
+   "mp3quranStartMs": 1180480,
+   "disagreementS": -0.5,
+   "mp3quranRatio": 0.001,
+   "otherRatio": 0.059,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "14:25",
+   "firstFrameByte": 6907,
+   "mp3quranStartMs": 748060,
+   "disagreementS": -0.9,
+   "mp3quranRatio": 0.12,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "18:96",
+   "firstFrameByte": 6886,
+   "mp3quranStartMs": 1985440,
+   "disagreementS": -0.9,
+   "mp3quranRatio": 0.218,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "19:2",
+   "firstFrameByte": 23425,
+   "mp3quranStartMs": 19800,
+   "disagreementS": -1.6,
+   "mp3quranRatio": 0.991,
+   "otherRatio": 0,
+   "verdict": "mp3quran wrong (inside recitation; the other timing is in a pause)",
+   "verdict20261017": "mp3quran wrong (inside recitation; the other timing is in a pause)"
+  },
+  {
+   "boundary": "19:12",
+   "firstFrameByte": 23425,
+   "mp3quranStartMs": 159540,
+   "disagreementS": -0.6,
+   "mp3quranRatio": 0.003,
+   "otherRatio": 0.001,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "19:61",
+   "firstFrameByte": 23425,
+   "mp3quranStartMs": 900500,
+   "disagreementS": -0.6,
+   "mp3quranRatio": 0.004,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "20:27",
+   "firstFrameByte": 6878,
+   "mp3quranStartMs": 239020,
+   "disagreementS": -0.6,
+   "mp3quranRatio": 0.004,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "20:66",
+   "firstFrameByte": 6878,
+   "mp3quranStartMs": 707120,
+   "disagreementS": 1,
+   "mp3quranRatio": 0.001,
+   "otherRatio": 0.001,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "21:52",
+   "firstFrameByte": 6762,
+   "mp3quranStartMs": 860740,
+   "disagreementS": 2,
+   "mp3quranRatio": 0.001,
+   "otherRatio": 0.98,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "22:19",
+   "firstFrameByte": 6884,
+   "mp3quranStartMs": 515600,
+   "disagreementS": -1,
+   "mp3quranRatio": 0.147,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "23:22",
+   "firstFrameByte": 6896,
+   "mp3quranStartMs": 279840,
+   "disagreementS": -0.7,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "25:9",
+   "firstFrameByte": 6892,
+   "mp3quranStartMs": 168780,
+   "disagreementS": 1.2,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "25:34",
+   "firstFrameByte": 6892,
+   "mp3quranStartMs": 588400,
+   "disagreementS": 0.8,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "26:2",
+   "firstFrameByte": 6762,
+   "mp3quranStartMs": 14980,
+   "disagreementS": -1.7,
+   "mp3quranRatio": 1.101,
+   "otherRatio": 0,
+   "verdict": "mp3quran wrong (inside recitation; the other timing is in a pause)",
+   "verdict20261017": "mp3quran wrong (inside recitation; the other timing is in a pause)"
+  },
+  {
+   "boundary": "27:26",
+   "firstFrameByte": 6886,
+   "mp3quranStartMs": 520159,
+   "disagreementS": -0.6,
+   "mp3quranRatio": 0.001,
+   "otherRatio": 1.058,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "28:65",
+   "firstFrameByte": 23575,
+   "mp3quranStartMs": 1600900,
+   "disagreementS": 1.8,
+   "mp3quranRatio": 0.001,
+   "otherRatio": 0.646,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "neither in a pause"
+  },
+  {
+   "boundary": "29:2",
+   "firstFrameByte": 6896,
+   "mp3quranStartMs": 16260,
+   "disagreementS": -1.7,
+   "mp3quranRatio": 0.999,
+   "otherRatio": 0,
+   "verdict": "mp3quran wrong (inside recitation; the other timing is in a pause)",
+   "verdict20261017": "mp3quran wrong (inside recitation; the other timing is in a pause)"
+  },
+  {
+   "boundary": "30:6",
+   "firstFrameByte": 6885,
+   "mp3quranStartMs": 74580,
+   "disagreementS": -0.5,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "30:23",
+   "firstFrameByte": 6885,
+   "mp3quranStartMs": 400840,
+   "disagreementS": 2.1,
+   "mp3quranRatio": 0,
+   "otherRatio": 0.755,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "31:2",
+   "firstFrameByte": 6885,
+   "mp3quranStartMs": 20200,
+   "disagreementS": 0.7,
+   "mp3quranRatio": 0,
+   "otherRatio": 0.001,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "32:2",
+   "firstFrameByte": 23506,
+   "mp3quranStartMs": 16980,
+   "disagreementS": -1.7,
+   "mp3quranRatio": 0.955,
+   "otherRatio": 0,
+   "verdict": "mp3quran wrong (inside recitation; the other timing is in a pause)",
+   "verdict20261017": "mp3quran wrong (inside recitation; the other timing is in a pause)"
+  },
+  {
+   "boundary": "33:66",
+   "firstFrameByte": 6891,
+   "mp3quranStartMs": 1742580,
+   "disagreementS": 0.9,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "34:25",
+   "firstFrameByte": 23570,
+   "mp3quranStartMs": 603940,
+   "disagreementS": -0.6,
+   "mp3quranRatio": 0.032,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran wrong (inside recitation; the other timing is in a pause)"
+  },
+  {
+   "boundary": "36:2",
+   "firstFrameByte": 6879,
+   "mp3quranStartMs": 13060,
+   "disagreementS": -2.3,
+   "mp3quranRatio": 1.003,
+   "otherRatio": 0,
+   "verdict": "mp3quran wrong (inside recitation; the other timing is in a pause)",
+   "verdict20261017": "mp3quran wrong (inside recitation; the other timing is in a pause)"
+  },
+  {
+   "boundary": "38:58",
+   "firstFrameByte": 6874,
+   "mp3quranStartMs": 785360,
+   "disagreementS": -0.8,
+   "mp3quranRatio": 0.074,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "39:59",
+   "firstFrameByte": 6887,
+   "mp3quranStartMs": 1421560,
+   "disagreementS": -0.5,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "40:2",
+   "firstFrameByte": 6883,
+   "mp3quranStartMs": 12380,
+   "disagreementS": -1.6,
+   "mp3quranRatio": 0.971,
+   "otherRatio": 0,
+   "verdict": "mp3quran wrong (inside recitation; the other timing is in a pause)",
+   "verdict20261017": "mp3quran wrong (inside recitation; the other timing is in a pause)"
+  },
+  {
+   "boundary": "40:62",
+   "firstFrameByte": 6883,
+   "mp3quranStartMs": 1399920,
+   "disagreementS": -0.7,
+   "mp3quranRatio": 0,
+   "otherRatio": 0.173,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "40:67",
+   "firstFrameByte": 6883,
+   "mp3quranStartMs": 1512140,
+   "disagreementS": 2.2,
+   "mp3quranRatio": 0,
+   "otherRatio": 0.935,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "40:75",
+   "firstFrameByte": 6883,
+   "mp3quranStartMs": 1677060,
+   "disagreementS": -0.7,
+   "mp3quranRatio": 0,
+   "otherRatio": 0.104,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "41:2",
+   "firstFrameByte": 6885,
+   "mp3quranStartMs": 12040,
+   "disagreementS": -2,
+   "mp3quranRatio": 1.081,
+   "otherRatio": 0,
+   "verdict": "mp3quran wrong (inside recitation; the other timing is in a pause)",
+   "verdict20261017": "mp3quran wrong (inside recitation; the other timing is in a pause)"
+  },
+  {
+   "boundary": "42:3",
+   "firstFrameByte": 23588,
+   "mp3quranStartMs": 24720,
+   "disagreementS": -1.9,
+   "mp3quranRatio": 0.949,
+   "otherRatio": 0,
+   "verdict": "mp3quran wrong (inside recitation; the other timing is in a pause)",
+   "verdict20261017": "mp3quran wrong (inside recitation; the other timing is in a pause)"
+  },
+  {
+   "boundary": "42:53",
+   "firstFrameByte": 23588,
+   "mp3quranStartMs": 1283280,
+   "disagreementS": -0.6,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran wrong (inside recitation; the other timing is in a pause)"
+  },
+  {
+   "boundary": "43:45",
+   "firstFrameByte": 6891,
+   "mp3quranStartMs": 720800,
+   "disagreementS": 1.9,
+   "mp3quranRatio": 0,
+   "otherRatio": 0.957,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "43:85",
+   "firstFrameByte": 6891,
+   "mp3quranStartMs": 1319020,
+   "disagreementS": -0.6,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "44:2",
+   "firstFrameByte": 6890,
+   "mp3quranStartMs": 11700,
+   "disagreementS": -1.8,
+   "mp3quranRatio": 0.963,
+   "otherRatio": 0,
+   "verdict": "mp3quran wrong (inside recitation; the other timing is in a pause)",
+   "verdict20261017": "mp3quran wrong (inside recitation; the other timing is in a pause)"
+  },
+  {
+   "boundary": "45:35",
+   "firstFrameByte": 10559,
+   "mp3quranStartMs": 712280,
+   "disagreementS": -0.7,
+   "mp3quranRatio": 0,
+   "otherRatio": 0.202,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "47:3",
+   "firstFrameByte": 6885,
+   "mp3quranStartMs": 38860,
+   "disagreementS": -0.6,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "47:26",
+   "firstFrameByte": 6885,
+   "mp3quranStartMs": 583560,
+   "disagreementS": -0.8,
+   "mp3quranRatio": 0,
+   "otherRatio": 0.089,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "49:11",
+   "firstFrameByte": 6893,
+   "mp3quranStartMs": 280620,
+   "disagreementS": -1.8,
+   "mp3quranRatio": 0,
+   "otherRatio": 1.407,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "51:16",
+   "firstFrameByte": 6897,
+   "mp3quranStartMs": 99040,
+   "disagreementS": -0.6,
+   "mp3quranRatio": 0.039,
+   "otherRatio": 0.001,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "55:40",
+   "firstFrameByte": 6890,
+   "mp3quranStartMs": 378840,
+   "disagreementS": -0.6,
+   "mp3quranRatio": 0.001,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "56:89",
+   "firstFrameByte": 6893,
+   "mp3quranStartMs": 799280,
+   "disagreementS": -0.5,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "58:2",
+   "firstFrameByte": 6897,
+   "mp3quranStartMs": 31880,
+   "disagreementS": 0.8,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "59:3",
+   "firstFrameByte": 6887,
+   "mp3quranStartMs": 73800,
+   "disagreementS": -0.7,
+   "mp3quranRatio": 0.012,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "62:7",
+   "firstFrameByte": 6891,
+   "mp3quranStartMs": 140460,
+   "disagreementS": -0.6,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "63:3",
+   "firstFrameByte": 6899,
+   "mp3quranStartMs": 59320,
+   "disagreementS": -0.7,
+   "mp3quranRatio": 0,
+   "otherRatio": 0.069,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "64:4",
+   "firstFrameByte": 6894,
+   "mp3quranStartMs": 56940,
+   "disagreementS": -0.5,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "68:12",
+   "firstFrameByte": 23442,
+   "mp3quranStartMs": 104780,
+   "disagreementS": -1.1,
+   "mp3quranRatio": 0,
+   "otherRatio": 0.887,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran wrong (inside recitation; the other timing is in a pause)"
+  },
+  {
+   "boundary": "69:26",
+   "firstFrameByte": 6890,
+   "mp3quranStartMs": 239900,
+   "disagreementS": 1.6,
+   "mp3quranRatio": 0.001,
+   "otherRatio": 0.368,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "74:23",
+   "firstFrameByte": 6897,
+   "mp3quranStartMs": 131240,
+   "disagreementS": -1.5,
+   "mp3quranRatio": 0,
+   "otherRatio": 0.908,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "75:4",
+   "firstFrameByte": 23586,
+   "mp3quranStartMs": 34040,
+   "disagreementS": 1.1,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "75:5",
+   "firstFrameByte": 23586,
+   "mp3quranStartMs": 43360,
+   "disagreementS": 1,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "75:6",
+   "firstFrameByte": 23586,
+   "mp3quranStartMs": 51700,
+   "disagreementS": 1,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "75:17",
+   "firstFrameByte": 23586,
+   "mp3quranStartMs": 120900,
+   "disagreementS": 0.8,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "75:20",
+   "firstFrameByte": 23586,
+   "mp3quranStartMs": 143380,
+   "disagreementS": 1,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "76:7",
+   "firstFrameByte": 23571,
+   "mp3quranStartMs": 90360,
+   "disagreementS": 1,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "76:25",
+   "firstFrameByte": 23571,
+   "mp3quranStartMs": 319180,
+   "disagreementS": 1.1,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "77:39",
+   "firstFrameByte": 6896,
+   "mp3quranStartMs": 289480,
+   "disagreementS": -0.6,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "79:34",
+   "firstFrameByte": 10561,
+   "mp3quranStartMs": 219100,
+   "disagreementS": -0.6,
+   "mp3quranRatio": 0.002,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "80:22",
+   "firstFrameByte": 6881,
+   "mp3quranStartMs": 134320,
+   "disagreementS": -0.8,
+   "mp3quranRatio": 0,
+   "otherRatio": 0.794,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "80:23",
+   "firstFrameByte": 6881,
+   "mp3quranStartMs": 143240,
+   "disagreementS": 1,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "80:25",
+   "firstFrameByte": 6881,
+   "mp3quranStartMs": 159900,
+   "disagreementS": 1.1,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "80:36",
+   "firstFrameByte": 6881,
+   "mp3quranStartMs": 231020,
+   "disagreementS": -0.5,
+   "mp3quranRatio": 0.002,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "83:25",
+   "firstFrameByte": 6898,
+   "mp3quranStartMs": 228900,
+   "disagreementS": -0.5,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "83:27",
+   "firstFrameByte": 6898,
+   "mp3quranStartMs": 249760,
+   "disagreementS": 3.6,
+   "mp3quranRatio": 0,
+   "otherRatio": 0.132,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "96:18",
+   "firstFrameByte": 6887,
+   "mp3quranStartMs": 115500,
+   "disagreementS": 1,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "99:8",
+   "firstFrameByte": 6894,
+   "mp3quranStartMs": 62460,
+   "disagreementS": 1.1,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "104:4",
+   "firstFrameByte": 6891,
+   "mp3quranStartMs": 28480,
+   "disagreementS": 1,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "108:2",
+   "firstFrameByte": 6891,
+   "mp3quranStartMs": 15225,
+   "disagreementS": 0.8,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "108:3",
+   "firstFrameByte": 6891,
+   "mp3quranStartMs": 20076,
+   "disagreementS": -1.3,
+   "mp3quranRatio": 0,
+   "otherRatio": 0.247,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "112:3",
+   "firstFrameByte": 6892,
+   "mp3quranStartMs": 16233,
+   "disagreementS": 0.8,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  },
+  {
+   "boundary": "112:4",
+   "firstFrameByte": 6892,
+   "mp3quranStartMs": 21063,
+   "disagreementS": 0.8,
+   "mp3quranRatio": 0,
+   "otherRatio": 0,
+   "verdict": "mp3quran in a pause",
+   "verdict20261017": "mp3quran in a pause"
+  }
+ ]
+}

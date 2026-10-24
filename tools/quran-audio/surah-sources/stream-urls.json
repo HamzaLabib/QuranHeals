@@ -1,0 +1,520 @@
+{
+ "kind": "stream-urls",
+ "about": "Direct URLs for reviewed files whose public URL redirects. archive.org /download/<item>/<file> answers 302 to a storage node, and the app refuses any redirect (audio/streamCheck.ts); the item's workable server (archive.org/metadata/<item>) serves the same file with 200 and byte ranges. Each entry was checked on 2026-10-24: HEAD 200 without redirect, Content-Length = the reviewed size, archive.org metadata MD5 = the reviewed copy's MD5, the reviewed copy's SHA-256 = the dashboard inventory's. A storage node can change: the app then refuses the stream (redirect or size), never plays another file. Development preview only.",
+ "checkedOn": "2026-10-24",
+ "node": "https://ia800606.us.archive.org/7/items/saqrsm/",
+ "files": {
+  "https://archive.org/download/saqrsm/032.%20Surat%20Ibrahim%201%20-%2052.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/032.%20Surat%20Ibrahim%201%20-%2052.mp3",
+   "bytes": 38296601,
+   "sha256": "b036fdd18d6c3c921d9ea7a409be16af40e280ca64a656a4a6b5e021ed676a7e",
+   "md5": "2112f3952c0f0ae34d2a92758b23aace",
+   "surah": 14,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/063.%20Surat%20Al-'Ankabut%201%20-%2069.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/063.%20Surat%20Al-%27Ankabut%201%20-%2069.mp3",
+   "bytes": 45886740,
+   "sha256": "8e3a57b9522ec11e45977337a1fc33d1441cbd470f39845688ce1678c8ae428c",
+   "md5": "9b56ad5c5153ae1d864f958a91dd4fe1",
+   "surah": 29,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/065.%20Surat%20As-Sajdah%201%20-%2030.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/065.%20Surat%20As-Sajdah%201%20-%2030.mp3",
+   "bytes": 13654772,
+   "sha256": "8a0ca4ca0c0b18422f667654631ce3cb8e9a95b854f8bb5d8f73e131555a561e",
+   "md5": "16dd76e0b9ab823a322bb68b3966c75f",
+   "surah": 32,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/081.%20Surat%20Al-Fath%201%20-%2029.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/081.%20Surat%20Al-Fath%201%20-%2029.mp3",
+   "bytes": 25010723,
+   "sha256": "d3f6d467f6ed351f17df2106f31deacfd7d4f683db61911942fd044004068dbc",
+   "md5": "c735420d97cdd92f49873feb9ec74c5a",
+   "surah": 48,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/092.%20Surat%20Al-Jumu'ah%201%20-%2011.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/092.%20Surat%20Al-Jumu%27ah%201%20-%2011.mp3",
+   "bytes": 7575556,
+   "sha256": "d170a43f58acab202202a68d59dd1d9405ce1ca4397c2e31c5521701d80501da",
+   "md5": "2e9fb30f386e96ce728a36fa0d027c6b",
+   "surah": 62,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/093.%20Surat%20Al-Munafiqun%201%20-%2011.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/093.%20Surat%20Al-Munafiqun%201%20-%2011.mp3",
+   "bytes": 8250560,
+   "sha256": "731753746e75a81103ec3f90f6f9f2cbfe1846fd92c95ed29e6d81cf7ffc62b2",
+   "md5": "db0aedb70161c075d9a7049d7ceb8e08",
+   "surah": 63,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/095.%20Surat%20Al-Mulk%201%20-%2030.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/095.%20Surat%20Al-Mulk%201%20-%2030.mp3",
+   "bytes": 14229466,
+   "sha256": "22973f967a17d6d81db12a958ef0138ad12535a61abe5a754ba08b6c22116727",
+   "md5": "f00b3b749608313ce34b7baa95d8b14e",
+   "surah": 67,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/099.%20Surat%20Nuh%201%20-%2028.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/099.%20Surat%20Nuh%201%20-%2028.mp3",
+   "bytes": 9758348,
+   "sha256": "109f1aab2228609aff0206d6c3d89687c01bac22c6420c7ec7e0a37c55d748f8",
+   "md5": "a5222c5000e282abc7a8fec40d35c7a4",
+   "surah": 71,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/113.%20Surat%20Al-A'la%201%20-%2019.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/113.%20Surat%20Al-A%27la%201%20-%2019.mp3",
+   "bytes": 2617430,
+   "sha256": "bbdcbd4ae22493eb29e6a333b51e73f8b7e4d8ca9d5d15a8308652e46c6a4762",
+   "md5": "e3cca4badb254ee051c8ed9a2f68a801",
+   "surah": 87,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/114.%20Surat%20Al-Ghashiyah%201%20-%2026.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/114.%20Surat%20Al-Ghashiyah%201%20-%2026.mp3",
+   "bytes": 3578737,
+   "sha256": "8be7109304003da5b9faefb86a09f1f1604a4adddfab9ce93b2692f3485caa97",
+   "md5": "0523ff1456ef265f5b64dfc87f9a99c0",
+   "surah": 88,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/117.%20Surat%20Ash-Shams%201%20-%2015.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/117.%20Surat%20Ash-Shams%201%20-%2015.mp3",
+   "bytes": 2938214,
+   "sha256": "121e1cbd564b635d25382f719be45547b6b961c1d48cd4068284d0fa92c7c6a0",
+   "md5": "15b58cacf7d2c1cd1cfead4b5ae06e94",
+   "surah": 91,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/119.%20Surat%20Adh-Dhuha%201%20-%2011.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/119.%20Surat%20Adh-Dhuha%201%20-%2011.mp3",
+   "bytes": 1900630,
+   "sha256": "ea7ae087e19d0743530e5f86640a47ecee992eb533255b3954674653e5576719",
+   "md5": "63d858787535d1c9f40c3e1780d96cea",
+   "surah": 93,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/120.%20Surat%20Ash-Sharh%201%20-%208.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/120.%20Surat%20Ash-Sharh%201%20-%208.mp3",
+   "bytes": 1218312,
+   "sha256": "e8805d4059086d1b57cc69e12a1452a418d1c20ed9eed8264299e487eef7e279",
+   "md5": "4244451516b3b25689fcd7724c20f066",
+   "surah": 94,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/121.%20Surat%20At-Tin%201%20-%208.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/121.%20Surat%20At-Tin%201%20-%208.mp3",
+   "bytes": 1946606,
+   "sha256": "63dc62c6c386c30696cca04100ea8ea773de3bb046c2880a5ad548241cdad0ec",
+   "md5": "c922e64be60abdf226fd046a902b2bf8",
+   "surah": 95,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/122.%20Surat%20Al-Qadr%201%20-%205.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/122.%20Surat%20Al-Qadr%201%20-%205.mp3",
+   "bytes": 1318622,
+   "sha256": "c2036372749339a4b8b6b251186d3a09c933c20b921feb4f3f810066fc0b3b2d",
+   "md5": "25a240b2efa97dffee14cf49b65a5f31",
+   "surah": 97,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/123.%20Surat%20Al-Bayyinah%201%20-%208.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/123.%20Surat%20Al-Bayyinah%201%20-%208.mp3",
+   "bytes": 4438688,
+   "sha256": "09fed723be99e9a34a12153a90f63b29d170eb584be199a824d6b7b7cb449f9b",
+   "md5": "8185072bad6d0533a81f7010ab788694",
+   "surah": 98,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/124.%20Surat%20Az-Zalzalah%201%20-%208.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/124.%20Surat%20Az-Zalzalah%201%20-%208.mp3",
+   "bytes": 2040647,
+   "sha256": "b6e16ffba7e2edc4b76548f4744b210cd9c389489326fec644b18263ebaefbef",
+   "md5": "e57294a176df5508b893b7ae4cbe33b5",
+   "surah": 99,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/125.%20Surat%20Al-'Adiyat%201%20-%2011.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/125.%20Surat%20Al-%27Adiyat%201%20-%2011.mp3",
+   "bytes": 2331128,
+   "sha256": "53ca5dbee493e7689d26d4f0b7b1624d98d7f2b1b5642be166d5535390e4aafc",
+   "md5": "f43099ae8169647508e3c85af5b8225c",
+   "surah": 100,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/126.%20Surat%20Al-Qari'ah%201%20-%2011.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/126.%20Surat%20Al-Qari%27ah%201%20-%2011.mp3",
+   "bytes": 2096026,
+   "sha256": "0babea1d95a44ed4c605e54b84dee9fc49b3f5d63e03b0f4666605165556e735",
+   "md5": "c9866910e7a03281ce85cb49214174b8",
+   "surah": 101,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/127.%20Surat%20At-Takathur%201%20-%208.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/127.%20Surat%20At-Takathur%201%20-%208.mp3",
+   "bytes": 1918394,
+   "sha256": "645fed91881308f0650843fffad7469a9851c039fb8e1676986d1ed0e83923d6",
+   "md5": "ee7ff4da5a5f45ecef699ff7e7492735",
+   "surah": 102,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/129.%20Surat%20Al-Humazah%201%20-%209.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/129.%20Surat%20Al-Humazah%201%20-%209.mp3",
+   "bytes": 1782557,
+   "sha256": "4006c42c9d4dbf48138cba4c2378e508426f3e4d47072283d701f2a4605aaa5b",
+   "md5": "1c621e0a56a4668d6ed9bcf1bf639bdb",
+   "surah": 104,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/130.%20Surat%20Al-Fil%201%20-%205.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/130.%20Surat%20Al-Fil%201%20-%205.mp3",
+   "bytes": 1308173,
+   "sha256": "cd3f26421b3c6b863fae54ffea610dcb8bf04f92de84cf8455748a00ed6375bb",
+   "md5": "993174dbcf7d770ea467ca7696841ece",
+   "surah": 105,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/135.%20Surat%20An-Nasr%201%20-%203.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/135.%20Surat%20An-Nasr%201%20-%203.mp3",
+   "bytes": 1037545,
+   "sha256": "061d837a8220f718b57d6464aa5ebac6ea49efbea5d3d49c2d1dc865cb2683bb",
+   "md5": "6667b7e5c5581c8e1257fdf1a5cf6dd7",
+   "surah": 110,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/138.%20Surat%20An-Nas%201%20-6.mp3": {
+   "url": "https://ia800606.us.archive.org/7/items/saqrsm/138.%20Surat%20An-Nas%201%20-6.mp3",
+   "bytes": 1375047,
+   "sha256": "767b49b2e52c6a1fed594b53094503c00082c6499c9e8a0bf1f7179e32a429ce",
+   "md5": "0c2b32e63188dd01eae26f26802e9c3c",
+   "surah": 114,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/084.%20Surat%20Ath-Thariyat%201%20-%2060.mp3": {
+   "url": "https://ia600606.us.archive.org/7/items/saqrsm/084.%20Surat%20Ath-Thariyat%201%20-%2060.mp3",
+   "bytes": 16670348,
+   "sha256": "8fcccdf91d915df5213a9598d05807452eddaebe0d058fab4caea6f23966582c",
+   "md5": "c2ab5e5bfce5eb20a0b91c8bbdd17fda",
+   "surah": 51,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/096.%20Surat%20Al-Qalam%201%20-%2052.mp3": {
+   "url": "https://ia600606.us.archive.org/7/items/saqrsm/096.%20Surat%20Al-Qalam%201%20-%2052.mp3",
+   "bytes": 13992274,
+   "sha256": "90cd952c4ada4c4a89a663d9813792df8686345208e260b1b276ec275536a7b9",
+   "md5": "6d6d60b6a735be08b0d0ace9223ff281",
+   "surah": 68,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/097.%20Surat%20Al-Haqqah%201%20-%2052.mp3": {
+   "url": "https://ia600606.us.archive.org/7/items/saqrsm/097.%20Surat%20Al-Haqqah%201%20-%2052.mp3",
+   "bytes": 12642266,
+   "sha256": "f0f5340714304454521e386feb9bb12b34c54ea35d6d08421a5bdb4326a224e4",
+   "md5": "23aa1e12abe38e3c058b2d14c59f76e4",
+   "surah": 69,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/115.%20Surat%20Al-Fajr%201%20-%2030.mp3": {
+   "url": "https://ia600606.us.archive.org/7/items/saqrsm/115.%20Surat%20Al-Fajr%201%20-%2030.mp3",
+   "bytes": 6488777,
+   "sha256": "153ec51fcc3bc3138663a8768a476ed486591e9f2d807c7114750a19cf22edb5",
+   "md5": "58b0cc13ac97d13e56b39902ec58c7a1",
+   "surah": 89,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/116.%20Surat%20Al-Balad%201%20-%2020.mp3": {
+   "url": "https://ia600606.us.archive.org/7/items/saqrsm/116.%20Surat%20Al-Balad%201%20-%2020.mp3",
+   "bytes": 3989382,
+   "sha256": "a9231e4016e9cd94773ee33f0b8ce10643d5b671804cac10118abd67ae21fbda",
+   "md5": "1aad19c017d55d82a1ecc62898272626",
+   "surah": 90,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/118.%20Surat%20Al-Lail%201%20-%2021.mp3": {
+   "url": "https://ia600606.us.archive.org/7/items/saqrsm/118.%20Surat%20Al-Lail%201%20-%2021.mp3",
+   "bytes": 3882802,
+   "sha256": "b22b510c383f52f393f28b04c24c61a20d49c98665b0d60b7250d823b2af89bd",
+   "md5": "a4a1b218af56cac5cd0e762ff294f087",
+   "surah": 92,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/128.%20Surat%20Al-%27Asr%201%20-%203.mp3": {
+   "url": "https://ia600606.us.archive.org/7/items/saqrsm/128.%20Surat%20Al-%27Asr%201%20-%203.mp3",
+   "bytes": 896484,
+   "sha256": "169bffa98d8836c7fc54744d2afb6931b9ddfa5b7ea5d3a805f89243d56d339c",
+   "md5": "f1570872fa39a472cea85482f8990fa5",
+   "surah": 103,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/131.%20Surat%20Quraish%201%20-%204.mp3": {
+   "url": "https://ia600606.us.archive.org/7/items/saqrsm/131.%20Surat%20Quraish%201%20-%204.mp3",
+   "bytes": 1192190,
+   "sha256": "c4abc0f0f3cc0d4d2f11c15ffe525637e7a185b4a4d19cd9c17669009b2fd27d",
+   "md5": "341410d041c543714fc11bc0081857c2",
+   "surah": 106,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/132.%20Surat%20Al-Ma%27un%201%20-%207.mp3": {
+   "url": "https://ia600606.us.archive.org/7/items/saqrsm/132.%20Surat%20Al-Ma%27un%201%20-%207.mp3",
+   "bytes": 1620598,
+   "sha256": "f794f3eec3dab386f78c091f0bc77e8b7ab20c9656ffd5d1c453a90221204df9",
+   "md5": "668d894b9fd6e4126c99b64d21267597",
+   "surah": 107,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/133.%20Surat%20Al-Kawthar%201%20-%203.mp3": {
+   "url": "https://ia600606.us.archive.org/7/items/saqrsm/133.%20Surat%20Al-Kawthar%201%20-%203.mp3",
+   "bytes": 778410,
+   "sha256": "5b7d8435deeb5887e8a93d7201a92f30584149737cba56aba4355eaac6bca103",
+   "md5": "5ca0f931d20c4d6567ba4e0aa0c1d4a6",
+   "surah": 108,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/134.%20Surat%20Al-Kafirun%201%20-%206.mp3": {
+   "url": "https://ia600606.us.archive.org/7/items/saqrsm/134.%20Surat%20Al-Kafirun%201%20-%206.mp3",
+   "bytes": 1588206,
+   "sha256": "0e73e45f0d616a4a306f54661e0854515b643569bec5bc42df6d1e51fa8c5422",
+   "md5": "8a28ce2b183e02641f7be65102d826b0",
+   "surah": 109,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/136.%20Surat%20Al-Ikhlas%201%20-%204.mp3": {
+   "url": "https://ia600606.us.archive.org/7/items/saqrsm/136.%20Surat%20Al-Ikhlas%201%20-%204.mp3",
+   "bytes": 736614,
+   "sha256": "9d519ea3ae4467b8fcff0900ff7e9442cc999b03256ac57c54c02139f5093fde",
+   "md5": "d61ff6eb07299f47dbe0290f5180a238",
+   "surah": 112,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/saqrsm/137.%20Surat%20Al-Falaq%201%20-%205.mp3": {
+   "url": "https://ia600606.us.archive.org/7/items/saqrsm/137.%20Surat%20Al-Falaq%201%20-%205.mp3",
+   "bytes": 1128451,
+   "sha256": "a3c0537cb541a532bed9fce162276ab81d48bae06fce1646f0c26d506a3f7002",
+   "md5": "255192c18e4c4e26dab527a5576b5a53",
+   "surah": 113,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/SheikhTalibSurahs626991-114/SurahYusufBySheikhTalib12-16thJan2013.mp3": {
+   "url": "https://ia600903.us.archive.org/12/items/SheikhTalibSurahs626991-114/SurahYusufBySheikhTalib12-16thJan2013.mp3",
+   "bytes": 33607680,
+   "sha256": "1de06a7c83d7204f079fc00d4074bcd9cc1baffbf1afa2a78b93cf97230daa17",
+   "md5": "70284e04786b542594df60bb42b9e992",
+   "surah": 12,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/SheikhTalibSurahMaryam/SurahMaryamBy-SheikhTalib-.mp3": {
+   "url": "https://ia801001.us.archive.org/10/items/SheikhTalibSurahMaryam/SurahMaryamBy-SheikhTalib-.mp3",
+   "bytes": 8482316,
+   "sha256": "50a955fb3f6cefae8ae82e2fb59cf87d8cf194989836872d8a0b8f659b900d55",
+   "md5": "393b65e27a285f223d53f97c0b139b6e",
+   "surah": 19,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/SuratAlAnbeyaShikhSalihAlTalib1436/surat_alAnbeya_shikh_salih_al%20Talib_1436.mp3": {
+   "url": "https://ia801607.us.archive.org/18/items/SuratAlAnbeyaShikhSalihAlTalib1436/surat_alAnbeya_shikh_salih_al%20Talib_1436.mp3",
+   "bytes": 21715261,
+   "sha256": "df28e7cabcdf5fb74672b95b29cc9d8ce078e4bd8897b13bed7968ab02ed071b",
+   "md5": "62bcfa4134286debbe6f6a2f586347ef",
+   "surah": 21,
+   "reciterId": "saleh-talib"
+  },
+  "https://archive.org/download/islam-sobhi_202405/023%20Al-Mu%27minun%20%D8%A7%D9%84%D9%85%D8%A4%D9%85%D9%86%D9%88%D9%86.mp3": {
+   "url": "https://ia801601.us.archive.org/23/items/islam-sobhi_202405/023%20Al-Mu%27minun%20%D8%A7%D9%84%D9%85%D8%A4%D9%85%D9%86%D9%88%D9%86.mp3",
+   "bytes": 54700661,
+   "sha256": "260d11e6c8239866aad699070c8ec528f1fa548def1d2d5ad5bc06616d051486",
+   "md5": "1a9ca19153a7831f375f039c5c4df75b",
+   "surah": 23,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/islam-sobhi_202203/030-Ar-Room.mp3": {
+   "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/030-Ar-Room.mp3",
+   "bytes": 39762839,
+   "sha256": "ca5a2f57fd18be0a68420c10eace2f43247559f5292706aae74324c199792fc2",
+   "md5": "efecfa4f79b75746da384e6b8c78a9b7",
+   "surah": 30,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/islam-sobhi_202203/057%20-%20Al-Hadid.mp3": {
+   "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/057%20-%20Al-Hadid.mp3",
+   "bytes": 27434056,
+   "sha256": "3c28a0edd71a22d701c68a68a900668b8d43308bb94ae4368947f402607c0ff3",
+   "md5": "7c1f6704c34a13a6c25f74287299d6c9",
+   "surah": 57,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/islam-sobhi_202203/062%20-%20Al-Jumua.mp3": {
+   "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/062%20-%20Al-Jumua.mp3",
+   "bytes": 9497327,
+   "sha256": "358d34e8cac0a4c0c5dcc9831a161df1062d70dde66f929595d3ae75e6fb94ee",
+   "md5": "49527502ac39d0aa820d5eb291a57bb6",
+   "surah": 62,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/islam-sobhi_202203/072-Al-Jinn.mp3": {
+   "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/072-Al-Jinn.mp3",
+   "bytes": 14336336,
+   "sha256": "1052ded3a0c39de70110be6c71a52d8a9ab5c1e8019ab11244fc26d42e09f7e7",
+   "md5": "742d61966bf87f926d789d2742e24915",
+   "surah": 72,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/islam-sobhi_202203/095-At-Tin.mp3": {
+   "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/095-At-Tin.mp3",
+   "bytes": 2325144,
+   "sha256": "5dd1b331c706a1ee8c11754f97ee1d9b4f1c5e69d721a4785711fd07c328060c",
+   "md5": "d4dd1d376de9b0f8e92097cfd37f1002",
+   "surah": 95,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/islam-sobhi_202203/100-Al-Addiyat.mp3": {
+   "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/100-Al-Addiyat.mp3",
+   "bytes": 2000180,
+   "sha256": "4d635e7d7aaad076d9acd734f7ace91be224a0054e69736efdb48cd129cde9dc",
+   "md5": "bfaea9279ac937302a0402e0c7a95c1c",
+   "surah": 100,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/islam-sobhi_202203/101-Al-Qaria.mp3": {
+   "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/101-Al-Qaria.mp3",
+   "bytes": 1911370,
+   "sha256": "348c1d0b65c24e5d01fc12f54aaef850966c72529c8b0400380226b7492d1033",
+   "md5": "6aa1ef641be03cda30313a5053a7b515",
+   "surah": 101,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/YasserSalama_201801/042.mp3": {
+   "url": "https://ia800401.us.archive.org/7/items/YasserSalama_201801/042.mp3",
+   "bytes": 17390475,
+   "sha256": "e2e0ab48562f7b4d819be1133fd2726de0ec60d8c26884161e3b60ffc3a29694",
+   "md5": "5160deae8c9fbd35fd90d835d47b147a",
+   "surah": 42,
+   "reciterId": "yasser-salama"
+  },
+  "https://archive.org/download/002_20231210_202312/021.mp3": {
+   "url": "https://ia601405.us.archive.org/26/items/002_20231210_202312/021.mp3",
+   "bytes": 34507475,
+   "sha256": "e69c588805b3c68d1fb74b756391af1fa838cd653cd18a1b8f28202d7afe51a3",
+   "md5": "1a871f2ebfc3904c9822c926d1c30a25",
+   "surah": 21,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/002_20231210_202312/025.mp3": {
+   "url": "https://ia601405.us.archive.org/26/items/002_20231210_202312/025.mp3",
+   "bytes": 25640053,
+   "sha256": "6ecd8e2c91897c08e476e841d1574d0f00b70349f56e2124a7676ea3c0ea21d8",
+   "md5": "65420a1a2552da7f5cdf90649793200d",
+   "surah": 25,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/islam-sobhi_202203/029%20Al-Ankabut%20%D8%A7%D9%84%D8%B9%D9%86%D9%83%D8%A8%D9%88%D8%AA.mp3": {
+   "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/029%20Al-Ankabut%20%D8%A7%D9%84%D8%B9%D9%86%D9%83%D8%A8%D9%88%D8%AA.mp3",
+   "bytes": 48866087,
+   "sha256": "ab8b1c9aa2fff09a9458f0ff96e635894fb06710f031aacafa0a211c00e40ea4",
+   "md5": "3220d6187e102ffaee207806545d94ce",
+   "surah": 29,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/islam-sobhi_202203/038%20Saad%20%D8%B5.mp3": {
+   "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/038%20Saad%20%D8%B5.mp3",
+   "bytes": 38774419,
+   "sha256": "d8f3e7e267635dc8552df4a8ab3cdf4fef22b665b6fdb1d59074a308e09b3da0",
+   "md5": "7c37fa11f2458632ddd499baefc7d3c8",
+   "surah": 38,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/islam-sobhi_202203/047%20Muhammad%20%D9%85%D8%AD%D9%85%D8%AF.mp3": {
+   "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/047%20Muhammad%20%D9%85%D8%AD%D9%85%D8%AF.mp3",
+   "bytes": 25286886,
+   "sha256": "dfa5b1f838a2ed3b05df981a1455e36c901889c9fc83ddd90dadd2062cef6ec0",
+   "md5": "4adf9a9291f550218fc01852c05b8d86",
+   "surah": 47,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/islam-sobhi_202203/048%20Al-Fath%20%D8%A7%D9%84%D9%81%D8%AA%D8%AD.mp3": {
+   "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/048%20Al-Fath%20%D8%A7%D9%84%D9%81%D8%AA%D8%AD.mp3",
+   "bytes": 27305628,
+   "sha256": "60be8dd0c0621aa59d341abb20900c12c685608af1dcc723044d6b5058dc27ab",
+   "md5": "a84d9f80de4b24f75b153c0d7ef5c069",
+   "surah": 48,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/islam-sobhi_202203/049%20Al-Hujurat%20%D8%A7%D9%84%D8%AD%D8%AC%D8%B1%D8%A7%D8%AA.mp3": {
+   "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/049%20Al-Hujurat%20%D8%A7%D9%84%D8%AD%D8%AC%D8%B1%D8%A7%D8%AA.mp3",
+   "bytes": 19964165,
+   "sha256": "731daa3e776ed4d406f356f3ec91e8461746f0739625ed1a26742333f38b8881",
+   "md5": "b192fbf02a53866c492aff4db20d125a",
+   "surah": 49,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/islam-sobhi_202203/052%20At-Tur%20%D8%A7%D9%84%D8%B7%D9%88%D8%B1.mp3": {
+   "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/052%20At-Tur%20%D8%A7%D9%84%D8%B7%D9%88%D8%B1.mp3",
+   "bytes": 17198270,
+   "sha256": "b0dda9ae8bd9e46c89145775ee9802ed3fa5a22d1fcc64892489472d563b0b41",
+   "md5": "e8d478a33e64132dcceedf7d61838614",
+   "surah": 52,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/islam-sobhi_202203/098-Bayyina.mp3": {
+   "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/098-Bayyina.mp3",
+   "bytes": 4244623,
+   "sha256": "8ec060d1bbe6113d44a69fe8ab2dd4d97da92ba1070ff18880d66046f04a4833",
+   "md5": "364452489c5c56d8ea3bb002c89a9e54",
+   "surah": 98,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/islam-sobhi_202405/104%20Al-Humazah%20%D8%A7%D9%84%D9%87%D9%85%D8%B2%D8%A9%20.mp3": {
+   "url": "https://ia801601.us.archive.org/23/items/islam-sobhi_202405/104%20Al-Humazah%20%D8%A7%D9%84%D9%87%D9%85%D8%B2%D8%A9%20.mp3",
+   "bytes": 1651194,
+   "sha256": "61199895cdebe5290831233b8d41db0278f8243022ee06216c963d21c4b0a8b8",
+   "md5": "0ba8c01a54d08c922ef1cff764941217",
+   "surah": 104,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/islam-sobhi_202203/105-Al-Fil.mp3": {
+   "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/105-Al-Fil.mp3",
+   "bytes": 1197675,
+   "sha256": "c1d95fe4123f4a1b598f4b01ec1eddb96a2cda7d153d84c44d1c25658fda8aaa",
+   "md5": "fd8c8bcdbc0f9d421a462009aa86b413",
+   "surah": 105,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/islam-sobhi_202203/106-Quraysh.mp3": {
+   "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/106-Quraysh.mp3",
+   "bytes": 1077514,
+   "sha256": "abbb8a6e5de35cceb3dce655166cd6235f0d0652c58a8b52d41d19e6e0ded0f4",
+   "md5": "8e70b83f8085a6c0bde9c92b1585278b",
+   "surah": 106,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/islam-sobhi_202203/107-Al-Maun.mp3": {
+   "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/107-Al-Maun.mp3",
+   "bytes": 1596828,
+   "sha256": "d0de28c3821d3fe84f6e0a7c8d682aa693e79809194ec3cf5d8f78935bd877c8",
+   "md5": "aaa62d53c5ba8ec08a3dc25f6fe97797",
+   "surah": 107,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/002_20231210_202312/110.mp3": {
+   "url": "https://ia601405.us.archive.org/26/items/002_20231210_202312/110.mp3",
+   "bytes": 888510,
+   "sha256": "808d149e9502fc1449a991d44105e8ac49278e59464440daa0c1417441abcfa9",
+   "md5": "520167090a94891242b629828c7b108f",
+   "surah": 110,
+   "reciterId": "islam-sobhi"
+  },
+  "https://archive.org/download/002_20231210_202312/111.mp3": {
+   "url": "https://ia601405.us.archive.org/26/items/002_20231210_202312/111.mp3",
+   "bytes": 1220673,
+   "sha256": "9da0e4a52835ea2cf49a7b46d59e53f0a18c414cddac41b2951783f47003b3cd",
+   "md5": "16d354589364b57648c7ad463294f7d4",
+   "surah": 111,
+   "reciterId": "islam-sobhi"
+  }
+ }
+}

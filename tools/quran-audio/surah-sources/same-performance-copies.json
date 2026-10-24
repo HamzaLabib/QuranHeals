@@ -1,0 +1,118 @@
+{
+ "kind": "same-performance-copies",
+ "about": "CBR copies of the same performance as a review-dashboard recording (surah-sources/generate-timed-preview.mjs --copies). openings: where the recitation begins in a copy that starts with other audio (ayah 1 plays from there). transfers: the original's accepted timing moved by the measured offset, used only while the copy's own alignment agrees with it. Development preview only.",
+ "openings": [
+  {
+   "reciterId": "islam-sobhi",
+   "surah": 21,
+   "url": "https://archive.org/download/002_20231210_202312/021.mp3",
+   "openingMs": 11950,
+   "checkedOn": "2026-10-24",
+   "evidence": "same performance as MP3Quran islam-sobhi 021 (compare.py: every piece at a constant lag); the copy plays the original's 0:00 at 11950 ms (median offset of all 111 ayah starts, own alignment vs the accepted timing, max deviation 410 ms); the audio before it ends in silence before that point and the first recitation sound after it falls where the original's does (within 20 ms)"
+  },
+  {
+   "reciterId": "islam-sobhi",
+   "surah": 25,
+   "url": "https://archive.org/download/002_20231210_202312/025.mp3",
+   "openingMs": 13280,
+   "checkedOn": "2026-10-24",
+   "evidence": "same performance as MP3Quran islam-sobhi 025 (compare.py: every piece at a constant lag); the copy plays the original's 0:00 at 13280 ms (median offset of all 76 ayah starts, own alignment vs the accepted timing, max deviation 20 ms); the audio before it ends in silence before that point and the first recitation sound after it falls where the original's does (within 20 ms)"
+  },
+  {
+   "reciterId": "islam-sobhi",
+   "surah": 29,
+   "url": "https://archive.org/download/islam-sobhi_202203/029%20Al-Ankabut%20%D8%A7%D9%84%D8%B9%D9%86%D9%83%D8%A8%D9%88%D8%AA.mp3",
+   "openingMs": 22770,
+   "checkedOn": "2026-10-24",
+   "evidence": "same performance as MP3Quran islam-sobhi 029 (compare.py: every piece at a constant lag); the copy plays the original's 0:00 at 22770 ms (median offset of all 68 ayah starts, own alignment vs the accepted timing, max deviation 30 ms); the audio before it ends in silence before that point and the first recitation sound after it falls where the original's does (within 20 ms)"
+  },
+  {
+   "reciterId": "islam-sobhi",
+   "surah": 38,
+   "url": "https://archive.org/download/islam-sobhi_202203/038%20Saad%20%D8%B5.mp3",
+   "openingMs": 9620,
+   "checkedOn": "2026-10-24",
+   "evidence": "same performance as MP3Quran islam-sobhi 038 (compare.py: every piece at a constant lag); the copy plays the original's 0:00 at 9620 ms (median offset of all 87 ayah starts, own alignment vs the accepted timing, max deviation 180 ms); the audio before it ends in silence before that point and the first recitation sound after it falls where the original's does (within 20 ms)"
+  },
+  {
+   "reciterId": "islam-sobhi",
+   "surah": 47,
+   "url": "https://archive.org/download/islam-sobhi_202203/047%20Muhammad%20%D9%85%D8%AD%D9%85%D8%AF.mp3",
+   "openingMs": 13410,
+   "checkedOn": "2026-10-24",
+   "evidence": "same performance as MP3Quran islam-sobhi 047 (compare.py: every piece at a constant lag); the copy plays the original's 0:00 at 13410 ms (median offset of all 37 ayah starts, own alignment vs the accepted timing, max deviation 22 ms); the audio before it ends in silence before that point and the first recitation sound after it falls where the original's does (within 20 ms)"
+  },
+  {
+   "reciterId": "islam-sobhi",
+   "surah": 48,
+   "url": "https://archive.org/download/islam-sobhi_202203/048%20Al-Fath%20%D8%A7%D9%84%D9%81%D8%AA%D8%AD.mp3",
+   "openingMs": 10550,
+   "checkedOn": "2026-10-24",
+   "evidence": "same performance as MP3Quran islam-sobhi 048 (compare.py: every piece at a constant lag); the copy plays the original's 0:00 at 10550 ms (median offset of all 28 ayah starts, own alignment vs the accepted timing, max deviation 20 ms); the audio before it ends in silence before that point and the first recitation sound after it falls where the original's does (within 20 ms)"
+  },
+  {
+   "reciterId": "islam-sobhi",
+   "surah": 49,
+   "url": "https://archive.org/download/islam-sobhi_202203/049%20Al-Hujurat%20%D8%A7%D9%84%D8%AD%D8%AC%D8%B1%D8%A7%D8%AA.mp3",
+   "openingMs": 13940,
+   "checkedOn": "2026-10-24",
+   "evidence": "same performance as MP3Quran islam-sobhi 049 (compare.py: every piece at a constant lag); the copy plays the original's 0:00 at 13940 ms (median offset of all 17 ayah starts, own alignment vs the accepted timing, max deviation 20 ms); the audio before it ends in silence before that point and the first recitation sound after it falls where the original's does (within 20 ms)"
+  },
+  {
+   "reciterId": "islam-sobhi",
+   "surah": 52,
+   "url": "https://archive.org/download/islam-sobhi_202203/052%20At-Tur%20%D8%A7%D9%84%D8%B7%D9%88%D8%B1.mp3",
+   "openingMs": 11320,
+   "checkedOn": "2026-10-24",
+   "evidence": "same performance as MP3Quran islam-sobhi 052 (compare.py: every piece at a constant lag); the copy plays the original's 0:00 at 11320 ms (median offset of all 48 ayah starts, own alignment vs the accepted timing, max deviation 10 ms); the audio before it ends in silence before that point and the first recitation sound after it falls where the original's does (within 20 ms)"
+  },
+  {
+   "reciterId": "islam-sobhi",
+   "surah": 110,
+   "url": "https://archive.org/download/002_20231210_202312/110.mp3",
+   "openingMs": 13580,
+   "checkedOn": "2026-10-24",
+   "evidence": "same performance as MP3Quran islam-sobhi 110 (compare.py: every piece at a constant lag); the copy plays the original's 0:00 at 13580 ms (median offset of all 2 ayah starts, own alignment vs the accepted timing, max deviation 0 ms); the audio before it ends in silence before that point and the first recitation sound after it falls where the original's does (within 20 ms)"
+  },
+  {
+   "reciterId": "islam-sobhi",
+   "surah": 111,
+   "url": "https://archive.org/download/002_20231210_202312/111.mp3",
+   "openingMs": 15340,
+   "checkedOn": "2026-10-24",
+   "evidence": "same performance as MP3Quran islam-sobhi 111 (compare.py: every piece at a constant lag); the copy plays the original's 0:00 at 15340 ms (median offset of all 4 ayah starts, own alignment vs the accepted timing, max deviation 0 ms); the audio before it ends in silence before that point and the first recitation sound after it falls where the original's does (within 20 ms)"
+  }
+ ],
+ "transfers": [
+  {
+   "reciterId": "islam-sobhi",
+   "surah": 100,
+   "url": "https://archive.org/download/islam-sobhi_202203/100-Al-Addiyat.mp3",
+   "fromKey": "islam-sobhi-100",
+   "offsetMs": 20,
+   "maxDevMs": 100,
+   "checkedOn": "2026-10-24",
+   "evidence": "same performance (compare.py 5/5 and 6/6 pieces, constant lag); the copy's own alignment collapsed ayah 1 (Very High 100:2) but agrees with Reviewer 1's reviewed starts of the original within 11 ms at every start from ayah 2"
+  },
+  {
+   "reciterId": "islam-sobhi",
+   "surah": 104,
+   "url": "https://archive.org/download/islam-sobhi_202405/104%20Al-Humazah%20%D8%A7%D9%84%D9%87%D9%85%D8%B2%D8%A9%20.mp3",
+   "fromKey": "islam-sobhi-104",
+   "offsetMs": -270,
+   "maxDevMs": 100,
+   "checkedOn": "2026-10-24",
+   "evidence": "same performance (constant offset; own alignment within 10 ms of the accepted timing at every start from ayah 2); the copy's own alignment squeezed ayah 1 (score 0.12, 44 ms per letter), so the original's accepted ayah-1 onset is used"
+  },
+  {
+   "reciterId": "islam-sobhi",
+   "surah": 48,
+   "url": "https://archive.org/download/islam-sobhi_202203/048%20Al-Fath%20%D8%A7%D9%84%D9%81%D8%AA%D8%AD.mp3",
+   "fromKey": "islam-sobhi-48",
+   "offsetMs": 10550,
+   "maxDevMs": 100,
+   "checkedOn": "2026-10-24",
+   "evidence": "same performance (constant lag 10,550 ms; own alignment within 20 ms of the accepted timing at every start from ayah 2); the copy's own aligner put ayah 1's onset at 9.76 s, inside the silence before the recitation (which begins at 10.55 s), so the original's accepted ayah-1 onset is used"
+  }
+ ]
+}

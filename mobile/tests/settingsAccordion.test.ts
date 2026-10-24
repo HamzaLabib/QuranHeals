@@ -8,7 +8,7 @@ import { MESSAGES } from '@/localization/messages';
 /**
  * The Settings screen's five sections (App, Emotions, Quran, Support,
  * Account) and their collapsible cards — App Language, Appearance, Emotions
- * Language, Quran Language, Legal & Privacy — rendered with the real locale /
+ * Language, Quran Translation, Legal & Privacy — rendered with the real locale /
  * emotions / translation / appearance / keep-awake / reminder providers over
  * an in-memory AsyncStorage (and a fake notification platform), so a
  * selection is proven to go through the existing persisted preference
@@ -31,6 +31,8 @@ const state = vi.hoisted(() => ({
   permissionRequests: 0,
   settingsOpened: 0,
   pending: new Map<string, { identifier: string; trigger: unknown; data: Record<string, unknown> }>(),
+  /** Whether this build carries Word Meanings (wordMeanings/bundledDataset.ts: development builds; vitest's __DEV__ is false). */
+  wordMeaningsBundled: true,
 }));
 
 vi.mock('react-native', () => {
@@ -76,6 +78,7 @@ vi.mock('@/components/ReportIssueSheet', async () => {
 });
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView', useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }) }));
 vi.mock('@/auth/useAuth', () => ({ useAuth: () => ({ refreshSync: async () => { state.refreshSyncCalls += 1; } }) }));
+vi.mock('@/wordMeanings/bundledDataset', () => ({ isWordMeaningsBundled: () => state.wordMeaningsBundled, bundledWordMeanings: () => null }));
 // Rendered for real in accountSectionRender.test.ts; here only its position matters.
 vi.mock('@/components/AccountSection', async () => {
   const { createElement: h } = await import('react');
@@ -91,6 +94,7 @@ import { FavoriteReciterProvider } from '@/audio/useFavoriteReciter';
 import { NotificationsProvider } from '@/notifications/useNotifications';
 import type { NotificationsApi } from '@/notifications/api';
 import { AppearancePreferenceProvider } from '@/theme/useAppearancePreference';
+import { WordMeaningsVisibilityProvider } from '@/mushaf/useWordMeaningsVisibility';
 
 /** Reminders: a supported platform that has not been asked for permission yet (a fresh install). */
 const fakeNotificationsApi: NotificationsApi = {
@@ -142,6 +146,7 @@ beforeEach(() => {
   state.permissionRequests = 0;
   state.settingsOpened = 0;
   state.pending.clear();
+  state.wordMeaningsBundled = true;
   fetchSpy.mockReset();
   vi.stubGlobal('fetch', fetchSpy);
 });
@@ -156,8 +161,8 @@ async function renderSettings() {
     createElement(AppLocaleProvider, null,
       createElement(EmotionsLanguageProvider, null,
         createElement(QuranTranslationPreferenceProvider, null,
-          createElement(AppearancePreferenceProvider, null, createElement(KeepAwakePreferenceProvider, null, createElement(FavoriteReciterProvider, null,
-            createElement(NotificationsProvider, { api: fakeNotificationsApi, now: () => new Date(2026, 9, 14, 12, 0), verses: fakeVerses }, children)))))));
+          createElement(AppearancePreferenceProvider, null, createElement(KeepAwakePreferenceProvider, null, createElement(WordMeaningsVisibilityProvider, null, createElement(FavoriteReciterProvider, null,
+            createElement(NotificationsProvider, { api: fakeNotificationsApi, now: () => new Date(2026, 9, 14, 12, 0), verses: fakeVerses }, children))))))));
   await act(async () => { root = create(tree(createElement(SettingsScreen))); });
 }
 
@@ -183,8 +188,8 @@ const pressOption = (label: string) => press(optionRows().find((node) => node.pr
 const resolveStyle = (node: ReactTestInstance) =>
   [typeof node.props.style === 'function' ? node.props.style({ pressed: false }) : node.props.style].flat(Infinity).filter(Boolean);
 
-const EN_HEADERS = ['App Language', 'Appearance', 'Emotions Language', 'Quran Language', 'Favorite Reciter', 'Legal & Privacy'];
-const AR_HEADERS = ['لغة التطبيق', 'المظهر', 'لغة المشاعر', 'لغة القرآن', 'القارئ المفضل', 'السياسات والشروط'];
+const EN_HEADERS = ['App Language', 'Appearance', 'Emotions Language', 'Favorite Reciter', 'Quran Translation', 'Legal & Privacy'];
+const AR_HEADERS = ['لغة التطبيق', 'المظهر', 'لغة المشاعر', 'القارئ المفضل', 'ترجمة القرآن', 'السياسات والشروط'];
 const EN_SECTIONS = ['App', 'Emotions', 'Quran', 'Support'];
 const AR_SECTIONS = ['التطبيق', 'المشاعر', 'القرآن', 'الدعم'];
 /** The four section headings this screen draws (Account draws its own, inside AccountSection). */
@@ -204,19 +209,21 @@ describe('Settings: section order and initial state', () => {
       .map((node) => (node.type === ('AccountSection' as never) ? 'Account' : node.props.testID));
     expect(order).toEqual(['settings-section-app', 'settings-section-emotions', 'settings-section-quran', 'settings-section-support', 'Account']);
     expect(texts()).not.toContain('Notifications');
-    expect(texts()).not.toContain(en.settings.quranTranslationSection);
+    // Quran Translation is the one row for the Quran's language (formerly titled Quran Language): never a second one.
+    expect(texts().filter((text) => text === en.settings.quranTranslationSection)).toHaveLength(1);
+    expect(texts()).not.toContain('Quran Language');
   });
 
-  it('each section holds its own settings: App (App Language, Appearance), Emotions (Emotions Language, Show Translation, Emotional Check-in), Quran (Quran Language, Keep Screen Awake, Favorite Reciter, Offline listening, Reciting Reminder, Random Quran Ayah, offline Mushaf), Support (Report an Issue, Legal & Privacy)', async () => {
+  it('each section holds its own settings: App (App Language, Appearance), Emotions (Emotions Language, Show Translation, Emotional Check-in), Quran (Favorite Reciter, Offline listening, Quran Translation, Keep Screen Awake, Reciting Reminder, Random Quran Ayah, offline Mushaf), Support (Report an Issue, Legal & Privacy)', async () => {
     await renderSettings();
     const section = (id: string) => root!.root.find((node) => node.props.testID === id && typeof node.type === 'string');
     const headersIn = (id: string) => section(id).findAll((node) => headers().includes(node)).map((node) => node.props.accessibilityLabel.split(', ')[0]);
-    const idsIn = (id: string) => section(id).findAll((node) => typeof node.type === 'string' && typeof node.props.testID === 'string' && /^settings-(show-translation|keep-awake|report-issue|offline-mushaf|offline-audio|reminder-[a-zA-Z]+)$/.test(node.props.testID)).map((node) => node.props.testID);
+    const idsIn = (id: string) => section(id).findAll((node) => typeof node.type === 'string' && typeof node.props.testID === 'string' && /^settings-(show-translation|keep-awake|word-meanings|report-issue|offline-mushaf|offline-audio|reminder-[a-zA-Z]+)$/.test(node.props.testID)).map((node) => node.props.testID);
     expect(headersIn('settings-section-app')).toEqual(['App Language', 'Appearance']);
     expect(headersIn('settings-section-emotions')).toEqual(['Emotions Language']);
     expect(idsIn('settings-section-emotions')).toEqual(['settings-show-translation', 'settings-reminder-emotionCheckIn']);
-    expect(headersIn('settings-section-quran')).toEqual(['Quran Language', 'Favorite Reciter']);
-    expect(idsIn('settings-section-quran')).toEqual(['settings-keep-awake', 'settings-reminder-wird', 'settings-reminder-randomAyah', 'settings-offline-mushaf']);
+    expect(headersIn('settings-section-quran')).toEqual(['Favorite Reciter', 'Quran Translation']);
+    expect(idsIn('settings-section-quran')).toEqual(['settings-keep-awake', 'settings-word-meanings', 'settings-reminder-wird', 'settings-reminder-randomAyah', 'settings-offline-mushaf']);
     expect(headersIn('settings-section-support')).toEqual(['Legal & Privacy']);
     expect(idsIn('settings-section-support')).toEqual(['settings-report-issue']);
     expect(en.settings.legalSection).toBe('Legal & Privacy');
@@ -235,8 +242,8 @@ describe('Settings: section order and initial state', () => {
       'App Language, English',
       'Appearance, System',
       'Emotions Language, Follow App Language',
-      'Quran Language, The Quranic Text',
-      'Favorite Reciter, Maher Al-Muaiqly',
+      'Favorite Reciter, Muhammad Siddiq Al-Minshawi',
+      'Quran Translation, None',
       'Legal & Privacy',
     ]);
     expect(texts(header('Legal & Privacy'))).toEqual(['Legal & Privacy']);
@@ -357,29 +364,30 @@ describe('Settings: Emotions Language', () => {
   });
 });
 
-describe('Settings: Quran Language', () => {
-  it('exactly one option today — The Quranic Text / النص القرآني — stored as a stable id, never a label; no unreleased languages', async () => {
+describe('Settings: Quran Translation', () => {
+  it('exactly one option today — None / بدون ترجمة — stored as a stable id, never a label; no unreleased languages', async () => {
     await renderSettings();
-    await pressHeader('Quran Language');
-    expect(optionRows().map((node) => [node.props.accessibilityLabel, node.props.accessibilityState.selected])).toEqual([['The Quranic Text', true]]);
-    expect(ar.settings.quranTextOption).toBe('النص القرآني');
+    await pressHeader('Quran Translation');
+    expect(optionRows().map((node) => [node.props.accessibilityLabel, node.props.accessibilityState.selected])).toEqual([['None', true]]);
+    expect(ar.settings.quranTranslationNone).toBe('بدون ترجمة');
+    expect(MESSAGES['ar-EG'].settings.quranTranslationNone).toBe('بدون ترجمة');
     for (const unreleased of ['Turkish', 'French', 'Urdu', 'Coming soon']) expect(texts(root!.root)).not.toContain(unreleased);
-    await pressOption('The Quranic Text');
+    await pressOption('None');
     expect(state.storage.get(QURAN_LANGUAGE_KEY)).toBe('quran-text');
     expect(expandedStates()).toEqual([false, false, false, false, false, false]);
   });
 
-  it('Arabic: لغة القرآن / النص القرآني, and the choice is kept after a restart', async () => {
+  it('Arabic: ترجمة القرآن / بدون ترجمة, and the choice is kept after a restart', async () => {
     state.storage.set(LOCALE_KEY, 'ar');
     state.storage.set(QURAN_LANGUAGE_KEY, 'quran-text');
     await renderSettings();
-    expect(header('لغة القرآن').props.accessibilityLabel).toBe('لغة القرآن, النص القرآني');
-    // An unknown stored mode (e.g. from a future version) falls back to the Arabic Mushaf.
+    expect(header('ترجمة القرآن').props.accessibilityLabel).toBe('ترجمة القرآن, بدون ترجمة');
+    // An unknown stored mode (e.g. from a future version, or a translation not in this build) reads as None.
     await act(async () => root!.unmount());
     root = undefined;
     state.storage.set(QURAN_LANGUAGE_KEY, 'turkish');
     await renderSettings();
-    expect(header('لغة القرآن').props.accessibilityLabel).toBe('لغة القرآن, النص القرآني');
+    expect(header('ترجمة القرآن').props.accessibilityLabel).toBe('ترجمة القرآن, بدون ترجمة');
   });
 });
 
@@ -484,10 +492,10 @@ describe('Settings: theming', () => {
   const cardBackgrounds = () =>
     all('View').map((node) => resolveStyle(node)).flat().filter((style) => style.borderRadius !== undefined && style.backgroundColor !== undefined).map((style) => style.backgroundColor);
 
-  // The six accordions, the Show Translation and Keep Screen Awake cards, the three reminder cards
+  // The six accordions, the Show Translation, Keep Screen Awake and Word Meanings cards, the three reminder cards
   // (components/NotificationReminderRow.tsx) and the offline Mushaf row (components/OfflineMushafSettingsRow.tsx), all
   // in the same palette card. (Offline listening is a small icon on Favorite Reciter's card, not a card of its own.)
-  const CARDS = 12;
+  const CARDS = 13;
 
   it('uses the light palette card for every accordion in Light', async () => {
     await renderSettings();
@@ -525,8 +533,8 @@ describe('Settings: accessibility', () => {
       expect(node.props.accessibilityRole).toBe('button');
       expect(node.props.accessibilityLabel).toBeTruthy();
     }
-    await pressHeader('Quran Language');
-    expect(header('Quran Language').props.accessibilityState).toEqual({ expanded: true });
+    await pressHeader('Quran Translation');
+    expect(header('Quran Translation').props.accessibilityState).toEqual({ expanded: true });
   });
 
   it('options announce which one is selected', async () => {
@@ -557,7 +565,7 @@ describe('Settings: Report an issue', () => {
       .findAll((node) => node.type === ('AccountSection' as never) || headers().includes(node) || node.props?.testID === 'settings-report-issue')
       .filter((node) => typeof node.type === 'string' || node.type === ('AccountSection' as never))
       .map((node) => (node.type === ('AccountSection' as never) ? 'Account' : node.props.testID === 'settings-report-issue' ? 'Report' : node.props.accessibilityLabel.split(', ')[0]));
-    expect(order).toEqual(['App Language', 'Appearance', 'Emotions Language', 'Quran Language', 'Favorite Reciter', 'Report', 'Legal & Privacy', 'Account']);
+    expect(order).toEqual(['App Language', 'Appearance', 'Emotions Language', 'Favorite Reciter', 'Quran Translation', 'Report', 'Legal & Privacy', 'Account']);
     expect(reportRow().props.accessibilityState).toBeUndefined();
     expect(reportRow().props).toMatchObject({ accessibilityRole: 'button', accessibilityLabel: en.issueReport.action, accessibilityHint: en.issueReport.settingsDescription });
     expect(texts(reportRow())).toEqual([en.issueReport.action, en.issueReport.settingsDescription]);
@@ -588,12 +596,12 @@ describe('Settings: Keep Screen Awake', () => {
   /** The card holding the switch: its title and description, in screen order. */
   const card = () => toggle().parent!;
 
-  it('sits in the Quran section directly below Quran Language, as a card of its own, ON by default with nothing saved', async () => {
+  it('sits in the Quran section directly below Quran Translation, as a card of its own, ON by default with nothing saved', async () => {
     await renderSettings();
     const order = root!.root
       .findAll((node) => node === toggle() || headers().includes(node))
       .map((node) => (node === toggle() ? 'switch' : node.props.accessibilityLabel.split(', ')[0]));
-    expect(order).toEqual(['App Language', 'Appearance', 'Emotions Language', 'Quran Language', 'switch', 'Favorite Reciter', 'Legal & Privacy']);
+    expect(order).toEqual(['App Language', 'Appearance', 'Emotions Language', 'Favorite Reciter', 'Quran Translation', 'switch', 'Legal & Privacy']);
     expect(texts(card())).toEqual([en.settings.keepAwakeTitle, en.settings.keepAwakeDescription]);
     expect(en.settings.keepAwakeTitle).toBe('Keep Screen Awake');
     expect(en.settings.keepAwakeDescription).toBe('Prevent automatic screen locking while reading the Mushaf.');
@@ -637,7 +645,7 @@ describe('Settings: Keep Screen Awake', () => {
   it.each([['light', lightPalette], ['dark', darkPalette]] as const)('%s mode: the same card as the accordions, in the theme colours', async (scheme, palette) => {
     state.storage.set(APPEARANCE_KEY, JSON.stringify(scheme));
     await renderSettings();
-    const accordionCard = header('Quran Language').parent!;
+    const accordionCard = header('Quran Translation').parent!;
     const pick = (styles: object[]) => Object.assign({}, ...styles) as Record<string, unknown>;
     const mine = pick(resolveStyle(card()));
     const theirs = pick(resolveStyle(accordionCard));
@@ -648,6 +656,92 @@ describe('Settings: Keep Screen Awake', () => {
     const [title, description] = card().findAll(isType('Text')).map((text) => pick(resolveStyle(text)));
     expect(title.color).toBe(palette.textPrimary);
     expect(description.color).toBe(palette.textSecondary);
+  });
+});
+
+describe('Settings: Word Meanings', () => {
+  const VISIBLE_KEY = 'quran-heals:word-meanings-visible:v1';
+  const toggle = () => root!.root.findByProps({ testID: 'settings-word-meanings' });
+  const toggles = () => root!.root.findAllByProps({ testID: 'settings-word-meanings' });
+  const card = () => toggle().parent!;
+  /** The Quran section's rows in screen order: accordion headers by title, every other row by its testID. */
+  const quranRows = () => {
+    const quran = root!.root.find((node) => node.props.testID === 'settings-section-quran' && typeof node.type === 'string');
+    return quran
+      .findAll((node) => typeof node.type === 'string' && (headers().includes(node) || /^settings-(keep-awake|word-meanings|reminder-(wird|randomAyah)|offline-mushaf|mushaf-guide)$/.test(String(node.props.testID))))
+      .map((node) => (headers().includes(node) ? node.props.accessibilityLabel.split(', ')[0] : node.props.testID));
+  };
+
+  it.each([['en', en], ['ar', ar]] as const)('%s: the Quran section in the approved order, Word Meanings directly after Keep Screen Awake', async (locale, copy) => {
+    if (locale === 'ar') state.storage.set(LOCALE_KEY, 'ar');
+    await renderSettings();
+    expect(quranRows()).toEqual([
+      copy.audio.favoriteTitle,
+      copy.settings.quranTranslationSection,
+      'settings-keep-awake',
+      'settings-word-meanings',
+      'settings-reminder-wird',
+      'settings-reminder-randomAyah',
+      'settings-offline-mushaf',
+      'settings-mushaf-guide',
+    ]);
+  });
+
+  it('a switch card of its own, ON by default with nothing saved; its title alone', async () => {
+    await renderSettings();
+    expect(en.settings.wordMeaningsVisibleTitle).toBe('Word Meanings');
+    expect(texts(card())).toEqual(['Word Meanings']);
+    expect(toggle().props).toMatchObject({ value: true, accessibilityRole: 'switch', accessibilityLabel: 'Word Meanings', accessibilityState: { checked: true } });
+    expect(state.storage.has(VISIBLE_KEY)).toBe(false);
+    // Not an accordion: the six headings are unchanged.
+    expect(headers().map((node) => node.props.accessibilityLabel.split(', ')[0])).toEqual(EN_HEADERS);
+  });
+
+  it('switching OFF and back ON applies and saves at once, with no other preference written and no network', async () => {
+    await renderSettings();
+    const before = new Map(state.storage);
+    await act(async () => toggle().props.onValueChange(false));
+    expect(toggle().props).toMatchObject({ value: false, accessibilityState: { checked: false } });
+    expect(state.storage.get(VISIBLE_KEY)).toBe('false');
+    await act(async () => toggle().props.onValueChange(true));
+    expect(toggle().props.value).toBe(true);
+    expect(state.storage.get(VISIBLE_KEY)).toBe('true');
+    expect([...state.storage.keys()].filter((key) => !before.has(key) && key !== NOTIFICATIONS_KEY)).toEqual([VISIBLE_KEY]);
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(state.layoutAnimations).toBe(0);
+  });
+
+  it('a saved OFF is shown OFF after a restart', async () => {
+    state.storage.set(VISIBLE_KEY, 'false');
+    await renderSettings();
+    expect(toggle().props.value).toBe(false);
+  });
+
+  it('Arabic: «معاني الكلمات», right to left', async () => {
+    state.storage.set(LOCALE_KEY, 'ar');
+    await renderSettings();
+    expect(ar.settings.wordMeaningsVisibleTitle).toBe('معاني الكلمات');
+    expect(MESSAGES['ar-EG'].settings.wordMeaningsVisibleTitle).toBe('معاني الكلمات');
+    expect(texts(card())).toEqual(['معاني الكلمات']);
+    expect(toggle().props.accessibilityLabel).toBe('معاني الكلمات');
+    expect(resolveStyle(card())).toContainEqual({ flexDirection: 'row-reverse' });
+    for (const text of card().findAll(isType('Text'))) expect(resolveStyle(text)).toContainEqual({ writingDirection: 'rtl', textAlign: 'right' });
+  });
+
+  it('the same card, switch colours and title style as Keep Screen Awake', async () => {
+    await renderSettings();
+    const keepAwake = root!.root.findByProps({ testID: 'settings-keep-awake' });
+    expect(resolveStyle(card())).toEqual(resolveStyle(keepAwake.parent!));
+    for (const key of ['trackColor', 'thumbColor', 'ios_backgroundColor']) expect(toggle().props[key]).toEqual(keepAwake.props[key]);
+    const title = (switchNode: ReactTestInstance) => resolveStyle(switchNode.parent!.findAll(isType('Text'))[0]);
+    expect(title(toggle())).toEqual(title(keepAwake));
+  });
+
+  it('a build without Word Meanings (release) shows no switch, and the rest of the section is unchanged', async () => {
+    state.wordMeaningsBundled = false;
+    await renderSettings();
+    expect(toggles()).toHaveLength(0);
+    expect(quranRows()).toEqual(['Favorite Reciter', 'Quran Translation', 'settings-keep-awake', 'settings-reminder-wird', 'settings-reminder-randomAyah', 'settings-offline-mushaf', 'settings-mushaf-guide']);
   });
 });
 
@@ -1030,29 +1124,29 @@ describe('Settings: Favorite Reciter and offline listening (audio/)', () => {
   const reciterRows = () => all('Pressable').filter((node) => /^settings-reciter-(?!download)/.test(node.props.testID ?? ''));
   const offlineCard = () => root!.root.find((node) => node.props.testID === 'settings-offline-audio' && typeof node.type === 'string');
 
-  it('Quran → Favorite Reciter: Maher Al-Muaiqly by default, nothing saved', async () => {
+  it('Quran → Favorite Reciter: Muhammad Siddiq Al-Minshawi by default, nothing saved', async () => {
     await renderSettings();
-    expect(header('Favorite Reciter').props.accessibilityLabel).toBe('Favorite Reciter, Maher Al-Muaiqly');
+    expect(header('Favorite Reciter').props.accessibilityLabel).toBe('Favorite Reciter, Muhammad Siddiq Al-Minshawi');
     expect(state.storage.has(FAVORITE_KEY)).toBe(false);
   });
 
-  it('lists exactly the 17 reciters in English, each with its availability; the current one selected', async () => {
+  it('lists exactly the offered reciters in English, in the owner\'s order, each with its availability; the current one selected', async () => {
     await renderSettings();
     await pressHeader('Favorite Reciter');
-    expect(reciterRows()).toHaveLength(17);
+    // A release-equivalent build (tests): the owner's 17 without the development preview (Ali Abdullah Jaber).
+    expect(reciterRows()).toHaveLength(16);
     const labels = reciterRows().map((node) => node.props.accessibilityLabel as string);
     expect(labels.map((label) => label.split(', ')[0])).toEqual([
-      'Abdul Basit Abdus Samad', 'Muhammad Siddiq Al-Minshawi', 'Ahmed Naeena', 'Mahmoud Khalil Al-Husary', 'Mahmoud Ali Al-Banna',
-      'Yasser Mahmoud Salama', 'Saud Al-Shuraim', 'Abdul Rashid Ali Sufi', 'Ali Al-Hudhaifi', 'Abu Bakr Al-Shatri', 'Ahmed Al-Ajmi',
-      'Maher Al-Muaiqly', 'Abdullah Basfar', 'Saleh Al-Talib', 'Muhammad Rifaat', 'Islam Sobhi', 'Ahmed Mohamed Salama',
+      'Muhammad Siddiq Al-Minshawi', 'Mahmoud Khalil Al-Husary', 'Abdul Basit Abdus Samad', 'Mahmoud Ali Al-Banna', 'Abdul Rashid Ali Sufi',
+      'Ahmed Mohamed Salama', 'Ali Al-Hudhaifi', 'Saud Al-Shuraim', 'Maher Al-Muaiqly', 'Abu Bakr Al-Shatri', 'Ahmed Al-Agamy', 'Abdullah Basfar',
+      'Yasser Mahmoud Salama', 'Ahmed Naina', 'Islam Sobhi', 'Saleh Al-Talib',
     ]);
-    expect(labels).toContain('Abdul Basit Abdus Samad, All 114 surahs');
+    expect(labels).toContain('Abdul Basit Abdus Samad'); // all 114 surahs: no count shown
     expect(labels).toContain('Maher Al-Muaiqly, 101 of 114 surahs');
-    expect(labels).toContain('Ali Al-Hudhaifi, 103 of 114 surahs');
     expect(labels).toContain('Ahmed Mohamed Salama, Ayah-by-ayah playback not available');
     expect(labels).toContain('Mahmoud Khalil Al-Husary, 103 of 114 surahs');
-    expect(labels).toContain('Muhammad Rifaat, Ayah-by-ayah playback not available');
-    expect(reciterRows().filter((node) => node.props.accessibilityState.selected).map((node) => node.props.testID)).toEqual(['settings-reciter-maher']);
+    for (const onHold of ['Muhammad Rifaat', 'Mohamed Gebril']) expect(labels.some((l) => l.startsWith(onHold))).toBe(false);
+    expect(reciterRows().filter((node) => node.props.accessibilityState.selected).map((node) => node.props.testID)).toEqual(['settings-reciter-minshawi']);
   });
 
   it('a choice applies and is saved at once, and the list closes', async () => {
@@ -1074,9 +1168,11 @@ describe('Settings: Favorite Reciter and offline listening (audio/)', () => {
   it('in Arabic: القارئ المفضل, with the reciters\' Arabic names', async () => {
     state.storage.set(LOCALE_KEY, 'ar');
     await renderSettings();
-    expect(header('القارئ المفضل').props.accessibilityLabel).toBe('القارئ المفضل, ماهر المعيقلي');
+    expect(header('القارئ المفضل').props.accessibilityLabel).toBe('القارئ المفضل, محمد صديق المنشاوي');
     await pressHeader('القارئ المفضل');
-    expect(reciterRows()[0].props.accessibilityLabel).toBe('عبد الباسط عبد الصمد, جميع السور (١١٤)');
+    // The owner's order, the same in Arabic: Al-Minshawi first.
+    expect(reciterRows()[0].props.accessibilityLabel).toBe('محمد صديق المنشاوي, ١٠٧ من ١١٤ سورة');
+    expect((reciterRows()[6].props.accessibilityLabel as string).split(', ')[0]).toBe('علي بن عبد الرحمن الحذيفي');
   });
 
   const downloadIcon = () => all('Pressable').find((node) => node.props.testID === 'settings-reciter-download')!;
@@ -1101,16 +1197,16 @@ describe('Settings: Favorite Reciter and offline listening (audio/)', () => {
     expect(header('App Language').findAllByType('ChevronDown' as never)).toHaveLength(1);
   });
 
-  it('independent touch targets: the chevron and the title open the 17 reciters; the download icon opens its sheet only', async () => {
+  it('independent touch targets: the chevron and the title open the reciter list; the download icon opens its sheet only', async () => {
     await renderSettings();
     const chevron = () => all('Pressable').find((node) => node.props.testID === 'settings-accordion-chevron')!;
     await press(chevron());
-    expect(reciterRows()).toHaveLength(17);
+    expect(reciterRows()).toHaveLength(16);
     expect(header('Favorite Reciter').props.accessibilityState).toEqual({ expanded: true });
     await press(chevron());
     expect(reciterRows()).toHaveLength(0);
     await pressHeader('Favorite Reciter');
-    expect(reciterRows()).toHaveLength(17);
+    expect(reciterRows()).toHaveLength(16);
     await pressHeader('Favorite Reciter');
     await press(downloadIcon());
     expect(reciterRows()).toHaveLength(0);
@@ -1141,13 +1237,13 @@ describe('Settings: Favorite Reciter and offline listening (audio/)', () => {
 
   it('downloads not permitted (licensing): the icon shows as unavailable, its sheet explains and offers no download; nothing fetched', async () => {
     await renderSettings();
-    expect(downloadIcon().props.accessibilityLabel).toBe('Offline listening: Maher Al-Muaiqly, Offline download not available');
+    expect(downloadIcon().props.accessibilityLabel).toBe('Offline listening: Muhammad Siddiq Al-Minshawi, Offline download not available');
     expect(downloadIcon().props.accessibilityState).toMatchObject({ disabled: true });
     expect(downloadIcon().findAll((node) => node.props.testID === 'reciter-download-icon-not-permitted')).toHaveLength(1);
     expect(downloadIcon().findAll((node) => node.props.testID === 'reciter-download-icon-complete')).toHaveLength(0);
     await press(downloadIcon());
     expect(sheetText()).toContain(en.audio.offlineNotPermitted);
-    expect(sheetText()).toMatch(/Download Maher Al-Muaiqly to listen without internet: 101 surahs, about [\d.]+ GB\./);
+    expect(sheetText()).toMatch(/Download Muhammad Siddiq Al-Minshawi to listen without internet: 107 surahs, about [\d.]+ GB\./);
     expect(sheetButtons()).toEqual(['settings-reciter-download-close']); // no Download, Retry or Delete
     expect(fetchSpy).not.toHaveBeenCalled();
   });
@@ -1172,15 +1268,15 @@ describe('Settings: Favorite Reciter and offline listening (audio/)', () => {
   it('follows the Favorite Reciter: a new choice shows that reciter`s state', async () => {
     await renderSettings();
     await pressHeader('Favorite Reciter');
-    await press(reciterRows().find((node) => node.props.testID === 'settings-reciter-rifaat')!);
-    expect(downloadIcon().props.accessibilityLabel).toBe('Offline listening: Muhammad Rifaat, Offline download not available');
+    await press(reciterRows().find((node) => node.props.testID === 'settings-reciter-yasser-salama')!);
+    expect(downloadIcon().props.accessibilityLabel).toBe('Offline listening: Yasser Mahmoud Salama, Offline download not available');
     expect(downloadIcon().findAll((node) => node.props.testID === 'reciter-download-icon-unavailable')).toHaveLength(1);
   });
 
   it('in Arabic, mirrored beside the dropdown', async () => {
     state.storage.set(LOCALE_KEY, 'ar');
     await renderSettings();
-    expect(downloadIcon().props.accessibilityLabel).toBe('الاستماع دون اتصال: ماهر المعيقلي, التنزيل غير متاح');
+    expect(downloadIcon().props.accessibilityLabel).toBe('الاستماع دون اتصال: محمد صديق المنشاوي, التنزيل غير متاح');
     // The header row holding the dropdown and the icon is mirrored (the icon on the left, beside the chevron).
     const ancestors: ReactTestInstance[] = [];
     for (let node = downloadIcon().parent; node; node = node.parent) if (typeof node.type === 'string') ancestors.push(node);

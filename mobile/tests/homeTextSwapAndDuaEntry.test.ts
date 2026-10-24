@@ -8,7 +8,7 @@ import { MESSAGES } from '@/localization/messages';
 
 /**
  * Home: the tagline and the "reflect" line swapped places, and the "reflect"
- * line has its new approved wording. Recitations: the دعاء ختم القرآن row
+ * line has its new approved wording. My Reciting: the دعاء ختم القرآن row
  * shows its title only.
  */
 const source = (path: string) => readFileSync(resolve(__dirname, '..', path), 'utf8').split(String.fromCharCode(13)).join('');
@@ -54,7 +54,7 @@ describe('Home: the two texts swapped', () => {
   });
 });
 
-describe('Recitations: the دعاء ختم القرآن row', () => {
+describe('My Reciting: the دعاء ختم القرآن row', () => {
   const myReading = source('src/app/(tabs)/my-reading.tsx');
 
   it('shows its title only: the description line is gone, the row still opens the du`a', () => {

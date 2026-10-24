@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
 
+import { GENERATED_RECITERS } from '@/audio/generated/reciterCatalog';
 import { getReciter, type Reciter } from '@/audio/reciters';
 import { ayahAt, ayahStartMs, createTimingLoader, parseTimingPayload, timingUrl, verifyTiming, type TimingStore } from '@/audio/timing';
 import { timingFingerprint, type TimingEntry } from '@/audio/timingFingerprint';
@@ -153,7 +154,7 @@ describe('measured timing (shipped in the app)', () => {
   const MEASURED_112: TimingEntry[] = SURAH_112.filter((e) => e.ayah > 0);
   /** A reciter with measured timing for surah 112 only. */
   const measuredReciter = (): Reciter => ({
-    ...getReciter('hudhaifi')!,
+    ...GENERATED_RECITERS.find((r) => r.id === 'hudhaifi')!,
     id: 'measured-test',
     timingSource: 'measured',
     timingRead: null,
@@ -188,7 +189,7 @@ describe('measured timing (shipped in the app)', () => {
   });
 
   it('the real shipped timing verifies for every surah Ali Al-Hudhaifi is listed with', async () => {
-    const hudhaifi = getReciter('hudhaifi')!;
+    const hudhaifi = GENERATED_RECITERS.find((r) => r.id === 'hudhaifi')!;
     const loader = createTimingLoader({ fetchText: noNetwork, store: noStore });
     for (const surah of Object.keys(hudhaifi.timed).map(Number)) expect((await loader.load(hudhaifi, surah)).ok).toBe(true);
   });

@@ -71,6 +71,23 @@ describe('notification email content', () => {
     expect(buildIssueReportEmail(base)).toEqual(a);
   });
 
+  it('lists an Audio Issue\'s problem, reciter, source and playback context', () => {
+    const { text } = buildIssueReportEmail({
+      ...base,
+      category: 'audio_issue',
+      audioProblem: 'missing_ayah',
+      reciterId: 'maher',
+      audioSource: 'mp3quran https://server12.mp3quran.net/maher/002.mp3',
+      playbackContext: 'ayah screen\r\nBcc: x@example.com',
+    });
+    expect(text).toContain('Type: Audio issue');
+    expect(text).toContain('Audio problem: Missing ayah audio');
+    expect(text).toContain('Reciter: maher');
+    expect(text).toContain('Audio source: mp3quran https://server12.mp3quran.net/maher/002.mp3');
+    expect(text).toContain('Playback: ayah screen Bcc: x@example.com');
+    expect(text.split('\n').some((line) => line.startsWith('Bcc:'))).toBe(false);
+  });
+
   it('omits fields the report does not have instead of inventing them', () => {
     const { text } = buildIssueReportEmail({ id: base.id, category: 'other', hasContactEmail: false, createdAt: base.createdAt });
     expect(text).not.toMatch(/Platform:|App version:|Verse:|Emotion:|App language:|Translation display:/);

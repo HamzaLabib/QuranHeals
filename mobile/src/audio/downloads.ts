@@ -1,4 +1,6 @@
-import { getReciter, OFFLINE_DOWNLOADS_PERMITTED, surahAudioUrl, timedSurahs, type Reciter } from './reciters';
+import { getReciter, surahAudioUrl, timedSurahs, type Reciter } from './reciters';
+import { SOURCE_REGISTRY } from './sourceRegistry';
+import { isPreviewSurah } from './timedPreview';
 import type { TimingLoader } from './timing';
 
 /**
@@ -61,10 +63,13 @@ export function looksLikeMp3(head: Uint8Array): boolean {
 /** Kept free beyond the download itself. */
 export const FREE_SPACE_MARGIN_BYTES = 200 * 1024 * 1024;
 
-export function createAudioDownloads(deps: { files: AudioFiles; timing: TimingLoader; permitted?: () => boolean }) {
+export function createAudioDownloads(deps: { files: AudioFiles; timing: TimingLoader; permitted?: (reciterId: string) => boolean }) {
   const { files } = deps;
-  /** The licensing gate (reciters.ts OFFLINE_DOWNLOADS_PERMITTED); injectable for tests only. */
-  const permitted = deps.permitted ?? (() => OFFLINE_DOWNLOADS_PERMITTED);
+  /**
+   * The licensing gate: the app's switch (reciters.ts OFFLINE_DOWNLOADS_PERMITTED) and the provider's own offline
+   * permission for every source the download would store (sourceRegistry.ts). Injectable for tests only.
+   */
+  const permitted = deps.permitted ?? ((reciterId: string) => SOURCE_REGISTRY.reciterOfflinePermitted(reciterId));
   let state: DownloadState = IDLE_DOWNLOAD;
   const listeners = new Set<(state: DownloadState) => void>();
   let active: FileDownload | null = null;
@@ -81,7 +86,8 @@ export function createAudioDownloads(deps: { files: AudioFiles; timing: TimingLo
 
   const run = async (reciter: Reciter) => {
     const mine = ++runToken;
-    const surahs = timedSurahs(reciter);
+    // Only the catalogue's own files are stored: a timed preview surah plays its own file and is never downloaded.
+    const surahs = timedSurahs(reciter).filter((surah) => !isPreviewSurah(reciter, surah));
     const completed = new Set(await files.stored(reciter.id));
     const remaining = surahs.filter((surah) => !completed.has(surah));
     const bytesTotal = sizeOf(reciter, surahs);
@@ -167,7 +173,7 @@ export function createAudioDownloads(deps: { files: AudioFiles; timing: TimingLo
     start(reciterId: string) {
       const reciter = getReciter(reciterId);
       if (!reciter) return;
-      if (!permitted()) {
+      if (!permitted(reciterId)) {
         set({ ...IDLE_DOWNLOAD, reciterId, phase: 'error', error: 'not-permitted' });
         return;
       }
@@ -223,7 +229,7 @@ export function createAudioDownloads(deps: { files: AudioFiles; timing: TimingLo
     /** Bytes the download of `reciterId` stores in all (its timed surahs). */
     totalBytes(reciterId: string) {
       const reciter = getReciter(reciterId);
-      return reciter ? sizeOf(reciter, timedSurahs(reciter)) : 0;
+      return reciter ? sizeOf(reciter, timedSurahs(reciter).filter((surah) => !isPreviewSurah(reciter, surah))) : 0;
     },
   };
   return api;

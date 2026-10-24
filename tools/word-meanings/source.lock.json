@@ -1,0 +1,24 @@
+{
+  "title": "الميسر في غريب القرآن الكريم",
+  "titleEnglish": "Muyassar of Ghareeb Al-Qu'ran",
+  "publisher": "مجمع الملك فهد لطباعة المصحف الشريف",
+  "publisherEnglish": "King Fahd Glorious Qur'an Printing Complex (KFGQPC)",
+  "platform": "https://qurancomplex.gov.sa/quran-dev/",
+  "url": "https://download.qurancomplex.gov.sa/resources_dev/MuyassarGhareeb.docx",
+  "file": "MuyassarGhareeb.docx",
+  "bytes": 956677,
+  "md5": "ffd3c58f51f8a69340a205b71bf1e870",
+  "sha1": "1be35ad20c48b4d47dfa0bfc3d97ac7b0b3401ca",
+  "sha256": "8a7af5decb94ee465b77c0eded05e018c6bf813fc544455bd0faebfcc84a8cb2",
+  "publishedChecksums": "MD5 and SHA-1 as listed on the platform page (بصمة الملف); both matched the download. SHA-256 computed locally from that same verified download.",
+  "listing": {
+    "created": "6-4-2021",
+    "lastModified": "6-4-2021",
+    "update": "لا يوجد تحديثات (no updates)",
+    "documentedFields": ["id", "page", "sura_name", "aya_no", "quranic_words", "explanation"],
+    "note": "The listing describes a developer package (Excel, CSV, HTML5, SQL, XML, JSON, PDF, fonts); the platform serves only this .docx. The documented fields are not present in it: no page numbers, no ids (tools/word-meanings/README.md)."
+  },
+  "httpLastModified": "Thu, 12 Jan 2023 11:38:48 GMT",
+  "retrieved": "2026-10-24T01:44:26Z",
+  "usageTerms": "UNRESOLVED: the platform describes the files as a service for developers, researchers and publishers to use in their applications' content; no licence, attribution or redistribution terms are published for it (the site footer reads «جميع الحقوق محفوظة»). Kept out of Git and out of release bundles until confirmed (tools/word-meanings/README.md)."
+}

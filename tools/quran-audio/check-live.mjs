@@ -3,6 +3,8 @@
 // still answers with the audited size. Any difference means that surah would be refused in the app until re-audited.
 // Measured timing (timingSource 'measured') is shipped in the app, so only its audio file is checked: a different
 // size means the file it was measured on has changed, and that reciter must be re-measured before release.
+// Redirects are not followed: an audio URL that redirects (MP3Quran sends a missing surah to another Sheikh's file) is a
+// difference. Approved whole-surah sources (surah-mode-approvals.json) are checked the same way (no timing to compare).
 //
 // usage: node check-live.mjs [reciterId ...]
 import fs from 'node:fs';
@@ -52,8 +54,9 @@ for (const reciter of results.reciters) {
     if (timing !== null && fingerprint !== reciter.timed[surah].fingerprint) bad.push(`${surah}: timing ${fingerprint ?? timing.error} ≠ ${reciter.timed[surah].fingerprint}`);
     const url = `${reciter.server}${String(surah).padStart(3, '0')}.mp3`;
     const size = await retry(async () => {
-      const response = await fetch(url, { headers: { ...UA, Range: 'bytes=0-1' } });
+      const response = await fetch(url, { redirect: 'manual', headers: { ...UA, Range: 'bytes=0-1' } });
       await response.arrayBuffer();
+      if (response.status >= 300 && response.status < 400) return `redirects to ${response.headers.get('location')}`;
       if (response.status !== 206 && response.status !== 200) throw new Error(`audio ${response.status}`);
       const range = response.headers.get('content-range');
       return range ? Number(range.split('/')[1]) : Number(response.headers.get('content-length'));
@@ -66,5 +69,19 @@ for (const reciter of results.reciters) {
   console.log(`${reciter.id.padEnd(14)} ${surahs.length} surahs, ${what}: ${bad.length === 0 ? 'all match' : `${bad.length} differ`}`);
   for (const line of bad.sort()) console.log(`   ${line}`);
 }
+const approved = JSON.parse(fs.readFileSync(path.join(here, 'surah-mode-approvals.json'), 'utf8')).approved.filter((a) => !only.size || only.has(a.reciterId));
+for (const a of approved) {
+  const answer = await retry(async () => {
+    const response = await fetch(a.url, { method: 'HEAD', redirect: 'manual', headers: UA });
+    return { status: response.status, location: response.headers.get('location'), length: Number(response.headers.get('content-length')) };
+  }).catch((error) => ({ error: String(error) }));
+  const bad = answer.error ?? (answer.status >= 300 && answer.status < 400 ? `redirects to ${answer.location}` : answer.status !== 200 ? `status ${answer.status}` : answer.length !== a.bytes ? `${answer.length} ≠ ${a.bytes} bytes` : null);
+  checked++;
+  if (bad) {
+    problems++;
+    console.log(`whole surah    ${a.reciterId} ${a.surah} (${a.provider}): ${bad}`);
+  }
+}
+if (approved.length) console.log(`${approved.length} approved whole-surah sources checked`);
 console.log(`${checked} surahs checked, ${problems} differences (${new Date().toISOString()})`);
 process.exitCode = problems ? 1 : 0;

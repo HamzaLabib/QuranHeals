@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { isValidVerseKey } from '../quran/referenceKeys';
-import { ISSUE_REPORT_CATEGORIES } from '../types/accountDomain';
+import { AUDIO_ISSUE_PROBLEMS, ISSUE_REPORT_CATEGORIES } from '../types/accountDomain';
 import type { IssueReportInput } from '../types/accountDto';
 
 const verseKeySchema = z.string().trim().refine((key) => isValidVerseKey(key), 'Invalid verse key.');
@@ -17,6 +17,12 @@ const messageSchema = z
   .string()
   .transform((value) => value.replace(/\r\n?/g, '\n').replace(CONTROL_CHARACTERS, '').trim())
   .pipe(z.string().min(1).max(REPORT_MESSAGE_MAX_LENGTH));
+
+/** One line of app-generated context: line breaks and control characters become spaces, trimmed, 1..max characters. */
+const singleLine = (max: number) => z
+  .string()
+  .transform((value) => value.replace(/[\r\n\t]/g, ' ').replace(CONTROL_CHARACTERS, '').trim())
+  .pipe(z.string().min(1).max(max));
 
 const commonFields = {
   email: z.string().trim().toLowerCase().email().max(254).optional(),
@@ -44,6 +50,11 @@ const issueSchema = z.object({
   verseKey: verseKeySchema.optional(),
   surahNumber: z.number().int().min(1).max(114).optional(),
   ayahNumber: z.number().int().min(1).optional(),
+  // Audio Issues: the app's own identifiers for the recording, never user text (kept short and on one line).
+  audioProblem: z.enum(AUDIO_ISSUE_PROBLEMS).optional(),
+  reciterId: z.string().trim().regex(/^[a-z0-9_-]{1,40}$/).optional(),
+  audioSource: singleLine(300).optional(),
+  playbackContext: singleLine(200).optional(),
   // No emotionKey: which emotion led to an ayah is never kept with a report.
   // Older app versions still send one; it is dropped like any unknown field,
   // and their report is accepted as before.

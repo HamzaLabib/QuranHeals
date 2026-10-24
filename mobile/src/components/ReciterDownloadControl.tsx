@@ -6,7 +6,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { reciterDownloadStatus } from '@/audio/downloadStatus';
 import { formatBytes, localDigits, surahRanges } from '@/audio/format';
 import { audioDownloads } from '@/audio/index';
-import { getReciter, OFFLINE_DOWNLOADS_PERMITTED, offlineDownloadBytes, reciterName, timedSurahs } from '@/audio/reciters';
+import { getReciter, offlineDownloadBytes, reciterName, timedSurahs } from '@/audio/reciters';
+import { SOURCE_REGISTRY } from '@/audio/sourceRegistry';
 import { useAudioDownload, useStoredAudio } from '@/audio/usePlayback';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
 import { useSheetFrameStyle } from '@/layout/useWindowClass';
@@ -40,7 +41,9 @@ export function ReciterDownloadControl({ reciterId, messages, isRtl, direction }
 
   const mine = stored.reciters.find((r) => r.id === reciter.id);
   const storedSurahs = mine?.surahs ?? [];
-  const status = reciterDownloadStatus({ permitted: OFFLINE_DOWNLOADS_PERMITTED, reciter, stored: storedSurahs, download });
+  // The app's switch and the provider's own offline permission (audio/sourceRegistry.ts).
+  const offlinePermitted = SOURCE_REGISTRY.reciterOfflinePermitted(reciter.id);
+  const status = reciterDownloadStatus({ permitted: offlinePermitted, reciter, stored: storedSurahs, download });
   const timed = timedSurahs(reciter);
   const total = offlineDownloadBytes(reciter);
   const name = reciterName(reciter, isRtl);
@@ -48,7 +51,7 @@ export function ReciterDownloadControl({ reciterId, messages, isRtl, direction }
   const n = (value: number) => localDigits(value, isRtl);
   const job = download.reciterId === reciter.id ? download : null;
   const notIncluded = Array.from({ length: 114 }, (_, i) => i + 1).filter((s) => !reciter.timed[s]);
-  const permitted = OFFLINE_DOWNLOADS_PERMITTED;
+  const permitted = offlinePermitted;
 
   const stateLabel = {
     none: copy.offlineStateNone,

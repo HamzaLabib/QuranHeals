@@ -1,5 +1,5 @@
 import { BookMarked, Check, ChevronDown, Plus } from 'lucide-react-native';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View, type DimensionValue } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View, type DimensionValue, type LayoutRectangle } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -40,10 +40,16 @@ type MushafWirdSelectorProps = {
   anchorBottom: number;
   /** Narrower than the default (72% of the row) where other controls share the row: page 604's du'a and Complete Khatma. A longer name ends in “…”. */
   pillMaxWidth?: DimensionValue;
+  /** Where the pill is laid out, in its row (read only: المعاني places itself beside it when there is room). */
+  onPillLayout?: (layout: LayoutRectangle) => void;
 };
 
 /** Height of the pill itself; its touch target is 44 pt. */
 export const WIRD_PILL_HEIGHT = 26;
+/** The pill's chevron (ChevronDown, in the accent colour). */
+export const WIRD_CHEVRON_SIZE = 14;
+/** The pill's touch target beyond its edges: 44 pt tall, 8 pt either side. */
+export const WIRD_PILL_HIT_SLOP = { top: (44 - WIRD_PILL_HEIGHT) / 2, bottom: (44 - WIRD_PILL_HEIGHT) / 2, left: 8, right: 8 };
 /** The list's rows (44 pt), its title and padding, and its two last rows (new ورد, أورادي وختماتي): its full height. */
 const listHeight = (rows: number) => 8 + 20 + rows * 44 + 1 + 2 * 44 + 8;
 
@@ -92,15 +98,16 @@ export function MushafWirdSelector(props: MushafWirdSelectorProps) {
         accessibilityHint={empty ? undefined : labels.selectorHint}
         accessibilityState={{ expanded: props.open }}
         onPress={empty ? props.onAdd : props.onOpen}
-        hitSlop={{ top: (44 - WIRD_PILL_HEIGHT) / 2, bottom: (44 - WIRD_PILL_HEIGHT) / 2, left: 8, right: 8 }}
-        style={({ pressed }) => [styles.pill, props.pillMaxWidth !== undefined && { maxWidth: props.pillMaxWidth }, row, theme.pill, pressed && styles.pressed]}>
+        onLayout={props.onPillLayout ? (event) => props.onPillLayout?.(event.nativeEvent.layout) : undefined}
+        hitSlop={WIRD_PILL_HIT_SLOP}
+        style={({ pressed }) => [WIRD_PILL_STYLES.pill, styles.pillWidth, props.pillMaxWidth !== undefined && { maxWidth: props.pillMaxWidth }, row, theme.pill, pressed && WIRD_PILL_STYLES.pressed]}>
         {empty && <Plus size={14} color={theme.accent} />}
-        <Text numberOfLines={1} ellipsizeMode="tail" style={[styles.pillText, { color: active ? theme.text : theme.accent, writingDirection: rtl ? 'rtl' : 'ltr' }]}>
+        <Text numberOfLines={1} ellipsizeMode="tail" style={[WIRD_PILL_STYLES.text, { color: active ? theme.text : theme.accent, writingDirection: rtl ? 'rtl' : 'ltr' }]}>
           {title}
         </Text>
         {!empty && (
           <Animated.View testID="mushaf-wird-chevron" style={motion.chevronStyle}>
-            <ChevronDown size={14} color={theme.accent} />
+            <ChevronDown size={WIRD_CHEVRON_SIZE} color={theme.accent} />
           </Animated.View>
         )}
       </Pressable>
@@ -168,13 +175,12 @@ export function MushafWirdSelector(props: MushafWirdSelectorProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-  },
-  rowRtl: {
-    flexDirection: 'row-reverse',
-  },
+/**
+ * The pill's own look, shared with the reader's other controls under the page (mushafFeatures/: المعاني and عن
+ * السورة), so they are drawn with these very values: capsule, border, height, padding, gap, text and pressed state. Its
+ * colours are the theme's (MUSHAF_PANEL_COLORS.pill, accent, text).
+ */
+export const WIRD_PILL_STYLES = StyleSheet.create({
   // 26 pt tall at the default text size; taller when the system text size is larger (Android font scale, iOS Dynamic
   // Type), so its text is never cut. Always a capsule.
   pill: {
@@ -183,15 +189,30 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     gap: 4,
     justifyContent: 'center',
-    maxWidth: '72%',
     minHeight: WIRD_PILL_HEIGHT,
     paddingHorizontal: 12,
     paddingVertical: 2,
   },
-  pillText: {
+  text: {
     flexShrink: 1,
     fontSize: 13,
     fontWeight: '600',
+  },
+  pressed: {
+    opacity: 0.6,
+  },
+});
+
+const styles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+  },
+  rowRtl: {
+    flexDirection: 'row-reverse',
+  },
+  // The ورد name's widest (a longer name ends in “…”).
+  pillWidth: {
+    maxWidth: '72%',
   },
   backdrop: {
     ...StyleSheet.absoluteFill,

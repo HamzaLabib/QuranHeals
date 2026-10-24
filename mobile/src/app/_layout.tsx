@@ -17,6 +17,7 @@ import { MUSHAF_SCREEN_OPTIONS } from '@/mushaf/screenOptions';
 import { QuranFontSizePreferenceProvider } from '@/localization/useQuranFontSizePreference';
 import { QuranTranslationPreferenceProvider } from '@/localization/useQuranTranslationPreference';
 import { KeepAwakePreferenceProvider } from '@/mushaf/useKeepAwakePreference';
+import { WordMeaningsVisibilityProvider } from '@/mushaf/useWordMeaningsVisibility';
 import { useNotificationResponseRouting } from '@/notifications/useNotificationResponseRouting';
 import { NotificationsProvider } from '@/notifications/useNotifications';
 import { AppearancePreferenceProvider, useAppearancePreference } from '@/theme/useAppearancePreference';
@@ -76,13 +77,15 @@ export default function RootLayout() {
           <QuranTranslationPreferenceProvider>
             <QuranFontSizePreferenceProvider>
               <KeepAwakePreferenceProvider>
-                <FavoriteReciterProvider>
-                  <NotificationsProvider>
-                    <AuthProvider>
-                      <ThemedRoot />
-                    </AuthProvider>
-                  </NotificationsProvider>
-                </FavoriteReciterProvider>
+                <WordMeaningsVisibilityProvider>
+                  <FavoriteReciterProvider>
+                    <NotificationsProvider>
+                      <AuthProvider>
+                        <ThemedRoot />
+                      </AuthProvider>
+                    </NotificationsProvider>
+                  </FavoriteReciterProvider>
+                </WordMeaningsVisibilityProvider>
               </KeepAwakePreferenceProvider>
             </QuranFontSizePreferenceProvider>
           </QuranTranslationPreferenceProvider>
@@ -138,6 +141,16 @@ function ThemedRoot() {
     if (!startupReady) return;
     const timer = setTimeout(() => {
       void import('@/mushaf/offline/autoDownloadService').then(({ mushafAutoDownload }) => mushafAutoDownload().start()).catch(() => undefined);
+    }, MUSHAF_AUTO_START_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [startupReady]);
+
+  useEffect(() => {
+    // Published human-verified ayah timing (audio/verifiedCatalog.ts, Phase 4.8.3): the stored copy at once, then a
+    // refresh, and on every return to the foreground. Off (nothing requested) unless EXPO_PUBLIC_AUDIO_REGISTRY_URL is set.
+    if (!startupReady) return;
+    const timer = setTimeout(() => {
+      void import('@/audio/verifiedCatalog').then(({ startVerifiedTiming }) => startVerifiedTiming()).catch(() => undefined);
     }, MUSHAF_AUTO_START_DELAY_MS);
     return () => clearTimeout(timer);
   }, [startupReady]);

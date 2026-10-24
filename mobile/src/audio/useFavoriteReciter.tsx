@@ -41,7 +41,7 @@ export function FavoriteReciterProvider({ children }: { children: ReactNode }) {
   return <FavoriteReciterContext.Provider value={value}>{children}</FavoriteReciterContext.Provider>;
 }
 
-/** Never throws: the default (Maher Al-Muaiqly) if no provider is mounted. */
+/** Never throws: the default (Al-Minshawi: reciters.ts DEFAULT_RECITER_ID) if no provider is mounted. */
 export function useFavoriteReciter(): FavoriteReciterContextValue {
   return useContext(FavoriteReciterContext);
 }

@@ -38,7 +38,17 @@ const CATEGORY_LABELS: Record<IssueReportCategory, string> = {
   quran_text_display: 'Quran text display',
   translation_issue: 'Translation issue',
   app_technical_issue: 'App technical issue',
+  audio_issue: 'Audio issue',
   other: 'Other',
+};
+
+const AUDIO_PROBLEM_LABELS: Record<string, string> = {
+  not_playing: 'Audio not playing',
+  wrong_reciter: 'Wrong reciter or recording',
+  missing_ayah: 'Missing ayah audio',
+  timing_highlight: 'Incorrect ayah timing or highlighting',
+  stopped: 'Audio stopped unexpectedly',
+  other: 'Other audio problem',
 };
 
 const PLATFORM_LABELS: Record<string, string> = { ios: 'iOS', android: 'Android', web: 'Web' };
@@ -74,6 +84,10 @@ export function buildIssueReportEmail(report: NotifiableIssueReport): IssueRepor
     ['Platform', report.platform ? (PLATFORM_LABELS[report.platform] ?? sanitizeSingleLine(report.platform)) : undefined],
     ['App version', report.appVersion ? sanitizeSingleLine(report.appVersion) : undefined],
     ['Verse', report.verseKey ? sanitizeSingleLine(report.verseKey) : report.surahNumber ? `Surah ${report.surahNumber}${report.ayahNumber ? `, ayah ${report.ayahNumber}` : ''}` : undefined],
+    ['Audio problem', report.audioProblem ? (AUDIO_PROBLEM_LABELS[report.audioProblem] ?? sanitizeSingleLine(report.audioProblem)) : undefined],
+    ['Reciter', report.reciterId ? sanitizeSingleLine(report.reciterId) : undefined],
+    ['Audio source', report.audioSource ? sanitizeSingleLine(report.audioSource) : undefined],
+    ['Playback', report.playbackContext ? sanitizeSingleLine(report.playbackContext) : undefined],
     ['App language', report.appLocale ? sanitizeSingleLine(report.appLocale) : undefined],
     ['Translation display', report.translationDisplayMode ? sanitizeSingleLine(report.translationDisplayMode) : undefined],    ['Contact email', report.hasContactEmail ? 'provided (not included; see the report in the database)' : 'not provided'],
   ];

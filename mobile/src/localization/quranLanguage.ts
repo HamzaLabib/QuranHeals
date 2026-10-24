@@ -4,10 +4,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { recordLocalPreferenceChange } from '@/sync/preferencesSyncState';
 
 /**
- * Quran Language (لغة القرآن): the primary full-Quran reading mode.
+ * Quran Translation (ترجمة القرآن; formerly shown as Quran Language): the primary full-Quran reading mode.
  *
- * One mode exists today: 'quran-text' — the traditional 604-page Arabic
- * Mushaf, exactly as it is. A future mode (a verified translation of the
+ * One mode exists today: 'quran-text', shown as None / بدون ترجمة — the
+ * traditional 604-page Arabic Mushaf, exactly as it is, without a
+ * translation. Its stored and synced id is unchanged from when the setting was
+ * called Quran Language, so every saved or synced value keeps its meaning (no
+ * migration); any other value is not a mode and reads as this default. A future mode (a verified translation of the
  * meanings, e.g. English or Turkish) is added as one more entry in
  * QURAN_READING_MODES with its own reading layout (by Surah and Ayah,
  * never the Arabic Mushaf's page geometry; see
@@ -21,10 +24,10 @@ export type QuranReadingMode = 'quran-text';
 type QuranReadingModeDefinition = {
   id: QuranReadingMode;
   /** Key of the mode's name in messages.settings. */
-  labelKey: 'quranTextOption';
+  labelKey: 'quranTranslationNone';
 };
 
-export const QURAN_READING_MODES: readonly QuranReadingModeDefinition[] = [{ id: 'quran-text', labelKey: 'quranTextOption' }];
+export const QURAN_READING_MODES: readonly QuranReadingModeDefinition[] = [{ id: 'quran-text', labelKey: 'quranTranslationNone' }];
 export const DEFAULT_QURAN_READING_MODE: QuranReadingMode = 'quran-text';
 export const QURAN_LANGUAGE_STORAGE_KEY = 'quran-heals:quran-language:v1';
 
@@ -52,7 +55,7 @@ export async function saveQuranReadingMode(mode: QuranReadingMode): Promise<void
 
 const listeners = new Set<(mode: QuranReadingMode) => void>();
 
-/** The signed-in account's Quran Language, applied on this device (useAuth.tsx): saved and shown, never recorded as the user's own change. */
+/** The signed-in account's Quran Translation (synced as quranLanguage), applied on this device (useAuth.tsx): saved and shown, never recorded as the user's own change. */
 export async function applySyncedQuranReadingMode(mode: QuranReadingMode): Promise<void> {
   listeners.forEach((listener) => listener(mode));
   await saveQuranReadingMode(mode);

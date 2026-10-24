@@ -1,14 +1,37 @@
 import { SURAH_AYAH_COUNTS } from '@/utils/ayahLink';
 
 import { measuredTimingEntries } from './generated/measuredTiming';
-import { hasAyahPlayback, MP3QURAN_API, type Reciter } from './reciters';
+import { perAyahTiming, type PerAyahSegment } from './perAyah';
+import { isPreviewSurah, previewTiming } from './timedPreview';
+import { DEVELOPMENT_TIMING_ALL, hasAyahPlayback, MP3QURAN_API, timingSourceOf, type Reciter } from './reciters';
 import { timingFingerprint, type TimingEntry } from './timingFingerprint';
+import type { VerifiedEntry, VerifiedLoad, VerifiedRecording } from './verifiedTiming';
 
 /**
  * A surah's verified ayah timing for one recording: where each ayah starts and ends in the surah's audio file.
  * `ayahs[k - 1]` is ayah k. `introEndMs`: where ayah 1 starts (the opening before it: istiʿādha / Basmala).
  */
-export type SurahTiming = { reciterId: string; surah: number; introEndMs: number; ayahs: readonly { startMs: number; endMs: number }[] };
+export type SurahTiming = {
+  reciterId: string;
+  surah: number;
+  introEndMs: number;
+  ayahs: readonly { startMs: number; endMs: number }[];
+  /**
+   * Phase 4.8.3: human-verified timing (verifiedTiming.ts) belongs to ONE exact recording, which is what must play with
+   * it (sources.ts). Absent: the catalogue's timing, for the catalogue's own file.
+   */
+  recording?: VerifiedRecording;
+  /**
+   * A per-ayah recording (perAyah.ts): every ayah is its own file, `files[k - 1]` ayah k's, and `ayahs[k - 1]` spans
+   * that file (0 to its length). `opening`: the Basmala file played before ayah 1, or null.
+   */
+  perAyah?: { files: readonly PerAyahSegment[]; opening: PerAyahSegment | null };
+  /**
+   * A timed preview file that begins with audio which is not part of the recitation (timedPreview.ts): where ayah 1's
+   * opening (istiʿādha / Basmala) begins, before `introEndMs`. Absent: 0 (the opening rule).
+   */
+  openingMs?: number;
+};
 
 export type TimingResult =
   | { ok: true; timing: SurahTiming }
@@ -84,11 +107,22 @@ export function createTimingLoader(deps: {
   fetchText: (url: string) => Promise<string>;
   store: TimingStore;
   measured?: (reciterId: string, surah: number) => TimingEntry[] | null;
+  /**
+   * Phase 4.8.3: the published human-verified timing (verifiedTiming.ts), consulted FIRST. A reciter and surah with a
+   * published version uses only it; one whose published entry failed validation ('rejected') is unavailable
+   * ('mismatch'): neither ever falls back to the catalogue's timing or file.
+   */
+  verified?: {
+    entry(reciterId: string, surah: number): VerifiedEntry | null;
+    rejected(reciterId: string, surah: number): boolean;
+    load(entry: VerifiedEntry): Promise<VerifiedLoad>;
+    stored(entry: VerifiedEntry): Promise<SurahTiming | null>;
+  };
 }): TimingLoader {
   const memory = new Map<string, SurahTiming>();
   const inFlight = new Map<string, Promise<TimingResult>>();
   const keyOf = (reciter: Reciter, surah: number) => `${reciter.id}:${surah}`;
-  const measured = deps.measured ?? measuredTimingEntries;
+  const measured = deps.measured ?? ((reciterId: string, surah: number) => measuredTimingEntries(reciterId, surah) ?? developmentTimingEntries(reciterId, surah));
 
   const fromMeasured = (reciter: Reciter, surah: number): SurahTiming | null => {
     const key = keyOf(reciter, surah);
@@ -110,9 +144,25 @@ export function createTimingLoader(deps: {
     }
   };
 
+  /** A per-ayah recording's surah (perAyah.ts): built from the catalogue, nothing fetched or stored. */
+  // A timed preview surah (timedPreview.ts): its aligned timing for its own recording, shipped in development builds.
+  const fromFiles = (reciter: Reciter, surah: number): SurahTiming | null => {
+    if (!reciter.perAyah && !isPreviewSurah(reciter, surah)) return null;
+    const key = keyOf(reciter, surah);
+    const cached = memory.get(key);
+    if (cached) return cached;
+    const timing = reciter.perAyah ? perAyahTiming(reciter.perAyah, surah) : previewTiming(reciter.timedPreview!, surah);
+    if (timing) memory.set(key, timing);
+    return timing;
+  };
+
   const stored = async (reciter: Reciter, surah: number) => {
+    if (deps.verified?.rejected(reciter.id, surah)) return null;
+    const published = deps.verified?.entry(reciter.id, surah);
+    if (published && deps.verified) return deps.verified.stored(published);
+    if (reciter.perAyah || isPreviewSurah(reciter, surah)) return fromFiles(reciter, surah);
     if (!hasAyahPlayback(reciter, surah)) return null;
-    if (reciter.timingSource === 'measured') return fromMeasured(reciter, surah);
+    if (timingSourceOf(reciter, surah) === 'measured') return fromMeasured(reciter, surah);
     if (reciter.timingRead === null) return null;
     const key = keyOf(reciter, surah);
     const cached = memory.get(key);
@@ -123,8 +173,15 @@ export function createTimingLoader(deps: {
   };
 
   const load = async (reciter: Reciter, surah: number): Promise<TimingResult> => {
+    if (deps.verified?.rejected(reciter.id, surah)) return { ok: false, reason: 'mismatch' };
+    const published = deps.verified?.entry(reciter.id, surah);
+    if (published && deps.verified) return deps.verified.load(published);
+    if (reciter.perAyah || isPreviewSurah(reciter, surah)) {
+      const timing = fromFiles(reciter, surah);
+      return timing ? { ok: true, timing } : { ok: false, reason: 'unavailable' };
+    }
     if (!hasAyahPlayback(reciter, surah)) return { ok: false, reason: 'unavailable' };
-    if (reciter.timingSource === 'measured') {
+    if (timingSourceOf(reciter, surah) === 'measured') {
       const timing = fromMeasured(reciter, surah);
       return timing ? { ok: true, timing } : { ok: false, reason: 'mismatch' };
     }
@@ -159,9 +216,31 @@ export function createTimingLoader(deps: {
   return { load, stored };
 }
 
-/** Where to start playing ayah `ayah`: the file's start for ayah 1 (with its istiʿādha / Basmala), else the ayah's start. */
+/**
+ * Development-only timing (generated/developmentTiming.ts, and in development builds the reviewed aligned timing of
+ * generated/reviewedTiming.ts) as timing entries, or null. The catalogue lists
+ * these surahs only in development builds (reciters.ts), so a release never asks for them.
+ */
+export function developmentTimingEntries(reciterId: string, surah: number): TimingEntry[] | null {
+  const deltas = DEVELOPMENT_TIMING_ALL[reciterId]?.[surah]?.deltas;
+  if (!deltas || deltas.length < 2) return null;
+  const entries: TimingEntry[] = [];
+  let at = deltas[0];
+  for (let k = 1; k < deltas.length; k++) {
+    entries.push({ ayah: k, startMs: at, endMs: at + deltas[k] });
+    at += deltas[k];
+  }
+  return entries;
+}
+
+/**
+ * Where to start playing ayah `ayah`: the file's start for ayah 1 (with its istiʿādha / Basmala), else the ayah's start.
+ * A per-ayah recording starts every ayah at the start of its own file. A timed preview file with audio before the
+ * recitation (`openingMs`) starts ayah 1 where the recitation's opening begins.
+ */
 export function ayahStartMs(timing: SurahTiming, ayah: number): number {
-  return ayah === 1 ? 0 : timing.ayahs[ayah - 1].startMs;
+  if (timing.perAyah) return 0;
+  return ayah === 1 ? timing.openingMs ?? 0 : timing.ayahs[ayah - 1].startMs;
 }
 
 /** The ayah being recited at `ms` (1-based), or 0 before ayah 1. After the last ayah: the last ayah. */

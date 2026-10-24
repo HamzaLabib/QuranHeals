@@ -10,7 +10,7 @@ type ReportDoc = IssueReportEntity & { _id: unknown };
 
 /** Fields read when a job is claimed. `email` is read only to derive hasContactEmail and is never passed on. */
 export const CLAIM_PROJECTION =
-  '_id type category source comment email verseKey surahNumber ayahNumber appLocale translationDisplayMode appVersion platform createdAt notification.attempts';
+  '_id type category source comment email verseKey surahNumber ayahNumber audioProblem reciterId audioSource playbackContext appLocale translationDisplayMode appVersion platform createdAt notification.attempts';
 
 const FAILED_LIST_LIMIT = 50;
 
@@ -43,6 +43,10 @@ export class MongooseIssueReportNotificationStore implements IssueReportNotifica
         verseKey: doc.verseKey,
         surahNumber: doc.surahNumber,
         ayahNumber: doc.ayahNumber,
+        audioProblem: doc.audioProblem,
+        reciterId: doc.reciterId,
+        audioSource: doc.audioSource,
+        playbackContext: doc.playbackContext,
         appLocale: doc.appLocale,
         translationDisplayMode: doc.translationDisplayMode,
         appVersion: doc.appVersion,

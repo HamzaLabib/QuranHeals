@@ -1,4 +1,4 @@
-import type { AuthProvider, IssueReportCategory, TranslationDisplayMode } from './accountDomain';
+import type { AudioIssueProblem, AuthProvider, IssueReportCategory, TranslationDisplayMode } from './accountDomain';
 
 export type UserDto = {
   id: string;
@@ -92,6 +92,10 @@ export type IssueSubmissionInput = SubmissionCommon & {
   verseKey?: string;
   surahNumber?: number;
   ayahNumber?: number;
+  audioProblem?: AudioIssueProblem;
+  reciterId?: string;
+  audioSource?: string;
+  playbackContext?: string;
   translationDisplayMode?: TranslationDisplayMode;
 };
 

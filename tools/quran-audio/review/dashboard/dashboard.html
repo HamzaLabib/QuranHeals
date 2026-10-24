@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audio Review Dashboard</title>
+<!--
+  Quran Heals: the unified audio review dashboard (Phase 4.8), served by review/dashboard/server.mjs on 127.0.0.1.
+  Every pending listening review of the project in one place: the recordings, their ayah starts by risk, what is
+  blocked and why. It only reads and links: reviews happen on the review page (/review), under the blind two-reviewer
+  rules, and nothing here approves or activates anything.
+-->
+<style>
+  :root {
+    --bg: #f6f2e7; --card: #fffdf6; --raise: #f1ebda; --text: #1e2a21; --muted: #5f6a5a; --accent: #2f5d3a; --accent-ink: #fffdf6;
+    --ok: #2c7443; --warn: #9a6a00; --bad: #a3392a; --line: #ddd4bf; --focus: #c58b1c; --auto: #7a5ca8;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #131814; --card: #1b221d; --raise: #232c25; --text: #e6ecdf; --muted: #9ba696; --accent: #8fc79c; --accent-ink: #131814; --ok: #7fd197; --warn: #e6b450; --bad: #f08a7a; --line: #323c34; --focus: #e6b450; --auto: #c3a8ef; color-scheme: dark; }
+  }
+  :root[data-theme="dark"] { --bg: #131814; --card: #1b221d; --raise: #232c25; --text: #e6ecdf; --muted: #9ba696; --accent: #8fc79c; --accent-ink: #131814; --ok: #7fd197; --warn: #e6b450; --bad: #f08a7a; --line: #323c34; --focus: #e6b450; --auto: #c3a8ef; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { position: sticky; top: 0; z-index: 5; background: var(--card); border-bottom: 1px solid var(--line); padding: 8px 16px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+  header h1 { font-size: 16px; margin: 0 6px 0 0; }
+  main { padding: 12px 16px 60px; max-width: 1600px; margin: 0 auto; }
+  input, select, button { font: inherit; color: inherit; }
+  input[type=text], input[type=search], select { background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; }
+  button, a.btn { background: var(--raise); border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; cursor: pointer; text-decoration: none; display: inline-block; }
+  button.primary, a.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin: 12px 0; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+  .muted { color: var(--muted); } .small { font-size: 12px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+  .tile { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .tile .v { font-size: 24px; font-weight: 650; font-variant-numeric: tabular-nums; }
+  .tile .l { font-size: 12px; color: var(--muted); }
+  .tile.hi .v { color: var(--bad); }
+  .chip { display: inline-block; padding: 0 7px; border-radius: 999px; border: 1px solid var(--line); font-size: 12px; margin: 1px 3px 1px 0; white-space: nowrap; }
+  .chip.ok { border-color: var(--ok); color: var(--ok); } .chip.warn { border-color: var(--warn); color: var(--warn); } .chip.bad { border-color: var(--bad); color: var(--bad); } .chip.auto { border-color: var(--auto); color: var(--auto); }
+  .tabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 1px solid var(--line); margin-top: 12px; }
+  .tabs button { border-radius: 8px 8px 0 0; border-bottom: none; }
+  .tabs button[aria-selected=true] { background: var(--card); font-weight: 600; box-shadow: inset 0 3px 0 var(--accent); }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; }
+  td, th { border-bottom: 1px solid var(--line); padding: 5px 6px; text-align: left; vertical-align: top; }
+  th { font-size: 12px; color: var(--muted); font-weight: 600; position: sticky; top: 0; background: var(--card); }
+  .ar { font-family: "Amiri Quran", "Amiri", "Scheherazade New", "Traditional Arabic", "Noto Naskh Arabic", serif; direction: rtl; font-size: 16px; unicode-bidi: isolate; }
+  .num { font-variant-numeric: tabular-nums; }
+  .bar { height: 6px; background: var(--raise); border-radius: 3px; overflow: hidden; min-width: 80px; }
+  .bar i { display: block; height: 100%; background: var(--ok); }
+  .banner { border-left: 4px solid var(--warn); padding: 8px 12px; background: var(--raise); border-radius: 6px; margin: 8px 0; }
+  .t-veryhigh { color: var(--bad); font-weight: 800; text-transform: uppercase; letter-spacing: .02em; } .t-disputed, .t-high { color: var(--bad); font-weight: 600; } .t-medium { color: var(--warn); font-weight: 600; } .t-check { color: var(--accent); } .t-routine { color: var(--muted); }
+  #toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 6px 12px; border-radius: 6px; display: none; z-index: 9; max-width: 90vw; }
+  details summary { cursor: pointer; }
+  @media (max-width: 700px) { .tile .v { font-size: 20px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quran Heals · Audio review</h1>
+  <label class="row" style="gap:6px">Your name <input id="name" type="text" placeholder="Reviewer name" autocomplete="name" size="16"></label>
+  <span id="reviewerChip" class="chip" hidden></span>
+  <button id="refresh" class="primary" title="Discover and validate new review packages in the configured folders">Refresh queue</button>
+  <button id="backup" title="Snapshot every review database now">Back up now</button>
+  <span id="status" class="small muted"></span>
+  <span style="flex:1"></span>
+  <select id="theme" aria-label="Theme"><option value="">Auto theme</option><option value="light">Light</option><option value="dark">Dark</option></select>
+</header>
+<main>
+  <div class="banner small" id="privacyBanner">Local and private: this page runs on this computer only (127.0.0.1). Names are typed, not authenticated: independence between Reviewer 1 and Reviewer 2 relies on the server's blind view and honest use. A verified review is technical evidence only: it never clears rights, and nothing here activates timing.</div>
+  <section class="card" id="veryHigh" hidden></section>
+  <section class="card" id="perAyah" hidden></section>
+  <section class="tiles" id="tiles"></section>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" data-tab="recordings" aria-selected="true">Recordings</button>
+    <button role="tab" data-tab="attention" aria-selected="false">Needs attention</button>
+    <button role="tab" data-tab="reciters" aria-selected="false">Reciters</button>
+    <button role="tab" data-tab="blocked" aria-selected="false">Blocked &amp; superseded</button>
+    <button role="tab" data-tab="sources" aria-selected="false">Sources &amp; import</button>
+    <button role="tab" data-tab="publication" aria-selected="false" id="pubTab" hidden>Publication</button>
+    <button role="tab" data-tab="help" aria-selected="false">How to review</button>
+  </div>
+
+  <section class="card row small" id="filters">
+    <label>Show <select id="fShow" aria-label="Show recordings"><option value="pending">Pending</option><option value="reviewed">Reviewed</option><option value="all">All</option></select></label>
+    <label>Reciter (starts left) <select id="fReciter"><option value="">All</option></select></label>
+    <label>Surah <input id="fSurah" type="search" placeholder="number or name" size="12"></label>
+    <label>Status <select id="fStatus">
+      <option value="">All</option><option value="a:pending">Pending (nothing done)</option><option value="a:in progress">In progress</option><option value="a:submitted">Submitted (every start, both reviewers)</option><option value="a:verified">Verified</option><option value="a:disputed">Disputed</option><option value="open">Not yet verified</option><option value="partially reviewed">Partially reviewed</option><option value="human review pending">Human review pending</option><option value="first review completed">First review completed</option>
+      <option value="second review completed (not verified)">Second review completed (not verified)</option><option value="disputed">Disputed</option><option value="unresolved">Unresolved</option><option value="invalid">Invalid</option>
+      <option value="technical verification completed">Technically verified</option><option value="mine">Started by me</option></select></label>
+    <label>Type <select id="fType"><option value="">All</option><option value="manual-timing">Manual timing</option><option value="alignment-verification">Alignment verification</option><option value="development-verification">Development-stage verification</option><option value="production-boundary-check">Production boundary check</option></select></label>
+    <label>Priority <select id="fPriority"><option value="">All</option><option value="start here">Start here</option><option value="high">High</option><option value="normal">Normal</option><option value="low">Low</option></select></label>
+    <label>Phase <select id="fPhase"><option value="">All</option></select></label>
+    <span id="count" class="muted"></span>
+  </section>
+
+  <section id="tab-recordings" class="card scroll"></section>
+  <section id="tab-attention" class="card" hidden>
+    <div class="row small" style="margin-bottom:8px">
+      <strong>Show</strong>
+      <label><input type="checkbox" data-tier="veryhigh" checked> <strong class="t-veryhigh">VERY HIGH RISK</strong></label>
+      <label><input type="checkbox" data-tier="disputed" checked> disputed</label>
+      <label><input type="checkbox" data-tier="exception" checked> exceptions (not accepted automatically, with the reason)</label>
+      <label><input type="checkbox" data-tier="high"> high risk</label>
+      <label><input type="checkbox" data-tier="medium"> medium</label>
+      <label><input type="checkbox" data-tier="check"> checks and openings</label>
+      <label><input type="checkbox" data-tier="routine"> routine</label>
+      <label title="Pending (default), reviewed (by a person or automatically) or all">List <select id="attShow"><option value="pending">pending</option><option value="reviewed">reviewed</option><option value="all">all</option></select></label>
+      <span class="muted" title="Phase 4.8.9 policy auto-accept-v2: high, medium, check and routine starts that pass validation and carry no very high risk evidence are accepted automatically (administrative, never a person's listening review).">high / medium / check / routine: accepted automatically</span>
+      <label><input type="checkbox" id="todo" checked> only starts I have not submitted</label>
+      <span id="attCount" class="muted"></span>
+    </div>
+    <div class="scroll" id="attTable"></div>
+    <div class="row" style="margin-top:8px"><button id="attMore" hidden>Show more</button></div>
+  </section>
+  <section id="tab-reciters" class="card scroll" hidden></section>
+  <section id="tab-blocked" class="card" hidden></section>
+  <section id="tab-sources" class="card" hidden></section>
+  <section id="tab-publication" class="card scroll" hidden></section>
+  <section id="tab-help" class="card" hidden>
+    <h3 style="margin-top:0">How to review</h3>
+    <ol>
+      <li><strong>Type your name</strong> (top). Use the same spelling every time; another person must use another name.</li>
+      <li>Pick a recording (<strong>Start review</strong>) or a start from <strong>Needs attention</strong>. The review page opens; choose <strong>Start as Reviewer 1</strong> (or 2, if someone else already started it).</li>
+      <li>Listen from the beginning to the end. For each ayah, select it and either:
+        <ul>
+          <li><strong>Confirm proposed</strong> (<kbd>C</kbd>), only after hearing that the dashed automatic proposal is at the onset of the ayah's first sound; or</li>
+          <li>put the playhead at the onset and press <kbd>M</kbd>, refine with <kbd>[</kbd> <kbd>]</kbd>, check with <kbd>Q</kbd> (before) / <kbd>W</kbd> (after), then judge it <kbd>1</kbd> confirmed, <kbd>2</kbd> uncertain or <kbd>3</kbd> rejected.</li>
+        </ul>
+        Muhammad Rifaat recordings have no proposal: every start is placed by ear, with the Phase 4.5 evidence shown only as places to listen.</li>
+      <li>Place the recitation end (<kbd>E</kbd>), answer the whole-recording checks, flag repetitions, missing passages and extra audio, then <strong>Submit</strong>.</li>
+      <li>Reviewer 2 does the same independently: Reviewer 1's placements stay hidden until both have submitted. Disagreements over 250 ms are then resolved by one proposing a time and the other accepting it.</li>
+    </ol>
+    <p>Progress is saved on every change (and on <kbd>S</kbd>). Closing the browser or restarting the computer loses nothing. Backups are made automatically.</p>
+    <p class="small muted">Statuses are kept apart: alignment completed · human review pending · first review completed · second review completed · technical verification completed · rights pending · approved for development · active in development. A technically verified recording is not a permission: rights stay pending until the owner records a decision, and activation is a separate owner step.</p>
+  </section>
+</main>
+<div id="toast" role="status"></div>
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const fmt = (ms) => { if (ms == null || !Number.isFinite(ms)) return '–'; const s = ms / 1000; const m = Math.floor(s / 60); return `${m}:${(s - m * 60).toFixed(3).padStart(6, '0')}`; };
+const dur = (ms) => { const s = Math.round(ms / 1000); const h = Math.floor(s / 3600); const m = Math.floor((s % 3600) / 60); return h ? `${h}:${String(m).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}` : `${m}:${String(s % 60).padStart(2, '0')}`; };
+const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+const toast = (m) => { const t = $('toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(toast.h); toast.h = setTimeout(() => (t.style.display = 'none'), 4000); };
+async function api(p, opts) { const r = await fetch(p, opts); const j = await r.json(); if (!r.ok) throw new Error(j.error || r.statusText); return j; }
+const post = (p) => api(p, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+
+const theme = store.get('qh-review-theme') || '';
+if (theme) document.documentElement.dataset.theme = theme;
+$('theme').value = theme;
+$('theme').onchange = (e) => { const v = e.target.value; if (v) document.documentElement.dataset.theme = v; else delete document.documentElement.dataset.theme; store.set('qh-review-theme', v); };
+$('name').value = store.get('qh-manual-name') || '';
+const name = () => $('name').value.trim();
+let D = null, tab = store.get('qh-dash-tab') || 'recordings', attOffset = 0;
+const F = store.get('qh-dash-filters') || {};
+for (const [id, v] of Object.entries(F)) if ($(id)) $(id).value = v;
+
+// Phase 4.8.8: the remembered reviewer (the review page's 'qh-reviewer', else this installation's default Reviewer 1).
+function showReviewer(info) {
+  if (info.readOnly) return;
+  const r = store.get('qh-reviewer') ?? (info.localReviewer ? { name: info.localReviewer.name, role: 1, source: 'default' } : null);
+  if (!name() && r?.name) { $('name').value = r.name; store.set('qh-manual-name', r.name); }
+  const chip = $('reviewerChip');
+  const on = !!r && r.role === 1 && r.name && name().toLowerCase() === r.name.trim().toLowerCase();
+  chip.hidden = !name();
+  chip.className = `chip ${on ? 'ok' : ''}`;
+  chip.textContent = on ? `${r.name} — Reviewer 1 (remembered${r.source === 'default' ? ' on this computer' : ''})` : `${name()} — role chosen per recording`;
+  chip.title = on ? 'Recordings open as Reviewer 1 for this name; use "Switch reviewer" on a recording to change.' : 'Choose Reviewer 1 or 2 when you open a recording.';
+}
+// Phase 4.8.2: in the cloud dashboard the reviewer is the signed-in account (the name cannot be typed).
+let CLOUD = null;
+function cloudMode(info) {
+  CLOUD = info;
+  $('name').value = info.account.reviewerName; $('name').disabled = true; $('name').title = 'Your reviewer name comes from your signed-in account';
+  $('backup').hidden = true; $('refresh').hidden = !info.account.roles.includes('admin');
+  $('pubTab').hidden = false; // Phase 4.8.3: publication to the app runs in the cloud service only
+  $('privacyBanner').textContent = 'Private: only reviewers the administrator registered can sign in. Your reviewer name comes from your signed-in account; the times of the other reviewer stay hidden from you until you have both submitted the same ayah. A verified review is technical evidence only: it never clears rights, and nothing here activates timing.';
+  if (!$('acct')) {
+    $('status').insertAdjacentHTML('beforebegin', `<span id="acct" class="small">Signed in: <b>${esc(info.account.displayName)}</b> (${esc(info.account.email)})${info.account.roles.includes('admin') ? ' · <a href="/admin">Administration</a>' : ''} · <button id="logout">Sign out</button></span>`);
+    $('logout').onclick = async () => { await post('/auth/logout'); location.href = '/login'; };
+  }
+}
+async function load() {
+  $('status').textContent = 'loading…';
+  const info = await api('/api/info');
+  if (info.mode === 'cloud') cloudMode(info);
+  else showReviewer(info);
+  D = await api(`/api/dashboard?name=${encodeURIComponent(name())}`);
+  $('status').textContent = CLOUD ? `inventory ${D.inventoryCreatedAt ? new Date(D.inventoryCreatedAt).toLocaleString() : '–'}${info.readOnly ? ` · READ-ONLY: ${info.readOnly.reason}` : ''}` : `inventory ${new Date(D.inventoryCreatedAt).toLocaleString()} · last backup ${info.lastBackup?.at ? new Date(info.lastBackup.at).toLocaleString() : 'none yet'}${info.readOnly ? ` · READ-ONLY since ${info.readOnly.since}` : ''}`;
+  fillFilters();
+  renderTiles(); renderTab();
+}
+function fillFilters() {
+  const rec = new Map(D.rows.map((r) => [r.reciterId, r]));
+  const keep = $('fReciter').value;
+  // Phase 4.8.6: each reciter with the ayah starts still awaiting review (a finished reciter stays, as (0), after the others).
+  const counted = new Map((D.reciters ?? []).map((x) => [x.reciterId, x]));
+  const ordered = [...(D.reciters ?? []), ...[...rec.values()].filter((r) => !counted.has(r.reciterId)).map((r) => ({ reciterId: r.reciterId, reciterEn: r.reciterEn, reciterAr: r.reciterAr, toReview: 0 }))];
+  $('fReciter').innerHTML = '<option value="">All</option>' + ordered.map((r) => `<option value="${r.reciterId}">${esc(r.reciterEn)} · ${esc(r.reciterAr)} (${r.completed ? '✓ completed' : Number(r.toReview).toLocaleString()})</option>`).join('');
+  $('fReciter').value = keep || F.fReciter || '';
+  const phases = [...new Set(D.rows.map((r) => r.phase).filter(Boolean))].sort();
+  const kp = $('fPhase').value;
+  $('fPhase').innerHTML = '<option value="">All</option>' + phases.map((p) => `<option value="${esc(p)}">Phase ${esc(p)}</option>`).join('');
+  $('fPhase').value = kp || F.fPhase || '';
+}
+/** Phase 4.8.9: very high risk at the top: the recordings with open very high risk starts or a reviewer's finding. */
+function renderVeryHigh() {
+  const list = D.veryHighRecordings;
+  const box = $('veryHigh');
+  if (!list) { box.hidden = true; return; }
+  box.hidden = false;
+  box.innerHTML = `<h2 style="margin:0 0 6px"><span class="t-veryhigh">Very High Risk</span> · ${D.metrics.veryHighAwaiting.toLocaleString()} start(s) open in ${D.metrics.recordingsVeryHigh} recording(s)${D.metrics.veryHighFindings ? ` · ${D.metrics.veryHighFindings} recording(s) with a reviewer's own finding` : ''}</h2>
+    <p class="small muted" style="margin:0 0 6px">Credible evidence of a cut-off start, an overlap, a wrong order, a repetition that breaks the numbering, or a missing ayah. Every one needs a person; nothing here is accepted automatically.</p>
+    ${list.length ? `<div class="scroll" style="max-height:260px"><table class="small"><thead><tr><th>Recording</th><th>Open</th><th>Why</th><th></th></tr></thead><tbody>${list.map((r) => `<tr><td>${esc(r.reciterEn)} — ${r.surah} ${esc(r.surahEn)}</td><td class="num t-veryhigh">${r.open} / ${r.total}</td><td>${r.findings.length ? r.findings.slice(0, 4).map((x) => `<div>• ${esc(x)}</div>`).join('') + (r.findings.length > 4 ? `<div class="muted">… ${r.findings.length - 4} more</div>` : '') : '<span class="muted">see the starts</span>'}</td><td><a class="btn" href="/review?rec=${encodeURIComponent(r.key)}">Open</a></td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">None.</p>'}`;
+}
+/**
+ * Per-ayah recordings (one file per ayah): every ayah scanned automatically; only the high-risk ones wait for a person.
+ * "High-risk queue" opens Needs attention for that reciter with the default (very high risk) view; "All ayahs" shows
+ * every start, reviewed or not, for troubleshooting.
+ */
+function renderPerAyah() {
+  const list = D.perAyah ?? [];
+  const box = $('perAyah');
+  if (!list.length) { box.hidden = true; return; }
+  box.hidden = false;
+  box.innerHTML = `<h2 style="margin:0 0 6px">Per-ayah recordings · automated risk scan</h2>
+    <p class="small muted" style="margin:0 0 6px">Every ayah file was checked automatically (availability, checksums, format, length, silences, text match against the expected ayah and its neighbours, and where available the reciter's full-surah recording). The risk tiers follow the current policy: <strong>very high</strong> (credible structural evidence) needs a person; high, medium, check and routine are accepted automatically when they pass validation (administrative, never a person's review or a verification). <strong>Unresolved</strong> = very high starts and exceptions still open.</p>
+    <table class="small"><thead><tr><th>Reciter</th><th>Surahs</th><th>Total analyzed</th><th>By tier</th><th>Accepted automatically</th><th>Very high (open)</th><th>Reviewed by a person</th><th>Unresolved exceptions</th><th>Remaining manual</th><th></th></tr></thead><tbody>${list.map((x) => `<tr>
+      <td>${esc(x.reciterEn)} · ${esc(x.reciterAr)}</td><td class="num">${x.recordings}${x.unavailable ? ` <span class="chip warn">${x.unavailable} without audio</span>` : ''}</td>
+      <td class="num">${x.scanned.toLocaleString()}</td><td class="small">${Object.entries(x.byTier ?? {}).filter(([t]) => t !== 'n/a').map(([t, n]) => `<span class="t-${esc(t)}">${esc(t)} ${n.toLocaleString()}</span>`).join(' · ')}</td>
+      <td class="num">${(x.autoAccepted ?? 0).toLocaleString()}</td><td class="num t-veryhigh">${x.high.toLocaleString()} <span class="muted">(${(x.veryHighOpen ?? 0).toLocaleString()} open)</span></td>
+      <td class="num">${x.reviewed.toLocaleString()}</td><td class="num">${(x.exceptions ?? 0).toLocaleString()}</td><td class="num ${x.unresolved ? 't-veryhigh' : ''}"><strong>${x.unresolved.toLocaleString()}</strong></td>
+      <td><button data-pa-queue="${esc(x.reciterId)}">Review queue (very high + exceptions)</button> <button data-pa-all="${esc(x.reciterId)}">All ayahs (troubleshooting)</button></td></tr>`).join('')}</tbody></table>`;
+  const open = (reciterId, all) => {
+    $('fReciter').value = reciterId;
+    for (const c of document.querySelectorAll('[data-tier]')) c.checked = all || ['veryhigh', 'disputed', 'exception'].includes(c.dataset.tier);
+    $('attShow').value = all ? 'all' : 'pending';
+    $('todo').checked = !all;
+    document.querySelector('[data-tab="attention"]').click();
+    renderAttention();
+  };
+  box.querySelectorAll('[data-pa-queue]').forEach((b) => b.addEventListener('click', () => open(b.dataset.paQueue, false)));
+  box.querySelectorAll('[data-pa-all]').forEach((b) => b.addEventListener('click', () => open(b.dataset.paAll, true)));
+}
+function renderTiles() {
+  renderVeryHigh();
+  renderPerAyah();
+  const m = D.metrics;
+  // A dashboard server started before Phase 4.8.6 sends no single-review counts: say so instead of showing wrong numbers.
+  if (m.startsReviewed === undefined) { $('tiles').innerHTML = '<div class="banner">Restart the dashboard (start-dashboard.cmd) to see the single-review statistics: this server predates them.</div>'; return; }
+  // Phase 4.8.6: one accepted submission reviews a start. Independent verification and publication stay separate.
+  const tiles = [
+    ...(m.veryHighAwaiting === undefined ? [] : [['VERY HIGH RISK starts open', m.veryHighAwaiting, `of ${m.veryHighTotal} very high risk starts in ${m.recordingsVeryHigh} recording(s) · manual review required`, true]]),
+    ['Recordings awaiting review', m.recordingsAwaiting, `of ${m.recordings} registered · at least one start not yet reviewed`],
+    ['Ayah starts awaiting review', m.startsAwaiting, `of ${m.startsTotal.toLocaleString()} · first accepted submission pending (ayah 1 included)`],
+    ['Ayah starts reviewed', m.startsReviewed, 'unique starts with an accepted submission (one reviewer is enough)'],
+    ...(m.veryHighAwaiting === undefined ? [['High-risk starts open', m.highAwaiting, `of ${m.highTotal} high-risk starts · not yet reviewed`, true]] : [
+      ['Exceptions open', m.exceptionsAwaiting, 'high / medium / check / routine the policy could not accept (blocked, rejected, uncertain, manual timing)', m.exceptionsAwaiting > 0],
+    ]),
+    ...(m.startsAutoAccepted === undefined ? [] : [
+      ['Starts accepted automatically', m.startsAutoAccepted, 'administrative acceptance under the risk policy · not a person\'s listening review, not verification'],
+      ['Reciters completed', m.recitersCompleted, `of ${m.reciters} · nothing left to review`],
+    ]),
+    ['Partially reviewed', m.partiallyReviewed, 'recordings with reviewed and pending starts'],
+    ['Recordings completed: single review', m.recordingsCompletedSingle, 'every start reviewed by one reviewer (not independent verification)'],
+    ['Manual-timing recordings (total)', m.manualTiming, 'placed by ear (no proposal)'],
+    ['Recordings with automatic proposals (total)', m.withProposals, 'aligned or development-stage'],
+    ['Production boundary checks (total)', m.productionChecks, 'in the app; documented starts only'],
+    ['Starts submitted by Reviewer 1', m.startsSubmitted1, `${m.reviewer1Completed} recordings fully submitted`],
+    ['Starts submitted by Reviewer 2', m.startsSubmitted2, `${m.reviewer2Completed} recordings fully submitted`],
+    ['Starts independently verified', m.startsVerified, 'two reviewers agreed, or formally resolved a disagreement'],
+    ['Disputed / unresolved starts', m.disputedBoundaries, 'after both reviews', m.disputedBoundaries > 0],
+    ['Technically verified recordings', m.verified, 'two independent reviewers, every check (not publication)'],
+    ['Blocked or unavailable', m.blocked + m.unavailableRecordings, `not reviewable here${m.unavailableRecordings ? ` (${m.unavailableRecordings} registered without reachable audio)` : ''}`],
+    ['Import problems', m.importProblems, 'packages refused or changed', m.importProblems > 0],
+  ];
+  $('tiles').innerHTML = tiles.map(([l, v, sub, hi]) => `<div class="tile ${hi ? 'hi' : ''}"><div class="v">${Number(v).toLocaleString()}</div><div class="l">${esc(l)}</div><div class="l">${esc(sub)}</div></div>`).join('');
+}
+function filters() {
+  const v = { fShow: $('fShow').value, fReciter: $('fReciter').value, fSurah: $('fSurah').value.trim(), fStatus: $('fStatus').value, fType: $('fType').value, fPriority: $('fPriority').value, fPhase: $('fPhase').value };
+  store.set('qh-dash-filters', v);
+  return v;
+}
+function matches(r, f) {
+  // Phase 4.8.6: Pending = at least one start not yet reviewed (reachable audio); Reviewed = every start reviewed.
+  if (r.progress.toReview === undefined) { /* a server older than Phase 4.8.6: no Show filtering */ } else if ((f.fShow || 'pending') === 'pending' && !(r.progress.toReview > 0 && !r.unavailable)) return false;
+  if (f.fShow === 'reviewed' && !r.reviewComplete) return false;
+  if (f.fReciter && r.reciterId !== f.fReciter) return false;
+  if (f.fType && r.reviewType !== f.fType) return false;
+  if (f.fPriority && r.priority.label !== f.fPriority) return false;
+  if (f.fPhase && r.phase !== f.fPhase) return false;
+  if (f.fSurah) { const s = f.fSurah.toLowerCase(); if (!(String(r.surah) === s || r.surahEn.toLowerCase().includes(s) || r.surahAr.includes(f.fSurah))) return false; }
+  if (f.fStatus) {
+    if (f.fStatus === 'open' && r.stage === 'technical verification completed') return false;
+    if (f.fStatus === 'mine' && !r.mine) return false;
+    if (f.fStatus.startsWith('a:')) return r.activity === f.fStatus.slice(2);
+    if (['disputed', 'unresolved', 'invalid'].includes(f.fStatus) && r.status !== f.fStatus) return false;
+    if (f.fStatus.includes(' ') && r.stage !== f.fStatus) return false;
+  }
+  return true;
+}
+const stageChip = (s) => `<span class="chip ${s.startsWith('technical') ? 'ok' : s.startsWith('human') ? '' : 'warn'}">${esc(s)}</span>`;
+/** Per-start progress of a row: submitted by each reviewer, verified, disputed, remaining (and your own saved work). */
+function progressText(r) {
+  const p = r.progress;
+  const you = r.mine ? `<div>you: <b>${r.mine.submittedStarts}</b> submitted${r.mine.saved ? `, ${r.mine.saved} saved (not submitted)` : ''}</div>` : '';
+  const rev = p.reviewed === undefined ? '' : `<div><b>${p.reviewed}</b> of ${p.starts} reviewed${p.autoAccepted ? ` · <b>${p.autoAccepted}</b> accepted automatically` : ''} · <b>${p.toReview}</b> to review${r.reviewComplete ? ` <span class="chip ok">${esc(r.reviewState ?? 'review complete (one reviewer)')}</span>` : ''}</div>`;
+  return `${you}${rev}<div>R1 ${p.submitted1} · R2 ${p.submitted2} submitted of ${p.starts}</div><div><span class="chip ok">${p.verified} verified</span>${p.disputed ? `<span class="chip bad">${p.disputed} disputed</span>` : ''}<span class="muted">${p.remaining} remaining</span></div>`;
+}
+function renderRecordings() {
+  const f = filters();
+  const rows = D.rows.filter((r) => matches(r, f));
+  $('count').textContent = `${rows.length} recordings · ${rows.reduce((a, r) => a + (r.progress.toReview ?? 0), 0).toLocaleString()} starts awaiting review · ${rows.reduce((a, r) => a + (r.progress.reviewed ?? 0), 0).toLocaleString()} reviewed`;
+  const body = rows.map((r) => {
+    const mine = r.mine;
+    const pct = Math.round((((r.progress.reviewed ?? r.progress.verified) + (r.progress.autoAccepted ?? 0)) / r.progress.starts) * 100); // Phase 4.8.6/4.8.7: the bar = starts reviewed or accepted automatically
+    const action = r.reviewComplete || mine?.submitted ? 'Open' : mine ? 'Continue review' : r.reviewers.length >= 2 ? 'Open' : 'Start review';
+    const problems = [
+      ...r.concerns.map((c) => `<span class="chip ${c.kind === 'content' || c.kind === 'repetition' ? 'bad' : 'warn'}" title="${esc(c.text)} (${esc(c.source)})">${esc(c.kind)}</span>`),
+      ...(r.audio.local ? [] : [`<span class="chip warn" title="${esc(r.audio.problem)}">audio not local</span>`]),
+      ...(r.audio.vbr ? ['<span class="chip" title="VBR: played from a lossless PCM decode for exact seeking">VBR</span>'] : []),
+      ...r.playbackBlocked.map((x) => `<span class="chip" title="${esc(x)}">app playback blocked</span>`),
+      ...(r.reasons.length && r.status !== 'awaiting-review' ? [`<span class="chip bad" title="${esc(r.reasons.join('\n'))}">${esc(r.status)}</span>`] : []),
+    ].join('');
+    return `<tr>
+      <td><span class="chip ${r.priority.label === 'start here' ? 'bad' : r.priority.label === 'high' ? 'warn' : r.priority.label === 'low' ? '' : 'ok'}" title="${esc(r.priority.reasons.join('; '))}">${esc(r.priority.label)}</span></td>
+      <td>${esc(r.reciterEn)}<div class="ar">${esc(r.reciterAr)}</div></td>
+      <td class="num">${r.surah} ${esc(r.surahEn)}<div class="ar">${esc(r.surahAr)}</div></td>
+      <td class="num">${r.ayahCount}</td><td class="num">${dur(r.durationMs)}</td>
+      <td class="small">${esc(r.provider)}${r.audio.local ? '' : ' (remote)'}</td>
+      <td class="small">${r.phase ? `Phase ${esc(r.phase)}` : '–'}${r.group && !r.group.startsWith('Phase') ? `<div class="muted">${esc(r.group)}</div>` : ''}</td>
+      <td class="small">${r.reviewType === 'manual-timing' ? 'manual timing' : r.reviewType === 'development-verification' ? '<span class="chip auto">development</span>' : r.reviewType === 'production-boundary-check' ? '<span class="chip warn">production check</span>' : '<span class="chip auto">alignment</span>'}</td>
+      <td class="small num" style="min-width:150px">${progressText(r)}${r.counts.starts !== r.ayahCount ? ` <span class="muted">(${r.counts.starts} of ${r.ayahCount} starts in scope)</span>` : ''}<div class="bar"><i style="width:${pct}%"></i></div>${r.highOpen ? `<span class="muted">${r.highOpen} high-risk open</span> ` : ''}${r.mediumOpen ? `<span class="muted">${r.mediumOpen} medium open</span>` : ''}</td>
+      <td class="small">${r.reviewers.map((x) => `R${x.role} ${esc(x.name)}${x.submitted ? ' ✓' : ' …'}`).join('<br>') || '<span class="muted">none yet</span>'}</td>
+      <td class="small">${stageChip(r.stage)}<div><span class="chip">${esc(r.pipeline)}</span><span class="chip ${r.rights === 'rights cleared' ? 'ok' : 'warn'}" title="${esc(r.rightsReason)}">${esc(r.rights)}</span>${r.approvedForDevelopment ? '<span class="chip ok">approved for development</span>' : ''}${r.activeInDevelopment !== 'not active' ? `<span class="chip warn" title="${esc(r.activeInDevelopment)}">active in development</span>` : ''}</div></td>
+      <td class="small">${problems}</td>
+      <td><a class="btn ${action === 'Open' ? '' : 'primary'}" href="/review?rec=${encodeURIComponent(r.key)}">${action}</a></td></tr>`;
+  });
+  $('tab-recordings').innerHTML = rows.length ? `<table><thead><tr><th>Priority</th><th>Reciter</th><th>Surah</th><th>Ayahs</th><th>Length</th><th>Audio source</th><th>Phase</th><th>Review type</th><th>Progress</th><th>Reviewers</th><th>Status</th><th>Outstanding problems</th><th></th></tr></thead><tbody>${body.join('')}</tbody></table>` : '<p class="muted">No recording matches these filters.</p>';
+}
+async function renderAttention(more = false) {
+  const f = filters();
+  if (!more) attOffset = 0;
+  const tiers = [...document.querySelectorAll('[data-tier]')].filter((c) => c.checked).map((c) => c.dataset.tier).join(',');
+  const surah = /^\d+$/.test(f.fSurah) ? f.fSurah : '';
+  const q = new URLSearchParams({ name: name(), tiers, show: $('attShow').value, reciter: f.fReciter, type: f.fType, phase: f.fPhase, surah, todo: $('todo').checked ? '1' : '0', limit: '300', offset: String(attOffset) });
+  for (const [k, v] of [...q]) if (!v) q.delete(k);
+  const a = await api(`/api/attention?${q}`);
+  $('attCount').textContent = `${a.total.toLocaleString()} starts · ${Object.entries(a.byTier).map(([t, n]) => `${n.toLocaleString()} ${t}`).join(' · ')}`;
+  const rows = a.rows.map((r) => `<tr>
+    <td class="t-${r.tier}">${r.tier === 'veryhigh' ? '<strong>VERY HIGH</strong>' : esc(r.tier)}${r.exception ? '<div><span class="chip warn">exception</span></div>' : ''}${r.auto ? '<div><span class="chip auto" title="accepted automatically under the risk policy (administrative): not a person\'s listening review, not verification">auto-accepted</span></div>' : ''}</td><td>${esc(r.reciterEn)}</td><td class="num">${r.surah} ${esc(r.surahEn)}</td><td class="num"><strong>${r.ayah}</strong> <span class="muted">/ ${r.ayahCount}</span></td>
+    <td class="small">${esc(r.reason)}${r.flags.length ? `<div>${r.flags.map((x) => `<span class="chip">${esc(x)}</span>`).join('')}</div>` : ''}</td>
+    <td class="num small">${r.proposedMs != null ? `<span class="chip auto">${fmt(r.proposedMs)}</span>` : '<span class="muted">place by ear</span>'}</td>
+    <td class="small">${r.mine ? `<span class="chip ${r.mine === 'submitted' ? 'ok' : 'warn'}">you: ${r.mine === 'submitted' ? 'submitted' : `${esc(r.mine)}, saved`}</span>` : '–'}</td>
+    <td><a class="btn primary" href="/review?rec=${encodeURIComponent(r.key)}&ayah=${r.ayah}">Listen</a></td></tr>`).join('');
+  const head = '<table><thead><tr><th>Risk</th><th>Reciter</th><th>Surah</th><th>Ayah</th><th>Why</th><th>Proposed start</th><th>Your status</th><th></th></tr></thead><tbody id="attBody">';
+  if (more) $('attBody').insertAdjacentHTML('beforeend', rows);
+  else $('attTable').innerHTML = a.total ? `${head}${rows}</tbody></table>` : '<p class="muted">Nothing outstanding for these filters.</p>';
+  attOffset += a.rows.length;
+  $('attMore').hidden = attOffset >= a.total;
+}
+// Phase 4.8.7: each reciter's state under the risk policy (high / medium need a person; check / routine are accepted
+// automatically when they pass validation). Completed is derived from the review logs and the ledger, so it persists.
+function renderReciters() {
+  const list = D.reciters ?? [];
+  if (!list.length || list[0].completed === undefined) { $('tab-reciters').innerHTML = '<div class="banner">Restart the dashboard (start-dashboard.cmd) to see the reciter statuses: this server predates them.</div>'; return; }
+  const rows = [...list].sort((a, b) => (a.completed - b.completed) || a.reciterEn.localeCompare(b.reciterEn)).map((x) => `<tr>
+    <td>${esc(x.reciterEn)}<div class="ar">${esc(x.reciterAr)}</div></td><td class="num">${x.recordings}</td>
+    <td class="num">${x.reviewed.toLocaleString()}</td><td class="num">${x.autoAccepted.toLocaleString()}</td>
+    <td class="num t-veryhigh">${x.veryHighOpen ?? '–'}</td><td class="num">${x.exceptionsOpen ?? x.highOpen + x.mediumOpen + x.otherOpen}</td><td class="num">${x.disputed}</td>
+    <td>${x.completed ? `<span class="chip ok">Completed</span>${x.completedAt ? `<div class="small muted">since ${new Date(x.completedAt).toLocaleString()}</div>` : ''}` : x.status === 'manual review required' ? '<span class="chip bad">Manual review required</span>' : '<span class="chip warn">Unresolved exceptions</span>'}${x.blockedRecordings ? `<div class="small muted">${x.blockedRecordings} recording(s) blocked, not reviewable here</div>` : ''}</td>
+    <td>${x.toReview ? `<button class="btn" data-rec-reciter="${esc(x.reciterId)}">Open queue</button>` : ''}</td></tr>`).join('');
+  $('tab-reciters').innerHTML = `<p class="small muted">Completed: every start of every reviewable recording is accepted, by a reviewer or automatically, and nothing is disputed. This is review completion only: two-reviewer verification, rights and publication are unchanged.</p>
+    <table><thead><tr><th>Reciter</th><th>Recordings</th><th>Reviewed by a person</th><th>Accepted automatically</th><th>Very high open</th><th>Exceptions open</th><th>Disputed</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+  document.querySelectorAll('[data-rec-reciter]').forEach((b) => (b.onclick = () => { $('fReciter').value = b.dataset.recReciter; tab = 'attention'; store.set('qh-dash-tab', tab); renderTab(); }));
+}
+function renderBlocked() {
+  const sup = D.totals;
+  $('tab-blocked').innerHTML = `<h3 style="margin-top:0">Blocked or unavailable (${D.blocked.length})</h3>
+    <p class="small muted">Not reviewable here. Each keeps its documented reason; none is counted in the backlog above.</p>
+    <table><thead><tr><th>Recording</th><th>Reason</th><th>Evidence</th></tr></thead><tbody>${D.blocked.map((b) => `<tr><td>${esc(b.reciterId)} ${esc(Array.isArray(b.surah) ? b.surah.join(', ') : b.surah)} <span class="muted">(${esc(b.provider)})</span>${b.noPackage ? ' <span class="chip">no package</span>' : ''}</td><td class="small">${esc(b.reason)}</td><td class="small muted">${esc(b.source)}</td></tr>`).join('')}</tbody></table>
+    <h3>Superseded (${sup.superseded})</h3><p class="small muted">Older or duplicate candidates of a recording that already has a task (or is unavailable). Listed so nothing is silently dropped: <a href="/api/inventory" target="_blank">full inventory (JSON)</a>.</p>`;
+}
+function renderSources() {
+  $('tab-sources').innerHTML = `<h3 style="margin-top:0">Configured and discovered sources</h3>
+    <table><thead><tr><th>Source</th><th>Kind</th><th>Phase</th><th>Imported</th><th>Problems</th><th>Folder</th></tr></thead><tbody>${D.sources.map((s) => `<tr><td>${esc(s.id)}${s.discovered ? ' <span class="chip auto">discovered</span>' : ''}</td><td>${esc(s.kind)}</td><td>${esc(s.phase ?? '')}</td><td class="num">${s.tasks ?? s.packages ?? s.candidates ?? 0}</td><td class="num">${s.problems ?? 0}</td><td class="small muted">${esc(s.path ?? '')}</td></tr>`).join('')}</tbody></table>
+    <h3>Import problems (${D.problems.length})</h3>${D.problems.length ? `<ul>${D.problems.map((p) => `<li class="small"><strong>${esc(p.source)}</strong> ${esc(p.file ?? p.key ?? '')}: ${esc(p.problem)}</li>`).join('')}</ul>` : '<p class="muted">None: every package passed validation.</p>'}
+    <h3>Backlog by reciter</h3><table><thead><tr><th>Reciter</th><th>Recordings</th><th>Ayah starts</th><th>High risk</th></tr></thead><tbody>${Object.entries(D.totals.byReciter).map(([id, r]) => `<tr><td>${esc(id)}</td><td class="num">${r.recordings}</td><td class="num">${r.starts.toLocaleString()}</td><td class="num">${r.high}</td></tr>`).join('')}</tbody></table>`;
+}
+function renderTab() {
+  document.querySelectorAll('[role=tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+  if (tab === 'publication' && !CLOUD) tab = 'recordings';
+  for (const t of ['recordings', 'attention', 'reciters', 'blocked', 'sources', 'publication', 'help']) $(`tab-${t}`).hidden = t !== tab;
+  $('filters').hidden = !['recordings', 'attention'].includes(tab);
+  if (tab === 'recordings') renderRecordings();
+  if (tab === 'attention') renderAttention().catch((e) => toast(e.message));
+  if (tab === 'reciters') renderReciters();
+  if (tab === 'blocked') renderBlocked();
+  if (tab === 'sources') renderSources();
+  if (tab === 'publication') renderPublication().catch((e) => toast(e.message));
+}
+
+// ---------------------------------------------------------------- Phase 4.8.3: publication to the app
+const PUB_STAGE = {
+  'human-review-pending': ['', 'Human Review Pending'], 'reviewer-1-complete': ['', 'Reviewer 1 Complete'], 'reviewer-2-complete': ['', 'Reviewer 2 Complete'],
+  disputed: ['bad', 'Disputed'], 'technical-validation-pending': ['warn', 'Technical Validation Pending'], 'publication-blocked': ['bad', 'Publication Blocked'],
+  'ready-for-publication': ['ok', 'Ready for Publication'], 'published-development': ['warn', 'Published to Development'], 'published-production': ['warn', 'Published to Production'],
+  'published-both': ['ok', 'Published to Both'], 'publication-failed': ['bad', 'Publication Failed'],
+};
+const COMPAT_LABEL = { 'cbr-compatible': 'CBR Compatible', 'vbr-compatibility-verified': 'VBR Compatibility Verified', 'vbr-android-verified-ios-pending': 'VBR Android Verified / iOS Pending', 'vbr-ios-verified-android-pending': 'VBR iOS Verified / Android Pending', 'vbr-compatibility-pending': 'VBR Compatibility Pending', 'compatibility-pending': 'Compatibility Pending', unsupported: 'Unsupported Recording' };
+const postJson = (p, b) => api(p, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) });
+const when = (t) => (t ? new Date(t).toLocaleString() : '–');
+async function renderPublication() {
+  const P = await api('/api/publication');
+  const admin = P.admin;
+  const reviewOk = (r) => (r.evaluation?.checks ?? []).filter((c) => c.group === 'review').every((c) => c.result === 'pass');
+  const act = (r, env) => {
+    const a = r.registry.map((x) => ({ x, a: x.active[env] })).find((y) => y.a?.versionId);
+    if (!a) return '<span class="muted">none</span>';
+    const v = a.x.versions.find((z) => z.versionId === a.a.versionId);
+    return `v${v?.versionNo ?? '?'} <span class="small muted">${esc(when(a.a.changedAt))}</span>`;
+  };
+  const rows = P.rows.map((r) => {
+    const [tone, label] = PUB_STAGE[r.stage] ?? ['', r.stage];
+    const ev = r.evaluation;
+    const reg = r.registry;
+    const versions = reg.flatMap((x) => x.versions.map((v) => ({ ...v, recordingId: x.recordingId })));
+    const controls = admin ? `<div class="small" style="margin-top:4px"><button data-retry="${esc(r.key)}">Retry now</button>${reg.map((x) => `
+        ${x.hold ? `<span class="chip warn" title="${esc(x.hold.reason ?? '')}">held</span> <button data-release="${esc(x.recordingId)}">Release hold</button>` : ''}
+        <select data-ver="${esc(x.recordingId)}">${x.versions.map((v) => `<option value="${esc(v.versionId)}">v${v.versionNo}</option>`).join('')}<option value="">none (withdraw)</option></select>
+        <select data-env="${esc(x.recordingId)}"><option value="both">both environments</option><option value="development">development</option><option value="production">production</option></select>
+        <button data-rollback="${esc(x.recordingId)}">Roll back / withdraw</button> <button data-align="${esc(x.recordingId)}">Align both</button>`).join('')}</div>` : '';
+    const checks = ev?.checks ? `<details><summary>All checks</summary><ul>${ev.checks.map((c) => `<li>${c.result === 'pass' ? '✓' : c.result === 'fail' ? '✗' : '…'} ${esc(c.label)}: <span class="muted">${esc(c.detail)}</span></li>`).join('')}</ul></details>` : '<span class="muted">not evaluated yet</span>';
+    return `<tr><td>${esc(r.reciterEn ?? r.reciterId)} · ${r.surah} ${esc(r.surahEn ?? '')}<div class="small muted">${esc(r.provider ?? '')} · ${esc(r.url ?? '')} · ${r.bytes ?? '?'} bytes${reg[0] ? ` · ${esc(reg[0].recordingId)}` : ''}</div></td>
+      <td><span class="chip ${tone}">${esc(label)}</span>${ev?.compatibility ? `<div><span class="chip ${ev.compatibility.result === 'pass' ? 'ok' : ev.compatibility.result === 'fail' ? 'bad' : 'warn'}" title="${esc(ev.compatibility.detail)}">${esc(COMPAT_LABEL[ev.compatibility.status] ?? ev.compatibility.status)}</span></div>` : ''}${reviewOk(r) && ev ? '<div><span class="chip ok">Independently Verified</span></div>' : ''}${r.job ? `<div class="small muted">job ${esc(r.job.state)}${r.job.attempts ? ` · attempt ${r.job.attempts}, next ${esc(when(r.job.nextRunAt))}` : ''}</div>` : ''}</td>
+      <td class="num">${act(r, 'development')}</td><td class="num">${act(r, 'production')}</td>
+      <td class="small">${ev?.blockers?.length ? `<div><strong>Blockers:</strong><ul>${ev.blockers.map((b) => `<li>${esc(b)}</li>`).join('')}</ul></div>` : ''}${ev?.outstanding?.length ? `<details><summary>${ev.outstanding.length} outstanding</summary><ul>${ev.outstanding.map((b) => `<li>${esc(b)}</li>`).join('')}</ul></details>` : ''}${r.job?.lastError ? `<div style="color:var(--bad)">Last error: ${esc(r.job.lastError)}</div>` : ''}${checks}</td>
+      <td class="small">${versions.length ? versions.map((v) => `v${v.versionNo} <span class="muted">${esc(v.fingerprint)} · ${esc(when(v.createdAt))}</span>`).join('<br>') : '<span class="muted">none</span>'}${controls}</td></tr>`;
+  });
+  const auths = P.authorizations.map((a) => `<tr><td>${esc(a.provider)}${a.reciterId ? ` · ${esc(a.reciterId)}` : ''}${a.recordingSha256 ? ` · file ${esc(a.recordingSha256.slice(0, 12))}…` : ''}</td><td>${esc(a.riwayah)}${a.acknowledgesNotice ? ' · notice acknowledged' : ''}</td><td class="small">${esc(a.evidence)}</td><td class="small">${esc(a.decidedBy)} ${esc(when(a.decidedAt))}</td><td class="small">${a.revokedAt ? `revoked ${esc(when(a.revokedAt))}: ${esc(a.revokeReason)}` : admin ? `<button data-revoke="${esc(a.id)}">Revoke</button>` : 'active'}</td></tr>`).join('');
+  $('tab-publication').innerHTML = `<h3 style="margin-top:0">Publication to the app</h3>
+    <p class="small">Automatic publication: <span class="chip ${P.mode === 'enabled' ? 'ok' : 'warn'}">${P.mode === 'enabled' ? 'ENABLED' : 'OFF'}</span> · environments: ${P.environments.map(esc).join(', ')}. ${P.mode === 'enabled' ? 'A recording that passes every check is published to every environment at once.' : 'Recordings are evaluated and their status shown; nothing is published until the owner enables publication in the service configuration.'} Publication needs two reviewers' complete, agreeing (or formally resolved) reviews, the exact file and format, and an administrator's recorded source authorization; a working URL is never permission.</p>
+    ${P.mismatches.length ? `<div class="banner"><strong>Environments differ:</strong> ${P.mismatches.map((m) => `${esc(m.recordingId)} (development ${esc(m.development ?? 'none')}, production ${esc(m.production ?? 'none')})`).join('; ')}. Use “Align both” to recover.</div>` : ''}
+    <table><thead><tr><th>Recording</th><th>Status</th><th>Development</th><th>Production</th><th>Checks</th><th>Versions</th></tr></thead><tbody>${rows.join('') || '<tr><td colspan="6" class="muted">No reviewed recording yet.</td></tr>'}</tbody></table>
+    <p class="small muted">${P.unreviewed} recordings have no review yet (Human Review Pending).</p>
+    <h3>Exact seeking: what the released app ships, and device measurements</h3>
+    <p class="small">App capabilities (service setting APP_AUDIO_CAPABILITIES): ${Object.entries(P.appCapabilities ?? {}).map(([m, ps]) => `<span class="chip ${ps.length ? 'ok' : 'warn'}">${esc(m)}: ${ps.length ? ps.map(esc).join(', ') : 'not shipped'}</span>`).join(' ')} · a VBR recording also needs a measurement on a real Android device and a real iPhone, of that exact file, within ±60 ms.</p>
+    <table><thead><tr><th>File (SHA-256)</th><th>Platform</th><th>Method</th><th>Build · device</th><th>Seeks · max error</th><th>Result</th><th></th></tr></thead><tbody>${(P.seekVerifications ?? []).map((v) => `<tr><td class="small">${esc(v.recordingSha256.slice(0, 16))}…</td><td>${esc(v.platform)}</td><td>${esc(v.method)}</td><td class="small">${esc(v.appBuild)} · ${esc(v.device)}</td><td class="num">${v.samples} · ${v.maxAbsErrorMs} ms</td><td>${v.revokedAt ? 'revoked' : v.passed ? '<span class="chip ok">within tolerance</span>' : '<span class="chip bad">outside tolerance</span>'}</td><td>${admin && !v.revokedAt ? `<button data-seekrevoke="${esc(v.id)}">Revoke</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">No device measurement recorded.</td></tr>'}</tbody></table>
+    ${admin ? `<div class="row small" style="margin-top:6px"><strong>Record a device measurement:</strong> file SHA-256 <input id="sSha" size="20"> platform <select id="sPlat"><option>android</option><option>ios</option></select> method <select id="sMeth"><option>cbr-exact</option><option>vbr-mllt</option></select> build <input id="sBuild" size="10"> device <input id="sDev" size="12"> seeks <input id="sN" type="number" min="10" style="width:60px"> max |error| ms <input id="sErr" type="number" min="0" style="width:70px"> evidence <input id="sEv" size="24"> <button id="sAdd">Record</button></div>` : ''}
+    <h3>Source authorizations</h3>
+    <table><thead><tr><th>Scope</th><th>Riwayah</th><th>Evidence</th><th>Decided</th><th></th></tr></thead><tbody>${auths || '<tr><td colspan="5" class="muted">None recorded: nothing can be published.</td></tr>'}</tbody></table>
+    ${admin ? `<div class="row small" style="margin-top:8px"><strong>Record an authorization:</strong> provider <input id="aProv" placeholder="mp3quran" size="10"> reciter <input id="aRec" placeholder="(all)" size="10"> exact file SHA-256 <input id="aSha" placeholder="(any)" size="20"> riwayah <select id="aRiw"><option value="hafs">Hafs</option></select> <label><input type="checkbox" id="aAck"> acknowledges the file's rights notice</label> evidence <input id="aEv" placeholder="where the permission is written" size="30"> attribution <input id="aAttr" placeholder="(optional)" size="16"> <button id="aAdd">Record</button></div>` : ''}`;
+  const box = $('tab-publication');
+  const run = async (fn, okMsg) => { try { await fn(); toast(okMsg); await renderPublication(); } catch (e) { toast(e.message); } };
+  box.querySelectorAll('[data-retry]').forEach((b) => (b.onclick = () => run(() => postJson('/api/admin/publication/retry', { key: b.dataset.retry }), 'Queued: it is evaluated again now.')));
+  box.querySelectorAll('[data-release]').forEach((b) => (b.onclick = () => run(() => postJson('/api/admin/publication/release', { recordingId: b.dataset.release }), 'Hold released.')));
+  box.querySelectorAll('[data-rollback]').forEach((b) => (b.onclick = () => {
+    const id = b.dataset.rollback;
+    const v = box.querySelector(`select[data-ver="${id}"]`).value;
+    const env = box.querySelector(`select[data-env="${id}"]`).value;
+    const reason = prompt(`Why roll back ${env === 'both' ? 'both environments' : env} to ${v || 'no version (withdraw)'}? (kept in the publication log)`);
+    if (!reason) return;
+    run(() => postJson('/api/admin/publication/rollback', { recordingId: id, versionId: v || null, environments: env === 'both' ? undefined : [env], reason }), 'Done: the recording is held until you release it.');
+  }));
+  box.querySelectorAll('[data-align]').forEach((b) => (b.onclick = () => {
+    const id = b.dataset.align;
+    const v = box.querySelector(`select[data-ver="${id}"]`).value;
+    if (!v) { toast('Choose a version to align both environments on.'); return; }
+    run(() => postJson('/api/admin/publication/align', { recordingId: id, versionId: v, reason: 'align the environments' }), 'Both environments now play the same version.');
+  }));
+  box.querySelectorAll('[data-revoke]').forEach((b) => (b.onclick = () => {
+    const reason = prompt('Why is this authorization revoked? (published recordings it covers are withdrawn)');
+    if (!reason) return;
+    run(() => postJson('/api/admin/publication/authorizations/revoke', { id: b.dataset.revoke, reason }), 'Revoked.');
+  }));
+  box.querySelectorAll('[data-seekrevoke]').forEach((b) => (b.onclick = () => run(() => postJson('/api/admin/publication/seek-verifications/revoke', { id: b.dataset.seekrevoke }), 'Measurement revoked.')));
+  const sAdd = $('sAdd');
+  if (sAdd) sAdd.onclick = () => run(() => postJson('/api/admin/publication/seek-verifications', { recordingSha256: $('sSha').value.trim(), platform: $('sPlat').value, method: $('sMeth').value, appBuild: $('sBuild').value.trim(), device: $('sDev').value.trim(), samples: Number($('sN').value), maxAbsErrorMs: Number($('sErr').value), evidence: $('sEv').value.trim() }), 'Measurement recorded: every recording is evaluated again.');
+  const add = $('aAdd');
+  if (add) add.onclick = () => run(() => postJson('/api/admin/publication/authorizations', { provider: $('aProv').value.trim(), reciterId: $('aRec').value.trim() || null, recordingSha256: $('aSha').value.trim() || null, riwayah: $('aRiw').value, acknowledgesNotice: $('aAck').checked, evidence: $('aEv').value.trim(), attribution: $('aAttr').value.trim() || null }), 'Authorization recorded: every recording is evaluated again.');
+}
+document.querySelectorAll('[role=tab]').forEach((b) => (b.onclick = () => { tab = b.dataset.tab; store.set('qh-dash-tab', tab); renderTab(); }));
+for (const id of ['fShow', 'fReciter', 'fStatus', 'fType', 'fPriority', 'fPhase']) $(id).addEventListener('change', renderTab);
+// Phase 4.8.6: the statistics follow every submission without a manual reload: on returning to this page, and every 30 s.
+let reloading = false;
+const reloadQuietly = async () => { if (reloading || document.hidden || !D) return; reloading = true; try { await load(); } catch { /* the next try */ } finally { reloading = false; } };
+document.addEventListener('visibilitychange', () => { if (!document.hidden) void reloadQuietly(); });
+window.addEventListener('focus', () => void reloadQuietly());
+setInterval(() => void reloadQuietly(), 30000);
+$('fSurah').addEventListener('input', () => { clearTimeout($('fSurah').t); $('fSurah').t = setTimeout(renderTab, 250); });
+document.querySelectorAll('[data-tier], #todo, #attShow').forEach((c) => c.addEventListener('change', () => renderAttention()));
+$('attMore').onclick = () => renderAttention(true);
+$('name').addEventListener('change', () => { store.set('qh-manual-name', name()); load(); });
+$('refresh').onclick = async () => {
+  $('refresh').disabled = true; $('status').textContent = 'refreshing: validating every configured source…';
+  try { const r = await post('/api/refresh'); toast(`Queue refreshed: ${r.added.length} new, ${r.removed.length} removed, ${r.problems.length} import problems.`); await load(); } catch (e) { toast(`Refresh failed: ${e.message}`); }
+  $('refresh').disabled = false;
+};
+$('backup').onclick = async () => { try { const r = await post('/api/backup'); toast(`Backup made: ${r.dir} (${r.files} files, verified)`); load(); } catch (e) { toast(`Backup failed: ${e.message}`); } };
+load().catch((e) => { document.querySelector('main').insertAdjacentHTML('afterbegin', `<div class="banner">Could not load: ${esc(e.message)}</div>`); });
+</script>
+</body>
+</html>

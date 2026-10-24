@@ -10,7 +10,11 @@ export type IssueReportCategory =
   | 'quran_text_display'
   | 'translation_issue'
   | 'app_technical_issue'
+  | 'audio_issue'
   | 'other';
+
+/** An Audio Issue's kind of problem (audioIssue/). */
+export type AudioIssueProblem = 'not_playing' | 'wrong_reciter' | 'missing_ayah' | 'timing_highlight' | 'stopped' | 'other';
 
 /** Where a report was sent from: an ayah's flag action, or Settings (general issues). */
 export type IssueReportSource = 'ayah' | 'settings';
@@ -24,6 +28,11 @@ export type IssueReportInput = {
   verseKey?: string;
   surahNumber?: number;
   ayahNumber?: number;
+  /** Audio Issues only: the problem, and the recording's identifiers as the app knew them (audioIssue/context.ts). */
+  audioProblem?: AudioIssueProblem;
+  reciterId?: string;
+  audioSource?: string;
+  playbackContext?: string;
   appLocale: AppLocale;
   translationDisplayMode: TranslationDisplayMode;
 };

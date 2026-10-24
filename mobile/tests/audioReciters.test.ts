@@ -5,20 +5,30 @@ import { describe, expect, it } from 'vitest';
 
 import {
   DEFAULT_FAVORITE_RECITER_ID,
-  getReciter,
+  DEFAULT_RECITER_ID,
+  FALLBACK_RECITER_ID,
   hasAyahPlayback,
   offlineDownloadBytes,
-  RECITERS,
   reciterCoverage,
   surahAudioUrl,
   timedSurahs,
+  type Reciter,
 } from '@/audio/reciters';
 import { measuredTimingEntries } from '@/audio/generated/measuredTiming';
+import { GENERATED_RECITERS } from '@/audio/generated/reciterCatalog';
 import { verifyTiming } from '@/audio/timing';
 import { timingFingerprint } from '@/audio/timingFingerprint';
 import { SURAH_AYAH_COUNTS } from '@/utils/ayahLink';
 
-/** The approved list: exactly these 16, in this order, with these names. */
+/**
+ * This file audits the CATALOGUE (generated/reciterCatalog.ts): every audited recording, including reciters the app does
+ * not offer now (on hold, or not in the owner's list: audio/reciters.ts RECITER_ORDER). The offered list is tested in
+ * audioRoster.test.ts.
+ */
+const RECITERS: readonly Reciter[] = GENERATED_RECITERS;
+const getReciter = (id: string) => RECITERS.find((r) => r.id === id) ?? null;
+
+/** The audited catalogue: exactly these 17, in this order, with these names. */
 const APPROVED = [
   ['Abdul Basit Abdus Samad', 'عبد الباسط عبد الصمد'],
   ['Muhammad Siddiq Al-Minshawi', 'محمد صديق المنشاوي'],
@@ -76,9 +86,11 @@ describe('the 17 reciters', () => {
     expect(ids).not.toContain(54);
   });
 
-  it('default to Maher Al-Muaiqly', () => {
-    expect(DEFAULT_FAVORITE_RECITER_ID).toBe('maher');
-    expect(getReciter(DEFAULT_FAVORITE_RECITER_ID)?.nameEn).toBe('Maher Al-Muaiqly');
+  it('default to Muhammad Siddiq Al-Minshawi (owner, 2026-10-24), who is also the fallback voice', () => {
+    expect(DEFAULT_FAVORITE_RECITER_ID).toBe('minshawi');
+    expect(FALLBACK_RECITER_ID).toBe(DEFAULT_RECITER_ID);
+    expect(DEFAULT_RECITER_ID).toBe('minshawi');
+    expect(getReciter(DEFAULT_FAVORITE_RECITER_ID)?.nameEn).toBe('Muhammad Siddiq Al-Minshawi');
   });
 
   it('use the audited MP3Quran reciter and recording ids', () => {

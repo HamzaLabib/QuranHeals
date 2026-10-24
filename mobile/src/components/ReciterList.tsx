@@ -21,9 +21,9 @@ type ReciterListProps = {
 };
 
 /**
- * The 17 reciters, in the approved order, each with its name in the app's language and how much of the Quran it can
- * play ayah by ayah ("All 114 surahs", "103 of 114 surahs", "Ayah-by-ayah playback not available"): every reciter is
- * listed and selectable, with its gaps shown, never hidden. Used by Settings → Favorite Reciter and the Mushaf player.
+ * The 17 reciters, in the approved order, each with its name in the app's language and, unless it has all 114 surahs,
+ * how much of the Quran it can play ayah by ayah ("103 of 114 surahs", "Ayah-by-ayah playback not available"): every
+ * reciter is listed and selectable, with its gaps shown, never hidden. Used by Settings → Favorite Reciter and the Mushaf player.
  */
 export function ReciterList({ selectedId, onSelect, copy, rtl, tone, badge, note, testIDPrefix = 'reciter' }: ReciterListProps) {
   const align = { textAlign: rtl ? 'right' : 'left', writingDirection: rtl ? 'rtl' : 'ltr' } as const;
@@ -54,7 +54,7 @@ export function ReciterList({ selectedId, onSelect, copy, rtl, tone, badge, note
                 <Text style={[styles.name, { color: tone.text }, align]} numberOfLines={1}>{name}</Text>
                 {tag && <Text style={[styles.badge, { color: tone.accent, borderColor: tone.accent }]}>{tag}</Text>}
               </View>
-              <Text style={[styles.line, { color: tone.muted }, align]} numberOfLines={2}>{line}</Text>
+              {line && <Text style={[styles.line, { color: tone.muted }, align]} numberOfLines={2}>{line}</Text>}
             </View>
             {selected && <Check size={18} color={tone.accent} strokeWidth={2.5} />}
           </Pressable>

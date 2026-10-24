@@ -237,7 +237,11 @@ describe('playing downloaded audio', () => {
 
   it('streams a surah that is not stored', async () => {
     const resolve = localFirstSource(fakeFiles().files);
-    expect(await resolve(getReciter('maher')!, 3)).toEqual({ uri: 'https://cdn.mp3quran.net/audio/maher-muaiqly/r3/003.mp3', local: false });
+    expect(await resolve(getReciter('maher')!, 4)).toEqual({ uri: 'https://cdn.mp3quran.net/audio/maher-muaiqly/r3/004.mp3', local: false });
+  });
+
+  it('builds no stream URL for a surah the reciter cannot play (Maher 3: timing withdrawn by the 2026-10-17 audit)', async () => {
+    await expect(localFirstSource(fakeFiles().files)(getReciter('maher')!, 3)).rejects.toThrow(/no playable source/);
   });
 });
 

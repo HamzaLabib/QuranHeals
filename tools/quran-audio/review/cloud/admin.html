@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audio Review Admin</title>
+<!-- Quran Heals audio review (Phase 4.8.2): administration. Accounts, identity links, package imports, the read-only
+     switch. Administration never shows anyone's review placements: blind review is not an administrator privilege. -->
+<style>
+  :root { --bg: #f6f2e7; --card: #fffdf6; --raise: #f1ebda; --text: #1e2a21; --muted: #5f6a5a; --accent: #2f5d3a; --accent-ink: #fffdf6; --ok: #2c7443; --warn: #9a6a00; --bad: #a3392a; --line: #ddd4bf; color-scheme: light; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #131814; --card: #1b221d; --raise: #232c25; --text: #e6ecdf; --muted: #9ba696; --accent: #8fc79c; --accent-ink: #131814; --ok: #7fd197; --warn: #e6b450; --bad: #f08a7a; --line: #323c34; color-scheme: dark; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { background: var(--card); border-bottom: 1px solid var(--line); padding: 10px 16px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  header h1 { font-size: 16px; margin: 0; }
+  main { padding: 12px 16px 40px; max-width: 1200px; margin: 0 auto; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin: 12px 0; }
+  input, select, button { font: inherit; color: inherit; }
+  input, select { background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; }
+  button { background: var(--raise); border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  table { border-collapse: collapse; width: 100%; } td, th { border-bottom: 1px solid var(--line); padding: 5px 6px; text-align: left; vertical-align: top; }
+  .row { display: flex; gap: 8px 12px; flex-wrap: wrap; align-items: center; }
+  .muted { color: var(--muted); } .small { font-size: 12px; } .bad { color: var(--bad); } .ok { color: var(--ok); }
+  pre { white-space: pre-wrap; background: var(--raise); padding: 8px; border-radius: 6px; max-height: 320px; overflow: auto; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<header><h1>Audio review · Administration</h1><a href="/">← Dashboard</a><span id="me" class="small muted"></span><span style="flex:1"></span><button id="logout">Sign out</button></header>
+<main>
+  <section class="card"><strong>Status</strong> <div id="status" class="small"></div>
+    <div class="row" style="margin-top:8px"><label><input type="checkbox" id="ro"> Read-only (nobody can save; for maintenance, migration or rollback)</label> <input id="roReason" placeholder="reason" size="40"> <button id="roSave">Apply</button></div></section>
+
+  <section class="card"><strong>Accounts</strong> <span class="small muted">Only these Google accounts can sign in. The reviewer name is what review logs record; it cannot be changed by the person.</span>
+    <div id="accounts"></div>
+    <div class="row" style="margin-top:8px"><input id="nEmail" type="email" placeholder="Google e-mail" size="28"> <input id="nName" placeholder="reviewer name" size="18"> <label><input type="checkbox" id="nAdmin"> administrator</label> <button class="primary" id="nAdd">Add account</button></div></section>
+
+  <section class="card"><strong>Legacy reviewer names</strong> <span class="small muted">Names written in review logs before sign-in existed. Link one to its owner's account only after verifying the ownership: the account then continues those reviews under that name. No event is rewritten.</span>
+    <div id="legacy"></div>
+    <div class="row" style="margin-top:8px"><input id="lName" placeholder="legacy name, e.g. Hamza" size="18"> <select id="lAcc"></select> <input id="lConfirm" placeholder="type: link <name>" size="22"> <button class="primary" id="lLink">Link</button></div></section>
+
+  <section class="card"><strong>Import review packages</strong> <span class="small muted">A bundle made by <code>node review/cloud/migrate.mjs</code> (or <code>push-packages</code>). Validated on the server; review events are never accepted here; a recording whose review has begun keeps its session.</span>
+    <div class="row" style="margin-top:8px"><input type="file" id="bundle" accept=".json"> <button id="dry">Dry run</button> <button class="primary" id="imp">Import</button></div>
+    <pre id="impOut" hidden></pre></section>
+  <p class="small muted">Backups of the database: Render's managed backups, and <code>node review/cloud/migrate.mjs backup</code> with the administrator token (never from a browser).</p>
+</main>
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+async function api(p, body) {
+  const r = await fetch(p, body === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error((j.problems ? j.problems.join('\n') : j.error) || r.statusText);
+  return j;
+}
+let accounts = [];
+async function load() {
+  const info = await api('/api/info');
+  $('me').textContent = `${info.account.displayName} (${info.account.email})`;
+  const st = await api('/api/admin/status');
+  $('status').innerHTML = `${st.recordings} recordings · ${st.events} review events · ${st.accounts} active accounts · ${st.waveforms} waveforms · last import ${esc(st.lastImport?.at ?? 'none')} · last backup ${esc(st.lastBackup?.at ?? 'none')}${st.readOnly ? ` · <strong class="bad">READ-ONLY since ${esc(st.readOnly.since)}: ${esc(st.readOnly.reason)}</strong>` : ''}`;
+  $('ro').checked = !!st.readOnly; $('roReason').value = st.readOnly?.reason ?? '';
+  accounts = await api('/api/admin/accounts');
+  $('accounts').innerHTML = `<table class="small"><tr><th>E-mail</th><th>Reviewer name</th><th>Roles</th><th>State</th><th></th></tr>${accounts.map((a) => `<tr><td>${esc(a.email)}</td><td>${esc(a.reviewer_name)}</td><td>${esc(a.roles.join(', '))}</td><td>${a.active ? '<span class="ok">active</span>' : '<span class="bad">deactivated</span>'}${a.signed_in_once ? '' : ' <span class="muted">(never signed in)</span>'}</td>
+    <td><button data-act="${esc(a.id)}" data-on="${a.active ? 0 : 1}">${a.active ? 'Deactivate (signs out at once)' : 'Reactivate'}</button> <button data-role="${esc(a.id)}" data-admin="${a.roles.includes('admin') ? 0 : 1}">${a.roles.includes('admin') ? 'Remove admin' : 'Make admin'}</button></td></tr>`).join('')}</table>`;
+  document.querySelectorAll('[data-act]').forEach((b) => (b.onclick = () => act(() => api(`/api/admin/accounts/${b.dataset.act}`, { active: b.dataset.on === '1' }))));
+  document.querySelectorAll('[data-role]').forEach((b) => (b.onclick = () => act(() => api(`/api/admin/accounts/${b.dataset.role}`, { roles: b.dataset.admin === '1' ? ['admin', 'reviewer'] : ['reviewer'] }))));
+  $('lAcc').innerHTML = accounts.filter((a) => a.active).map((a) => `<option value="${esc(a.id)}">${esc(a.email)} (${esc(a.reviewer_name)})</option>`).join('');
+  const lg = await api('/api/admin/legacy-names');
+  $('legacy').innerHTML = `<table class="small"><tr><th>Name in the logs</th><th>Events</th><th>Recordings</th><th>Linked to</th></tr>${lg.names.map((n) => { const l = lg.links.find((x) => x.legacy_name.toLowerCase() === n.ci); return `<tr><td>${esc(n.name)}</td><td>${n.events}</td><td>${n.recordings}</td><td>${l ? `${esc(accounts.find((a) => a.id === l.account_id)?.email ?? l.account_id)} <span class="muted">(${esc(l.linked_at)})</span>` : '<span class="bad">not linked: nobody can continue these reviews</span>'}</td></tr>`; }).join('')}</table>`;
+}
+async function act(fn) { try { await fn(); await load(); } catch (e) { alert(e.message); } }
+$('nAdd').onclick = () => act(() => api('/api/admin/accounts', { email: $('nEmail').value, reviewerName: $('nName').value, displayName: $('nName').value, roles: $('nAdmin').checked ? ['admin', 'reviewer'] : ['reviewer'] }));
+$('lLink').onclick = () => act(() => api('/api/admin/identity-links', { legacyName: $('lName').value.trim(), accountId: $('lAcc').value, confirmation: $('lConfirm').value.trim() }));
+$('roSave').onclick = () => act(() => api('/api/admin/read-only', { readOnly: $('ro').checked, reason: $('roReason').value }));
+async function sendBundle(dryRun) {
+  const f = $('bundle').files[0]; if (!f) { alert('Choose a bundle file.'); return; }
+  const out = $('impOut'); out.hidden = false; out.textContent = 'validating…';
+  try { const bundle = JSON.parse(await f.text()); const r = await api('/api/admin/import', { bundle, dryRun }); out.textContent = JSON.stringify(r, null, 1); if (!dryRun) load(); } catch (e) { out.textContent = `Refused:\n${e.message}`; }
+}
+$('dry').onclick = () => sendBundle(true); $('imp').onclick = () => sendBundle(false);
+$('logout').onclick = async () => { await api('/auth/logout', {}); location.href = '/login'; };
+load().catch((e) => { document.querySelector('main').insertAdjacentHTML('afterbegin', `<p class="bad">${esc(e.message)}</p>`); });
+</script>
+</body>
+</html>

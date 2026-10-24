@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import { createElement } from 'react';
@@ -16,11 +16,17 @@ import { MESSAGES } from '@/localization/messages';
  * the King Fahd Complex holds the QCF V1 fonts' and the artwork's copyright.
  */
 
+const SURAH_PREVIEW_DATASET = resolve(__dirname, '../assets/surah-preview/surah-preview.json');
+const SURAH_PREVIEW_SOURCE_URL = 'https://quranenc.com/ar/browse/arabic_mokhtasar';
+
 const state = vi.hoisted(() => ({
   locale: 'en' as 'en' | 'ar' | 'ar-EG',
   canGoBack: true,
   openURL: vi.fn(),
+  /** Whether this build carries Surah Preview's dataset (surahPreview/bundledDataset.ts: development builds; vitest's __DEV__ is false). */
+  surahPreviewBundled: true,
 }));
+vi.mock('@/surahPreview/bundledDataset', () => ({ isSurahPreviewBundled: () => state.surahPreviewBundled, bundledSurahPreview: () => null }));
 vi.mock('react-native', () => ({
   Linking: { openURL: state.openURL },
   useWindowDimensions: () => ({ width: 390, height: 844, scale: 3, fontScale: 1 }), Platform: { OS: 'ios', select: (values: { ios: unknown }) => values.ios },
@@ -51,6 +57,7 @@ beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   state.locale = 'en';
   state.canGoBack = true;
+  state.surahPreviewBundled = true;
   state.openURL.mockReset().mockResolvedValue(undefined);
 });
 afterEach(async () => {
@@ -89,6 +96,7 @@ describe('Quran Sources & Credits page', () => {
       'https://openfontlicense.org/',
       'https://www.mp3quran.net/',
       'https://www.mp3quran.net/eng/privacy',
+      'https://quranenc.com/ar/browse/arabic_mokhtasar',
     ]);
     expect(links()).toHaveLength(urls.length);
     for (const link of links()) {
@@ -105,6 +113,36 @@ describe('Quran Sources & Credits page', () => {
     expect(shipped).toBe(upstream);
     expect(shipped).toContain('Copyright 2010-2022 The Amiri Project Authors');
     expect(shipped).toContain('SIL OPEN FONT LICENSE Version 1.1');
+  });
+
+  it("credits Surah Preview's source after the others, once, as its dataset and the sheet named it, with its QuranEnc link", async () => {
+    await act(async () => { root = create(createElement(CreditsScreen)); });
+    const copy = MESSAGES.en.credits;
+    const cards = root.root.findAll((node) => typeof node.type === 'string' && /^credit-/.test(String(node.props.testID))).map((node) => node.props.testID);
+    expect(cards).toEqual(['credit-tanzil', 'credit-quranFoundation', 'credit-kingFahd', 'credit-amiri', 'credit-mp3quran', 'credit-tafsirCenter']);
+    expect(copy.tafsirCenterName).toBe('Tafsir Center for Quranic Studies');
+    expect(copy.tafsirCenterWork).toBe('Surah Preview’s main purpose: Al-Mukhtasar fi Tafsir al-Quran al-Karim (المختصر في تفسير القرآن الكريم), via QuranEnc.com. Makki/Madani and ayah count: Tanzil.');
+    expect(texts()).toEqual(expect.arrayContaining([copy.tafsirCenterName, copy.tafsirCenterWork]));
+    expect(texts().filter((text) => text === copy.tafsirCenterName)).toHaveLength(1);
+    const link = links().find((node) => node.props.accessibilityLabel === `${copy.tafsirCenterName}: ${copy.website}`)!;
+    await act(async () => link.props.onPress());
+    expect(state.openURL).toHaveBeenCalledWith(SURAH_PREVIEW_SOURCE_URL);
+  });
+
+  // The dataset is git-ignored (tools/surah-preview/import.mjs builds it), so a fresh clone checks the card above only.
+  it.skipIf(!existsSync(SURAH_PREVIEW_DATASET))("the card credits the Surah Preview dataset's own attribution (local dataset)", () => {
+    const dataset = JSON.parse(readFileSync(SURAH_PREVIEW_DATASET, 'utf8')) as { sources: { publisher: string; url: string }[] };
+    expect(dataset.sources.map((source) => source.publisher)).toEqual(['مركز تفسير للدراسات القرآنية', 'Tanzil']);
+    expect(MESSAGES.ar.credits.tafsirCenterName).toBe(dataset.sources[0].publisher);
+    expect(dataset.sources[0].url).toBe(SURAH_PREVIEW_SOURCE_URL);
+  });
+
+  it('a build without Surah Preview (release) does not list its source; the other sources are unchanged', async () => {
+    state.surahPreviewBundled = false;
+    await act(async () => { root = create(createElement(CreditsScreen)); });
+    expect(root.root.findAll((node) => typeof node.type === 'string' && node.props.testID === 'credit-tafsirCenter')).toHaveLength(0);
+    expect(texts()).not.toContain(MESSAGES.en.credits.tafsirCenterName);
+    expect(links()).toHaveLength(9);
   });
 
   it('Back returns to the previous screen, or Home when opened directly', async () => {
@@ -124,6 +162,7 @@ describe('Quran Sources & Credits page', () => {
       expect(texts()).toContain('مصادر القرآن وحقوق النشر');
       expect(texts().join('\n')).toMatch(/مجمع الملك فهد لطباعة المصحف الشريف/);
       expect(texts().join('\n')).toMatch(/Quran Foundation/);
+      expect(texts()).toEqual(expect.arrayContaining(['مركز تفسير للدراسات القرآنية', MESSAGES[locale].credits.tafsirCenterWork]));
       expect(links().every((link) => /[؀-ۿ]/.test(link.props.accessibilityLabel))).toBe(true);
     });
   }

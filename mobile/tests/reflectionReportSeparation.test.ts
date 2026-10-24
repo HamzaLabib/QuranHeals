@@ -116,8 +116,9 @@ describe('ReflectionSheet respects the 2,000-character maximum and truthful sync
   });
 });
 
-describe('ReportIssueSheet exposes exactly the five approved categories', () => {
-  it('category list matches ISSUE_REPORT_CATEGORIES semantics 1:1', () => {
+describe('ReportIssueSheet exposes exactly the approved categories', () => {
+  it('category list matches ISSUE_REPORT_CATEGORIES semantics 1:1 (Audio Issue included)', () => {
+    expect(reportIssueSheetSource).toMatch(/'audio_issue'/);
     expect(reportIssueSheetSource).toMatch(/'ayah_not_relevant'/);
     expect(reportIssueSheetSource).toMatch(/'quran_text_display'/);
     expect(reportIssueSheetSource).toMatch(/'translation_issue'/);
@@ -133,6 +134,7 @@ describe('ReportIssueSheet exposes exactly the five approved categories', () => 
 
   it('email is optional — trimmed to undefined when empty, never required', () => {
     expect(reportIssueSheetSource).toMatch(/const contact = email\.trim\(\);/);
-    expect(reportIssueSheetSource.match(/email: contact \|\| undefined/g)).toHaveLength(3);
+    // Feedback, a Settings issue, an ayah issue and an Audio Issue: each sends the trimmed email or nothing.
+    expect(reportIssueSheetSource.match(/email: contact \|\| undefined/g)).toHaveLength(4);
   });
 });

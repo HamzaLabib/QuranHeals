@@ -68,12 +68,26 @@ const sorted = diffs.map((x) => x.d).sort((a, b) => a - b);
 const median = sorted[sorted.length >> 1];
 const disagree = diffs.filter((x) => Math.abs(x.d - median) > 500);
 
+/**
+ * The byte of a file's first audio frame (after its ID3 tag). Each file's own: the 2026-10-17 run used 6900 for every
+ * file, but 11 of Maher's files start at ~10.5 KB or ~23.5 KB, which put the pause test 0.3-1.4 s early in them and
+ * inverted four verdicts (3:166, 34:25, 42:53, 68:12; audit-data/maher-qf-crosscheck-recheck-2026-10-18.json).
+ */
+async function firstFrameByte(url) {
+  const h = Buffer.from(await (await fetch(url, { headers: { Range: 'bytes=0-131071', 'User-Agent': 'QuranHeals-audit/1.0' } })).arrayBuffer());
+  let p = 0;
+  if (h.slice(0, 3).toString() === 'ID3') p = 10 + ((h[6] & 127) << 21 | (h[7] & 127) << 14 | (h[8] & 127) << 7 | (h[9] & 127));
+  while (p < h.length - 1 && !(h[p] === 255 && (h[p + 1] & 224) === 224)) p++;
+  if (p >= h.length - 1) throw new Error(`${url}: no MP3 frame in the first 128 KB`);
+  return p;
+}
+
 // Both candidates of every disagreement, in the MP3Quran file (the QF file runs 25 ms behind it: one MP3 frame).
-const cases = disagree.map((x) => ({
-  label: `${x.s}:${x.a}`,
-  url: `https://cdn.mp3quran.net/audio/maher-muaiqly/r3/${String(x.s).padStart(3, '0')}.mp3`,
-  bitrate_kbps: 96, first_byte: 6900, size: audit.bytes[x.s], t: [x.m, x.q + 25],
-}));
+const cases = [];
+for (const x of disagree) {
+  const url = `https://cdn.mp3quran.net/audio/maher-muaiqly/r3/${String(x.s).padStart(3, '0')}.mp3`;
+  cases.push({ label: `${x.s}:${x.a}`, url, bitrate_kbps: 96, first_byte: await firstFrameByte(url), size: audit.bytes[x.s], t: [x.m, x.q + 25] });
+}
 fs.writeFileSync(path.join(work, 'cases.json'), JSON.stringify(cases));
 execFileSync('python', ['-I', '-X', 'utf8', path.join(here, 'pause_check.py'), path.join(work, 'cases.json'), path.join(work, 'pauses.json')], { stdio: 'inherit' });
 const pauses = new Map(JSON.parse(fs.readFileSync(path.join(work, 'pauses.json'), 'utf8')).map((p) => [p.label, p.ratios]));

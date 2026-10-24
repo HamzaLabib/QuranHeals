@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { ArrowLeft, ArrowRight, Flag, RefreshCw, Share2 } from 'lucide-react-native';
+import { ArrowLeft, ArrowRight, Flag, RefreshCw, Share2, Volume2 } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -22,6 +22,7 @@ import { AyahConnectionAccordion } from './AyahConnectionAccordion';
 import { FavoriteButton } from './FavoriteButton';
 import { ReflectionSheet } from './ReflectionSheet';
 import { ReportIssueSheet } from './ReportIssueSheet';
+import { audioIssueLabels } from '@/audioIssue/labels';
 import { SettingsHeaderButton } from './SettingsHeaderButton';
 import { ShareAyahSheet } from './ShareAyahSheet';
 import { StateView } from './StateView';
@@ -84,6 +85,8 @@ export function AyahExperience({ source }: AyahExperienceProps) {
   const { refreshSync } = useAuth();
   const [isReflectionVisible, setIsReflectionVisible] = useState(false);
   const [isReportVisible, setIsReportVisible] = useState(false);
+  // Audio Issue: the same reporting sheet, with this ayah and its recording attached (audioIssue/).
+  const [isAudioReportVisible, setIsAudioReportVisible] = useState(false);
   const [isShareVisible, setIsShareVisible] = useState(false);
   // Guards against a rapid double-tap firing two overlapping loadAyah() runs:
   // without this, both could read the same not-yet-updated recent-history
@@ -389,7 +392,10 @@ export function AyahExperience({ source }: AyahExperienceProps) {
 
             {connectionText && <AyahConnectionAccordion text={connectionText} resetKey={ayahLoadId} />}
 
-            {/* The discreet flag action: below the primary row, never part of it (Share, Add Reflection, Save keep their order). */}
+            {/*
+              The discreet flag actions: below the primary row, never part of it (Share, Add Reflection, Save keep their
+              order; Listen and Copy stay in the card). Report an Issue, then Audio Issue.
+            */}
             <View style={styles.tertiaryActions}>
               <Pressable
                 accessibilityRole="button"
@@ -399,6 +405,17 @@ export function AyahExperience({ source }: AyahExperienceProps) {
                 style={({ pressed }) => [styles.tertiaryButton, isRtl && styles.tertiaryButtonRtl, pressed && styles.pressed]}>
                 <Flag size={14} color={colors.textSecondary} strokeWidth={2} />
                 <Text style={styles.tertiaryButtonText}>{messages.issueReport.action}</Text>
+              </Pressable>
+              <Pressable
+                testID="ayah-audio-issue"
+                accessibilityRole="button"
+                accessibilityLabel={audioIssueLabels(locale).title}
+                accessibilityHint={audioIssueLabels(locale).actionHint}
+                onPress={() => setIsAudioReportVisible(true)}
+                hitSlop={4}
+                style={({ pressed }) => [styles.tertiaryButton, isRtl && styles.tertiaryButtonRtl, pressed && styles.pressed]}>
+                <Volume2 size={14} color={colors.textSecondary} strokeWidth={2} />
+                <Text style={styles.tertiaryButtonText}>{audioIssueLabels(locale).title}</Text>
               </Pressable>
             </View>
           </>
@@ -416,6 +433,16 @@ export function AyahExperience({ source }: AyahExperienceProps) {
         onClose={() => setIsReportVisible(false)}
         variant="ayah"
         // The ayah's reference only: which emotion led here is never attached to a report.
+        context={{
+          verseKey: ayah?.verseKey,
+          surahNumber: ayah?.surahNumber,
+          ayahNumber: ayah?.ayahNumber,
+        }}
+      />
+      <ReportIssueSheet
+        visible={isAudioReportVisible}
+        onClose={() => setIsAudioReportVisible(false)}
+        variant="audio"
         context={{
           verseKey: ayah?.verseKey,
           surahNumber: ayah?.surahNumber,

@@ -26,13 +26,13 @@ describe('Settings screen: exactly three language settings', () => {
     expect(source).toMatch(/choose\(\(\) => setEmotionsLanguage\(option\)\)/);
   });
 
-  it('Quran Language lists only the reading modes that exist (one today), stored by id', () => {
+  it('Quran Translation lists only the reading modes that exist (one today: None), stored by id', () => {
     expect(QURAN_READING_MODES.map((mode) => mode.id)).toEqual(['quran-text']);
     expect(source).toMatch(/QURAN_READING_MODES\.map\(/);
     expect(source).toMatch(/choose\(\(\) => setQuranMode\(option\.id\)\)/);
   });
 
-  it('five sections in this order — App (App Language, Appearance), Emotions, Quran, Support, Account; no Quran Translation row, no Notifications section', () => {
+  it('five sections in this order — App (App Language, Appearance), Emotions, Quran, Support, Account; one Quran Translation row, no Notifications section', () => {
     const order = [
       'messages.settings.appSection',
       'messages.settings.appLanguageSection',
@@ -41,7 +41,9 @@ describe('Settings screen: exactly three language settings', () => {
       'messages.settings.emotionsLanguageSection',
       "reminderRow('emotionCheckIn'",
       'messages.settings.quranSection',
-      'messages.settings.quranLanguageSection',
+      'messages.audio.favoriteTitle',
+      'messages.settings.quranTranslationSection',
+      'settings-keep-awake',
       "reminderRow('wird'",
       "reminderRow('randomAyah'",
       'messages.settings.supportSection',
@@ -52,7 +54,8 @@ describe('Settings screen: exactly three language settings', () => {
     expect(order.every((index) => index >= 0)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
     expect(source.match(/<SettingsSection /g)).toHaveLength(4);
-    expect(source).not.toMatch(/quranTranslationSection|TRANSLATION_DISPLAY_MODES|notificationsSection/);
+    expect(source.match(/quranTranslationSection/g)).toHaveLength(1);
+    expect(source).not.toMatch(/quranLanguageSection|TRANSLATION_DISPLAY_MODES|notificationsSection/);
   });
 
   it('Show Translation (switch + dropdown) reads and writes the existing stored display-mode preference, not a new setting', () => {

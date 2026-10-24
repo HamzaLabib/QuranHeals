@@ -1,0 +1,61 @@
+{
+ "kind": "boundary-repairs",
+ "about": "Recorded repairs of single aligned ayah starts in whole-surah preview packages (surah-sources/generate-timed-preview.mjs --repairs). A repair applies only to the package it was made for (same reciter, surah, URL and the exact original start); the evidence is acoustic, from the file itself. Development preview only; not a listening review.",
+ "repairs": [
+  {
+   "reciterId": "ajmi",
+   "surah": 42,
+   "url": "https://download.quranicaudio.com/quran/ahmed_ibn_3ali_al-3ajamy/042.mp3",
+   "ayah": 29,
+   "fromMs": 558299,
+   "toMs": 558020,
+   "checkedOn": "2026-10-24",
+   "why": "The aligner found no pause (flags no-pause, configs-disagree) and placed 42:29 at its aligned onset, 50 ms before the voice. The pause exists but is shallow; the start is moved into it.",
+   "evidence": "50 ms energy envelope of this file: ayah 28 ends by 557.85 s; 557.90-558.30 s quiet (-8 to -13 dB re. local level; one breath at 558.10 s); ayah 29 voiced from 558.35 s. 558.02 s is also the dashboard-accepted start of the same performance (MP3Quran ajmi 042, 558,040 ms) at the measured constant offset (-20 ms, compare.py 33/33 pieces). The other two boundaries differing by more than 100 ms from that timing (42:2, 42:33) lie inside their pauses in this file and are kept: at 42:33 this file's start (607.18 s) is before the voice (607.30 s), the MP3Quran timing (607.36 s mapped) is 60 ms after it."
+  },
+  {
+   "reciterId": "ajmi",
+   "surah": 42,
+   "url": "https://cdn.mp3quran.net/audio/ahmad-ajmi/r1/042.mp3",
+   "ayah": 33,
+   "fromMs": 607380,
+   "toMs": 607200,
+   "checkedOn": "2026-10-24",
+   "why": "The accepted (automatic) start of 42:33 in the MP3Quran original lies 80 ms after the first sound of the ayah: playing from it would cut the onset.",
+   "evidence": "50 ms energy envelope of the original: quiet 607.15-607.30 s (-12.7 to -13.3 dB re. local level), ayah 33 voiced from 607.30 s; accepted start 607.38 s. The same performance's CBR copy (quranicaudio, offset -20 ms) shows the same pause (607.10-607.25 s) and its own alignment puts the start in it (607.18 s = 607.20 s here). Used by development/generate-vbr-timing.mjs."
+  },
+  {
+   "reciterId": "islam-sobhi",
+   "surah": 21,
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/021.mp3",
+   "ayah": 3,
+   "fromMs": 19493,
+   "toMs": 19170,
+   "checkedOn": "2026-10-24",
+   "why": "The accepted start of 21:3 in the MP3Quran original lies 120 ms into the ayah's first sound.",
+   "evidence": "clip check (cliptest.py, 20 ms frames): the accepted start lies inside the ayah's first sound, after a quiet run; the same performance's other independent timing (the CBR copy's own alignment, 31,120 ms at the constant offset 11,950 ms) lies in the quiet run before it (19.0-19.45 s, -7 to -9 dB; voice from 19.50 s) and passes the clip check. Used by development/generate-vbr-timing.mjs."
+  },
+  {
+   "reciterId": "islam-sobhi",
+   "surah": 21,
+   "url": "https://cdn.mp3quran.net/audio/islam-sobhi/r1/021.mp3",
+   "ayah": 98,
+   "fromMs": 1242720,
+   "toMs": 1242310,
+   "checkedOn": "2026-10-24",
+   "why": "The accepted start of 21:98 in the MP3Quran original lies 60 ms into the ayah's first sound.",
+   "evidence": "clip check (cliptest.py, 20 ms frames): the accepted start lies inside the ayah's first sound, after a quiet run; the same performance's other independent timing (the CBR copy's own alignment, 1,254,260 ms at the offset 11,950 ms) lies in the quiet before it and passes the clip check."
+  },
+  {
+   "reciterId": "islam-sobhi",
+   "surah": 21,
+   "url": "https://archive.org/download/002_20231210_202312/021.mp3",
+   "ayah": 27,
+   "fromMs": 322492,
+   "toMs": 322227,
+   "checkedOn": "2026-10-24",
+   "why": "The copy's own aligned start of 21:27 lies 60 ms into the ayah's first sound.",
+   "evidence": "clip check (cliptest.py, 20 ms frames): the accepted start lies inside the ayah's first sound, after a quiet run; the same performance's other independent timing (the dashboard-accepted start of the MP3Quran original, 310,277 ms, at the offset 11,950 ms) lies in the quiet before it (-8.9 dB, voice 273 ms later) and passes the clip check. Used by surah-sources/generate-timed-preview.mjs --repairs."
+  }
+ ]
+}

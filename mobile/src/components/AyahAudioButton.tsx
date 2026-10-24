@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet } from 'react-native';
 
 import { audioEngine } from '@/audio/index';
-import { getReciter, hasAyahPlayback, reciterName } from '@/audio/reciters';
+import { hasAyahAudioOrFallback, useAudioAvailability } from '@/audio/availability';
+import { getReciter, reciterName } from '@/audio/reciters';
 import { useFavoriteReciter } from '@/audio/useFavoriteReciter';
 import { usePlayback } from '@/audio/usePlayback';
 import { fill } from '@/localization/fill';
@@ -35,6 +36,7 @@ type Props = {
  */
 export function AyahAudioButton({ surah, ayah, copy, rtl, color, accent, onProblem }: Props) {
   const state = usePlayback();
+  useAudioAvailability(); // Phase 4.8.3: a newly published surah becomes available without a new build
   const { reciterId } = useFavoriteReciter();
   const key = `${surah}:${ayah}`;
   /** The session this button started for the ayah shown (reset when the ayah changes). */
@@ -43,7 +45,8 @@ export function AyahAudioButton({ surah, ayah, copy, rtl, color, accent, onProbl
   const session = owned?.key === key ? owned.session : null;
   const isThis = session !== null && state.session === session && state.phase !== 'idle';
   const reciter = getReciter(reciterId);
-  const unavailable = !reciter || !hasAyahPlayback(reciter, surah);
+  // Unavailable only when neither the Favorite Reciter nor the fallback (Al-Minshawi) has verified audio of the surah.
+  const unavailable = !reciter || !hasAyahAudioOrFallback(reciter, surah);
 
   // A different ayah, or the card closing: its own session stops (and only that one).
   useEffect(() => {

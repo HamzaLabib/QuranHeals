@@ -1,0 +1,18 @@
+{
+  "about": "Whole-surah (surah-only) sources approved for the app. A surah listed here plays from its start with no ayah highlighting, only where it has no verified ayah timing. generate-catalog.mjs refuses an entry unless every field below is filled, the provider permits streaming, and (MP3Quran) the file is listed in the provider's catalogue for that recording at the audited size. Automated checks (surah-mode/check-candidates.mjs) only nominate candidates; an entry needs a person's listening review and approval.",
+  "fields": {
+    "reciterId": "id in reciters.mjs",
+    "surah": "1-114",
+    "provider": "id in providers.mjs",
+    "url": "the exact file URL (MP3Quran: the catalogue's server + 3-digit surah + .mp3)",
+    "bytes": "the file's size when checked",
+    "durationMs": "the file's length when checked (ms); the app refuses a loaded stream whose length differs by more than 3 s or 3 %",
+    "completeness": "{ method, evidence, checkedOn }: how the whole surah was confirmed present, first to last ayah",
+    "identity": "{ method, evidence, checkedOn }: how the voice was confirmed as this reciter (and not a redirect or substitute)",
+    "riwayah": "{ value: 'hafs', evidence }",
+    "listening": "{ by, on, notes }: the person who listened to the start, the end and a sample of the middle",
+    "approvedBy": "who approved publication",
+    "approvedOn": "YYYY-MM-DD"
+  },
+  "approved": []
+}

@@ -49,6 +49,13 @@ design-archive/experiments/larger-text-mushaf/comparisons/*.png
 # unresolved. Kept locally and in the private audit archive, untracked 2026-10-17 (repository audit C2; manifest:
 # tools/quran-verification/output/ARCHIVED-OUTPUTS.md).
 tools/quran-verification/output/kfgqpc-*
+# Word Meanings (المعاني): King Fahd Complex's «الميسر في غريب القرآن الكريم», whose redistribution terms are also
+# unresolved. The original download, the app's dataset built from it and the detailed validation output stay local,
+# restored by tools/word-meanings/import.mjs (pinned in tools/word-meanings/source.lock.json, which stays tracked).
+tools/word-meanings/source/
+tools/word-meanings/output/
+mobile/assets/word-meanings/ghareeb.json
+mobile/assets/word-meanings/*.partial
 
 # Local scratch files
 tmp/
@@ -89,6 +96,10 @@ mobile/src/mushaf/unicode/generated/hafsWordWidths.ts
 # backend/src/utils/backupPaths.ts but not previously excluded here)
 backend/backups/
 
+# This computer's audio review dashboard launcher: it reads the configuration and review data kept outside the
+# repository (Working progress/Screenshots and Logs/audio-review-dashboard/; tools/quran-audio/review/dashboard/README.md).
+/start-dashboard.cmd
+
 # Logs
 *.log
 npm-debug.log*
@@ -107,3 +118,7 @@ tools/quran-import/raw/UthmanicHafs_v2-0.zip
 backend/data/quran/en.pickthall.txt
 backend/data/quran/quran-data.xml
 tools/quran-import/raw/gutenberg-16955/16955.txt
+# Surah Preview (عن السورة): built by tools/surah-preview/import.mjs from QuranEnc's Mukhtasar pages (pinned in
+# tools/surah-preview/source.lock.json, which stays tracked); redistribution terms unconfirmed, so never committed.
+mobile/assets/surah-preview/surah-preview.json
+mobile/assets/surah-preview/*.partial

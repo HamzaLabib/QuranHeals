@@ -3,7 +3,8 @@ import type { Messages } from '@/localization/messages';
 import { getSurahName } from '@/services/surahNames';
 
 import type { AyahPosition } from './quranSequence';
-import { reciterCoverage, type Reciter } from './reciters';
+import type { Reciter } from './reciters';
+import { audioCoverage } from './availability';
 
 const ARABIC_DIGITS = '٠١٢٣٤٥٦٧٨٩';
 export const localDigits = (text: string | number, rtl: boolean) => (rtl ? String(text).replace(/\d/g, (d) => ARABIC_DIGITS[Number(d)]) : String(text));
@@ -26,12 +27,25 @@ export function ayahLabel(position: AyahPosition, copy: Messages['audio'], rtl: 
 
 export const surahLabel = (surah: number, rtl: boolean) => (rtl ? getSurahName(surah).nameArabic : getSurahName(surah).nameEnglish);
 
-/** A reciter's coverage, as listed under its name. */
-export function coverageLabel(reciter: Reciter, copy: Messages['audio'], rtl: boolean): string {
-  const coverage = reciterCoverage(reciter);
-  if (coverage.kind === 'complete') return copy.coverageComplete;
-  if (coverage.kind === 'none') return copy.coverageNone;
-  return fill(copy.coveragePartial, { n: localDigits(coverage.timed, rtl) });
+/** A reciter's coverage, as listed under its name; null for all 114 surahs (owner, 2026-10-24: no count shown). */
+export function coverageLabel(reciter: Reciter, copy: Messages['audio'], rtl: boolean): string | null {
+  const count = coverageCount(reciter, copy, rtl);
+  // A per-ayah recording on trial (development builds only) says so before its coverage.
+  // So does a reciter with surahs from the review dashboard's accepted aligned timing (reviewedPreviewSurahs).
+  if ((reciter.perAyah && !reciter.perAyah.released) || reciter.timedPreview || reciter.reviewedPreviewSurahs?.length) return count ? `${copy.developmentPreview} · ${count}` : copy.developmentPreview;
+  return count;
+}
+
+function coverageCount(reciter: Reciter, copy: Messages['audio'], rtl: boolean): string | null {
+  // What the reciter's own recordings can play, from the source registry (for the audited catalogue: exactly
+  // reciterCoverage's counts); never surahs the default reciter plays in its place. Phase 4.8.3: published
+  // human-verified surahs included (availability.ts).
+  const { ayah, surah: whole } = audioCoverage(reciter.id);
+  if (ayah.length === 114) return null;
+  // Surahs it can play only whole (approved whole-surah recordings): counted apart, never as ayah playback.
+  if (whole.length > 0) return fill(copy.coveragePartialWhole, { n: localDigits(ayah.length, rtl), m: localDigits(whole.length, rtl) });
+  if (ayah.length === 0) return copy.coverageNone;
+  return fill(copy.coveragePartial, { n: localDigits(ayah.length, rtl) });
 }
 
 /** Surah numbers as compact ranges: "9, 52–53, 55–57". */
@@ -45,4 +59,13 @@ export function surahRanges(surahs: readonly number[], rtl: boolean): string {
     i = j;
   }
   return parts.join(rtl ? '، ' : ', ');
+}
+
+/** A place or length in a recording: "4:05", "1:02:09" (Arabic digits in Arabic). */
+export function formatClock(ms: number, rtl: boolean): string {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = String(total % 60).padStart(2, '0');
+  return localDigits(h > 0 ? `${h}:${String(m).padStart(2, '0')}:${s}` : `${m}:${s}`, rtl);
 }

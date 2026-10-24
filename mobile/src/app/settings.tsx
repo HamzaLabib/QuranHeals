@@ -29,11 +29,14 @@ import { useAppLocale } from '@/localization/useAppLocale';
 import { useEmotionsLanguage } from '@/localization/useEmotionsLanguage';
 import { useQuranTranslationPreference } from '@/localization/useQuranTranslationPreference';
 import { useKeepAwakePreference } from '@/mushaf/useKeepAwakePreference';
+import { useWordMeaningsVisibility } from '@/mushaf/useWordMeaningsVisibility';
 import { reminderFrequencies, type NotificationKind } from '@/notifications/types';
 import { useNotifications, type ReminderChange } from '@/notifications/useNotifications';
 import type { AppearanceMode } from '@/theme/appearancePreference';
 import { useAppearancePreference } from '@/theme/useAppearancePreference';
 import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
+import { isWordMeaningsBundled } from '@/wordMeanings/bundledDataset';
+import { WORD_MEANINGS_ENABLED } from '@/wordMeanings/config';
 
 const APPEARANCE_MODES: readonly AppearanceMode[] = ['system', 'light', 'dark'];
 
@@ -42,17 +45,17 @@ const APPEARANCE_MODES: readonly AppearanceMode[] = ['system', 'light', 'dark'];
  * section — each reminder sits in the section it belongs to):
  *  1. App — App Language (English / العربية), Appearance (System / Light / Dark).
  *  2. Emotions — Emotions Language, Show Translation, Emotional Check-in.
- *  3. Quran — Quran Language, Keep Screen Awake, Favorite Reciter (the 17
- *     reciters, each with its coverage; its offline download as a small icon
- *     beside the dropdown), Wird Reminder,
+ *  3. Quran — Favorite Reciter (the 17 reciters, each with its coverage; its
+ *     offline download as a small icon beside the dropdown), Quran Translation,
+ *     Keep Screen Awake, Word Meanings (where the feature exists), Wird Reminder,
  *     Random Quran Ayah, the offline Mushaf, and Mushaf Guide (opens the
  *     Mushaf's six-step guide again).
  *  4. Support — Report an Issue, Legal & Privacy.
  *  5. Account — AccountSection (sign in / out, Delete Account), unchanged.
  *
  * The collapsible cards hold the choice lists; at most one is open at a time.
- * Exactly three language settings: App, Emotions and Quran Language (no
- * separate Quran Translation row).
+ * Exactly three language settings: App Language, Emotions Language and
+ * Quran Translation (stored as quranLanguage; today its one option is None).
  */
 type SettingsSectionKey = 'language' | 'emotions' | 'quran' | 'reciter' | 'appearance' | 'legal';
 
@@ -71,6 +74,7 @@ export default function SettingsScreen() {
   const { mode: quranMode, setMode: setQuranMode } = useQuranReadingMode();
   const { mode, setMode } = useAppearancePreference();
   const { enabled: keepAwake, setEnabled: setKeepAwake } = useKeepAwakePreference();
+  const { visible: wordMeaningsVisible, setVisible: setWordMeaningsVisible } = useWordMeaningsVisibility();
   const { reciterId: favoriteReciterId, setReciterId: setFavoriteReciterId } = useFavoriteReciter();
   const favoriteReciter = getReciter(favoriteReciterId);
   const { preference: translationPreference, setShowTranslation, setTranslationMode } = useQuranTranslationPreference();
@@ -164,7 +168,7 @@ export default function SettingsScreen() {
     'ar-EG': messages.settings.emotionsArabicEgyptian,
   };
   const emotionsLanguageDirection = (option: EmotionsLanguage) => (option === 'ar' || option === 'ar-EG' ? getDirectionStyle('ar') : direction);
-  const quranModeLabel = (id: string) => messages.settings[QURAN_READING_MODES.find((m) => m.id === id)?.labelKey ?? 'quranTextOption'];
+  const quranModeLabel = (id: string) => messages.settings[QURAN_READING_MODES.find((m) => m.id === id)?.labelKey ?? 'quranTranslationNone'];
   const appearanceModeLabel: Record<AppearanceMode, string> = {
     system: messages.appearance.system,
     light: messages.appearance.light,
@@ -274,14 +278,35 @@ export default function SettingsScreen() {
 
         {/* 3. Quran */}
         <SettingsSection testID="settings-section-quran" title={messages.settings.quranSection} direction={direction}>
+          {/* Favorite Reciter (audio/favoriteReciterPreference.ts): the 17 reciters, each with how much it can play ayah by ayah; a device setting, applied at once. */}
           <SettingsAccordion
-            title={messages.settings.quranLanguageSection}
+            title={messages.audio.favoriteTitle}
+            summary={favoriteReciter ? reciterName(favoriteReciter, isRtl) : undefined}
+            expanded={openSection === 'reciter'}
+            onToggle={() => toggleSection('reciter')}
+            direction={direction}
+            isRtl={isRtl}
+            // Offline listening: the compact download icon beside the dropdown (downloads stay off while unlicensed, audio/reciters.ts).
+            accessory={<ReciterDownloadControl reciterId={favoriteReciterId} messages={messages} isRtl={isRtl} direction={direction} />}>
+            <Text style={[styles.optionHint, styles.accordionNote, direction]}>{messages.audio.favoriteDescription}</Text>
+            <ReciterList
+              testIDPrefix="settings-reciter"
+              selectedId={favoriteReciterId}
+              onSelect={(id) => choose(() => setFavoriteReciterId(id))}
+              copy={messages.audio}
+              rtl={isRtl}
+              tone={{ text: colors.textPrimary, muted: colors.textSecondary, accent: colors.accent, selected: colors.accentSoft, divider: colors.divider }}
+            />
+          </SettingsAccordion>
+
+          <SettingsAccordion
+            title={messages.settings.quranTranslationSection}
             summary={quranModeLabel(quranMode)}
             expanded={openSection === 'quran'}
             onToggle={() => toggleSection('quran')}
             direction={direction}
             isRtl={isRtl}>
-            {/* Only the modes that exist (localization/quranLanguage.ts): today, the Arabic Mushaf. */}
+            {/* Only the modes that exist (localization/quranLanguage.ts): today None, the Arabic Mushaf without a translation. */}
             {QURAN_READING_MODES.map((option) => (
               <OptionRow
                 key={option.id}
@@ -313,26 +338,25 @@ export default function SettingsScreen() {
             />
           </View>
 
-          {/* Favorite Reciter (audio/favoriteReciterPreference.ts): the 17 reciters, each with how much it can play ayah by ayah; a device setting, applied at once. */}
-          <SettingsAccordion
-            title={messages.audio.favoriteTitle}
-            summary={favoriteReciter ? reciterName(favoriteReciter, isRtl) : undefined}
-            expanded={openSection === 'reciter'}
-            onToggle={() => toggleSection('reciter')}
-            direction={direction}
-            isRtl={isRtl}
-            // Offline listening: the compact download icon beside the dropdown (downloads stay off while unlicensed, audio/reciters.ts).
-            accessory={<ReciterDownloadControl reciterId={favoriteReciterId} messages={messages} isRtl={isRtl} direction={direction} />}>
-            <Text style={[styles.optionHint, styles.accordionNote, direction]}>{messages.audio.favoriteDescription}</Text>
-            <ReciterList
-              testIDPrefix="settings-reciter"
-              selectedId={favoriteReciterId}
-              onSelect={(id) => choose(() => setFavoriteReciterId(id))}
-              copy={messages.audio}
-              rtl={isRtl}
-              tone={{ text: colors.textPrimary, muted: colors.textSecondary, accent: colors.accent, selected: colors.accentSoft, divider: colors.divider }}
-            />
-          </SettingsAccordion>
+          {/* Word Meanings: a local switch (mushaf/wordMeaningsVisibilityPreference.ts), applied at once; OFF hides the Mushaf's المعاني button. Only where the feature exists (wordMeanings/config.ts, bundledDataset.ts). */}
+          {WORD_MEANINGS_ENABLED && isWordMeaningsBundled() && (
+            <View style={[styles.switchCard, isRtl && styles.optionRowRtl]}>
+              <View style={styles.optionTextWrap}>
+                <Text style={[styles.optionLabel, direction]}>{messages.settings.wordMeaningsVisibleTitle}</Text>
+              </View>
+              <Switch
+                testID="settings-word-meanings"
+                accessibilityRole="switch"
+                accessibilityLabel={messages.settings.wordMeaningsVisibleTitle}
+                accessibilityState={{ checked: wordMeaningsVisible }}
+                value={wordMeaningsVisible}
+                onValueChange={setWordMeaningsVisible}
+                trackColor={{ false: colors.border, true: colors.accentFill }}
+                ios_backgroundColor={colors.border}
+                thumbColor={colors.onAccentFill}
+              />
+            </View>
+          )}
 
           {reminderRow('wird', messages.notifications.wirdReminderTitle)}
           {reminderRow('randomAyah', messages.notifications.randomAyahTitle)}

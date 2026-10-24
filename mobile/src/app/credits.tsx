@@ -46,7 +46,7 @@ export default function CreditsScreen() {
 
         <Text style={[styles.intro, direction]}>{copy.intro}</Text>
 
-        {QURAN_SOURCES.map((source) => (
+        {QURAN_SOURCES.filter((source) => source.inThisBuild?.() ?? true).map((source) => (
           <View key={source.key} testID={`credit-${source.key}`} style={styles.card}>
             <Text style={[styles.name, direction]}>{source.name(copy)}</Text>
             <Text style={[styles.work, direction]}>{source.work(copy)}</Text>

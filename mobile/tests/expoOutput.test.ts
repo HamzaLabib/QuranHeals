@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createExpoOutput, LoadSupersededError } from '@/audio/expoOutput';
+import { createExpoOutput, LOAD_TIMEOUT_MS, LoadSupersededError } from '@/audio/expoOutput';
 
 /**
  * The expo-audio adapter (audio/expoOutput.ts) over a fake native player: a load waits for the source to become
@@ -93,5 +93,65 @@ describe('the expo-audio output', () => {
       output.stop();
       output.stop();
     }).not.toThrow();
+  });
+});
+
+// Saleh Al-Talib 12 (iPhone, 2026-10-24): archive.org's ia600903 takes 7–9 s before the first byte of every request,
+// and iOS makes several before the file can play, so it can need more than LOAD_TIMEOUT_MS. Each retry used to replace
+// the source and start from nothing again: about a minute of loading, then an error, never Saleh's voice.
+describe('a host slow to answer (Saleh Al-Talib 12 on archive.org)', () => {
+  const SALEH_12 = 'https://ia600903.us.archive.org/12/items/SheikhTalibSurahs626991-114/SurahYusufBySheikhTalib12-16thJan2013.mp3';
+
+  it('a load that times out fails (the engine retries it); the retry keeps waiting for the same source, never restarts it', async () => {
+    const fake = fakeExpoAudio();
+    const output = createExpoOutput(fake.load);
+    const first = output.load(SALEH_12, 520).then(() => 'resolved', (error: Error) => error.message);
+    await vi.advanceTimersByTimeAsync(LOAD_TIMEOUT_MS + 200);
+    expect(await first).toBe('load timeout');
+    // The engine's first automatic retry (RETRY_DELAYS_MS[0]), while the native player is still fetching the file.
+    await vi.advanceTimersByTimeAsync(1500);
+    const retry = output.load(SALEH_12, 520);
+    await vi.advanceTimersByTimeAsync(3000);
+    fake.player.isLoaded = true; // about 25 s after the first request: the file can play
+    await vi.advanceTimersByTimeAsync(200);
+    await retry;
+    expect(fake.calls.filter((c) => c.startsWith('replace'))).toEqual([`replace ${SALEH_12}`]);
+    expect(fake.calls.at(-1)).toBe('seek 0.52');
+  });
+
+  it('another source, a stop, or a native error still replaces the source as before', async () => {
+    const fake = fakeExpoAudio();
+    const output = createExpoOutput(fake.load);
+    void output.load(SALEH_12, 0).catch(() => undefined);
+    await vi.advanceTimersByTimeAsync(LOAD_TIMEOUT_MS + 200);
+    void output.load('b.mp3', 0).catch(() => undefined); // another source
+    await vi.advanceTimersByTimeAsync(LOAD_TIMEOUT_MS + 200);
+    output.stop();
+    void output.load('b.mp3', 0).catch(() => undefined); // after a stop
+    await vi.advanceTimersByTimeAsync(200);
+    fake.player.currentStatus.error = 'network';
+    await vi.advanceTimersByTimeAsync(200);
+    fake.player.currentStatus.error = null;
+    const again = output.load('b.mp3', 0); // after a native error
+    await vi.advanceTimersByTimeAsync(200);
+    fake.player.isLoaded = true;
+    await vi.advanceTimersByTimeAsync(200);
+    await again;
+    expect(fake.calls.filter((c) => c.startsWith('replace'))).toEqual([`replace ${SALEH_12}`, 'replace b.mp3', 'replace null', 'replace b.mp3', 'replace b.mp3']);
+  });
+
+  it('a seek that never completes fails after LOAD_TIMEOUT_MS: an error the engine can retry, never endless loading', async () => {
+    const fake = fakeExpoAudio();
+    fake.player.seekTo = () => new Promise<undefined>(() => undefined);
+    const output = createExpoOutput(fake.load);
+    const loading = output.load(SALEH_12, 50_000).then(() => 'resolved', (error: Error) => error.message);
+    await vi.advanceTimersByTimeAsync(150);
+    fake.player.isLoaded = true;
+    await vi.advanceTimersByTimeAsync(150);
+    await vi.advanceTimersByTimeAsync(LOAD_TIMEOUT_MS);
+    expect(await loading).toBe('seek timeout');
+    const seeking = output.seek(60_000).then(() => 'resolved', (error: Error) => error.message);
+    await vi.advanceTimersByTimeAsync(LOAD_TIMEOUT_MS + 10);
+    expect(await seeking).toBe('seek timeout');
   });
 });

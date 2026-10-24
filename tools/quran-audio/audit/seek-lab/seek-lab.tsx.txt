@@ -1,0 +1,52 @@
+// TEMPORARY Phase 4.4 seek experiment (not part of the app; deleted after the run). Plays each planned file in
+// expo-audio, seeks exactly as the app does (seekTo(seconds, 0, 0)) and plays ~2.4 s; the host records the emulator's
+// real audio output and the time of each play/pause (logged here), and finds where each burst really started.
+import { createAudioPlayer } from 'expo-audio';
+import { useEffect, useState } from 'react';
+import { Text, View } from 'react-native';
+
+const HOST = 'http://10.0.2.2:8099';
+type Plan = { tests: { id: string; url: string; targetsMs: number[] }[] };
+const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+export default function SeekLab() {
+  const [status, setStatus] = useState('starting');
+  useEffect(() => {
+    (async () => {
+      const plan: Plan = await (await fetch(`${HOST}/plan.json`)).json();
+      for (const test of plan.tests) {
+        setStatus(`${test.id}: loading`);
+        const player = createAudioPlayer({ uri: test.url }, { updateInterval: 100 });
+        for (let i = 0; i < 100 && !player.isLoaded; i++) await wait(100);
+        const seeks: { targetMs: number; reportedBeforeMs: number; reportedAfterMs: number }[] = [];
+        for (let k = 0; k < test.targetsMs.length; k++) {
+          const target = test.targetsMs[k];
+          setStatus(`${test.id}: seek ${k + 1}/${test.targetsMs.length}`);
+          if (target >= 0) await player.seekTo(target / 1000, 0, 0);
+          for (let i = 0; i < 100 && player.isBuffering; i++) await wait(50);
+          await wait(400);
+          const before = Math.round(player.currentTime * 1000);
+          await fetch(`${HOST}/log?m=play|${test.id}|${k}`);
+          player.play();
+          await wait(2400);
+          player.pause();
+          await fetch(`${HOST}/log?m=pause|${test.id}|${k}`);
+          seeks.push({ targetMs: target, reportedBeforeMs: before, reportedAfterMs: Math.round(player.currentTime * 1000) });
+          await wait(1200);
+        }
+        player.remove();
+        await fetch(`${HOST}/result/${test.id}`, { method: 'POST', body: JSON.stringify({ id: test.id, url: test.url, seeks }) });
+      }
+      setStatus('done');
+      await fetch(`${HOST}/log?m=done`);
+    })().catch(async (e) => {
+      setStatus(`error: ${String(e)}`);
+      await fetch(`${HOST}/log?m=${encodeURIComponent(String(e))}`).catch(() => {});
+    });
+  }, []);
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Text testID="seek-lab-status">{status}</Text>
+    </View>
+  );
+}

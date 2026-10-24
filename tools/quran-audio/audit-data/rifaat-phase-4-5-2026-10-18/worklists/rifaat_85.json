@@ -1,0 +1,542 @@
+{
+ "audio": "rifaat_85.mp3",
+ "durationS": 507.4,
+ "margin": 0.5,
+ "rule": "Human-assisted timing worklist for a recording whose content the teacher-forced check confirmed (tf_verify.py).\nFor every ayah transition k -> k+1 it gives the time bracket the evidence allows - from the last confirmed window that\nholds only ayahs <= k to the end of the first confirmed window holding k+1 (narrowed to one window when a window's\nbest span is k..k+1) - and the pauses inside it (digital-silence runs >= 200 ms and dips >= 300 ms more than 30 dB\nbelow the file's median level), longest first. It places NO boundary: a listener chooses (or rejects) each one by ear.\nTransitions with no confirmed window on one side are marked 'unbracketed' (the listener searches the whole gap).",
+ "starts": [
+  {
+   "ayah": 1,
+   "bracket_s": [
+    0.0,
+    30.0
+   ],
+   "evidence": "unbracketed (no confirmed window on one side)",
+   "pauseCandidates": [
+    {
+     "from_ms": 0,
+     "to_ms": 1550,
+     "ms": 1550,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 1570,
+     "to_ms": 2160,
+     "ms": 590,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 2
+  },
+  {
+   "ayah": 2,
+   "bracket_s": [
+    0.0,
+    30.0
+   ],
+   "evidence": "window spanning both ayahs",
+   "pauseCandidates": [
+    {
+     "from_ms": 0,
+     "to_ms": 1550,
+     "ms": 1550,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 1570,
+     "to_ms": 2160,
+     "ms": 590,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 2
+  },
+  {
+   "ayah": 3,
+   "bracket_s": [
+    40.0,
+    70.0
+   ],
+   "evidence": "window spanning both ayahs",
+   "pauseCandidates": [],
+   "pausesInBracket": 0
+  },
+  {
+   "ayah": 4,
+   "bracket_s": [
+    40.0,
+    90.0
+   ],
+   "evidence": "between confirmed windows",
+   "pauseCandidates": [
+    {
+     "from_ms": 55600,
+     "to_ms": 71080,
+     "ms": 15480,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 78580,
+     "to_ms": 87720,
+     "ms": 9140,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 75840,
+     "to_ms": 76250,
+     "ms": 410,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 3
+  },
+  {
+   "ayah": 5,
+   "bracket_s": [
+    60.0,
+    110.0
+   ],
+   "evidence": "between confirmed windows",
+   "pauseCandidates": [
+    {
+     "from_ms": 78580,
+     "to_ms": 87720,
+     "ms": 9140,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 75840,
+     "to_ms": 76250,
+     "ms": 410,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 2
+  },
+  {
+   "ayah": 6,
+   "bracket_s": [
+    80.0,
+    110.0
+   ],
+   "evidence": "window spanning both ayahs",
+   "pauseCandidates": [],
+   "pausesInBracket": 0
+  },
+  {
+   "ayah": 7,
+   "bracket_s": [
+    80.0,
+    130.0
+   ],
+   "evidence": "between confirmed windows",
+   "pauseCandidates": [],
+   "pausesInBracket": 0
+  },
+  {
+   "ayah": 8,
+   "bracket_s": [
+    100.0,
+    150.0
+   ],
+   "evidence": "between confirmed windows",
+   "pauseCandidates": [
+    {
+     "from_ms": 117210,
+     "to_ms": 135780,
+     "ms": 18570,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 1
+  },
+  {
+   "ayah": 9,
+   "bracket_s": [
+    140.0,
+    250.0
+   ],
+   "evidence": "between confirmed windows",
+   "pauseCandidates": [
+    {
+     "from_ms": 191030,
+     "to_ms": 210670,
+     "ms": 19640,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 160700,
+     "to_ms": 180010,
+     "ms": 19310,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 180360,
+     "to_ms": 180710,
+     "ms": 350,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 3
+  },
+  {
+   "ayah": 10,
+   "bracket_s": [
+    140.0,
+    250.0
+   ],
+   "evidence": "between confirmed windows",
+   "pauseCandidates": [
+    {
+     "from_ms": 191030,
+     "to_ms": 210670,
+     "ms": 19640,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 160700,
+     "to_ms": 180010,
+     "ms": 19310,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 180360,
+     "to_ms": 180710,
+     "ms": 350,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 3
+  },
+  {
+   "ayah": 11,
+   "bracket_s": [
+    220.0,
+    350.0
+   ],
+   "evidence": "between confirmed windows",
+   "pauseCandidates": [
+    {
+     "from_ms": 299100,
+     "to_ms": 316200,
+     "ms": 17100,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 324880,
+     "to_ms": 341330,
+     "ms": 16450,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 239900,
+     "to_ms": 253320,
+     "ms": 13420,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 280830,
+     "to_ms": 291780,
+     "ms": 10950,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 4
+  },
+  {
+   "ayah": 12,
+   "bracket_s": [
+    220.0,
+    350.0
+   ],
+   "evidence": "between confirmed windows",
+   "pauseCandidates": [
+    {
+     "from_ms": 299100,
+     "to_ms": 316200,
+     "ms": 17100,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 324880,
+     "to_ms": 341330,
+     "ms": 16450,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 239900,
+     "to_ms": 253320,
+     "ms": 13420,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 280830,
+     "to_ms": 291780,
+     "ms": 10950,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 4
+  },
+  {
+   "ayah": 13,
+   "bracket_s": [
+    220.0,
+    350.0
+   ],
+   "evidence": "between confirmed windows",
+   "pauseCandidates": [
+    {
+     "from_ms": 299100,
+     "to_ms": 316200,
+     "ms": 17100,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 324880,
+     "to_ms": 341330,
+     "ms": 16450,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 239900,
+     "to_ms": 253320,
+     "ms": 13420,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 280830,
+     "to_ms": 291780,
+     "ms": 10950,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 4
+  },
+  {
+   "ayah": 14,
+   "bracket_s": [
+    380.0,
+    450.0
+   ],
+   "evidence": "between confirmed windows",
+   "pauseCandidates": [
+    {
+     "from_ms": 386570,
+     "to_ms": 397260,
+     "ms": 10690,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 423780,
+     "to_ms": 432690,
+     "ms": 8910,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 2
+  },
+  {
+   "ayah": 15,
+   "bracket_s": [
+    380.0,
+    450.0
+   ],
+   "evidence": "between confirmed windows",
+   "pauseCandidates": [
+    {
+     "from_ms": 386570,
+     "to_ms": 397260,
+     "ms": 10690,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 423780,
+     "to_ms": 432690,
+     "ms": 8910,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 2
+  },
+  {
+   "ayah": 16,
+   "bracket_s": [
+    380.0,
+    450.0
+   ],
+   "evidence": "between confirmed windows",
+   "pauseCandidates": [
+    {
+     "from_ms": 386570,
+     "to_ms": 397260,
+     "ms": 10690,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 423780,
+     "to_ms": 432690,
+     "ms": 8910,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 2
+  },
+  {
+   "ayah": 17,
+   "bracket_s": [
+    380.0,
+    450.0
+   ],
+   "evidence": "between confirmed windows",
+   "pauseCandidates": [
+    {
+     "from_ms": 386570,
+     "to_ms": 397260,
+     "ms": 10690,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 423780,
+     "to_ms": 432690,
+     "ms": 8910,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 2
+  },
+  {
+   "ayah": 18,
+   "bracket_s": [
+    420.0,
+    450.0
+   ],
+   "evidence": "window spanning both ayahs",
+   "pauseCandidates": [
+    {
+     "from_ms": 423780,
+     "to_ms": 432690,
+     "ms": 8910,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 1
+  },
+  {
+   "ayah": 19,
+   "bracket_s": [
+    440.0,
+    470.0
+   ],
+   "evidence": "window spanning both ayahs",
+   "pauseCandidates": [
+    {
+     "from_ms": 445160,
+     "to_ms": 450050,
+     "ms": 4890,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 459920,
+     "to_ms": 462120,
+     "ms": 2200,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 456610,
+     "to_ms": 457060,
+     "ms": 450,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 3
+  },
+  {
+   "ayah": 20,
+   "bracket_s": [
+    440.0,
+    490.0
+   ],
+   "evidence": "between confirmed windows",
+   "pauseCandidates": [
+    {
+     "from_ms": 445160,
+     "to_ms": 450050,
+     "ms": 4890,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 476160,
+     "to_ms": 478960,
+     "ms": 2800,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 459920,
+     "to_ms": 462120,
+     "ms": 2200,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 456610,
+     "to_ms": 457060,
+     "ms": 450,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 4
+  },
+  {
+   "ayah": 21,
+   "bracket_s": [
+    460.0,
+    490.0
+   ],
+   "evidence": "window spanning both ayahs",
+   "pauseCandidates": [
+    {
+     "from_ms": 476160,
+     "to_ms": 478960,
+     "ms": 2800,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 1
+  },
+  {
+   "ayah": 22,
+   "bracket_s": [
+    460.0,
+    507.4
+   ],
+   "evidence": "unbracketed (no confirmed window on one side)",
+   "pauseCandidates": [
+    {
+     "from_ms": 504420,
+     "to_ms": 507420,
+     "ms": 3000,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 476160,
+     "to_ms": 478960,
+     "ms": 2800,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 496730,
+     "to_ms": 498840,
+     "ms": 2110,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 492980,
+     "to_ms": 493500,
+     "ms": 520,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 4
+  }
+ ],
+ "placedBoundaries": 0
+}

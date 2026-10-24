@@ -1,0 +1,65 @@
+{
+ "kind": "owner-override-evidence",
+ "ref": "88:14",
+ "file": "088014.mp3",
+ "clearance": {
+  "tool": "tools/quran-audio/per-ayah/clearance.py",
+  "output": "%LOCALAPPDATA%/QuranHeals/per-ayah-cache/Ali_Jaber_64kbps/clearance.json",
+  "outputSha256": "d0a8be90917ca0b55ff701afc46b94c92dfc55bdd7aabe0a00bc381fe644e637",
+  "item": {
+   "ref": "88:14",
+   "voice": {
+    "similarity": 0.446,
+    "clearAt": 0.626,
+    "cleared": false
+   },
+   "context": {
+    "neighbours": [
+     "88:13",
+     "88:14",
+     "88:15"
+    ],
+    "fileMs": [
+     4362,
+     8594
+    ],
+    "alignedMs": [
+     4448,
+     7473
+    ],
+    "score": 0.64,
+    "controls": [
+     0.189,
+     0.372,
+     0.211,
+     0.219
+    ],
+    "voicedCovered": 0.795,
+    "inside": true,
+    "cleared": false
+   }
+  },
+  "voiceReference": {
+   "model": "speechbrain/spkrec-ecapa-voxceleb",
+   "refs": 150,
+   "own": {
+    "p1": 0.626,
+    "p5": 0.668,
+    "median": 0.838,
+    "min": 0.609
+   },
+   "controls": {
+    "n": 60,
+    "max": 0.364,
+    "median": 0.213
+   },
+   "clearAt": 0.626
+  }
+ },
+ "summary": [
+  "voice: ECAPA similarity 0.446 to Ali Jaber's own reference files, below his 1st percentile (0.626; his own files 0.609 and up, other reciters at most 0.364): the reciter identity is NOT confirmed",
+  "text: the expected words align inside the file (score 0.64 vs controls at most 0.372) but cover only 79.5% of its voiced audio (clearance requires 80%): the text match is NOT confirmed complete",
+  "identity: only partly found in MP3Quran's Hafs murattal recording of surah 88 (weakest 3 s chunk 0.23): another performance or another voice",
+  "unresolved: listening by a person is still needed before any release"
+ ]
+}

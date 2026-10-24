@@ -6,10 +6,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ayahLabel, localDigits, surahLabel } from '@/audio/format';
 import { audioEngine } from '@/audio/index';
 import { nextAyah, pageOfPosition, previousAyah } from '@/audio/quranSequence';
-import { getReciter, hasAyahPlayback, reciterName } from '@/audio/reciters';
+import { getReciter, reciterName } from '@/audio/reciters';
+import { audioMode, useAudioAvailability } from '@/audio/availability';
 import { usePlayback } from '@/audio/usePlayback';
-import type { PlaybackState } from '@/audio/engine';
+import type { PlaybackError, PlaybackState } from '@/audio/engine';
 import { ReciterList } from '@/components/ReciterList';
+import { RepeatAyahIcon } from '@/components/RepeatAyahIcon';
+import { SurahSeekBar } from '@/components/SurahSeekBar';
 import { MUSHAF_PANEL_COLORS } from '@/constants/mushafTheme';
 import { fill } from '@/localization/fill';
 import type { Messages } from '@/localization/messages';
@@ -35,7 +38,8 @@ export const isAudioActive = (state: PlaybackState) => state.phase === 'playing'
 function problemText(state: PlaybackState, copy: Messages['audio'], rtl: boolean): string | null {
   if (state.notice) {
     const reciter = getReciter(state.notice.reciterId);
-    return fill(copy.noticeReciterUnavailable, { reciter: reciter ? reciterName(reciter, rtl) : '', surah: surahLabel(state.notice.surah, rtl) });
+    const values = { reciter: reciter ? reciterName(reciter, rtl) : '', surah: surahLabel(state.notice.surah, rtl) };
+    return fill(state.notice.kind === 'reciter-surah-only' ? copy.noticeReciterSurahOnly : copy.noticeReciterUnavailable, values);
   }
   if (!state.error) return null;
   const reciter = getReciter(state.error.reciterId);
@@ -46,6 +50,10 @@ function problemText(state: PlaybackState, copy: Messages['audio'], rtl: boolean
       return copy.errorNetwork;
     case 'mismatch':
       return copy.errorMismatch;
+    case 'surah-only':
+      return fill(copy.errorSurahOnly, { reciter: reciter ? reciterName(reciter, rtl) : '', surah: surahLabel(state.error.surah, rtl) });
+    case 'source':
+      return copy.errorSource;
     default:
       return copy.errorPlayback;
   }
@@ -69,9 +77,21 @@ function problemText(state: PlaybackState, copy: Messages['audio'], rtl: boolean
  * which moves a flipped or rotated glyph out of its own box (blank on the device).
  * Choosing a reciter here never interrupts the ayah being recited (audio/engine.ts) and never changes the Favorite
  * Reciter setting.
+ *
+ * Full Surah (beside the Surah and ayah, on the button's own side: physical left in English, right in Arabic) recites the
+ * surah being recited from its first ayah to its last in the current reciter's verified recording, then stops. Repeat
+ * Ayah (the controls row's far physical right, in every language) cycles Off → 1 → 2 → 3 → ∞, the setting drawn inside
+ * its loop.
+ *
+ * Whole-surah playback (a recording with no verified ayah timing, audio/sourceRegistry.ts) shows the surah and never an
+ * ayah: the chip names the surah, the window says the ayahs are not followed, the progress becomes a position bar with
+ * the time (SurahSeekBar), Previous / Next move by surah, and the page buttons and Follow recitation are not offered (the
+ * page being recited is unknown). A Listen on an ayah such a recording cannot start at opens the window with the choice:
+ * Play the whole surah (from its start) or Cancel; nothing plays until one is chosen.
  */
 export function MushafAudioPlayer({ dark, rtl, copy, following, onFollow, panelTop }: Props) {
   const state = usePlayback();
+  useAudioAvailability(); // Phase 4.8.3: re-render when published timing changes
   const [expanded, setExpanded] = useState(false);
   const [listOpen, setListOpen] = useState(false);
   const theme = dark ? MUSHAF_PANEL_COLORS.dark : MUSHAF_PANEL_COLORS.light;
@@ -82,21 +102,41 @@ export function MushafAudioPlayer({ dark, rtl, copy, following, onFollow, panelT
     setExpanded(false);
     setListOpen(false);
   }
+  // A Listen that needs the listener's choice (the whole surah, or nothing) opens the window once, with that choice.
+  const [offered, setOffered] = useState<PlaybackError | null>(null);
+  if (state.error?.kind === 'surah-only' && state.error !== offered) {
+    setOffered(state.error);
+    setExpanded(true);
+  }
   if (state.phase === 'idle' || !state.position) return null;
 
   const position = state.position;
+  const wholeSurah = state.granularity === 'surah';
   const reciter = getReciter(state.reciterId);
   const pending = getReciter(state.pendingReciterId);
   const name = reciter ? reciterName(reciter, rtl) : '';
   const ayahText = fill(copy.ayahOnly, { ayah: localDigits(position.ayah, rtl) });
-  /** The window's second row: the Surah and the ayah ("Al-Faatiha · Ayah 7", «سورة الفاتحة · الآية ٧»). */
-  const surahAyahText = ayahLabel(position, copy, rtl);
+  /** The window's second row: the Surah and the ayah ("Al-Faatiha · Ayah 7", «سورة الفاتحة · الآية ٧»), or the whole surah. */
+  const surahAyahText = wholeSurah ? fill(copy.wholeSurah, { surah: surahLabel(position.surah, rtl) }) : ayahLabel(position, copy, rtl);
   const total = SURAH_AYAH_COUNTS[position.surah - 1];
   const problem = problemText(state, copy, rtl);
   const active = isAudioActive(state);
-  const followable = state.mode === 'continuous';
-  const hasPrevious = previousAyah(position) !== null;
-  const hasNext = nextAyah(position) !== null;
+  const followable = state.mode === 'continuous' && !wholeSurah;
+  // Whole surah: Previous / Next are the adjacent surahs, offered only where this reciter has one that can play.
+  const playableSurah = (surah: number) => reciter !== null && surah >= 1 && surah <= 114 && audioMode(reciter.id, surah) !== 'none';
+  const hasPrevious = wholeSurah ? playableSurah(position.surah - 1) : previousAyah(position) !== null;
+  const hasNext = wholeSurah ? playableSurah(position.surah + 1) : nextAyah(position) !== null;
+  const offersWholeSurah = state.error?.kind === 'surah-only' || state.notice?.kind === 'reciter-surah-only';
+  // The voice Full Surah asks for: the one chosen in the player (up next), else the one asked for (not a fallback voice).
+  const fullSurahReciter = state.pendingReciterId ?? state.preferredReciterId ?? state.reciterId;
+  const repeatSetting = {
+    0: copy.repeatOff,
+    1: copy.repeatOnce,
+    2: copy.repeatTwice,
+    3: copy.repeatThrice,
+    infinite: copy.repeatInfinite,
+  }[state.repeat];
+  const layout = controlsLayout(window.width - 16 - 24);
   const recitedPage = pageOfPosition(position);
   const hasPreviousPage = recitedPage > 1;
   const hasNextPage = recitedPage < MUSHAF_PAGE_COUNT;
@@ -138,13 +178,13 @@ export function MushafAudioPlayer({ dark, rtl, copy, following, onFollow, panelT
         <Pressable
           testID="audio-expand"
           accessibilityRole="button"
-          accessibilityLabel={`${expanded ? copy.collapse : copy.expand}: ${[name, ayahText].filter(Boolean).join(', ')}`}
+          accessibilityLabel={`${expanded ? copy.collapse : copy.expand}: ${[name, wholeSurah ? surahAyahText : ayahText].filter(Boolean).join(', ')}`}
           accessibilityState={{ expanded }}
           onPress={() => setExpanded(true)}
           style={({ pressed }) => [styles.chipText, rtl && styles.rowRtl, pressed && styles.pressed]}>
           <Text numberOfLines={1} style={[styles.chipLabel, { color: theme.text }, align]}>
             {name}
-            <Text style={{ color: theme.muted }}>{` · ${localDigits(position.ayah, rtl)}`}</Text>
+            <Text style={{ color: theme.muted }}>{` · ${wholeSurah ? surahLabel(position.surah, rtl) : localDigits(position.ayah, rtl)}`}</Text>
           </Text>
           {expanded ? <ChevronUp testID="audio-chip-chevron-up" size={14} color={theme.muted} /> : <ChevronDown testID="audio-chip-chevron-down" size={14} color={theme.muted} />}
         </Pressable>
@@ -193,21 +233,47 @@ export function MushafAudioPlayer({ dark, rtl, copy, following, onFollow, panelT
                 badge={(id) => (id === state.reciterId ? copy.nowReciting : id === state.pendingReciterId ? copy.upNextBadge : null)}
                 note={(id) => {
                   const candidate = getReciter(id);
-                  return candidate && candidate.timingSource !== null && !hasAyahPlayback(candidate, neededSurah) ? copy.notForThisSurah : null;
+                  if (!candidate) return null;
+                  const mode = audioMode(candidate.id, wholeSurah ? position.surah : neededSurah);
+                  if (mode === 'surah') return copy.wholeSurahOnly;
+                  // As before: a reciter with no timed recording at all says so in its coverage line instead.
+                  return mode === 'none' && candidate.timingSource !== null ? copy.notForThisSurah : null;
                 }}
               />
             </ScrollView>
           )}
 
-          {/* 2. The ayah being recited (and how it is playing). */}
+          {/* 2. The ayah being recited (and how it is playing): the Surah and ayah on the left, Full Surah on the right, in every language. */}
           <View style={styles.info}>
-            <Text testID="audio-ayah" numberOfLines={1} style={[styles.ayah, { color: theme.text }, align]}>{surahAyahText}</Text>
+            <View testID="audio-info-row" style={styles.infoRow}>
+              <Text testID="audio-ayah" numberOfLines={1} style={[styles.ayah, styles.ayahInRow, { color: theme.text }, { textAlign: 'left', writingDirection: rtl ? 'rtl' : 'ltr' }]}>{surahAyahText}</Text>
+              {!wholeSurah && fullSurahReciter && (
+                <Pressable
+                  testID="audio-full-surah"
+                  accessibilityRole="button"
+                  accessibilityLabel={copy.fullSurah}
+                  accessibilityHint={copy.fullSurahHint}
+                  onPress={() => {
+                    audioEngine.startFullSurah(position.surah, fullSurahReciter);
+                    onFollow();
+                  }}
+                  hitSlop={{ top: 7, bottom: 7, left: 4, right: 4 }}
+                  style={({ pressed }) => [styles.fullSurah, theme.go, rtl && styles.rowRtl, pressed && styles.pressed]}>
+                  <Play size={11} color={theme.onGo} fill={theme.onGo} />
+                  <Text numberOfLines={1} style={[styles.fullSurahText, { color: theme.onGo }]}>{copy.fullSurah}</Text>
+                </Pressable>
+              )}
+            </View>
             {state.offline && <Text style={[styles.subtle, { color: theme.muted }, align]}>{copy.playingOffline}</Text>}
             {state.buffering && <Text style={[styles.subtle, { color: theme.muted }, align]}>{copy.buffering}</Text>}
-            {state.phase === 'ended' && state.mode === 'continuous' && <Text style={[styles.subtle, { color: theme.muted }, align]}>{copy.ended}</Text>}
+            {wholeSurah && <Text testID="audio-whole-surah-note" style={[styles.subtle, { color: theme.muted }, align]}>{copy.wholeSurahNote}</Text>}
+            {state.phase === 'ended' && state.mode !== 'single' && <Text style={[styles.subtle, { color: theme.muted }, align]}>{copy.ended}</Text>}
           </View>
 
-          {/* 3. Progress: this ayah's place in its surah. */}
+          {/* 3. Progress: this ayah's place in its surah; for a whole surah, the place in its recording (seekable). */}
+          {wholeSurah ? (
+            <SurahSeekBar rtl={rtl} copy={copy} tone={{ track: theme.divider, fill: theme.accent, text: theme.text, muted: theme.muted }} />
+          ) : (
           <View
             testID="audio-progress"
             accessible
@@ -217,13 +283,16 @@ export function MushafAudioPlayer({ dark, rtl, copy, following, onFollow, panelT
             style={[styles.track, { backgroundColor: theme.divider }, rtl && styles.trackRtl]}>
             <View style={[styles.fill, { backgroundColor: theme.accent, width: `${Math.round((position.ayah / total) * 100)}%` }]} />
           </View>
+          )}
 
           {/*
             4. The Mushaf's own direction, the same in every app language (never mirrored by language): from the right,
             Previous page — Previous ayah — Play / Pause — Next ayah — Next page. "Previous" glyphs point right, "next"
             glyphs left, each chosen directly (no flipping transform). Page jumps: double chevrons; ayah jumps: skip icons.
           */}
-          <View testID="audio-controls" style={[styles.controls, styles.rowRtl]}>
+          <View testID="audio-controls-bar" style={styles.controlsBar}>
+          <View testID="audio-controls" style={[styles.controls, styles.rowRtl, { gap: layout.gap }]}>
+            {!wholeSurah && (
             <Pressable
               testID="audio-previous-page"
               accessibilityRole="button"
@@ -232,18 +301,19 @@ export function MushafAudioPlayer({ dark, rtl, copy, following, onFollow, panelT
               disabled={!hasPreviousPage}
               onPress={() => skipPage(-1)}
               hitSlop={4}
-              style={({ pressed }) => [styles.pageControl, !hasPreviousPage && styles.disabled, pressed && styles.pressed]}>
+              style={({ pressed }) => [styles.pageControl, { width: layout.page }, !hasPreviousPage && styles.disabled, pressed && styles.pressed]}>
               <ChevronsRight testID="audio-previous-page-icon" size={22} color={theme.icon} />
             </Pressable>
+            )}
             <Pressable
               testID="audio-previous"
               accessibilityRole="button"
-              accessibilityLabel={copy.previousAyah}
+              accessibilityLabel={wholeSurah ? copy.previousSurah : copy.previousAyah}
               accessibilityState={{ disabled: !hasPrevious }}
               disabled={!hasPrevious}
               onPress={() => skip(-1)}
               hitSlop={6}
-              style={({ pressed }) => [styles.control, !hasPrevious && styles.disabled, pressed && styles.pressed]}>
+              style={({ pressed }) => [styles.control, { width: layout.ayah }, !hasPrevious && styles.disabled, pressed && styles.pressed]}>
               <SkipForward testID="audio-previous-icon" size={22} color={theme.icon} />
             </Pressable>
             <Pressable
@@ -259,14 +329,15 @@ export function MushafAudioPlayer({ dark, rtl, copy, following, onFollow, panelT
             <Pressable
               testID="audio-next"
               accessibilityRole="button"
-              accessibilityLabel={copy.nextAyah}
+              accessibilityLabel={wholeSurah ? copy.nextSurah : copy.nextAyah}
               accessibilityState={{ disabled: !hasNext }}
               disabled={!hasNext}
               onPress={() => skip(1)}
               hitSlop={6}
-              style={({ pressed }) => [styles.control, !hasNext && styles.disabled, pressed && styles.pressed]}>
+              style={({ pressed }) => [styles.control, { width: layout.ayah }, !hasNext && styles.disabled, pressed && styles.pressed]}>
               <SkipBack testID="audio-next-icon" size={22} color={theme.icon} />
             </Pressable>
+            {!wholeSurah && (
             <Pressable
               testID="audio-next-page"
               accessibilityRole="button"
@@ -275,9 +346,25 @@ export function MushafAudioPlayer({ dark, rtl, copy, following, onFollow, panelT
               disabled={!hasNextPage}
               onPress={() => skipPage(1)}
               hitSlop={4}
-              style={({ pressed }) => [styles.pageControl, !hasNextPage && styles.disabled, pressed && styles.pressed]}>
+              style={({ pressed }) => [styles.pageControl, { width: layout.page }, !hasNextPage && styles.disabled, pressed && styles.pressed]}>
               <ChevronsLeft testID="audio-next-page-icon" size={22} color={theme.icon} />
             </Pressable>
+            )}
+          </View>
+          {/* Repeat Ayah: the bar's far right in every language, outside the centred group (never moves it). */}
+          {!wholeSurah && (
+            <Pressable
+              testID="audio-repeat"
+              accessibilityRole="button"
+              accessibilityLabel={`${copy.repeatAyah}: ${repeatSetting}`}
+              accessibilityHint={copy.repeatHint}
+              accessibilityState={{ selected: state.repeat !== 0 }}
+              onPress={() => audioEngine.cycleRepeat()}
+              hitSlop={4}
+              style={({ pressed }) => [styles.repeatControl, { width: layout.repeat }, pressed && styles.pressed]}>
+              <RepeatAyahIcon repeat={state.repeat} rtl={rtl} activeColor={theme.accent} inactiveColor={theme.muted} size={layout.repeat >= 40 ? 30 : 27} />
+            </Pressable>
+          )}
           </View>
 
           {followable && !following && (
@@ -297,7 +384,27 @@ export function MushafAudioPlayer({ dark, rtl, copy, following, onFollow, panelT
           {problem && (
             <View testID="audio-problem" style={[styles.problem, rtl && styles.rowRtl]}>
               <Text accessibilityLiveRegion="polite" style={[styles.problemText, { color: theme.error }, align]}>{problem}</Text>
-              {state.notice ? (
+              {offersWholeSurah ? (
+                <View style={styles.problemActions}>
+                  <Pressable testID="audio-play-whole-surah" accessibilityRole="button" onPress={() => audioEngine.playWholeSurah()} hitSlop={6}>
+                    <Text style={[styles.problemAction, { color: theme.accent }]}>{copy.playWholeSurah}</Text>
+                  </Pressable>
+                  <Pressable
+                    testID="audio-whole-surah-cancel"
+                    accessibilityRole="button"
+                    onPress={() => {
+                      // A notice only dismisses (the current recitation goes on); a stopped Listen closes the player.
+                      if (state.notice) audioEngine.dismissNotice();
+                      else {
+                        close();
+                        audioEngine.stop();
+                      }
+                    }}
+                    hitSlop={6}>
+                    <Text style={[styles.problemAction, { color: theme.muted }]}>{state.notice ? copy.dismiss : copy.cancel}</Text>
+                  </Pressable>
+                </View>
+              ) : state.notice ? (
                 <Pressable accessibilityRole="button" onPress={() => audioEngine.dismissNotice()} hitSlop={6}>
                   <Text style={[styles.problemAction, { color: theme.accent }]}>{copy.dismiss}</Text>
                 </Pressable>
@@ -312,6 +419,22 @@ export function MushafAudioPlayer({ dark, rtl, copy, following, onFollow, panelT
       </Modal>
     </>
   );
+}
+
+/**
+ * The controls bar: the five main controls centred as one group, Repeat at the bar's right edge. The group's gaps leave
+ * room for Repeat on both sides, so the group stays centred and never meets it. Windows too narrow for that (the
+ * narrowest iPhones, ~280 pt inside the window) get slightly smaller controls, never another order.
+ */
+export function controlsLayout(available: number) {
+  const regular = { page: 40, ayah: 44, repeat: 40 };
+  const compact = { page: 34, ayah: 38, repeat: 36 };
+  for (const size of [regular, compact]) {
+    const group = 2 * size.page + 2 * size.ayah + 48;
+    const gap = Math.floor((available - 2 * (size.repeat + 4) - group) / 4);
+    if (gap >= 4 || size === compact) return { ...size, gap: Math.max(2, Math.min(12, gap)) };
+  }
+  return { ...regular, gap: 12 };
 }
 
 const styles = StyleSheet.create({
@@ -393,6 +516,36 @@ const styles = StyleSheet.create({
   info: {
     gap: 2,
   },
+  infoRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 10,
+    justifyContent: 'space-between',
+  },
+  ayahInRow: {
+    flex: 1,
+  },
+  fullSurah: {
+    alignItems: 'center',
+    borderRadius: 14,
+    flexDirection: 'row',
+    flexShrink: 0,
+    gap: 5,
+    height: 28,
+    paddingHorizontal: 10,
+  },
+  fullSurahText: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  repeatControl: {
+    alignItems: 'center',
+    bottom: 0,
+    justifyContent: 'center',
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
   ayah: {
     fontSize: 14,
     fontWeight: '600',
@@ -414,11 +567,14 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     height: 4,
   },
-  /** Five controls in one row (about 272 pt with its gaps): fits the narrowest iPhone's window (304 pt less padding). */
+  controlsBar: {
+    justifyContent: 'center',
+    minHeight: 52,
+  },
+  /** The five main controls, centred; the gap is set from the window's width (controlsLayout). */
   controls: {
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 12,
     justifyContent: 'center',
     paddingVertical: 4,
   },
@@ -470,6 +626,10 @@ const styles = StyleSheet.create({
   problemAction: {
     fontSize: 14,
     fontWeight: '700',
+  },
+  problemActions: {
+    alignItems: 'flex-end',
+    gap: 10,
   },
   pressed: {
     opacity: 0.7,

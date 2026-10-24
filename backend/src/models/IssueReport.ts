@@ -1,7 +1,7 @@
 import { Schema, model, models } from 'mongoose';
 
 import { isValidVerseKey } from '../quran/referenceKeys';
-import { ISSUE_REPORT_CATEGORIES, ISSUE_REPORT_NOTIFICATION_STATES, ISSUE_REPORT_SOURCES, ISSUE_REPORT_TYPES } from '../types/accountDomain';
+import { AUDIO_ISSUE_PROBLEMS, ISSUE_REPORT_CATEGORIES, ISSUE_REPORT_NOTIFICATION_STATES, ISSUE_REPORT_SOURCES, ISSUE_REPORT_TYPES } from '../types/accountDomain';
 import type { IssueReportEntity, IssueReportNotificationState } from '../types/accountDomain';
 
 const TRANSLATION_DISPLAY_MODES = ['always', 'on-demand', 'off'] as const;
@@ -83,6 +83,26 @@ const issueReportSchema = new Schema<IssueReportEntity>(
     ayahNumber: {
       type: Number,
       min: 1,
+    },
+    // Audio Issues only (issueValidators.ts): the app's identifiers for the recording and its playback.
+    audioProblem: {
+      type: String,
+      enum: AUDIO_ISSUE_PROBLEMS,
+    },
+    reciterId: {
+      type: String,
+      trim: true,
+      maxlength: 40,
+    },
+    audioSource: {
+      type: String,
+      trim: true,
+      maxlength: 300,
+    },
+    playbackContext: {
+      type: String,
+      trim: true,
+      maxlength: 200,
     },
     appLocale: {
       type: String,

@@ -4,7 +4,7 @@ import { useFonts } from 'expo-font';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, CircleHelp, Headphones, Maximize2, Minimize2 } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { BackHandler, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { BackHandler, Platform, Pressable, StyleSheet, Text, View, type LayoutRectangle } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -84,6 +84,7 @@ import { getSurahName } from '@/services/surahNames';
 import { useThemedStyles, useThemeName } from '@/theme/useTheme';
 import { devLog } from '@/utils/devLog';
 import { goBackOrHome } from '@/utils/goBackOrHome';
+import { MushafFeatureLayer } from '@/mushafFeatures/MushafFeatureLayer';
 
 /**
  * The Mushaf reader (/mushaf): a plain Back arrow in a slim row under the
@@ -200,6 +201,10 @@ export const restartedWithoutProgress = (cycle: ReadingCycle) => cycle.startedBy
  */
 export const END_LINK_MAX_WIDTH = '29%';
 export const PAGE_604_PILL_MAX_WIDTH = '30%';
+/** Page 604's links on the page number's line: half their band's height (room for their text and its touch target). */
+const END_LINK_BAND_HALF = 28;
+/** About half a link's height at the default text size (27 pt on the Android emulator), for its touch target's top. */
+const END_LINK_HALF_HEIGHT = 14;
 /** How long Copy reads "Copied" after it succeeds (as the ayah card's copy icon). */
 const COPY_CONFIRMATION_MS = 1300;
 /** Two taps this close together are a double-tap, which resets the zoom rather than selecting. */
@@ -449,12 +454,15 @@ export default function MushafScreen() {
   const playback = usePlayback();
   const { reciterId: favoriteReciterId } = useFavoriteReciter();
   /**
-   * The page of the ayah being recited in the Mushaf's continuous playback (null when nothing is, or for an ayah
-   * screen's single ayah): shown while following, highlighted wherever it is drawn.
+   * The page of the ayah being recited in the Mushaf's playback (continuous or Full Surah; null when nothing is, or for an ayah
+   * screen's single ayah): shown while following, highlighted wherever it is drawn. Whole-surah playback (no verified
+   * ayah timing) has no known ayah: nothing is highlighted and no page is turned to.
    */
-  const playingPosition = playback.phase !== 'idle' && playback.mode === 'continuous' ? playback.position : null;
+  // Nor does a stop that is waiting for the whole-surah choice: that recording cannot recite the ayah asked for.
+  const knownAyah = playback.phase !== 'idle' && playback.granularity === 'ayah' && playback.error?.kind !== 'surah-only' ? playback.position : null;
+  const playingPosition = knownAyah && playback.mode !== 'single' ? knownAyah : null;
   const playingPage = playingPosition ? pageOfPosition(playingPosition) : null;
-  const playingVerseKey = playback.phase !== 'idle' && playback.position ? verseKeyOf(playback.position) : null;
+  const playingVerseKey = knownAyah ? verseKeyOf(knownAyah) : null;
   // Whether the page shown follows the recitation. Set by the reader's own page moves (goTo, turn, a link): false away
   // from the recited page, true on it; true again for every new listening session, Follow recitation, and when the
   // recitation reaches the page being read.
@@ -497,6 +505,14 @@ export default function MushafScreen() {
   const [stops, setStops] = useState<ReadingStop[]>([]);
   const [activeStopId, setActiveStopId] = useState<string | null>(null);
   const [isWirdOpen, setIsWirdOpen] = useState(false);
+  // The feature sheets (mushafFeatures/: المعاني, عن السورة): whether one is open (they keep their own state; Normal Mode only).
+  const [featureSheetOpen, setFeatureSheetOpen] = useState(false);
+  // The widest the ورد pill may be so those buttons fit beside it (a long name then ends in “…” sooner); null: no limit.
+  const [featurePillRoom, setFeaturePillRoom] = useState<number | null>(null);
+  // The ورد pill as laid out in its row: المعاني sits on its line when there is room beside it.
+  const [wirdPill, setWirdPill] = useState<LayoutRectangle | null>(null);
+  // Page 604: إتمام الختمة's lower edge as laid out (in the page area), the highest المعاني may reach under it.
+  const [endLinkBottom, setEndLinkBottom] = useState<number | null>(null);
   const activeStop = activeReadingStop(stops, activeStopId);
   // Set once the reader moves: the active stop's page then no longer replaces the opening page.
   const hasNavigated = useRef(false);
@@ -776,10 +792,11 @@ export default function MushafScreen() {
     }
   };
   /** The voice for a new Play / Listen: the player's current (or up-next) reciter, else the Favorite Reciter. */
-  const listeningReciter = () => (playback.phase !== 'idle' && playback.mode === 'continuous' ? playback.pendingReciterId ?? playback.reciterId : null) ?? favoriteReciterId;
+  // The reciter asked for, never the fallback voice heard in its place (Al-Minshawi where it has no recording).
+  const listeningReciter = () => (playback.phase !== 'idle' && playback.mode !== 'single' ? playback.pendingReciterId ?? playback.preferredReciterId ?? playback.reciterId : null) ?? favoriteReciterId;
   // Following: the page turns by itself to the recited ayah's page — after any popup, sheet or the guide is closed,
   // so nothing open is ever moved from under the reader. No ورد, Khatma or last browsed page changes.
-  const blockingOverlay = overlay !== null || isReflectionVisible || sharing !== null || guideVisible || isWirdOpen || reached !== null || khatmaNotice !== null;
+  const blockingOverlay = overlay !== null || isReflectionVisible || sharing !== null || guideVisible || isWirdOpen || reached !== null || khatmaNotice !== null || featureSheetOpen;
   // Applied while rendering (React's "adjust state when a prop changes", as for ?page= above): no extra commit.
   if (following && playingPage !== null && playingPage !== page && !blockingOverlay) {
     setAutoTurnedPage(playingPage);
@@ -1013,6 +1030,15 @@ export default function MushafScreen() {
   // size the area may already have left (a rotation): page 604's fitted link labels must never be squeezed (Android
   // keeps a shrunk adjustsFontSizeToFit label). Phones (the page is the window's width less 6 pt): the full width.
   const wirdRowSpan = windowClassFor(area.width) === 'compact' ? null : { left: '50%' as const, marginLeft: -pageWidth / 2, right: undefined, width: pageWidth };
+  // Page 604's two links, on the page number's line (the page's strip under the frame, above the ورد row): centred on
+  // that line at their own size, in a band that lets every other touch through. Their touch targets reach up at most
+  // 8 pt as before (never into the Quran text) and not below them: المعاني, under إتمام الختمة, stays below its measured
+  // lower edge.
+  const endLinks = page === MUSHAF_PAGE_COUNT && pageWidth > 0 ? (() => {
+    const { pageNumber, text } = computePageLayout(pageWidth, fit.tilesDown);
+    const centre = pageNumber.y + pageNumber.height / 2;
+    return { band: { top: centre - END_LINK_BAND_HALF, height: 2 * END_LINK_BAND_HALF }, slopTop: Math.max(0, Math.min(8, centre - END_LINK_HALF_HEIGHT - (text.y + text.height + 2))) };
+  })() : null;
   useEffect(() => {
     const before = placedOn.current;
     placedOn.current = pageBox;
@@ -1275,39 +1301,75 @@ export default function MushafScreen() {
               onAdd={addStop}
               onManage={manageWirds}
               anchorBottom={insets.bottom + PAGE_PANEL_GAP + (fit.viewport.height - pageHeight + WIRD_PILL_HEIGHT) / 2}
-              // Page 604 shares the row with إتمام الختمة and the du'a (each at most END_LINK_MAX_WIDTH): the name
-              // keeps the middle, never reaching them.
-              pillMaxWidth={page === MUSHAF_PAGE_COUNT ? PAGE_604_PILL_MAX_WIDTH : undefined}
+              // Page 604: the name keeps the middle of its row, beside المعاني, under إتمام الختمة and the du'a (each at
+              // most END_LINK_MAX_WIDTH), never reaching any of them.
+              // The feature buttons' room beside it, where that is narrower (only a long name is shortened sooner).
+              pillMaxWidth={featurePillRoom !== null
+                ? Math.min(featurePillRoom, (page === MUSHAF_PAGE_COUNT ? 0.3 : 0.72) * (wirdRowSpan ? pageWidth : area.width))
+                : page === MUSHAF_PAGE_COUNT ? PAGE_604_PILL_MAX_WIDTH : undefined}
+              onPillLayout={setWirdPill}
             />
-            {/*
-              Page 604 only, either side of the ورد name, in every language (the row never mirrors) and always in
-              Standard Arabic: on the left إتمام الختمة, on the right the optional دعاء ختم القرآن (its own screen,
-              not a page 605, once a verified text is approved). The same link design; each at most
-              END_LINK_MAX_WIDTH of the row, one line, its text shrinking slightly rather than clipping.
-            */}
-            {page === MUSHAF_PAGE_COUNT && KHATM_DUA && (
+          </View>
+        )}
+        {/*
+          Page 604 only, on the page number's line above the ورد row, in every language (it never mirrors) and always in
+          Standard Arabic: on the left إتمام الختمة (above المعاني), on the right the optional دعاء ختم القرآن (its own
+          screen, not a page 605, once a verified text is approved). The same link design; each at most
+          END_LINK_MAX_WIDTH of the row's width, one line, its text shrinking slightly rather than clipping.
+        */}
+        {endLinks && !fullScreen && (
+          <View
+            testID="mushaf-604-links"
+            pointerEvents={zoomed ? 'none' : 'box-none'}
+            style={[styles.wirdRow, wirdRowSpan, { ...endLinks.band, opacity: zoomed ? 0 : 1 }]}>
+            {KHATM_DUA && (
               <Pressable
                 testID="mushaf-khatm-dua"
                 accessibilityRole="button"
                 accessibilityLabel={messages.khatmDua.open}
                 onPress={() => router.push('/khatm-dua')}
-                hitSlop={8}
+                hitSlop={{ top: endLinks.slopTop, bottom: 0, left: 8, right: 8 }}
                 style={({ pressed }) => [styles.duaLink, styles.endLink, { right: spacing.md }, pressed && styles.pressed]}>
                 <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} style={[styles.duaLinkText, styles.textRight, { color: iconColor }]}>{messages.khatmDua.open}</Text>
               </Pressable>
             )}
-            {page === MUSHAF_PAGE_COUNT && (
-              <Pressable
-                testID="mushaf-complete-khatma"
-                accessibilityRole="button"
-                accessibilityLabel={messages.khatma.completeAction}
-                onPress={() => void completeKhatma()}
-                hitSlop={8}
-                style={({ pressed }) => [styles.duaLink, styles.endLink, { left: spacing.md }, pressed && styles.pressed]}>
-                <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} style={[styles.duaLinkText, styles.textLeft, { color: iconColor }]}>{messages.khatma.completeAction}</Text>
-              </Pressable>
-            )}
+            <Pressable
+              testID="mushaf-complete-khatma"
+              accessibilityRole="button"
+              accessibilityLabel={messages.khatma.completeAction}
+              onPress={() => void completeKhatma()}
+              hitSlop={{ top: endLinks.slopTop, bottom: 0, left: 8, right: 8 }}
+              onLayout={(event) => setEndLinkBottom(endLinks.band.top + event.nativeEvent.layout.y + event.nativeEvent.layout.height)}
+              style={({ pressed }) => [styles.duaLink, styles.endLink, { left: spacing.md }, pressed && styles.pressed]}>
+              <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} style={[styles.duaLinkText, styles.textLeft, { color: iconColor }]}>{messages.khatma.completeAction}</Text>
+            </Pressable>
           </View>
+        )}
+        {/*
+          The feature buttons, Meanings (المعاني) and Surah Preview (عن السورة, where a Surah begins), and their sheets:
+          Normal Mode only. In full screen they are not mounted at all (no button, sheet or touch target), and switching
+          to full screen closes an open sheet. One row beside the ورد pill, or beneath it where there is no room (page
+          604: under إتمام الختمة and the du'a). Nothing of the page moves. Hidden while zoomed, before the page is drawn
+          and while another popup is open.
+        */}
+        {pageWidth > 0 && !fullScreen && (
+          <MushafFeatureLayer
+            page={page}
+            areaWidth={area.width}
+            pageWidth={pageWidth}
+            tilesDown={fit.tilesDown}
+            showControls={!zoomed && Boolean(drawn) && overlay === null}
+            dark={dark}
+            wirdPill={wirdPill}
+            rowLeft={wirdRowSpan ? (area.width - pageWidth) / 2 : 0}
+            rowTop={pageHeight}
+            // The ورد row is centred on the area on every device (phones: the full width; tablets: the page's).
+            rowCentre={area.width / 2}
+            minTop={page === MUSHAF_PAGE_COUNT ? endLinkBottom : pageHeight}
+            pillText={activeStop ? 'text' : 'accent'}
+            onOpenChange={setFeatureSheetOpen}
+            onPillRoom={setFeaturePillRoom}
+          />
         )}
       </View>
 

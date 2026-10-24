@@ -30,7 +30,7 @@ vi.mock('react-native', () => ({
   Pressable: 'Pressable', RefreshControl: 'RefreshControl', ScrollView: 'ScrollView', Text: 'Text', View: 'View',
 }));
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView' }));
-vi.mock('lucide-react-native', () => ({ ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', Flag: 'Flag', RefreshCw: 'RefreshCw', Settings: 'Settings', Share2: 'Share2' }));
+vi.mock('lucide-react-native', () => ({ ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', Flag: 'Flag', RefreshCw: 'RefreshCw', Settings: 'Settings', Share2: 'Share2', Volume2: 'Volume2' }));
 vi.mock('expo-router', async () => {
   const { createElement: h } = await import('react');
   return { router: { back: state.back }, useLocalSearchParams: () => state.params, Link: ({ href, children }: { href: string; children: unknown }) => h('Link', { href }, children as never) };
@@ -133,7 +133,10 @@ describe('opening a shared ayah link', () => {
     await render(LinkedAyahScreen, { surah: '94', ayah: '5' });
     expect(root.root.findAllByType('Text' as never).map((node) => node.props.children)).toContain(MESSAGES.en.appName);
     expect(state.recordShownAyah).toHaveBeenCalledWith(GENERAL_QURAN_HISTORY_KEY, expect.objectContaining({ verseKey: '94:5' }));
-    expect(root.root.findByType('ReportIssueSheet' as never).props.context.emotionKey).toBeUndefined();
+    // Report an Issue and Audio Issue: neither carries the emotion.
+    const sheets = root.root.findAllByType('ReportIssueSheet' as never);
+    expect(sheets.map((sheet) => sheet.props.variant)).toEqual(['ayah', 'audio']);
+    for (const sheet of sheets) expect(sheet.props.context.emotionKey).toBeUndefined();
   });
 
   it('shows the linked ayah even when it is in recent history (never swapped for another)', async () => {

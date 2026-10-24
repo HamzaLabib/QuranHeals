@@ -1,0 +1,13 @@
+{
+  "note": "Ayah references in the King Fahd source that point to the wrong ayah, each found by validate.mjs (the entry's word is not in the ayah it is listed under) and checked by hand against the Mushaf. Only the reference changes: the word and its explanation stay exactly as the source has them. Each must match exactly one entry (its Surah, the source's ayah and the SHA-256 of its UTF-8 word, so no King Fahd text is kept here), or the import stops. Applied to our derived data only; the original file is unchanged.",
+  "approved": "2026-10-24 by the owner",
+  "corrections": [
+    {
+      "surah": 30,
+      "sourceAyah": 49,
+      "ayah": 50,
+      "wordSha256": "55f51f8da7f182ec2db91f1dbd819eb7bb486fd1bbd7cc92202ffcf327bf3c08",
+      "reason": "Listed at the end of 30:49's paragraph, but the phrase («after its death», of the earth) is in 30:50, the next ayah, and not in 30:49. Both ayahs are on page 409, so the page is unaffected; only the ayah shown with the entry changes."
+    }
+  ]
+}

@@ -2,11 +2,16 @@ import { useEffect, useState, useSyncExternalStore } from 'react';
 
 import { audioDownloads, audioEngine, audioFiles } from './index';
 import type { DownloadState } from './downloads';
-import type { PlaybackState } from './engine';
+import type { PlaybackState, SurahProgress } from './engine';
 
 /** The playback state, re-rendering on every change (one store for the whole app). */
 export function usePlayback(): PlaybackState {
   return useSyncExternalStore(audioEngine.subscribe, audioEngine.getState, audioEngine.getState);
+}
+
+/** Whole-surah playback's place in the file. Only the player's position bar uses it (it changes several times a second). */
+export function useSurahProgress(): SurahProgress {
+  return useSyncExternalStore(audioEngine.subscribeProgress, audioEngine.getProgress, audioEngine.getProgress);
 }
 
 export function useAudioDownload(): DownloadState {

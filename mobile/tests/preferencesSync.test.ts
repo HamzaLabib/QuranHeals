@@ -252,6 +252,17 @@ describe('recent-ayah history is never part of preferences sync', () => {
   });
 });
 
+describe('Quran Translation (synced as quranLanguage)', () => {
+  it("the value synced while it was called Quran Language is None's own id; anything else is never applied", async () => {
+    const { isSyncedPreferenceValue } = await import('@/sync/preferenceFields');
+    const { DEFAULT_QURAN_READING_MODE, QURAN_READING_MODES } = await import('@/localization/quranLanguage');
+    expect(QURAN_READING_MODES).toEqual([{ id: 'quran-text', labelKey: 'quranTranslationNone' }]);
+    expect(DEFAULT_QURAN_READING_MODE).toBe('quran-text');
+    expect(isSyncedPreferenceValue('quranLanguage', 'quran-text')).toBe(true);
+    for (const unsupported of ['english', 'en', 'turkish', 'none', '', null, 3]) expect(isSyncedPreferenceValue('quranLanguage', unsupported)).toBe(false);
+  });
+});
+
 describe('device-only settings are never synced', () => {
   it('notifications, Keep Screen Awake, offline download, the Mushaf guide and the last browsed page are not account fields', async () => {
     const { SYNCED_PREFERENCE_FIELDS } = await import('@/sync/preferenceFields');

@@ -86,7 +86,7 @@ afterEach(async () => {
 
 describe('أورادي وختماتي', () => {
   it('the title keeps its wording, with «اقرأ وارتقِ» / Recite and Rise directly under it, in the App Language and its direction', async () => {
-    for (const [locale, title, subtitle, direction] of [['en', 'Recitings and Khatmas', 'Recite and Rise', 'ltr'], ['ar', 'الوِرد والختمات', 'اقرأ وارتقِ', 'rtl']] as const) {
+    for (const [locale, title, subtitle, direction] of [['en', 'My Reciting and Khatmas', 'Recite and Rise', 'ltr'], ['ar', 'الوِرد والختمات', 'اقرأ وارتقِ', 'rtl']] as const) {
       state.locale = locale;
       await render();
       const header = root.root.findAll((node) => node.type === ('Text' as never) && node.props.accessibilityRole === 'header')[0];

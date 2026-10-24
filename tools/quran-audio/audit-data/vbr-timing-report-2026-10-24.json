@@ -1,0 +1,195 @@
+{
+ "kind": "vbr-timing-report",
+ "createdAt": "2026-10-24T12:40:40.159Z",
+ "reciters": {
+  "ajmi": {
+   "enabled": {
+    "42": {
+     "key": "ajmi-42",
+     "fingerprint": "c0721c8d",
+     "reviewer1": 0,
+     "automatic": 53,
+     "repaired": [
+      "33: 607380 -> 607200 ms"
+     ]
+    }
+   },
+   "unavailable": {}
+  },
+  "islam-sobhi": {
+   "enabled": {
+    "21": {
+     "key": "islam-sobhi-21",
+     "fingerprint": "a052f866",
+     "reviewer1": 0,
+     "automatic": 112,
+     "repaired": [
+      "3: 19493 -> 19170 ms",
+      "98: 1242720 -> 1242310 ms"
+     ]
+    },
+    "23": {
+     "key": "islam-sobhi-23",
+     "fingerprint": "33b8e794",
+     "reviewer1": 0,
+     "automatic": 118
+    },
+    "25": {
+     "key": "islam-sobhi-25",
+     "fingerprint": "fec8fcfe",
+     "reviewer1": 0,
+     "automatic": 77
+    },
+    "29": {
+     "key": "islam-sobhi-29",
+     "fingerprint": "63cfd744",
+     "reviewer1": 0,
+     "automatic": 69
+    },
+    "30": {
+     "key": "islam-sobhi-30",
+     "fingerprint": "e3301d68",
+     "reviewer1": 0,
+     "automatic": 60
+    },
+    "38": {
+     "key": "islam-sobhi-38",
+     "fingerprint": "a920f123",
+     "reviewer1": 0,
+     "automatic": 88
+    },
+    "47": {
+     "key": "islam-sobhi-47",
+     "fingerprint": "f671759c",
+     "reviewer1": 0,
+     "automatic": 38
+    },
+    "48": {
+     "key": "islam-sobhi-48",
+     "fingerprint": "097ce241",
+     "reviewer1": 0,
+     "automatic": 29
+    },
+    "49": {
+     "key": "islam-sobhi-49",
+     "fingerprint": "63c96242",
+     "reviewer1": 0,
+     "automatic": 18
+    },
+    "52": {
+     "key": "islam-sobhi-52",
+     "fingerprint": "0e7bdb29",
+     "reviewer1": 0,
+     "automatic": 49
+    },
+    "57": {
+     "key": "islam-sobhi-57",
+     "fingerprint": "3799cc24",
+     "reviewer1": 0,
+     "automatic": 29
+    },
+    "62": {
+     "key": "islam-sobhi-62",
+     "fingerprint": "0e756455",
+     "reviewer1": 0,
+     "automatic": 11
+    },
+    "72": {
+     "key": "islam-sobhi-72",
+     "fingerprint": "ba418c6f",
+     "reviewer1": 0,
+     "automatic": 28
+    },
+    "95": {
+     "key": "islam-sobhi-95",
+     "fingerprint": "9876cec6",
+     "reviewer1": 0,
+     "automatic": 8
+    },
+    "98": {
+     "key": "islam-sobhi-98",
+     "fingerprint": "998c7765",
+     "reviewer1": 0,
+     "automatic": 8
+    },
+    "99": {
+     "key": "islam-sobhi-99",
+     "fingerprint": "83efa531",
+     "reviewer1": 0,
+     "automatic": 8
+    },
+    "100": {
+     "key": "islam-sobhi-100",
+     "fingerprint": "cc1d81a5",
+     "reviewer1": 11,
+     "automatic": 0
+    },
+    "101": {
+     "key": "islam-sobhi-101",
+     "fingerprint": "95af12fb",
+     "reviewer1": 0,
+     "automatic": 11
+    },
+    "104": {
+     "key": "islam-sobhi-104",
+     "fingerprint": "5e1fb143",
+     "reviewer1": 0,
+     "automatic": 9
+    },
+    "105": {
+     "key": "islam-sobhi-105",
+     "fingerprint": "76e6b937",
+     "reviewer1": 0,
+     "automatic": 5
+    },
+    "106": {
+     "key": "islam-sobhi-106",
+     "fingerprint": "5154c05f",
+     "reviewer1": 0,
+     "automatic": 4
+    },
+    "107": {
+     "key": "islam-sobhi-107",
+     "fingerprint": "d297e52d",
+     "reviewer1": 0,
+     "automatic": 7
+    },
+    "108": {
+     "key": "islam-sobhi-108",
+     "fingerprint": "497a8b1a",
+     "reviewer1": 0,
+     "automatic": 3
+    },
+    "110": {
+     "key": "islam-sobhi-110",
+     "fingerprint": "3ce4f646",
+     "reviewer1": 0,
+     "automatic": 3
+    },
+    "111": {
+     "key": "islam-sobhi-111",
+     "fingerprint": "5288b0cc",
+     "reviewer1": 0,
+     "automatic": 5
+    }
+   },
+   "unavailable": {
+    "17": "unresolved structure: the two alignment configurations disagree by 5.0-12.7 s at 17:22, 58, 88 (extra audio), in the original and in its CBR copy",
+    "24": "unresolved structure: the two alignment configurations disagree by 3.1-11.2 s at 24:9, 34, 37, 41, 42, 57 (extra audio); a CBR copy's alignment and the accepted timing disagree by 1.7 s (24:34) and 5.1 s (24:57)",
+    "74": "opening possibly clipped: the file starts with sound (-14.5 dB in its first 50 ms, recitation level within 100 ms)",
+    "109": "opening clipped: the file starts at full recitation level (a CBR copy has sound before this point); ayah 1 itself complete from 1.9 s"
+   }
+  },
+  "yasser-salama": {
+   "enabled": {
+    "48": {
+     "key": "yasser-salama-48",
+     "fingerprint": "c22256f9",
+     "reviewer1": 0,
+     "automatic": 29
+    }
+   },
+   "unavailable": {}
+  }
+ }
+}

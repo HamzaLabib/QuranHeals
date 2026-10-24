@@ -11,6 +11,8 @@ expo-env.d.ts
 
 # Native
 .kotlin/
+# Gradle's local cache, written when a local Expo module (modules/*/android) is compiled
+.gradle/
 *.orig.*
 *.jks
 *.p8

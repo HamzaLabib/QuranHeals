@@ -1,0 +1,47 @@
+# Render Blueprint (Phase 4.8.2) for the PRIVATE audio review dashboard. A separate web service and a separate
+# database: nothing here refers to, restarts or changes the production Quran Heals API or its MongoDB.
+# Nothing is created until the owner applies this Blueprint in the Render dashboard (it costs money; see README).
+# Secrets are `sync: false`: entered in the Render dashboard, never committed.
+services:
+  - type: web
+    name: quran-heals-audio-review
+    runtime: docker
+    plan: starter            # always on (no sleeping); 512 MB, 0.5 CPU
+    region: oregon           # choose the region you prefer; it must match the database's
+    dockerContext: .
+    dockerfilePath: ./tools/quran-audio/review/cloud/Dockerfile
+    healthCheckPath: /healthz
+    autoDeploy: false        # deploy only when the owner chooses to
+    numInstances: 1
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: quran-heals-audio-review-db
+          property: connectionString
+      - key: DATABASE_SSL
+        value: "off"         # the internal connection stays on Render's private network; set "no-verify" if Render requires TLS
+      - key: PUBLIC_URL      # https://quran-heals-audio-review.onrender.com (the service's own URL, exactly)
+        sync: false
+      - key: GOOGLE_CLIENT_ID   # a NEW Google OAuth "Web application" client for this dashboard
+        sync: false
+      - key: ADMIN_TOKEN_SHA256 # SHA-256 (hex) of the administrator CLI token; the token itself stays on your computer
+        sync: false
+      - key: BOOTSTRAP_ADMIN_EMAIL # the owner's Google e-mail: the first administrator account
+        sync: false
+      - key: BOOTSTRAP_ADMIN_NAME
+        value: Owner           # NOT "Hamza": that name is linked explicitly after the migration (README, step 7)
+      - key: PUBLICATION_MODE # Phase 4.8.3: automatic publication to the app. off until the owner authorizes enabling it
+        value: "off"
+      - key: PUBLICATION_ENVIRONMENTS
+        value: development,production
+      - key: APP_AUDIO_CAPABILITIES # Phase 4.8.5: exact-seek methods the RELEASED app ships (VBR: none yet)
+        value: '{"cbr-exact":["android","ios"],"vbr-mllt":[]}'
+
+databases:
+  - name: quran-heals-audio-review-db
+    plan: basic-256mb
+    region: oregon
+    databaseName: audio_review
+    user: audio_review
+    postgresMajorVersion: "17"
+    ipAllowList: []          # no access from the internet; add your computer's IP only while migrating or backing up

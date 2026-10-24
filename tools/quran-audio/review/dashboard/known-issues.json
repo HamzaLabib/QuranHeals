@@ -1,0 +1,44 @@
+{
+  "kind": "audio-review-known-issues",
+  "version": 1,
+  "about": "Documented, unresolved listening concerns from earlier phases, attached to the matching dashboard recording (reciterId + surah + provider). Each entry cites the report that established it. Nothing here approves or blocks timing by itself: concerns are shown to the reviewer; notReviewable lists recordings that have no review package and why. Edit only with a source.",
+  "startHere": {
+    "about": "The owner's Phase 4.8 order: Rifaat 98, 73, 72, 78; then Saleh Al-Talib 87, 88, 91, 63 and Islam Sobhi 65.",
+    "keys": ["rifaat-98", "rifaat-73", "rifaat-72", "rifaat-78", "saleh-talib-87-archive", "saleh-talib-88-archive", "saleh-talib-91-archive", "saleh-talib-63-archive", "islam-sobhi-65-way2quran"]
+  },
+  "concerns": [
+    { "reciterId": "islam-sobhi", "surahs": [54], "provider": "mp3quran", "kind": "content", "text": "411 s of audio after the last ayah: Surat Ad-Dukhan (44) recited after Al-Qamar (Phase 4.7 positive control). Place the recitation end at the end of Al-Qamar and flag the appended audio.", "source": "docs/audio/flagged-recordings-2026-10-18.md; docs/audio/experimental-alignment-phase-4-7-2026-10-18.md §4" },
+    { "reciterId": "islam-sobhi", "surahs": [112], "provider": "mp3quran", "kind": "content", "text": "14 s of unexplained audio after the last ayah: identify it before approving.", "source": "docs/audio/flagged-recordings-2026-10-18.md" },
+    { "reciterId": "saleh-talib", "surahs": [1], "provider": "mp3quran", "kind": "content", "text": "44 s before ayah 1: the imam's row instructions («استووا… أقيموا صفوفكم») and the takbir (Phase 4.7 positive control). Flag it; ayah 1 starts after it.", "source": "docs/audio/flagged-recordings-2026-10-18.md; docs/audio/experimental-alignment-phase-4-7-2026-10-18.md §4" },
+    { "reciterId": "yasser-salama", "surahs": [114], "provider": "mp3quran", "kind": "content", "text": "27 s after the last ayah, perhaps a dua: identify it before approving.", "source": "docs/audio/flagged-recordings-2026-10-18.md" },
+    { "reciterId": "ajmi", "surahs": [74], "provider": "mp3quran", "kind": "repetition", "text": "Ayahs cover only 64 % of the file and the rejected MP3Quran timing ended 37 s before the audio: listen for a repetition inside the surah.", "source": "docs/audio/flagged-recordings-2026-10-18.md" },
+    { "reciterId": "husary", "surahs": [1], "provider": "mp3quran", "kind": "content", "text": "MP3Quran's own timing lacked an ayah; the audio has all 7. Confirm all 7 by ear.", "source": "docs/audio/flagged-recordings-2026-10-18.md" },
+    { "reciterId": "maher", "surahs": [34, 68], "provider": "mp3quran", "kind": "production-history", "text": "Withdrawn from production on a measurement bug (first-frame offset in audit/maher-qf-crosscheck.mjs); 34:25 and 68:12 are in fact in a pause. Re-enabling is an owner decision; this review is the listening evidence for it.", "source": "docs/audio/alignment-phase-4-1-2026-10-18.md §1 B3" },
+    { "reciterId": "maher", "surahs": [3, 42], "provider": "mp3quran", "kind": "production-history", "text": "Withdrawn from production on the opening-letter boundary (3:2, 42:3), established by the boundary sweep. Listen to ayahs 1-2 first.", "source": "docs/audio/alignment-phase-4-1-2026-10-18.md §1 B3" },
+    { "reciterId": "shuraim", "surahs": [40], "provider": "mp3quran", "kind": "boundary", "text": "40:74 is shallow and uncorroborated (MP3Quran's timing is offset by +7.9 s from ayah 65): listen to it first.", "source": "docs/audio/alignment-phase-4-1-2026-10-18.md §2" },
+    { "reciterId": "husary", "surahs": [46], "provider": "mp3quran", "kind": "boundary", "text": "46:21 displaced (49 dB down, MP3Quran agrees): the only Husary priority-1 boundary.", "source": "docs/audio/alignment-phase-4-1-2026-10-18.md §2" },
+    { "reciterId": "saleh-talib", "surahs": [86], "provider": "mp3quran", "kind": "boundary", "text": "Repaired by the Phase 4.2 boundary rule (a short ayah had snapped to the pause after it); the earlier Phase 4 candidate is superseded.", "source": "docs/audio/failed-recordings-phase-4-2-2026-10-18.md" },
+    { "reciterId": "yasser-salama", "surahs": [90], "provider": "mp3quran", "kind": "boundary", "text": "Repaired by the Phase 4.2 boundary rule (structure failure in Phase 4.1).", "source": "docs/audio/failed-recordings-phase-4-2-2026-10-18.md" },
+    { "reciterId": "yasser-salama", "surahs": "all", "provider": "mp3quran", "kind": "identity", "text": "MP3Quran names the reciter «ياسر سلامة»; Phase 4.6 corroborated the voice (midad files it under «ياسر محمود سلامة»). Confirm the voice by ear.", "source": "docs/audio/missing-surah-source-discovery-phase-4-6-2026-10-18.md" },
+    { "reciterId": "saleh-talib", "surahs": "all", "provider": "archive", "kind": "identity", "text": "Haram prayer recording from archive.org item saqrsm (uploaded by an individual; no source stated). Voice probable by classifier only: confirm it is Sheikh Saleh Al-Talib. No Basmala is recited; check the opening and the end.", "source": "docs/audio/experimental-alignment-phase-4-7-2026-10-18.md §5-6" },
+    { "reciterId": "islam-sobhi", "surahs": [65], "provider": "way2quran", "kind": "identity", "text": "Way2Quran file; voice probable (83 % of windows, Phase 4.6): confirm it is Islam Sobhi. Opens with isti'adha + Basmala (0-12.2 s); 3 extra-audio boundaries.", "source": "docs/audio/experimental-alignment-phase-4-7-2026-10-18.md §5" },
+    { "reciterId": "maher", "surahs": [36], "provider": "mp3quran", "kind": "riwayah", "text": "Riwayah check: 36:52 «مِن مَّرْقَدِنَا ۜ هَٰذَا» (Hafs: sakt). Also confirm the withdrawal: MP3Quran's own 36:1→2 start was about 2 s early (inside the opening letters' madd).", "source": "docs/audio/source-audit.md, Listening checks 1" }
+  ],
+  "productionChecksAbout": "The source audit's listening checks of PRODUCTION recordings (docs/audio/source-audit.md, 'Listening checks (not yet done)'). Each joins that recording's production boundary check (with every boundary the audit left for listening); measured timing supplies the production start where the repository has it, otherwise the start is placed by ear.",
+  "productionChecks": [
+    { "reciterId": "maher", "surahs": [18], "ayahs": [1, 2], "priority": 1, "text": "Riwayah check: 18:1-2 «عِوَجًا ۜ قَيِّمًا» (Hafs: sakt when joined) and 18:2 «مِّن لَّدُنْهُ» (Hafs; Shu'ba «مِن لَّدْنِهِۦ»)", "source": "docs/audio/source-audit.md, Listening checks 1" },
+    { "reciterId": "hudhaifi", "surahs": [2], "ayahs": [255], "text": "Measured timing: ayah start and single-ayah stop", "source": "docs/audio/source-audit.md, Listening checks 2" },
+    { "reciterId": "hudhaifi", "surahs": [18], "ayahs": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "text": "Measured timing: ayah starts and single-ayah stops (18:1-10)", "source": "docs/audio/source-audit.md, Listening checks 2" },
+    { "reciterId": "hudhaifi", "surahs": [36, 67, 112], "ayahs": "all", "text": "Measured timing: every ayah start, a page turn and the surah's last ayah", "source": "docs/audio/source-audit.md, Listening checks 2" },
+    { "reciterId": "banna", "surahs": [108], "ayahs": "all", "text": "Measured timing (Mahmoud Ali Al-Banna's only production surah)", "source": "docs/audio/source-audit.md, Listening checks 3" }
+  ],
+  "rights": [
+    { "reciterIds": ["hudhaifi", "maher", "yasser-salama", "rifaat"], "provider": "mp3quran", "text": "The MP3Quran files carry the ID3 copyright frame «Reserved For KFGQPC»: usage rights for these recordings are not cleared.", "source": "docs/audio/missing-surah-source-discovery-phase-4-6-2026-10-18.md §6" }
+  ],
+  "notReviewable": [
+    { "reciterId": "saleh-talib", "surahs": [51, 68, 69, 89, 90, 92, 103, 106, 107, 108, 109, 112, 113], "provider": "archive", "reason": "saqrsm prayer recordings whose automated text or voice screen did not pass; no alignment or review package exists. Listen first (identity, completeness) before any alignment.", "source": "docs/audio/experimental-alignment-phase-4-7-2026-10-18.md §9" },
+    { "reciterId": "saleh-talib", "surahs": [2], "provider": "mp3quran", "reason": "MP3Quran's unlisted saleh-talib/r1/002.mp3 is incomplete (2:214-2:243 skipped); no package.", "source": "docs/audio/missing-surah-source-discovery-phase-4-6-2026-10-18.md" },
+    { "reciterId": "islam-sobhi", "surahs": [37, 39, 40, 45], "provider": "way2quran", "reason": "Way2Quran voice not matched or unresolved (37/39/40 classifier 0-13 %); 37's Sobhi take is incomplete; no package.", "source": "docs/audio/missing-surah-source-discovery-phase-4-6-2026-10-18.md; docs/audio/experimental-alignment-phase-4-7-2026-10-18.md §9" },
+    { "reciterId": "ahmed-salama", "surahs": "all", "provider": "assabile", "reason": "Identity unverified (hosting labels only) and no permitted recording; nothing to review.", "source": "docs/audio/missing-surah-source-discovery-phase-4-6-2026-10-18.md" }
+  ]
+}

@@ -35,6 +35,6 @@ describe('the Favorite Reciter download icon state', () => {
   });
 
   it('a reciter with nothing playable to download is unavailable', () => {
-    expect(reciterDownloadStatus({ permitted: true, reciter: getReciter('rifaat')!, stored: [], download: IDLE_DOWNLOAD })).toBe('unavailable');
+    expect(reciterDownloadStatus({ permitted: true, reciter: getReciter('yasser-salama')!, stored: [], download: IDLE_DOWNLOAD })).toBe('unavailable'); // no ayah playback at all
   });
 });

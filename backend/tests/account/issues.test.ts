@@ -139,6 +139,44 @@ describe('POST /api/issues', () => {
     );
   });
 
+  it('accepts an Audio Issue with its recording context, and only those audio fields', async () => {
+    const { app, issueReportRepository } = buildAccountTestApp();
+    const res = await request(app).post('/api/issues').send({
+      ...baseReport,
+      category: 'audio_issue',
+      source: 'ayah',
+      comment: 'The ayah starts in the middle.',
+      audioProblem: 'timing_highlight',
+      reciterId: 'maher',
+      audioSource: 'mp3quran https://server12.mp3quran.net/maher/002.mp3',
+      playbackContext: 'ayah screen; phase error; error playback',
+      audioBlob: 'never kept',
+    });
+
+    expect(res.status).toBe(201);
+    expect(issueReportRepository.created[0]).toMatchObject({
+      category: 'audio_issue',
+      audioProblem: 'timing_highlight',
+      reciterId: 'maher',
+      audioSource: 'mp3quran https://server12.mp3quran.net/maher/002.mp3',
+      playbackContext: 'ayah screen; phase error; error playback',
+    });
+    expect(issueReportRepository.created[0]).not.toHaveProperty('audioBlob');
+  });
+
+  it('rejects an unknown audio problem or a malformed reciter id, and flattens context to one line', async () => {
+    const { app, issueReportRepository } = buildAccountTestApp();
+    const audio = { ...baseReport, category: 'audio_issue', source: 'settings', comment: 'No sound.' };
+
+    expect((await request(app).post('/api/issues').send({ ...audio, audioProblem: 'too_loud' })).status).toBe(400);
+    expect((await request(app).post('/api/issues').send({ ...audio, reciterId: 'Maher Al Muaiqly' })).status).toBe(400);
+    expect((await request(app).post('/api/issues').send({ ...audio, audioSource: 'x'.repeat(301) })).status).toBe(400);
+
+    const ok = await request(app).post('/api/issues').send({ ...audio, playbackContext: 'line one\nline two' });
+    expect(ok.status).toBe(201);
+    expect(issueReportRepository.created[0]).toMatchObject({ playbackContext: 'line one line two' });
+  });
+
   it('a repository/MongoDB write failure produces a safe error response, never a false success', async () => {
     const failingRepository: IssueReportRepository = {
       create: async () => {

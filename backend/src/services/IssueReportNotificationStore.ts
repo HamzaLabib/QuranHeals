@@ -13,6 +13,10 @@ export type NotifiableIssueReport = {
   verseKey?: string;
   surahNumber?: number;
   ayahNumber?: number;
+  audioProblem?: string;
+  reciterId?: string;
+  audioSource?: string;
+  playbackContext?: string;
   appLocale?: string;
   translationDisplayMode?: string;
   appVersion?: string;

@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ayah Timing Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri+Quran&display=swap">
+<!--
+  Listening review of ayah timing (Phase 4.1). Open this file in a browser (no server needed) and load the packages
+  made by review/make-packages.mjs (a folder, or single files). Listen to the boundaries on the worklist, correct them,
+  decide each one, approve the surah and export the review. development/apply-review.mjs applies an approved review.
+  Progress is saved in this browser automatically. Nothing is uploaded: the page only streams (or, in precise mode,
+  downloads) the MP3Quran file named in the package.
+  The page never decides for you: every verdict starts empty, and only a person's clicks set it.
+-->
+<style>
+  :root {
+    --bg: #f6f2e7; --card: #fffdf6; --raise: #f1ebda; --text: #1e2a21; --muted: #5f6a5a; --accent: #2f5d3a; --accent-ink: #fffdf6;
+    --ok: #2c7443; --warn: #9a6a00; --bad: #a3392a; --line: #ddd4bf; --focus: #c58b1c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #131814; --card: #1b221d; --raise: #232c25; --text: #e6ecdf; --muted: #9ba696; --accent: #8fc79c; --accent-ink: #131814; --ok: #7fd197; --warn: #e6b450; --bad: #f08a7a; --line: #323c34; --focus: #e6b450; }
+  }
+  :root[data-theme="dark"] { --bg: #131814; --card: #1b221d; --raise: #232c25; --text: #e6ecdf; --muted: #9ba696; --accent: #8fc79c; --accent-ink: #131814; --ok: #7fd197; --warn: #e6b450; --bad: #f08a7a; --line: #323c34; --focus: #e6b450; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header.top { padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--card); display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+  header.top h1 { font-size: 18px; margin: 0; flex: 1 1 auto; }
+  main { display: grid; grid-template-columns: 300px 1fr; gap: 16px; padding: 16px; max-width: 1400px; margin: 0 auto; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+  .muted { color: var(--muted); }
+  .small { font-size: 13px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  button, .filebtn { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--raise); color: var(--text); border-radius: 8px; padding: 6px 10px; cursor: pointer; min-height: 34px; }
+  button:hover, .filebtn:hover { border-color: var(--accent); }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  button.v-correct[aria-pressed="true"] { background: var(--ok); color: var(--card); border-color: var(--ok); }
+  button.v-needs-correction[aria-pressed="true"] { background: var(--bad); color: var(--card); border-color: var(--bad); }
+  button.v-unresolved[aria-pressed="true"] { background: var(--warn); color: var(--card); border-color: var(--warn); }
+  .filebtn input { display: none; }
+  input[type=text], input[type=search], select { font: inherit; font-size: 14px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--text); min-height: 34px; }
+  .queue { max-height: calc(100vh - 140px); overflow: auto; position: sticky; top: 12px; }
+  .queue button.q { display: block; width: 100%; text-align: start; margin: 0 0 6px; background: var(--card); }
+  .queue button.q[aria-current="true"] { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+  .chip { display: inline-block; font-size: 12px; line-height: 18px; padding: 0 7px; border-radius: 9px; border: 1px solid var(--line); color: var(--muted); margin: 0 4px 2px 0; white-space: nowrap; }
+  .chip.ok { color: var(--ok); border-color: var(--ok); } .chip.warn { color: var(--warn); border-color: var(--warn); } .chip.bad { color: var(--bad); border-color: var(--bad); }
+  .chip.solid-dev { background: var(--warn); color: var(--card); border-color: var(--warn); }
+  .chip.solid-exp { background: var(--muted); color: var(--card); border-color: var(--muted); }
+  .player { position: sticky; top: 0; z-index: 5; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; }
+  .clock { font-variant-numeric: tabular-nums; font-size: 18px; min-width: 110px; }
+  .ar { font-family: "Amiri Quran", "Amiri", "Scheherazade New", "Traditional Arabic", serif; direction: rtl; text-align: right; font-size: 26px; line-height: 2.1; }
+  .ar.small-ar { font-size: 21px; line-height: 1.9; }
+  .boundary { border-top: 1px solid var(--line); padding: 12px 0; }
+  .boundary:first-child { border-top: 0; }
+  .boundary.current { background: color-mix(in srgb, var(--accent) 7%, transparent); border-radius: 8px; padding-inline: 8px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 700px) { .cols { grid-template-columns: 1fr; } }
+  .pane { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--raise); }
+  .pane h4 { margin: 0 0 4px; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .t { font-variant-numeric: tabular-nums; }
+  .ayahrow { display: grid; grid-template-columns: auto 1fr; gap: 10px; border-top: 1px solid var(--line); padding: 8px 0; align-items: start; }
+  .ayahrow.current .ar { color: var(--accent); }
+  .num { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 13px; min-width: 120px; }
+  details > summary { cursor: pointer; font-weight: 600; }
+  .banner { border-radius: 10px; padding: 8px 12px; margin: 8px 0; border: 1px solid var(--bad); color: var(--bad); }
+  .banner.warn { border-color: var(--warn); color: var(--warn); }
+  .empty { padding: 40px 16px; text-align: center; }
+  kbd { font: 12px ui-monospace, monospace; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; }
+  a { color: var(--accent); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Ayah timing review</h1>
+  <label class="filebtn">Open a packages folder<input id="folder" type="file" webkitdirectory multiple></label>
+  <label class="filebtn">Open package files<input id="files" type="file" accept=".json" multiple></label>
+  <label class="filebtn">Import a saved review<input id="importReview" type="file" accept=".json" multiple></label>
+  <label>Reviewer <input id="reviewer" type="text" placeholder="Your name" autocomplete="name"></label>
+  <button id="backup" title="Download every review saved in this browser">Back up all progress</button>
+  <select id="theme" aria-label="Theme"><option value="">Auto theme</option><option value="light">Light</option><option value="dark">Dark</option></select>
+</header>
+<main>
+  <aside>
+    <div class="card queue" id="queue"><p class="muted small">Open the folder made by <code>review/make-packages.mjs</code>. The list is ordered by risk: listen from the top.</p></div>
+  </aside>
+  <section id="view">
+    <div class="card empty muted">
+      <p><b>How it works</b></p>
+      <p>1. Open the packages folder. 2. Pick a surah. 3. For each boundary on its worklist, press <b>▶ Transition</b>, listen, move the boundary if it is off, then mark it <b>Correct</b>, <b>Needs correction</b> or <b>Unresolved</b>. 4. When every worklist boundary is Correct, press <b>Approve whole surah</b> and <b>Export review</b>.</p>
+      <p class="small">Keys: <kbd>Space</kbd> play / pause · <kbd>T</kbd> transition of the selected boundary · <kbd>C</kbd> correct · <kbd>N</kbd> needs correction · <kbd>U</kbd> unresolved · <kbd>J</kbd>/<kbd>K</kbd> previous / next boundary · <kbd>[</kbd>/<kbd>]</kbd> move it 50 ms</p>
+    </div>
+  </section>
+</main>
+<audio id="audio" preload="none" crossorigin="anonymous"></audio>
+<div class="sr" aria-live="polite" id="live"></div>
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const fmt = (ms) => { if (ms == null || !isFinite(ms)) return '–'; const neg = ms < 0; ms = Math.abs(ms); return `${neg ? '−' : ''}${Math.floor(ms / 60000)}:${String(((ms % 60000) / 1000).toFixed(2)).padStart(5, '0')}`; };
+const parseTime = (s) => { const m = String(s).trim().match(/^(?:(\d+):)?(\d+(?:\.\d+)?)$/); return m ? Math.round(((Number(m[1] || 0) * 60) + Number(m[2])) * 1000) : null; };
+const store = {
+  get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  keys() { try { return Object.keys(localStorage); } catch { return []; } },
+};
+const theme = store.get('qh-review-theme') || '';
+if (theme) document.documentElement.dataset.theme = theme;
+$('theme').value = theme;
+$('theme').onchange = (e) => { const v = e.target.value; if (v) document.documentElement.dataset.theme = v; else delete document.documentElement.dataset.theme; store.set('qh-review-theme', v); };
+$('reviewer').value = store.get('qh-reviewer') || '';
+$('reviewer').oninput = (e) => { store.set('qh-reviewer', e.target.value); if (current) render(); };
+
+// ---------- plain-language explanations of the automatic checks ----------
+const FLAG_TEXT = {
+  'configs-disagree': 'two alignment runs put this boundary in different places',
+  'no-pause': 'no pause found near the expected start',
+  'short-pause': 'the pause is very short (under 0.25 s)',
+  'competing-pause': 'another pause nearby is almost as long',
+  'snap-far': 'the pause is over 1 s from where the words were matched',
+  'low-score': 'the words of the ayah matched the audio weakly',
+  'shallow-pause': 'the "pause" is only a dip in continuous recitation (ayahs may be joined)',
+  anchored: 'the comparison run was cut here, so this boundary was checked once only',
+  'extra-audio': 'sound between the two ayahs that is not this text (repetition? supplication?)',
+  'opening-squeezed': 'the aligner gave ayah 1 almost no time (opening letters?): find where ayah 2 really starts',
+  'past-own-end': 'the computer first put this boundary at the end of the ayah (the next pause): check where the ayah really starts',
+  reordered: 'very short ayahs: the nearest pause was before the previous boundary, so another point was used',
+  'sweep-displaced': 'the boundary sits inside recitation, with a pause close by',
+  'sweep-unconfirmed': 'the old silence test could not see a pause here',
+  'mp3quran-differs': 'MP3Quran’s own timing of this file puts it elsewhere (over 0.5 s)',
+};
+const ACOUSTIC = {
+  silence: ['ok', 'Auto check: clear silence'],
+  'reverb-tail': ['warn', 'Auto check: echo (reverberation) fading, then a new start'],
+  shallow: ['bad', 'Auto check: no clear silence'],
+};
+const VERDICTS = [['correct', 'Correct'], ['needs-correction', 'Needs correction'], ['unresolved', 'Unresolved']];
+
+// ---------- audio: streaming (default) or precise (whole file decoded) ----------
+const audio = $('audio');
+const player = {
+  mode: 'stream', ctx: null, buffer: null, src: null, startedAt: 0, offset: 0, stopAt: null, playing: false, timer: null,
+  now() { return this.mode === 'precise' && this.buffer ? (this.playing ? this.offset + (this.ctx.currentTime - this.startedAt) * 1000 : this.offset) : audio.currentTime * 1000; },
+  play(fromMs, toMs = null) {
+    this.stopAt = toMs;
+    if (this.mode === 'precise' && this.buffer) {
+      this.stop(true);
+      this.src = this.ctx.createBufferSource(); this.src.buffer = this.buffer; this.src.connect(this.ctx.destination);
+      this.offset = Math.max(0, fromMs); this.startedAt = this.ctx.currentTime;
+      this.src.start(0, this.offset / 1000, toMs != null ? Math.max(0.05, (toMs - this.offset) / 1000) : undefined);
+      this.src.onended = () => { if (this.src && this.playing) { this.offset = this.now(); this.playing = false; tick(); } };
+      this.playing = true;
+    } else {
+      audio.currentTime = Math.max(0, fromMs) / 1000; audio.play().catch((e) => say(`Cannot play: ${e.message}`));
+    }
+    tick();
+  },
+  toggle() {
+    if (this.mode === 'precise' && this.buffer) { if (this.playing) this.stop(); else this.play(this.offset); return; }
+    if (audio.paused) audio.play().catch(() => {}); else audio.pause();
+  },
+  stop(keep) {
+    if (this.mode === 'precise' && this.src) { const at = this.now(); this.playing = false; try { this.src.stop(); } catch {} this.src = null; if (!keep) this.offset = at; }
+    else audio.pause();
+    tick();
+  },
+  isPlaying() { return this.mode === 'precise' && this.buffer ? this.playing : !audio.paused; },
+};
+audio.addEventListener('timeupdate', () => { if (player.stopAt != null && audio.currentTime * 1000 >= player.stopAt) { audio.pause(); player.stopAt = null; } tick(); });
+audio.addEventListener('play', tick); audio.addEventListener('pause', tick);
+audio.addEventListener('error', () => say('The recording could not be loaded (network?).'));
+setInterval(() => { if (player.isPlaying()) tick(); }, 100);
+function say(msg) { $('live').textContent = msg; const el = document.getElementById('status'); if (el) el.textContent = msg; }
+
+// ---------- state ----------
+const packages = new Map(); // key -> package
+let order = []; // keys, queue order
+let current = null; // key
+let selected = null; // ayah of the selected boundary
+let filter = 'worklist';
+const keyOf = (p) => `${p.source}:${p.reciterId}:${p.surah}:${p.candidateFingerprint}`;
+const storeKey = (p) => `qh-review:${keyOf(p)}`;
+
+function reviewOf(p) {
+  let r = store.get(storeKey(p));
+  if (!r) r = { decisions: {}, notes: '', approved: false, approvedBy: null, approvedOn: null };
+  return r;
+}
+function saveReview(p, r) { store.set(storeKey(p), r); }
+function decision(p, r, ayah) {
+  const b = p.boundaries.find((x) => x.ayah === ayah);
+  return r.decisions[ayah] ?? { original: b.ms, final: b.ms, verdict: null, note: '' };
+}
+function progress(p) {
+  const r = reviewOf(p);
+  const wl = p.worklist.map((a) => decision(p, r, a));
+  const decided = wl.filter((d) => d.verdict).length;
+  const all = Object.values(r.decisions);
+  return {
+    decided, total: wl.length,
+    correct: wl.filter((d) => d.verdict === 'correct').length,
+    needs: all.filter((d) => d.verdict === 'needs-correction').length,
+    unresolved: all.filter((d) => d.verdict === 'unresolved').length,
+    approved: r.approved,
+  };
+}
+
+async function loadFiles(list) {
+  const files = [...list].filter((f) => f.name.endsWith('.json'));
+  let index = null;
+  for (const f of files) {
+    let j; try { j = JSON.parse(await f.text()); } catch { continue; }
+    if (j.kind === 'ayah-timing-review-index') index = j;
+    else if (j.kind === 'ayah-timing-review-package') packages.set(keyOf(j), j);
+  }
+  const byFile = index ? index.packages.map((e) => [...packages.values()].find((p) => p.source === e.source && p.reciterId === e.reciterId && p.surah === e.surah && p.candidateFingerprint === e.fingerprint)).filter(Boolean) : [];
+  const rest = [...packages.values()].filter((p) => !byFile.includes(p));
+  order = [...byFile, ...rest].map(keyOf);
+  renderQueue();
+  if (!current && order.length) open(order[0]);
+  say(`${packages.size} surahs loaded`);
+}
+$('folder').onchange = (e) => loadFiles(e.target.files);
+$('files').onchange = (e) => loadFiles(e.target.files);
+$('importReview').onchange = async (e) => {
+  for (const f of e.target.files) {
+    const j = JSON.parse(await f.text());
+    if (j.kind !== 'ayah-timing-review') { alert(`${f.name}: not a review export`); continue; }
+    const p = [...packages.values()].find((x) => x.reciterId === j.reciterId && x.surah === j.surah && x.candidateFingerprint === j.candidateFingerprint);
+    if (!p) { alert(`${f.name}: open its package first (same reciter, surah and timing)`); continue; }
+    const r = { decisions: {}, notes: j.notes || '', approved: !!j.approved, approvedBy: j.approvedBy ?? null, approvedOn: j.approvedOn ?? null };
+    for (const d of j.decisions) r.decisions[d.ayah] = { original: d.original, final: d.final, verdict: d.verdict === 'wrong' ? 'needs-correction' : d.verdict, note: d.note || '' };
+    saveReview(p, r);
+  }
+  renderQueue(); if (current) render();
+};
+$('backup').onclick = () => {
+  const all = Object.fromEntries(store.keys().filter((k) => k.startsWith('qh-review:')).map((k) => [k, store.get(k)]));
+  download(`review-progress-backup-${new Date().toISOString().slice(0, 10)}.json`, { kind: 'ayah-timing-review-backup', savedOn: new Date().toISOString(), reviews: all });
+};
+function download(name, obj) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 1)], { type: 'application/json' }));
+  a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+function renderQueue() {
+  const q = $('queue');
+  if (!order.length) return;
+  q.innerHTML = `<div class="row" style="margin-bottom:8px"><b>Surahs</b><span class="muted small">${order.length}, highest risk first</span></div>
+    <input type="search" id="qfilter" placeholder="Filter: reciter or surah" style="width:100%;margin-bottom:8px">
+    <div id="qlist"></div>`;
+  const list = () => {
+    const term = ($('qfilter').value || '').toLowerCase();
+    $('qlist').innerHTML = order.map((k) => packages.get(k)).filter((p) => !term || `${p.reciterEn} ${p.surahEn} ${p.surah} ${p.reciterAr} ${p.surahAr}`.toLowerCase().includes(term)).map((p) => {
+      const g = progress(p);
+      const state = g.approved ? '<span class="chip ok">approved</span>' : g.needs ? '<span class="chip bad">needs correction</span>' : g.decided === 0 ? '<span class="chip">not started</span>' : `<span class="chip warn">${g.decided}/${g.total}</span>`;
+      return `<button class="q" data-k="${esc(keyOf(p))}" aria-current="${keyOf(p) === current}">
+        <div><b>${esc(p.surah)}. ${esc(p.surahEn)}</b> <span class="muted small">${esc(p.reciterEn)}</span></div>
+        <div class="small">${p.source === 'development' ? '<span class="chip solid-dev">development</span>' : '<span class="chip solid-exp">candidate</span>'}${p.blocked ? '<span class="chip bad">blocked</span>' : ''}${state}<span class="chip">${p.worklist.length} to hear</span></div>
+      </button>`;
+    }).join('');
+    $('qlist').querySelectorAll('button.q').forEach((b) => (b.onclick = () => open(b.dataset.k)));
+  };
+  $('qfilter').oninput = list;
+  list();
+}
+
+function open(k) {
+  current = k; selected = null;
+  const p = packages.get(k);
+  player.stop(); player.buffer = null; player.mode = 'stream';
+  audio.src = p.url;
+  selected = p.worklist[0] ?? p.boundaries[0]?.ayah ?? null;
+  renderQueue(); render();
+  window.scrollTo({ top: 0 });
+}
+
+async function precise(p) {
+  const btn = $('precise');
+  if (p.bytes > 90e6) { alert('This file is too large to decode in the browser (over 90 MB). Streaming mode is used.'); return; }
+  btn.disabled = true; btn.textContent = 'Downloading…';
+  try {
+    player.ctx ??= new AudioContext();
+    const data = await (await fetch(p.url)).arrayBuffer();
+    if (data.byteLength !== p.bytes) throw new Error(`the file is ${data.byteLength} bytes, the package says ${p.bytes}`);
+    btn.textContent = 'Decoding…';
+    player.buffer = await player.ctx.decodeAudioData(data);
+    audio.pause(); player.mode = 'precise'; player.offset = audio.currentTime * 1000;
+    say('Precise mode: the whole file is decoded; positions are exact.');
+  } catch (e) { alert(`Precise mode failed: ${e.message}`); }
+  render();
+}
+
+function tick() {
+  const p = current && packages.get(current);
+  if (!p) return;
+  if (player.mode === 'precise' && player.playing && player.stopAt != null && player.now() >= player.stopAt) { player.stop(); player.stopAt = null; }
+  const t = player.now();
+  const c = $('clock'); if (c) c.textContent = fmt(t);
+  const pb = $('pp'); if (pb) pb.textContent = player.isPlaying() ? '⏸ Pause' : '▶ Play';
+  const cur = p.ayahs.find((a) => t >= a.startMs && t < a.endMs);
+  const ca = $('curAyah'); if (ca) ca.textContent = cur ? `Now: ayah ${cur.ayah}` : '';
+  document.querySelectorAll('.ayahrow').forEach((el) => el.classList.toggle('current', cur && Number(el.dataset.ayah) === cur.ayah));
+}
+
+function lastWords(t, n = 5) { const w = t.split(' '); return (w.length > n ? '… ' : '') + w.slice(-n).join(' '); }
+function firstWords(t, n = 5) { const w = t.split(' '); return w.slice(0, n).join(' ') + (w.length > n ? ' …' : ''); }
+
+function render() {
+  const p = packages.get(current);
+  if (!p) return;
+  const r = reviewOf(p);
+  const g = progress(p);
+  const reviewer = $('reviewer').value.trim();
+  const ayahOf = (n) => p.ayahs.find((a) => a.ayah === n);
+  const wl = new Set(p.worklist);
+  const shown = p.boundaries.filter((b) => filter === 'all' || (filter === 'worklist' ? wl.has(b.ayah) : b.priority < 3));
+  const canApprove = reviewer && g.decided === g.total && g.correct === g.total && !g.needs && !g.unresolved && !p.blocked;
+  const why = !reviewer ? 'enter your name (top of the page)' : g.decided < g.total ? `${g.total - g.decided} worklist boundaries not decided` : g.needs ? 'a boundary is marked Needs correction: move it, listen again, then mark it Correct' : g.unresolved ? 'a boundary is Unresolved' : p.blocked ? 'this recording is blocked (see the red notice)' : '';
+  $('view').innerHTML = `
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div>
+          <div style="font-size:20px"><b>${esc(p.surah)}. ${esc(p.surahEn)}</b> · <span class="ar small-ar" style="display:inline">${esc(p.surahAr)}</span></div>
+          <div><b>${esc(p.reciterEn)}</b> · <span class="ar small-ar" style="display:inline">${esc(p.reciterAr)}</span> <span class="muted small">(${esc(p.recording)})</span></div>
+        </div>
+        <div>${p.source === 'development' ? '<span class="chip solid-dev">Development only</span>' : '<span class="chip solid-exp">Experimental candidate · plays nowhere</span>'}${r.approved ? `<span class="chip ok">Approved by ${esc(r.approvedBy)} on ${esc(r.approvedOn)}</span>` : ''}</div>
+      </div>
+      <div class="muted small" style="margin-top:6px">${p.ayahs.length} ayahs · ${p.boundaries.length} boundaries · worklist ${p.worklist.length} (${esc(p.worklistRule)}) · timing <code>${esc(p.candidateFingerprint)}</code> · <a href="${esc(p.url)}" target="_blank" rel="noopener">recording</a>${p.format ? ` · ${p.format.kbps} kbps ${p.format.mode.toUpperCase()}` : ''}</div>
+      ${(p.blocked || []).map((b) => `<div class="banner">Blocked: ${esc(b)}</div>`).join('')}
+      ${p.format?.mode === 'vbr' ? '<div class="banner warn">Variable bit rate file: streaming positions can be off by seconds. Use Precise mode while reviewing (the times shown are exact on the decoded audio).</div>' : ''}
+      ${(p.playbackBlocked || []).map((b) => `<div class="banner warn">You can review and approve this surah, but it cannot be added to the app yet: ${esc(b)}</div>`).join('')}
+      <details class="small" style="margin-top:6px"><summary>Automatic evidence</summary>
+        <pre style="white-space:pre-wrap">${esc(JSON.stringify(p.evidence || { structure: p.structure, completeness: p.completeness, checks: p.checks }, null, 1))}</pre></details>
+    </div>
+    <div class="player">
+      <div class="row">
+        <button id="pp" class="primary">▶ Play</button>
+        <span class="clock" id="clock">0:00.00</span>
+        <button id="back2">−2 s</button><button id="fwd2">+2 s</button>
+        <label class="small">Go to <input id="goto" type="text" size="8" placeholder="m:ss.ss"></label>
+        <button id="precise" ${player.mode === 'precise' ? 'disabled' : ''} title="Downloads and decodes the whole file in this browser so every position is exact">${player.mode === 'precise' ? 'Precise mode on' : 'Precise mode'}</button>
+        <span class="muted small" id="curAyah"></span>
+      </div>
+      <div class="row small" style="margin-top:6px">
+        Show <select id="filter"><option value="worklist">Worklist (${p.worklist.length})</option><option value="attention">Needing attention (${p.boundaries.filter((b) => b.priority < 3).length})</option><option value="all">All boundaries (${p.boundaries.length})</option></select>
+        <span class="muted">Decided ${g.decided}/${g.total} on the worklist${g.needs ? ` · <b style="color:var(--bad)">${g.needs} need correction</b>` : ''}${g.unresolved ? ` · ${g.unresolved} unresolved` : ''}</span>
+        <span id="status" class="muted"></span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><b>Boundaries</b><span class="muted small">“Auto check” is the computer’s measurement; “Your review” is yours alone.</span></div>
+      ${p.basmala && p.ayahs[0] ? `<div class="row small" style="margin:6px 0"><button id="opening">▶ Opening (Basmala + ayah 1)</button><button id="ending">▶ Last ayah to the end</button></div>` : `<div class="row small" style="margin:6px 0"><button id="opening">▶ Opening (to the end of ayah 1)</button><button id="ending">▶ Last ayah to the end</button></div>`}
+      <div id="blist">${shown.map((b) => boundaryHtml(p, r, b, ayahOf(b.ayah - 1), ayahOf(b.ayah), wl.has(b.ayah))).join('') || '<p class="muted">Nothing to show with this filter.</p>'}</div>
+    </div>
+    <div class="card">
+      <label class="small" style="display:block">Notes for this surah (reciter identity, riwayah, anything heard)
+        <input id="notes" type="text" style="width:100%" value="${esc(r.notes)}"></label>
+      <div class="row" style="margin-top:10px">
+        <button class="primary" id="approve" ${canApprove && !r.approved ? '' : 'disabled'}>${r.approved ? 'Approved' : 'Approve whole surah'}</button>
+        ${r.approved ? '<button id="unapprove">Withdraw approval</button>' : ''}
+        <button id="export">Export review</button>
+        <span class="muted small">${r.approved ? 'Export it and run development/apply-review.mjs with the package.' : why ? `To approve: ${esc(why)}.` : ''}</span>
+      </div>
+    </div>
+    <div class="card">
+      <details><summary>Every ayah with its text and time (${p.ayahs.length})</summary>
+        ${p.basmala ? `<div class="ayahrow"><div class="num">Basmala</div><div class="ar">${esc(p.basmala)}</div></div>` : ''}
+        ${p.ayahs.map((a) => `<div class="ayahrow" data-ayah="${a.ayah}"><div class="num">Ayah ${a.ayah}<br><span class="t">${fmt(effStart(p, r, a.ayah))} – ${fmt(effEnd(p, r, a.ayah))}</span><br><button data-play="${a.ayah}">▶ Ayah</button></div><div class="ar">${esc(a.text)}</div></div>`).join('')}
+      </details>
+    </div>`;
+  wire(p, r);
+  tick();
+}
+
+function effStart(p, r, ayah) { if (ayah === p.ayahs[0].ayah) return p.ayahs[0].startMs; return decision(p, r, ayah).final; }
+function effEnd(p, r, ayah) { const next = p.boundaries.find((b) => b.ayah === ayah + 1); return next ? decision(p, r, ayah + 1).final : p.ayahs.at(-1).endMs; }
+
+function boundaryHtml(p, r, b, prev, next, onList) {
+  const d = decision(p, r, b.ayah);
+  const [tone, label] = ACOUSTIC[b.acoustic?.kind] ?? ['', 'Auto check: –'];
+  const moved = d.final - b.ms;
+  return `<div class="boundary ${selected === b.ayah ? 'current' : ''}" data-ayah="${b.ayah}" id="b${b.ayah}">
+    <div class="row" style="justify-content:space-between">
+      <div><b>Ayah ${b.ayah - 1} → ${b.ayah}</b> at <b class="t">${fmt(d.final)}</b>${moved ? ` <span class="muted small">(moved ${moved > 0 ? '+' : ''}${moved} ms from ${fmt(b.ms)})</span>` : ''}
+        ${onList ? '<span class="chip">on the worklist</span>' : ''}${b.priority === 1 ? '<span class="chip bad">listen first</span>' : b.priority === 2 ? '<span class="chip warn">listen</span>' : ''}</div>
+      <div class="small">${d.verdict ? `<span class="chip ${d.verdict === 'correct' ? 'ok' : d.verdict === 'needs-correction' ? 'bad' : 'warn'}">Your review: ${esc(VERDICTS.find((v) => v[0] === d.verdict)[1])}</span>` : '<span class="chip">Your review: not decided</span>'}</div>
+    </div>
+    <div class="cols" style="margin-top:6px">
+      <div class="pane"><h4>End of ayah ${b.ayah - 1}</h4><div class="ar small-ar">${esc(lastWords(prev?.text ?? ''))}</div></div>
+      <div class="pane"><h4>Start of ayah ${b.ayah}</h4><div class="ar small-ar">${esc(firstWords(next?.text ?? ''))}</div></div>
+    </div>
+    <div class="small" style="margin-top:6px"><span class="chip ${tone}">${esc(label)}${b.acoustic ? ` · ${b.acoustic.depth_db} dB below the recitation` : ''}</span>
+      ${b.repairedFromMs !== undefined ? `<span class="chip bad">Repaired automatically: moved from ${fmt(b.repairedFromMs)}</span>` : ''}
+      ${b.mp3quran === 'agrees' ? '<span class="chip ok">MP3Quran’s timing agrees (±0.5 s)</span>' : ''}
+      ${(b.flags || []).map((f) => `<span class="chip ${f === 'low-score' ? '' : 'warn'}" title="${esc(f)}">${esc(FLAG_TEXT[f] ?? f)}</span>`).join('')}</div>
+    <div class="row" style="margin-top:8px">
+      <button data-act="transition" title="End of the previous ayah through the start of this one">▶ Transition</button>
+      <button data-act="before">▶ Before (3 s)</button>
+      <button data-act="after">▶ After (3 s)</button>
+      <button data-act="ayah">▶ Whole ayah ${b.ayah}</button>
+      <span class="muted small">Move:</span>
+      <button data-move="-250">−250 ms</button><button data-move="-50">−50</button><button data-move="50">+50</button><button data-move="250">+250 ms</button>
+      <button data-act="here" title="Put the boundary where playback is now">Set to playback position</button>
+      <input data-act="time" type="text" size="9" value="${esc(fmt(d.final))}" aria-label="Boundary time">
+    </div>
+    <div class="row" style="margin-top:8px" role="group" aria-label="Your verdict for ayah ${b.ayah - 1} to ${b.ayah}">
+      ${VERDICTS.map(([v, l]) => `<button class="v-${v}" data-verdict="${v}" aria-pressed="${d.verdict === v}">${l}</button>`).join('')}
+      <input data-act="note" type="text" placeholder="Note (optional)" value="${esc(d.note)}" style="flex:1 1 200px">
+    </div>
+  </div>`;
+}
+
+function setDecision(p, ayah, patch) {
+  const r = reviewOf(p);
+  const d = { ...decision(p, r, ayah), ...patch };
+  // Moving a boundary clears an earlier verdict and any approval: it must be heard again.
+  if ('final' in patch && !('verdict' in patch)) d.verdict = null;
+  r.decisions[ayah] = d;
+  if (r.approved) { r.approved = false; r.approvedBy = null; r.approvedOn = null; }
+  saveReview(p, r);
+}
+
+function wire(p, r) {
+  $('pp').onclick = () => player.toggle();
+  $('back2').onclick = () => player.play(player.now() - 2000);
+  $('fwd2').onclick = () => player.play(player.now() + 2000);
+  $('goto').onchange = (e) => { const t = parseTime(e.target.value); if (t != null) player.play(t); };
+  $('precise').onclick = () => precise(p);
+  $('filter').value = filter;
+  $('filter').onchange = (e) => { filter = e.target.value; render(); };
+  $('opening').onclick = () => player.play(0, effEnd(p, r, p.ayahs[0].ayah) + 500);
+  $('ending').onclick = () => { const l = p.ayahs.at(-1); player.play(effStart(p, r, l.ayah) - 500, null); };
+  $('notes').onchange = (e) => { const rr = reviewOf(p); rr.notes = e.target.value; saveReview(p, rr); };
+  document.querySelectorAll('[data-play]').forEach((b) => (b.onclick = () => { const a = Number(b.dataset.play); player.play(effStart(p, r, a), effEnd(p, r, a)); }));
+  document.querySelectorAll('.boundary').forEach((el) => {
+    const ayah = Number(el.dataset.ayah);
+    const cur = () => decision(p, reviewOf(p), ayah).final;
+    el.addEventListener('focusin', () => { selected = ayah; });
+    el.addEventListener('click', () => { if (selected !== ayah) { selected = ayah; document.querySelectorAll('.boundary').forEach((x) => x.classList.toggle('current', Number(x.dataset.ayah) === ayah)); } });
+    el.querySelectorAll('button[data-act]').forEach((btn) => (btn.onclick = () => {
+      const t = cur();
+      const act = btn.dataset.act;
+      if (act === 'transition') player.play(Math.max(effStart(p, reviewOf(p), ayah - 1), t - 4000), t + 3000);
+      if (act === 'before') player.play(t - 3000, t);
+      if (act === 'after') player.play(t, t + 3000);
+      if (act === 'ayah') player.play(t, effEnd(p, reviewOf(p), ayah));
+      if (act === 'here') { setDecision(p, ayah, { final: Math.round(player.now()) }); render(); focusBoundary(ayah); }
+    }));
+    el.querySelectorAll('button[data-move]').forEach((btn) => (btn.onclick = () => { setDecision(p, ayah, { final: cur() + Number(btn.dataset.move) }); render(); focusBoundary(ayah); }));
+    el.querySelector('input[data-act=time]').onchange = (e) => { const t = parseTime(e.target.value); if (t == null) { alert('Write the time as m:ss.ss (e.g. 1:23.45)'); return; } setDecision(p, ayah, { final: t }); render(); focusBoundary(ayah); };
+    el.querySelector('input[data-act=note]').onchange = (e) => setDecision(p, ayah, { note: e.target.value, verdict: decision(p, reviewOf(p), ayah).verdict });
+    el.querySelectorAll('button[data-verdict]').forEach((btn) => (btn.onclick = () => { setDecision(p, ayah, { verdict: btn.dataset.verdict }); render(); renderQueue(); focusBoundary(ayah); }));
+  });
+  $('approve').onclick = () => {
+    const rr = reviewOf(p);
+    // Final ordering check: every boundary after the previous one, inside the file.
+    const starts = p.ayahs.map((a) => effStart(p, rr, a.ayah));
+    if (starts.some((s, k) => k > 0 && !(s > starts[k - 1]))) { alert('The corrected boundaries are out of order. Check the moved ones.'); return; }
+    if (!confirm(`Approve ${p.surahEn} (${p.reciterEn}) as heard and correct?\n\nYou listened to all ${p.worklist.length} worklist boundaries and marked each one Correct.`)) return;
+    rr.approved = true; rr.approvedBy = $('reviewer').value.trim(); rr.approvedOn = new Date().toISOString().slice(0, 10);
+    saveReview(p, rr); render(); renderQueue();
+  };
+  const un = $('unapprove'); if (un) un.onclick = () => { const rr = reviewOf(p); rr.approved = false; rr.approvedBy = null; rr.approvedOn = null; saveReview(p, rr); render(); renderQueue(); };
+  $('export').onclick = () => {
+    const rr = reviewOf(p);
+    const reviewer = $('reviewer').value.trim();
+    if (!reviewer) { alert('Enter your name first (top of the page).'); return; }
+    const ayahs = new Set([...p.worklist, ...Object.keys(rr.decisions).map(Number)]);
+    download(`review-${p.source}-${p.reciterId}-${p.surah}.json`, {
+      kind: 'ayah-timing-review', version: 2, source: p.source, reciterId: p.reciterId, surah: p.surah, url: p.url, bytes: p.bytes,
+      candidateFingerprint: p.candidateFingerprint, reviewer, reviewedOn: new Date().toISOString().slice(0, 10), notes: rr.notes,
+      approved: rr.approved, approvedBy: rr.approvedBy, approvedOn: rr.approvedOn, worklist: p.worklist,
+      decisions: [...ayahs].sort((a, b) => a - b).map((a) => { const d = decision(p, rr, a); const b = p.boundaries.find((x) => x.ayah === a); return { ayah: a, original: d.original, final: d.final, verdict: d.verdict, note: d.note, auto: { acoustic: b.acoustic?.kind ?? null, flags: b.flags } }; }),
+    });
+  };
+}
+
+function focusBoundary(ayah) { selected = ayah; const el = document.getElementById(`b${ayah}`); if (el) { el.classList.add('current'); el.scrollIntoView({ block: 'nearest' }); } }
+
+document.addEventListener('keydown', (e) => {
+  if (!current || e.target.matches('input, select, textarea') || e.ctrlKey || e.metaKey || e.altKey) return;
+  const list = [...document.querySelectorAll('.boundary')].map((x) => Number(x.dataset.ayah));
+  const i = list.indexOf(selected);
+  const click = (sel) => { const el = document.querySelector(`#b${selected} ${sel}`); if (el) el.click(); };
+  if (e.key === ' ') { e.preventDefault(); player.toggle(); }
+  else if (e.key === 't' || e.key === 'T') click('button[data-act=transition]');
+  else if (e.key === 'c' || e.key === 'C') click('button[data-verdict=correct]');
+  else if (e.key === 'n' || e.key === 'N') click('button[data-verdict=needs-correction]');
+  else if (e.key === 'u' || e.key === 'U') click('button[data-verdict=unresolved]');
+  else if (e.key === '[') click('button[data-move="-50"]');
+  else if (e.key === ']') click('button[data-move="50"]');
+  else if ((e.key === 'j' || e.key === 'J') && i > 0) { selected = list[i - 1]; render(); focusBoundary(selected); }
+  else if ((e.key === 'k' || e.key === 'K') && i < list.length - 1) { selected = list[i + 1]; render(); focusBoundary(selected); }
+});
+</script>
+</body>
+</html>

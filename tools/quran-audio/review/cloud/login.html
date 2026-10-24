@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audio Review Sign-in</title>
+<!-- Quran Heals audio review (Phase 4.8.2): sign-in. Google verifies the person; the server admits only accounts the
+     administrator created. Nothing on this page is secret: the client ID is public by design. -->
+<style>
+  :root { --bg: #f6f2e7; --card: #fffdf6; --text: #1e2a21; --muted: #5f6a5a; --accent: #2f5d3a; --bad: #a3392a; --line: #ddd4bf; color-scheme: light; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #131814; --card: #1b221d; --text: #e6ecdf; --muted: #9ba696; --accent: #8fc79c; --bad: #f08a7a; --line: #323c34; color-scheme: dark; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; padding: 16px; }
+  main { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 28px; max-width: 440px; width: 100%; }
+  h1 { font-size: 20px; margin: 0 0 6px; }
+  p { color: var(--muted); margin: 6px 0 18px; }
+  #err { color: var(--bad); min-height: 1.5em; }
+  input, button { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--line); }
+  button { background: var(--accent); color: var(--card); border-color: var(--accent); cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Quran Heals · Audio review</h1>
+  <p>Private listening-review workspace. Sign in with the Google account the administrator registered for you.</p>
+  <div id="gbutton"></div>
+  <form id="testForm" hidden><p>Local test sign-in (never available on the internet).</p><input id="testEmail" type="email" placeholder="test e-mail" required> <button>Sign in</button></form>
+  <p id="err" role="alert"></p>
+</main>
+<script>
+'use strict';
+const CLIENT_ID = '__GOOGLE_CLIENT_ID__';
+const TEST = __TEST_LOGIN__;
+const err = (m) => { document.getElementById('err').textContent = m; };
+async function signIn(credential) {
+  err('');
+  try {
+    const r = await fetch('/auth/google', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ credential }) });
+    const j = await r.json();
+    if (r.ok) location.href = '/'; else err(j.error || 'Sign-in failed.');
+  } catch (e) { err(`Sign-in failed: ${e.message}`); }
+}
+window.addEventListener('load', () => {
+  if (TEST) {
+    const f = document.getElementById('testForm'); f.hidden = false;
+    f.onsubmit = (e) => { e.preventDefault(); signIn(`test:${document.getElementById('testEmail').value.trim()}`); };
+    return;
+  }
+  if (!window.google?.accounts?.id || !CLIENT_ID) { err('Google sign-in could not load. Check the connection (and that GOOGLE_CLIENT_ID is configured).'); return; }
+  google.accounts.id.initialize({ client_id: CLIENT_ID, callback: (resp) => signIn(resp.credential), ux_mode: 'popup', auto_select: false });
+  google.accounts.id.renderButton(document.getElementById('gbutton'), { theme: 'outline', size: 'large', text: 'signin_with' });
+});
+</script>
+<script src="https://accounts.google.com/gsi/client" async></script>
+</body>
+</html>

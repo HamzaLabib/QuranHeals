@@ -1,0 +1,453 @@
+{
+ "1": {
+  "durationS": 219.4,
+  "coveredS": 0,
+  "segments": []
+ },
+ "10": {
+  "durationS": 4965.8,
+  "coveredS": 1820.0,
+  "segments": [
+   {
+    "from": 960.0,
+    "to": 1220.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "at": 45.28,
+    "atEnd": 298.98,
+    "pieces": 5,
+    "speed": 0.974
+   },
+   {
+    "from": 1840.0,
+    "to": 2380.0,
+    "file": "10-1_ewns_18-31_nskha_aslea.mp3",
+    "at": 901.44,
+    "atEnd": 1411.3,
+    "pieces": 6,
+    "speed": 0.942
+   },
+   {
+    "from": 3560.0,
+    "to": 4300.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "at": 48.68,
+    "atEnd": 777.4,
+    "pieces": 11,
+    "speed": 0.984
+   },
+   {
+    "from": 4360.0,
+    "to": 4540.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "at": 864.76,
+    "atEnd": 1057.18,
+    "pieces": 3,
+    "speed": 1.078
+   },
+   {
+    "from": 4760.0,
+    "to": 4860.0,
+    "file": "10-2_ewns__53_-_64_sm_67_-_72.mp3",
+    "at": 1327.68,
+    "atEnd": 1427.8,
+    "pieces": 3,
+    "speed": 1.001
+   }
+  ]
+ },
+ "11": {
+  "durationS": 4132.9,
+  "coveredS": 1460.0,
+  "segments": [
+   {
+    "from": 40.0,
+    "to": 1500.0,
+    "file": "11-1_hwd_1_-_17.mp3",
+    "at": 40.08,
+    "atEnd": 1510.46,
+    "pieces": 31,
+    "speed": 1.007
+   }
+  ]
+ },
+ "12": {
+  "durationS": 2916.2,
+  "coveredS": 0,
+  "segments": []
+ },
+ "17": {
+  "durationS": 2510.5,
+  "coveredS": 180.0,
+  "segments": [
+   {
+    "from": 1920.0,
+    "to": 2100.0,
+    "file": "17-3_alesraa_1-22_nskha_aza3a_alkran_alkrem.mp3",
+    "at": 1419.5,
+    "atEnd": 1593.18,
+    "pieces": 3,
+    "speed": 0.961
+   }
+  ]
+ },
+ "18": {
+  "durationS": 5168.4,
+  "coveredS": 600.0,
+  "segments": [
+   {
+    "from": 4120.0,
+    "to": 4540.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "at": 700.76,
+    "atEnd": 1103.02,
+    "pieces": 5,
+    "speed": 0.956
+   },
+   {
+    "from": 4840.0,
+    "to": 5020.0,
+    "file": "18-3_alkhf_60-84_nskha_alaa3a.mp3",
+    "at": 1403.04,
+    "atEnd": 1597.84,
+    "pieces": 4,
+    "speed": 1.092
+   }
+  ]
+ },
+ "19": {
+  "durationS": 2352.4,
+  "coveredS": 100.0,
+  "segments": [
+   {
+    "from": 80.0,
+    "to": 180.0,
+    "file": "19-4__mrem_36-40_gza_mn_tlawa.mp3",
+    "at": 16.86,
+    "atEnd": 121.34,
+    "pieces": 3,
+    "speed": 1.056
+   }
+  ]
+ },
+ "20": {
+  "durationS": 2489.4,
+  "coveredS": 0,
+  "segments": []
+ },
+ "48": {
+  "durationS": 1761.3,
+  "coveredS": 820.0,
+  "segments": [
+   {
+    "from": 40.0,
+    "to": 420.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "at": 111.66,
+    "atEnd": 493.82,
+    "pieces": 5,
+    "speed": 1.006
+   },
+   {
+    "from": 80.0,
+    "to": 300.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "at": 75.4,
+    "atEnd": 295.5,
+    "pieces": 3,
+    "speed": 1.0
+   },
+   {
+    "from": 960.0,
+    "to": 1180.0,
+    "file": "48-1_alfth_1-11_nskha_alaza3a.mp3",
+    "at": 986.44,
+    "atEnd": 1224.78,
+    "pieces": 3,
+    "speed": 1.092
+   }
+  ]
+ },
+ "54": {
+  "durationS": 1700.8,
+  "coveredS": 1560.0,
+  "segments": [
+   {
+    "from": 40.0,
+    "to": 1260.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "at": 37.98,
+    "atEnd": 1229.74,
+    "pieces": 26,
+    "speed": 0.976
+   },
+   {
+    "from": 1280.0,
+    "to": 1620.0,
+    "file": "54-2_alkmr_37-50_mkt3_mn_tlawa.mp3",
+    "at": 19.3,
+    "atEnd": 359.4,
+    "pieces": 8,
+    "speed": 1.0
+   }
+  ]
+ },
+ "55": {
+  "durationS": 1745.7,
+  "coveredS": 960.0,
+  "segments": [
+   {
+    "from": 200.0,
+    "to": 460.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "at": 216.24,
+    "atEnd": 480.12,
+    "pieces": 5,
+    "speed": 1.016
+   },
+   {
+    "from": 760.0,
+    "to": 1460.0,
+    "file": "55-3_alrhmn_1-78_altlawaalsalsa_-nskha_alaza3a.mp3",
+    "at": 935.68,
+    "atEnd": 1665.52,
+    "pieces": 9,
+    "speed": 1.044
+   }
+  ]
+ },
+ "56": {
+  "durationS": 624.8,
+  "coveredS": 380.0,
+  "segments": [
+   {
+    "from": 40.0,
+    "to": 420.0,
+    "file": "55-2_alrhmn_1-78_m3_alwak3a_1-38_swt_alkahra2.mp3",
+    "at": 2006.58,
+    "atEnd": 2394.72,
+    "pieces": 5,
+    "speed": 1.023
+   }
+  ]
+ },
+ "69": {
+  "durationS": 696.7,
+  "coveredS": 0,
+  "segments": []
+ },
+ "72": {
+  "durationS": 1597.5,
+  "coveredS": 780.0,
+  "segments": [
+   {
+    "from": 480.0,
+    "to": 940.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "at": 488.48,
+    "atEnd": 938.0,
+    "pieces": 10,
+    "speed": 0.976
+   },
+   {
+    "from": 1000.0,
+    "to": 1140.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "at": 1013.68,
+    "atEnd": 1157.98,
+    "pieces": 4,
+    "speed": 1.036
+   },
+   {
+    "from": 1280.0,
+    "to": 1460.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "at": 1335.34,
+    "atEnd": 1527.08,
+    "pieces": 3,
+    "speed": 1.073
+   }
+  ]
+ },
+ "73": {
+  "durationS": 902.9,
+  "coveredS": 500.0,
+  "segments": [
+   {
+    "from": 320.0,
+    "to": 820.0,
+    "file": "72-1_algn1-28_walmzml1-20_nskha_swt_alkahra.mp3",
+    "at": 1992.14,
+    "atEnd": 2491.54,
+    "pieces": 10,
+    "speed": 0.999
+   }
+  ]
+ },
+ "75": {
+  "durationS": 814.5,
+  "coveredS": 300.0,
+  "segments": [
+   {
+    "from": 0.0,
+    "to": 300.0,
+    "file": "75-1_alkeama_1-40_walansan_1-31_w_almrslat1-23_nskha_swt_alkahra.mp3",
+    "at": 28.8,
+    "atEnd": 338.74,
+    "pieces": 4,
+    "speed": 1.036
+   }
+  ]
+ },
+ "76": {
+  "durationS": 1402.2,
+  "coveredS": 900.0,
+  "segments": [
+   {
+    "from": 0.0,
+    "to": 380.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "at": 17.54,
+    "atEnd": 401.9,
+    "pieces": 4,
+    "speed": 1.012
+   },
+   {
+    "from": 400.0,
+    "to": 620.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "at": 342.24,
+    "atEnd": 569.8,
+    "pieces": 4,
+    "speed": 1.038
+   },
+   {
+    "from": 640.0,
+    "to": 940.0,
+    "file": "76-1_alansan_1-31_nskha_aza3a_alkran_alkrem.mp3",
+    "at": 674.08,
+    "atEnd": 981.02,
+    "pieces": 4,
+    "speed": 1.025
+   }
+  ]
+ },
+ "77": {
+  "durationS": 372.7,
+  "coveredS": 0,
+  "segments": []
+ },
+ "78": {
+  "durationS": 1277.8,
+  "coveredS": 500.0,
+  "segments": [
+   {
+    "from": 40.0,
+    "to": 540.0,
+    "file": "78_alnba_walnaz3at_waltkwer_mn1_ele21.mp3",
+    "at": 40.1,
+    "atEnd": 535.6,
+    "pieces": 7,
+    "speed": 0.991
+   }
+  ]
+ },
+ "79": {
+  "durationS": 835.8,
+  "coveredS": 0,
+  "segments": []
+ },
+ "81": {
+  "durationS": 448.4,
+  "coveredS": 0,
+  "segments": []
+ },
+ "82": {
+  "durationS": 635.2,
+  "coveredS": 600.0,
+  "segments": [
+   {
+    "from": 120.0,
+    "to": 540.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "at": 136.82,
+    "atEnd": 553.22,
+    "pieces": 4,
+    "speed": 0.991
+   },
+   {
+    "from": 200.0,
+    "to": 380.0,
+    "file": "82-1_alenftar_walmtffen_alenshkak_mn1_ele15_walbrwg_kamla.mp3",
+    "at": 187.76,
+    "atEnd": 358.8,
+    "pieces": 4,
+    "speed": 0.944
+   }
+  ]
+ },
+ "83": {
+  "durationS": 1195.5,
+  "coveredS": 1140.0,
+  "segments": [
+   {
+    "from": 40.0,
+    "to": 1180.0,
+    "file": "82-1_alanftar_almtffen_alanshkak_walbrwg_-nskha_alaza3a.mp3",
+    "at": 687.06,
+    "atEnd": 1853.5,
+    "pieces": 18,
+    "speed": 1.024
+   }
+  ]
+ },
+ "85": {
+  "durationS": 507.4,
+  "coveredS": 420.0,
+  "segments": [
+   {
+    "from": 40.0,
+    "to": 460.0,
+    "file": "54-1_alkmr_1-32_m3_albrwg-_nskha_swt_alkahra.mp3",
+    "at": 1284.36,
+    "atEnd": 1709.64,
+    "pieces": 9,
+    "speed": 1.013
+   }
+  ]
+ },
+ "86": {
+  "durationS": 296.0,
+  "coveredS": 0,
+  "segments": []
+ },
+ "87": {
+  "durationS": 635.8,
+  "coveredS": 0,
+  "segments": []
+ },
+ "88": {
+  "durationS": 908.4,
+  "coveredS": 0,
+  "segments": []
+ },
+ "89": {
+  "durationS": 726.4,
+  "coveredS": 0,
+  "segments": []
+ },
+ "96": {
+  "durationS": 369.2,
+  "coveredS": 0,
+  "segments": []
+ },
+ "98": {
+  "durationS": 357.4,
+  "coveredS": 0,
+  "segments": []
+ },
+ "100": {
+  "durationS": 278.4,
+  "coveredS": 0,
+  "segments": []
+ }
+}

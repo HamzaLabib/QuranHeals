@@ -1,0 +1,176 @@
+{
+ "audio": "rifaat_1.mp3",
+ "durationS": 219.4,
+ "margin": 0.5,
+ "rule": "Human-assisted timing worklist for a recording whose content the teacher-forced check confirmed (tf_verify.py).\nFor every ayah transition k -> k+1 it gives the time bracket the evidence allows - from the last confirmed window that\nholds only ayahs <= k to the end of the first confirmed window holding k+1 (narrowed to one window when a window's\nbest span is k..k+1) - and the pauses inside it (digital-silence runs >= 200 ms and dips >= 300 ms more than 30 dB\nbelow the file's median level), longest first. It places NO boundary: a listener chooses (or rejects) each one by ear.\nTransitions with no confirmed window on one side are marked 'unbracketed' (the listener searches the whole gap).",
+ "starts": [
+  {
+   "ayah": 1,
+   "bracket_s": [
+    0.0,
+    30.0
+   ],
+   "evidence": "unbracketed (no confirmed window on one side)",
+   "pauseCandidates": [
+    {
+     "from_ms": 6040,
+     "to_ms": 11390,
+     "ms": 5350,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 0,
+     "to_ms": 2150,
+     "ms": 2150,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 2
+  },
+  {
+   "ayah": 2,
+   "bracket_s": [
+    0.0,
+    30.0
+   ],
+   "evidence": "window spanning both ayahs",
+   "pauseCandidates": [
+    {
+     "from_ms": 6040,
+     "to_ms": 11390,
+     "ms": 5350,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 0,
+     "to_ms": 2150,
+     "ms": 2150,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 2
+  },
+  {
+   "ayah": 3,
+   "bracket_s": [
+    0.0,
+    50.0
+   ],
+   "evidence": "between confirmed windows",
+   "pauseCandidates": [
+    {
+     "from_ms": 23770,
+     "to_ms": 30520,
+     "ms": 6750,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 6040,
+     "to_ms": 11390,
+     "ms": 5350,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 0,
+     "to_ms": 2150,
+     "ms": 2150,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 3
+  },
+  {
+   "ayah": 4,
+   "bracket_s": [
+    0.0,
+    50.0
+   ],
+   "evidence": "between confirmed windows",
+   "pauseCandidates": [
+    {
+     "from_ms": 23770,
+     "to_ms": 30520,
+     "ms": 6750,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 6040,
+     "to_ms": 11390,
+     "ms": 5350,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 0,
+     "to_ms": 2150,
+     "ms": 2150,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 3
+  },
+  {
+   "ayah": 5,
+   "bracket_s": [
+    20.0,
+    50.0
+   ],
+   "evidence": "window spanning both ayahs",
+   "pauseCandidates": [
+    {
+     "from_ms": 23770,
+     "to_ms": 30520,
+     "ms": 6750,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 1
+  },
+  {
+   "ayah": 6,
+   "bracket_s": [
+    40.0,
+    90.0
+   ],
+   "evidence": "between confirmed windows",
+   "pauseCandidates": [
+    {
+     "from_ms": 51950,
+     "to_ms": 61640,
+     "ms": 9690,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 1
+  },
+  {
+   "ayah": 7,
+   "bracket_s": [
+    60.0,
+    190.0
+   ],
+   "evidence": "window spanning both ayahs",
+   "pauseCandidates": [
+    {
+     "from_ms": 146420,
+     "to_ms": 155510,
+     "ms": 9090,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 114200,
+     "to_ms": 123000,
+     "ms": 8800,
+     "kind": "quiet dip"
+    },
+    {
+     "from_ms": 83900,
+     "to_ms": 92000,
+     "ms": 8100,
+     "kind": "quiet dip"
+    }
+   ],
+   "pausesInBracket": 3
+  }
+ ],
+ "placedBoundaries": 0
+}
