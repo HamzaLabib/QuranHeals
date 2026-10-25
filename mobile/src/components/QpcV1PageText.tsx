@@ -67,6 +67,18 @@ type QpcV1PageTextProps = {
   wirdAyahKey?: string | null;
   /** The gold (mushaf/appearance.ts MUSHAF_WIRD_MARKER): the medallion's colours, or the plain glyph's tint. */
   wirdMarker?: { colors: AyahMarkerColors; glyph: string };
+  /**
+   * Memorization Mode (memorization/): whether an ayah's text is hidden now. A hidden ayah's words and pause marks keep
+   * their exact place, advance, line box and touch box — they are only not painted, as a medallion's own glyph is
+   * (styles.hiddenGlyph; on Android without the unclipped copy) — and its number, the Surah headings and the Basmala
+   * stay drawn. Absent: every ayah drawn, as before.
+   */
+  isAyahHidden?: (verseKey: string) => boolean;
+  /**
+   * Memorization Mode's peek: a touch held on an ayah (its verse key), and null when it is released or cancelled (a
+   * swipe). Absent: no long press on the lines, as before. A long press never also counts as a tap.
+   */
+  onPeekVerse?: (verseKey: string | null) => void;
 };
 
 /** Android draws each glyph through an unclipped copy (see androidInk). */
@@ -152,6 +164,8 @@ export function QpcV1PageText({
   headingDecoration = SURAH_HEADING_DECORATION,
   wirdAyahKey = null,
   wirdMarker,
+  isAyahHidden,
+  onPeekVerse,
 }: QpcV1PageTextProps) {
   const ayahTarget = useGuideTarget('ayah');
   const markerTarget = useGuideTarget('marker');
@@ -220,10 +234,14 @@ export function QpcV1PageText({
     return word && fontSize !== null ? withSelectionInk(box, layout.page, word, fontSize, markerFor(word.kind, word.verseKey)) : box;
   });
 
-  const onLinePress = (line: number) => (event: GestureResponderEvent) => {
+  /** The ayah word (or number) under a touch on line `line`'s row: the line it is nearest as drawn, then the word. */
+  const pressTarget = (line: number, event: GestureResponderEvent) => {
     const { x, y } = pressLocation(event);
     const target = lineAtY(line, quranRowTop(line) + y, layout.lines.map((l) => l.line), drawnCentre);
-    const hit = pressTargetAtLineX(lineBoxes(target), x);
+    return pressTargetAtLineX(lineBoxes(target), x);
+  };
+  const onLinePress = (line: number) => (event: GestureResponderEvent) => {
+    const hit = pressTarget(line, event);
     if (!hit) return;
     const native = event.nativeEvent as { pageX?: number; pageY?: number };
     const at = Number.isFinite(native.pageX) && Number.isFinite(native.pageY) ? { x: native.pageX as number, y: native.pageY as number } : undefined;
@@ -317,6 +335,8 @@ export function QpcV1PageText({
             testID={`qpc-line-${line.line}`}
             accessible={false}
             onPress={onLinePress(line.line)}
+            onLongPress={onPeekVerse ? (event) => { const hit = pressTarget(line.line, event); if (hit) onPeekVerse(hit.verseKey); } : undefined}
+            onPressOut={onPeekVerse ? () => onPeekVerse(null) : undefined}
             style={[styles.line, opening && { columnGap: fontSize * WORD_GAP_EM, justifyContent: 'center' }, { height: rowPitch, top: quranRowTop(line.line), width }]}>
             {span && (
               <View
@@ -330,6 +350,8 @@ export function QpcV1PageText({
               const gold = wirdGold(word.kind, word.verseKey);
               // The plain glyph is tinted only where it shows (no medallion over it): a hidden one stays exactly as it was.
               const glyphTint = marker ? undefined : gold?.glyph;
+              // Memorization Mode: an ayah's words and pause marks, never its number.
+              const memorized = word.kind !== 'end' && isAyahHidden !== undefined && isAyahHidden(word.verseKey);
               const baseline = reportedBaseline ?? cssBaseline(fontSize, fontSize * QCF_V1_LINE_BOX_EM);
               return (
                 // pointerEvents none: taps land on the line, so the press location is line-relative.
@@ -342,10 +364,10 @@ export function QpcV1PageText({
                   <Text
                     allowFontScaling={false}
                     onTextLayout={marker ? onMarkerTextLayout : undefined}
-                    style={[glyphStyle(fontSize, word.kind, glyphTint), inkRoom(fontSize, !marker), (marker || ANDROID) && styles.hiddenGlyph]}>
+                    style={[glyphStyle(fontSize, word.kind, glyphTint), inkRoom(fontSize, !marker), (marker || ANDROID || memorized) && styles.hiddenGlyph]}>
                     {word.glyph}
                   </Text>
-                  {ANDROID && !marker && androidInk(fontSize, glyphStyle(fontSize, word.kind, glyphTint), word.glyph)}
+                  {ANDROID && !marker && !memorized && androidInk(fontSize, glyphStyle(fontSize, word.kind, glyphTint), word.glyph)}
                   {marker && markerColors && (
                     <AyahMarkerOrnament
                       testID={gold ? 'qpc-wird-marker' : undefined}

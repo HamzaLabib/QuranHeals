@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { AppState, Modal, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Svg, { Line, Path } from 'react-native-svg';
 
@@ -14,7 +14,16 @@ type MushafGuideProps = {
   total: number;
   /** This step's instruction. */
   text: string;
+  /**
+   * `notOnPage`: under a step whose control is not on screen ('' for none: a step with no control of its own, in the
+   * Memorization Mode Guide).
+   */
   labels: { next: string; back: string; close: string; start: string; stepOf: string; notOnPage: string; reopenHint: string };
+  /** The Memorization Mode Guide only: a note under the text, and a small picture; the Mushaf guide has neither. */
+  note?: string | null;
+  illustration?: ReactNode;
+  /** Its testID prefix ('mushaf-guide' by default): the Memorization Mode Guide is told apart from the Mushaf guide. */
+  testID?: string;
   dark: boolean;
   rtl: boolean;
   direction: Direction;
@@ -43,7 +52,7 @@ type MushafGuideProps = {
  * and Android's Back key goes to the previous step (never closing it).
  */
 export function MushafGuide(props: MushafGuideProps) {
-  const { visible, step, total, text, labels, dark, rtl, direction, safe, getTarget, measureKey } = props;
+  const { visible, step, total, text, labels, dark, rtl, direction, safe, getTarget, measureKey, note, illustration, testID: id = 'mushaf-guide' } = props;
   const theme = dark ? MUSHAF_PANEL_COLORS.dark : MUSHAF_PANEL_COLORS.light;
   const screen = useWindowDimensions();
   const [rect, setRect] = useState<Rect | null>(null);
@@ -85,7 +94,7 @@ export function MushafGuide(props: MushafGuideProps) {
 
   const card = (
     <View
-      testID="mushaf-guide-card"
+      testID={`${id}-card`}
       accessibilityViewIsModal
       style={[
         styles.card,
@@ -95,22 +104,24 @@ export function MushafGuide(props: MushafGuideProps) {
           : { width: Math.min(GUIDE_CARD_MAX_WIDTH, screen.width - GUIDE_SIDE_MARGIN * 2) },
       ]}>
       <Text style={[styles.counter, { color: theme.muted }, direction]}>{counter}</Text>
-      <Text testID="mushaf-guide-text" accessibilityRole="header" style={[styles.text, { color: theme.text }, direction]}>{text}</Text>
-      {!placement && <Text testID="mushaf-guide-not-on-page" style={[styles.note, { color: theme.muted }, direction]}>{labels.notOnPage}</Text>}
+      <Text testID={`${id}-text`} accessibilityRole="header" style={[styles.text, { color: theme.text }, direction]}>{text}</Text>
+      {illustration}
+      {note ? <Text testID={`${id}-note`} style={[styles.note, { color: theme.muted }, direction]}>{note}</Text> : null}
+      {!placement && labels.notOnPage !== '' && <Text testID={`${id}-not-on-page`} style={[styles.note, { color: theme.muted }, direction]}>{labels.notOnPage}</Text>}
       {/* The last step: where to find the guide again, just above Start Reading. */}
-      {last && <Text testID="mushaf-guide-reopen-hint" style={[styles.note, { color: theme.muted }, direction]}>{labels.reopenHint}</Text>}
+      {last && <Text testID={`${id}-reopen-hint`} style={[styles.note, { color: theme.muted }, direction]}>{labels.reopenHint}</Text>}
       <View style={[styles.actions, rtl && styles.rowReverse]}>
         {step > 0 && (
-          <Pressable testID="mushaf-guide-back" accessibilityRole="button" accessibilityLabel={labels.back} onPress={props.onBack} hitSlop={6} style={({ pressed }) => [styles.secondary, pressed && styles.pressed]}>
+          <Pressable testID={`${id}-back`} accessibilityRole="button" accessibilityLabel={labels.back} onPress={props.onBack} hitSlop={6} style={({ pressed }) => [styles.secondary, pressed && styles.pressed]}>
             <Text style={[styles.secondaryText, { color: theme.text }]}>{labels.back}</Text>
           </Pressable>
         )}
-        <Pressable testID="mushaf-guide-close" accessibilityRole="button" accessibilityLabel={labels.close} onPress={props.onClose} hitSlop={6} style={({ pressed }) => [styles.secondary, pressed && styles.pressed]}>
+        <Pressable testID={`${id}-close`} accessibilityRole="button" accessibilityLabel={labels.close} onPress={props.onClose} hitSlop={6} style={({ pressed }) => [styles.secondary, pressed && styles.pressed]}>
           <Text style={[styles.secondaryText, { color: theme.muted }]}>{labels.close}</Text>
         </Pressable>
         <View style={styles.spacer} />
         <Pressable
-          testID={last ? 'mushaf-guide-start' : 'mushaf-guide-next'}
+          testID={last ? `${id}-start` : `${id}-next`}
           accessibilityRole="button"
           accessibilityLabel={last ? labels.start : labels.next}
           onPress={last ? props.onFinish : props.onNext}
@@ -125,7 +136,7 @@ export function MushafGuide(props: MushafGuideProps) {
   return (
     <Modal visible={visible} transparent statusBarTranslucent animationType="fade" onRequestClose={() => { if (step > 0) props.onBack(); }}>
       {/* Catches every tap outside the card: nothing beneath can be touched, and nothing closes the guide. */}
-      <View testID="mushaf-guide" style={[StyleSheet.absoluteFill, !placement && styles.centred]} onStartShouldSetResponder={() => true}>
+      <View testID={id} style={[StyleSheet.absoluteFill, !placement && styles.centred]} onStartShouldSetResponder={() => true}>
         {placement ? (
           <>
             {/* The dimmed screen around the highlighted control: four panes leave it uncovered. */}
@@ -134,11 +145,11 @@ export function MushafGuide(props: MushafGuideProps) {
             <View pointerEvents="none" style={[styles.pane, { backgroundColor: theme.backdrop, left: 0, width: Math.max(0, placement.hole.x), top: placement.hole.y, height: placement.hole.height }]} />
             <View pointerEvents="none" style={[styles.pane, { backgroundColor: theme.backdrop, left: placement.hole.x + placement.hole.width, right: 0, top: placement.hole.y, height: placement.hole.height }]} />
             <View
-              testID="mushaf-guide-highlight"
+              testID={`${id}-highlight`}
               pointerEvents="none"
               style={[styles.highlight, { borderColor: theme.accent, left: placement.hole.x, top: placement.hole.y, width: placement.hole.width, height: placement.hole.height }]}
             />
-            <GuideArrow testID="mushaf-guide-arrow" x={placement.arrow.x} fromY={placement.arrow.fromY} toY={placement.arrow.toY} color={theme.accent} />
+            <GuideArrow testID={`${id}-arrow`} x={placement.arrow.x} fromY={placement.arrow.fromY} toY={placement.arrow.toY} color={theme.accent} />
           </>
         ) : (
           <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: theme.backdrop }]} />

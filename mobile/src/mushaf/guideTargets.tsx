@@ -7,8 +7,11 @@ import type { View } from 'react-native';
  * number), and the guide measures them where they are drawn (measureInWindow), so its arrows always follow the actual
  * controls — on any phone, in Normal Mode or full screen, at any text size — never fixed coordinates. Outside the
  * reader (a component rendered alone) registering does nothing.
+ *
+ * 'memorize' and 'memorizeAll' (Memorization Mode's Eye and its Show All / Hide All) are pointed at only by the
+ * Memorization Mode Guide (memorization/memorizationGuide.ts), and only while they are drawn.
  */
-export type GuideTarget = 'surah' | 'hizb' | 'page' | 'juz' | 'ayah' | 'marker';
+export type GuideTarget = 'surah' | 'hizb' | 'page' | 'juz' | 'ayah' | 'marker' | 'memorize' | 'memorizeAll';
 
 type Register = (target: GuideTarget, view: View | null) => void;
 
