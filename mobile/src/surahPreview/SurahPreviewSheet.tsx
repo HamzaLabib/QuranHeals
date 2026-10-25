@@ -40,7 +40,6 @@ export function SurahPreviewSheet({ visible, surahs, selected, onSelect, entry, 
   // Themes in the introduction's language where that text exists, else the Arabic (with its own direction).
   const themesEnShown = language === 'en' && entry !== null && shownStatus(entry.status.themesEn);
   const themes = entry === null ? null : themesEnShown ? entry.themes.en : shownStatus(entry.status.themesAr) ? entry.themes.ar : null;
-  const themesStatus = entry === null ? 'unavailable' : themesEnShown ? entry.status.themesEn : entry.status.themesAr;
   const themesBody = themesEnShown ? body : ({ textAlign: 'right', writingDirection: 'rtl' } as const);
   const centred = { textAlign: 'center', writingDirection: rtl ? 'rtl' : 'ltr' } as const;
   const divider = <View style={[styles.divider, { backgroundColor: theme.divider }]} />;
@@ -92,9 +91,6 @@ export function SurahPreviewSheet({ visible, surahs, selected, onSelect, entry, 
               </Text>
               {divider}
               <Text style={[styles.heading, { color: theme.accent }, ui]}>{labels.themes}</Text>
-              {themesStatus === 'pending-review' && (
-                <Text testID="surah-preview-themes-pending" style={[styles.note, { color: theme.muted }, ui]}>{labels.pendingReview}</Text>
-              )}
               {themes ? (
                 <View testID="surah-preview-themes" style={styles.themes}>
                   {themes.map((item, i) => (

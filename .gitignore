@@ -122,3 +122,10 @@ tools/quran-import/raw/gutenberg-16955/16955.txt
 # tools/surah-preview/source.lock.json, which stays tracked); redistribution terms unconfirmed, so never committed.
 mobile/assets/surah-preview/surah-preview.json
 mobile/assets/surah-preview/*.partial
+# Quranpedia's official surah-information dump, cached by import.mjs (pinned in tools/surah-preview/quranpedia.lock.json).
+tools/surah-preview/source/
+# The scholarly review log (reviewer names, third-party text) and what review/apply.mjs builds from it: local, backed up
+# by the owner, never committed until the publishers' terms allow their text in the repository.
+tools/surah-preview/review/data/
+tools/surah-preview/reviewed-content.json
+tools/surah-preview/reviewed-content.json.partial

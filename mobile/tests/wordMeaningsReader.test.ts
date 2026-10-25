@@ -103,12 +103,18 @@ vi.mock('@/wordMeanings/bundledDataset', () => ({
   bundledWordMeanings: () => { wm.loads += 1; return wm.bundled ? wm.data : null; },
 }));
 // Surah Preview (surahPreview/): bundled as in a development build, its data SYNTHETIC (never the source's text).
-const sp = vi.hoisted(() => ({ bundled: true, loads: 0 }));
+const sp = vi.hoisted(() => ({ bundled: true, loads: 0, kahfTopics: false }));
 vi.mock('@/surahPreview/bundledDataset', () => ({
   isSurahPreviewBundled: () => sp.bundled,
   bundledSurahPreview: () => {
     sp.loads += 1;
-    return sp.bundled ? { format: 1, status: 'official', sources: [], surahs: Array.from({ length: 114 }, (_, i) => ({ surah: i + 1, revelation: i % 2 ? 'madani' : 'makki', ayahCount: 10 + i, purpose: { ar: `مقصد تجريبي ${i + 1}`, en: null }, themes: { ar: null, en: null } })) } : null;
+    return sp.bundled ? { format: 1, status: 'official', sources: [], surahs: Array.from({ length: 114 }, (_, i) => ({
+      surah: i + 1, revelation: i % 2 ? 'madani' : 'makki', ayahCount: 10 + i, purpose: { ar: `مقصد تجريبي ${i + 1}`, en: null },
+      // `kahfTopics`: Al-Kahf's topics pending scholarly review (from a cited source), as the import marks Quranpedia's.
+      ...(sp.kahfTopics && i === 17
+        ? { themes: { ar: ['موضوع تجريبي أ', 'موضوع تجريبي ب'], en: null }, status: { purposeAr: 'quoted', purposeEn: 'unavailable', themesAr: 'pending-review', themesEn: 'unavailable' }, sources: ['mukhtasar-quranenc', 'tanzil', 'quranpedia-surahs'] }
+        : { themes: { ar: null, en: null } }),
+    })) } : null;
   },
 }));
 vi.mock('react-native-svg', () => ({ default: 'Svg', ClipPath: 'ClipPath', Rect: 'Rect', Path: 'Path', Circle: 'Circle', SvgXml: 'SvgXml', Defs: 'Defs', Ellipse: 'Ellipse', G: 'G', Line: 'Line', LinearGradient: 'LinearGradient', Stop: 'Stop' }));
@@ -471,6 +477,7 @@ beforeEach(() => {
   resetWordMeaningsDatasetForTests();
   sp.bundled = true;
   sp.loads = 0;
+  sp.kahfTopics = false;
   resetSurahPreviewDatasetForTests();
 });
 afterEach(async () => {
@@ -1187,6 +1194,39 @@ describe('Surah Preview (عن السورة)', () => {
     expect(allText()).toEqual(expect.arrayContaining(['مقصد السورة', 'موضوعاتها']));
     expect(allText()).not.toContain('أبرز موضوعاتها');
     expect(hosts('surah-preview-arabic-only')).toHaveLength(0);
+  });
+
+  it('topics pending scholarly review: shown under «Topics» with no review-status label; the purpose is unchanged', async () => {
+    sp.kahfTopics = true;
+    state.params = { page: '293' };
+    await render();
+    await press(previewButton());
+    expect(textOf(hosts('surah-preview-name')[0])).toBe(getSurahName(18).nameEnglish);
+    expect(textOf(hosts('surah-preview-purpose')[0])).toBe('مقصد تجريبي 18');
+    // The owner removed the review-status label (2026-10-24); the status itself stays pending-review in the data.
+    expect(hosts('surah-preview-themes-pending')).toHaveLength(0);
+    expect(allText()).not.toContain('Awaiting scholarly review');
+    expect(textOf(hosts('surah-preview-themes')[0])).toContain('موضوع تجريبي أ');
+    expect(textOf(hosts('surah-preview-themes')[0])).toContain('موضوع تجريبي ب');
+    expect(hosts('surah-preview-themes-unavailable')).toHaveLength(0);
+    // The approved order, with Topics last.
+    const order = ['surah-preview-name', 'surah-preview-facts', 'surah-preview-purpose', 'surah-preview-themes'];
+    expect(root.root.findAll((n) => typeof n.type === 'string' && order.includes(String(n.props.testID))).map((n) => n.props.testID)).toEqual(order);
+    expect(allText()).toEqual(expect.arrayContaining(['Main Purpose', 'Topics']));
+    await unmount();
+    // Arabic: the same, under «موضوعاتها», with no «قيد المراجعة العلمية» label.
+    state.locale = 'ar';
+    await render();
+    await press(previewButton());
+    expect(hosts('surah-preview-themes-pending')).toHaveLength(0);
+    expect(allText()).not.toContain('قيد المراجعة العلمية');
+    expect(allText()).toEqual(expect.arrayContaining(['مقصد السورة', 'موضوعاتها']));
+    // Another Surah without topics in the same dataset still says they are not available.
+    await unmount();
+    state.params = { page: '305' };
+    await render();
+    await press(previewButton());
+    expect(textOf(hosts('surah-preview-themes-unavailable')[0])).toBe('غير متاحة بعد.');
   });
 
   it('not bundled (a release build): no button, nothing loaded', async () => {

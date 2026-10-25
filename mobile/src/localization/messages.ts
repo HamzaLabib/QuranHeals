@@ -456,6 +456,9 @@ export type Messages = {
     /** Surah Preview's main purpose (constants/quranSources.ts); shown only in builds that carry its dataset. */
     tafsirCenterName: string;
     tafsirCenterWork: string;
+    /** Surah Preview's topics (constants/quranSources.ts); shown only in builds that carry its dataset. */
+    quranpediaName: string;
+    quranpediaWork: string;
     website: string;
     license: string;
     terms: string;
@@ -1494,6 +1497,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       mp3quranWork: 'Quran audio and its ayah timing, streamed from mp3quran.net and downloadable for offline listening. MP3Quran states that any visitor or developer may copy and use its material.',
       tafsirCenterName: 'Tafsir Center for Quranic Studies',
       tafsirCenterWork: 'Surah Preview’s main purpose: Al-Mukhtasar fi Tafsir al-Quran al-Karim (المختصر في تفسير القرآن الكريم), via QuranEnc.com. Makki/Madani and ayah count: Tanzil.',
+      quranpediaName: 'Quranpedia.net',
+      quranpediaWork: 'Surah Preview’s topics: Quranpedia.net (Surah information, version 2026-10-24), citing «التفسير الموضوعي لسور القرآن الكريم» (a group of tafsir scholars, University of Sharjah, 1431 AH / 2010); for Surahs 42 and 44, al-Fairuzabadi’s «بصائر ذوي التمييز في لطائف الكتاب العزيز» (ed. Muhammad Ali al-Najjar), via Quranpedia.net. Credited as sources; this does not imply their endorsement.',
       website: 'Website',
       license: 'Licence',
       terms: 'Terms of use',
@@ -2135,6 +2140,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       mp3quranWork: 'تلاوات القرآن الكريم وتوقيت آياتها، تُبَثّ من موقع mp3quran.net ويمكن تنزيلها للاستماع دون اتصال. وينصّ الموقع على أنه يحق لأي زائر أو مطوّر استخدام أي مادة منه.',
       tafsirCenterName: 'مركز تفسير للدراسات القرآنية',
       tafsirCenterWork: 'مقصد السورة في «عن السورة»: المختصر في تفسير القرآن الكريم (موسوعة القرآن الكريم QuranEnc.com). المكي والمدني وعدد الآيات: تنزيل.',
+      quranpediaName: 'Quranpedia.net',
+      quranpediaWork: 'موضوعات السورة في «عن السورة»: الموسوعة القرآنية Quranpedia.net (معلومات السور، إصدار 2026-10-24)، نقلًا عن «التفسير الموضوعي لسور القرآن الكريم» لنخبة من علماء التفسير وعلوم القرآن (جامعة الشارقة، 1431هـ/2010م)؛ وللسورتين ٤٢ و٤٤: «بصائر ذوي التمييز في لطائف الكتاب العزيز» للفيروزآبادي (تحقيق محمد علي النجار) عبر Quranpedia.net. ذِكرُ هذه المصادر لا يعني تأييدها للتطبيق.',
       website: 'الموقع',
       license: 'الرخصة',
       terms: 'شروط الاستخدام',
@@ -2791,6 +2798,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       mp3quranWork: 'تلاوات القرآن الكريم وتوقيت آياتها، تُبَثّ من موقع mp3quran.net ويمكن تنزيلها للاستماع دون اتصال. وينصّ الموقع على أنه يحق لأي زائر أو مطوّر استخدام أي مادة منه.',
       tafsirCenterName: 'مركز تفسير للدراسات القرآنية',
       tafsirCenterWork: 'مقصد السورة في «عن السورة»: المختصر في تفسير القرآن الكريم (موسوعة القرآن الكريم QuranEnc.com). المكي والمدني وعدد الآيات: تنزيل.',
+      quranpediaName: 'Quranpedia.net',
+      quranpediaWork: 'موضوعات السورة في «عن السورة»: الموسوعة القرآنية Quranpedia.net (معلومات السور، إصدار 2026-10-24)، نقلًا عن «التفسير الموضوعي لسور القرآن الكريم» لنخبة من علماء التفسير وعلوم القرآن (جامعة الشارقة، 1431هـ/2010م)؛ وللسورتين ٤٢ و٤٤: «بصائر ذوي التمييز في لطائف الكتاب العزيز» للفيروزآبادي (تحقيق محمد علي النجار) عبر Quranpedia.net. ذِكرُ هذه المصادر لا يعني تأييدها للتطبيق.',
       website: 'الموقع',
       license: 'الرخصة',
       terms: 'شروط الاستخدام',

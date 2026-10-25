@@ -1,0 +1,963 @@
+{
+  "note": "Per Surah: the topics' status, item count, the source's own citation, and what to review. No text here: it is third-party (README.md).",
+  "quranpediaVersion": "2026-10-24",
+  "surahs": [
+    {
+      "surah": 1,
+      "items": 4,
+      "status": "pending-review",
+      "citation": null,
+      "flags": [
+        "no-citation"
+      ],
+      "note": "Topics are Quranpedia's own framing (no «ينظر» citation); the passage after them quotes al-Sa'di, «تيسير الكريم الرحمن» p. 17."
+    },
+    {
+      "surah": 2,
+      "items": 4,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسُوَر القرآن الكريم\" لمجموعة من العلماء (1 /19).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 3,
+      "items": 9,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (1 /426).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 4,
+      "items": 13,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (2 /40).",
+      "flags": [
+        "long-list"
+      ],
+      "note": null
+    },
+    {
+      "surah": 5,
+      "items": 31,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (2 /290).",
+      "flags": [
+        "long-list"
+      ],
+      "note": null
+    },
+    {
+      "surah": 6,
+      "items": 27,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (2 /393).",
+      "flags": [
+        "long-list"
+      ],
+      "note": null
+    },
+    {
+      "surah": 7,
+      "items": 16,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي\" لمجموعة من العلماء (3 /9).",
+      "flags": [
+        "long-list"
+      ],
+      "note": null
+    },
+    {
+      "surah": 8,
+      "items": 12,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (3 /131).",
+      "flags": [
+        "long-list"
+      ],
+      "note": null
+    },
+    {
+      "surah": 9,
+      "items": 12,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي\" لمجموعة من العلماء (3 /178).",
+      "flags": [
+        "long-list"
+      ],
+      "note": null
+    },
+    {
+      "surah": 10,
+      "items": 14,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (3 /303).",
+      "flags": [
+        "long-list"
+      ],
+      "note": null
+    },
+    {
+      "surah": 11,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (3 /445).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 12,
+      "items": 9,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (3 /503).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 13,
+      "items": 12,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (3 /563).",
+      "flags": [
+        "long-list",
+        "classification: Quranpedia «مكية», Tanzil Medinan"
+      ],
+      "note": null
+    },
+    {
+      "surah": 14,
+      "items": 7,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (4 /1).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 15,
+      "items": 5,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (4 /93).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 16,
+      "items": 12,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (4 /131).",
+      "flags": [
+        "long-list"
+      ],
+      "note": null
+    },
+    {
+      "surah": 17,
+      "items": 21,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (4 /212).",
+      "flags": [
+        "long-list"
+      ],
+      "note": null
+    },
+    {
+      "surah": 18,
+      "items": 10,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (4 /289).",
+      "flags": [],
+      "note": "Item 1 reads «الحمد الله /التبشير والإنذار» in the source: «الحمد الله» looks like a typo for «الحمد لله»; not corrected."
+    },
+    {
+      "surah": 19,
+      "items": 8,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (4 /414).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 20,
+      "items": 7,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (4 /490).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 21,
+      "items": 7,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (5 /5).",
+      "flags": [],
+      "note": "The source's last range reads «(١٠٧- ١٢١)» for a Surah of 112 ayahs: a typo in the source (ranges are not shown); the headings are al-Anbiya's."
+    },
+    {
+      "surah": 22,
+      "items": 12,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (5 /87).",
+      "flags": [
+        "long-list"
+      ],
+      "note": "The source uses the heading «المجادلة بغير علم» for two separate passages (3–4 and 8–16), so it appears twice; kept as the source has it, for the reviewer."
+    },
+    {
+      "surah": 23,
+      "items": 6,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (5 /124).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 24,
+      "items": 10,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (5 /172).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 25,
+      "items": 10,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (5 /270).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 26,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (5 /327).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 27,
+      "items": 10,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي للقرآن الكريم\" لمجموعة من العلماء (5 /420).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 28,
+      "items": 11,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (5 /516).",
+      "flags": [
+        "long-list"
+      ],
+      "note": null
+    },
+    {
+      "surah": 29,
+      "items": 7,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (5 /581).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 30,
+      "items": 10,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (6 /4).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 31,
+      "items": 9,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (6 /27).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 32,
+      "items": 8,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (6 /51).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 33,
+      "items": 10,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (6 /68).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 34,
+      "items": 9,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم \" لمجموعة من العلماء (6 /172).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 35,
+      "items": 8,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (6 /241).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 36,
+      "items": 9,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (6 /299).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 37,
+      "items": 14,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (6 /347).",
+      "flags": [
+        "long-list"
+      ],
+      "note": null
+    },
+    {
+      "surah": 38,
+      "items": 6,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (6 /439).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 39,
+      "items": 14,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (6 /478).",
+      "flags": [
+        "long-list"
+      ],
+      "note": null
+    },
+    {
+      "surah": 40,
+      "items": 14,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (6 /530).",
+      "flags": [
+        "long-list"
+      ],
+      "note": null
+    },
+    {
+      "surah": 41,
+      "items": 10,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (7 /5).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 42,
+      "items": 1,
+      "status": "pending-review",
+      "citation": "«بصائر ذوي التمييز في لطائف الكتاب العزيز» للفيروزآبادي، تحقيق محمد علي النجار — Quranpedia book 186, chapter «بصيرة فى.. حم. عسق»",
+      "flags": [
+        "no-topics-in-quranpedia",
+        "classical-source: «بصائر ذوي التمييز» «معظم مقصود السورة», one sentence verbatim"
+      ],
+      "note": "From «بصائر ذوي التمييز». It includes «استدعاء الرسول … محبة أهل البيت العترة الطاهرة», one interpretation of «إلا المودة في القربى» on which scholars differ; kept verbatim, for the reviewer. The book states the Surah is Makki by consensus (Tanzil agrees; Quranpedia's introduction calls it Madani)."
+    },
+    {
+      "surah": 43,
+      "items": 10,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (7 /102).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 44,
+      "items": 1,
+      "status": "pending-review",
+      "citation": "«بصائر ذوي التمييز في لطائف الكتاب العزيز» للفيروزآبادي، تحقيق محمد علي النجار — Quranpedia book 186, chapter «بصيرة فى.. حم. والكتاب المبين. انا أنزلناه»",
+      "flags": [
+        "no-topics-in-quranpedia",
+        "classical-source: «بصائر ذوي التمييز» «معظم مقصود السورة», one sentence verbatim"
+      ],
+      "note": "From «بصائر ذوي التمييز»; ends with a Quranic quotation (ad-Dukhan 58) in the book's own text."
+    },
+    {
+      "surah": 45,
+      "items": 7,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (7 /161).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 46,
+      "items": 4,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (7 /179).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 47,
+      "items": 4,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (7 /234).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 48,
+      "items": 6,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (7 /288).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 49,
+      "items": 4,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسورة القرآن الكريم\" لمجموعة من العلماء (7 /341).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 50,
+      "items": 4,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (7 /402).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 51,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (7 /443).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 52,
+      "items": 4,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (7 /468).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 53,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (7 /490).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 54,
+      "items": 8,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (7 /515).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 55,
+      "items": 7,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (7 /550).",
+      "flags": [
+        "classification: Quranpedia «مكية», Tanzil Medinan"
+      ],
+      "note": null
+    },
+    {
+      "surah": 56,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (7 /598).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 57,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (8 /8).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 58,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (8 /34).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 59,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (8 /60).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 60,
+      "items": 4,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (8 /96).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 61,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (8 /127).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 62,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (8 /149).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 63,
+      "items": 2,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (8 /171).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 64,
+      "items": 5,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (8 /191).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 65,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (8 /217).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 66,
+      "items": 4,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (8 /245).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 67,
+      "items": 6,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (8 /270).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 68,
+      "items": 5,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (8 /292).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 69,
+      "items": 5,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (8 /320).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 70,
+      "items": 5,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (8 /343).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 71,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (8 /367).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 72,
+      "items": 4,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (8 /397).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 73,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (8 /430).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 74,
+      "items": 4,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (8 /454).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 75,
+      "items": 4,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (8 /487).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 76,
+      "items": 6,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (8 /511).",
+      "flags": [
+        "classification: Quranpedia «مكية», Tanzil Medinan"
+      ],
+      "note": null
+    },
+    {
+      "surah": 77,
+      "items": 4,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (8 /540).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 78,
+      "items": 4,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /4).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 79,
+      "items": 5,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /23).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 80,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /41).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 81,
+      "items": 2,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /49).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 82,
+      "items": 4,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /57).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 83,
+      "items": 4,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /66).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 84,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /75).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 85,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /90).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 86,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /101).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 87,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /110).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 88,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /116).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 89,
+      "items": 2,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /127).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 90,
+      "items": 2,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /135).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 91,
+      "items": 2,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /149).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 92,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9/172).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 93,
+      "items": 2,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /202).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 94,
+      "items": 2,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /220).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 95,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /242).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 96,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /253).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 97,
+      "items": 2,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /264).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 98,
+      "items": 3,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /273).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 99,
+      "items": 2,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /287).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 100,
+      "items": 2,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /299).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 101,
+      "items": 2,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /309).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 102,
+      "items": 1,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /318).",
+      "flags": [
+        "classification: Quranpedia «مدنية», Tanzil Meccan"
+      ],
+      "note": null
+    },
+    {
+      "surah": 103,
+      "items": 1,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /329).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 104,
+      "items": 1,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /342).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 105,
+      "items": 1,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /353).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 106,
+      "items": 1,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /369).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 107,
+      "items": 2,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /380).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 108,
+      "items": 1,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /394).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 109,
+      "items": 1,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /407).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 110,
+      "items": 1,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /422).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 111,
+      "items": 1,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /437).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 112,
+      "items": 1,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /452).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 113,
+      "items": 1,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /468).",
+      "flags": [],
+      "note": null
+    },
+    {
+      "surah": 114,
+      "items": 1,
+      "status": "pending-review",
+      "citation": "ينظر: \"التفسير الموضوعي لسور القرآن الكريم\" لمجموعة من العلماء (9 /481).",
+      "flags": [],
+      "note": null
+    }
+  ]
+}

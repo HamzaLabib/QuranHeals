@@ -97,6 +97,7 @@ describe('Quran Sources & Credits page', () => {
       'https://www.mp3quran.net/',
       'https://www.mp3quran.net/eng/privacy',
       'https://quranenc.com/ar/browse/arabic_mokhtasar',
+      'https://quranpedia.net',
     ]);
     expect(links()).toHaveLength(urls.length);
     for (const link of links()) {
@@ -119,7 +120,7 @@ describe('Quran Sources & Credits page', () => {
     await act(async () => { root = create(createElement(CreditsScreen)); });
     const copy = MESSAGES.en.credits;
     const cards = root.root.findAll((node) => typeof node.type === 'string' && /^credit-/.test(String(node.props.testID))).map((node) => node.props.testID);
-    expect(cards).toEqual(['credit-tanzil', 'credit-quranFoundation', 'credit-kingFahd', 'credit-amiri', 'credit-mp3quran', 'credit-tafsirCenter']);
+    expect(cards).toEqual(['credit-tanzil', 'credit-quranFoundation', 'credit-kingFahd', 'credit-amiri', 'credit-mp3quran', 'credit-tafsirCenter', 'credit-quranpedia']);
     expect(copy.tafsirCenterName).toBe('Tafsir Center for Quranic Studies');
     expect(copy.tafsirCenterWork).toBe('Surah Preview’s main purpose: Al-Mukhtasar fi Tafsir al-Quran al-Karim (المختصر في تفسير القرآن الكريم), via QuranEnc.com. Makki/Madani and ayah count: Tanzil.');
     expect(texts()).toEqual(expect.arrayContaining([copy.tafsirCenterName, copy.tafsirCenterWork]));
@@ -129,19 +130,48 @@ describe('Quran Sources & Credits page', () => {
     expect(state.openURL).toHaveBeenCalledWith(SURAH_PREVIEW_SOURCE_URL);
   });
 
+  it("credits Surah Preview's topics once: Quranpedia.net and the book it cites, pending review, with its link", async () => {
+    await act(async () => { root = create(createElement(CreditsScreen)); });
+    const copy = MESSAGES.en.credits;
+    expect(copy.quranpediaName).toBe('Quranpedia.net');
+    expect(copy.quranpediaWork).toBe('Surah Preview’s topics: Quranpedia.net (Surah information, version 2026-10-24), citing «التفسير الموضوعي لسور القرآن الكريم» (a group of tafsir scholars, University of Sharjah, 1431 AH / 2010); for Surahs 42 and 44, al-Fairuzabadi’s «بصائر ذوي التمييز في لطائف الكتاب العزيز» (ed. Muhammad Ali al-Najjar), via Quranpedia.net. Credited as sources; this does not imply their endorsement.');
+    expect(MESSAGES.ar.credits.quranpediaWork).toBe('موضوعات السورة في «عن السورة»: الموسوعة القرآنية Quranpedia.net (معلومات السور، إصدار 2026-10-24)، نقلًا عن «التفسير الموضوعي لسور القرآن الكريم» لنخبة من علماء التفسير وعلوم القرآن (جامعة الشارقة، 1431هـ/2010م)؛ وللسورتين ٤٢ و٤٤: «بصائر ذوي التمييز في لطائف الكتاب العزيز» للفيروزآبادي (تحقيق محمد علي النجار) عبر Quranpedia.net. ذِكرُ هذه المصادر لا يعني تأييدها للتطبيق.');
+    expect(MESSAGES['ar-EG'].credits.quranpediaWork).toBe(MESSAGES.ar.credits.quranpediaWork);
+    expect(texts().filter((text) => text === copy.quranpediaName)).toHaveLength(1);
+    expect(texts()).toContain(copy.quranpediaWork);
+    const link = links().find((node) => node.props.accessibilityLabel === `${copy.quranpediaName}: ${copy.website}`)!;
+    await act(async () => link.props.onPress());
+    expect(state.openURL).toHaveBeenCalledWith('https://quranpedia.net');
+  });
+
   // The dataset is git-ignored (tools/surah-preview/import.mjs builds it), so a fresh clone checks the card above only.
   it.skipIf(!existsSync(SURAH_PREVIEW_DATASET))("the card credits the Surah Preview dataset's own attribution (local dataset)", () => {
-    const dataset = JSON.parse(readFileSync(SURAH_PREVIEW_DATASET, 'utf8')) as { sources: { publisher: string; url: string }[] };
-    expect(dataset.sources.map((source) => source.publisher)).toEqual(['مركز تفسير للدراسات القرآنية', 'Tanzil']);
+    const dataset = JSON.parse(readFileSync(SURAH_PREVIEW_DATASET, 'utf8')) as { sources: { id: string; publisher: string; url: string }[] };
+    // Every source the dataset names has its card (a new one fails here until it is credited); never two cards for one.
+    const CARD_FOR: Record<string, string> = { 'mukhtasar-quranenc': 'tafsirCenter', tanzil: 'tanzil', 'quranpedia-surahs': 'quranpedia', 'basair-firuzabadi': 'quranpedia', 'tafsir-mawdui': 'quranpedia' };
+    expect(dataset.sources.map((source) => source.id)).toEqual(Object.keys(CARD_FOR));
+    for (const source of dataset.sources) expect(QURAN_SOURCES.map((s) => s.key), source.id).toContain(CARD_FOR[source.id]);
     expect(MESSAGES.ar.credits.tafsirCenterName).toBe(dataset.sources[0].publisher);
     expect(dataset.sources[0].url).toBe(SURAH_PREVIEW_SOURCE_URL);
+    const byId = (id: string) => dataset.sources.find((source) => source.id === id)!;
+    expect(MESSAGES.en.credits.quranpediaName).toBe(byId('quranpedia-surahs').publisher);
+    expect(QURAN_SOURCES.find((s) => s.key === 'quranpedia')!.links[0].url).toBe(byId('tafsir-mawdui').url);
+    // Each original work named (and, for the classical one, its editor), with no endorsement implied.
+    for (const locale of ['en', 'ar'] as const) {
+      for (const work of ['التفسير الموضوعي لسور القرآن الكريم', 'بصائر ذوي التمييز في لطائف الكتاب العزيز']) expect(MESSAGES[locale].credits.quranpediaWork).toContain(work);
+    }
+    // No review-status wording in the credit (owner, 2026-10-24); the content's scholarly status is kept in the data only.
+    for (const locale of ['en', 'ar', 'ar-EG'] as const) expect(MESSAGES[locale].credits.quranpediaWork).not.toMatch(/scholarly review|قيد المراجعة/i);
+    expect(MESSAGES.en.credits.quranpediaWork).toMatch(/University of Sharjah.*al-Fairuzabadi.*Muhammad Ali al-Najjar.*does not imply their endorsement/);
+    expect(MESSAGES.ar.credits.quranpediaWork).toMatch(/جامعة الشارقة.*للفيروزآبادي.*محمد علي النجار.*لا يعني تأييدها/);
   });
 
   it('a build without Surah Preview (release) does not list its source; the other sources are unchanged', async () => {
     state.surahPreviewBundled = false;
     await act(async () => { root = create(createElement(CreditsScreen)); });
-    expect(root.root.findAll((node) => typeof node.type === 'string' && node.props.testID === 'credit-tafsirCenter')).toHaveLength(0);
+    for (const key of ['tafsirCenter', 'quranpedia']) expect(root.root.findAll((node) => typeof node.type === 'string' && node.props.testID === `credit-${key}`)).toHaveLength(0);
     expect(texts()).not.toContain(MESSAGES.en.credits.tafsirCenterName);
+    expect(texts()).not.toContain(MESSAGES.en.credits.quranpediaName);
     expect(links()).toHaveLength(9);
   });
 
@@ -162,7 +192,7 @@ describe('Quran Sources & Credits page', () => {
       expect(texts()).toContain('مصادر القرآن وحقوق النشر');
       expect(texts().join('\n')).toMatch(/مجمع الملك فهد لطباعة المصحف الشريف/);
       expect(texts().join('\n')).toMatch(/Quran Foundation/);
-      expect(texts()).toEqual(expect.arrayContaining(['مركز تفسير للدراسات القرآنية', MESSAGES[locale].credits.tafsirCenterWork]));
+      expect(texts()).toEqual(expect.arrayContaining(['مركز تفسير للدراسات القرآنية', MESSAGES[locale].credits.tafsirCenterWork, MESSAGES[locale].credits.quranpediaWork]));
       expect(links().every((link) => /[؀-ۿ]/.test(link.props.accessibilityLabel))).toBe(true);
     });
   }

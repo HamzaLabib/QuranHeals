@@ -23,8 +23,6 @@ export type SurahPreviewLabels = {
   themes: string;
   /** In place of the themes while none is approved for this Surah (development builds show the gap, never a filler). */
   themesUnavailable: string;
-  /** Above themes still awaiting scholarly review (development builds only). */
-  pendingReview: string;
   unavailable: string;
   /** Shown when the introduction is in Arabic because the App Language's text is not available. */
   arabicOnlyNote: string | null;
@@ -51,7 +49,6 @@ const EN: SurahPreviewLabels = {
   purpose: 'Main Purpose',
   themes: 'Topics',
   themesUnavailable: 'Not available yet.',
-  pendingReview: 'Awaiting scholarly review',
   unavailable: 'Surah Preview is not available in this version of the app.',
   arabicOnlyNote: 'Shown in Arabic, as the source has it: a verified English text is not available yet.',
 };
@@ -68,7 +65,6 @@ const AR: SurahPreviewLabels = {
   purpose: 'مقصد السورة',
   themes: 'موضوعاتها',
   themesUnavailable: 'غير متاحة بعد.',
-  pendingReview: 'قيد المراجعة العلمية',
   unavailable: 'خاصية «عن السورة» غير متاحة في هذا الإصدار من التطبيق.',
   arabicOnlyNote: null,
 };

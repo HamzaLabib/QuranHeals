@@ -17,6 +17,12 @@ import { SURAH_PREVIEW_ENABLED } from '@/surahPreview/config';
  * - Tafsir Center for Quranic Studies: Surah Preview's main purpose (مقصد السورة), from «المختصر في تفسير القرآن
  *   الكريم» via QuranEnc.com (the dataset's own `sources`, assets/surah-preview/surah-preview.json). Listed only in
  *   builds that carry that dataset (surahPreview/bundledDataset.ts). Its Makki/Madani and ayah counts are Tanzil's.
+ * - Quranpedia.net: Surah Preview's topics («موضوعاتها», pending scholarly review), from its Surah information, citing
+ *   «التفسير الموضوعي لسور القرآن الكريم» (a group of tafsir scholars, University of Sharjah, 2010), and for Surahs 42
+ *   and 44 al-Fairuzabadi's «بصائر ذوي التمييز» (ed. al-Najjar) via Quranpedia: the dataset's `quranpedia-surahs`,
+ *   `tafsir-mawdui` and `basair-firuzabadi` sources, credited together, naming each original work and its publisher,
+ *   without implying their endorsement. Its licence asks no in-app attribution; the cited books have their own
+ *   rights. Same builds as above.
  * See docs/mushaf.md, "Authorization and terms", and docs/audio/source-audit.md.
  *
  * Checked on 2026-10-11: the Tanzil and Quran Foundation URLs answer 200.
@@ -24,7 +30,7 @@ import { SURAH_PREVIEW_ENABLED } from '@/surahPreview/config';
  * unreachable outside Saudi Arabia); it is the Complex's official domain.
  */
 export type QuranSource = {
-  key: 'tanzil' | 'quranFoundation' | 'kingFahd' | 'amiri' | 'mp3quran' | 'tafsirCenter';
+  key: 'tanzil' | 'quranFoundation' | 'kingFahd' | 'amiri' | 'mp3quran' | 'tafsirCenter' | 'quranpedia';
   name: (copy: Messages['credits']) => string;
   work: (copy: Messages['credits']) => string;
   links: { label: 'website' | 'license' | 'terms'; url: string }[];
@@ -80,6 +86,13 @@ export const QURAN_SOURCES: readonly QuranSource[] = [
     name: (copy) => copy.tafsirCenterName,
     work: (copy) => copy.tafsirCenterWork,
     links: [{ label: 'website', url: 'https://quranenc.com/ar/browse/arabic_mokhtasar' }],
+    inThisBuild: () => SURAH_PREVIEW_ENABLED && isSurahPreviewBundled(),
+  },
+  {
+    key: 'quranpedia',
+    name: (copy) => copy.quranpediaName,
+    work: (copy) => copy.quranpediaWork,
+    links: [{ label: 'website', url: 'https://quranpedia.net' }],
     inThisBuild: () => SURAH_PREVIEW_ENABLED && isSurahPreviewBundled(),
   },
 ];

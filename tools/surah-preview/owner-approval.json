@@ -1,0 +1,1049 @@
+{
+  "note": "The app owner's editorial approval of the Arabic Surah Preview texts, bound to their exact wording by SHA-256 (no text here: it is third-party). Not an independent scholarly review (review/, topics-review.json statuses) and not a publisher's permission (PERMISSIONS.md). A changed text no longer matches: validate.mjs then fails until the owner approves the new wording.",
+  "kind": "owner-editorial-approval",
+  "approvedBy": "Hamza (app owner)",
+  "approvedOn": "2026-10-24",
+  "statement": "I officially approve the existing Arabic Surah Preview content for all 114 surahs: مقصد السورة — Main Purpose; موضوعاتها — Topics. I accept the current wording from the identified scholarly sources. Any corrections or improvements can be made in the future.",
+  "scope": [
+    "purposeAr",
+    "themesAr"
+  ],
+  "notCovered": [
+    "purposeEn",
+    "themesEn",
+    "independent scholarly review",
+    "publisher permissions",
+    "the 16 proposed shortened Topics lists (review/proposals.mjs): not approved, not applied"
+  ],
+  "sourcesAtApproval": {
+    "mukhtasarLockRetrieved": "2026-10-24",
+    "quranpediaVersion": "2026-10-24",
+    "quranpediaSha256": "641f3b5f2f8de2a27c98d1ade7edc21d609a713c28f1aa44da5a8fbb1f01d2be",
+    "basairSha256": "801c3a58f348c354f95a73c831873e6b62b4a7aea408363196ce2e8c3bfa7fef"
+  },
+  "surahs": [
+    {
+      "surah": 1,
+      "purposeArSha256": "316509da92c103cf35a413400def9595b992c23b1391a03dce150de8efbaae50",
+      "themesArSha256": "e572fcbae5bc98f12b3cd5aacf80112e6c2c430a7ae34bbeab9805f8e75b9e92",
+      "themesArSources": [
+        "quranpedia-surahs"
+      ]
+    },
+    {
+      "surah": 2,
+      "purposeArSha256": "adb5e5196cbf7d1dd2cc938faafcfd0c3b90659ae237e28cc020533eaee33253",
+      "themesArSha256": "12c6a1fe466097c7057f76bccb4260c290d3e51480a9bffa28f64743fc18de86",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 3,
+      "purposeArSha256": "2d7e18c9a5f856fb7a2531345c97a38a4d7db8fa920429e1afee20bff5714f48",
+      "themesArSha256": "dc5910a6327d9b35efe9dc24c6131964c3fa96e8209bdf0ed8b37b0319bbeb63",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 4,
+      "purposeArSha256": "3389afe6a7e86d792ec1ae2aeaf8d008fc8c0e4a16d2b31ea8afdc39f4db3dbb",
+      "themesArSha256": "d36d636d9be5018c25b0c94dff8e40bd3c9484f627df405dc59c3446052d7034",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 5,
+      "purposeArSha256": "8931fdd2daae392995a31c36666950200bca7b53c10dd6b0fcc48fc0ae6647af",
+      "themesArSha256": "2daa42a631f32a79af653ab9fba4509360a399ac17d642463bc9ef174605589e",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 6,
+      "purposeArSha256": "299bd8d9c23c78a9a2fc57e4961536357f316df391c9cddfa5a98ebb2bc11ae0",
+      "themesArSha256": "0aa0535b26a5af80912a9464f0b4f119b1e6e7a612a79648978733a9f983df4e",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 7,
+      "purposeArSha256": "29caa6b35bbf55d2fafed0034cab040849cbd5d877641d60bb8521e1c0c1a74a",
+      "themesArSha256": "b28367461a2093149f24aa359701c2526897e4e07a99bb8d44dccb959cd60744",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 8,
+      "purposeArSha256": "529f24c53937fcc1f0d42f8f79dea27fe1fb0a54c5f9ba85236a41360f05fcdc",
+      "themesArSha256": "c8f88db3cb82aef88f8b1358f10672847a6c0809951d2e04dd9e8f13f475f907",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 9,
+      "purposeArSha256": "45f85a5560374a74ee68d4f11445029b0df1b776e69e7b26a2495118b3a59543",
+      "themesArSha256": "1d105682580c322a0e9338c54345bfb8657909fbe3d2409656cec4bf09511c56",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 10,
+      "purposeArSha256": "9a4f6369e09574854f5590a93b4c2461790f4699098a39362d4c4ee00dd39e94",
+      "themesArSha256": "a2c6fb95bc8f2fedc2f4303221de170ce9059ae0e06b5f35cfbe07df0ad3eaa5",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 11,
+      "purposeArSha256": "14f38466e89b75dad56ddc673036dea223ad7a32eb599abe02ff9c112b1f04a1",
+      "themesArSha256": "b409053eed49529209b753f7fa18589c51434054aee7455f25d5094316fcaf2e",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 12,
+      "purposeArSha256": "b9a722be3397db5fcf9b79bcea43825d8414e187d5abc1ed26996624f31cad5e",
+      "themesArSha256": "3114759c4fbfd7ba3b1138858f833e5887d542fbe08b3d211c51f85a73bd25a9",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 13,
+      "purposeArSha256": "1e8ce4d6b0effcf016d89ce3715cef2550d17a44536df6e3033596fc486ca086",
+      "themesArSha256": "2f9d1a87e454082e69db6ef0db050a1e3a29f5e833208896204334e25dedc0ff",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 14,
+      "purposeArSha256": "220df84dfb23870562b655b142c4632dabda271c1d58b3df17d413f8f13f86b8",
+      "themesArSha256": "2f273993bac6e21601f44a667630c521e30729993f0492c978a51cec65d36186",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 15,
+      "purposeArSha256": "3f72bb9c25af612d4824adc6f4791960d9647bc5d6ca0509bc9b188d8402906a",
+      "themesArSha256": "c919f7d20c3d433258cfa14abc35be59df72253794804919ba43f7b3e2c11d89",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 16,
+      "purposeArSha256": "263537d0baf2be01f066aa8a913c545ba4dabda138f60ee9c7f44082a04bc11d",
+      "themesArSha256": "310cd731099d6471d88b74ab5c35bd634ba8e5b6964508ae8f07d97b81966a9e",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 17,
+      "purposeArSha256": "29e4abef5daa3a5ab26299ddda7622ed128f832630483ab3f79aa76a1a4eb31b",
+      "themesArSha256": "dfe00ee0e5516222c0d0eeab42bc551514ee8f1848a5170f07be96ab2fb8a73e",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 18,
+      "purposeArSha256": "8185663c45168ebe981475dfc9e97a8820c30ae69c3d7c62a3298d7e403be77a",
+      "themesArSha256": "66fd83341618528903b49eea07683e9102bc3ff0c6e6d96b601193b22c498ef9",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 19,
+      "purposeArSha256": "5a84b8b90aa78e51ff1cda131c2af4aa5058d3fb93365a0b8bfe002edf6c42db",
+      "themesArSha256": "a4423a2efa08e8ac129ff019648d6314ac36cf2213ce14eff2a830b6799a3f79",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 20,
+      "purposeArSha256": "812606c0f92c6b1f7814174aa79ed38895723e29e0e2becb876ba35eee2df178",
+      "themesArSha256": "29e4c57ce294225596026fcf884e9e5da266ddfa62588d85414b46b57154d08d",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 21,
+      "purposeArSha256": "26a854c70a8b8fc99e309620e2975ef8d9bea70cad4329f21d0ead40d206fcbd",
+      "themesArSha256": "c191ee567c1898315e07294cc9ade26981f898eedebccc79a88c8f699a23e66b",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 22,
+      "purposeArSha256": "d7148c93f2923615eaeecd46f63f1cee5a2642f205757b7008a3bd3d57137475",
+      "themesArSha256": "9d373ab6b543b838d1ce7d0e865215f2de83770fc37e333d3afc008c38256aa0",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 23,
+      "purposeArSha256": "5d42886fe850b40424b5ff9e88972d114ef1c21538e1f18a5373328c2bd0f075",
+      "themesArSha256": "3cb1207ea7f5b9760a81bd64cb5e9b3ccafe2065477ebf51d401acc004f5c454",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 24,
+      "purposeArSha256": "0d63ca46e2f497087640434e99d7e53a1c943142117367ba0201e1f03d5e29fd",
+      "themesArSha256": "38257a57640f0eecf88009ada55b109a0880aec3479ee628abc3204d16de968f",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 25,
+      "purposeArSha256": "baff7c3683605c4bf0cb9590cc5e4465904698008abf5714beb669d4b94e0779",
+      "themesArSha256": "8b4e0a2f0ba103b021ea22bc102ec4593eb5f28fae69da2e975484de1a78fbce",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 26,
+      "purposeArSha256": "f2b8add4d25b8bc62df5c18eed2b788af8441f331c92ea345864832e4b24d889",
+      "themesArSha256": "8af4bfc06a178823bab151ddaad9487d46a049959864156eeb2f1415bbb9e5ee",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 27,
+      "purposeArSha256": "ef1d6384302e70c4238615faffbe08316fa6e36d34c202ef7c49134230bdd365",
+      "themesArSha256": "544753514b66d3c0efcd32378bec9708d0ba762a5665678ffbace135c284b172",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 28,
+      "purposeArSha256": "02243aa142fcc8311533a39a2df336ed0976cd55818d17fe426cd9aac7aae68a",
+      "themesArSha256": "adc593167940303af738d1e489d89ad71d31919cb24806c3b4bef924763b76fc",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 29,
+      "purposeArSha256": "5e168990bc3974500670c0afbb7c88a38676028bb63d29bc62b43b214cb2fca3",
+      "themesArSha256": "6da7453edb3550984aad3d469f639e7c1211eecedd2666d23d8c0d438ebad53d",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 30,
+      "purposeArSha256": "cdadeac5166abc7b07f43fe5eee16ea116ece0926d0cc7e504083082ac842eff",
+      "themesArSha256": "ac1048db355fb17c2009ececdb429ac36e03f7cc0bb1810ccb383f2c35fe4804",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 31,
+      "purposeArSha256": "71e7dd6233a968a4f01a836034964f2e2f955daecb2e0983785e6d3899a212fc",
+      "themesArSha256": "bbf943308b24539d76215e3eb1b8eae1ca26b50790e06683665d25df63a67dc8",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 32,
+      "purposeArSha256": "03f7b27b100839019a8684fe20096ee36b37ffaa5508732824689c65d3a9a630",
+      "themesArSha256": "5736a7f085e9d833c033b40fa0cd24bf5d6f42f47fbc9ccbe412f7f971459568",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 33,
+      "purposeArSha256": "d179dcbea80834cdc3da656882ecf3728cbf77b2f0bf9b08d5b459069c3b5fd3",
+      "themesArSha256": "1821e08bd9acf28becf448e8792f012b8c8abc29176fd40b1802b76f480e2f10",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 34,
+      "purposeArSha256": "f62bfd6953db33fd7bc69bbf1c520aad8afb43781a92100c24c538a352741b21",
+      "themesArSha256": "917e15993296b2e03e74d71a47979fe3f68f2ddbabf5cd1bbfb13fe485c46165",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 35,
+      "purposeArSha256": "e8440b02ecfb9e1fe7d68c8d4c33f8961cbf30b0d2ce714b40f5a6c7a1801452",
+      "themesArSha256": "e9b837ccd1fcec12774f670e006c8c25e94267662901bb7dd757d5e898bfdde5",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 36,
+      "purposeArSha256": "8b5feff75ccd16e364746af0e67c28a6c24aa39371d997dd05134b3ae72af2b9",
+      "themesArSha256": "11ca4f812ad914c2267cc14a4b5ab5aecb650a76423fdf45a45d4cab3db150e8",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 37,
+      "purposeArSha256": "821213a957f4326992bee67000f05095ff189d3588165468fba71c10b45bb42d",
+      "themesArSha256": "23e1ccafadd4a759341e602cb6ac0945567a0e5811c9cfb657111c9b5fa570e4",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 38,
+      "purposeArSha256": "34385f14ed9151a6de9559dfb0d5bc61a355fba3fe3fa0bdeb11467961334058",
+      "themesArSha256": "0dbfe52355b60da959365637b201d74e407f1446760ad32eddd0dcff5151d4ea",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 39,
+      "purposeArSha256": "ccdc910390345af886dfc3b2256931b3a1cadf7f52c4ff4ffb485384ea1a61b8",
+      "themesArSha256": "d0b46b4830c92f8fb1784659e37957175ab843ad91f5f73a0aeab0ec4f19582e",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 40,
+      "purposeArSha256": "030995a8d4dfc6b5a30c467e5e3ca151c235749bacd171b9e1748b95d310d954",
+      "themesArSha256": "c79c7d6c142eea593a7492701a08e6bcca9da25dbea8a0df3578f1e3644b5ab2",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 41,
+      "purposeArSha256": "e62e6dbd7d20d5c13555f2b64daf8ad012a9beeff1aa1d40a93556a668b08cd7",
+      "themesArSha256": "25670dec4ed87029920d501618f376dd470ed2a8be3672ff18f196f2f13c6360",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 42,
+      "purposeArSha256": "08496e8e6d5415c1899e736e4012fe218baa701ff89549faa4418c34815358f2",
+      "themesArSha256": "0c91ec5e1548087cf2a029f7dad5814cff171af0796df48af0558bf5e0ace8a9",
+      "themesArSources": [
+        "basair-firuzabadi"
+      ]
+    },
+    {
+      "surah": 43,
+      "purposeArSha256": "b014ccadb33abf640cc6dde9dba43ec12cbbafb28ddfd6eade9297bbeae9a93d",
+      "themesArSha256": "ffe2b5bf48f5295ad5da27c21d221246ebfd6c549ecc150179dcda64d96f2701",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 44,
+      "purposeArSha256": "ba3b4c3b0d82be8c2d57a2ea595e5ae257436c9fe82800083d79ed6160296af9",
+      "themesArSha256": "5c9a5d35374b9dc351c3921a97d88133362d284d68b2aa099bc2086c3afed00d",
+      "themesArSources": [
+        "basair-firuzabadi"
+      ]
+    },
+    {
+      "surah": 45,
+      "purposeArSha256": "559c59841ce483cf1bdb7754aef551cbb62d00c9dd9b5c5738760d1ccc60cfb7",
+      "themesArSha256": "4270736ad96767a82f1ffb6f1ca5e81452beb760ad92cce5ecba6fa1bc6aecad",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 46,
+      "purposeArSha256": "4f4d5871721e6d1b45686707e3f8b1f82689ee4fe314411673909a7f94b92783",
+      "themesArSha256": "b49ac440ff0a6c81312388c87b84770ef6c68390dd21500af53fc86dc8ccb436",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 47,
+      "purposeArSha256": "f5737b90127bbb7d10ba407111ae028bbc276d23e0c7d2a2cc8ba22a889b4418",
+      "themesArSha256": "fddae54008e0657b3f684837f52a954e83e5fcc6242d77c448b7982d49a8df7d",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 48,
+      "purposeArSha256": "5f27ad10b30ce3cf4da4feb7b4b1916424e02211052ea3c8c201b4c981d7cd57",
+      "themesArSha256": "2a732ef62000458456b3e134db17969a0e561841204c797331c4f7cf4ca6a30d",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 49,
+      "purposeArSha256": "050ea0e1fc83325c20ba06e2575a70d00f0f5b248643f87fd316c8f38a9b5c08",
+      "themesArSha256": "25028b4914e3712fd58737db2b09b3ded465edc4572193bac2936565208b728f",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 50,
+      "purposeArSha256": "9433b6d11345f205e22e2d7586333a5d32871b0b9fa8f2c33fbf86199830fd0d",
+      "themesArSha256": "c306d43cd40de7583027db734adaa3bc78a39c527ced62e484f6464eacf4217a",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 51,
+      "purposeArSha256": "16762776ea6d4d6105227efcb8952e30fb4c8ca66519e51cf8c657a4d0abb159",
+      "themesArSha256": "83580cfb9dadda1763618ef36b46151064698941358936538980eee010bcf2ee",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 52,
+      "purposeArSha256": "e8a1863c90e037dee797d34aed0d325a229a9a758d0e4efaa3cb8150c743292b",
+      "themesArSha256": "407aa84c24650c86139f0e8f695936116d476e1ed3e5abb3582b338409d14e47",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 53,
+      "purposeArSha256": "1df5c0e16b383357ebc87dcb21c20db9b6b3413a2d0a2da648d516c92a535a44",
+      "themesArSha256": "ed65a0004096e3d93a60ac23659f0d223dffb35c6b0781d9e2373cec7eee9dc8",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 54,
+      "purposeArSha256": "fad6b8a698428adf6b7c052c60a4c844dc0d3d7e8fb65cb26042e71c3650c066",
+      "themesArSha256": "397049c49a0528fa72fd18df1be82c89e640c98824a77879ea63fee75938c06e",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 55,
+      "purposeArSha256": "7b016458820a9b728909fdea6820d127094e6d8671371a21146cf13de8b00582",
+      "themesArSha256": "8c227cbcc112a656730e62770b774eda7fa29c6b39783355a7d5b7ac46489197",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 56,
+      "purposeArSha256": "beba96f8364012fc6b7c5999f14b987d04250fe9f6bc8b16d401796b5b8609c4",
+      "themesArSha256": "44c4b6975e8ff4a81e0d8d3d714beb33c2978d781094fba7aa5b52cbf54fd683",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 57,
+      "purposeArSha256": "4c864e0b4d6d0f32f21b4d50a95e185776993bff45bf7b469999d524c265560f",
+      "themesArSha256": "64165b375c88276950214b4fe8f18a6c72228964430fe7a6ea49ba53d0b970b0",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 58,
+      "purposeArSha256": "f5a8fe9659e0351db7f35bb34f265c389c733d6c14989fb37ac7e967d729cbf0",
+      "themesArSha256": "de4234fc8a6cabe96c0ed948302cd7d6249d532489e01e9cc575760d3d5b3f31",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 59,
+      "purposeArSha256": "3beb860fe05c27206781e266aec6a068734b612ab20e7f0d41ef5ffb56b4e433",
+      "themesArSha256": "e5c4a07850190ce9163f5edc52541034d3af6a5d1f86774bd0764efc632abe65",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 60,
+      "purposeArSha256": "c2faba45809da5f06436f1d57bb685fc24400b62419128811e614c091ff34e9e",
+      "themesArSha256": "97093a1fff70c643d41e07e23dc08d366e1ff58f2f95ae5e0c11a7817c39b5df",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 61,
+      "purposeArSha256": "861f097a72200f0a1e8249e002dc40f64235dc208f69d45c475ee8445243416b",
+      "themesArSha256": "217a11ba3bd10b4177581dd9c17e21865904e9944c4ec8f08e528b0bf9949a6b",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 62,
+      "purposeArSha256": "5fad6798f5d5966c3dd8a5e744e4a4a5148fbf81443dde1368bd3d836ece8ca2",
+      "themesArSha256": "dbdf1ed305c123c0737af386adacc4925a61f2dc4f6c85656952a17c75e0463e",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 63,
+      "purposeArSha256": "17d684373522251ddccbc3d13f674e08326c4b7201bc8a4ed3783bf2dca8119f",
+      "themesArSha256": "79354813a74d5b978d801c66d3c6e6b1326a5332e93753ff0f40b8cc76af34cf",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 64,
+      "purposeArSha256": "a086ae4b557ff60d60722a986e44b1091355d1e607d67686204872010f525904",
+      "themesArSha256": "7f9e9650caccfc1db46c6416c4c3bffcd649894d2f73d7e090a8e8a100e9a5f8",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 65,
+      "purposeArSha256": "044354ecf8bb4a48365620a33b408438e0f6e57ab3e2fcb7f7e399edb7bfb4b3",
+      "themesArSha256": "009f5e74a2786b04f03ada44bbecde218695332b71cc9f2841a446d225de0a65",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 66,
+      "purposeArSha256": "5001d660b10bd0b9a7f08d16607222def36e2531eec4750e0e7f46d93601391d",
+      "themesArSha256": "122e9759ee8974dfd0b4b9f14ed7825590d222b5ea346ba5c7253592c723cc44",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 67,
+      "purposeArSha256": "96250a8ea44deb43874ddaf37e6ec65917fd15cfcc75375c1f80e1b07f48f68e",
+      "themesArSha256": "e79e2db793ad53d0270a142685962fe751876731ab7316215064147934d9ba6b",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 68,
+      "purposeArSha256": "1df7416ccb6fbf4c8b45007ed2ce0b8490df33cf209ce1f7a49a435b63175615",
+      "themesArSha256": "f5b84e05f063a7ec491dba8c857fd44133cfc59cbf71088891c967b6641d7ef8",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 69,
+      "purposeArSha256": "584e02c1a59cbeec359038f5f21c5b3342dcf079ddfbc488a320312a37759d3f",
+      "themesArSha256": "65394af79eae06298d38a43b5521cddbbc7069b72210fe006f1df4a4b557766b",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 70,
+      "purposeArSha256": "4c15555580f5095079091e1f414b25a052f32afa30412c9385cae742ddd0abb9",
+      "themesArSha256": "70f8ffe953274085e685e80b8138058a88bc8032a85131de2fd6d8564cc7f627",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 71,
+      "purposeArSha256": "40147a65b10faa5f1448c62b4b80fe959ecd0bff12e234badacb582aeab39a7d",
+      "themesArSha256": "d4ba86c8ccf3f183b664410540a20af2fea534f48cffbbc9ab0e12e5e6b7bcd5",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 72,
+      "purposeArSha256": "444bac1e7e257d9d57394332a9ed0dd446d2594572dfcb968e0ba43a09934c3e",
+      "themesArSha256": "583289043a69e811e0c3162ea5996c5f487af6455442e53a25ca57eda3ad7358",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 73,
+      "purposeArSha256": "f678212d62a86e09f335de4b80e53474f5840e6c77e74211f81203da8f22027a",
+      "themesArSha256": "7a71e08e2c97a93b975a23e7be28907cb588ed72ed75accb916fc0a404a58fb4",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 74,
+      "purposeArSha256": "b02001b5645baea05bc1f3b457bf0f05c6e03bba188cd00c398946db00cae7a6",
+      "themesArSha256": "490280607a6a6a9a207e92a536616eb05c4ec2a07a4fae484efbe117d802b037",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 75,
+      "purposeArSha256": "d0d55124628bd03921eeefa174a4cabb4ded140021ea18220390900d9ee5fb15",
+      "themesArSha256": "500a42d7835f18217bc108103ca83844396cbf8239a38961d89060277acfc8e1",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 76,
+      "purposeArSha256": "fcec91f2dbe6cf1819b4440c70f0359e38c73ac7f97de4564b75597d4715e52c",
+      "themesArSha256": "2e150e83c01f380122142724aa5c700a8ed09057ada2931a9a8ed75d5cecd37c",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 77,
+      "purposeArSha256": "044f2287131981ee1b00df06fc45e8d789a6001fb8fecc047a119c648082c87a",
+      "themesArSha256": "0970b818c0c8229fe63086587db79e52a2f99a9f47c1cc0ac16bab1f34c4f303",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 78,
+      "purposeArSha256": "63d75bd99b72619bafeb087ec9f05f5ac1b119d921a2d497e1220ad2c6815d40",
+      "themesArSha256": "bc40330df554cb80258f7bfdc94511086588ba122f4e5c9017ef7cded99c28de",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 79,
+      "purposeArSha256": "f9e494c7c3f64ac9c156ad53fa8c32b7e1f263f5537fdc8f3693f347d6aecc47",
+      "themesArSha256": "9ca1def9c1bf77e557e3f8a11db4b9920486d787db3a93c169a91363a42a71c0",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 80,
+      "purposeArSha256": "d59bc718e5e1cb3550f3377c0fa949ba3de5ff8ae21905ac2ef6fb3ddd4fed51",
+      "themesArSha256": "578190d919739b458b2bf0030137bbdc71eb8f07983ab29b94bd9af8104fe3f1",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 81,
+      "purposeArSha256": "22aa7fc7ea3e4a6ee6958b640517d759438a1b6d383cb5ca23a57a1900ee7a22",
+      "themesArSha256": "6313f71cbeb6104011fd1f03b7748804d642cb9bf1d596ae728ba10afe80a735",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 82,
+      "purposeArSha256": "c9537fc4d2a75a35665c28cc7d01557d0afd4e25d6f6f8cc63e57243a969c60f",
+      "themesArSha256": "6f62938733df99862a0d0f0ffead4167c52f72e4088dd96caaa3766b369b0738",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 83,
+      "purposeArSha256": "cb5f422660306098fdc50b6030752160be158aeb4415655cdebde62a8ea89b0d",
+      "themesArSha256": "88f14b6d7c105e250dc73d76df5709a024112e4aa488183adad8bad934aca560",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 84,
+      "purposeArSha256": "35e690aecf295e566cd9808cae3d0d619ae2c00fec60be19679454aa3b689c26",
+      "themesArSha256": "c27682dd960bd881b73893536c397a5903b25ab4d7659261eb0cf152cdac18f8",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 85,
+      "purposeArSha256": "fac82d118a927e776098599b57de88edb2196db5961f5fc1f9406f143d529c85",
+      "themesArSha256": "52f085014e2a546a9a240fa0bb9299268aebad612535849f2d1ad0d0651f28ad",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 86,
+      "purposeArSha256": "c9d59ac6e4857cf112cfc99a9bb37f943ed079adb22f1ba202e27f44e4197454",
+      "themesArSha256": "b269f1bb9f0e9581fe8086bbd5a27fd16ed7c80710cfa389ab8d61a9834d7499",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 87,
+      "purposeArSha256": "63c1382e4229b20e254cfc73ed0461be81f814c499a7027aba9f74013c1217e1",
+      "themesArSha256": "e62f936f31d6350d434c117a1dd36984bb9403f830de93a3e66bf110acfa9c1c",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 88,
+      "purposeArSha256": "6fa28bf7f48fa230eeb5bb16f54551db8199d565567f0085eded02af40fa6563",
+      "themesArSha256": "41c361c5e0eb416ce3e7094fc1afcacb62483ac997fedb90e375e38d33efbf48",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 89,
+      "purposeArSha256": "d0527e336501250948e3f64a940b9ebeec2bdc144ab1d8551c675b492613bf89",
+      "themesArSha256": "b48721397ec0d92e3693f0d51d5ea3a5292af78d51903056d5088c6737697172",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 90,
+      "purposeArSha256": "81575eed955e1eac55f8a5335c8f2232219a81eb0600e9453f1b6bb12abf17fa",
+      "themesArSha256": "64f4a7ccd90e99b0167ec59f537420768993948d142f380e7aab48b3fb9e4b74",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 91,
+      "purposeArSha256": "855f5152fe4cfadfbd216528dfdfaebd9f6144d09fd9f8c51dc34f69764dbf12",
+      "themesArSha256": "2aab1e20f68342136f79d88ad5fc486cbbecd673c720e52e49d2024202deae60",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 92,
+      "purposeArSha256": "d868f8cdcf1608484581624e93fbb6223cd6d7671271f375418a2dc35a14eb02",
+      "themesArSha256": "40ce5809f41903e3ea58fda0e34450264e6fa5d4ba69575e69f7f1b4cb16027c",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 93,
+      "purposeArSha256": "7bbd79d4d3e273e760cc9fb358263061f1ec7c6e6f187ad28fcdd7cd5e388dcf",
+      "themesArSha256": "4630734be2e4929ecba57139523dbebc3bf09dc215dd8d8974ba0f3b98daa5c9",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 94,
+      "purposeArSha256": "2d1dfdf6247ad90cda9a1128728543f05dafb9c275f7bbb820520826250364fb",
+      "themesArSha256": "25afa7662e5d312e978864bab1c3ab2e7fd70aadbd3e54b067cadb7fa4378c32",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 95,
+      "purposeArSha256": "6c5b971d4cd4751eaa2961cc3756e27149ffee61bb03c8019ff482a1e1c32e0f",
+      "themesArSha256": "27a33ea568fd9cff8348bee85af072d01408040d9712ef471f9c5cb29beaec6f",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 96,
+      "purposeArSha256": "a4083ba13e99e1333adc362e583d0514d2a12d18bb45ff792087011ee5a74d48",
+      "themesArSha256": "5e4b1e7c000977e2317b027843c4f5ae1e9a2da594e42051e943988f8eb810d3",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 97,
+      "purposeArSha256": "199951029dca80f03a025ccf8777e4cebb6ad99017793aa01e1cb21a7c523ac3",
+      "themesArSha256": "9ddfd2b187c59551a6b59caecccffae6acedb9e773d1d21d0fa3b43507e33f58",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 98,
+      "purposeArSha256": "4e9c5b880eceec5682a52a108e9196818971403895b99f70714e9c4db3d757f9",
+      "themesArSha256": "215ea7e61bf57c6a9fdddee404eb965f2e65e2a8e6b92eee0449c6b6e13118ca",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 99,
+      "purposeArSha256": "28ccdad02537464b0a6a26782e219f830388a9fc3ecbb4f321ad251474b8dd33",
+      "themesArSha256": "10d3b9c2647a152ec83f08f242ee05190b5de82883390472cfdbbf62e21d7ff7",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 100,
+      "purposeArSha256": "2c6eac0690119ba4f49ef9e9bf1d516837d7f094f3e349471e2eadd3a1cd7abd",
+      "themesArSha256": "cba1fbfb3c942efb6a9ad60082daf013221d291d433465df78ff5584ca1f1e0a",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 101,
+      "purposeArSha256": "b8bd7803f03262c89f581b82887363e8b42d2e148814202b371654016e5d0c14",
+      "themesArSha256": "d919b3997a96b35e430582fd44d9f759a085b90e3643ebb7b3ba9593c6569a8d",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 102,
+      "purposeArSha256": "2f8823491a2123d44f8f3fe9b4c3543c4305ebbe522a144c8a7435943aef829d",
+      "themesArSha256": "c951908c43bc5d34763cddeda4c83179851664a3debd5c9b8d1e7382a413e592",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 103,
+      "purposeArSha256": "e090591874726fa6b8380d560d6bfce383281274a22e7db60c2df0c7df9fc74b",
+      "themesArSha256": "e9fbac1e618281596b75546d8b9c0ebf6e9124f5e52732ee878e73afbdf9dd61",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 104,
+      "purposeArSha256": "db430fac8798fcf678d628438b2439118ac4c20e740310e59ae8691db49f7f63",
+      "themesArSha256": "36c150287d5f9a94a8b590880539f6c46f216dede066de02911eecf382a46b62",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 105,
+      "purposeArSha256": "2dafe6501fbfc5e2a2785614f479d7ae23be04cd18e2e1c3cd01beb11166cfec",
+      "themesArSha256": "ecd37f621050cc35edad71bcaa44b5cf29fea302a1ba3264697a166aeca9f107",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 106,
+      "purposeArSha256": "0055afc7c1c28ceb3c3505f12b4df0f1ebc01247b1ebf0e5c1f22c1dfdbff1d3",
+      "themesArSha256": "70307b0ba0c6b388af6faea83bf675446ae0409fe15924cf481a6c15163969b2",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 107,
+      "purposeArSha256": "035aca868760e4f640077422355f43aacdbf9088c4647408191cc459d3f7d71b",
+      "themesArSha256": "a25342d5423ab640a45f622cc777ca6bb13412353c7dccb92ce2a926c515904e",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 108,
+      "purposeArSha256": "7b8ce125665dd0045b321e136777fe6d2c2c67412bf1654696d41d9a7e091c67",
+      "themesArSha256": "ae2652e943f838f94de56dfa3af97f5e1aca06a356bdfba225802ea6efff8a32",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 109,
+      "purposeArSha256": "4ab5aeb41eba8acd8ff27a93b297c32b901d21a7b19d28e6d0cb1d239d74b4df",
+      "themesArSha256": "5eeb8f004e4caca8a3b47cf9e1fa4b1dd2ccd24eecc1fdd426c6ddfbd21a5f2b",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 110,
+      "purposeArSha256": "5de3d302228ef6a8df02a009cfe747ebe9b7d51eec66571f143b1520141570b6",
+      "themesArSha256": "49656f81c3aff8f2965247c41fe1c33518bd44517eee3a256b86a923f8567c5d",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 111,
+      "purposeArSha256": "b5ba2bc55b66e2351c24b142471e118f32c20b2f094a54377bac397c45c896fc",
+      "themesArSha256": "5122a0915dbedec82c4124345e3ced4654170a87649d8c2eafaa8f9077616c6d",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 112,
+      "purposeArSha256": "3af0cd2f392a65990e419b2ff09c0af4eb3ad7a9cf24b1aa3a5afeac2131ff9b",
+      "themesArSha256": "e34ce667dadb1d3ed253d306cb38a3455712e36542da0cbc0ac6a2c25b2ccc4c",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 113,
+      "purposeArSha256": "1384013d7a430e7b73bf3bf889f0314b952fe31c9b26f6c6f6bff6abf4d887ee",
+      "themesArSha256": "fa6446d675a095e476fd85bc24a637ae219ab14c143c32f9ac7fe4ba14c5bfe8",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    },
+    {
+      "surah": 114,
+      "purposeArSha256": "293011c7e1e3c600c356b8758bd1d21e693a853a5d18f44142a34c637aef601a",
+      "themesArSha256": "86eefc6d5cfe2e290e26b68fb0fd85dacd33324b7f24da0dbe1777c709e30dfc",
+      "themesArSources": [
+        "quranpedia-surahs",
+        "tafsir-mawdui"
+      ]
+    }
+  ]
+}
