@@ -149,6 +149,15 @@ function ThemedRoot() {
   }, [startupReady]);
 
   useEffect(() => {
+    // Developer tool: the sync-password work-factor benchmark (crypto/kdfBenchmark.ts), development builds with
+    // EXPO_PUBLIC_KDF_BENCHMARK=1 only. Written as `if (__DEV__ && …) { import() }` so Metro folds it away and a release
+    // bundle does not even contain the module.
+    if (__DEV__ && startupReady && process.env.EXPO_PUBLIC_KDF_BENCHMARK === '1') {
+      void import('@/crypto/kdfBenchmark').then(({ runKdfBenchmarkIfRequested }) => runKdfBenchmarkIfRequested()).catch(() => undefined);
+    }
+  }, [startupReady]);
+
+  useEffect(() => {
     // Published human-verified ayah timing (audio/verifiedCatalog.ts, Phase 4.8.3): the stored copy at once, then a
     // refresh, and on every return to the foreground. Off (nothing requested) unless EXPO_PUBLIC_AUDIO_REGISTRY_URL is set.
     if (!startupReady) return;

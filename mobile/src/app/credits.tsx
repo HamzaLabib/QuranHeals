@@ -9,6 +9,7 @@ import { useContentColumnStyle } from '@/layout/useWindowClass';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
+import { buildInfoLine } from '@/utils/buildInfo';
 import { goBackOrHome } from '@/utils/goBackOrHome';
 import { scrollBottomPadding } from '@/utils/safeAreaSpacing';
 
@@ -71,6 +72,9 @@ export default function CreditsScreen() {
             </View>
           </View>
         ))}
+
+        {/* The binary and capability, for device-test records and support (utils/buildInfo.ts). */}
+        <Text testID="credits-build-info" selectable style={styles.buildInfo}>{buildInfoLine()}</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -113,6 +117,14 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     color: colors.textSecondary,
     fontSize: typography.body,
     lineHeight: 22,
+  },
+  // Identifiers, always left to right (utils/buildInfo.ts).
+  buildInfo: {
+    color: colors.textMuted,
+    fontSize: typography.small,
+    lineHeight: 18,
+    textAlign: 'left',
+    writingDirection: 'ltr',
   },
   card: {
     backgroundColor: colors.card,
