@@ -32,7 +32,8 @@ export function coverageLabel(reciter: Reciter, copy: Messages['audio'], rtl: bo
   const count = coverageCount(reciter, copy, rtl);
   // A per-ayah recording on trial (development builds only) says so before its coverage.
   // So does a reciter with surahs from the review dashboard's accepted aligned timing (reviewedPreviewSurahs).
-  if ((reciter.perAyah && !reciter.perAyah.released) || reciter.timedPreview || reciter.reviewedPreviewSurahs?.length) return count ? `${copy.developmentPreview} · ${count}` : copy.developmentPreview;
+  // Released timing (generated/timingRelease.ts) is not a preview and is never labelled one.
+  if ((reciter.perAyah && !reciter.perAyah.released) || (reciter.timedPreview && !reciter.timedPreview.released) || reciter.reviewedPreviewSurahs?.length) return count ? `${copy.developmentPreview} · ${count}` : copy.developmentPreview;
   return count;
 }
 

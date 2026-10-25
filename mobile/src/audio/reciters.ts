@@ -1,9 +1,10 @@
 import { DEVELOPMENT_TIMING } from './generated/developmentTiming';
 import { GENERATED_RECITERS, type GeneratedReciter } from './generated/reciterCatalog';
 import { PER_AYAH_RELEASE } from './generated/perAyahRelease';
+import { REVIEWED_RELEASE, TIMED_PREVIEW_RELEASE, VBR_RELEASE, type ReleasedTimingSurah } from './generated/timingRelease';
 import { perAyahSurahs, type PerAyahRecording } from './perAyah';
 import { previewSurahs, type TimedPreviewRecording } from './timedPreview';
-import { readNativeMp3Seek, vbrSeekEnabled } from './vbrSeek';
+import { readNativeMp3Seek, vbrSeekEnabled, type NativeMp3Seek } from './vbrSeek';
 
 /**
  * The 17 Quran Heals reciters (exactly, in the approved order), each with one MP3Quran recording of Hafs ʿan ʿĀṣim
@@ -21,6 +22,11 @@ export type Reciter = GeneratedReciter & {
   timingSourceBySurah?: Readonly<Record<number, 'measured'>>;
   /** Surahs playable in development builds only (generated/developmentTiming.ts): not in a release. */
   developmentSurahs?: readonly number[];
+  /**
+   * Release builds: surahs whose reviewed (or VBR) timing passed every release gate, physical-device tests included
+   * (generated/timingRelease.ts, tools/quran-audio/development/generate-timing-release.mjs). Never a preview.
+   */
+  releasedSurahs?: readonly number[];
   /**
    * Development surahs whose timing is the review dashboard's accepted aligned timing (generated/reviewedTiming.ts:
    * Reviewer 1 and/or the automatic acceptance policy): a development preview, never independent verification.
@@ -63,10 +69,12 @@ export function withTimedPreview(reciters: readonly Reciter[], preview: readonly
   });
 }
 
+// Release builds: only the timed-preview surahs that passed every release gate (generated/timingRelease.ts; rights of the
+// file's provider included), marked `released`. Development builds: the whole preview, labelled as one.
 const TIMED_PREVIEW: readonly TimedPreviewRecording[] = __DEV__
   ? // eslint-disable-next-line @typescript-eslint/no-require-imports
     (require('./generated/timedPreview') as typeof import('./generated/timedPreview')).TIMED_PREVIEW
-  : [];
+  : TIMED_PREVIEW_RELEASE;
 
 /**
  * DEVELOPMENT PREVIEW: per-ayah recordings (perAyah.ts) as reciters, listed after the catalogue's. Each surah whose file
@@ -163,12 +171,13 @@ type DevTiming = Readonly<Record<string, Readonly<Record<number, { fingerprint: 
 /**
  * DEVELOPMENT PREVIEW (owner, 2026-10-24): the review dashboard's accepted aligned timing for MP3Quran catalogue surahs
  * with no other timing (generated/reviewedTiming.ts; tools/quran-audio/development/generate-reviewed-timing.mjs).
- * Loaded only in development builds: Metro drops the require (and the data) from a release bundle.
+ * Loaded only in development builds: Metro drops the require (and the data) from a release bundle. A release build
+ * plays only the surahs of it that passed every release gate (REVIEWED_RELEASE, generated/timingRelease.ts).
  */
 const REVIEWED_TIMING: DevTiming = __DEV__
   ? // eslint-disable-next-line @typescript-eslint/no-require-imports
     (require('./generated/reviewedTiming') as typeof import('./generated/reviewedTiming')).REVIEWED_TIMING
-  : {};
+  : REVIEWED_RELEASE;
 
 /** Development timing: the measured timing first, then reviewed aligned timing for surahs that have none. */
 export function mergeDevelopmentTiming(measured: DevTiming, reviewed: DevTiming): DevTiming {
@@ -186,17 +195,39 @@ export function withReviewedPreview(reciters: readonly Reciter[], measured: DevT
   });
 }
 
+/** The released VBR surahs this binary's exact-seek method passed its device test on (the platform marker removed). */
+export function vbrReleaseFor(release: typeof VBR_RELEASE, native: NativeMp3Seek): DevTiming {
+  const out: Record<string, Record<number, ReleasedTimingSurah>> = {};
+  for (const [id, surahs] of Object.entries(release)) {
+    for (const [s, { platforms, ...timing }] of Object.entries(surahs)) if (platforms.includes(native)) (out[id] ??= {})[Number(s)] = timing;
+  }
+  return out;
+}
+
 /**
- * DEVELOPMENT, behind capability detection (vbrSeek.ts): the review dashboard's accepted timing of the MP3Quran VBR
- * recordings of Islam Sobhi, Yasser Mahmoud Salama (48) and Ahmed Al-Agamy (42) (generated/vbrTiming.ts,
- * tools/quran-audio/development/generate-vbr-timing.mjs), used only when the installed binary seeks them exactly.
- * Empty in release builds, unpatched binaries and tests: then nothing below changes. When used, the original recording
- * plays instead of a CBR copy of it (timedPreview.ts fills only surahs without timing).
+ * Behind capability detection (vbrSeek.ts): the review dashboard's accepted timing of the MP3Quran VBR recordings of
+ * Islam Sobhi, Yasser Mahmoud Salama (48) and Ahmed Al-Agamy (42), used only when the installed binary seeks them
+ * exactly and its method is device-verified (or, in development builds only, the device-test flag is set).
+ *  - Development builds: all of it (generated/vbrTiming.ts, tools/quran-audio/development/generate-vbr-timing.mjs).
+ *  - Release builds: only surahs released for this binary's platform (VBR_RELEASE, generated/timingRelease.ts).
+ * Empty on unpatched binaries, unverified platforms and in tests: then nothing below changes. When used, the original
+ * recording plays instead of a CBR copy of it (timedPreview.ts fills only surahs without timing).
  */
-const VBR_TIMING: DevTiming = __DEV__ && vbrSeekEnabled(readNativeMp3Seek(), process.env.EXPO_PUBLIC_AUDIO_VBR_SEEK_TEST)
-  ? // eslint-disable-next-line @typescript-eslint/no-require-imports
-    (require('./generated/vbrTiming') as typeof import('./generated/vbrTiming')).VBR_TIMING
-  : {};
+const NATIVE_MP3_SEEK = readNativeMp3Seek();
+const VBR_TIMING: DevTiming = NATIVE_MP3_SEEK === null || !vbrSeekEnabled(NATIVE_MP3_SEEK, process.env.EXPO_PUBLIC_AUDIO_VBR_SEEK_TEST)
+  ? {}
+  : __DEV__
+    ? // eslint-disable-next-line @typescript-eslint/no-require-imports
+      (require('./generated/vbrTiming') as typeof import('./generated/vbrTiming')).VBR_TIMING
+    : vbrReleaseFor(VBR_RELEASE, NATIVE_MP3_SEEK);
+
+/**
+ * Release builds: the catalogue with the released reviewed / VBR timing added, for surahs that have no production timing
+ * (the same rules as withDevelopmentTiming), marked `releasedSurahs`, never as development or preview surahs.
+ */
+export function withReleasedTiming(reciters: readonly GeneratedReciter[], released: DevTiming): readonly Reciter[] {
+  return withDevelopmentTiming(reciters, released).map(({ developmentSurahs, ...reciter }) => (developmentSurahs ? { ...reciter, releasedSurahs: developmentSurahs } : reciter));
+}
 
 /** Marks the development surahs whose catalogue file is VBR and plays with exact seeking (vbrSeek.ts). */
 export function withVbrSeek(reciters: readonly Reciter[], vbr: DevTiming): readonly Reciter[] {
@@ -213,12 +244,16 @@ export function indexSeekUrls(reciters: readonly Reciter[]): ReadonlySet<string>
 
 const REVIEWED_AND_VBR: DevTiming = mergeDevelopmentTiming(VBR_TIMING, REVIEWED_TIMING);
 
-/** The development timing the app can load (timing.ts): measured, plus reviewed aligned timing in development builds. */
-export const DEVELOPMENT_TIMING_ALL: DevTiming = __DEV__ ? mergeDevelopmentTiming(DEVELOPMENT_TIMING, REVIEWED_AND_VBR) : DEVELOPMENT_TIMING;
+/**
+ * The app-shipped timing the app can load (timing.ts): measured development timing, plus reviewed and VBR timing —
+ * all of it in development builds, only the released surahs in a release (REVIEWED_AND_VBR is then the released set).
+ * A release lists only released surahs as playable (RECITERS below), so the measured development timing stays inert.
+ */
+export const DEVELOPMENT_TIMING_ALL: DevTiming = mergeDevelopmentTiming(DEVELOPMENT_TIMING, REVIEWED_AND_VBR);
 
 export const RECITERS: readonly Reciter[] = orderedReciters(__DEV__
   ? withPerAyahPreview(withTimedPreview(withVbrSeek(withReviewedPreview(withDevelopmentTiming(GENERATED_RECITERS, DEVELOPMENT_TIMING_ALL), DEVELOPMENT_TIMING, REVIEWED_AND_VBR), VBR_TIMING), TIMED_PREVIEW), PER_AYAH_PREVIEW)
-  : withPerAyahPreview(GENERATED_RECITERS, PER_AYAH_PREVIEW));
+  : withPerAyahPreview(withTimedPreview(withVbrSeek(withReleasedTiming(GENERATED_RECITERS, REVIEWED_AND_VBR), VBR_TIMING), TIMED_PREVIEW), PER_AYAH_PREVIEW));
 
 /** Catalogue files the native player must seek exactly (empty unless the VBR timing is in use). */
 export const INDEX_SEEK_URLS: ReadonlySet<string> = indexSeekUrls(RECITERS);

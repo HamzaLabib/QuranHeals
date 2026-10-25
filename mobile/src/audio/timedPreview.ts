@@ -45,6 +45,8 @@ export type TimedPreviewRecording = {
   evidence: string;
   generatedOn: string;
   surahs: Readonly<Record<number, TimedPreviewSurah>>;
+  /** In generated/timingRelease.ts only: released after every release gate passed (not a development preview). */
+  released?: true;
 };
 
 /** Timing entries (ayah, start, end) from the delta encoding. */

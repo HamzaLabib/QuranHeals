@@ -125,7 +125,9 @@ function mp3quranSource(reciter: Reciter, surah: number, format: AudioSource['fo
       riwayah: riwayahOf(reciter, true),
       validation: reciter.developmentSurahs?.includes(surah)
         ? { auditedOn, method: 'DEVELOPMENT ONLY: measured timing (tools/quran-audio/development), listening review pending' }
-        : { auditedOn, method: 'tools/quran-audio audit (structural, acoustic, boundary sweep) and check-live.mjs' },
+        : reciter.releasedSurahs?.includes(surah)
+          ? { auditedOn, method: 'Reviewed aligned timing (Reviewer 1 and automatic acceptance), released after every gate including physical-device tests (tools/quran-audio/development/generate-timing-release.mjs)' }
+          : { auditedOn, method: 'tools/quran-audio audit (structural, acoustic, boundary sweep) and check-live.mjs' },
     };
   }
   if (approved) {

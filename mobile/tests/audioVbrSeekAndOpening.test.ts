@@ -57,8 +57,8 @@ describe('exact VBR seeking: capability detection', () => {
     for (const r of RECITERS) expect(r.vbrIndexSeekSurahs, r.id).toBeUndefined();
   });
 
-  it('the VBR timing is required only in development builds with the capability, and nothing else imports it', () => {
-    expect(src('audio/reciters.ts')).toMatch(/const VBR_TIMING: DevTiming = __DEV__ && vbrSeekEnabled\(readNativeMp3Seek\(\), process\.env\.EXPO_PUBLIC_AUDIO_VBR_SEEK_TEST\)\s*\?[\s\S]*?require\('\.\/generated\/vbrTiming'\)[\s\S]*?: \{\};/);
+  it('the full VBR timing is required only in development builds with the capability; a release gets only its released surahs; nothing else imports it', () => {
+    expect(src('audio/reciters.ts')).toMatch(/const VBR_TIMING: DevTiming = NATIVE_MP3_SEEK === null \|\| !vbrSeekEnabled\(NATIVE_MP3_SEEK, process\.env\.EXPO_PUBLIC_AUDIO_VBR_SEEK_TEST\)\s*\?\s*\{\}\s*:\s*__DEV__\s*\?[\s\S]*?require\('\.\/generated\/vbrTiming'\)[\s\S]*?:\s*vbrReleaseFor\(VBR_RELEASE, NATIVE_MP3_SEEK\);/);
     const walk = (d: string): string[] => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : /\.tsx?$/.test(e.name) ? [path.join(d, e.name)] : []));
     const users = walk(path.join(__dirname, '..', 'src')).filter((f) => /generated\/vbrTiming'/.test(fs.readFileSync(f, 'utf8')));
     expect(users.map((f) => path.basename(f))).toEqual(['reciters.ts']);
