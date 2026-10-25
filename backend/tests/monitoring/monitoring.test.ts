@@ -164,6 +164,26 @@ describe('error handler reporting', () => {
     expect(events).toHaveLength(0);
     expect(JSON.stringify(log.mock.calls)).not.toContain(SECRETS.refresh);
   });
+
+  it('answers refused request encodings with a generic 415, never reporting them', async () => {
+    const { events, transport } = memoryTransport();
+    initMonitoring({ dsn: FAKE_DSN, environment: 'production', transport });
+    const app = express();
+    app.use(express.json({ inflate: false }));
+    app.post('/api/boom/:id', (_req, res) => {
+      res.json({ success: true });
+    });
+    app.use(errorHandler);
+    const response = await request(app)
+      .post('/api/boom/1')
+      .set('Content-Type', 'application/json')
+      .set('Content-Encoding', 'gzip')
+      .send(Buffer.from('compressed?'));
+    expect(response.status).toBe(415);
+    expect(response.body).toEqual({ success: false, message: 'Invalid request.' });
+    await flushMonitoring(2000);
+    expect(events).toHaveLength(0);
+  });
 });
 
 describe('Sentry unreachable', () => {

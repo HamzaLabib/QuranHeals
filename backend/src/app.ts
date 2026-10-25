@@ -96,8 +96,12 @@ export function createApp(options: AppOptions = {}) {
   // uploads (Part D): a 2,000-character reflection, encrypted then
   // base64-encoded, runs several KB; putReflectionsSchema additionally caps
   // the batch size itself. Still a small, firm bound against abuse.
-  app.use(express.json({ limit: '512kb' }));
-  app.use(express.urlencoded({ extended: true, limit: '512kb' }));
+  // inflate: false — no client compresses request bodies (only some responses
+  // are gzip), so a Content-Encoding other than identity is refused with 415
+  // before any decompression runs (GHSA-27r3-jxmh-p828's mitigation, on top of
+  // body-parser >= 2.4.0 in package-lock.json).
+  app.use(express.json({ limit: '512kb', inflate: false }));
+  app.use(express.urlencoded({ extended: true, limit: '512kb', inflate: false }));
   if (options.network?.clientIpDiagnostics ?? env.CLIENT_IP_DIAGNOSTICS === 'true') {
     // Opt-in and header-gated: only requests that ask for it are logged, and
     // never with a real address — kinds and per-process keyed hashes only
