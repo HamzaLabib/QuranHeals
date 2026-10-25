@@ -7,22 +7,33 @@
 | iOS (`'avfoundation-precise'`) | **Verified on a physical iPhone.** EAS development build `f9ada32f…` from an isolated copy (`C:\qhb-ios\mobile`); the patch strings were found in the IPA's executable; the owner listened and approved platform-level DEV verification (`docs/audio/ios-vbr-dev-build-2026-10-24.md`). | `true` |
 | Android (`'index'`) | **Emulator measurements passed; listening on a physical device pending.** One debug development client from an isolated copy (`C:\qhb\mobile`), measured on the emulator (`docs/audio/vbr-native-dev-build-2026-10-24.md`). | `false` (disabled) |
 
-- Development builds only: release builds never load the VBR timing (`__DEV__` is false there), whatever the binary.
-- The main tree's `package.json` and `node_modules` are not patched: the patch is applied only to a build's own copy.
+- The VBR timing still loads in development builds only (`__DEV__` is false in a release, whatever the binary), and
+  the device-test flag `EXPO_PUBLIC_AUDIO_VBR_SEEK_TEST` counts only in development builds (`vbrSeek.ts`).
 
-**EAS builds:** also run `apply.mjs --apply` in the uploading copy's own `node_modules`. Otherwise the fingerprint runtime version computed locally differs from EAS's, and the build fails at Configure expo-updates.
+**Integrated into the main project (2026-10-24).** Every binary built from `mobile/` now carries the patch; it only
+changes playback of sources the app marks, and the app marks none unless the capability checks in `vbrSeek.ts` pass:
+- `package.json` `postinstall` runs `apply.mjs --apply` after every `npm install` / `npm ci` (local, CI and EAS), so the
+  locally computed fingerprint runtime version matches the one EAS builds, as `eas update` requires.
+- `package.json` `eas-build-post-install` runs `apply.mjs --verify`: the EAS build stops unless all six edits are present,
+  `XingTocStrippingDataSource.java` is byte-identical, and both platforms build expo-audio from source.
+- `apply.mjs` refuses any expo-audio other than 57.0.5, so an upgrade fails the install instead of shipping unpatched.
+- Patched sources are byte-identical to those of the tested builds (`C:\qhb-ios\mobile`, EAS `f9ada32f` iOS and
+  `2df4712e` Android). Fingerprints after a clean `npm ci` (Windows, 2026-10-24): Android `38f1e416…` → `80848c9e…`,
+  iOS `c1843132…` → `72410942…`. Binaries built before this change never receive an update made after it.
+- `npm run postinstall` re-applies; `apply.mjs --revert` restores the original expo-audio (then remove the
+  `buildFromSource` setting and the two scripts to go back entirely).
 
 **Required: build expo-audio from source.** Expo SDK 57 links expo-audio as a precompiled library
 (`node_modules/expo-audio/local-maven-repo`). A build without the setting below contains none of the patch, which was
-verified on a first build. In the app's `package.json`:
+verified on a first build. The main project's `package.json` has it:
 
 ```json
 "expo": { "autolinking": { "android": { "buildFromSource": ["expo-audio"] }, "ios": { "buildFromSource": ["expo-audio"] } } }
 ```
 
-`apply.mjs --check` prints a NOTE when this is missing.
+`apply.mjs --check` prints a NOTE when this is missing; `--verify` fails.
 
-**Android build used** (debug, x86_64, development client):
+**Android build used** (debug, x86_64, development client, before the integration):
 1. `robocopy` `mobile/` to `C:\qhb\mobile`, outside OneDrive.
 2. `apply.mjs --apply`, then the `buildFromSource` setting above (copy only).
 3. `CI=1 npx expo prebuild --platform android --no-install`, then restore the copy's `package.json` scripts.

@@ -7,8 +7,9 @@
  * as the ExpoAudio constant `quranHealsExactMp3Seek`.
  *
  * DEVELOPMENT builds only (reciters.ts), and only when ALL hold: the installed binary reports the patch, and the
- * platform's method was verified on a real device (VBR_SEEK_DEVICE_VERIFIED) or the test flag
- * EXPO_PUBLIC_AUDIO_VBR_SEEK_TEST=1 is set for the device test itself. Otherwise nothing changes anywhere.
+ * platform's method was verified on a real device (VBR_SEEK_DEVICE_VERIFIED) or, in a development build only, the test
+ * flag EXPO_PUBLIC_AUDIO_VBR_SEEK_TEST=1 is set for the device test itself. Otherwise nothing changes anywhere. Every
+ * build compiles the patch (mobile/package.json: postinstall applies it, eas-build-post-install verifies it).
  */
 export const EXACT_MP3_SEEK_HEADER = 'X-Quran-Heals-Mp3-Seek';
 export const EXACT_MP3_SEEK_VALUE = 'index';
@@ -40,7 +41,15 @@ export function readNativeMp3Seek(): NativeMp3Seek | null {
   }
 }
 
-/** Whether the VBR recordings may play ayah by ayah: a patched binary, and a verified method or the device-test flag. */
-export function vbrSeekEnabled(native: NativeMp3Seek | null, testFlag: string | undefined, verified: Readonly<Record<NativeMp3Seek, boolean>> = VBR_SEEK_DEVICE_VERIFIED): boolean {
-  return native !== null && (verified[native] === true || testFlag === '1');
+/**
+ * Whether the VBR recordings may play ayah by ayah: a patched binary, and a verified method or the device-test flag.
+ * The flag counts in development builds only: a release build never trusts it, whatever its environment.
+ */
+export function vbrSeekEnabled(
+  native: NativeMp3Seek | null,
+  testFlag: string | undefined,
+  verified: Readonly<Record<NativeMp3Seek, boolean>> = VBR_SEEK_DEVICE_VERIFIED,
+  development: boolean = __DEV__,
+): boolean {
+  return native !== null && (verified[native] === true || (development && testFlag === '1'));
 }

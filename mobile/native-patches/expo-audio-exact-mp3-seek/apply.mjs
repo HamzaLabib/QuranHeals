@@ -1,8 +1,11 @@
 // Quran Heals native patch for expo-audio 57.0.5: exact seeking in VBR MP3 files, for sources the app marks only.
-// NOT applied by any install hook: run it on purpose before a native build the owner has approved (README.md).
+// Applied by mobile/package.json's postinstall (every npm install/ci: local, CI and EAS, so the fingerprint runtime
+// version computed locally matches the binary EAS builds) and checked again by eas-build-post-install (--verify).
 //
 //   node native-patches/expo-audio-exact-mp3-seek/apply.mjs --check    every anchor found, nothing written (default)
 //   node native-patches/expo-audio-exact-mp3-seek/apply.mjs --apply    edit node_modules/expo-audio (keeps *.qh-orig)
+//   node native-patches/expo-audio-exact-mp3-seek/apply.mjs --verify   fail unless the patch is applied in full and
+//                                                                     both platforms build expo-audio from source
 //   node native-patches/expo-audio-exact-mp3-seek/apply.mjs --revert   restore the *.qh-orig copies
 //
 // Each edit replaces one exact, unique text and refuses to run if expo-audio is not 57.0.5 or a text is not found
@@ -94,7 +97,7 @@ const EDITS = [
 ];
 const COPIES = [{ from: 'android/XingTocStrippingDataSource.java', to: 'android/src/main/java/expo/modules/audio/XingTocStrippingDataSource.java' }];
 
-const mode = process.argv.includes('--apply') ? 'apply' : process.argv.includes('--revert') ? 'revert' : 'check';
+const mode = process.argv.includes('--apply') ? 'apply' : process.argv.includes('--revert') ? 'revert' : process.argv.includes('--verify') ? 'verify' : 'check';
 const version = JSON.parse(fs.readFileSync(path.join(pkg, 'package.json'), 'utf8')).version;
 if (version !== VERSION) throw new Error(`expo-audio ${version} installed; this patch is for ${VERSION} only`);
 const count = (s, t) => s.split(t).length - 1;
@@ -108,6 +111,36 @@ if (mode === 'revert') {
   process.exit(0);
 }
 
+// Expo SDK 57 links expo-audio as a PRECOMPILED library (node_modules/expo-audio/local-maven-repo, and an xcframework
+// on iOS): the patched sources are compiled only when the app's package.json asks for it. Found 2026-10-24: a build
+// without this setting contained none of the patch.
+const appPkg = JSON.parse(fs.readFileSync(path.join(here, '..', '..', 'package.json'), 'utf8'));
+const fromSource = (p) => (appPkg.expo?.autolinking?.[p]?.buildFromSource ?? []).includes('expo-audio');
+
+if (mode === 'verify') {
+  // A release safeguard (eas-build-post-install): every edit present exactly once, the data source byte-identical, and
+  // expo-audio compiled from source on both platforms. Any failure stops the build; nothing is written.
+  const problems = [];
+  const texts = new Map();
+  for (const e of EDITS) {
+    const p = path.join(pkg, e.file);
+    const text = texts.get(p) ?? fs.readFileSync(p, 'utf8').replace(/\r\n/g, '\n');
+    texts.set(p, text);
+    if (count(text, e.replace) !== 1) problems.push(`${e.file}: an edit is not applied`);
+  }
+  for (const c of COPIES) {
+    const to = path.join(pkg, c.to);
+    if (!fs.existsSync(to) || !fs.readFileSync(to).equals(fs.readFileSync(path.join(here, c.from)))) problems.push(`${c.to}: missing or different`);
+  }
+  for (const p of ['android', 'ios']) if (!fromSource(p)) problems.push(`package.json expo.autolinking.${p}.buildFromSource lacks "expo-audio"`);
+  if (problems.length) {
+    for (const x of problems) console.error(`NOT VERIFIED: ${x}`);
+    process.exit(1);
+  }
+  console.log(`verified: expo-audio ${VERSION} patched (${EDITS.length} edits, ${COPIES.length} file) and built from source on android and ios`);
+  process.exit(0);
+}
+
 const files = new Map();
 for (const e of EDITS) {
   const p = path.join(pkg, e.file);
@@ -117,11 +150,6 @@ for (const e of EDITS) {
   files.set(p, text.replace(e.find, e.replace));
   console.log(`${mode === 'apply' ? 'patching' : 'anchor ok'}: ${e.file}`);
 }
-// Expo SDK 57 links expo-audio as a PRECOMPILED library (node_modules/expo-audio/local-maven-repo, and an xcframework
-// on iOS): the patched sources are compiled only when the app's package.json asks for it. Found 2026-10-24: a build
-// without this setting contained none of the patch.
-const appPkg = JSON.parse(fs.readFileSync(path.join(here, '..', '..', 'package.json'), 'utf8'));
-const fromSource = (p) => (appPkg.expo?.autolinking?.[p]?.buildFromSource ?? []).includes('expo-audio');
 for (const p of ['android', 'ios']) if (!fromSource(p)) console.log(`NOTE: package.json expo.autolinking.${p}.buildFromSource lacks "expo-audio": a ${p} build would use the precompiled, unpatched expo-audio`);
 if (mode === 'check') { console.log('check passed: nothing written'); process.exit(0); }
 for (const [p, text] of files) {

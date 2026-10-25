@@ -28,12 +28,20 @@ const sobhi = GENERATED_RECITERS.find((r) => r.id === 'islam-sobhi')!;
 const formatOf = (id: string, s: number) => GENERATED_FORMATS[id].exceptions[s]?.[2] ?? GENERATED_FORMATS[id].bitrateMode;
 
 describe('exact VBR seeking: capability detection', () => {
-  it('needs a patched binary AND a device-verified method or the device-test flag', () => {
-    expect(vbrSeekEnabled(null, '1')).toBe(false);
-    expect(vbrSeekEnabled('index', undefined)).toBe(false);
-    expect(vbrSeekEnabled('index', '0')).toBe(false);
-    expect(vbrSeekEnabled('index', '1')).toBe(true);
+  it('needs a patched binary AND a device-verified method or (development builds) the device-test flag', () => {
+    const dev = (native: Parameters<typeof vbrSeekEnabled>[0], flag: string | undefined) => vbrSeekEnabled(native, flag, VBR_SEEK_DEVICE_VERIFIED, true);
+    expect(dev(null, '1')).toBe(false);
+    expect(dev('index', undefined)).toBe(false);
+    expect(dev('index', '0')).toBe(false);
+    expect(dev('index', '1')).toBe(true);
     expect(vbrSeekEnabled('avfoundation-precise', undefined, { index: false, 'avfoundation-precise': true })).toBe(true);
+  });
+
+  it('a release build ignores the device-test flag: only a device-verified method counts', () => {
+    expect(vbrSeekEnabled('index', '1', { index: false, 'avfoundation-precise': true }, false)).toBe(false);
+    expect(vbrSeekEnabled('index', '1')).toBe(false); // the default is __DEV__, false in a release bundle (and here)
+    expect(vbrSeekEnabled('index', undefined, { index: true, 'avfoundation-precise': true }, false)).toBe(true);
+    expect(vbrSeekEnabled(null, '1', { index: true, 'avfoundation-precise': true }, false)).toBe(false);
   });
 
   it('device verification (owner, 2026-10-24): iOS only; Android still needs the device-test flag', () => {
@@ -136,15 +144,25 @@ describe('exact VBR seeking: the expo-audio output', () => {
   });
 });
 
-describe('exact VBR seeking: the native patch (not applied by any install hook)', () => {
+describe('exact VBR seeking: the native patch (applied on install, verified by EAS)', () => {
+  const apply = path.join(__dirname, '..', 'native-patches', 'expo-audio-exact-mp3-seek', 'apply.mjs');
+
   it('its anchors match the installed expo-audio exactly once each (or it is already applied)', () => {
-    const out = execFileSync(process.execPath, [path.join(__dirname, '..', 'native-patches', 'expo-audio-exact-mp3-seek', 'apply.mjs'), '--check'], { encoding: 'utf8' });
+    const out = execFileSync(process.execPath, [apply, '--check'], { encoding: 'utf8' });
     expect(out).toMatch(/check passed: nothing written/);
   });
 
-  it('package.json runs no native patch on install', () => {
+  it('every install applies it, EAS verifies it, and both platforms compile expo-audio from source', () => {
     const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'));
-    expect(JSON.stringify(pkg.scripts ?? {})).not.toMatch(/native-patches|patch-package/);
+    expect(pkg.scripts.postinstall).toMatch(/ && node native-patches\/expo-audio-exact-mp3-seek\/apply\.mjs --apply$/);
+    expect(pkg.scripts['eas-build-post-install']).toBe('node native-patches/expo-audio-exact-mp3-seek/apply.mjs --verify');
+    expect(pkg.expo.autolinking.android.buildFromSource).toContain('expo-audio');
+    expect(pkg.expo.autolinking.ios.buildFromSource).toContain('expo-audio');
+  });
+
+  it('the installed expo-audio passes the verification EAS runs', () => {
+    const out = execFileSync(process.execPath, [apply, '--verify'], { encoding: 'utf8' });
+    expect(out.startsWith('verified: expo-audio 57.0.5 patched (6 edits, 1 file) and built from source on android and ios')).toBe(true);
   });
 });
 
