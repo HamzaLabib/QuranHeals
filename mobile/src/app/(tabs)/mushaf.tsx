@@ -649,10 +649,10 @@ export default function MushafScreen() {
   // A page the reader was moved to (a swipe, the selector, the index, a link) is remembered on this device only, so
   // browsing survives a restart. Never a save: no ورد, Khatma cycle or medallion changes (mushaf/lastBrowsedPage.ts).
   // The page the reader opens on by itself (a ورد's saved page) is not a browse.
+  // A page the recitation turned to is remembered too (2026-10-25: the reader reopens where they were left, also after
+  // the app was closed while listening); it is still never a ورد's reading position, cycle or Khatma.
   useEffect(() => {
-    // A page the recitation turned to is not a browse (listening never moves the reading position).
-    if (autoTurnedPage === page) return;
-    if (hasNavigated.current || requestedPage !== null) void saveLastBrowsedPage(page);
+    if (hasNavigated.current || requestedPage !== null || autoTurnedPage === page) void saveLastBrowsedPage(page);
   }, [page, requestedPage, autoTurnedPage]);
 
   /** Shows a page — and only that: nothing is saved (the lists, the selector, stops and links all use it). */

@@ -80,13 +80,27 @@ involved.
 - **Failures.** Network failures retry twice by themselves (after 1.5 s and 4 s), then
   show Try again, which restarts the ayah from its start. Timing that no longer matches
   the audit is refused.
-- **Listening never touches reading progress:** no ورد, Khatma or last browsed page is
-  saved by playback or by automatic page turns.
+- **Listening never touches reading progress:** no ورد or Khatma is saved by playback or
+  by automatic page turns. The device-only last page (`mushaf/lastBrowsedPage.ts`) does
+  follow them (2026-10-25), so the reader reopens on the page it was left on after a cold
+  start, as it already did while the app stayed in the background.
 - **Background.** Audio continues with the screen locked and in other apps (iOS
   `UIBackgroundModes: audio`; Android media-playback foreground service). Play/pause shows
   on the lock screen and in Android's media notification. expo-audio offers no
   next/previous track buttons there. Calls and other interruptions pause playback, and the
   player follows the device's state.
+- **Android: closing the app ends its audio** (`native-patches/expo-audio-android-playback-ownership`,
+  2026-10-25). Home, Back, the screen turning off or another app keep playing (background).
+  Swiping the app away from Recents pauses, removes the notification and lock-screen
+  controls, releases the media session, stops the playback service and stops the engine. It
+  is enforced natively (`QuranHealsPlaybackGate`): until the app is opened again, no new
+  source, no controls and no play from anyone, so a load in flight, the next ayah, a car's
+  auto-play or a headset button cannot bring audio back. Emulator-verified 2026-10-25;
+  phone test: `android-ownership-device-test-2026-10-25.md`.
+  Headphones or a Bluetooth device disconnecting pause (as on iOS). The engine pauses any
+  playback it did not ask for (a stale control while ended, failed or idle, or a load it
+  holds paused). Android's media notification is required for background playback; it
+  stays in step with the app (its play/pause is followed both ways). iOS is unchanged.
 
 ## Offline downloads
 

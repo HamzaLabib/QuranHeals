@@ -15,6 +15,11 @@ export type OutputStatus = {
   error: string | null;
   /** The file's length, once the player knows it (whole-surah playback shows it). */
   durationMs?: number;
+  /**
+   * The app was closed (Android: swiped away from Recents; native-patches/expo-audio-android-playback-ownership). The
+   * player has already paused: the engine stops, so nothing plays again until the reader starts it.
+   */
+  closed?: boolean;
 };
 
 /**
@@ -450,7 +455,9 @@ export function createPlaybackEngine(deps: EngineDeps) {
     transitioning = false;
     retries = 0;
     output.setNowPlaying(nowPlaying(state.position ?? position, reciter));
+    // A play from outside the app while it loaded (a notification, a headset) never starts it: the app decides.
     if (wantPlaying) play();
+    else pause();
     set({ phase: wantPlaying ? 'playing' : 'paused', offline: result.local });
     preloadAhead();
   };
@@ -539,6 +546,7 @@ export function createPlaybackEngine(deps: EngineDeps) {
       transitioning = false;
       retries = 0;
       if (wantPlaying) play();
+      else pause();
       preloadAhead();
     });
   };
@@ -655,6 +663,17 @@ export function createPlaybackEngine(deps: EngineDeps) {
   };
 
   const onStatus = (status: OutputStatus) => {
+    // The app was closed: everything stops, whatever it was doing (a load in flight never plays afterwards).
+    if (status.closed) {
+      if (state.phase !== 'idle') api.stop();
+      return;
+    }
+    // Playing although the app is not (ended, failed, stopped, or a load it holds paused): a stale notification or
+    // lock-screen control, a headset or a car. Paused again: nothing plays that the app does not show.
+    if (status.playing && now() - commandAt >= COMMAND_GRACE_MS && ((transitioning && !wantPlaying) || state.phase === 'ended' || state.phase === 'error' || state.phase === 'idle')) {
+      pause();
+      return;
+    }
     if (transitioning || repeating || !loaded || !state.position) return;
     if (state.phase !== 'playing' && state.phase !== 'paused') return;
     if (status.error) {

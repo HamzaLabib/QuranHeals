@@ -64,7 +64,7 @@
   },
   "scripts": {
     "fonts:restore": "node scripts/restore-mushaf-fonts.mjs",
-    "postinstall": "node scripts/restore-mushaf-fonts.mjs --soft && node native-patches/expo-audio-exact-mp3-seek/apply.mjs --apply",
+    "postinstall": "node scripts/restore-mushaf-fonts.mjs --soft && node native-patches/expo-audio-exact-mp3-seek/apply.mjs --apply && node native-patches/expo-audio-android-playback-ownership/apply.mjs --apply",
     "eas-build-pre-install": "node scripts/restore-mushaf-fonts.mjs",
     "pretest": "node scripts/restore-mushaf-fonts.mjs",
     "test": "vitest run",
@@ -79,7 +79,7 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
-    "eas-build-post-install": "node native-patches/expo-audio-exact-mp3-seek/apply.mjs --verify"
+    "eas-build-post-install": "node native-patches/expo-audio-exact-mp3-seek/apply.mjs --verify && node native-patches/expo-audio-android-playback-ownership/apply.mjs --verify"
   },
   "private": true,
   "expo": {

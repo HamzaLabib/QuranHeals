@@ -5186,17 +5186,17 @@ describe('Quran audio in the reader (audio/)', () => {
     expect(styleOf(root.root.findByProps({ testID: 'mushaf-back-bar' })).height).toBe(BACK_BAR_HEIGHT);
   });
 
-  it('continues ayah after ayah and turns the page when the recitation reaches the next page; no ورد or last page is saved', async () => {
+  it('continues ayah after ayah and turns the page when the recitation reaches the next page; no ورد saved, the page shown remembered for a restart', async () => {
     await render();
     const stopsBefore = state.storage.get(READING_STOPS_STORAGE_KEY);
     await press(onlyHost('mushaf-play-page'));
     await flush();
-    const lastPageBefore = state.storage.get('quran-heals:mushaf-last-page:v1');
     for (let ayah = 84; ayah <= 91; ayah++) await finishAyah();
     expect((await engine()).getState().position).toEqual({ surah: 3, ayah: 92 });
     expect(currentPage()).toBe(62);
     expect(state.storage.get(READING_STOPS_STORAGE_KEY)).toBe(stopsBefore);
-    expect(state.storage.get('quran-heals:mushaf-last-page:v1')).toBe(lastPageBefore);
+    // Device-only last page (mushaf/lastBrowsedPage.ts): a cold start reopens the page the recitation was left on.
+    expect(JSON.parse(state.storage.get('quran-heals:mushaf-last-page:v1') ?? 'null')).toMatchObject({ page: 62 });
   });
 
   it('swiping away stops following (never pulled back); Follow recitation returns to the recited page', async () => {

@@ -73,6 +73,13 @@ export function createExpoOutput(load: () => Promise<ExpoAudio> = () => import('
         error: status.error ?? null,
         durationMs: Number.isFinite(status.duration) && status.duration > 0 ? Math.round(status.duration * 1000) : undefined,
       };
+      // Android, patched binary only: the app was closed from Recents (the native player has paused and dropped its controls).
+      // Its controls are gone natively, so the next play after the app is opened again shows them afresh.
+      if ((status as { quranHealsTaskRemoved?: boolean }).quranHealsTaskRemoved === true) {
+        out.closed = true;
+        lockScreenActive = false;
+        pendingUri = null;
+      }
       for (const listener of listeners) listener(out);
     });
     player = created;

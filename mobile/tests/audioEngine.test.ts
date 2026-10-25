@@ -460,6 +460,65 @@ describe('changing the reciter during playback', () => {
   });
 });
 
+describe('the app owns its audio (Android: closed from Recents, a car, a stale notification)', () => {
+  it('the app closed while reciting: stopped and idle; nothing plays afterwards, not even at the ayah`s end', async () => {
+    const t = setup();
+    t.engine.start({ surah: 2, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    await t.at(startOf(1) + 100);
+    await t.at(startOf(1) + 200, { playing: false, closed: true });
+    expect(t.engine.getState()).toMatchObject({ phase: 'idle', position: null });
+    expect(t.calls.at(-1)).toBe('stop');
+    const before = t.calls.length;
+    await t.at(endOf(1));
+    expect(t.calls.slice(before)).not.toContain('play');
+    expect(t.engine.getState().phase).toBe('idle');
+  });
+
+  it('the app closed while an ayah loads: the load never plays', async () => {
+    const t = setup();
+    t.engine.start({ surah: 2, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.at(0, { playing: false, loaded: false, closed: true });
+    await t.settle();
+    expect(t.engine.getState().phase).toBe('idle');
+    expect(t.calls).not.toContain('play');
+  });
+
+  it('a play from outside after one ayah ended (the ayah screens) is paused again: the app shows nothing playing', async () => {
+    const t = setup();
+    t.engine.start({ surah: 94, ayah: 5 }, { mode: 'single', reciterId: 'maher' });
+    await t.settle();
+    await t.at(startOf(5) + 100);
+    await t.at(endOf(5));
+    expect(t.engine.getState().phase).toBe('ended');
+    await t.at(endOf(5) + 100, { playing: true });
+    expect(t.calls.at(-1)).toBe('pause');
+    expect(t.engine.getState().phase).toBe('ended');
+  });
+
+  it('paused while loading, a play from outside meanwhile: still paused once loaded, the player too', async () => {
+    const t = setup();
+    t.engine.start({ surah: 2, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    t.engine.pause();
+    await t.at(0, { playing: true, loaded: false });
+    await t.settle();
+    expect(t.engine.getState().phase).toBe('paused');
+    expect(t.calls).not.toContain('play');
+    expect(t.calls.at(-1)).not.toBe('play');
+    expect(t.calls.filter((c) => c === 'pause').length).toBeGreaterThan(0);
+  });
+
+  it('a paused recitation resumed from the lock screen or notification is still followed (background playback unchanged)', async () => {
+    const t = setup();
+    t.engine.start({ surah: 2, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    t.engine.pause();
+    await t.at(startOf(1) + 100, { playing: true });
+    expect(t.engine.getState().phase).toBe('playing');
+    expect(t.calls.at(-1)).toBe('pause');
+  });
+});
+
 describe('one ayah (the ayah screens)', () => {
   it('plays the ayah and stops at its end, without moving on', async () => {
     const t = setup();

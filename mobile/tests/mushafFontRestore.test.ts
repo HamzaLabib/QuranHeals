@@ -51,8 +51,8 @@ describe('pin and repository rules', () => {
     for (const hook of ['pretest', 'prestart', 'preandroid', 'preios', 'preweb', 'eas-build-pre-install', 'fonts:restore']) {
       expect(scripts[hook]).toBe('node scripts/restore-mushaf-fonts.mjs');
     }
-    // The soft font restore first; then the expo-audio native patch (native-patches/expo-audio-exact-mp3-seek/README.md).
-    expect(scripts.postinstall).toBe('node scripts/restore-mushaf-fonts.mjs --soft && node native-patches/expo-audio-exact-mp3-seek/apply.mjs --apply');
+    // The soft font restore first; then the expo-audio native patches (native-patches/*/README.md).
+    expect(scripts.postinstall).toBe('node scripts/restore-mushaf-fonts.mjs --soft && node native-patches/expo-audio-exact-mp3-seek/apply.mjs --apply && node native-patches/expo-audio-android-playback-ownership/apply.mjs --apply');
     const ci = readFileSync(join(mobile, '../.github/workflows/ci.yml'), 'utf8');
     expect(ci).toMatch(/Restore pinned QCF V1 font\r?\n\s+run: node scripts\/restore-mushaf-fonts\.mjs\r?\n\r?\n\s+- run: npm ci/);
   });

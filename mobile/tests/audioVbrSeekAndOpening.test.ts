@@ -159,8 +159,9 @@ describe('exact VBR seeking: the native patch (applied on install, verified by E
 
   it('every install applies it, EAS verifies it, and both platforms compile expo-audio from source', () => {
     const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'));
-    expect(pkg.scripts.postinstall).toMatch(/ && node native-patches\/expo-audio-exact-mp3-seek\/apply\.mjs --apply$/);
-    expect(pkg.scripts['eas-build-post-install']).toBe('node native-patches/expo-audio-exact-mp3-seek/apply.mjs --verify');
+    // Then the Android playback-ownership patch (native-patches/expo-audio-android-playback-ownership), applied and verified the same way.
+    expect(pkg.scripts.postinstall).toMatch(/ && node native-patches\/expo-audio-exact-mp3-seek\/apply\.mjs --apply && node native-patches\/expo-audio-android-playback-ownership\/apply\.mjs --apply$/);
+    expect(pkg.scripts['eas-build-post-install']).toBe('node native-patches/expo-audio-exact-mp3-seek/apply.mjs --verify && node native-patches/expo-audio-android-playback-ownership/apply.mjs --verify');
     expect(pkg.expo.autolinking.android.buildFromSource).toContain('expo-audio');
     expect(pkg.expo.autolinking.ios.buildFromSource).toContain('expo-audio');
   });

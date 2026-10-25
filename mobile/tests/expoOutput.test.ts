@@ -8,6 +8,7 @@ import { createExpoOutput, LOAD_TIMEOUT_MS, LoadSupersededError } from '@/audio/
  */
 function fakeExpoAudio(options: { replaceThrows?: boolean } = {}) {
   const calls: string[] = [];
+  let statusListener: ((status: Record<string, unknown>) => void) | null = null;
   const player = {
     isLoaded: false,
     currentStatus: { error: null as string | null },
@@ -19,7 +20,10 @@ function fakeExpoAudio(options: { replaceThrows?: boolean } = {}) {
       player.isLoaded = false;
     },
     seekTo: async (seconds: number) => void calls.push(`seek ${seconds}`),
-    addListener: () => ({ remove: () => undefined }),
+    addListener: (_event: string, listener: (status: Record<string, unknown>) => void) => {
+      statusListener = listener;
+      return { remove: () => undefined };
+    },
     setActiveForLockScreen: () => undefined,
     updateLockScreenMetadata: () => undefined,
     clearLockScreenControls: () => calls.push('clear'),
@@ -30,7 +34,9 @@ function fakeExpoAudio(options: { replaceThrows?: boolean } = {}) {
     preload: async () => undefined,
     clearAllPreloadedSources: async () => undefined,
   };
-  return { player, calls, load: async () => module as never };
+  /** A native playbackStatusUpdate. */
+  const emit = (status: Record<string, unknown>) => statusListener?.(status);
+  return { player, calls, emit, load: async () => module as never };
 }
 
 beforeEach(() => {
@@ -78,6 +84,45 @@ describe('the expo-audio output', () => {
     expect(await loading).toBeInstanceOf(LoadSupersededError);
     expect(fake.calls).not.toContain('seek 5');
     expect(fake.calls).not.toContain('play');
+  });
+
+  it('Android: the native report of the app closed from Recents reaches the engine as closed; other reports never are', async () => {
+    const fake = fakeExpoAudio();
+    const output = createExpoOutput(fake.load);
+    const seen: { playing: boolean; closed?: boolean }[] = [];
+    output.subscribe((status) => seen.push(status));
+    const loading = output.load('a.mp3', 0);
+    await vi.advanceTimersByTimeAsync(150);
+    fake.player.isLoaded = true;
+    await vi.advanceTimersByTimeAsync(150);
+    await loading;
+    fake.emit({ currentTime: 1, playing: true, isLoaded: true });
+    fake.emit({ currentTime: 1, playing: false, isLoaded: true, quranHealsTaskRemoved: true });
+    expect(seen.map((s) => s.closed)).toEqual([undefined, true]);
+    expect(seen[1].playing).toBe(false);
+  });
+
+  it('Android: after the app was closed, the next play (the app opened again) registers the lock-screen controls afresh', async () => {
+    const fake = fakeExpoAudio();
+    let activations = 0;
+    fake.player.setActiveForLockScreen = () => void activations++;
+    const output = createExpoOutput(fake.load);
+    const load = async () => {
+      const loading = output.load('a.mp3', 0);
+      await vi.advanceTimersByTimeAsync(150);
+      fake.player.isLoaded = true;
+      await vi.advanceTimersByTimeAsync(150);
+      await loading;
+    };
+    await load();
+    output.setNowPlaying({ title: 't', artist: 'a' });
+    output.play();
+    expect(activations).toBe(1);
+    fake.emit({ playing: false, isLoaded: false, quranHealsTaskRemoved: true });
+    await load();
+    output.setNowPlaying({ title: 't', artist: 'a' });
+    output.play();
+    expect(activations).toBe(2);
   });
 
   it('stop is safe any number of times: before the player exists, twice, and when the native replace throws', async () => {
