@@ -689,9 +689,9 @@ describe('Settings: Word Meanings', () => {
 
   it('a switch card of its own, ON by default with nothing saved; its title alone', async () => {
     await renderSettings();
-    expect(en.settings.wordMeaningsVisibleTitle).toBe('Word Meanings');
-    expect(texts(card())).toEqual(['Word Meanings']);
-    expect(toggle().props).toMatchObject({ value: true, accessibilityRole: 'switch', accessibilityLabel: 'Word Meanings', accessibilityState: { checked: true } });
+    expect(en.settings.wordMeaningsVisibleTitle).toBe('Meanings');
+    expect(texts(card())).toEqual(['Meanings']);
+    expect(toggle().props).toMatchObject({ value: true, accessibilityRole: 'switch', accessibilityLabel: 'Meanings', accessibilityState: { checked: true } });
     expect(state.storage.has(VISIBLE_KEY)).toBe(false);
     // Not an accordion: the six headings are unchanged.
     expect(headers().map((node) => node.props.accessibilityLabel.split(', ')[0])).toEqual(EN_HEADERS);
@@ -717,13 +717,13 @@ describe('Settings: Word Meanings', () => {
     expect(toggle().props.value).toBe(false);
   });
 
-  it('Arabic: «معاني الكلمات», right to left', async () => {
+  it('Arabic: «المعاني», right to left', async () => {
     state.storage.set(LOCALE_KEY, 'ar');
     await renderSettings();
-    expect(ar.settings.wordMeaningsVisibleTitle).toBe('معاني الكلمات');
-    expect(MESSAGES['ar-EG'].settings.wordMeaningsVisibleTitle).toBe('معاني الكلمات');
-    expect(texts(card())).toEqual(['معاني الكلمات']);
-    expect(toggle().props.accessibilityLabel).toBe('معاني الكلمات');
+    expect(ar.settings.wordMeaningsVisibleTitle).toBe('المعاني');
+    expect(MESSAGES['ar-EG'].settings.wordMeaningsVisibleTitle).toBe('المعاني');
+    expect(texts(card())).toEqual(['المعاني']);
+    expect(toggle().props.accessibilityLabel).toBe('المعاني');
     expect(resolveStyle(card())).toContainEqual({ flexDirection: 'row-reverse' });
     for (const text of card().findAll(isType('Text'))) expect(resolveStyle(text)).toContainEqual({ writingDirection: 'rtl', textAlign: 'right' });
   });
