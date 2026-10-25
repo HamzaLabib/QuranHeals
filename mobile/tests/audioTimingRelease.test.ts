@@ -177,3 +177,127 @@ describe('timing release: the app (release build: vitest\'s __DEV__ is false)', 
     expect(vbrReleaseFor(release, 'index')).toEqual({});
   });
 });
+
+describe('owner permission statement for the 177 alternative-source recordings (development/source-permissions.json)', () => {
+  type Statement = { id: string; statedBy: string; statedOn: string; statement: string; streamingInApp: boolean; offlineDownloads: string; redistribution: string; documents: unknown[]; recordings: { reciterId: string; surah: number; provider: string; url: string }[] };
+  const permissions = JSON.parse(read('../../tools/quran-audio/development/source-permissions.json')) as { kind: string; statements: Statement[] };
+  const [st] = permissions.statements;
+  const everyPreview = TIMED_PREVIEW.flatMap((p) => Object.entries(p.surahs).map(([s, x]) => ({ reciterId: p.reciterId, surah: Number(s), provider: x.provider, url: x.url })));
+
+  it('records the owner\'s statement as stated: streaming in the app; downloads and redistribution not stated; no documents on file', () => {
+    expect(permissions.kind).toBe('owner-source-permission-statements');
+    expect(permissions.statements).toHaveLength(1);
+    expect(st).toMatchObject({ statedBy: 'Hamza (owner)', statedOn: '2026-10-25', streamingInApp: true, offlineDownloads: 'not stated', redistribution: 'not stated', documents: [] });
+    expect(st.statement).toMatch(/^I have obtained permission for the alternative-source recordings previously listed as 177 reciter–surah combinations\./);
+  });
+
+  it('names exactly the 177 preview recordings (reciter, surah, provider, file), nothing more', () => {
+    expect(st.recordings).toHaveLength(177);
+    expect(st.recordings).toEqual(everyPreview);
+  });
+
+  it('extends no permission to a provider: providers.mjs still grants these hosts nothing', () => {
+    for (const id of ['way2quran', 'assabile']) expect(providers.find((p) => p.id === id)?.streaming.permitted, id).toBe(false);
+    for (const id of ['archive', 'quranicaudio']) expect(providers.find((p) => p.id === id), id).toBeUndefined();
+  });
+
+  it('with the statement and the credits, the 177 previews fail only the device gate', () => {
+    const { report } = gen.releaseTiming(input({ permissions }));
+    const all = Object.values(report.timedPreview).flatMap((x) => Object.values(x));
+    expect(all).toHaveLength(177);
+    for (const r of all) expect(r.gates.filter((g) => !g.pass).map((g) => g.gate)).toEqual(['devices']);
+  });
+
+  it('covers only the exact file: another URL, another surah, streaming not stated or an unknown record kind give nothing', () => {
+    const preview = TIMED_PREVIEW.find((p) => p.reciterId === 'ahmed-salama')!;
+    const [s, x] = Object.entries(preview.surahs).find(([, y]) => y.provider === 'way2quran')!;
+    const surah = Number(s);
+    const passes = (p: unknown) => gen.releaseTiming(input({ permissions: p })).report.timedPreview['ahmed-salama'][surah].gates.find((g) => g.gate === 'provider')!.pass;
+    const one = (rec: object, extra: object = {}) => ({ kind: 'owner-source-permission-statements', statements: [{ ...st, ...extra, recordings: [{ reciterId: 'ahmed-salama', surah, provider: x.provider, url: x.url, ...rec }] }] });
+    expect(passes(one({}))).toBe(true);
+    expect(passes(one({ url: `${x.url}?other` }))).toBe(false);
+    expect(passes(one({ surah: surah + 1 }))).toBe(false);
+    expect(passes(one({ reciterId: 'islam-sobhi' }))).toBe(false);
+    expect(passes(one({}, { streamingInApp: false }))).toBe(false);
+    expect(passes({ ...one({}), kind: 'something-else' })).toBe(false);
+    expect(passes(null)).toBe(false);
+  });
+});
+
+describe('credits for alternative recording hosts', () => {
+  it('a host is credited exactly when this build plays its files: none in a release today', async () => {
+    const { QURAN_SOURCES, timedRecordingHosts } = await import('@/constants/quranSources');
+    expect(timedRecordingHosts().size).toBe(0); // release build (vitest __DEV__ false): nothing released yet
+    for (const key of ['way2quran', 'assabile', 'archive', 'quranicaudio', 'everyayah']) expect(QURAN_SOURCES.find((x) => x.key === key)?.inThisBuild?.(), key).toBe(false);
+    const fixture = [{ timedPreview: { surahs: { 1: { provider: 'way2quran' }, 2: { provider: 'archive' } } } }];
+    expect([...timedRecordingHosts(fixture)].sort()).toEqual(['archive', 'way2quran']);
+  });
+
+  it('every credit has English and Arabic text', () => {
+    for (const key of ['way2quran', 'assabile', 'archive', 'quranicaudio', 'everyayah'] as const) {
+      for (const locale of ['en', 'ar', 'ar-EG'] as const) {
+        const copy = MESSAGES[locale].credits as Record<string, string>;
+        expect(copy[`${key}Name`], `${locale} ${key}`).toBeTruthy();
+        expect(copy[`${key}Work`], `${locale} ${key}`).toBeTruthy();
+      }
+    }
+  });
+});
+
+describe('class-level device evidence (the native player verified per playback class and platform)', () => {
+  const checks = ['ayah-starts', 'full-surah', 'background'];
+  const result = (device: string, samples: string[], extra: string[] = []) => ({ ...passed(device, [...checks, ...extra]), samples });
+  const classRecord = (...classes: unknown[]) => ({ kind: gen.DEVICE_RECORD_KIND, entries: [], classes });
+  const cbr = (android: unknown, ios: unknown) => ({ class: 'mp3quran-cbr', android, ios });
+  const count = (o: Record<string, Record<number, unknown>>) => Object.values(o).reduce((n, x) => n + Object.keys(x).length, 0);
+  // Two real reviewed-timing members (from different reciters) as samples.
+  const [s1, s2] = [Object.keys(REVIEWED_TIMING)[0], Object.keys(REVIEWED_TIMING)[1]].map((id) => `${id}:${Object.keys(REVIEWED_TIMING[id])[0]}`);
+
+  it('a passed CBR class record on both platforms, with two real samples, releases every reviewed surah — and nothing else', () => {
+    const r = gen.releaseTiming(input({ record: classRecord(cbr(result('Pixel 7', [s1, s2]), result('iPhone 14', [s1, s2]))) }));
+    expect(count(r.reviewed)).toBe(Object.values(REVIEWED_TIMING).reduce((n, x) => n + Object.keys(x).length, 0));
+    expect(r.vbr).toEqual({});
+    expect(r.timedPreview).toEqual([]);
+    const why = r.report.reviewed.banna[3].gates.find((g) => g.gate === 'devices')!.why;
+    expect(why).toMatch(/class mp3quran-cbr verified/);
+    expect(why).not.toMatch(/listened/);
+  });
+
+  it('fails closed: one sample, a sample from another class, one platform only, a wrong player, or two records for one class', () => {
+    const some = (rec: unknown) => count(gen.releaseTiming(input({ record: rec })).reviewed);
+    const ios = result('iPhone 14', [s1, s2]);
+    expect(some(classRecord(cbr(result('Pixel 7', [s1]), ios)))).toBe(0);
+    expect(some(classRecord(cbr(result('Pixel 7', [s1, 'yasser-salama:48']), ios)))).toBe(0); // 48 is a VBR member
+    expect(some(classRecord(cbr(null, ios)))).toBe(0);
+    expect(some(classRecord(cbr({ ...result('Pixel 7', [s1, s2]), nativeSeek: undefined }, ios)))).toBe(0);
+    expect(some(classRecord(cbr(result('Pixel 7', [s1, s2]), ios), cbr(result('Pixel 7', [s1, s2]), ios)))).toBe(0);
+  });
+
+  it('VBR: per platform, with far-seek; a host class with a single member needs that one sample', () => {
+    const vbrCls = { class: 'mp3quran-vbr', ios: result('iPhone 14', ['yasser-salama:48', 'ajmi:42'], ['far-seek']), android: null };
+    const r = gen.releaseTiming(input({ record: classRecord(vbrCls) }));
+    expect(Object.values(r.vbr).every((x) => Object.values(x).every((y) => (y as { platforms: string[] }).platforms.join() === 'avfoundation-precise'))).toBe(true);
+    expect(count(r.vbr)).toBe(Object.values(VBR_TIMING).reduce((n, x) => n + Object.keys(x).length, 0));
+    const decisions = { kind: 'owner-release-decisions', decisions: [{ id: 'owner-test', decidedOn: '2026-10-25', layers: ['alternative-source-recordings'] }] };
+    const host = { class: 'host:quranicaudio', android: result('Pixel 7', ['ajmi:42']), ios: result('iPhone 14', ['ajmi:42']) };
+    const p = gen.releaseTiming(input({ decisions, record: classRecord(host) }));
+    expect(p.timedPreview.map((x) => x.reciterId)).toEqual(['ajmi']);
+  });
+
+  it('the owner decision passes the provider gate for alternative sources only, as a decision; a decision for another layer does not', () => {
+    const provider = (decisions: unknown) => gen.releaseTiming(input({ decisions })).report.timedPreview['ahmed-salama'][1].gates.find((g) => g.gate === 'provider')!;
+    const yes = provider({ kind: 'owner-release-decisions', decisions: [{ id: 'owner-test', decidedOn: '2026-10-25', layers: ['alternative-source-recordings'] }] });
+    expect(yes.pass).toBe(true);
+    expect(yes.why).toMatch(/proceed without verified rights documentation \(not a permission\)/);
+    expect(provider({ kind: 'owner-release-decisions', decisions: [{ id: 'owner-test', decidedOn: '2026-10-25', layers: ['per-ayah:jaber'] }] }).pass).toBe(false);
+  });
+
+  it('the repository records the owner decision verbatim, as a decision and not a permission', () => {
+    const d = JSON.parse(read('../../tools/quran-audio/development/owner-release-decisions.json')) as { kind: string; decisions: { statement: string; meaning: string; layers: string[]; stillRequired: string[] }[] };
+    expect(d.kind).toBe('owner-release-decisions');
+    expect(d.decisions[0].layers).toEqual(['reviewed-timing', 'vbr-timing', 'alternative-source-recordings', 'per-ayah:jaber']);
+    expect(d.decisions[0].statement).toMatch(/^I authorize proceeding with all four audio layers/);
+    expect(d.decisions[0].meaning).toMatch(/not a permission/);
+    expect(d.decisions[0].stillRequired).toContain('compatible native playback (physical-device evidence)');
+  });
+});

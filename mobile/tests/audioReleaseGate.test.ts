@@ -34,6 +34,8 @@ function setup() {
     fetchJson: async () => dash,
     providers: [{ id: 'everyayah', streaming: { permitted: true, evidence: 'written permission, ref. TEST' } }],
     credits: "key: 'everyayah'",
+    // Synthetic: never the repository's own owner decisions (development/owner-release-decisions.json).
+    ownerDecisions: null,
   };
   const grantRights = () => fs.writeFileSync(path.join(rights, 'jaber.json'), JSON.stringify({ kind: 'owner-per-ayah-rights-decision', recording: 'jaber', provider: 'everyayah', folder: 'Ali_Jaber_64kbps', cleared: true, basis: 'TEST', decidedBy: 'TEST', decidedOn: '2026-10-24' }));
   const recordDevices = () => fs.writeFileSync(path.join(devices, 'jaber.json'), JSON.stringify({ kind: 'per-ayah-device-tests', android: { passed: true, background: true, device: 'TEST', testedOn: '2026-10-24' }, ios: { passed: true, background: true, device: 'TEST', testedOn: '2026-10-24' } }));
@@ -56,6 +58,20 @@ describe('the per-ayah release gate', () => {
     const r = await releaseGate({ recordingId: 'jaber', ...t.ok });
     expect(r.pass).toBe(true);
     expect(r.gates.map((g: J) => g.gate)).toEqual(['on-hold', 'integrity', 'review', 'overrides', 'rights', 'provider', 'attribution', 'devices']);
+  });
+
+  it('the owner decision to proceed without verified rights documentation passes rights and provider for its recording only, labelled as a decision', async () => {
+    const t = setup();
+    const decision = { kind: 'owner-release-decisions', decisions: [{ id: 'owner-test', decidedOn: '2026-10-25', layers: ['per-ayah:jaber'] }] };
+    const noProvider = { ...t.ok, providers: [] };
+    expect(blocked(await releaseGate({ recordingId: 'jaber', ...noProvider }))).toEqual(['rights', 'provider', 'devices']);
+    const r = await releaseGate({ recordingId: 'jaber', ...noProvider, ownerDecisions: decision });
+    expect(blocked(r)).toEqual(['devices']); // still needs physical-device evidence
+    for (const gate of ['rights', 'provider']) expect(r.gates.find((g: J) => g.gate === gate).why).toMatch(/proceed without verified rights documentation \(not a permission\)/);
+    const other = { kind: 'owner-release-decisions', decisions: [{ id: 'owner-test', decidedOn: '2026-10-25', layers: ['per-ayah:gebril'] }] };
+    expect(blocked(await releaseGate({ recordingId: 'jaber', ...noProvider, ownerDecisions: other }))).toEqual(['rights', 'provider', 'devices']);
+    t.override();
+    expect(blocked(await releaseGate({ recordingId: 'jaber', ...noProvider, ownerDecisions: decision }))).toEqual(['overrides', 'devices']); // never clears an override
   });
 
   it('fails closed: an open start or exception, an unreachable dashboard, a damaged file; never asks for Reviewer 2', async () => {

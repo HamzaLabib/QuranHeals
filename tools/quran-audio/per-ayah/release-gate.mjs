@@ -13,6 +13,9 @@
 //   rights       an owner rights decision for this recording (<rightsDecisions>/*.json, kind owner-per-ayah-rights-decision:
 //                recording id, provider, folder, cleared: true, basis, decidedBy, decidedOn)
 //   provider     ../providers.mjs lists the provider with streaming permitted, on recorded evidence
+//   (rights and provider also pass on the owner's decision of 2026-10-25 to proceed WITHOUT verified rights
+//    documentation for per-ayah:<id> (development/owner-release-decisions.json): reported as that decision, never as
+//    a permission. Every other gate is unchanged.)
 //   attribution  the app's Quran Sources & Credits list the provider (mobile/src/constants/quranSources.ts)
 //   devices      an owner record of physical-device tests (per-ayah/device-tests/<id>.json, kind per-ayah-device-tests:
 //                android and ios entries, each passed: true, with background playback across ayah files)
@@ -32,8 +35,15 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.join(here, '..', '..', '..');
 
 /** Every gate for one recording: { id, gates: [{ gate, pass, why }], pass }. Never throws for a missing input: it fails. */
+/** The owner's decision to proceed without verified rights documentation for this per-ayah recording, or undefined. */
+export function ownerDecisionFor(decisions, recordingId) {
+  if (decisions?.kind !== 'owner-release-decisions' || !Array.isArray(decisions.decisions)) return undefined;
+  return decisions.decisions.find((d) => Array.isArray(d?.layers) && d.layers.includes(`per-ayah:${recordingId}`) && String(d.id ?? '').trim() && /^\d{4}-\d\d-\d\d$/.test(d.decidedOn ?? ''));
+}
+const decisionsFile = path.join(here, '..', 'development', 'owner-release-decisions.json');
+
 export async function releaseGate({ recordingId, config, risk = null, dashboardUrl = 'http://127.0.0.1:8765', fetchJson = defaultFetch, cache = path.join(process.env.LOCALAPPDATA ?? '.', 'QuranHeals', 'per-ayah-cache'),
-  providers = PROVIDERS, credits = null, deviceDir = path.join(here, 'device-tests') }) {
+  providers = PROVIDERS, credits = null, deviceDir = path.join(here, 'device-tests'), ownerDecisions = fs.existsSync(decisionsFile) ? JSON.parse(fs.readFileSync(decisionsFile, 'utf8')) : null }) {
   const gates = [];
   const g = (gate, pass, why) => gates.push({ gate, pass: !!pass, why });
   const rec = PER_AYAH_RECORDINGS.find((r) => r.id === recordingId);
@@ -69,9 +79,12 @@ export async function releaseGate({ recordingId, config, risk = null, dashboardU
   // rights
   const decisions = fs.existsSync(cfg.rightsDir) ? fs.readdirSync(cfg.rightsDir).filter((f) => f.endsWith('.json')).map((f) => { try { return JSON.parse(fs.readFileSync(path.join(cfg.rightsDir, f), 'utf8')); } catch { return null; } }).filter(Boolean) : [];
   const d = decisions.find((x) => x.kind === 'owner-per-ayah-rights-decision' && x.recording === recordingId && x.provider === rec.provider && x.folder === rec.folder && x.cleared === true && String(x.basis ?? '').trim() && String(x.decidedBy ?? '').trim() && /^\d{4}-\d\d-\d\d$/.test(x.decidedOn ?? ''));
-  g('rights', d, d ? `cleared by ${d.decidedBy} on ${d.decidedOn}: ${d.basis}` : `no owner rights decision for ${rec.provider}/${rec.folder} (${rec.rights.evidence})`);
+  const owner = ownerDecisionFor(ownerDecisions, recordingId);
+  const proceed = owner ? `owner decision ${owner.id} (${owner.decidedOn}): proceed without verified rights documentation (not a permission)` : null;
+  g('rights', d || owner, d ? `cleared by ${d.decidedBy} on ${d.decidedOn}: ${d.basis}` : proceed ?? `no owner rights decision for ${rec.provider}/${rec.folder} (${rec.rights.evidence})`);
   const p = providers.find((x) => x.id === rec.provider);
-  g('provider', p?.streaming?.permitted === true && String(p.streaming.evidence ?? '').trim(), p ? `streaming ${p.streaming.permitted ? 'permitted' : 'not permitted'}: ${p.streaming.evidence}` : `${rec.provider} is not in tools/quran-audio/providers.mjs`);
+  const providerOk = p?.streaming?.permitted === true && String(p.streaming.evidence ?? '').trim();
+  g('provider', providerOk || owner, providerOk ? `streaming permitted: ${p.streaming.evidence}` : proceed ?? (p ? `streaming not permitted: ${p.streaming.evidence}` : `${rec.provider} is not in tools/quran-audio/providers.mjs`));
   const creditsText = credits ?? fs.readFileSync(path.join(REPO, 'mobile', 'src', 'constants', 'quranSources.ts'), 'utf8');
   const listed = new RegExp(`key: '${rec.provider}'`).test(creditsText);
   g('attribution', listed, `Quran Sources & Credits ${listed ? 'list' : 'do not list'} ${rec.provider}`);

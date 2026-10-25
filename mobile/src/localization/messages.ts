@@ -459,6 +459,17 @@ export type Messages = {
     /** Surah Preview's topics (constants/quranSources.ts); shown only in builds that carry its dataset. */
     quranpediaName: string;
     quranpediaWork: string;
+    /** Alternative recording hosts (constants/quranSources.ts): listed only in builds that play their files. */
+    way2quranName: string;
+    way2quranWork: string;
+    assabileName: string;
+    assabileWork: string;
+    archiveName: string;
+    archiveWork: string;
+    quranicaudioName: string;
+    quranicaudioWork: string;
+    everyayahName: string;
+    everyayahWork: string;
     website: string;
     license: string;
     terms: string;
@@ -1507,6 +1518,16 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       tafsirCenterWork: 'Surah Preview’s main purpose: Al-Mukhtasar fi Tafsir al-Quran al-Karim (المختصر في تفسير القرآن الكريم), via QuranEnc.com. Makki/Madani and ayah count: Tanzil.',
       quranpediaName: 'Quranpedia.net',
       quranpediaWork: 'Surah Preview’s topics: Quranpedia.net (Surah information, version 2026-10-24), citing «التفسير الموضوعي لسور القرآن الكريم» (a group of tafsir scholars, University of Sharjah, 1431 AH / 2010); for Surahs 42 and 44, al-Fairuzabadi’s «بصائر ذوي التمييز في لطائف الكتاب العزيز» (ed. Muhammad Ali al-Najjar), via Quranpedia.net. Credited as sources; this does not imply their endorsement.',
+      way2quranName: 'Way2Quran',
+      way2quranWork: 'Quran audio for some surahs, streamed from way2quran.com.',
+      assabileName: 'Assabile',
+      assabileWork: 'Quran audio for some surahs, streamed from assabile.com.',
+      archiveName: 'Internet Archive',
+      archiveWork: 'Quran audio for some surahs, streamed from archive.org.',
+      quranicaudioName: 'QuranicAudio',
+      quranicaudioWork: 'Quran audio for some surahs, streamed from quranicaudio.com.',
+      everyayahName: 'EveryAyah',
+      everyayahWork: 'Ali Abdullah Jaber’s Quran audio, one file per ayah, streamed from everyayah.com.',
       website: 'Website',
       license: 'Licence',
       terms: 'Terms of use',
@@ -2150,6 +2171,16 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       tafsirCenterWork: 'مقصد السورة في «عن السورة»: المختصر في تفسير القرآن الكريم (موسوعة القرآن الكريم QuranEnc.com). المكي والمدني وعدد الآيات: تنزيل.',
       quranpediaName: 'Quranpedia.net',
       quranpediaWork: 'موضوعات السورة في «عن السورة»: الموسوعة القرآنية Quranpedia.net (معلومات السور، إصدار 2026-10-24)، نقلًا عن «التفسير الموضوعي لسور القرآن الكريم» لنخبة من علماء التفسير وعلوم القرآن (جامعة الشارقة، 1431هـ/2010م)؛ وللسورتين ٤٢ و٤٤: «بصائر ذوي التمييز في لطائف الكتاب العزيز» للفيروزآبادي (تحقيق محمد علي النجار) عبر Quranpedia.net. ذِكرُ هذه المصادر لا يعني تأييدها للتطبيق.',
+      way2quranName: 'Way2Quran',
+      way2quranWork: 'تلاوات لبعض السور، تُبثّ من موقع way2quran.com.',
+      assabileName: 'Assabile',
+      assabileWork: 'تلاوات لبعض السور، تُبثّ من موقع assabile.com.',
+      archiveName: 'أرشيف الإنترنت (Internet Archive)',
+      archiveWork: 'تلاوات لبعض السور، تُبثّ من موقع archive.org.',
+      quranicaudioName: 'QuranicAudio',
+      quranicaudioWork: 'تلاوات لبعض السور، تُبثّ من موقع quranicaudio.com.',
+      everyayahName: 'EveryAyah',
+      everyayahWork: 'تلاوة علي عبد الله جابر، ملف لكل آية، تُبثّ من موقع everyayah.com.',
       website: 'الموقع',
       license: 'الرخصة',
       terms: 'شروط الاستخدام',
@@ -2808,6 +2839,16 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       tafsirCenterWork: 'مقصد السورة في «عن السورة»: المختصر في تفسير القرآن الكريم (موسوعة القرآن الكريم QuranEnc.com). المكي والمدني وعدد الآيات: تنزيل.',
       quranpediaName: 'Quranpedia.net',
       quranpediaWork: 'موضوعات السورة في «عن السورة»: الموسوعة القرآنية Quranpedia.net (معلومات السور، إصدار 2026-10-24)، نقلًا عن «التفسير الموضوعي لسور القرآن الكريم» لنخبة من علماء التفسير وعلوم القرآن (جامعة الشارقة، 1431هـ/2010م)؛ وللسورتين ٤٢ و٤٤: «بصائر ذوي التمييز في لطائف الكتاب العزيز» للفيروزآبادي (تحقيق محمد علي النجار) عبر Quranpedia.net. ذِكرُ هذه المصادر لا يعني تأييدها للتطبيق.',
+      way2quranName: 'Way2Quran',
+      way2quranWork: 'تلاوات لبعض السور، تُبثّ من موقع way2quran.com.',
+      assabileName: 'Assabile',
+      assabileWork: 'تلاوات لبعض السور، تُبثّ من موقع assabile.com.',
+      archiveName: 'أرشيف الإنترنت (Internet Archive)',
+      archiveWork: 'تلاوات لبعض السور، تُبثّ من موقع archive.org.',
+      quranicaudioName: 'QuranicAudio',
+      quranicaudioWork: 'تلاوات لبعض السور، تُبثّ من موقع quranicaudio.com.',
+      everyayahName: 'EveryAyah',
+      everyayahWork: 'تلاوة علي عبد الله جابر، ملف لكل آية، تُبثّ من موقع everyayah.com.',
       website: 'الموقع',
       license: 'الرخصة',
       terms: 'شروط الاستخدام',

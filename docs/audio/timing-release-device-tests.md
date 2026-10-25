@@ -76,3 +76,44 @@ The full device programme, including the player tests that are separate from the
 **Scale:** a per-surah record for all 399 reviewed surahs is a large test effort. A sampled, per-reciter or
 platform-level standard would be an owner decision that changes the `devices` gate in the generator. It has not been
 made, so the gate stays per surah.
+
+## Class records: the minimum device evidence (2026-10-25)
+
+The device gate checks **native playback compatibility**: that this app's patched player, on this platform, handles a
+kind of file from a host. Timing accuracy is checked per surah by the review gates, not here. So besides per-surah
+entries, the generator accepts one record per **playback class**:
+
+| Class | What it covers | Samples per platform | Extra check |
+|---|---|---|---|
+| `mp3quran-cbr` | the 399 reviewed-timing surahs (MP3Quran CBR files) | 2 reviewed surahs, different reciters | — |
+| `mp3quran-vbr` | the 27 VBR surahs | 2 VBR surahs (e.g. `yasser-salama:48`, `ajmi:42`) | `far-seek` |
+| `host:way2quran` | 105 timed previews from Way2Quran | 2 | — |
+| `host:assabile` | 10 timed previews from Assabile | 2 | — |
+| `host:archive` | 61 timed previews from archive.org | 2 (e.g. one Sobhi, one Talib) | — |
+| `host:quranicaudio` | 1 timed preview (`ajmi:42`) | 1 | — |
+
+```json
+{
+  "kind": "audio-timing-device-tests",
+  "entries": [],
+  "classes": [
+    { "class": "mp3quran-cbr",
+      "android": { "passed": true, "device": "…", "testedOn": "YYYY-MM-DD", "build": "EAS <id>", "runtime": "8 hex", "nativeSeek": "index", "checks": ["ayah-starts", "full-surah", "background"], "samples": ["banna:2", "yasser-salama:1"] },
+      "ios": { "passed": true, "device": "…", "testedOn": "YYYY-MM-DD", "build": "EAS <id>", "runtime": "8 hex", "nativeSeek": "avfoundation-precise", "checks": ["ayah-starts", "full-surah", "background"], "samples": ["banna:2", "yasser-salama:1"] } }
+  ]
+}
+```
+
+- Every sample must be a real member of that class. A sample from another class, too few samples, or two records for
+  one class release nothing.
+- A class pass is **player evidence** for that class and platform. It never says a surah was listened to, and the
+  release report names the basis: `class mp3quran-cbr verified …`.
+- VBR on Android additionally needs `VBR_SEEK_DEVICE_VERIFIED.index = true` (`mobile/src/audio/vbrSeek.ts`), which is
+  your approval after the Android listening test.
+- Ali Jaber's per-ayah recording has its own record, `tools/quran-audio/per-ayah/device-tests/jaber.json` (kind
+  `per-ayah-device-tests`; android and ios each `{ passed: true, background: true, device, testedOn }`).
+
+**Where to test.** Release builds contain only released surahs, so the first tests use the existing patched
+development clients (Android `2df4712e`, iPhone `f9ada32f`) with Metro. They load every layer and use the same patched
+player. Record each result with that client's build line. Then generate the release and build the release
+candidate, and re-check one sample per class on the candidate (`docs/release-device-checklist.md`, section B).

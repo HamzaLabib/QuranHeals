@@ -98,8 +98,16 @@ describe('Quran Sources & Credits page', () => {
       'https://www.mp3quran.net/eng/privacy',
       'https://quranenc.com/ar/browse/arabic_mokhtasar',
       'https://quranpedia.net',
+      // Alternative recording hosts: listed, but shown only in builds that play their files (none released yet).
+      'https://way2quran.com/',
+      'https://www.assabile.com/',
+      'https://archive.org/',
+      'https://quranicaudio.com/',
+      'https://everyayah.com/',
     ]);
-    expect(links()).toHaveLength(urls.length);
+    const shownUrls = QURAN_SOURCES.filter((source) => source.inThisBuild?.() ?? true).flatMap((source) => source.links.map((link) => link.url));
+    expect(shownUrls).not.toContain('https://way2quran.com/');
+    expect(links()).toHaveLength(shownUrls.length);
     for (const link of links()) {
       expect(link.props.accessibilityLabel).toMatch(/: /); // "Tanzil Project: Licence"
       expect(link.props.accessibilityHint).toBe(MESSAGES.en.settings.opensInBrowser);

@@ -1,0 +1,1081 @@
+{
+ "kind": "owner-source-permission-statements",
+ "statements": [
+  {
+   "id": "owner-2026-10-25-alternative-sources",
+   "statedBy": "Hamza (owner)",
+   "statedOn": "2026-10-25",
+   "statement": "I have obtained permission for the alternative-source recordings previously listed as 177 reciter–surah combinations. I want those recordings included in the next production build",
+   "streamingInApp": true,
+   "offlineDownloads": "not stated",
+   "redistribution": "not stated",
+   "documents": [],
+   "documentsStatus": "requested on 2026-10-25; none on file",
+   "scope": "exactly the recordings listed below (reciter, surah, provider, file URL), as listed in mobile/src/audio/generated/timedPreview.ts on 2026-10-25; no other recording or provider",
+   "recordings": [
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 1,
+     "provider": "assabile",
+     "url": "https://media.assabile.com/assabile/recitations_7892537823/mp3/ahmed-mohamed-salama/ahmed-mohamed-salama-001-al-fatiha-33592-210.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 2,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/002.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 3,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/003.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 4,
+     "provider": "assabile",
+     "url": "https://media.assabile.com/assabile/recitations_7892537823/mp3/ahmed-mohamed-salama/ahmed-mohamed-salama-004-an-nisa-33595-8419.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 5,
+     "provider": "assabile",
+     "url": "https://media.assabile.com/assabile/recitations_7892537823/mp3/ahmed-mohamed-salama/ahmed-mohamed-salama-005-al-mai-dah-33596-8888.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 6,
+     "provider": "assabile",
+     "url": "https://media.assabile.com/assabile/recitations_7892537823/mp3/ahmed-mohamed-salama/ahmed-mohamed-salama-006-al-ana-m-33597-4767.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 7,
+     "provider": "assabile",
+     "url": "https://media.assabile.com/assabile/recitations_7892537823/mp3/ahmed-mohamed-salama/ahmed-mohamed-salama-007-al-a-raf-33598-3571.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 8,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/008.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 9,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/009.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 10,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/010.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 11,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/011.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 12,
+     "provider": "assabile",
+     "url": "https://media.assabile.com/assabile/recitations_7892537823/mp3/ahmed-mohamed-salama/ahmed-mohamed-salama-012-youssef-33603-1621.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 13,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/013.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 14,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/014.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 15,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/015.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 16,
+     "provider": "assabile",
+     "url": "https://media.assabile.com/assabile/recitations_7892537823/mp3/ahmed-mohamed-salama/ahmed-mohamed-salama-016-an-nahl-33607-4835.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 17,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/017.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 18,
+     "provider": "assabile",
+     "url": "https://media.assabile.com/assabile/recitations_7892537823/mp3/ahmed-mohamed-salama/ahmed-mohamed-salama-018-al-kahf-33609-2268.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 19,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/019.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 20,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/020.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 21,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/021.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 22,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/022.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 23,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/023.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 24,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/024.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 25,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/025.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 26,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/026.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 27,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/027.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 28,
+     "provider": "assabile",
+     "url": "https://media.assabile.com/assabile/recitations_7892537823/mp3/ahmed-mohamed-salama/ahmed-mohamed-salama-028-al-qasas-33619-498.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 29,
+     "provider": "assabile",
+     "url": "https://media.assabile.com/assabile/recitations_7892537823/mp3/ahmed-mohamed-salama/ahmed-mohamed-salama-029-al-ankabout-33620-6820.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 30,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/030.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 31,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/031.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 32,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/032.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 33,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/033.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 34,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/034.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 35,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/035.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 36,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/036.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 37,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/037.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 38,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/038.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 39,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/039.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 40,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/040.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 41,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/041.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 42,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/042.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 43,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/043.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 44,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/044.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 45,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/045.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 46,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/046.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 47,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/047.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 48,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/048.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 49,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/049.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 50,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/050.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 51,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/051.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 52,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/052.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 53,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/053.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 54,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/054.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 55,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/055.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 56,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/056.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 57,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/057.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 58,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/058.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 59,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/059.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 60,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/060.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 61,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/061.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 62,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/062.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 63,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/063.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 64,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/064.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 65,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/065.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 66,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/066.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 67,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/067.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 68,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/068.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 69,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/069.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 70,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/070.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 71,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/071.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 72,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/072.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 73,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/073.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 74,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/074.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 75,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/075.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 76,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/076.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 77,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/077.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 78,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/078.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 79,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/079.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 80,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/080.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 81,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/081.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 82,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/082.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 83,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/083.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 84,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/084.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 85,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/085.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 86,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/086.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 87,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/087.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 88,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/088.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 89,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/089.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 90,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/090.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 91,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/091.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 92,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/092.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 93,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/093.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 94,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/094.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 95,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/095.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 96,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/096.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 97,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/097.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 98,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/098.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 99,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/099.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 100,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/100.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 101,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/101.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 102,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/102.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 103,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/103.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 104,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/104.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 105,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/105.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 106,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/106.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 107,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/107.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 108,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/108.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 109,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/109.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 110,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/110.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 111,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/111.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 112,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/112.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 113,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/113.mp3"
+    },
+    {
+     "reciterId": "ahmed-salama",
+     "surah": 114,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/ahmed-mohamed-salama/hafs-an-asim/114.mp3"
+    },
+    {
+     "reciterId": "ajmi",
+     "surah": 42,
+     "provider": "quranicaudio",
+     "url": "https://download.quranicaudio.com/quran/ahmed_ibn_3ali_al-3ajamy/042.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 21,
+     "provider": "archive",
+     "url": "https://ia601405.us.archive.org/26/items/002_20231210_202312/021.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 23,
+     "provider": "archive",
+     "url": "https://ia801601.us.archive.org/23/items/islam-sobhi_202405/023%20Al-Mu%27minun%20%D8%A7%D9%84%D9%85%D8%A4%D9%85%D9%86%D9%88%D9%86.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 25,
+     "provider": "archive",
+     "url": "https://ia601405.us.archive.org/26/items/002_20231210_202312/025.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 29,
+     "provider": "archive",
+     "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/029%20Al-Ankabut%20%D8%A7%D9%84%D8%B9%D9%86%D9%83%D8%A8%D9%88%D8%AA.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 30,
+     "provider": "archive",
+     "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/030-Ar-Room.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 38,
+     "provider": "archive",
+     "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/038%20Saad%20%D8%B5.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 47,
+     "provider": "archive",
+     "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/047%20Muhammad%20%D9%85%D8%AD%D9%85%D8%AF.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 48,
+     "provider": "archive",
+     "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/048%20Al-Fath%20%D8%A7%D9%84%D9%81%D8%AA%D8%AD.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 49,
+     "provider": "archive",
+     "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/049%20Al-Hujurat%20%D8%A7%D9%84%D8%AD%D8%AC%D8%B1%D8%A7%D8%AA.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 52,
+     "provider": "archive",
+     "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/052%20At-Tur%20%D8%A7%D9%84%D8%B7%D9%88%D8%B1.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 57,
+     "provider": "archive",
+     "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/057%20-%20Al-Hadid.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 62,
+     "provider": "archive",
+     "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/062%20-%20Al-Jumua.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 65,
+     "provider": "way2quran",
+     "url": "https://media.way2quran.com/islam-sobhi/hafs-an-asim/065.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 72,
+     "provider": "archive",
+     "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/072-Al-Jinn.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 95,
+     "provider": "archive",
+     "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/095-At-Tin.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 98,
+     "provider": "archive",
+     "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/098-Bayyina.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 100,
+     "provider": "archive",
+     "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/100-Al-Addiyat.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 101,
+     "provider": "archive",
+     "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/101-Al-Qaria.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 104,
+     "provider": "archive",
+     "url": "https://ia801601.us.archive.org/23/items/islam-sobhi_202405/104%20Al-Humazah%20%D8%A7%D9%84%D9%87%D9%85%D8%B2%D8%A9%20.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 105,
+     "provider": "archive",
+     "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/105-Al-Fil.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 106,
+     "provider": "archive",
+     "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/106-Quraysh.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 107,
+     "provider": "archive",
+     "url": "https://ia801007.us.archive.org/0/items/islam-sobhi_202203/107-Al-Maun.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 110,
+     "provider": "archive",
+     "url": "https://ia601405.us.archive.org/26/items/002_20231210_202312/110.mp3"
+    },
+    {
+     "reciterId": "islam-sobhi",
+     "surah": 111,
+     "provider": "archive",
+     "url": "https://ia601405.us.archive.org/26/items/002_20231210_202312/111.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 12,
+     "provider": "archive",
+     "url": "https://ia600903.us.archive.org/12/items/SheikhTalibSurahs626991-114/SurahYusufBySheikhTalib12-16thJan2013.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 14,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/032.%20Surat%20Ibrahim%201%20-%2052.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 19,
+     "provider": "archive",
+     "url": "https://ia801001.us.archive.org/10/items/SheikhTalibSurahMaryam/SurahMaryamBy-SheikhTalib-.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 21,
+     "provider": "archive",
+     "url": "https://ia801607.us.archive.org/18/items/SuratAlAnbeyaShikhSalihAlTalib1436/surat_alAnbeya_shikh_salih_al%20Talib_1436.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 29,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/063.%20Surat%20Al-%27Ankabut%201%20-%2069.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 32,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/065.%20Surat%20As-Sajdah%201%20-%2030.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 48,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/081.%20Surat%20Al-Fath%201%20-%2029.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 51,
+     "provider": "archive",
+     "url": "https://ia600606.us.archive.org/7/items/saqrsm/084.%20Surat%20Ath-Thariyat%201%20-%2060.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 62,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/092.%20Surat%20Al-Jumu%27ah%201%20-%2011.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 63,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/093.%20Surat%20Al-Munafiqun%201%20-%2011.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 67,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/095.%20Surat%20Al-Mulk%201%20-%2030.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 68,
+     "provider": "archive",
+     "url": "https://ia600606.us.archive.org/7/items/saqrsm/096.%20Surat%20Al-Qalam%201%20-%2052.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 69,
+     "provider": "archive",
+     "url": "https://ia600606.us.archive.org/7/items/saqrsm/097.%20Surat%20Al-Haqqah%201%20-%2052.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 71,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/099.%20Surat%20Nuh%201%20-%2028.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 87,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/113.%20Surat%20Al-A%27la%201%20-%2019.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 88,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/114.%20Surat%20Al-Ghashiyah%201%20-%2026.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 89,
+     "provider": "archive",
+     "url": "https://ia600606.us.archive.org/7/items/saqrsm/115.%20Surat%20Al-Fajr%201%20-%2030.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 91,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/117.%20Surat%20Ash-Shams%201%20-%2015.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 92,
+     "provider": "archive",
+     "url": "https://ia600606.us.archive.org/7/items/saqrsm/118.%20Surat%20Al-Lail%201%20-%2021.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 93,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/119.%20Surat%20Adh-Dhuha%201%20-%2011.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 94,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/120.%20Surat%20Ash-Sharh%201%20-%208.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 95,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/121.%20Surat%20At-Tin%201%20-%208.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 97,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/122.%20Surat%20Al-Qadr%201%20-%205.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 98,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/123.%20Surat%20Al-Bayyinah%201%20-%208.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 99,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/124.%20Surat%20Az-Zalzalah%201%20-%208.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 100,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/125.%20Surat%20Al-%27Adiyat%201%20-%2011.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 101,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/126.%20Surat%20Al-Qari%27ah%201%20-%2011.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 102,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/127.%20Surat%20At-Takathur%201%20-%208.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 104,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/129.%20Surat%20Al-Humazah%201%20-%209.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 105,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/130.%20Surat%20Al-Fil%201%20-%205.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 106,
+     "provider": "archive",
+     "url": "https://ia600606.us.archive.org/7/items/saqrsm/131.%20Surat%20Quraish%201%20-%204.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 107,
+     "provider": "archive",
+     "url": "https://ia600606.us.archive.org/7/items/saqrsm/132.%20Surat%20Al-Ma%27un%201%20-%207.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 109,
+     "provider": "archive",
+     "url": "https://ia600606.us.archive.org/7/items/saqrsm/134.%20Surat%20Al-Kafirun%201%20-%206.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 110,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/135.%20Surat%20An-Nasr%201%20-%203.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 112,
+     "provider": "archive",
+     "url": "https://ia600606.us.archive.org/7/items/saqrsm/136.%20Surat%20Al-Ikhlas%201%20-%204.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 113,
+     "provider": "archive",
+     "url": "https://ia600606.us.archive.org/7/items/saqrsm/137.%20Surat%20Al-Falaq%201%20-%205.mp3"
+    },
+    {
+     "reciterId": "saleh-talib",
+     "surah": 114,
+     "provider": "archive",
+     "url": "https://ia800606.us.archive.org/7/items/saqrsm/138.%20Surat%20An-Nas%201%20-6.mp3"
+    },
+    {
+     "reciterId": "yasser-salama",
+     "surah": 42,
+     "provider": "archive",
+     "url": "https://ia800401.us.archive.org/7/items/YasserSalama_201801/042.mp3"
+    }
+   ]
+  }
+ ]
+}

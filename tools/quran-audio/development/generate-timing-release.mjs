@@ -20,7 +20,10 @@
 //                only one recording per reciter (the app keys previews by reciter)
 //   exclusive    reviewed / VBR: no development measured timing for the same surah (developmentTiming.ts), which the
 //                app would otherwise load first
-//   provider     providers.mjs permits streaming from the file's provider, on recorded evidence
+//   provider     providers.mjs permits streaming from the file's provider, on recorded evidence; or, for a timed preview,
+//                an owner permission statement (development/source-permissions.json, kind
+//                owner-source-permission-statements, streamingInApp: true) lists that exact recording: reciter, surah,
+//                provider AND file URL. A statement never extends to another recording, file or provider
 //   attribution  the app's Quran Sources & Credits list the provider
 //   devices      timing-device-tests.json has exactly one entry for reciter:surah with the SAME fingerprint and size (and,
 //                for a timed preview, the same file URL), and a passed result per platform:
@@ -31,6 +34,14 @@
 //                far-seek). CBR and timed previews need Android AND iOS; a VBR surah is released for each platform that
 //                passed, and the app also requires that platform's method to be device-verified (audio/vbrSeek.ts).
 //                A malformed record, an unknown kind or duplicate entries release nothing (fail closed).
+//                OR a CLASS record (record.classes): the native player verified for the surah's playback class on that
+//                platform — mp3quran-cbr (reviewed timing), mp3quran-vbr, host:<provider> (timed previews) — with the
+//                same per-platform fields plus samples: ["reciter:surah", ...], at least CLASS_SAMPLES distinct real
+//                members of that class (all of them when the class has fewer). A class pass is player evidence for that
+//                class, never a claim that each surah was listened to; the report says which basis applied.
+//   rights       owner decision 2026-10-25 (development/owner-release-decisions.json): missing rights documentation
+//                no longer blocks a layer the decision lists. It is a decision to proceed WITHOUT verified rights
+//                documentation, not a permission; the provider gate reports it as such.
 //
 // usage (from the repository root): node tools/quran-audio/development/generate-timing-release.mjs [--report <file.json>]
 import fs from 'node:fs';
@@ -48,6 +59,7 @@ const GENERATED = path.join(REPO, 'mobile', 'src', 'audio', 'generated');
 export const DEVICE_RECORD_KIND = 'audio-timing-device-tests';
 const BASE_CHECKS = ['ayah-starts', 'full-surah', 'background'];
 const PLATFORM_METHOD = { android: 'index', ios: 'avfoundation-precise' };
+export const CLASS_SAMPLES = 2;
 
 /** The object or array literal assigned to `name` in one of the app's generated files (our own output: plain JS literals). */
 export function readGeneratedLiteral(text, name) {
@@ -91,6 +103,32 @@ function platformResult(r, platform, checks) {
   return [true, `passed on ${r.device} (${r.testedOn}, build ${r.build}, runtime ${r.runtime}, ${r.nativeSeek})`];
 }
 
+/** Platforms whose class record (record.classes) verifies the player for class `cls`, with valid samples from `members`. */
+function classPlatforms(record, cls, members, checks) {
+  if (record?.kind !== DEVICE_RECORD_KIND || !Array.isArray(record.classes)) return { platforms: [], why: `no class record for ${cls}` };
+  const all = record.classes.filter((c) => c?.class === cls);
+  if (all.length !== 1) return { platforms: [], why: all.length ? `${all.length} class records for ${cls}: ambiguous` : `no class record for ${cls}` };
+  const need = Math.min(CLASS_SAMPLES, members.size);
+  const platforms = [];
+  const why = [];
+  for (const p of ['android', 'ios']) {
+    const r = all[0][p];
+    const [ok, w] = platformResult(r, p, checks);
+    const samples = Array.isArray(r?.samples) ? [...new Set(r.samples)] : [];
+    const valid = samples.filter((k) => members.has(k));
+    if (ok && valid.length >= need && valid.length === samples.length) { platforms.push(p); why.push(`${p} class ${cls} verified (${w}; samples ${valid.join(', ')})`); }
+    else why.push(`${p} class ${cls}: ${!ok ? w : valid.length !== samples.length ? 'a sample is not in this class' : `${valid.length} of ${need} samples`}`);
+  }
+  return { platforms, why: why.join('; ') };
+}
+
+/** Per-surah evidence first, then the class record: the union of the platforms that passed, and why. */
+function devicesGateWithClass(record, reciterId, surah, x, checks, cls, members) {
+  const one = devicesGate(record, reciterId, surah, x, checks);
+  const cl = classPlatforms(record, cls, members, checks);
+  return { platforms: ['android', 'ios'].filter((p) => one.platforms.includes(p) || cl.platforms.includes(p)), why: `surah: ${one.why} | ${cl.why}` };
+}
+
 /** The device gate: the platforms that passed for exactly this timing ([] when none), and why. */
 function devicesGate(record, reciterId, surah, x, checks) {
   if (record?.kind !== DEVICE_RECORD_KIND || !Array.isArray(record.entries)) return { platforms: [], why: 'no physical-device record (development/timing-device-tests.json)' };
@@ -114,7 +152,19 @@ function devicesGate(record, reciterId, surah, x, checks) {
  * Every release decision, pure (tests call it with fixtures). Returns the released timing and a report of every gate for
  * every candidate surah.
  */
-export function releaseTiming({ reviewed, vbr, timedPreview, development = {}, record, audit, ayahCounts, providers, credits }) {
+export function releaseTiming({ reviewed, vbr, timedPreview, development = {}, permissions = null, decisions = null, record, audit, ayahCounts, providers, credits }) {
+  const decisionList = decisions?.kind === 'owner-release-decisions' && Array.isArray(decisions.decisions) ? decisions.decisions : [];
+  /** The owner's decision to proceed without verified rights documentation for a layer, or undefined. */
+  const decisionFor = (layer) => decisionList.find((d) => Array.isArray(d?.layers) && d.layers.includes(layer));
+  const keyOf = (id, s) => `${id}:${s}`;
+  const members = { 'mp3quran-cbr': new Set(), 'mp3quran-vbr': new Set() };
+  for (const [id, ss] of Object.entries(reviewed)) for (const s of Object.keys(ss)) members['mp3quran-cbr'].add(keyOf(id, s));
+  for (const [id, ss] of Object.entries(vbr)) for (const s of Object.keys(ss)) members['mp3quran-vbr'].add(keyOf(id, s));
+  for (const rec of timedPreview) for (const [s, x] of Object.entries(rec.surahs)) (members[`host:${x.provider}`] ??= new Set()).add(keyOf(rec.reciterId, s));
+  const statements = permissions?.kind === 'owner-source-permission-statements' && Array.isArray(permissions.statements) ? permissions.statements : [];
+  /** The owner statement covering exactly this recording (same reciter, surah, provider and file), or undefined. */
+  const statementFor = (reciterId, surah, x) => statements.find((st) => st?.streamingInApp === true && Array.isArray(st.recordings)
+    && st.recordings.some((r) => r?.reciterId === reciterId && r?.surah === surah && r?.provider === x.provider && r?.url === x.url));
   const ayahsOf = (s) => ayahCounts[s - 1];
   const size = (n) => Number.isInteger(n) && n > 0;
   const reviewGate = (x, ayahs) => {
@@ -137,7 +187,8 @@ export function releaseTiming({ reviewed, vbr, timedPreview, development = {}, r
         const aud = auditOf.get(reciterId);
         const integrity = !aud?.server ? [false, 'not a catalogue recording'] : !aud.surahs.includes(s) ? [false, 'MP3Quran does not list this surah'] : aud.timed?.[s] ? [false, 'production timing exists'] : !size(x.bytes) || aud.bytes?.[s] !== x.bytes ? [false, `size ${x.bytes} is not the audited ${aud.bytes?.[s]}`] : [true, `${aud.server}${String(s).padStart(3, '0')}.mp3 at the audited ${x.bytes} bytes`];
         const exclusive = development[reciterId]?.[s] ? [false, 'development measured timing exists for this surah (the app would load it first)'] : [true, 'no other app-shipped timing'];
-        const dev = devicesGate(record, reciterId, s, x, checks);
+        const cls = kind === 'reviewed' ? 'mp3quran-cbr' : 'mp3quran-vbr';
+        const dev = devicesGateWithClass(record, reciterId, s, x, checks, cls, members[cls]);
         const needBoth = kind === 'reviewed';
         const gates = [
           ['timing', ...timingGate(x, ayahsOf(s))],
@@ -166,12 +217,19 @@ export function releaseTiming({ reviewed, vbr, timedPreview, development = {}, r
     for (const [sk, x] of Object.entries(rec.surahs)) {
       const s = Number(sk);
       const ayahs = ayahsOf(s);
-      const dev = devicesGate(record, rec.reciterId, s, x, BASE_CHECKS);
+      const dev = devicesGateWithClass(record, rec.reciterId, s, x, BASE_CHECKS, `host:${x.provider}`, members[`host:${x.provider}`]);
       const gates = [
         ['timing', ...timingGate(x, ayahs)],
         ['review', ...reviewGate(x, ayahs)],
         ['integrity', single && /^https:\/\//.test(x.url) && size(x.bytes), single ? `${x.url} (${x.bytes} bytes)` : `${recordingsOf(rec.reciterId)} preview recordings for ${rec.reciterId}: ambiguous`],
-        ['provider', ...providerGate(x.provider)],
+        ['provider', ...(() => {
+          const [ok, why] = providerGate(x.provider);
+          if (ok) return [ok, why];
+          const st = statementFor(rec.reciterId, s, x);
+          if (st) return [true, `owner permission statement ${st.id} (${st.statedBy}, ${st.statedOn}) covers this recording; documents: ${st.documentsStatus}`];
+          const d = decisionFor('alternative-source-recordings');
+          return d ? [true, `owner decision ${d.id} (${d.decidedOn}): proceed without verified rights documentation (not a permission)`] : [false, why];
+        })()],
         ['attribution', ...attributionGate(x.provider)],
         ['devices', dev.platforms.length === 2, dev.why],
       ].map(([gate, pass, why]) => ({ gate, pass: !!pass, why }));
@@ -228,6 +286,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     reviewed: readGeneratedLiteral(read(path.join(GENERATED, 'reviewedTiming.ts')), 'REVIEWED_TIMING'),
     vbr: readGeneratedLiteral(read(path.join(GENERATED, 'vbrTiming.ts')), 'VBR_TIMING'),
     development: readGeneratedLiteral(read(path.join(GENERATED, 'developmentTiming.ts')), 'DEVELOPMENT_TIMING'),
+    permissions: fs.existsSync(path.join(here, 'source-permissions.json')) ? JSON.parse(read(path.join(here, 'source-permissions.json'))) : null,
+    decisions: fs.existsSync(path.join(here, 'owner-release-decisions.json')) ? JSON.parse(read(path.join(here, 'owner-release-decisions.json'))) : null,
     timedPreview: readGeneratedLiteral(read(path.join(GENERATED, 'timedPreview.ts')), 'TIMED_PREVIEW'),
     record: fs.existsSync(recordFile) ? JSON.parse(read(recordFile)) : null,
     audit: JSON.parse(read(path.join(tools, 'audit-results.json'))),

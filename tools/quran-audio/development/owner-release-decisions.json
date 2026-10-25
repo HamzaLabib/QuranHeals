@@ -1,0 +1,14 @@
+{
+ "kind": "owner-release-decisions",
+ "decisions": [
+  {
+   "id": "owner-2026-10-25-proceed-without-rights-documentation",
+   "decidedBy": "Hamza (owner)",
+   "decidedOn": "2026-10-25",
+   "statement": "I authorize proceeding with all four audio layers: reviewed timing, VBR timing, alternative-source recordings, and Ali Jaber per-ayah audio. Stop treating missing licence documents, publisher permissions, or owner rights decisions as implementation blockers. Record this accurately as my decision to proceed without verified rights documentation; do not claim permission has been granted. Remove the internal rights-only release blocks. Keep source attribution.",
+   "meaning": "Missing rights documentation no longer blocks release of the layers below. This is the owner's decision to proceed WITHOUT verified rights documentation. It is not a permission, licence or publisher grant, and nothing records one.",
+   "layers": ["reviewed-timing", "vbr-timing", "alternative-source-recordings", "per-ayah:jaber"],
+   "stillRequired": ["source attribution", "correct reciter identity", "file integrity", "complete ayah coverage", "accurate, reviewed timing", "compatible native playback (physical-device evidence)"]
+  }
+ ]
+}

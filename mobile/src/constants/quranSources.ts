@@ -1,3 +1,4 @@
+import { RECITERS } from '@/audio/reciters';
 import type { Messages } from '@/localization/messages';
 import { isSurahPreviewBundled } from '@/surahPreview/bundledDataset';
 import { SURAH_PREVIEW_ENABLED } from '@/surahPreview/config';
@@ -30,13 +31,22 @@ import { SURAH_PREVIEW_ENABLED } from '@/surahPreview/config';
  * unreachable outside Saudi Arabia); it is the Complex's official domain.
  */
 export type QuranSource = {
-  key: 'tanzil' | 'quranFoundation' | 'kingFahd' | 'amiri' | 'mp3quran' | 'tafsirCenter' | 'quranpedia';
+  key: 'tanzil' | 'quranFoundation' | 'kingFahd' | 'amiri' | 'mp3quran' | 'tafsirCenter' | 'quranpedia' | 'way2quran' | 'assabile' | 'archive' | 'quranicaudio' | 'everyayah';
   name: (copy: Messages['credits']) => string;
   work: (copy: Messages['credits']) => string;
   links: { label: 'website' | 'license' | 'terms'; url: string }[];
   /** Whether this build uses the source at all (omitted: always). */
   inThisBuild?: () => boolean;
 };
+
+/**
+ * The hosts of the timed whole-surah recordings this build plays (audio/timedPreview.ts): in a release, only those that
+ * passed every release gate (generated/timingRelease.ts), the owner's permission statement included; in development
+ * builds, the whole preview. A host is credited exactly when its files can play.
+ */
+export function timedRecordingHosts(reciters: readonly { timedPreview?: { surahs: Readonly<Record<number, { provider: string }>> } }[] = RECITERS): ReadonlySet<string> {
+  return new Set(reciters.flatMap((r) => Object.values(r.timedPreview?.surahs ?? {}).map((x) => x.provider)));
+}
 
 export const QURAN_SOURCES: readonly QuranSource[] = [
   {
@@ -94,5 +104,42 @@ export const QURAN_SOURCES: readonly QuranSource[] = [
     work: (copy) => copy.quranpediaWork,
     links: [{ label: 'website', url: 'https://quranpedia.net' }],
     inThisBuild: () => SURAH_PREVIEW_ENABLED && isSurahPreviewBundled(),
+  },
+  {
+    key: 'way2quran',
+    name: (copy) => copy.way2quranName,
+    work: (copy) => copy.way2quranWork,
+    links: [{ label: 'website', url: 'https://way2quran.com/' }],
+    inThisBuild: () => timedRecordingHosts().has('way2quran'),
+  },
+  {
+    key: 'assabile',
+    name: (copy) => copy.assabileName,
+    work: (copy) => copy.assabileWork,
+    links: [{ label: 'website', url: 'https://www.assabile.com/' }],
+    inThisBuild: () => timedRecordingHosts().has('assabile'),
+  },
+  {
+    key: 'archive',
+    name: (copy) => copy.archiveName,
+    work: (copy) => copy.archiveWork,
+    links: [{ label: 'website', url: 'https://archive.org/' }],
+    inThisBuild: () => timedRecordingHosts().has('archive'),
+  },
+  {
+    key: 'quranicaudio',
+    name: (copy) => copy.quranicaudioName,
+    work: (copy) => copy.quranicaudioWork,
+    links: [{ label: 'website', url: 'https://quranicaudio.com/' }],
+    inThisBuild: () => timedRecordingHosts().has('quranicaudio'),
+  },
+  {
+    // Per-ayah recordings (audio/perAyah.ts): development previews, or in a release only those released by
+    // tools/quran-audio/per-ayah/release-gate.mjs (generated/perAyahRelease.ts).
+    key: 'everyayah',
+    name: (copy) => copy.everyayahName,
+    work: (copy) => copy.everyayahWork,
+    links: [{ label: 'website', url: 'https://everyayah.com/' }],
+    inThisBuild: () => RECITERS.some((reciter) => reciter.perAyah?.provider === 'everyayah'),
   },
 ];

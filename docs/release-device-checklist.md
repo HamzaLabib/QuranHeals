@@ -132,7 +132,11 @@ Checks per surah and platform:
 - **`background`:** locked for 2 minutes, it continues.
 - **VBR also `far-seek`:** start the last ayah directly and note the delay.
 
-### Proposed evidence standard (a decision for you; not implemented)
+### Evidence standard
+
+**Implemented 2026-10-25:** class records, one per playback class and platform with real samples (`docs/audio/timing-release-device-tests.md`, "Class records"), are accepted alongside per-surah entries. They verify the player, never that a surah was listened to. The earlier proposal below is kept for its labelling rules.
+
+#### Earlier proposal
 
 Today's gate requires a passed per-surah record on both platforms. That is the most direct evidence, but costly
 across 399 surahs. A practical alternative that keeps the meanings separate:
