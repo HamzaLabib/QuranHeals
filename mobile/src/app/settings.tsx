@@ -37,6 +37,10 @@ import { useAppearancePreference } from '@/theme/useAppearancePreference';
 import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefresh';
 import { isWordMeaningsBundled } from '@/wordMeanings/bundledDataset';
 import { WORD_MEANINGS_ENABLED } from '@/wordMeanings/config';
+import { isMemorizationModeAvailable } from '@/memorization/config';
+import { memorizationLabels } from '@/memorization/labels';
+import { MushafGuideChooser } from '@/memorization/MushafGuideChooser';
+import { useMemorizationModeSetting } from '@/memorization/useMemorizationModeSetting';
 
 const APPEARANCE_MODES: readonly AppearanceMode[] = ['system', 'light', 'dark'];
 
@@ -47,9 +51,11 @@ const APPEARANCE_MODES: readonly AppearanceMode[] = ['system', 'light', 'dark'];
  *  2. Emotions — Emotions Language, Show Translation, Emotional Check-in.
  *  3. Quran — Favorite Reciter (the 17 reciters, each with its coverage; its
  *     offline download as a small icon beside the dropdown), Quran Translation,
- *     Keep Screen Awake, Word Meanings (where the feature exists), Wird Reminder,
- *     Random Quran Ayah, the offline Mushaf, and Mushaf Guide (opens the
- *     Mushaf's six-step guide again).
+ *     Keep Screen Awake, Wird Reminder, Random Quran Ayah, Word Meanings (where
+ *     the feature exists), Memorization Mode (where it exists), the offline
+ *     Mushaf, and Mushaf Guide (opens the Mushaf's six-step guide again; where
+ *     Memorization Mode exists, first a choice of it or the Memorization Mode
+ *     Guide). The owner's approved order (2026-10-24).
  *  4. Support — Report an Issue, Legal & Privacy.
  *  5. Account — AccountSection (sign in / out, Delete Account), unchanged.
  *
@@ -75,6 +81,10 @@ export default function SettingsScreen() {
   const { mode, setMode } = useAppearancePreference();
   const { enabled: keepAwake, setEnabled: setKeepAwake } = useKeepAwakePreference();
   const { visible: wordMeaningsVisible, setVisible: setWordMeaningsVisible } = useWordMeaningsVisibility();
+  const { visible: memorizationVisible, setVisible: setMemorizationVisible } = useMemorizationModeSetting();
+  const memorizationCopy = memorizationLabels(locale);
+  // Settings → Mushaf Guide's choice of guide (where Memorization Mode exists): open or not. Local UI state only.
+  const [isGuideChooserVisible, setIsGuideChooserVisible] = useState(false);
   const { reciterId: favoriteReciterId, setReciterId: setFavoriteReciterId } = useFavoriteReciter();
   const favoriteReciter = getReciter(favoriteReciterId);
   const { preference: translationPreference, setShowTranslation, setTranslationMode } = useQuranTranslationPreference();
@@ -96,6 +106,11 @@ export default function SettingsScreen() {
   // preference, storage, or the network.
   const [openSection, setOpenSection] = useState<SettingsSectionKey | null>(null);
   const [isReportVisible, setIsReportVisible] = useState(false);
+
+  /** The Mushaf's own guide, at step 1 (/mushaf?guide=…): nothing about it is saved or reset. */
+  const openMushafGuide = () => router.navigate({ pathname: '/mushaf', params: { guide: String(Date.now()) } });
+  /** The Memorization Mode Guide in the Mushaf (/mushaf?memorizationGuide=…): it changes no setting and records nothing. */
+  const openMemorizationGuide = () => router.navigate({ pathname: '/mushaf', params: { memorizationGuide: String(Date.now()) } });
 
   const toggleSection = (section: SettingsSectionKey) => {
     animateNextLayout();
@@ -338,6 +353,9 @@ export default function SettingsScreen() {
             />
           </View>
 
+          {reminderRow('wird', messages.notifications.wirdReminderTitle)}
+          {reminderRow('randomAyah', messages.notifications.randomAyahTitle)}
+
           {/* Word Meanings: a local switch (mushaf/wordMeaningsVisibilityPreference.ts), applied at once; OFF hides the Mushaf's المعاني button. Only where the feature exists (wordMeanings/config.ts, bundledDataset.ts). */}
           {WORD_MEANINGS_ENABLED && isWordMeaningsBundled() && (
             <View style={[styles.switchCard, isRtl && styles.optionRowRtl]}>
@@ -358,18 +376,35 @@ export default function SettingsScreen() {
             </View>
           )}
 
-          {reminderRow('wird', messages.notifications.wirdReminderTitle)}
-          {reminderRow('randomAyah', messages.notifications.randomAyahTitle)}
+          {/* Memorization Mode: a local switch (memorization/memorizationModePreference.ts, OFF by default), applied at once; it shows or hides the Mushaf's Eye beside the page number (OFF also leaves Memorization Mode). Only where the feature exists (memorization/config.ts). */}
+          {isMemorizationModeAvailable() && (
+            <View style={[styles.switchCard, isRtl && styles.optionRowRtl]}>
+              <View style={styles.optionTextWrap}>
+                <Text style={[styles.optionLabel, direction]}>{memorizationCopy.settingTitle}</Text>
+              </View>
+              <Switch
+                testID="settings-memorization-mode"
+                accessibilityRole="switch"
+                accessibilityLabel={memorizationCopy.settingTitle}
+                accessibilityState={{ checked: memorizationVisible }}
+                value={memorizationVisible}
+                onValueChange={setMemorizationVisible}
+                trackColor={{ false: colors.border, true: colors.accentFill }}
+                ios_backgroundColor={colors.border}
+                thumbColor={colors.onAccentFill}
+              />
+            </View>
+          )}
 
           {/* The offline Mushaf (shared device content, the same signed in or not): one compact row with its actual status; tapping it downloads when a download is needed. */}
           <OfflineMushafSettingsRow messages={messages} locale={locale} direction={direction} isRtl={isRtl} />
 
-          {/* Mushaf Guide: the Mushaf's own six-step guide (components/MushafGuide.tsx), opened there at step 1; nothing is saved or reset. The title alone, with the Mushaf toolbar's own Help (?) icon, always shown here (the toolbar's hides once the guide is finished). */}
+          {/* Mushaf Guide: the Mushaf's own six-step guide (components/MushafGuide.tsx), opened there at step 1; nothing is saved or reset. The title alone, with the Mushaf toolbar's own Help (?) icon, always shown here (the toolbar's hides once the guide is finished). Where Memorization Mode exists, a choice first: that guide or the Memorization Mode Guide. */}
           <Pressable
             testID="settings-mushaf-guide"
             accessibilityRole="button"
             accessibilityLabel={messages.settings.mushafGuideTitle}
-            onPress={() => router.navigate({ pathname: '/mushaf', params: { guide: String(Date.now()) } })}
+            onPress={() => (isMemorizationModeAvailable() ? setIsGuideChooserVisible(true) : openMushafGuide())}
             style={({ pressed }) => [styles.switchCard, isRtl && styles.optionRowRtl, pressed && styles.pressed]}>
             <CircleHelp size={18} color={colors.icon} strokeWidth={2} />
             <View style={styles.optionTextWrap}>
@@ -422,6 +457,14 @@ export default function SettingsScreen() {
         <AccountSection locale={locale} messages={messages} direction={direction} isRtl={isRtl} />
       </ScrollView>
       <ReportIssueSheet visible={isReportVisible} onClose={() => setIsReportVisible(false)} variant="settings" />
+      {isMemorizationModeAvailable() && (
+        <MushafGuideChooser
+          visible={isGuideChooserVisible}
+          onNormalGuide={() => { setIsGuideChooserVisible(false); openMushafGuide(); }}
+          onMemorizationGuide={() => { setIsGuideChooserVisible(false); openMemorizationGuide(); }}
+          onClose={() => setIsGuideChooserVisible(false)}
+        />
+      )}
       <ConfirmSheet
         visible={isPermissionSheetVisible}
         testID="settings-notification-permission"

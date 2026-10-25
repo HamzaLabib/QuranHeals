@@ -18,6 +18,7 @@ import { QuranFontSizePreferenceProvider } from '@/localization/useQuranFontSize
 import { QuranTranslationPreferenceProvider } from '@/localization/useQuranTranslationPreference';
 import { KeepAwakePreferenceProvider } from '@/mushaf/useKeepAwakePreference';
 import { WordMeaningsVisibilityProvider } from '@/mushaf/useWordMeaningsVisibility';
+import { MemorizationModeSettingProvider } from '@/memorization/useMemorizationModeSetting';
 import { useNotificationResponseRouting } from '@/notifications/useNotificationResponseRouting';
 import { NotificationsProvider } from '@/notifications/useNotifications';
 import { AppearancePreferenceProvider, useAppearancePreference } from '@/theme/useAppearancePreference';
@@ -78,13 +79,15 @@ export default function RootLayout() {
             <QuranFontSizePreferenceProvider>
               <KeepAwakePreferenceProvider>
                 <WordMeaningsVisibilityProvider>
-                  <FavoriteReciterProvider>
-                    <NotificationsProvider>
-                      <AuthProvider>
-                        <ThemedRoot />
-                      </AuthProvider>
-                    </NotificationsProvider>
-                  </FavoriteReciterProvider>
+                  <MemorizationModeSettingProvider>
+                    <FavoriteReciterProvider>
+                      <NotificationsProvider>
+                        <AuthProvider>
+                          <ThemedRoot />
+                        </AuthProvider>
+                      </NotificationsProvider>
+                    </FavoriteReciterProvider>
+                  </MemorizationModeSettingProvider>
                 </WordMeaningsVisibilityProvider>
               </KeepAwakePreferenceProvider>
             </QuranFontSizePreferenceProvider>

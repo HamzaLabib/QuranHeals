@@ -85,6 +85,15 @@ import { useThemedStyles, useThemeName } from '@/theme/useTheme';
 import { devLog } from '@/utils/devLog';
 import { goBackOrHome } from '@/utils/goBackOrHome';
 import { MushafFeatureLayer } from '@/mushafFeatures/MushafFeatureLayer';
+import { isMemorizationModeAvailable } from '@/memorization/config';
+import { MemorizationGuideIllustration } from '@/memorization/GuideIllustration';
+import { memorizationLabels } from '@/memorization/labels';
+import { MemorizationAllControls, MemorizationEyeButton } from '@/memorization/MemorizationControls';
+import { MemorizationMenu } from '@/memorization/MemorizationMenu';
+import { MEMORIZATION_GUIDE_STEPS, memorizationGuideNote, memorizationGuideStepFor, memorizationGuideTarget } from '@/memorization/memorizationGuide';
+import { enterMemorization, hideAllAyahs, isAyahHidden, MEMORIZATION_OFF, memorizationOnPage, showAllAyahs, toggleMemorizedAyah, type MemorizationPeek, type MemorizationState } from '@/memorization/memorizationState';
+import { placeMemorizationControls, type Box as MemorizationBox } from '@/memorization/placement';
+import { useMemorizationModeSetting } from '@/memorization/useMemorizationModeSetting';
 
 /**
  * The Mushaf reader (/mushaf): a plain Back arrow in a slim row under the
@@ -439,6 +448,19 @@ export default function MushafScreen() {
     setGuideStep(0);
     setGuideVisible(true);
   }
+  // The Memorization Mode Guide (memorization/memorizationGuide.ts): only from Settings → Quran → Mushaf Guide
+  // (/mushaf?memorizationGuide=<time>), at its first step, once per request. It records nothing, changes no setting
+  // and never enters Memorization Mode; the Mushaf guide's saved progress is not touched.
+  const [memorizationGuideStep, setMemorizationGuideStep] = useState<number | null>(null);
+  const memorizationGuideRequest = typeof params.memorizationGuide === 'string' ? params.memorizationGuide : '';
+  const [handledMemorizationGuideRequest, setHandledMemorizationGuideRequest] = useState('');
+  if (memorizationGuideRequest && memorizationGuideRequest !== handledMemorizationGuideRequest) {
+    setHandledMemorizationGuideRequest(memorizationGuideRequest);
+    if (isMemorizationModeAvailable()) {
+      setOverlay(null);
+      setMemorizationGuideStep(0);
+    }
+  }
   // An ayah tap waits DOUBLE_TAP_MS before its popup opens, so a double-tap (the zoom reset) never opens one.
   const pendingAyahPopup = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [ayahBusy, setAyahBusy] = useState(false);
@@ -526,6 +548,28 @@ export default function MushafScreen() {
   const [isConfirming, setIsConfirming] = useState(false);
   const confirmingRef = useRef(false);
   const [confirmFailed, setConfirmFailed] = useState(false);
+  // Memorization Mode (memorization/): offered — its Eye shown — only where the feature exists and Settings → Quran →
+  // Memorization Mode is ON; entered and left only with the Eye. Which ayahs of the page are revealed, and a held peek.
+  const memorizationSetting = useMemorizationModeSetting();
+  const memorizationOffered = isMemorizationModeAvailable() && memorizationSetting.isReady && memorizationSetting.visible;
+  const memorizationCopy = memorizationLabels(locale);
+  const [memorization, setMemorization] = useState<MemorizationState>(MEMORIZATION_OFF);
+  const [peek, setPeek] = useState<MemorizationPeek>(null);
+  // The gold Eye held: where its Show All / Hide All card opens (window coordinates), or null while closed.
+  const [memorizationMenuAt, setMemorizationMenuAt] = useState<PopupAnchor | null>(null);
+  // Applied while rendering (React's "adjust state when a prop changes"): the setting turned OFF leaves Memorization
+  // Mode at once (every ayah drawn again; the page and the ورد as they are); another page starts hidden.
+  if (memorization.active && !memorizationOffered) setMemorization(MEMORIZATION_OFF);
+  else if (memorization.active && memorization.page !== page) setMemorization(memorizationOnPage(memorization, page));
+  // Show All / Hide All's natural width, as measured (MemorizationAllControls).
+  const [memorizationAllWidth, setMemorizationAllWidth] = useState<number | null>(null);
+  // Page 604's two links as laid out in their band on the page number's line: the Eye never meets them.
+  const [endLinkBoxes, setEndLinkBoxes] = useState<{ complete?: LayoutRectangle; dua?: LayoutRectangle }>({});
+  const measureEndLink = (kind: 'complete' | 'dua', box: LayoutRectangle) => setEndLinkBoxes((now) => {
+    const before = now[kind];
+    // Sub-pixel changes are ignored (Android snaps a box to whole pixels by where it is).
+    return before && Math.abs(before.x - box.x) < 0.5 && Math.abs(before.y - box.y) < 0.5 && Math.abs(before.width - box.width) < 0.5 && Math.abs(before.height - box.height) < 0.5 ? now : { ...now, [kind]: box };
+  });
 
   // On opening: the stops and the active one. Without ?page=, the active stop's saved page opens.
   // Afterwards the list follows every change to reading data (أورادي وختماتي, Home) and the account, without moving the page.
@@ -796,7 +840,7 @@ export default function MushafScreen() {
   const listeningReciter = () => (playback.phase !== 'idle' && playback.mode !== 'single' ? playback.pendingReciterId ?? playback.preferredReciterId ?? playback.reciterId : null) ?? favoriteReciterId;
   // Following: the page turns by itself to the recited ayah's page — after any popup, sheet or the guide is closed,
   // so nothing open is ever moved from under the reader. No ورد, Khatma or last browsed page changes.
-  const blockingOverlay = overlay !== null || isReflectionVisible || sharing !== null || guideVisible || isWirdOpen || reached !== null || khatmaNotice !== null || featureSheetOpen;
+  const blockingOverlay = overlay !== null || isReflectionVisible || sharing !== null || guideVisible || isWirdOpen || reached !== null || khatmaNotice !== null || featureSheetOpen || memorizationGuideStep !== null || memorizationMenuAt !== null;
   // Applied while rendering (React's "adjust state when a prop changes", as for ?page= above): no extra commit.
   if (following && playingPage !== null && playingPage !== page && !blockingOverlay) {
     setAutoTurnedPage(playingPage);
@@ -1058,6 +1102,13 @@ export default function MushafScreen() {
     return { qpc, svgShown, first, drawn: pageWidth > 0 && (qpc || svgShown) && first };
   };
   const drawn = partsOf(page, content).drawn;
+  // Memorization Mode needs a page drawn in QPC V1, where single ayahs can be hidden. Page 61's Quran SVG (shown only
+  // where its QPC V1 page or fonts are not available) cannot: no Eye there, and Memorization Mode, if on, ends as that
+  // page appears (every ayah drawn; the setting is untouched). The Eye returns as soon as a QPC V1 page is shown.
+  const memorizationUnsupported = Boolean(partsOf(page, content).svgShown);
+  if (memorization.active && memorizationUnsupported) setMemorization(MEMORIZATION_OFF);
+  // The Eye's card never outlives Memorization Mode (left by the Eye, the setting or such a page).
+  if (!memorization.active && memorizationMenuAt !== null) setMemorizationMenuAt(null);
 
   // The first-time guide: read whether it was seen; show it by itself once the page and its controls are drawn
   // (the Surah head registered), at the step reached before, and keep it until the user closes or finishes it.
@@ -1070,12 +1121,13 @@ export default function MushafScreen() {
   useEffect(() => {
     // Already open (from Settings): it is not opened over itself at another step.
     if (guideVisible) guideAutoShown.current = true;
-    if (guideAutoShown.current || guideProgress?.status !== 'unseen' || !guideReady) return;
+    // Never over the Memorization Mode Guide: the first-time guide waits until that one is closed.
+    if (guideAutoShown.current || guideProgress?.status !== 'unseen' || !guideReady || memorizationGuideStep !== null) return;
     guideAutoShown.current = true;
     closeOverlay();
     setGuideStep(guideProgress.step);
     setGuideVisible(true);
-  }, [guideProgress, guideReady, guideVisible, closeOverlay]);
+  }, [guideProgress, guideReady, guideVisible, closeOverlay, memorizationGuideStep]);
   const showGuideStep = (step: number) => {
     setGuideStep(step);
     // Progress survives a reload: reopened at this step until the guide is closed or finished.
@@ -1100,6 +1152,96 @@ export default function MushafScreen() {
   // Each step's own text (mushaf/mushafGuide.ts), in the guide's order.
   const guideTexts = GUIDE_STEPS.map((step) => copy[step.text]);
   const iconColor = (dark ? MUSHAF_PANEL_COLORS.dark : MUSHAF_PANEL_COLORS.light).icon;
+
+  /** The Eye: enters Memorization Mode on this page (every ayah hidden), or leaves it (every ayah drawn again). */
+  const toggleMemorization = () => {
+    closeOverlay();
+    setSelectedVerseKey(null);
+    setPeek(null);
+    setMemorizationMenuAt(null);
+    setMemorization(memorization.active ? MEMORIZATION_OFF : enterMemorization(page));
+  };
+  /** Show All / Hide All: every ayah of the page being read revealed, or hidden (the buttons, the Eye's card and actions). */
+  const showAllMemorized = () => setMemorization((current) => showAllAyahs(current, page, content.status === 'qpc' ? content.layout.verseKeys : []));
+  const hideAllMemorized = () => setMemorization((current) => hideAllAyahs(current, page));
+  /** Memorization Mode: a tap on an ayah — its words or its number — shows or hides it. No popup, no audio. */
+  const toggleMemorizedVerse = (verseKey: string) => setMemorization((current) => toggleMemorizedAyah(current, page, verseKey));
+  /** A touch held on an ayah shows it while held (null: released); what is revealed stays as it was. */
+  const peekVerse = (verseKey: string | null) => setPeek((current) => (verseKey === null ? (current === null ? current : null) : { page, verseKey }));
+  const memorizationGold = MUSHAF_WIRD_MARKER[appearance.background].glyph;
+  // Show All / Hide All's place beside the page number (memorization/placement.ts). Page 604 in Normal Mode shares that
+  // line with its links: placed once they are measured (never first beside the number, then moved).
+  const endLinksRowLeft = wirdRowSpan ? (area.width - pageWidth) / 2 : 0;
+  const endLinkObstacles: MemorizationBox[] | null = endLinks && !fullScreen
+    ? (endLinkBoxes.complete && (!KHATM_DUA || endLinkBoxes.dua)
+      ? [endLinkBoxes.complete, endLinkBoxes.dua].filter((box): box is LayoutRectangle => box !== undefined).map((box) => ({
+        // Their touch targets: 8 pt either side and endLinks.slopTop above (the links' hitSlop).
+        left: endLinksRowLeft + box.x - 8,
+        top: endLinks.band.top + box.y - endLinks.slopTop,
+        width: box.width + 16,
+        height: box.height + endLinks.slopTop,
+      }))
+      : null)
+    : [];
+  const memorizationPlace = memorizationOffered && !memorizationUnsupported && pageWidth > 0 && endLinkObstacles !== null
+    ? placeMemorizationControls({
+      areaWidth: area.width,
+      pageWidth,
+      tilesDown: fit.tilesDown,
+      pageTop: fullScreen ? (fit.viewport.height - pageHeight) / 2 : 0,
+      allWidth: memorizationAllWidth,
+      obstacles: endLinkObstacles,
+    })
+    : null;
+  // Show All / Hide All beside the page number: unseen and untouchable while zoomed (the page number is then elsewhere)
+  // or before the page is drawn, as the ورد row.
+  const memorizationControlsHidden = zoomed || !drawn;
+  // The Eye: always in the top bar, on every page, in both reading modes, while the setting is ON and the page is drawn
+  // in QPC V1 (not page 61's Quran SVG); like the bar's other icons it stays while zoomed, unseen only before the page
+  // is drawn.
+  const memorizationEyeShown = memorizationOffered && !memorizationUnsupported && pageWidth > 0;
+  const memorizationEye = (style: object | null, slopTop: number) => (
+    <GuideTargetsProvider register={registerGuideTarget}>
+      <MemorizationEyeButton
+        active={memorization.active}
+        labels={memorizationCopy}
+        color={iconColor}
+        gold={memorizationGold}
+        style={style}
+        slopTop={slopTop}
+        hidden={!drawn}
+        onPress={toggleMemorization}
+        onLongPress={(at) => setMemorizationMenuAt(at ?? middle())}
+        onShowAll={showAllMemorized}
+        onHideAll={hideAllMemorized}
+      />
+    </GuideTargetsProvider>
+  );
+  const memorizationAll = (place: { style: object; slopTop: number; shrunk: boolean } | null, hidden: boolean, measureOnly = false) => (
+    <GuideTargetsProvider register={registerGuideTarget}>
+      <MemorizationAllControls
+        labels={memorizationCopy}
+        dark={dark}
+        rtl={rtl}
+        place={place}
+        hidden={hidden}
+        onShowAll={showAllMemorized}
+        onHideAll={hideAllMemorized}
+        onMeasure={(width) => setMemorizationAllWidth((now) => (now !== null && Math.abs(now - width) < 0.5 ? now : width))}
+        measureOnly={measureOnly}
+      />
+    </GuideTargetsProvider>
+  );
+  // Show All / Hide All: on the page number's line where it fits (unseen until measured), else in the top bar.
+  const allOnLine = memorization.active && memorizationPlace !== null && (memorizationAllWidth === null || memorizationPlace.all !== null);
+  const allInBar = memorization.active && memorizationPlace !== null && !allOnLine;
+
+  // The Memorization Mode Guide's step, and what it points at now. Its Show All / Hide All step says where this layout
+  // puts them (beside the page number, or in the top bar where there is no room), measured, never assumed.
+  const allInBarLayout = memorizationPlace !== null && memorizationAllWidth !== null && memorizationPlace.all === null;
+  const memorizationGuide = memorizationGuideStep === null ? null : memorizationGuideStepFor(MEMORIZATION_GUIDE_STEPS[memorizationGuideStep], allInBarLayout);
+  const isGuideTargetDrawn = (target: GuideTarget) => guideTargets.names.split(',').includes(target);
+  const memorizationGuideNoteKey = memorizationGuide ? memorizationGuideNote(memorizationGuide, isGuideTargetDrawn, memorizationOffered && memorizationUnsupported) : null;
   return (
     <GestureHandlerRootView style={[styles.reader, { backgroundColor: MUSHAF_BACKGROUNDS[appearance.background].paper, paddingTop: insets.top, paddingLeft: insets.left, paddingRight: insets.right }]}>
       {/*
@@ -1128,6 +1270,8 @@ export default function MushafScreen() {
             onFollow={followRecitation}
             panelTop={insets.top + BACK_BAR_HEIGHT}
           />
+          {/* Memorization Mode's Show All / Hide All where the page number's line has no room for it, unless a recitation's chip is here. */}
+          {allInBar && !audioActive && memorizationAll(null, memorizationControlsHidden)}
         </View>
         <View style={styles.barEnd}>
         {/* The headphones (onAudioButton): whenever nothing is actively playing, in both modes. Playing: the chip instead. */}
@@ -1162,6 +1306,10 @@ export default function MushafScreen() {
             <CircleHelp size={21} color={iconColor} />
           </Pressable>
         )}
+        {/* Memorization Mode's Eye: one place on every page and in every state, right beside Expand / Collapse (the
+            bar's one icon always there; the group is right-aligned), so neither the recitation's chip taking the
+            headphones' place nor the Help icon coming or going ever moves it. */}
+        {memorizationEyeShown && memorizationEye(styles.backButton, 44 - BACK_BAR_HEIGHT)}
         <Pressable
           testID="mushaf-fullscreen-toggle"
           accessibilityRole="button"
@@ -1213,8 +1361,11 @@ export default function MushafScreen() {
                       width={textArea.width}
                       height={textArea.height}
                       selectedVerseKey={highlightedOn(n, isCurrent)}
-                      onSelectVerse={isCurrent ? selectVerse : ignoreVerse}
-                      onPressMarker={isCurrent ? pressMarker : undefined}
+                      // Memorization Mode: a tap on an ayah's words or number shows or hides it (no popup, no audio).
+                      onSelectVerse={isCurrent ? (memorization.active ? toggleMemorizedVerse : selectVerse) : ignoreVerse}
+                      onPressMarker={isCurrent ? (memorization.active ? toggleMemorizedVerse : pressMarker) : undefined}
+                      isAyahHidden={memorization.active ? (verseKey) => isAyahHidden(memorization, n, verseKey, peek) : undefined}
+                      onPeekVerse={memorization.active && isCurrent ? peekVerse : undefined}
                       guideTargets={isCurrent}
                       accessibilityLabel={`${copy.pageLabel} ${n}`}
                       accessibilityHint={copy.tapHint}
@@ -1239,7 +1390,9 @@ export default function MushafScreen() {
                       highlight={highlight}
                       area={textArea}
                       selectedVerseKey={highlightedOn(n, isCurrent)}
-                      onSelectVerse={isCurrent ? selectVerse : ignoreVerse}
+                      // Page 61's Quran SVG (shown only where its QPC V1 page or fonts are not available) cannot hide
+                      // single ayahs: in Memorization Mode it stays drawn, and its taps open nothing.
+                      onSelectVerse={isCurrent && !memorization.active ? selectVerse : ignoreVerse}
                       accessibilityLabel={`${copy.pageLabel} ${n}`}
                       accessibilityHint={copy.tapHint}
                       accessibilityActions={isCurrent ? pageActions : undefined}
@@ -1329,6 +1482,7 @@ export default function MushafScreen() {
                 accessibilityLabel={messages.khatmDua.open}
                 onPress={() => router.push('/khatm-dua')}
                 hitSlop={{ top: endLinks.slopTop, bottom: 0, left: 8, right: 8 }}
+                onLayout={(event) => measureEndLink('dua', event.nativeEvent.layout)}
                 style={({ pressed }) => [styles.duaLink, styles.endLink, { right: spacing.md }, pressed && styles.pressed]}>
                 <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} style={[styles.duaLinkText, styles.textRight, { color: iconColor }]}>{messages.khatmDua.open}</Text>
               </Pressable>
@@ -1339,7 +1493,10 @@ export default function MushafScreen() {
               accessibilityLabel={messages.khatma.completeAction}
               onPress={() => void completeKhatma()}
               hitSlop={{ top: endLinks.slopTop, bottom: 0, left: 8, right: 8 }}
-              onLayout={(event) => setEndLinkBottom(endLinks.band.top + event.nativeEvent.layout.y + event.nativeEvent.layout.height)}
+              onLayout={(event) => {
+                setEndLinkBottom(endLinks.band.top + event.nativeEvent.layout.y + event.nativeEvent.layout.height);
+                measureEndLink('complete', event.nativeEvent.layout);
+              }}
               style={({ pressed }) => [styles.duaLink, styles.endLink, { left: spacing.md }, pressed && styles.pressed]}>
               <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} style={[styles.duaLinkText, styles.textLeft, { color: iconColor }]}>{messages.khatma.completeAction}</Text>
             </Pressable>
@@ -1370,6 +1527,20 @@ export default function MushafScreen() {
             onOpenChange={setFeatureSheetOpen}
             onPillRoom={setFeaturePillRoom}
           />
+        )}
+        {/*
+          Memorization Mode (memorization/): while Memorization Mode is on, Show All / Hide All right beside the page
+          number, in both reading modes (the Eye itself is in the top bar). Placed from the page's real geometry and
+          page 604's measured links (placement.ts); where the line has no room, the top bar holds them instead (and the
+          gold Eye, held, always offers them). Nothing of the page moves.
+        */}
+        {/* The Memorization Mode Guide open, Memorization Mode off: Show All / Hide All measured only (never seen). */}
+        {memorizationGuideStep !== null && !memorization.active && memorizationPlace !== null && memorizationAll(null, true, true)}
+        {allOnLine && memorizationAll(
+          memorizationPlace?.all
+            ? { style: { position: 'absolute', left: memorizationPlace.all.left, top: memorizationPlace.all.top, width: memorizationPlace.all.width, height: memorizationPlace.all.height }, slopTop: memorizationPlace.all.slopTop, shrunk: memorizationPlace.all.shrunk }
+            : { style: { position: 'absolute', left: 0, top: 0 }, slopTop: 0, shrunk: false },
+          memorizationControlsHidden || !memorizationPlace?.all,
         )}
       </View>
 
@@ -1429,6 +1600,39 @@ export default function MushafScreen() {
         onFinish={() => endGuide(true)}
       />
 
+      {/*
+        The Memorization Mode Guide (memorization/memorizationGuide.ts), from Settings → Quran → Mushaf Guide: the same
+        overlay and buttons, its own six steps, pointing at the real controls where they are drawn. Mounted only while
+        open; closing or finishing it records nothing.
+      */}
+      {memorizationGuide && memorizationGuideStep !== null && (
+        <MushafGuide
+          testID="memorization-guide"
+          visible
+          step={memorizationGuideStep}
+          total={MEMORIZATION_GUIDE_STEPS.length}
+          text={memorizationCopy.guide[memorizationGuide.text]}
+          note={memorizationGuideNoteKey ? memorizationCopy.guide[memorizationGuideNoteKey] : null}
+          illustration={memorizationGuide.illustration
+            ? <MemorizationGuideIllustration kind={memorizationGuide.illustration} title={memorizationCopy.settingTitle} dark={dark} rtl={rtl} color={iconColor} gold={memorizationGold} />
+            : undefined}
+          labels={{ next: copy.guideNext, back: copy.guideBack, close: copy.guideClose, start: memorizationCopy.guide.done, stepOf: copy.guideStepOf, notOnPage: '', reopenHint: memorizationCopy.guide.reopenHint }}
+          dark={dark}
+          rtl={rtl}
+          direction={{ writingDirection: rtl ? 'rtl' : 'ltr', textAlign: rtl ? 'right' : 'left' }}
+          safe={{ top: insets.top, bottom: insets.bottom }}
+          getTarget={() => {
+            const target = memorizationGuideTarget(memorizationGuide, isGuideTargetDrawn);
+            return target ? guideTargetViews.current.get(target) : null;
+          }}
+          measureKey={`${guideTargets.changes}|${page}|${fullScreen}|${zoomed}|${pageWidth}`}
+          onNext={() => setMemorizationGuideStep(Math.min(MEMORIZATION_GUIDE_STEPS.length - 1, memorizationGuideStep + 1))}
+          onBack={() => setMemorizationGuideStep(Math.max(0, memorizationGuideStep - 1))}
+          onClose={() => setMemorizationGuideStep(null)}
+          onFinish={() => setMemorizationGuideStep(null)}
+        />
+      )}
+
       <MushafPageSelector
         visible={overlay?.kind === 'pageSelector'}
         currentPage={page}
@@ -1472,6 +1676,20 @@ export default function MushafScreen() {
         onShare={() => void shareSelected()}
         onClose={dismissAyahPopup}
       />
+
+      {/* The gold Eye held: Show All / Hide All, whatever else is on screen (the recitation's chip included). Mounted
+          only while open, so the reader without Memorization Mode is exactly as before. */}
+      {memorization.active && memorizationMenuAt !== null && (
+        <MemorizationMenu
+          anchor={memorizationMenuAt}
+          labels={memorizationCopy}
+          dark={dark}
+          rtl={rtl}
+          onShowAll={showAllMemorized}
+          onHideAll={hideAllMemorized}
+          onClose={() => setMemorizationMenuAt(null)}
+        />
+      )}
 
       {/* An ayah's number: Apply to the active ورد. */}
       <MushafWirdApply
