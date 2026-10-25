@@ -35,6 +35,10 @@ const envSchema = z
     // never enables them before TRUST_PROXY_HOPS has been verified; the
     // global per-IP limit always applies regardless.
     ENDPOINT_RATE_LIMITS: z.preprocess((value) => (value === '' ? undefined : value), z.enum(['on', 'off']).default('off')),
+    // 'on' refuses sign-in tokens not bound to a single-use server challenge (auth/signInChallenge.ts). Off by default
+    // until every supported app build binds both providers and the native flows are verified on devices; while off,
+    // tokens that ARE bound to a challenge are still single-use.
+    AUTH_NONCE_REQUIRED: z.preprocess((value) => (value === '' ? undefined : value), z.enum(['on', 'off']).default('off')),
     // 'true' logs a description of the forwarding chain for GET /api/health
     // requests that carry `X-Quran-Heals-IP-Check: 1` — address kinds and
     // keyed hashes only, never real IPs — to determine TRUST_PROXY_HOPS.

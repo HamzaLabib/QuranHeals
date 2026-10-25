@@ -22,6 +22,7 @@ import type { AccountRouterDeps } from './routes';
 import { createApiRouter } from './routes';
 import { MongooseAccountDeletionService } from './services/MongooseAccountDeletionService';
 import { MongooseAppleCredentialRepository } from './services/MongooseAppleCredentialRepository';
+import { MongooseAuthChallengeRepository } from './services/MongooseAuthChallengeRepository';
 import { MongooseIssueReportRepository } from './services/MongooseIssueReportRepository';
 import { MongooseQuranRepository } from './services/MongooseQuranRepository';
 import { MongooseSessionRepository } from './services/MongooseSessionRepository';
@@ -29,6 +30,7 @@ import { MongooseSyncRepository } from './services/MongooseSyncRepository';
 import { MongooseUserRepository } from './services/MongooseUserRepository';
 import type { AccountDeletionService } from './services/AccountDeletionService';
 import type { AppleCredentialRepository } from './services/AppleCredentialRepository';
+import type { AuthChallengeRepository } from './services/AuthChallengeRepository';
 import type { IssueReportRepository } from './services/IssueReportRepository';
 import type { QuranRepository } from './services/QuranRepository';
 import type { SessionRepository } from './services/SessionRepository';
@@ -45,6 +47,9 @@ type AppOptions = {
   onIssueReportSaved?: () => void;
   accountDeletionService?: AccountDeletionService;
   appleCredentialRepository?: AppleCredentialRepository;
+  authChallengeRepository?: AuthChallengeRepository;
+  /** Tests only: override AUTH_NONCE_REQUIRED (auth/signInChallenge.ts). */
+  nonceRequired?: boolean;
   appleRevocationClient?: AppleRevocationClient;
   googleVerifier?: GoogleTokenVerifier;
   appleVerifier?: AppleTokenVerifier;
@@ -83,6 +88,8 @@ export function createApp(options: AppOptions = {}) {
     onIssueReportSaved: options.onIssueReportSaved,
     accountDeletionService: options.accountDeletionService ?? new MongooseAccountDeletionService(),
     appleCredentialRepository: options.appleCredentialRepository ?? new MongooseAppleCredentialRepository(),
+    authChallengeRepository: options.authChallengeRepository ?? new MongooseAuthChallengeRepository(),
+    nonceRequired: options.nonceRequired,
     appleRevocationClient: options.appleRevocationClient ?? new HttpAppleRevocationClient(),
     googleVerifier: options.googleVerifier ?? new GoogleAuthLibraryVerifier(),
     appleVerifier: options.appleVerifier ?? new AppleJwksVerifier(),
@@ -131,7 +138,8 @@ export function createApp(options: AppOptions = {}) {
     // after requireAuth.
     app.post('/api/issues', rateLimiters.issueReports);
     app.post(['/api/auth/google', '/api/auth/apple'], rateLimiters.signIn);
-    app.post(['/api/auth/refresh', '/api/auth/logout'], rateLimiters.sessionRefresh);
+    // A challenge is cheap and requested once per sign-in attempt: the session limit's budget, not sign-in's.
+    app.post(['/api/auth/refresh', '/api/auth/logout', '/api/auth/challenge'], rateLimiters.sessionRefresh);
   }
 
   // Public, outside /api: the OS verification files and /ayah/<s>/<a> links.

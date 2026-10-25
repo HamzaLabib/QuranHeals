@@ -7,6 +7,7 @@ import { createHealthController, type DatabaseHealthCheck } from '../controllers
 import { createRequireAuth } from '../middleware/requireAuth';
 import type { AccountDeletionService } from '../services/AccountDeletionService';
 import type { AppleCredentialRepository } from '../services/AppleCredentialRepository';
+import type { AuthChallengeRepository } from '../services/AuthChallengeRepository';
 import type { IssueReportRepository } from '../services/IssueReportRepository';
 import type { QuranRepository } from '../services/QuranRepository';
 import type { SessionRepository } from '../services/SessionRepository';
@@ -31,6 +32,9 @@ export type AccountRouterDeps = {
   appleRevocationClient: AppleRevocationClient;
   googleVerifier: GoogleTokenVerifier;
   appleVerifier: AppleTokenVerifier;
+  authChallengeRepository: AuthChallengeRepository;
+  /** Tests only: override AUTH_NONCE_REQUIRED. */
+  nonceRequired?: boolean;
 };
 
 export function createApiRouter(
@@ -64,6 +68,8 @@ export function createApiRouter(
       appleVerifier: accountDeps.appleVerifier,
       appleRevocationClient: accountDeps.appleRevocationClient,
       appleCredentialRepository: accountDeps.appleCredentialRepository,
+      authChallengeRepository: accountDeps.authChallengeRepository,
+      nonceRequired: accountDeps.nonceRequired,
       requireAuth,
     }),
   );

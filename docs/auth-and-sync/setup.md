@@ -86,11 +86,17 @@ Apple Sign In is iOS-only in this app: Android and web never show an Apple butto
   - **Forgotten-password reset:** the token must also be issued after the current sync key.
   - **Account deletion, Google:** always requires the fresh sign-in.
   - **Account deletion, Apple:** requires it only when no revocation credential is stored. Apple's authorization is revoked before any data is deleted.
-- **Deferred (P2, before public launch): nonce / request binding.** Provider ID tokens aren't bound to a server-issued one-time challenge, so a stolen ID token can be replayed until it expires (Google: about 1 hour). Doing this properly needs:
-  - a challenge endpoint and a consumable server-side store;
-  - passing the nonce through both native SDKs, and confirming on real devices how Apple's native flow and Google's code flow carry it into the token (hashed or raw).
-
-  That can't be verified before device QA. A partial version would only add false confidence. Audience restriction limits the risk to tokens issued to Quran Heals itself.
+- **Nonce / request binding (2026-10-24: server, Apple and Google done; enforcement off; device checks pending, docs/release-device-checklist.md section D).**
+  - `POST /api/auth/challenge` issues a random 256-bit nonce, valid for 10 minutes (`backend/src/auth/signInChallenge.ts`). Only its SHA-256 is stored (`AuthChallenge`, no user, device or address), and a TTL index purges it after 2 hours, past the providers' 1-hour tokens.
+  - At sign-in, a verified token whose `nonce` claim matches a challenge must consume it atomically. A second use (a replay) is always refused with 401. An expired challenge is refused only when binding is required; while it is not, it counts as unbound (a sheet left open, a web page asleep past its refresh), which is no weaker than the unbound tokens accepted anyway.
+  - Storage: an unused challenge is purged 10 minutes after it expires; a consumed one is kept for 2 hours, past the providers' 1-hour tokens, to recognise replays. There is no dedicated limiter that is always on: an always-on per-IP limit is unsafe until `TRUST_PROXY_HOPS` is verified (the reason endpoint limits are off by default). The global per-IP limit always applies, and the session limit too when `ENDPOINT_RATE_LIMITS=on`. The claim may be the nonce itself or its SHA-256: both are accepted, because Apple documents only "an arbitrary string". The form that matched is stored on the challenge (`consumedForm`) and logged (`auth: apple sign-in bound to a challenge (nonce raw)`), so the device check records what each native flow really does. No identifier is logged.
+  - **Apple:** the app requests a challenge on tap and passes it to `signInAsync({ nonce })` (`mobile/src/auth/appleAuth.ts`). If no challenge can be fetched, sign-in goes ahead unbound.
+  - **Google** (`mobile/src/auth/googleAuth.ts`, `useGoogleAuthRequest({ bindSignIn })`), bound for guests' sign-in only:
+    - **iOS and Android:** the challenge is fetched on the tap (nothing for guests who only open Settings); the prompt waits for expo-auth-session's rebuilt request carrying it as the OpenID Connect `nonce`. If the request doesn't appear within 5 s, or no challenge can be fetched, it prompts unbound.
+    - **Web:** the popup must open from the tap itself, so the challenge is fetched ahead while the guest's sign-in button is shown, refreshed every 8 minutes and after each attempt, and the tap prompts synchronously.
+    - Re-authentication (deletion and reset) is not bound: those endpoints don't consume challenges.
+  - `AUTH_NONCE_REQUIRED` (backend env, default `off`): `on` refuses every unbound token. Switch it on only after (1) a physical iPhone and Android device (and web, if offered) show bound Apple and Google sign-ins (log line and `consumedAt`), and (2) every supported app build sends challenges.
+  - While it is off, older builds and Google keep working, and tokens bound to a challenge are already single-use. Audience restriction limits the remaining risk to tokens issued to Quran Heals itself.
 
 ## 6. EAS / build config notes
 

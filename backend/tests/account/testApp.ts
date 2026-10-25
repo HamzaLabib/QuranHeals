@@ -5,6 +5,7 @@ import type { QuranRepository } from '../../src/services/QuranRepository';
 import {
   InMemoryAccountDeletionService,
   InMemoryAppleCredentialRepository,
+  InMemoryAuthChallengeRepository,
   InMemoryIssueReportRepository,
   InMemorySessionRepository,
   InMemorySyncRepository,
@@ -31,7 +32,7 @@ class UnusedQuranRepository implements QuranRepository {
 }
 
 export function buildAccountTestApp<R extends IssueReportRepository = InMemoryIssueReportRepository>(
-  overrides: { issueReportRepository?: R; onIssueReportSaved?: () => void; rateLimits?: Partial<Record<RateLimitName, RateLimitPolicy>>; network?: { trustProxyHops?: number; endpointRateLimits?: boolean; clientIpDiagnostics?: boolean } } = {},
+  overrides: { issueReportRepository?: R; onIssueReportSaved?: () => void; nonceRequired?: boolean; rateLimits?: Partial<Record<RateLimitName, RateLimitPolicy>>; network?: { trustProxyHops?: number; endpointRateLimits?: boolean; clientIpDiagnostics?: boolean } } = {},
 ) {
   const userRepository = new InMemoryUserRepository();
   const sessionRepository = new InMemorySessionRepository();
@@ -39,6 +40,7 @@ export function buildAccountTestApp<R extends IssueReportRepository = InMemoryIs
   const issueReportRepository =
     (overrides.issueReportRepository ?? new InMemoryIssueReportRepository()) as R;
   const appleCredentialRepository = new InMemoryAppleCredentialRepository();
+  const authChallengeRepository = new InMemoryAuthChallengeRepository();
 
   const accountDeletionService = new InMemoryAccountDeletionService(
     userRepository,
@@ -46,8 +48,8 @@ export function buildAccountTestApp<R extends IssueReportRepository = InMemoryIs
     sessionRepository,
     appleCredentialRepository,
   );
-  const googleTokens = new Map<string, { providerSubject: string; email?: string; emailVerified?: boolean }>();
-  const appleTokens = new Map<string, { providerSubject: string; email?: string; emailVerified?: boolean }>();
+  const googleTokens = new Map<string, { providerSubject: string; email?: string; emailVerified?: boolean; nonce?: string }>();
+  const appleTokens = new Map<string, { providerSubject: string; email?: string; emailVerified?: boolean; nonce?: string }>();
   const appleRevocationClient = new StubAppleRevocationClient();
 
   const app = createApp({
@@ -59,6 +61,8 @@ export function buildAccountTestApp<R extends IssueReportRepository = InMemoryIs
     onIssueReportSaved: overrides.onIssueReportSaved,
     accountDeletionService,
     appleCredentialRepository,
+    authChallengeRepository,
+    nonceRequired: overrides.nonceRequired ?? false,
     appleRevocationClient,
     googleVerifier: new StubGoogleVerifier(googleTokens),
     appleVerifier: new StubAppleVerifier(appleTokens),
@@ -78,6 +82,7 @@ export function buildAccountTestApp<R extends IssueReportRepository = InMemoryIs
     issueReportRepository,
     accountDeletionService,
     appleCredentialRepository,
+    authChallengeRepository,
     appleRevocationClient,
     googleTokens,
     appleTokens,

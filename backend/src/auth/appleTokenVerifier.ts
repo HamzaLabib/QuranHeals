@@ -10,6 +10,8 @@ export type VerifiedAppleIdentity = {
   emailVerified?: boolean;
   /** The token's `iat` (seconds since epoch), as signed by Apple. */
   issuedAt?: number;
+  /** The token's `nonce` claim, when the sign-in request carried one (auth/signInChallenge.ts). */
+  nonce?: string;
 };
 
 export interface AppleTokenVerifier {
@@ -83,6 +85,7 @@ export class AppleJwksVerifier implements AppleTokenVerifier {
       // versions, and a real boolean in others.
       emailVerified: payload.email_verified === true || payload.email_verified === 'true',
       issuedAt: typeof payload.iat === 'number' ? payload.iat : undefined,
+      nonce: typeof payload.nonce === 'string' && payload.nonce ? payload.nonce : undefined,
     };
   }
 }

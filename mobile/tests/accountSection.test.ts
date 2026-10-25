@@ -128,7 +128,8 @@ describe('Account section: Apple sign-in captures a revocation credential (Phase
     const onApplePressBlock = accountSectionSource.match(/const onApplePress = async \(\) => \{[\s\S]*?\n  \};/)?.[0] ?? '';
     expect(accountSectionSource).toMatch(/requestAppleCredential/);
     expect(accountSectionSource).not.toMatch(/requestAppleIdentityToken/);
-    expect(onApplePressBlock).toMatch(/const \{ identityToken, authorizationCode \} = await requestAppleCredential\(\);/);
+    // Bound to the backend's single-use sign-in challenge when one is available (authApi.ts requestSignInChallenge).
+    expect(onApplePressBlock).toMatch(/const nonce = await requestSignInChallenge\(\);\s*const \{ identityToken, authorizationCode \} = await requestAppleCredential\(nonce \? \{ nonce \} : \{\}\);/);
     expect(onApplePressBlock).toMatch(/signInWithAppleIdToken\(identityToken, authorizationCode, ageDeclarationRef\.current\)/);
   });
 });

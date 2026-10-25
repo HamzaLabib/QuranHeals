@@ -4,9 +4,12 @@ import type { AppleRevocationClient } from '../auth/appleRevocationClient';
 import type { AppleTokenVerifier } from '../auth/appleTokenVerifier';
 import type { GoogleTokenVerifier } from '../auth/googleTokenVerifier';
 import { signAccessToken } from '../auth/session';
+import { bindSignIn, issueSignInChallenge, type SignInBinding } from '../auth/signInChallenge';
+import { env } from '../config/env';
 import { AppError } from '../errors/AppError';
 import type { AuthenticatedRequest } from '../middleware/requireAuth';
 import type { AppleCredentialRepository } from '../services/AppleCredentialRepository';
+import type { AuthChallengeRepository } from '../services/AuthChallengeRepository';
 import type { SessionRepository } from '../services/SessionRepository';
 import type { UserRepository, VerifiedProviderIdentity } from '../services/UserRepository';
 import type { UserDto } from '../types/accountDto';
@@ -27,6 +30,15 @@ import {
 export const APPLE_SIGN_IN_CAPTURE_TIMEOUT_MS = 2_500;
 
 /**
+ * One line per sign-in, provider and binding only (no identifier, token, nonce or address): the server-side evidence for
+ * the device check that each native flow carries the challenge, and in which form (auth/signInChallenge.ts).
+ */
+function logBinding(provider: 'apple' | 'google', binding: SignInBinding) {
+  if (env.NODE_ENV === 'test') return;
+  console.log(`auth: ${provider} sign-in ${binding.bound ? `bound to a challenge (nonce ${binding.form})` : 'not bound to a challenge'}`);
+}
+
+/**
  * Returned when a verified identity has no account yet and the request
  * carries no current account-age declaration — typically an app build
  * from before the 16+ confirmation. Nothing is created and no session is
@@ -42,6 +54,9 @@ type AuthControllerDeps = {
   appleVerifier: AppleTokenVerifier;
   appleRevocationClient: AppleRevocationClient;
   appleCredentialRepository: AppleCredentialRepository;
+  authChallengeRepository: AuthChallengeRepository;
+  /** Refuse tokens not bound to a server challenge; defaults to AUTH_NONCE_REQUIRED (auth/signInChallenge.ts). */
+  nonceRequired?: boolean;
 };
 
 export function createAuthController({
@@ -51,6 +66,8 @@ export function createAuthController({
   appleVerifier,
   appleRevocationClient,
   appleCredentialRepository,
+  authChallengeRepository,
+  nonceRequired = env.AUTH_NONCE_REQUIRED === 'on',
 }: AuthControllerDeps) {
   // A fresh, independent session per sign-in — never overwrites or revokes
   // any session already issued to this user on another device (Part 1 of
@@ -79,6 +96,11 @@ export function createAuthController({
   }
 
   return {
+    /** A single-use nonce for the next sign-in (auth/signInChallenge.ts). Unauthenticated; rate-limited per IP. */
+    issueChallenge: async (_req: Request, res: Response) => {
+      res.json({ success: true, data: await issueSignInChallenge(authChallengeRepository) });
+    },
+
     signInWithGoogle: async (req: Request, res: Response) => {
       const parsed = googleSignInSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -89,6 +111,7 @@ export function createAuthController({
       // carries nothing else that could influence which account this
       // resolves to. See Part B §7.
       const identity = await googleVerifier.verifyIdToken(parsed.data.idToken);
+      logBinding('google', await bindSignIn(authChallengeRepository, identity.nonce, { required: nonceRequired }));
       const user = await resolveAccount(
         { provider: 'google', providerSubject: identity.providerSubject, email: identity.email, emailVerified: identity.emailVerified },
         parsed.data.accountAgeConfirmation,
@@ -104,6 +127,7 @@ export function createAuthController({
       }
 
       const identity = await appleVerifier.verifyIdToken(parsed.data.idToken);
+      logBinding('apple', await bindSignIn(authChallengeRepository, identity.nonce, { required: nonceRequired }));
       const user = await resolveAccount(
         { provider: 'apple', providerSubject: identity.providerSubject, email: identity.email, emailVerified: identity.emailVerified },
         parsed.data.accountAgeConfirmation,

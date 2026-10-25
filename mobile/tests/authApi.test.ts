@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('react-native', () => ({ Platform: { OS: 'web' } }));
 
-const { signInWithGoogleIdToken, signInWithAppleIdToken, fetchCurrentUser, AuthApiError } = await import('@/auth/authApi');
+const { signInWithGoogleIdToken, signInWithAppleIdToken, fetchCurrentUser, requestSignInChallenge, AuthApiError } = await import('@/auth/authApi');
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -83,5 +83,29 @@ describe('fetchCurrentUser', () => {
   it('returns { outcome: "unreachable" } for a malformed/unsuccessful payload on an otherwise-ok response, rather than treating it as a valid user', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ success: false }), { status: 200 })));
     expect(await fetchCurrentUser('any-token')).toEqual({ outcome: 'unreachable' });
+  });
+});
+
+describe('requestSignInChallenge (single-use sign-in nonce)', () => {
+  const nonce = 'a'.repeat(64);
+
+  it('posts to /api/auth/challenge with an empty body and returns the nonce', async () => {
+    const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
+      expect(url).toContain('/api/auth/challenge');
+      expect(JSON.parse(String(init?.body))).toEqual({});
+      return new Response(JSON.stringify({ success: true, data: { nonce, expiresAt: '2026-10-24T12:10:00.000Z' } }), { status: 200 });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    expect(await requestSignInChallenge()).toBe(nonce);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('is null — so sign-in goes ahead unbound — when the backend is unreachable, refuses, or answers oddly', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new Error('network down'); }));
+    expect(await requestSignInChallenge()).toBeNull();
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('', { status: 404 })));
+    expect(await requestSignInChallenge()).toBeNull();
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ success: true, data: { nonce: 'short' } }), { status: 200 })));
+    expect(await requestSignInChallenge()).toBeNull();
   });
 });

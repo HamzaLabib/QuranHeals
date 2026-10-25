@@ -5,6 +5,7 @@ import { MongoMemoryReplSet } from 'mongodb-memory-server';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { AppleCredentialModel } from '../../src/models/AppleCredential';
+import { AuthChallengeModel } from '../../src/models/AuthChallenge';
 import { EmotionModel } from '../../src/models/Emotion';
 import { EmotionVerseMappingModel } from '../../src/models/EmotionVerseMapping';
 import { SessionModel } from '../../src/models/Session';
@@ -14,6 +15,7 @@ import { UserPreferenceModel } from '../../src/models/UserPreference';
 import { UserReflectionModel } from '../../src/models/UserReflection';
 import { UserSyncKeyModel } from '../../src/models/UserSyncKey';
 import { MongooseAccountDeletionService } from '../../src/services/MongooseAccountDeletionService';
+import { MongooseAuthChallengeRepository } from '../../src/services/MongooseAuthChallengeRepository';
 import { MongooseSessionRepository } from '../../src/services/MongooseSessionRepository';
 import { MongooseSyncRepository } from '../../src/services/MongooseSyncRepository';
 import { MongooseUserRepository } from '../../src/services/MongooseUserRepository';
@@ -100,6 +102,7 @@ describe('Mongoose 9.11 / MongoDB Node driver 7.7 integration', () => {
 
     await Promise.all([
       AppleCredentialModel.createIndexes(),
+      AuthChallengeModel.createIndexes(),
       EmotionModel.createIndexes(),
       EmotionVerseMappingModel.createIndexes(),
       SessionModel.createIndexes(),
@@ -340,5 +343,31 @@ describe('Mongoose 9.11 / MongoDB Node driver 7.7 integration', () => {
       mappingVersion: 'synthetic-integration-v1',
     });
     await expect(invalid.validate()).rejects.toHaveProperty('errors.emotionKey');
+  }, 30_000);
+
+  it('sign-in challenges: consumed exactly once even under concurrency; replayed, expired and unknown told apart; purged by TTL index', async () => {
+    const repo = new MongooseAuthChallengeRepository();
+    const now = new Date();
+    const live = `live-${runId}`;
+    const old = `old-${runId}`;
+    try {
+      await repo.issue(live, new Date(now.getTime() + 60_000), new Date(now.getTime() + 7_200_000));
+      await repo.issue(old, new Date(now.getTime() - 1), new Date(now.getTime() + 7_200_000));
+      const raw = (hash: string) => [{ hash, form: 'raw' as const }];
+      const retain = new Date(now.getTime() + 7_200_000);
+      const results = await Promise.all(Array.from({ length: 8 }, () => repo.consume([{ hash: `other-${runId}`, form: 'raw' as const }, { hash: live, form: 'sha256' as const }], now, retain)));
+      expect(results.filter((r) => r.use === 'consumed')).toEqual([{ use: 'consumed', form: 'sha256' }]);
+      expect(results.filter((r) => r.use === 'replayed')).toHaveLength(7);
+      const stored = await AuthChallengeModel.findOne({ nonceHash: live }).lean<{ consumedForm?: string; purgeAt: Date }>();
+      expect(stored?.consumedForm).toBe('sha256');
+      expect(stored?.purgeAt.getTime()).toBe(retain.getTime()); // kept for replay detection once consumed
+      expect(await repo.consume(raw(old), now, retain)).toEqual({ use: 'expired' });
+      expect(await repo.consume(raw(`never-${runId}`), now, retain)).toEqual({ use: 'unknown' });
+      await expect(repo.issue(live, now, now)).rejects.toThrow(); // one document per nonce
+      const indexes = await AuthChallengeModel.collection.indexes();
+      expect(indexes.find((i) => i.key?.purgeAt === 1)?.expireAfterSeconds).toBe(0);
+    } finally {
+      await AuthChallengeModel.deleteMany({ nonceHash: { $in: [live, old] } });
+    }
   }, 30_000);
 });

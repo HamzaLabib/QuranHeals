@@ -59,6 +59,21 @@ function withAgeDeclaration(ageDeclaration?: AccountAgeDeclaration) {
   return ageDeclaration ? { accountAgeConfirmation: { policyVersion: ageDeclaration.policyVersion } } : {};
 }
 
+/**
+ * A single-use nonce from the backend for the next sign-in (backend/src/auth/signInChallenge.ts): the provider signs it
+ * into the ID token, so that token can start one session only. null when the backend can't give one (offline, or a
+ * backend from before this change): sign-in then goes ahead unbound, which the backend accepts until
+ * AUTH_NONCE_REQUIRED is switched on.
+ */
+export async function requestSignInChallenge(): Promise<string | null> {
+  try {
+    const { nonce } = await postJson<{ nonce: string }>('/api/auth/challenge', {}, SIGN_IN_FAILED_MESSAGE);
+    return typeof nonce === 'string' && /^[0-9a-f]{64}$/.test(nonce) ? nonce : null;
+  } catch {
+    return null;
+  }
+}
+
 export function signInWithGoogleIdToken(idToken: string, ageDeclaration?: AccountAgeDeclaration): Promise<SignInResponse> {
   return postJson('/api/auth/google', { idToken, ...withAgeDeclaration(ageDeclaration) }, SIGN_IN_FAILED_MESSAGE);
 }

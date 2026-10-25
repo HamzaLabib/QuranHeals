@@ -7,6 +7,7 @@ import { createAuthController } from '../controllers/authController';
 import { asyncHandler } from '../middleware/asyncHandler';
 import type { createRequireAuth } from '../middleware/requireAuth';
 import type { AppleCredentialRepository } from '../services/AppleCredentialRepository';
+import type { AuthChallengeRepository } from '../services/AuthChallengeRepository';
 import type { SessionRepository } from '../services/SessionRepository';
 import type { UserRepository } from '../services/UserRepository';
 
@@ -17,11 +18,14 @@ export function createAuthRoutes(deps: {
   appleVerifier: AppleTokenVerifier;
   appleRevocationClient: AppleRevocationClient;
   appleCredentialRepository: AppleCredentialRepository;
+  authChallengeRepository: AuthChallengeRepository;
+  nonceRequired?: boolean;
   requireAuth: ReturnType<typeof createRequireAuth>;
 }) {
   const router = Router();
   const controller = createAuthController(deps);
 
+  router.post('/challenge', asyncHandler(controller.issueChallenge));
   router.post('/google', asyncHandler(controller.signInWithGoogle));
   router.post('/apple', asyncHandler(controller.signInWithApple));
   router.get('/session', deps.requireAuth, asyncHandler(controller.getCurrentUser));

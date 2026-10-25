@@ -29,7 +29,7 @@ export type AppleCredential = {
  * it from the backend's sign-in response instead of relying on a later call
  * here returning it again.
  */
-export async function requestAppleCredential(): Promise<AppleCredential> {
+export async function requestAppleCredential(options: { nonce?: string } = {}): Promise<AppleCredential> {
   if (!isAppleSignInSupportedPlatform()) {
     throw new Error('Sign in with Apple is only available on iOS.');
   }
@@ -41,6 +41,8 @@ export async function requestAppleCredential(): Promise<AppleCredential> {
         AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
         AppleAuthentication.AppleAuthenticationScope.EMAIL,
       ],
+      // The backend's single-use sign-in challenge (authApi.ts requestSignInChallenge), signed into the identity token.
+      ...(options.nonce ? { nonce: options.nonce } : {}),
     });
   } catch (error) {
     if (error && typeof error === 'object' && 'code' in error && (error as { code: unknown }).code === 'ERR_REQUEST_CANCELED') {

@@ -22,6 +22,9 @@ const state = vi.hoisted(() => ({
   /** When true, the faked Google prompt "returns" an ID token, as a real completed prompt does. */
   googleReturnsToken: false,
   lastError: null as string | null,
+  /** The options each Apple prompt received, and how many sign-in challenges were asked for. */
+  appleOptions: [] as unknown[],
+  challenges: 0,
 }));
 const storage = vi.hoisted(() => ({ map: new Map<string, string>(), fail: false }));
 
@@ -49,9 +52,16 @@ vi.mock('@/theme/useAppearancePreference', () => ({ useAppearancePreference: () 
 vi.mock('@/auth/appleAuth', () => ({
   AppleSignInCancelledError: class extends Error {},
   isAppleSignInSupportedPlatform: () => true,
-  requestAppleCredential: async () => {
+  requestAppleCredential: async (options?: unknown) => {
+    state.appleOptions.push(options);
     state.calls.push('apple-provider');
     return { identityToken: 't', authorizationCode: 'c' };
+  },
+}));
+vi.mock('@/auth/authApi', () => ({
+  requestSignInChallenge: async () => {
+    state.challenges += 1;
+    return 'c'.repeat(64);
   },
 }));
 vi.mock('@/auth/googleAuth', async () => {
@@ -106,6 +116,8 @@ beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   state.status = 'guest';
   state.calls = [];
+  state.appleOptions = [];
+  state.challenges = 0;
   state.opened = [];
   state.declarations = [];
   state.googleReturnsToken = false;
@@ -170,6 +182,9 @@ describe('sign-in is gated until the account-age confirmation', () => {
     expect(state.calls).toEqual(['apple-provider', 'apple-backend']);
     expect(panelShown()).toBe(false);
     expect(await hasConfirmedAccountAge()).toBe(true);
+    // Bound to one fresh single-use server challenge, passed to Apple as the nonce.
+    expect(state.challenges).toBe(1);
+    expect(state.appleOptions).toEqual([{ nonce: 'c'.repeat(64) }]);
   });
 
   it('Google after confirmation starts the Google prompt', async () => {

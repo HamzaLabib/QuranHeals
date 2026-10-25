@@ -28,6 +28,7 @@ vi.mock('@/auth/appleAuth', () => ({
   isAppleSignInSupportedPlatform: () => true,
   requestAppleCredential: async () => ({ identityToken: 't', authorizationCode: 'c' }),
 }));
+vi.mock('@/auth/authApi', () => ({ requestSignInChallenge: async () => null }));
 vi.mock('@/auth/googleAuth', () => ({
   extractGoogleIdToken: () => null,
   isGoogleAuthConfigured: () => true,

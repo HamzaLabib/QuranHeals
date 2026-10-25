@@ -8,6 +8,7 @@ import {
   type AccountAgeDeclaration,
 } from '@/auth/ageConfirmation';
 import { AppleSignInCancelledError, isAppleSignInSupportedPlatform, requestAppleCredential } from '@/auth/appleAuth';
+import { requestSignInChallenge } from '@/auth/authApi';
 import { extractGoogleIdToken, isGoogleAuthConfigured, useGoogleAuthRequest } from '@/auth/googleAuth';
 import { useAuth } from '@/auth/useAuth';
 import { getLegalUrl, type LegalLinkKey } from '@/constants/legalLinks';
@@ -48,7 +49,8 @@ export function AccountSection({ locale, messages, direction, isRtl }: AccountSe
   const colors = usePalette();
   const styles = useThemedStyles(makeStyles);
   const { status, lastError, signInWithGoogleIdToken, signInWithAppleIdToken, signOut, deleteAccount } = useAuth();
-  const [googleRequest, googleResponse, promptGoogleAsync] = useGoogleAuthRequest();
+  // Bound to a single-use server challenge (googleAuth.ts); re-authentication (reauthentication.ts) is not.
+  const [googleRequest, googleResponse, promptGoogleAsync] = useGoogleAuthRequest({ bindSignIn: status === 'guest' });
   const [appleRequestError, setAppleRequestError] = useState<string | null>(null);
   const [isDeleteSheetVisible, setIsDeleteSheetVisible] = useState(false);
   // Shown after the sheet reports a completed deletion — status has already
@@ -120,7 +122,9 @@ export function AccountSection({ locale, messages, direction, isRtl }: AccountSe
     setAppleRequestError(null);
     setAccountDeletedMessage(false);
     try {
-      const { identityToken, authorizationCode } = await requestAppleCredential();
+      // Binds this sign-in to a single-use server challenge; without one (offline, older backend) it goes ahead unbound.
+      const nonce = await requestSignInChallenge();
+      const { identityToken, authorizationCode } = await requestAppleCredential(nonce ? { nonce } : {});
       await signInWithAppleIdToken(identityToken, authorizationCode, ageDeclarationRef.current);
     } catch (error) {
       // A cancelled native sheet is not a failure worth showing — anything

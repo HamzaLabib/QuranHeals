@@ -13,6 +13,7 @@ import { rotateRefreshToken, type RotationStore } from '../../src/auth/refreshRo
 import type { GoogleTokenVerifier, VerifiedGoogleIdentity } from '../../src/auth/googleTokenVerifier';
 import { AppError } from '../../src/errors/AppError';
 import type { AppleCredentialRepository } from '../../src/services/AppleCredentialRepository';
+import type { AuthChallengeRepository, ChallengeUse, NonceForm } from '../../src/services/AuthChallengeRepository';
 import type { IssueReportRepository } from '../../src/services/IssueReportRepository';
 import {
   decideReadingChange,
@@ -583,6 +584,27 @@ export class InMemoryAccountDeletionService {
     this.sessionRepository.revokeAllSessionsForUser(userId);
     await this.appleCredentialRepository?.delete(userId);
     this.userRepository.deleteUser(userId);
+  }
+}
+
+/** Mirrors MongooseAuthChallengeRepository in memory: one consumption per challenge, unknown / replayed / expired told apart. */
+export class InMemoryAuthChallengeRepository implements AuthChallengeRepository {
+  public readonly challenges = new Map<string, { expiresAt: Date; purgeAt: Date; consumedAt: Date | null; consumedForm?: NonceForm }>();
+
+  async issue(nonceHash: string, expiresAt: Date, purgeAt: Date): Promise<void> {
+    this.challenges.set(nonceHash, { expiresAt, purgeAt, consumedAt: null });
+  }
+
+  async consume(candidates: readonly { hash: string; form: NonceForm }[], now: Date, retainUntil: Date): Promise<{ use: ChallengeUse; form?: NonceForm }> {
+    const match = candidates.find((c) => this.challenges.has(c.hash));
+    const hit = match && this.challenges.get(match.hash);
+    if (!match || !hit) return { use: 'unknown' };
+    if (hit.consumedAt) return { use: 'replayed' };
+    if (hit.expiresAt <= now) return { use: 'expired' };
+    hit.consumedAt = now;
+    hit.consumedForm = match.form;
+    hit.purgeAt = retainUntil;
+    return { use: 'consumed', form: match.form };
   }
 }
 
