@@ -118,10 +118,13 @@ export function createAuthController({
       // deletion time. See Part B4 §4/§5.
       if (parsed.data.authorizationCode) {
         try {
-          const { refreshToken } = await appleRevocationClient.exchangeAuthorizationCode(parsed.data.authorizationCode, {
+          const { refreshToken, subject } = await appleRevocationClient.exchangeAuthorizationCode(parsed.data.authorizationCode, {
             timeoutMs: APPLE_SIGN_IN_CAPTURE_TIMEOUT_MS,
           });
-          await appleCredentialRepository.save(user.id, refreshToken);
+          // Only a code issued to the Apple ID that just signed in: a mismatched one is skipped like a failed capture.
+          if (subject === identity.providerSubject) {
+            await appleCredentialRepository.save(user.id, refreshToken);
+          }
         } catch {
           // Swallowed deliberately — see doc comment above.
         }

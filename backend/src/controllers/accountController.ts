@@ -111,10 +111,17 @@ export function createAccountController({
             { provider: 'apple', idToken: parsed.data.idToken },
           );
 
-          let exchanged: { refreshToken: string };
+          let exchanged: { refreshToken: string; subject: string | null };
           try {
             exchanged = await appleRevocationClient.exchangeAuthorizationCode(parsed.data.authorizationCode);
           } catch {
+            throw new AppError(DELETION_FAILED_MESSAGE, 502);
+          }
+          // The code must belong to this account's Apple ID too, not only the re-authentication token: otherwise
+          // another Apple ID's grant would be revoked and this account's left in place. Nothing is deleted. Apple
+          // documents an id_token in every code exchange; if one were ever missing (subject null), deletion goes on
+          // as before rather than blocking a required in-app deletion.
+          if (exchanged.subject !== null && exchanged.subject !== identity.providerSubject) {
             throw new AppError(DELETION_FAILED_MESSAGE, 502);
           }
           await appleCredentialRepository.save(userId, exchanged.refreshToken);

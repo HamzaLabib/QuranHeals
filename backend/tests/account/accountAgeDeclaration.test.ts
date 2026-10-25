@@ -191,7 +191,7 @@ describe('Apple: a refused new account never stores an Apple credential', () => 
   it('11. the authorization code is not exchanged when creation is refused', async () => {
     const built = buildAccountTestApp();
     built.appleTokens.set('new', { providerSubject: 'new-sub' });
-    built.appleRevocationClient.codesToRefreshTokens.set('code', 'apple-refresh');
+    built.appleRevocationClient.codesToRefreshTokens.set('code', { refreshToken: 'apple-refresh', subject: 'new-sub' });
 
     const res = await signIn(built, 'apple', { idToken: 'new', authorizationCode: 'code' });
 
@@ -204,7 +204,7 @@ describe('Apple: a refused new account never stores an Apple credential', () => 
     const built = buildAccountTestApp();
     const first = await existingAccount(built, 'apple', 'apple-returning');
     built.appleTokens.set('again', { providerSubject: 'apple-returning' });
-    built.appleRevocationClient.codesToRefreshTokens.set('code', 'apple-refresh');
+    built.appleRevocationClient.codesToRefreshTokens.set('code', { refreshToken: 'apple-refresh', subject: 'apple-returning' });
 
     const res = await signIn(built, 'apple', { idToken: 'again', authorizationCode: 'code' });
 
@@ -241,7 +241,7 @@ describe('existing sessions are untouched by the declaration requirement', () =>
     const built = buildAccountTestApp();
     const account = await existingAccount(built, provider, `del-${provider}`);
     tokens(built, provider).set('fresh', { providerSubject: `del-${provider}` });
-    if (provider === 'apple') built.appleRevocationClient.codesToRefreshTokens.set('fresh-code', 'apple-refresh');
+    if (provider === 'apple') built.appleRevocationClient.codesToRefreshTokens.set('fresh-code', { refreshToken: 'apple-refresh', subject: 'del-apple' });
 
     const res = await request(built.app)
       .delete('/api/account')

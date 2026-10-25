@@ -4,9 +4,16 @@ import { generateAppleClientSecret } from './appleClientSecret';
 
 export type AppleRequestOptions = { timeoutMs?: number };
 
+/**
+ * An exchanged code's refresh token and the Apple user it belongs to: the `sub` of the id_token Apple returns with it
+ * (null when absent or unreadable). Callers store the refresh token only when `subject` is the account's own verified
+ * Apple subject, so a code issued to a different Apple ID is never kept or revoked on this account's behalf.
+ */
+export type ExchangedAppleCredential = { refreshToken: string; subject: string | null };
+
 export interface AppleRevocationClient {
   /** Exchanges a short-lived, single-use Sign in with Apple authorization code for a refresh token. */
-  exchangeAuthorizationCode(authorizationCode: string, options?: AppleRequestOptions): Promise<{ refreshToken: string }>;
+  exchangeAuthorizationCode(authorizationCode: string, options?: AppleRequestOptions): Promise<ExchangedAppleCredential>;
   /** Revokes a previously-obtained Apple refresh token. Resolves (never throws) if Apple reports the token is already invalid/revoked — that outcome already satisfies the goal. */
   revokeRefreshToken(refreshToken: string): Promise<void>;
 }
@@ -27,7 +34,23 @@ export const APPLE_REQUEST_TIMEOUT_MS = 10_000;
 const REVOCATION_FAILED_MESSAGE = 'Account deletion could not be completed. Please try again.';
 
 type AppleTokenErrorResponse = { error?: string };
-type AppleTokenSuccessResponse = { refresh_token?: string };
+type AppleTokenSuccessResponse = { refresh_token?: string; id_token?: string };
+
+/**
+ * The `sub` claim of the id_token in Apple's token response. Its signature isn't checked: it arrives directly from
+ * Apple's token endpoint over TLS, which OpenID Connect Core §3.1.3.7 accepts in place of the signature.
+ */
+export function appleTokenResponseSubject(idToken: unknown): string | null {
+  if (typeof idToken !== 'string') return null;
+  const [, payload] = idToken.split('.');
+  if (!payload) return null;
+  try {
+    const claims = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as { sub?: unknown };
+    return typeof claims.sub === 'string' && claims.sub.length > 0 ? claims.sub : null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Real server-to-server calls to Apple for account-deletion revocation —
@@ -44,7 +67,7 @@ export class HttpAppleRevocationClient implements AppleRevocationClient {
     this.timeoutMs = options.timeoutMs ?? APPLE_REQUEST_TIMEOUT_MS;
   }
 
-  async exchangeAuthorizationCode(authorizationCode: string, options: AppleRequestOptions = {}): Promise<{ refreshToken: string }> {
+  async exchangeAuthorizationCode(authorizationCode: string, options: AppleRequestOptions = {}): Promise<ExchangedAppleCredential> {
     const { clientId } = requireAppleRevocationConfig();
     const body = new URLSearchParams({
       client_id: clientId,
@@ -70,7 +93,7 @@ export class HttpAppleRevocationClient implements AppleRevocationClient {
       throw new AppError(REVOCATION_FAILED_MESSAGE, 502);
     }
 
-    return { refreshToken: payload.refresh_token };
+    return { refreshToken: payload.refresh_token, subject: appleTokenResponseSubject(payload.id_token) };
   }
 
   async revokeRefreshToken(refreshToken: string): Promise<void> {

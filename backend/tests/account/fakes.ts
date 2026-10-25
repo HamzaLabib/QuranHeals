@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 
-import type { AppleRevocationClient } from '../../src/auth/appleRevocationClient';
+import type { AppleRevocationClient, ExchangedAppleCredential } from '../../src/auth/appleRevocationClient';
 import type { AppleTokenVerifier, VerifiedAppleIdentity } from '../../src/auth/appleTokenVerifier';
 import {
   formatRefreshToken,
@@ -618,20 +618,21 @@ export class StubAppleRevocationClient implements AppleRevocationClient {
   public readonly exchangedCodes: string[] = [];
 
   constructor(
-    public readonly codesToRefreshTokens = new Map<string, string>(),
+    /** Each code's refresh token and the Apple subject it was issued to (the `sub` of Apple's id_token). */
+    public readonly codesToRefreshTokens = new Map<string, ExchangedAppleCredential>(),
     public readonly alreadyRevokedTokens = new Set<string>(),
     public readonly failingCodes = new Set<string>(),
     public readonly failingTokens = new Set<string>(),
   ) {}
 
-  async exchangeAuthorizationCode(authorizationCode: string): Promise<{ refreshToken: string }> {
+  async exchangeAuthorizationCode(authorizationCode: string): Promise<ExchangedAppleCredential> {
     this.exchangedCodes.push(authorizationCode);
     if (this.failingCodes.has(authorizationCode)) {
       throw new AppError('Account deletion could not be completed. Please try again.', 502);
     }
-    const refreshToken = this.codesToRefreshTokens.get(authorizationCode);
-    if (!refreshToken) throw new AppError('Account deletion could not be completed. Please try again.', 502);
-    return { refreshToken };
+    const credential = this.codesToRefreshTokens.get(authorizationCode);
+    if (!credential) throw new AppError('Account deletion could not be completed. Please try again.', 502);
+    return credential;
   }
 
   async revokeRefreshToken(refreshToken: string): Promise<void> {

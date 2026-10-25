@@ -17,7 +17,7 @@ vi.mock('../../src/config/env', async (importOriginal) => {
   };
 });
 
-import { APPLE_REQUEST_TIMEOUT_MS, HttpAppleRevocationClient } from '../../src/auth/appleRevocationClient';
+import { APPLE_REQUEST_TIMEOUT_MS, appleTokenResponseSubject, HttpAppleRevocationClient } from '../../src/auth/appleRevocationClient';
 import { findAuthConfigProblems, assertAuthConfig, type AuthConfigInput } from '../../src/config/authConfig';
 
 const GOOGLE_IDS = ['111111111111-iosclientabc.apps.googleusercontent.com', '111111111111-androidclientabc.apps.googleusercontent.com'];
@@ -88,6 +88,24 @@ function hangingFetch() {
   return { impl, signals };
 }
 
+describe('Apple token response subject', () => {
+  const idToken = (claims: object) => ['e30', Buffer.from(JSON.stringify(claims)).toString('base64url'), 'signature'].join('.');
+
+  it('returns the subject of the exchanged id_token with the refresh token', async () => {
+    const impl = (async () => ({ ok: true, json: async () => ({ refresh_token: 'apple-refresh', id_token: idToken({ sub: '001.abc' }) }) })) as unknown as typeof fetch;
+    const client = new HttpAppleRevocationClient({ fetch: impl });
+    await expect(client.exchangeAuthorizationCode('code')).resolves.toEqual({ refreshToken: 'apple-refresh', subject: '001.abc' });
+  });
+
+  it('reads no subject from a missing, malformed or subject-less id_token', () => {
+    expect(appleTokenResponseSubject(undefined)).toBeNull();
+    expect(appleTokenResponseSubject('not-a-jwt')).toBeNull();
+    expect(appleTokenResponseSubject('a.%%%.c')).toBeNull();
+    expect(appleTokenResponseSubject(idToken({ email: 'x@example.test' }))).toBeNull();
+    expect(appleTokenResponseSubject(idToken({ sub: 42 }))).toBeNull();
+  });
+});
+
 describe('Apple HTTP timeouts', () => {
   it('9. a hanging authorization-code exchange becomes a controlled 502 after the timeout', async () => {
     const { impl, signals } = hangingFetch();
@@ -130,7 +148,7 @@ describe('Apple HTTP timeouts', () => {
       return { ok: true, json: async () => ({ refresh_token: 'apple-refresh' }) };
     }) as unknown as typeof fetch;
     const client = new HttpAppleRevocationClient({ fetch: impl });
-    await expect(client.exchangeAuthorizationCode('code')).resolves.toEqual({ refreshToken: 'apple-refresh' });
+    await expect(client.exchangeAuthorizationCode('code')).resolves.toEqual({ refreshToken: 'apple-refresh', subject: null });
     expect(calls[0].url).toBe('https://appleid.apple.com/auth/token');
     expect(calls[0].init.signal).toBeInstanceOf(AbortSignal);
     expect(String(calls[0].init.body)).not.toContain('PRIVATE KEY');

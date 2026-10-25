@@ -33,7 +33,7 @@ function deleteAccount(built: Built, token: string, body?: object) {
 describe('Apple account deletion: revocation', () => {
   it('Test A — a stored revocation credential is revoked, then the account is deleted', async () => {
     const built = buildAccountTestApp();
-    built.appleRevocationClient.codesToRefreshTokens.set('code-a', 'refresh-a');
+    built.appleRevocationClient.codesToRefreshTokens.set('code-a', { refreshToken: 'refresh-a', subject: 'sub-a' });
     const { token } = await signInApple(built, 'id-a', 'sub-a', 'code-a');
 
     const res = await deleteAccount(built, token);
@@ -54,7 +54,7 @@ describe('Apple account deletion: revocation', () => {
     expect(built.appleRevocationClient.revokedTokens).toEqual([]);
 
     built.appleTokens.set('fresh-id-b', { providerSubject: 'sub-b' });
-    built.appleRevocationClient.codesToRefreshTokens.set('fresh-code-b', 'refresh-b');
+    built.appleRevocationClient.codesToRefreshTokens.set('fresh-code-b', { refreshToken: 'refresh-b', subject: 'sub-b' });
     const retry = await deleteAccount(built, token, { provider: 'apple', idToken: 'fresh-id-b', authorizationCode: 'fresh-code-b' });
 
     expect(retry.status).toBe(200);
@@ -76,7 +76,7 @@ describe('Apple account deletion: revocation', () => {
 
   it('Test D — a revocation failure aborts deletion entirely; the account remains fully intact and retryable', async () => {
     const built = buildAccountTestApp();
-    built.appleRevocationClient.codesToRefreshTokens.set('code-d', 'refresh-d');
+    built.appleRevocationClient.codesToRefreshTokens.set('code-d', { refreshToken: 'refresh-d', subject: 'sub-d' });
     built.appleRevocationClient.failingTokens.add('refresh-d');
     const { token } = await signInApple(built, 'id-d', 'sub-d', 'code-d');
 
@@ -94,7 +94,7 @@ describe('Apple account deletion: revocation', () => {
 
   it('Test E — an already-revoked Apple token is treated as success (idempotent), and deletion proceeds', async () => {
     const built = buildAccountTestApp();
-    built.appleRevocationClient.codesToRefreshTokens.set('code-e', 'refresh-e');
+    built.appleRevocationClient.codesToRefreshTokens.set('code-e', { refreshToken: 'refresh-e', subject: 'sub-e' });
     built.appleRevocationClient.alreadyRevokedTokens.add('refresh-e');
     const { token } = await signInApple(built, 'id-e', 'sub-e', 'code-e');
 
@@ -107,7 +107,7 @@ describe('Apple account deletion: revocation', () => {
 
   it('Test F — repeating the delete request after success is rejected by B2, never attempting Apple revocation again', async () => {
     const built = buildAccountTestApp();
-    built.appleRevocationClient.codesToRefreshTokens.set('code-f', 'refresh-f');
+    built.appleRevocationClient.codesToRefreshTokens.set('code-f', { refreshToken: 'refresh-f', subject: 'sub-f' });
     const { token } = await signInApple(built, 'id-f', 'sub-f', 'code-f');
 
     expect((await deleteAccount(built, token)).status).toBe(200);
@@ -132,8 +132,8 @@ describe('Apple account deletion: revocation', () => {
 
   it('Test H — account A deleting itself never touches account B’s stored credential or session', async () => {
     const built = buildAccountTestApp();
-    built.appleRevocationClient.codesToRefreshTokens.set('code-h-a', 'refresh-h-a');
-    built.appleRevocationClient.codesToRefreshTokens.set('code-h-b', 'refresh-h-b');
+    built.appleRevocationClient.codesToRefreshTokens.set('code-h-a', { refreshToken: 'refresh-h-a', subject: 'sub-h-a' });
+    built.appleRevocationClient.codesToRefreshTokens.set('code-h-b', { refreshToken: 'refresh-h-b', subject: 'sub-h-b' });
     const a = await signInApple(built, 'id-h-a', 'sub-h-a', 'code-h-a');
     const b = await signInApple(built, 'id-h-b', 'sub-h-b', 'code-h-b');
 
@@ -148,7 +148,7 @@ describe('Apple account deletion: revocation', () => {
 
   it('Test I — no raw Apple secret ever appears in a response body', async () => {
     const built = buildAccountTestApp();
-    built.appleRevocationClient.codesToRefreshTokens.set('super-secret-code', 'super-secret-refresh-token');
+    built.appleRevocationClient.codesToRefreshTokens.set('super-secret-code', { refreshToken: 'super-secret-refresh-token', subject: 'sub-i' });
     const { token } = await signInApple(built, 'id-i', 'sub-i', 'super-secret-code');
 
     const signInBody = JSON.stringify((await request(built.app).get('/api/auth/session').set('Authorization', `Bearer ${token}`)).body);
@@ -163,7 +163,7 @@ describe('Apple account deletion: revocation', () => {
 
   it('Test J — after a successful Apple deletion, old access tokens are rejected (B2) and sync writes recreate nothing (B3)', async () => {
     const built = buildAccountTestApp();
-    built.appleRevocationClient.codesToRefreshTokens.set('code-j', 'refresh-j');
+    built.appleRevocationClient.codesToRefreshTokens.set('code-j', { refreshToken: 'refresh-j', subject: 'sub-j' });
     const { token, userId } = await signInApple(built, 'id-j', 'sub-j', 'code-j');
 
     expect((await deleteAccount(built, token)).status).toBe(200);
@@ -174,5 +174,52 @@ describe('Apple account deletion: revocation', () => {
     const put = await request(built.app).put('/api/sync/favorites').set('Authorization', `Bearer ${token}`).send({ verseKeys: ['1:1'] });
     expect(put.status).toBe(401);
     expect(await built.syncRepository.listFavorites(userId)).toEqual([]);
+  });
+});
+
+describe('Apple authorization codes are bound to the verified Apple ID', () => {
+  it('sign-in stores no credential from a code issued to a different Apple ID, and still signs in', async () => {
+    const built = buildAccountTestApp();
+    built.appleRevocationClient.codesToRefreshTokens.set('other-code', { refreshToken: 'other-refresh', subject: 'sub-other' });
+    const { userId, res } = await signInApple(built, 'id-k', 'sub-k', 'other-code');
+
+    expect(res.status).toBe(200);
+    expect(await built.appleCredentialRepository.get(userId)).toBeNull();
+  });
+
+  it('sign-in stores no credential when Apple names no subject', async () => {
+    const built = buildAccountTestApp();
+    built.appleRevocationClient.codesToRefreshTokens.set('anon-code', { refreshToken: 'anon-refresh', subject: null });
+    const { userId, res } = await signInApple(built, 'id-l', 'sub-l', 'anon-code');
+
+    expect(res.status).toBe(200);
+    expect(await built.appleCredentialRepository.get(userId)).toBeNull();
+  });
+
+  it('deletion refuses a re-authentication code issued to a different Apple ID: nothing revoked, stored or deleted', async () => {
+    const built = buildAccountTestApp();
+    const { token, userId } = await signInApple(built, 'id-m', 'sub-m');
+    built.appleTokens.set('fresh-id-m', { providerSubject: 'sub-m' });
+    built.appleRevocationClient.codesToRefreshTokens.set('other-code-m', { refreshToken: 'other-refresh-m', subject: 'sub-other' });
+
+    const res = await deleteAccount(built, token, { provider: 'apple', idToken: 'fresh-id-m', authorizationCode: 'other-code-m' });
+
+    expect(res.status).toBe(502);
+    expect(built.appleRevocationClient.revokedTokens).toEqual([]);
+    expect(await built.appleCredentialRepository.get(userId)).toBeNull();
+    const session = await request(built.app).get('/api/auth/session').set('Authorization', `Bearer ${token}`);
+    expect(session.status).toBe(200);
+  });
+
+  it('deletion still proceeds if Apple names no subject for the code (never blocked on a missing id_token)', async () => {
+    const built = buildAccountTestApp();
+    const { token } = await signInApple(built, 'id-n', 'sub-n');
+    built.appleTokens.set('fresh-id-n', { providerSubject: 'sub-n' });
+    built.appleRevocationClient.codesToRefreshTokens.set('code-n', { refreshToken: 'refresh-n', subject: null });
+
+    const res = await deleteAccount(built, token, { provider: 'apple', idToken: 'fresh-id-n', authorizationCode: 'code-n' });
+
+    expect(res.status).toBe(200);
+    expect(built.appleRevocationClient.revokedTokens).toEqual(['refresh-n']);
   });
 });
