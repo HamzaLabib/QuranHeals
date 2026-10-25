@@ -92,8 +92,9 @@ describe('Settings → Quran → Memorization Mode: the stored choice', () => {
     storage.failing = false;
   });
 
-  it('the feature itself: development builds only (vitest, like a release bundle, has __DEV__ false)', () => {
-    expect(isMemorizationModeAvailable()).toBe(false);
+  it('the feature itself: available in release builds too (vitest, like a release bundle, has __DEV__ false)', () => {
+    expect(__DEV__).toBe(false);
+    expect(isMemorizationModeAvailable()).toBe(true);
   });
 });
 

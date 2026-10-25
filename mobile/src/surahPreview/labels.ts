@@ -21,7 +21,7 @@ export type SurahPreviewLabels = {
   purpose: string;
   /** «موضوعاتها» / "Topics". */
   themes: string;
-  /** In place of the themes while none is approved for this Surah (development builds show the gap, never a filler). */
+  /** In place of the themes while none is available for this Surah (the gap is shown, never a filler). */
   themesUnavailable: string;
   unavailable: string;
   /** Shown when the introduction is in Arabic because the App Language's text is not available. */

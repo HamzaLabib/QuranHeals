@@ -8,7 +8,8 @@ import { bundledSurahPreview } from './bundledDataset';
  * A section's standing (tools/surah-preview/README.md):
  * - 'quoted': the source's own words, verbatim (only whitespace normalised) — the Mukhtasar's «من مقاصد السورة»;
  * - 'approved': prepared from a cited source and approved by a qualified reviewer;
- * - 'pending-review': prepared from a cited source, awaiting that review (development builds show it, marked);
+ * - 'pending-review': prepared from a cited source, awaiting that review (shown like the others, in every build: the
+ *   owner's editorial approval is on file, tools/surah-preview/owner-approval.json; no scholarly review yet);
  * - 'unavailable': no text this app may use. Never filled by the app, machine-translated or guessed.
  */
 export type ContentStatus = 'quoted' | 'approved' | 'pending-review' | 'unavailable';

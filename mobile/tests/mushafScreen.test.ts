@@ -106,6 +106,11 @@ vi.mock('@/components/ShareAyahSheet', () => ({ ShareAyahSheet: 'ShareAyahSheet'
 // Signed out (a guest): Save's Favorites stay on the device (the real hook and storage; no cloud sync, no native sign-in).
 vi.mock('@/auth/useAuth', () => ({ getCurrentSessionToken: async () => null, useAuth: () => ({}) }));
 vi.mock('@/mushaf/khatmDua', async (original) => ({ ...(await original<object>()), get KHATM_DUA() { return state.khatmDua; } }));
+// The reader without Meanings and Surah Preview (as every build was here before 2026-10-24, when their datasets were
+// bundled in development builds only): the ورد row's own layout. With both features — in every build since — their
+// buttons narrow the pill; that layout is tested in wordMeaningsReader.test.ts.
+vi.mock('@/wordMeanings/bundledDataset', () => ({ isWordMeaningsBundled: () => false, bundledWordMeanings: () => null }));
+vi.mock('@/surahPreview/bundledDataset', () => ({ isSurahPreviewBundled: () => false, bundledSurahPreview: () => null }));
 vi.mock('react-native-gesture-handler', () => {
   // Each Gesture.X() records its handlers (onStart…) and settings (enabled, maxPointers…), chainable like the real builder.
   const builder = (kind: MockGesture['kind']) => {

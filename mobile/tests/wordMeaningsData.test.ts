@@ -161,7 +161,7 @@ describe('the app lookup (wordMeanings/dataset.ts)', () => {
     expect(data.forPage(2)).toEqual([]);
     expect([0, 605, 1.5, Number.NaN].map((n) => data.forPage(n))).toEqual([[], [], [], []]);
   });
-  it('unavailable for the import\'s placeholder, another format, a wrong page count, or nothing (a release build)', () => {
+  it('unavailable for the import\'s placeholder, another format, a wrong page count, or nothing', () => {
     for (const raw of [{ format: 1, status: 'unavailable', pages: [] }, { format: 2, status: 'official', pages }, { format: 1, status: 'official', pages: pages.slice(1) }, null, 'x']) {
       expect(readWordMeaningsDataset(raw)).toEqual({ status: 'unavailable' });
     }
@@ -171,13 +171,17 @@ describe('the app lookup (wordMeanings/dataset.ts)', () => {
     const data = readWordMeaningsDataset({ format: 1, status: 'official', pages: broken });
     expect(data.status === 'official' && data.forPage(1)).toEqual([]);
   });
-  it('offline and local only: the feature imports no network, account, sync or storage module, and bundles the data in development builds only', () => {
+  it('offline and local only: the feature imports no network, account, sync or storage module, and bundles the data in every build, loaded lazily', () => {
     const dir = fileURLToPath(new URL('../src/wordMeanings/', import.meta.url));
     const sources = readdirSync(dir).map((name) => readFileSync(join(dir, name), 'utf8')).join('\n');
     expect(sources).not.toMatch(/fetch\(|@\/services\/api|expo-network|@\/auth|@\/sync|AsyncStorage|async-storage|readingStops|khatmas|lastBrowsedPage/);
     const bundled = readFileSync(join(dir, 'bundledDataset.ts'), 'utf8');
-    expect(bundled).toMatch(/if \(__DEV__\) \{\s*(\/\/[^\n]*\n\s*)*return require\('\.\.\/\.\.\/assets\/word-meanings\/ghareeb\.json'\);\s*\}/);
+    // Release builds too (owner decision 2026-10-24): no __DEV__ guard; the one require is inside the function, so the
+    // dataset is parsed only when Meanings is first opened, never at the reader's start.
+    expect(bundled).not.toMatch(/__DEV__/);
+    expect(bundled).toMatch(/export function bundledWordMeanings\(\): unknown \{\s*(\/\/[^\n]*\n\s*)*return require\('\.\.\/\.\.\/assets\/word-meanings\/ghareeb\.json'\);\s*\}/);
     expect(bundled.match(/require\(/g)).toHaveLength(1);
+    expect(bundled).toMatch(/export function isWordMeaningsBundled\(\): boolean \{\s*return true;\s*\}/);
   });
 });
 

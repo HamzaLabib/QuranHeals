@@ -1,0 +1,237 @@
+# EAS Build uploads the project with THIS file instead of the .gitignore files (they are not read when it exists).
+# It repeats them all — the root .gitignore unchanged, and each nested .gitignore with its folder prefixed — except
+# two lines: the built Word Meanings and Surah Preview datasets, git-ignored (never committed: the repository is
+# public and the publishers' redistribution terms are unresolved) but bundled by release builds since 2026-10-24
+# (owner decision, docs/content-datasets-release.md). Restore them on a fresh checkout before `eas build`:
+#   node tools/word-meanings/import.mjs && node tools/surah-preview/import.mjs
+# Each folder rule ("dir/") is also written without its slash ("dir"): EAS's copy tests a folder's own path without a
+# trailing slash, which a "dir/" rule never matches, so the folder would be uploaded whole (seen with eas-cli 16 and 25).
+# Keep this file in step with the .gitignore files: mobile/tests/contentDatasetsRelease.test.ts checks it.
+
+# ── .gitignore (root) ──
+# Dependencies
+node_modules/
+node_modules
+mobile/node_modules/
+mobile/node_modules
+backend/node_modules/
+backend/node_modules
+
+# Build output
+backend/dist/
+backend/dist
+mobile/.expo/
+mobile/.expo
+# Created only if an Expo dev server is started from backend/ by mistake (local server settings, never needed).
+backend/.expo/
+backend/.expo
+mobile/dist/
+mobile/dist
+web-build/
+web-build
+
+# Environment files
+.env
+.env.*
+!.env.example
+*.env
+*-credentials.env
+credentials*.json
+*.pem
+*.key
+*.p8
+*.p12
+
+# Downloaded Google OAuth client-secret files
+client_secret*.json
+
+# Local Quran Heals administrative files (deletion cases, audit logs, admin .env profiles; the admin tool also refuses
+# paths inside this repository: backend/src/admin/localFiles.ts)
+QuranHealsAdmin/
+QuranHealsAdmin
+
+# Android signing material
+*.jks
+*.keystore
+
+# iOS provisioning profiles
+*.mobileprovision
+
+# Review screenshots kept outside Git since 2026-10-15 (copies in My App/Working progress/Audit Reports/;
+# removed from Git history on 2026-10-17). Ignored so the local copies are never re-added by mistake.
+docs/mushaf-visual-review/
+docs/mushaf-visual-review
+design-archive/experiments/larger-text-mushaf/screenshots/
+design-archive/experiments/larger-text-mushaf/screenshots
+# Its comparison images too (QCF V1 page renders, Quran Foundation content): local copies kept, untracked 2026-10-17
+# (repository audit C1; manifest: design-archive/experiments/larger-text-mushaf/comparisons/ARCHIVED.md).
+design-archive/experiments/larger-text-mushaf/comparisons/*.png
+
+# King Fahd (KFGQPC) verification outputs: they contain the KFGQPC Quran text, whose redistribution terms are
+# unresolved. Kept locally and in the private audit archive, untracked 2026-10-17 (repository audit C2; manifest:
+# tools/quran-verification/output/ARCHIVED-OUTPUTS.md).
+tools/quran-verification/output/kfgqpc-*
+# Word Meanings (المعاني): King Fahd Complex's «الميسر في غريب القرآن الكريم», whose redistribution terms are also
+# unresolved. The original download, the app's dataset built from it and the detailed validation output stay local,
+# restored by tools/word-meanings/import.mjs (pinned in tools/word-meanings/source.lock.json, which stays tracked).
+tools/word-meanings/source/
+tools/word-meanings/source
+tools/word-meanings/output/
+tools/word-meanings/output
+mobile/assets/word-meanings/*.partial
+
+# Local scratch files
+tmp/
+tmp
+*.tmp
+*.tsbuildinfo
+# Python bytecode caches (written next to research scripts when they run)
+__pycache__/
+__pycache__
+*.py[cod]
+coverage/
+coverage
+.cache/
+.cache
+tools/quran-import/staging/
+tools/quran-import/staging
+# The audio audit's Python decoder (pip --target, compiled binaries), installed only to re-run
+# tools/quran-audio/audit/*.py (tools/quran-audio/README.md).
+tools/quran-audio/pylib/
+tools/quran-audio/pylib
+
+# QCF V1 page fonts (King Fahd Complex, from Quran Foundation's CDN). Their
+# terms allow them only inside the app, never as a standalone download, and
+# this repository is public: restored at install/build/test time by
+# mobile/scripts/restore-mushaf-fonts.mjs (pinned in fonts.lock.json, which
+# stays tracked). Downloaded page fonts live on devices only.
+mobile/assets/mushaf/**/*.ttf
+mobile/assets/mushaf/**/*.otf
+mobile/assets/mushaf/**/*.woff
+mobile/assets/mushaf/**/*.woff2
+*.ttf.partial
+*.ttf.part
+
+# Quran Foundation Content Sync copy (mushafs:2): QF content, kept on the
+# backend and relayed to the app under the Content Sync terms; never committed.
+backend/data/mushaf-sync/
+backend/data/mushaf-sync
+
+# The Unicode Mushaf prototype's Madina05 table and KFGQPC-derived width table once restored into the app
+# (unicode-experiments/restore/restore.mjs): local only, like their archived copies (unicode-experiments/.gitignore).
+mobile/src/mushaf/unicode/generated/madina05Layout.ts
+mobile/src/mushaf/unicode/generated/hafsWordWidths.ts
+
+# MongoDB pre-write snapshot backups (documented as git-ignored in
+# backend/src/utils/backupPaths.ts but not previously excluded here)
+backend/backups/
+backend/backups
+
+# This computer's audio review dashboard launcher: it reads the configuration and review data kept outside the
+# repository (Working progress/Screenshots and Logs/audio-review-dashboard/; tools/quran-audio/review/dashboard/README.md).
+/start-dashboard.cmd
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Third-party source/reference files kept locally
+tools/quran-import/raw/UthmanicHafs_v2-0.zip
+backend/data/quran/en.pickthall.txt
+backend/data/quran/quran-data.xml
+tools/quran-import/raw/gutenberg-16955/16955.txt
+# Surah Preview (عن السورة): built by tools/surah-preview/import.mjs from QuranEnc's Mukhtasar pages (pinned in
+# tools/surah-preview/source.lock.json, which stays tracked); redistribution terms unconfirmed, so never committed.
+mobile/assets/surah-preview/*.partial
+# Quranpedia's official surah-information dump, cached by import.mjs (pinned in tools/surah-preview/quranpedia.lock.json).
+tools/surah-preview/source/
+tools/surah-preview/source
+# The scholarly review log (reviewer names, third-party text) and what review/apply.mjs builds from it: local, backed up
+# by the owner, never committed until the publishers' terms allow their text in the repository.
+tools/surah-preview/review/data/
+tools/surah-preview/review/data
+tools/surah-preview/reviewed-content.json
+tools/surah-preview/reviewed-content.json.partial
+
+# ── mobile/.gitignore ──
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
+mobile/**/node_modules/
+mobile/**/node_modules
+
+# Expo
+mobile/**/.expo/
+mobile/**/.expo
+mobile/**/dist/
+mobile/**/dist
+mobile/**/web-build/
+mobile/**/web-build
+mobile/**/expo-env.d.ts
+
+# Native
+mobile/**/.kotlin/
+mobile/**/.kotlin
+# Gradle's local cache, written when a local Expo module (modules/*/android) is compiled
+mobile/**/.gradle/
+mobile/**/.gradle
+mobile/**/*.orig.*
+mobile/**/*.jks
+mobile/**/*.p8
+mobile/**/*.p12
+mobile/**/*.key
+mobile/**/*.mobileprovision
+
+# Metro
+mobile/**/.metro-health-check*
+
+# debug
+mobile/**/npm-debug.*
+mobile/**/yarn-debug.*
+mobile/**/yarn-error.*
+
+# macOS
+mobile/**/.DS_Store
+mobile/**/*.pem
+
+# local env files
+mobile/**/.env*.local
+
+# typescript
+mobile/**/*.tsbuildinfo
+
+mobile/**/example
+
+# generated native folders
+mobile/ios
+mobile/android
+
+# ── backend/backups/.gitignore ──
+backend/backups/**/*
+!backend/backups/**/.gitignore
+
+# ── unicode-experiments/.gitignore ──
+# Local copies of the comparison screenshots: they include QCF V1 page renderings (Quran Foundation content, whose terms
+# do not allow redistributing it outside the app) and the repository is public. Kept on this machine only; the originals
+# are in "Working progress/Screenshots and Logs/unicode-mushaf-*".
+unicode-experiments/**/screenshots/
+unicode-experiments/**/screenshots
+
+# The Madina05 page/line table: redistribution rights unresolved (Waqf vs ISC; placement derived from unlicensed OCR data
+# of KFGQPC's pages, docs/unicode-mushaf/licensing.md). Kept on this machine only; regenerate with
+# tools/unicode-mushaf/generate-layout.mjs <cache> (pinned in madina05.lock.json).
+unicode-experiments/mobile/src/mushaf/unicode/generated/madina05Layout.ts
+
+# The KF/A width table: advance widths measured from KFGQPC HAFS Uthmanic Script v18, whose EULA forbids modifying or
+# reverse-engineering the font without written approval and whose Quran Foundation terms allow it only inside the app.
+# Kept on this machine only; regenerate with tools/unicode-mushaf/measure-widths.py (tools/unicode-mushaf/README.md).
+unicode-experiments/mobile/src/mushaf/unicode/generated/hafsWordWidths.ts

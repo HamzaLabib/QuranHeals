@@ -33,8 +33,8 @@ const state = vi.hoisted(() => ({
   pending: new Map<string, { identifier: string; trigger: unknown; data: Record<string, unknown> }>(),
   /** Whether this build carries Word Meanings (wordMeanings/bundledDataset.ts: development builds; vitest's __DEV__ is false). */
   wordMeaningsBundled: true,
-  /** Whether this build has Memorization Mode (memorization/config.ts: development builds); off unless a test turns it on. */
-  memorizationAvailable: false,
+  /** Memorization Mode's rollback switch (memorization/config.ts): null = the real one (on in every build); false = off. */
+  memorizationAvailable: null as boolean | null,
 }));
 
 vi.mock('react-native', () => {
@@ -82,7 +82,10 @@ vi.mock('@/components/ReportIssueSheet', async () => {
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView', useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }) }));
 vi.mock('@/auth/useAuth', () => ({ useAuth: () => ({ refreshSync: async () => { state.refreshSyncCalls += 1; } }) }));
 vi.mock('@/wordMeanings/bundledDataset', () => ({ isWordMeaningsBundled: () => state.wordMeaningsBundled, bundledWordMeanings: () => null }));
-vi.mock('@/memorization/config', () => ({ isMemorizationModeAvailable: () => state.memorizationAvailable }));
+vi.mock('@/memorization/config', async (importOriginal) => {
+  const real = await importOriginal<typeof import('@/memorization/config')>();
+  return { isMemorizationModeAvailable: () => state.memorizationAvailable ?? real.isMemorizationModeAvailable() };
+});
 // Rendered for real in accountSectionRender.test.ts; here only its position matters.
 vi.mock('@/components/AccountSection', async () => {
   const { createElement: h } = await import('react');
@@ -152,7 +155,7 @@ beforeEach(() => {
   state.settingsOpened = 0;
   state.pending.clear();
   state.wordMeaningsBundled = true;
-  state.memorizationAvailable = false;
+  state.memorizationAvailable = null;
   fetchSpy.mockReset();
   vi.stubGlobal('fetch', fetchSpy);
 });
@@ -499,10 +502,11 @@ describe('Settings: theming', () => {
   const cardBackgrounds = () =>
     all('View').map((node) => resolveStyle(node)).flat().filter((style) => style.borderRadius !== undefined && style.backgroundColor !== undefined).map((style) => style.backgroundColor);
 
-  // The six accordions, the Show Translation, Keep Screen Awake and Word Meanings cards, the three reminder cards
-  // (components/NotificationReminderRow.tsx) and the offline Mushaf row (components/OfflineMushafSettingsRow.tsx), all
-  // in the same palette card. (Offline listening is a small icon on Favorite Reciter's card, not a card of its own.)
-  const CARDS = 13;
+  // The six accordions, the Show Translation, Keep Screen Awake, Word Meanings and Memorization Mode cards, the three
+  // reminder cards (components/NotificationReminderRow.tsx) and the offline Mushaf row
+  // (components/OfflineMushafSettingsRow.tsx), all in the same palette card. (Offline listening is a small icon on
+  // Favorite Reciter's card, not a card of its own.)
+  const CARDS = 14;
 
   it('uses the light palette card for every accordion in Light', async () => {
     await renderSettings();
@@ -752,7 +756,7 @@ describe('Settings: Word Meanings', () => {
   });
 });
 
-describe('Settings: Memorization Mode (development builds) and the two Mushaf guides', () => {
+describe('Settings: Memorization Mode (every build: the real switch, __DEV__ false as in a release bundle) and the two Mushaf guides', () => {
   const MEMORIZATION_KEY = 'quran-heals:memorization-mode-visible:v1';
   const WORD_MEANINGS_KEY = 'quran-heals:word-meanings-visible:v1';
   const GUIDE_KEY = 'quran-heals:mushaf-guide:v1';
@@ -769,7 +773,8 @@ describe('Settings: Memorization Mode (development builds) and the two Mushaf gu
       .map((node) => (headers().includes(node) ? node.props.accessibilityLabel.split(', ')[0] : node.props.testID));
   };
   beforeEach(() => {
-    state.memorizationAvailable = true;
+    // The real switch: nothing mocked (vitest's __DEV__ is false, as in a release bundle).
+    state.memorizationAvailable = null;
   });
 
   it.each([['en', en], ['ar', ar]] as const)('%s: the nine Quran settings in the exact approved order', async (locale, copy) => {
@@ -874,7 +879,7 @@ describe('Settings: Memorization Mode (development builds) and the two Mushaf gu
     expect(toggle().props.value).toBe(false);
   });
 
-  it('a build without Memorization Mode (release): no switch, no choice — Mushaf Guide opens the Mushaf guide directly, as before', async () => {
+  it('the rollback switch off: no switch, no choice — Mushaf Guide opens the Mushaf guide directly, as before', async () => {
     state.memorizationAvailable = false;
     await renderSettings();
     expect(toggles()).toHaveLength(0);
@@ -1445,11 +1450,14 @@ describe('Settings: Quran → Mushaf Guide', () => {
     expect(resolveStyle(row())).toContainEqual(expect.objectContaining({ minHeight: 56, borderRadius: resolveStyle(keepAwakeCard).find((style) => style.borderRadius !== undefined)?.borderRadius }));
   });
 
-  it('opens the Mushaf`s own guide (a new request each time), changing no setting, storage or progress', async () => {
+  it('opens the Mushaf`s own guide through the guide choice (a new request each time), changing no setting, storage or progress', async () => {
     await renderSettings();
     const before = new Map(state.storage);
+    const normalGuide = () => root!.root.find((node) => typeof node.type === 'string' && node.props.testID === 'settings-guide-normal');
     await press(row());
+    await press(normalGuide());
     await press(row());
+    await press(normalGuide());
     expect(state.navigations).toHaveLength(2);
     for (const route of state.navigations) expect(route).toMatchObject({ pathname: '/mushaf', params: { guide: expect.stringMatching(/^\d+$/) } });
     expect(state.storage).toEqual(before);

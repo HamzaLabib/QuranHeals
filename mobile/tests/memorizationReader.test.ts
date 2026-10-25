@@ -10,8 +10,12 @@ import { MESSAGES } from '@/localization/messages';
  * own (itself mushafScreen.test.ts's: the same mocked native modules, the real verified Quran database, SYNTHETIC QPC
  * V1 layouts and SYNTHETIC Word Meanings / Surah Preview data), with the feature's build switch mocked (`mm`).
  */
-const mm = vi.hoisted(() => ({ available: true }));
-vi.mock('@/memorization/config', () => ({ isMemorizationModeAvailable: () => mm.available }));
+/** Memorization Mode's rollback switch: null = the real one (on in every build; vitest's __DEV__ is false, as in a release bundle). */
+const mm = vi.hoisted(() => ({ available: null as boolean | null }));
+vi.mock('@/memorization/config', async (importOriginal) => {
+  const real = await importOriginal<typeof import('@/memorization/config')>();
+  return { isMemorizationModeAvailable: () => mm.available ?? real.isMemorizationModeAvailable() };
+});
 
 type MockGesture = { kind: 'pinch' | 'pan' | 'tap'; handlers: Record<string, (...args: unknown[]) => void>; config: Record<string, unknown> };
 const state = vi.hoisted(() => ({
@@ -437,7 +441,7 @@ const gestureSettings = () => JSON.stringify(gestures().map((g) => ({ kind: g.ki
 const everyPageDrawn = () => state.offline.readPage.mockImplementation(async (n: number) => ({ ...syntheticQpcPage61(), page: n, fontFamily: `QCF_P${String(n).padStart(3, '0')}` }));
 
 beforeEach(() => {
-  mm.available = true;
+  mm.available = null;
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   state.locale = 'en';
   state.storage.clear();
@@ -928,7 +932,7 @@ describe('The Memorization Mode Guide (Settings → Quran → Mushaf Guide → M
     expect(state.storage.has(GUIDE_KEY)).toBe(false);
   });
 
-  it('a build without Memorization Mode ignores the request', async () => {
+  it('with the rollback switch off, the request is ignored', async () => {
     mm.available = false;
     state.params = { page: '61', memorizationGuide: '4' };
     await render();

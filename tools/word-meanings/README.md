@@ -42,17 +42,15 @@ repository
 
 - the original file (`source/`), the app's dataset (`mobile/assets/word-meanings/ghareeb.json`) and the detailed
   validation output (`output/`) are **git-ignored** (the repository is public) and restored locally by `import.mjs`;
-- the dataset is bundled **in development builds only** (`mobile/src/wordMeanings/bundledDataset.ts`: `if (__DEV__)`),
-  so release builds and OTA updates neither contain nor show the feature. Verified 2026-10-24 on local production
-  exports (Android and iOS, Hermes bytecode and plain JS; not published): 0 of the 10,085 distinct explanations, no
-  source URL, hash or file name, and no asset; the same search found 10,021 of them in a development export (the
-  control). The feature's own code ships, unreachable;
+- until 2026-10-24 the dataset was bundled in development builds only (`if (__DEV__)`), and release exports were
+  verified to contain none of it. **Since 2026-10-24 it is bundled in every build, release included**: the owner's
+  decision, taken while the Complex's written terms (above) are still unconfirmed — not a publisher's authorization
+  (../../docs/content-datasets-release.md). EAS Build uploads the git-ignored file through the repository's `.easignore`;
 - tracked files hold no King Fahd text: the lock, the reference corrections (word hashes only), the tests (synthetic
   text) and the validation report (counts and references).
 
-Shipping it means: the owner confirms the terms (and the attribution wording the Complex wants), then changes
-`bundledWordMeanings()` to bundle the data in release builds, and decides how release builds obtain the file (it is
-not in Git).
+Still open: the Complex's written terms, including the attribution wording it wants. Record them here when they
+arrive. The release decision did not wait for them (owner, 2026-10-24).
 
 ## Commands (from the repository root)
 
@@ -63,8 +61,8 @@ node tools/word-meanings/import.mjs --verify   # a fresh build must be byte-iden
 node tools/word-meanings/validate.mjs --date YYYY-MM-DD   # the validation report (docs/word-meanings/)
 ```
 
-**A fresh clone must run `import.mjs` once before starting Metro** for a development build: the development bundle
-requires the dataset file. The npm hooks were deliberately left unchanged (`mobile/tests/mushafFontRestore.test.ts`
+**A fresh clone must run `import.mjs` once before starting Metro or `eas build`**: every bundle, development and
+release, requires the dataset file (a release build without it fails at bundling, never ships without it). The npm hooks were deliberately left unchanged (`mobile/tests/mushafFontRestore.test.ts`
 pins them); wiring `--soft` into `prestart`/`pretest` is a follow-up for the owner. In CI the dataset is absent, so the
 tests on the real data report as skipped; the parsing rules and the feature itself are tested on synthetic data.
 

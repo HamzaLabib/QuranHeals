@@ -94,15 +94,15 @@ vi.mock('react-native', async () => {
     PanResponder: { create: (config: Record<string, unknown>) => ({ panHandlers: { __responder: config } }) },
   };
 });
-// The dataset (wordMeanings/bundledDataset.ts): SYNTHETIC, as a development build would carry it; `wm` switches the
-// build to a release (nothing bundled), the feature off, or the import's "unavailable" placeholder.
+// The dataset (wordMeanings/bundledDataset.ts): SYNTHETIC, as every build carries it; `wm` switches to a build
+// without the dataset (nothing bundled), the feature off, or the import's "unavailable" placeholder.
 const wm = vi.hoisted(() => ({ enabled: true, bundled: true, data: null as unknown, loads: 0 }));
 vi.mock('@/wordMeanings/config', () => ({ get WORD_MEANINGS_ENABLED() { return wm.enabled; } }));
 vi.mock('@/wordMeanings/bundledDataset', () => ({
   isWordMeaningsBundled: () => wm.bundled,
   bundledWordMeanings: () => { wm.loads += 1; return wm.bundled ? wm.data : null; },
 }));
-// Surah Preview (surahPreview/): bundled as in a development build, its data SYNTHETIC (never the source's text).
+// Surah Preview (surahPreview/): bundled as in every build, its data SYNTHETIC (never the source's text).
 const sp = vi.hoisted(() => ({ bundled: true, loads: 0, kahfTopics: false }));
 vi.mock('@/surahPreview/bundledDataset', () => ({
   isSurahPreviewBundled: () => sp.bundled,
@@ -562,7 +562,7 @@ describe('Word Meanings: Normal Mode only (mode isolation)', () => {
     expect(hosts('word-meanings-open')).toHaveLength(1);
   });
 
-  it('10. the feature switched off, or a release build without the dataset: no control in Normal Mode, nothing loaded', async () => {
+  it('10. the feature switched off, or a build without the dataset: no control in Normal Mode, nothing loaded', async () => {
     wm.enabled = false;
     await render();
     expect(featureNodes()).toHaveLength(0);
@@ -1229,7 +1229,7 @@ describe('Surah Preview (عن السورة)', () => {
     expect(textOf(hosts('surah-preview-themes-unavailable')[0])).toBe('غير متاحة بعد.');
   });
 
-  it('not bundled (a release build): no button, nothing loaded', async () => {
+  it('not bundled (a build without the dataset): no button, nothing loaded', async () => {
     sp.bundled = false;
     state.params = { page: '2' };
     await render();

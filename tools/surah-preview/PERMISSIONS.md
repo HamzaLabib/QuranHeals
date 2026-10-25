@@ -1,9 +1,15 @@
 # Surah Preview (عن السورة) — permissions record
 
-What each source's own terms say, what the owner has approved, and what is still needed before the content may ship
-in a release build. Surah Preview's data is bundled in development builds only (`mobile/src/surahPreview/bundledDataset.ts`:
-`__DEV__`); enabling release builds is a deliberate code change, to be made only once every "before production" item
-below is on file.
+What each source's own terms say, what the owner has approved, and what is still needed from the publishers. Surah
+Preview's data is bundled in **every build, release included, since 2026-10-24**, by the owner's decision below — while
+the "before production" publisher items in this record are still **not on file**.
+
+## Owner decision: production enabled without the publishers' permissions (2026-10-24)
+
+The owner explicitly authorized enabling Surah Preview (and Meanings) in production builds **despite the unresolved
+publisher-permission records**. This is the owner's decision and acceptance of that risk, **not** a publisher's
+authorization: none of the permissions below has been obtained, and items 1, 2 and 4 of the checklist stay open.
+Details and the packaging (`.easignore`): [../../docs/content-datasets-release.md](../../docs/content-datasets-release.md).
 
 ## Owner approval (2026-10-24)
 
@@ -45,4 +51,5 @@ owner's **editorial** approval only:
    scholarly review (review dashboard → `reviewed-content.json`, status `approved`): not done; whether it is required
    before production is the owner's decision.
 4. Quranpedia: refresh the dump (`--update-lock` after review) so the shipped text is current, as its licence asks.
-5. Only then: allow release builds in `bundledDataset.ts`.
+5. ~~Only then: allow release builds in `bundledDataset.ts`.~~ Done on 2026-10-24 **before** items 1, 2 and 4, by the
+   owner's decision above. Record each permission here when it arrives.

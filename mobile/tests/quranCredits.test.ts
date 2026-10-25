@@ -23,7 +23,7 @@ const state = vi.hoisted(() => ({
   locale: 'en' as 'en' | 'ar' | 'ar-EG',
   canGoBack: true,
   openURL: vi.fn(),
-  /** Whether this build carries Surah Preview's dataset (surahPreview/bundledDataset.ts: development builds; vitest's __DEV__ is false). */
+  /** Whether this build carries Surah Preview's dataset (surahPreview/bundledDataset.ts: every build); false = a build without it. */
   surahPreviewBundled: true,
 }));
 vi.mock('@/surahPreview/bundledDataset', () => ({ isSurahPreviewBundled: () => state.surahPreviewBundled, bundledSurahPreview: () => null }));
@@ -166,7 +166,7 @@ describe('Quran Sources & Credits page', () => {
     expect(MESSAGES.ar.credits.quranpediaWork).toMatch(/جامعة الشارقة.*للفيروزآبادي.*محمد علي النجار.*لا يعني تأييدها/);
   });
 
-  it('a build without Surah Preview (release) does not list its source; the other sources are unchanged', async () => {
+  it('a build without Surah Preview\'s dataset does not list its source; the other sources are unchanged', async () => {
     state.surahPreviewBundled = false;
     await act(async () => { root = create(createElement(CreditsScreen)); });
     for (const key of ['tafsirCenter', 'quranpedia']) expect(root.root.findAll((node) => typeof node.type === 'string' && node.props.testID === `credit-${key}`)).toHaveLength(0);

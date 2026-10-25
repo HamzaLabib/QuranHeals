@@ -1,12 +1,11 @@
 /**
- * Memorization Mode (وضع الحفظ): the internal development switch, separate from the reader's own Settings → Quran →
- * Memorization Mode toggle (memorizationModePreference.ts), which only shows or hides the Eye button.
+ * Memorization Mode (وضع الحفظ): the rollback switch, separate from the reader's own Settings → Quran → Memorization
+ * Mode toggle (memorizationModePreference.ts, OFF by default), which only shows or hides the Eye button.
  *
- * Development builds only until the owner approves the feature for release: Metro replaces `__DEV__` with false in a
- * release bundle, so nothing of it is reachable there — no Settings row, no Eye button, no guide choice (Settings →
- * Mushaf Guide then opens the Mushaf guide directly, as before). Allowing release builds is a deliberate change of
- * this function.
+ * Available in every build — development and release, Android and iOS (owner approval, 2026-10-24): the Settings row,
+ * the Eye, Show All / Hide All, the guide choice and the Memorization Mode Guide. Returning false removes all of it
+ * (Settings → Mushaf Guide then opens the Mushaf guide directly, as before) and changes nothing else.
  */
 export function isMemorizationModeAvailable(): boolean {
-  return __DEV__;
+  return true;
 }

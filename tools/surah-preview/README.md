@@ -2,7 +2,9 @@
 
 The Mushaf reader's **Surah Preview / عن السورة** sheet (`mobile/src/surahPreview/`) shows, for a Surah beginning on the
 page: its name; Makki/Madani, number of ayahs and Surah number; its main purpose (مقصد السورة); its main themes
-(موضوعاتها). Development builds only (`bundledDataset.ts`), until the sources' terms allow a release.
+(موضوعاتها). Bundled in every build, development and release, since 2026-10-24: the owner's decision, taken while the
+publishers' written permissions are still not on file (`PERMISSIONS.md`; ../../docs/content-datasets-release.md). The dataset stays
+git-ignored; restore it on a fresh checkout with `import.mjs` (below) before Metro or `eas build`.
 
 ## Pipeline
 
@@ -44,8 +46,8 @@ node tools/surah-preview/validate.mjs [--file <dataset.json>]         # checks i
   76 and 102 (the app keeps Tanzil's).
 - Permission: Quranpedia's licence (LICENSE.md in the dump) allows use inside apps without attribution, but states that
   «Translations and contemporary works remain the intellectual property of their respective authors and publishers»;
-  «التفسير الموضوعي لسور القرآن الكريم» is a contemporary work, so its publisher's permission is still needed before any
-  release. Development builds only until then.
+  «التفسير الموضوعي لسور القرآن الكريم» is a contemporary work, so its publisher's permission is still needed. Not on
+  file; release builds carry the topics by the owner's decision of 2026-10-24 (../../docs/content-datasets-release.md).
 
 ### Why other sources were not used
 
@@ -100,7 +102,7 @@ SHA-256 of the line before it, so an edited or removed line stops the dashboard 
 decision also carries the SHA-256 of the topics as reviewed: if the pinned source changes afterwards, the decision is
 **stale** and is not applied. A later decision supersedes an earlier one; the history stays. Back the file up.
 
-To put decisions into the app (development builds only):
+To put decisions into the app:
 
 ```sh
 node tools/surah-preview/review/apply.mjs           # dry run: what would change
@@ -128,6 +130,6 @@ Written by `review/apply.mjs` (do not edit by hand). Shape:
 ```
 
 Sections: `themesAr`, `themesEn` (`items`), `purposeEn` (`text`). Status `approved` or `rejected` (both need
-`review`, the human decision; `rejected` shows no topics), or `pending-review` (shown in development builds marked
-«قيد المراجعة العلمية»). Every section must cite a listed source; the import refuses anything else, and nothing here
+`review`, the human decision; `rejected` shows no topics), or `pending-review` (shown like the others, in every build;
+there is no on-screen marker). Every section must cite a listed source; the import refuses anything else, and nothing here
 may claim `quoted`. topics-review.json records each Surah's status and, once decided, the reviewer and decision number.
