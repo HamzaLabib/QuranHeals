@@ -196,8 +196,8 @@ describe('loading: published timing first, its own recording, never mixed', () =
     await c.refresh();
     expect(c.rejected('saleh-talib', T87)).toBe(true);
     expect(await loaderWith(c).load(talib, T87)).toEqual({ ok: false, reason: 'mismatch' });
-    const ahmed = getReciter('ahmed-salama')!;
-    expect(await loaderWith(c).load(ahmed, 1)).toEqual({ ok: false, reason: 'unavailable' });
+    const sobhi = getReciter('islam-sobhi')!; // Islam Sobhi 17: no catalogue or released timing
+    expect(await loaderWith(c).load(sobhi, 17)).toEqual({ ok: false, reason: 'unavailable' });
   });
 
   it('a published version whose document fails validation is a mismatch: no fall-back to other timing', async () => {

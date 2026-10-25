@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { reciterDownloadStatus } from '@/audio/downloadStatus';
 import { formatBytes, localDigits, surahRanges } from '@/audio/format';
 import { audioDownloads } from '@/audio/index';
-import { getReciter, offlineDownloadBytes, reciterName, timedSurahs } from '@/audio/reciters';
+import { downloadableSurahs, getReciter, offlineDownloadBytes, reciterName, timedSurahs } from '@/audio/reciters';
 import { SOURCE_REGISTRY } from '@/audio/sourceRegistry';
 import { useAudioDownload, useStoredAudio } from '@/audio/usePlayback';
 import { radii, spacing, typography, type Palette } from '@/constants/theme';
@@ -44,13 +44,17 @@ export function ReciterDownloadControl({ reciterId, messages, isRtl, direction }
   // The app's switch and the provider's own offline permission (audio/sourceRegistry.ts).
   const offlinePermitted = SOURCE_REGISTRY.reciterOfflinePermitted(reciter.id);
   const status = reciterDownloadStatus({ permitted: offlinePermitted, reciter, stored: storedSurahs, download });
-  const timed = timedSurahs(reciter);
+  // What a download can store (streaming-only preview surahs excluded): the counts, size and "complete Quran" use it.
+  const timed = downloadableSurahs(reciter);
   const total = offlineDownloadBytes(reciter);
   const name = reciterName(reciter, isRtl);
   const size = (bytes: number) => formatBytes(bytes, copy, isRtl);
   const n = (value: number) => localDigits(value, isRtl);
   const job = download.reciterId === reciter.id ? download : null;
-  const notIncluded = Array.from({ length: 114 }, (_, i) => i + 1).filter((s) => !reciter.timed[s]);
+  // Left out of a download: surahs with no verified recording, and playable surahs streamed from another host.
+  const playable = timedSurahs(reciter);
+  const notIncluded = Array.from({ length: 114 }, (_, i) => i + 1).filter((s) => !playable.includes(s));
+  const streamingOnly = playable.filter((s) => !timed.includes(s));
   const permitted = offlinePermitted;
 
   const stateLabel = {
@@ -129,12 +133,16 @@ export function ReciterDownloadControl({ reciterId, messages, isRtl, direction }
           <Text accessibilityRole="header" style={[styles.title, direction]}>{copy.offlineTitle}</Text>
           <Text style={[styles.reciter, direction]}>{name}</Text>
           {status === 'unavailable' ? (
-            <Text style={[styles.body, direction]}>{fill(copy.offlineNothing, { reciter: name })}</Text>
+            // Playable by streaming only (timed previews, per-ayah files), or not playable ayah by ayah at all.
+            <Text style={[styles.body, direction]}>{fill(playable.length > 0 ? copy.offlineStreamingOnly : copy.offlineNothing, { reciter: name })}</Text>
           ) : (
             <Text testID="settings-reciter-download-description" style={[styles.body, direction]}>{fill(timed.length === 114 ? copy.offlineDescriptionComplete : copy.offlineDescription, { reciter: name, n: n(timed.length), all: n(114), size: size(total) })}</Text>
           )}
           {status !== 'unavailable' && notIncluded.length > 0 && (
             <Text testID="settings-reciter-download-missing" style={[styles.note, direction]}>{fill(copy.offlineNotIncluded, { list: surahRanges(notIncluded, isRtl) })}</Text>
+          )}
+          {status !== 'unavailable' && streamingOnly.length > 0 && (
+            <Text testID="settings-reciter-download-streaming" style={[styles.note, direction]}>{fill(copy.offlineStreamingOnlyList, { list: surahRanges(streamingOnly, isRtl) })}</Text>
           )}
           {!permitted && status !== 'unavailable' && (
             <Text testID="settings-reciter-download-not-permitted" style={[styles.note, direction]}>{copy.offlineNotPermitted}</Text>

@@ -152,13 +152,13 @@ describe('per-ayah recordings: the catalogue', () => {
     expect(hasAyahAudio(getReciter('gebril-test')!, 3)).toBe(false);
   });
 
-  it('is labelled as a development preview in both languages, with its real coverage', async () => {
+  it('shows only its real coverage in both languages: no development or release status', async () => {
     const { coverageLabel } = await import('@/audio/format');
     const { getMessages } = await import('@/localization/messages');
-    const r = getReciter('gebril-test')!;
-    expect(coverageLabel(r, getMessages('en').audio, false)).toBe('Development preview · 5 of 114 surahs');
-    expect(coverageLabel(r, getMessages('ar').audio, true)).toBe('معاينة للتطوير · ٥ من ١١٤ سورة');
-    // A catalogue reciter is no preview; with all 114 surahs it has no line at all.
+    const r = getReciter('gebril-test')!; // an unreleased per-ayah recording on trial
+    expect(coverageLabel(r, getMessages('en').audio, false)).toBe('5 of 114 surahs');
+    expect(coverageLabel(r, getMessages('ar').audio, true)).toBe('٥ من ١١٤ سورة');
+    // With all 114 surahs there is no line at all.
     expect(coverageLabel(getReciter('abdulbasit')!, getMessages('en').audio, false)).toBeNull();
   });
 
@@ -175,11 +175,11 @@ describe('per-ayah recordings: the catalogue', () => {
 describe('per-ayah recordings: release builds', () => {
   const src = (f: string) => fs.readFileSync(path.join(__dirname, '..', 'src', f), 'utf8');
 
-  it('are not in the catalogue tests and release builds use (__DEV__ false)', () => {
-    // RECITERS here is the mocked list with the fixture; the real module's list is the catalogue alone.
-    expect(RECITERS.filter((r) => r.perAyah).map((r) => r.id)).toEqual(['gebril-test']);
+  it('release builds (__DEV__ false, as tests) play only the released recordings (generated/perAyahRelease.ts), never the preview', () => {
+    // RECITERS here is the mocked list with the fixture added; the real module's list has the released Ali Jaber only.
+    expect(RECITERS.filter((r) => r.perAyah).map((r) => r.id)).toEqual(['jaber', 'gebril-test']);
     const reciters = src('audio/reciters.ts');
-    expect(reciters).toMatch(/const PER_AYAH_PREVIEW: readonly PerAyahRecording\[\] = __DEV__\s*\?[\s\S]*?require\('\.\/generated\/perAyahPreview'\)[\s\S]*?: \[\];/);
+    expect(reciters).toMatch(/const PER_AYAH_PREVIEW: readonly PerAyahRecording\[\] = __DEV__\s*\?[\s\S]*?require\('\.\/generated\/perAyahPreview'\)[\s\S]*?: PER_AYAH_RELEASE;/);
     expect(reciters).toMatch(/export const RECITERS: readonly Reciter\[\] = orderedReciters\(__DEV__\s*\? withPerAyahPreview\(/);
   });
 

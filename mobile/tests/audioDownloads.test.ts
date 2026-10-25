@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { createAudioDownloads, looksLikeMp3, type AudioFiles, type FileDownload } from '@/audio/downloads';
-import { getReciter, surahAudioUrl, timedSurahs, type Reciter } from '@/audio/reciters';
+import { downloadableSurahs, getReciter, surahAudioUrl, timedSurahs, type Reciter } from '@/audio/reciters';
 import { localFirstSource } from '@/audio/sources';
 import type { TimingLoader } from '@/audio/timing';
 
@@ -222,8 +222,11 @@ describe('downloading a reciter for offline listening', () => {
     const maher = getReciter('maher')!;
     expect(timedSurahs(maher).length).toBeGreaterThan(100);
     expect(downloads.totalBytes('maher')).toBe(Object.values(maher.timed).reduce((sum, [, bytes]) => sum + bytes, 0));
-    // A surah without verified timing is never part of a download (it could not play ayah by ayah).
-    expect(timedSurahs(maher)).not.toContain(36);
+    // A surah without verified timing is never part of a download (it could not play ayah by ayah): Islam Sobhi 17.
+    expect(downloadableSurahs(getReciter('islam-sobhi')!)).not.toContain(17);
+    // Streaming-only surahs (timed previews from other hosts) are never stored: nothing of Ahmed Mohamed Salama.
+    expect(timedSurahs(getReciter('ahmed-salama')!)).toHaveLength(114);
+    expect(downloads.totalBytes('ahmed-salama')).toBe(0);
   });
 });
 
@@ -240,8 +243,8 @@ describe('playing downloaded audio', () => {
     expect(await resolve(getReciter('maher')!, 4)).toEqual({ uri: 'https://cdn.mp3quran.net/audio/maher-muaiqly/r3/004.mp3', local: false });
   });
 
-  it('builds no stream URL for a surah the reciter cannot play (Maher 3: timing withdrawn by the 2026-10-17 audit)', async () => {
-    await expect(localFirstSource(fakeFiles().files)(getReciter('maher')!, 3)).rejects.toThrow(/no playable source/);
+  it('builds no stream URL for a surah the reciter cannot play (Islam Sobhi 17: listed, structure unresolved, no timing)', async () => {
+    await expect(localFirstSource(fakeFiles().files)(getReciter('islam-sobhi')!, 17)).rejects.toThrow(/no playable source/);
   });
 });
 

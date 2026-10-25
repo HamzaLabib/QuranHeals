@@ -51,8 +51,14 @@ describe('audio baseline protection (work on Sobhi, Yasser 48, Agamy 42 only)', 
     expect([...ON_HOLD_RECITER_IDS]).toEqual(['rifaat', 'gebril']);
   });
 
-  it('release builds: exactly the baseline (nothing added, removed or changed)', () => {
-    expect(now.release).toEqual(base.release);
+  it('release builds: every baseline entry unchanged; added entries (owner release, 2026-10-25) are development surahs, identical', () => {
+    for (const [id, surahs] of Object.entries(base.release)) {
+      for (const [s, entry] of Object.entries(surahs)) expect(now.release[id]?.[Number(s)], `${id} ${s}`).toEqual(entry);
+    }
+    // A release adds only what development builds already play, with the same timing, size and file.
+    for (const [id, surahs] of Object.entries(now.release)) {
+      for (const [s, entry] of Object.entries(surahs)) if (!base.release[id]?.[Number(s)]) expect(entry, `${id} ${s}`).toEqual(now.development[id]?.[Number(s)]);
+    }
   });
 
   it('development builds: every baseline surah keeps its timing fingerprint, size and file', () => {

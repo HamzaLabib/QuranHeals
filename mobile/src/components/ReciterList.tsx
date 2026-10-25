@@ -23,7 +23,8 @@ type ReciterListProps = {
 /**
  * The 17 reciters, in the approved order, each with its name in the app's language and, unless it has all 114 surahs,
  * how much of the Quran it can play ayah by ayah ("103 of 114 surahs", "Ayah-by-ayah playback not available"): every
- * reciter is listed and selectable, with its gaps shown, never hidden. Used by Settings → Favorite Reciter and the Mushaf player.
+ * reciter is listed and selectable, with its gaps shown, never hidden, and no development or release status. Used by
+ * Settings → Favorite Reciter and the Mushaf player.
  */
 export function ReciterList({ selectedId, onSelect, copy, rtl, tone, badge, note, testIDPrefix = 'reciter' }: ReciterListProps) {
   const align = { textAlign: rtl ? 'right' : 'left', writingDirection: rtl ? 'rtl' : 'ltr' } as const;

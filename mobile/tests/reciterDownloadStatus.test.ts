@@ -2,10 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import { reciterDownloadStatus } from '@/audio/downloadStatus';
 import { IDLE_DOWNLOAD, type DownloadState } from '@/audio/downloads';
-import { getReciter, OFFLINE_DOWNLOADS_PERMITTED, timedSurahs } from '@/audio/reciters';
+import { downloadableSurahs, getReciter, OFFLINE_DOWNLOADS_PERMITTED, timedSurahs } from '@/audio/reciters';
 
 const maher = getReciter('maher')!;
-const husary = getReciter('husary')!;
 const all = (reciter = maher) => timedSurahs(reciter);
 const job = (patch: Partial<DownloadState>): DownloadState => ({ ...IDLE_DOWNLOAD, reciterId: 'maher', ...patch });
 
@@ -23,9 +22,11 @@ describe('the Favorite Reciter download icon state', () => {
   it('the check (complete) only when every playable surah is stored as a verified file', () => {
     expect(reciterDownloadStatus({ permitted: true, reciter: maher, stored: all(), download: IDLE_DOWNLOAD })).toBe('complete');
     expect(reciterDownloadStatus({ permitted: true, reciter: maher, stored: all().slice(1), download: IDLE_DOWNLOAD })).toBe('partial');
-    // Files for surahs without verified timing never count (Husary 1 is not playable).
-    expect(reciterDownloadStatus({ permitted: true, reciter: husary, stored: [1, ...all(husary).slice(1)], download: IDLE_DOWNLOAD })).toBe('partial');
-    expect(reciterDownloadStatus({ permitted: true, reciter: husary, stored: all(husary), download: IDLE_DOWNLOAD })).toBe('complete');
+    // Files for surahs without verified timing never count (Islam Sobhi 17 is not playable).
+    const sobhi = getReciter('islam-sobhi')!;
+    const storable = downloadableSurahs(sobhi);
+    expect(reciterDownloadStatus({ permitted: true, reciter: sobhi, stored: [17, ...storable.slice(1)], download: IDLE_DOWNLOAD })).toBe('partial');
+    expect(reciterDownloadStatus({ permitted: true, reciter: sobhi, stored: storable, download: IDLE_DOWNLOAD })).toBe('complete');
     // Verified files already on the device are shown as such even while downloads are off.
     expect(reciterDownloadStatus({ permitted: false, reciter: maher, stored: all(), download: IDLE_DOWNLOAD })).toBe('complete');
   });
@@ -38,7 +39,7 @@ describe('the Favorite Reciter download icon state', () => {
     expect(reciterDownloadStatus({ permitted: true, reciter: maher, stored: [], download: job({ phase: 'error', error: 'not-permitted' }) })).toBe('not-permitted');
   });
 
-  it('a reciter with nothing playable to download is unavailable', () => {
-    expect(reciterDownloadStatus({ permitted: true, reciter: getReciter('yasser-salama')!, stored: [], download: IDLE_DOWNLOAD })).toBe('unavailable'); // no ayah playback at all
+  it('a reciter with nothing to download is unavailable: streaming-only timed previews and per-ayah recordings', () => {
+    for (const id of ['ahmed-salama', 'jaber']) expect(reciterDownloadStatus({ permitted: true, reciter: getReciter(id)!, stored: [], download: IDLE_DOWNLOAD }), id).toBe('unavailable'); // playable, but nothing storable
   });
 });

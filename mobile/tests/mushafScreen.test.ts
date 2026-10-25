@@ -211,6 +211,8 @@ const audio = vi.hoisted(() => ({
   loads: [] as string[],
   /** Whole-surah tests: surahs that play only whole ("reciterId:surah"); everything else is the catalogue. */
   wholeSurah: new Set<string>(),
+  /** Fixture: surahs treated as having no verified timing ("reciterId:surah"): Al-Minshawi has all 114 in this build. */
+  without: new Set<string>(),
 }));
 vi.mock('@/audio/index', async () => {
   const { createPlaybackEngine } = await import('@/audio/engine');
@@ -241,7 +243,7 @@ vi.mock('@/audio/index', async () => {
     resolveSource: async (reciter, surah) => (audio.wholeSurah.has(`${reciter.id}:${surah}`)
       ? { uri: surahAudioUrl(reciter, surah), local: false, bytes: 1, durationMs: 1_234_000, verify: true }
       : { uri: surahAudioUrl(reciter, surah), local: false }),
-    capability: (reciter, surah) => (audio.wholeSurah.has(`${reciter.id}:${surah}`) ? 'surah' : hasAyahPlayback(reciter, surah) ? 'ayah' : 'none'),
+    capability: (reciter, surah) => (audio.wholeSurah.has(`${reciter.id}:${surah}`) ? 'surah' : !audio.without.has(`${reciter.id}:${surah}`) && hasAyahPlayback(reciter, surah) ? 'ayah' : 'none'),
     checkStream: async () => 'ok',
     now: () => 10 ** 12,
   });
@@ -444,6 +446,7 @@ afterEach(async () => {
   (await import('@/audio/index')).audioEngine.stop();
   audio.loads = [];
   audio.wholeSurah.clear();
+  audio.without.clear();
   // The offline Mushaf's one controller (a module singleton): each test starts with a fresh one.
   await resetMushafAutoDownloadForTests();
 });
@@ -5548,7 +5551,8 @@ describe('Quran audio in the reader (audio/)', () => {
     expect((await engine()).getState().phase).toBe('ended');
     expect(hosts('audio-chip')).toHaveLength(0);
     expect(hosts('mushaf-audio-idle')).toHaveLength(1);
-    (await engine()).start({ surah: 53, ayah: 1 }, { mode: 'continuous', reciterId: 'minshawi' }); // no verified recording
+    audio.without.add('minshawi:54'); // fixture: no verified recording
+    (await engine()).start({ surah: 54, ayah: 1 }, { mode: 'continuous', reciterId: 'minshawi' });
     await flush();
     expect((await engine()).getState().phase).toBe('error');
     expect(hosts('audio-chip')).toHaveLength(0);
@@ -5698,6 +5702,7 @@ describe('Quran audio in the reader (audio/)', () => {
     await flush();
     expect((await engine()).getState()).toMatchObject({ reciterId: 'minshawi', pendingReciterId: null, position: { surah: 3, ayah: 92 }, phase: 'playing' });
     expect(state.storage.has('quran-heals:favorite-reciter:v1')).toBe(false);
+    audio.without.add('minshawi:52'); // fixture: Al-Minshawi without At-Tur
     (await engine()).start({ surah: 51, ayah: 52 }, { mode: 'continuous', reciterId: 'minshawi' }); // page 523; page 524 begins at 52:15
     await flush();
     await press(onlyHost('audio-next-page'));
@@ -5776,7 +5781,7 @@ describe('Quran audio in the reader (audio/)', () => {
     expect(onlyHost('audio-previous').props.disabled).toBe(false);
   });
 
-  it('the Sheikh dropdown: its arrow always shown, ⌄ closed and ⌃ open; the offered reciters (16 in a release build), the current highlighted; a choice is Up next, a manual Next applies it at once', async () => {
+  it('the Sheikh dropdown: its arrow always shown, ⌄ closed and ⌃ open; the offered reciters (17 in a release build), the current highlighted; a choice is Up next, a manual Next applies it at once', async () => {
     await playing();
     await press(onlyHost('audio-expand'));
     expect(hosts('audio-reciter-chevron-down')).toHaveLength(1);
@@ -5785,8 +5790,8 @@ describe('Quran audio in the reader (audio/)', () => {
     expect(hosts('audio-reciter-chevron-up')).toHaveLength(1);
     expect(hosts('audio-reciter-chevron-down')).toHaveLength(0);
     const rows = () => root.root.findAll((node) => typeof node.type === 'string' && /^audio-reciter-(?!dropdown|name|list|chevron)/.test(node.props.testID ?? ''));
-    expect(rows()).toHaveLength(16);
-    expect(rows().map((node) => node.props.testID.replace('audio-reciter-', ''))).toEqual(['minshawi', 'husary', 'abdulbasit', 'banna', 'sufi', 'ahmed-salama', 'hudhaifi', 'shuraim', 'maher', 'shatri', 'ajmi', 'basfar', 'yasser-salama', 'naina', 'islam-sobhi', 'saleh-talib']);
+    expect(rows()).toHaveLength(17);
+    expect(rows().map((node) => node.props.testID.replace('audio-reciter-', ''))).toEqual(['minshawi', 'husary', 'abdulbasit', 'banna', 'sufi', 'ahmed-salama', 'hudhaifi', 'shuraim', 'maher', 'shatri', 'ajmi', 'jaber', 'basfar', 'yasser-salama', 'naina', 'islam-sobhi', 'saleh-talib']);
     expect(rows().filter((node) => node.props.accessibilityState?.selected).map((node) => node.props.testID)).toEqual(['audio-reciter-abdulbasit']);
     // Tapping it again closes the list.
     await press(onlyHost('audio-reciter-dropdown'));
@@ -5808,11 +5813,11 @@ describe('Quran audio in the reader (audio/)', () => {
     // The new name, its arrow still there.
     expect(textOfNode(onlyHost('audio-reciter-dropdown'))).toBe('Muhammad Siddiq Al-Minshawi');
     expect(hosts('audio-reciter-chevron-down')).toHaveLength(1);
-    // A reciter with no verified timing at all is listed, marked, and refused with a notice when chosen.
+    // A reciter without a verified recording of this surah (Saleh Al-Talib, 3) is listed, and refused with a notice when chosen.
     await press(onlyHost('audio-reciter-dropdown'));
-    await press(onlyHost('audio-reciter-banna'));
+    await press(onlyHost('audio-reciter-saleh-talib'));
     await flush();
-    expect(textOfNode(onlyHost('audio-problem'))).toMatch(/Mahmoud Ali Al-Banna has no verified recording of Surah Aal-i-Imraan/);
+    expect(textOfNode(onlyHost('audio-problem'))).toMatch(/Saleh Al-Talib has no verified recording of Surah Aal-i-Imraan/);
   });
 
   it('Arabic: the chip «[⏸] عبد الباسط عبد الصمد · ٨٤» (Pause on the right of the name), «سورة آل عمران · الآية ٨٤», the controls mirrored with the right-pointing glyphs', async () => {

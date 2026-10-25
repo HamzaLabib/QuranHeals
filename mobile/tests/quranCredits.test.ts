@@ -98,7 +98,7 @@ describe('Quran Sources & Credits page', () => {
       'https://www.mp3quran.net/eng/privacy',
       'https://quranenc.com/ar/browse/arabic_mokhtasar',
       'https://quranpedia.net',
-      // Alternative recording hosts: listed, but shown only in builds that play their files (none released yet).
+      // Alternative recording hosts: listed, and shown only in builds that play their files (all released 2026-10-25).
       'https://way2quran.com/',
       'https://www.assabile.com/',
       'https://archive.org/',
@@ -106,7 +106,8 @@ describe('Quran Sources & Credits page', () => {
       'https://everyayah.com/',
     ]);
     const shownUrls = QURAN_SOURCES.filter((source) => source.inThisBuild?.() ?? true).flatMap((source) => source.links.map((link) => link.url));
-    expect(shownUrls).not.toContain('https://way2quran.com/');
+    // A release build (vitest __DEV__ false) plays the released previews and Ali Jaber's per-ayah files: every host shown.
+    for (const url of ['https://way2quran.com/', 'https://www.assabile.com/', 'https://archive.org/', 'https://quranicaudio.com/', 'https://everyayah.com/']) expect(shownUrls).toContain(url);
     expect(links()).toHaveLength(shownUrls.length);
     for (const link of links()) {
       expect(link.props.accessibilityLabel).toMatch(/: /); // "Tanzil Project: Licence"
@@ -128,7 +129,8 @@ describe('Quran Sources & Credits page', () => {
     await act(async () => { root = create(createElement(CreditsScreen)); });
     const copy = MESSAGES.en.credits;
     const cards = root.root.findAll((node) => typeof node.type === 'string' && /^credit-/.test(String(node.props.testID))).map((node) => node.props.testID);
-    expect(cards).toEqual(['credit-tanzil', 'credit-quranFoundation', 'credit-kingFahd', 'credit-amiri', 'credit-mp3quran', 'credit-tafsirCenter', 'credit-quranpedia']);
+    // Surah Preview's two cards follow the Quran text and audio sources; the recording hosts this build plays come last.
+    expect(cards).toEqual(['credit-tanzil', 'credit-quranFoundation', 'credit-kingFahd', 'credit-amiri', 'credit-mp3quran', 'credit-tafsirCenter', 'credit-quranpedia', 'credit-way2quran', 'credit-assabile', 'credit-archive', 'credit-quranicaudio', 'credit-everyayah']);
     expect(copy.tafsirCenterName).toBe('Tafsir Center for Quranic Studies');
     expect(copy.tafsirCenterWork).toBe('Surah Preview’s main purpose: Al-Mukhtasar fi Tafsir al-Quran al-Karim (المختصر في تفسير القرآن الكريم), via QuranEnc.com. Makki/Madani and ayah count: Tanzil.');
     expect(texts()).toEqual(expect.arrayContaining([copy.tafsirCenterName, copy.tafsirCenterWork]));
@@ -180,7 +182,7 @@ describe('Quran Sources & Credits page', () => {
     for (const key of ['tafsirCenter', 'quranpedia']) expect(root.root.findAll((node) => typeof node.type === 'string' && node.props.testID === `credit-${key}`)).toHaveLength(0);
     expect(texts()).not.toContain(MESSAGES.en.credits.tafsirCenterName);
     expect(texts()).not.toContain(MESSAGES.en.credits.quranpediaName);
-    expect(links()).toHaveLength(9);
+    expect(links()).toHaveLength(9 + 5); // the nine Quran text and audio links, and the five recording hosts
   });
 
   it('Back returns to the previous screen, or Home when opened directly', async () => {

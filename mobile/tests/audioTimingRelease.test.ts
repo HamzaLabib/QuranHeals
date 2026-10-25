@@ -4,8 +4,9 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 import { coverageLabel } from '@/audio/format';
-import { REVIEWED_RELEASE, TIMED_PREVIEW_RELEASE, VBR_RELEASE } from '@/audio/generated/timingRelease';
+import { MEASURED_RELEASE, REVIEWED_RELEASE, TIMED_PREVIEW_RELEASE, VBR_RELEASE } from '@/audio/generated/timingRelease';
 import { GENERATED_RECITERS } from '@/audio/generated/reciterCatalog';
+import { DEVELOPMENT_TIMING } from '@/audio/generated/developmentTiming';
 import { REVIEWED_TIMING } from '@/audio/generated/reviewedTiming';
 import { TIMED_PREVIEW } from '@/audio/generated/timedPreview';
 import { VBR_TIMING } from '@/audio/generated/vbrTiming';
@@ -42,15 +43,43 @@ const banna2 = REVIEWED_TIMING.banna[2];
 const yasser48 = VBR_TIMING['yasser-salama'][48];
 
 describe('timing release: the generator gates', () => {
-  it('today nothing is released, and generated/timingRelease.ts is exactly the generator\'s output from the current inputs', () => {
+  it('without owner decisions nothing is released (no device record exists)', () => {
     const r = gen.releaseTiming(input());
     expect(r.reviewed).toEqual({});
     expect(r.vbr).toEqual({});
     expect(r.timedPreview).toEqual([]);
+  });
+
+  it('generated/timingRelease.ts is exactly the generator\'s output from the repository inputs (statement, owner decisions, development timing)', () => {
+    const repo = input({
+      permissions: JSON.parse(read('../../tools/quran-audio/development/source-permissions.json')),
+      decisions: JSON.parse(read('../../tools/quran-audio/development/owner-release-decisions.json')),
+      development: DEVELOPMENT_TIMING,
+    });
+    const r = gen.releaseTiming(repo);
     expect(read('../src/audio/generated/timingRelease.ts')).toBe(gen.renderTimingRelease(r));
-    expect(REVIEWED_RELEASE).toEqual({});
-    expect(VBR_RELEASE).toEqual({});
-    expect(TIMED_PREVIEW_RELEASE).toEqual([]);
+    const count = (o: Record<string, Record<number, unknown>>) => Object.values(o).reduce((n, x) => n + Object.keys(x).length, 0);
+    // The owner's risk acceptance (2026-10-25) stands in for the missing device evidence: every surah, both platforms.
+    expect(count(REVIEWED_RELEASE)).toBe(count(REVIEWED_TIMING));
+    expect(count(VBR_RELEASE)).toBe(count(VBR_TIMING));
+    for (const x of Object.values(VBR_RELEASE).flatMap((y) => Object.values(y))) expect(x.platforms).toEqual(['index', 'avfoundation-precise']); // both exact-seek methods: Android and iOS
+    expect(TIMED_PREVIEW_RELEASE.reduce((n, p) => n + Object.keys(p.surahs).length, 0)).toBe(177);
+    for (const p of TIMED_PREVIEW_RELEASE) expect(p.released).toBe(true);
+    // Measured development timing: released on the owner decision naming "measured-timing" (2026-10-25), all 44, each
+    // exactly its development entry (same fingerprint, size and deltas).
+    expect(count(MEASURED_RELEASE)).toBe(44);
+    for (const [id, surahs] of Object.entries(MEASURED_RELEASE)) {
+      for (const [s, x] of Object.entries(surahs)) expect(x, `${id} ${s}`).toEqual({ fingerprint: DEVELOPMENT_TIMING[id][Number(s)].fingerprint, bytes: DEVELOPMENT_TIMING[id][Number(s)].bytes, deltas: DEVELOPMENT_TIMING[id][Number(s)].deltas });
+    }
+    const devices = r.report.reviewed.banna[2].gates.find((g) => g.gate === 'devices')!.why;
+    expect(devices).toMatch(/^shipped without device evidence: owner risk acceptance owner-2026-10-25-accept-risk-without-device-evidence/);
+    expect(devices).toMatch(/not testing/);
+    for (const x of Object.values(r.report.measured).flatMap((y) => Object.values(y))) {
+      expect(x.gates.find((g) => g.gate === 'inclusion')!.why).toMatch(/^owner decision owner-2026-10-25-release-measured-timing .* not a listening review$/);
+      expect(x.gates.find((g) => g.gate === 'devices')!.why).toMatch(/^shipped without device evidence: owner risk acceptance owner-2026-10-25-release-measured-timing/);
+    }
+    // Without the decisions the measured layer is not released, whatever else passes.
+    expect(gen.releaseTiming({ ...repo, decisions: null }).report.measured.minshawi[52].released).toBe(false);
   });
 
   it('every reviewed and VBR surah passes timing, review, integrity, provider and attribution: only the device record is missing', () => {
@@ -142,12 +171,18 @@ describe('timing release: the generator gates', () => {
 });
 
 describe('timing release: the app (release build: vitest\'s __DEV__ is false)', () => {
-  it('plays no reviewed, VBR or timed-preview surah today: exactly the production catalogue', () => {
+  it('plays exactly the catalogue plus the released reviewed timing and timed previews (VBR needs a patched binary: none here)', () => {
     for (const r of RECITERS) {
       const catalogue = GENERATED_RECITERS.find((g) => g.id === r.id);
-      if (catalogue) expect(Object.keys(r.timed), r.id).toEqual(Object.keys(catalogue.timed));
-      expect(r.releasedSurahs, r.id).toBeUndefined();
-      expect(r.timedPreview, r.id).toBeUndefined();
+      const released = Object.keys({ ...MEASURED_RELEASE[r.id], ...REVIEWED_RELEASE[r.id] }).map(Number);
+      const previews = TIMED_PREVIEW_RELEASE.filter((p) => p.reciterId === r.id).flatMap((p) => Object.keys(p.surahs).map(Number));
+      if (catalogue) {
+        const expected = [...new Set([...Object.keys(catalogue.timed).map(Number), ...released, ...previews])].sort((a, b) => a - b);
+        expect(Object.keys(r.timed).map(Number).sort((a, b) => a - b), r.id).toEqual(expected);
+        expect(r.releasedSurahs ?? [], r.id).toEqual(released.filter((s) => !catalogue.timed[s]).sort((a, b) => a - b));
+      }
+      expect(r.timedPreview === undefined, r.id).toBe(previews.length === 0);
+      expect(r.vbrIndexSeekSurahs, r.id).toBeUndefined();
     }
   });
 
@@ -159,16 +194,29 @@ describe('timing release: the app (release build: vitest\'s __DEV__ is false)', 
     expect(banna.releasedSurahs).toEqual([2]);
     expect(banna.developmentSurahs).toBeUndefined();
     expect(banna.timingSourceBySurah).toEqual({ 2: 'measured' });
-    expect(coverageLabel(banna, MESSAGES.en.audio, false) ?? '').not.toContain(MESSAGES.en.audio.developmentPreview);
+    expect(coverageLabel(banna, MESSAGES.en.audio, false) ?? '').not.toMatch(/preview|development|beta|trial|test|معاينة|تجريبي|للتطوير/i);
     const abdulbasit = reciters.find((r) => r.id === 'abdulbasit')!;
     expect(abdulbasit.releasedSurahs).toBeUndefined(); // surah 1 already has production timing
   });
 
-  it('a released timed preview is not labelled a preview; an unreleased one is', () => {
+  it('a timed preview\'s row shows the same coverage released or not: no status wording, in English or Arabic', () => {
     const preview = TIMED_PREVIEW.find((p) => p.reciterId === 'ahmed-salama')!;
-    const label = (p: typeof preview) => coverageLabel(withTimedPreview(GENERATED_RECITERS, [p]).find((r) => r.id === 'ahmed-salama')!, MESSAGES.en.audio, false) ?? '';
-    expect(label(preview)).toContain(MESSAGES.en.audio.developmentPreview);
-    expect(label({ ...preview, released: true })).not.toContain(MESSAGES.en.audio.developmentPreview);
+    for (const [locale, rtl] of [['en', false], ['ar', true]] as const) {
+      const label = (p: typeof preview) => coverageLabel(withTimedPreview(GENERATED_RECITERS, [p]).find((r) => r.id === 'ahmed-salama')!, MESSAGES[locale].audio, rtl) ?? '';
+      expect(label(preview), locale).toBe(label({ ...preview, released: true }));
+      expect(label(preview), locale).not.toMatch(/preview|development|beta|trial|test|معاينة|تجريبي|للتطوير/i);
+    }
+  });
+
+  it('no reciter row in this (release) build carries status wording, in English or Arabic', () => {
+    for (const [locale, rtl] of [['en', false], ['ar', true]] as const) {
+      for (const r of RECITERS) expect(coverageLabel(r, MESSAGES[locale].audio, rtl) ?? '', `${locale} ${r.id}`).not.toMatch(/preview|development|beta|trial|test|معاينة|تجريبي|للتطوير/i);
+    }
+    // No message an app reciter row can show says "preview" or "development" (credits and Surah Preview are elsewhere).
+    for (const locale of ['en', 'ar', 'ar-EG'] as const) {
+      const audio = MESSAGES[locale].audio as Record<string, unknown>;
+      for (const [key, text] of Object.entries(audio)) if (typeof text === 'string') expect(text, `${locale} audio.${key}`).not.toMatch(/development preview|معاينة/i);
+    }
   });
 
   it('a VBR release reaches only binaries whose exact-seek method passed on the device', () => {
@@ -225,10 +273,12 @@ describe('owner permission statement for the 177 alternative-source recordings (
 });
 
 describe('credits for alternative recording hosts', () => {
-  it('a host is credited exactly when this build plays its files: none in a release today', async () => {
+  it('a host is credited exactly when this build plays its files: the released previews\' hosts, and EveryAyah for Ali Jaber', async () => {
     const { QURAN_SOURCES, timedRecordingHosts } = await import('@/constants/quranSources');
-    expect(timedRecordingHosts().size).toBe(0); // release build (vitest __DEV__ false): nothing released yet
-    for (const key of ['way2quran', 'assabile', 'archive', 'quranicaudio', 'everyayah']) expect(QURAN_SOURCES.find((x) => x.key === key)?.inThisBuild?.(), key).toBe(false);
+    const hosts = new Set(TIMED_PREVIEW_RELEASE.flatMap((p) => Object.values(p.surahs).map((x) => x.provider)));
+    expect([...timedRecordingHosts()].sort()).toEqual([...hosts].sort()); // release build (vitest __DEV__ false)
+    expect([...hosts].sort()).toEqual(['archive', 'assabile', 'quranicaudio', 'way2quran']);
+    for (const key of ['way2quran', 'assabile', 'archive', 'quranicaudio', 'everyayah']) expect(QURAN_SOURCES.find((x) => x.key === key)?.inThisBuild?.(), key).toBe(true);
     const fixture = [{ timedPreview: { surahs: { 1: { provider: 'way2quran' }, 2: { provider: 'archive' } } } }];
     expect([...timedRecordingHosts(fixture)].sort()).toEqual(['archive', 'way2quran']);
   });
@@ -299,5 +349,27 @@ describe('class-level device evidence (the native player verified per playback c
     expect(d.decisions[0].statement).toMatch(/^I authorize proceeding with all four audio layers/);
     expect(d.decisions[0].meaning).toMatch(/not a permission/);
     expect(d.decisions[0].stillRequired).toContain('compatible native playback (physical-device evidence)');
+  });
+
+  it('the repository records the owner risk acceptance for device evidence as a waiver, with only the owner-reported iPhone CBR result', () => {
+    type Waiver = { id: string; waives: string[]; layers: string[]; deviceResultsOnRecord: { class: string; platform: string; result: string; samples: string[] }[] };
+    const d = JSON.parse(read('../../tools/quran-audio/development/owner-release-decisions.json')) as { decisions: Waiver[] };
+    const waivers = d.decisions.filter((x) => Array.isArray(x.waives));
+    expect(waivers.map((x) => x.id)).toEqual(['owner-2026-10-25-accept-risk-without-device-evidence', 'owner-2026-10-25-release-measured-timing']);
+    expect(waivers[1].layers).toEqual(['measured-timing']);
+    expect(waivers[1]).not.toHaveProperty('deviceResultsOnRecord'); // no device result recorded for this layer
+    expect(waivers[0].waives).toEqual(['device-evidence']);
+    expect(waivers[0].layers).toEqual(['reviewed-timing', 'vbr-timing', 'alternative-source-recordings', 'per-ayah:jaber']);
+    expect(waivers[0].deviceResultsOnRecord).toEqual([expect.objectContaining({ class: 'mp3quran-cbr', platform: 'ios', samples: ['banna:67', 'yasser-salama:93'] })]);
+    expect(waivers[0].deviceResultsOnRecord[0].result).toBe('passed (owner-reported 2026-10-25)');
+  });
+
+  it('a waiver only stands in for missing device evidence: it releases nothing whose other gates fail', () => {
+    const waiver = { kind: 'owner-release-decisions', decisions: [{ id: 'owner-waiver', decidedOn: '2026-10-25', waives: ['device-evidence'], layers: ['reviewed-timing', 'alternative-source-recordings'] }] };
+    const r = gen.releaseTiming(input({ decisions: waiver }));
+    expect(Object.keys(r.reviewed).length).toBeGreaterThan(0); // reviewed passes every other gate
+    expect(r.vbr).toEqual({}); // the waiver does not list vbr-timing
+    expect(r.timedPreview).toEqual([]); // no rights decision: the provider gate still fails
+    expect(gen.releaseTiming(input({ decisions: waiver, reviewed: { banna: { 2: { ...banna2, automatic: banna2.automatic + 1 } } } })).reviewed).toEqual({});
   });
 });

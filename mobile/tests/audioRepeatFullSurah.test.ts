@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { COMMAND_GRACE_MS, createPlaybackEngine, REPEAT_CYCLE, type AudioOutput, type OutputStatus, type RepeatSetting } from '@/audio/engine';
-import { getReciter, surahAudioUrl, type Reciter } from '@/audio/reciters';
+import { getReciter, hasAyahPlayback, surahAudioUrl, type Reciter } from '@/audio/reciters';
 import { ayahAt, ayahStartMs, type SurahTiming, type TimingLoader, type TimingResult } from '@/audio/timing';
 import { SURAH_AYAH_COUNTS } from '@/utils/ayahLink';
 
@@ -17,7 +17,8 @@ const timingFor = (reciter: Reciter, surah: number): SurahTiming => ({
   ayahs: Array.from({ length: SURAH_AYAH_COUNTS[surah - 1] }, (_, i) => ({ startMs: startOf(i + 1), endMs: endOf(i + 1) })),
 });
 
-function setup(options: { failSeek?: boolean; timing?: (reciter: Reciter, surah: number) => TimingResult } = {}) {
+/** `without`: fixture pairs ('reciterId:surah') without verified timing (Al-Minshawi has all 114 in this build). */
+function setup(options: { failSeek?: boolean; timing?: (reciter: Reciter, surah: number) => TimingResult; without?: readonly string[] } = {}) {
   const calls: string[] = [];
   const listeners = new Set<(status: OutputStatus) => void>();
   let clock = 0;
@@ -47,10 +48,12 @@ function setup(options: { failSeek?: boolean; timing?: (reciter: Reciter, surah:
       return null;
     },
   };
+  const without = new Set(options.without ?? []);
   const engine = createPlaybackEngine({
     output,
     timing,
     resolveSource: async (reciter, surah) => ({ uri: surahAudioUrl(reciter, surah), local: false }),
+    capability: (reciter, surah) => (!without.has(`${reciter.id}:${surah}`) && hasAyahPlayback(reciter, surah) ? 'ayah' : 'none'),
     now: () => clock,
     schedule: () => () => undefined,
   });
@@ -306,16 +309,16 @@ describe('Full Surah', () => {
 
   it('never plays a surah the reciter has no verified timing for (no untimed fallback): Al-Minshawi\'s verified timing, or the error', async () => {
     const t = setup();
-    t.engine.startFullSurah(3, 'maher'); // Maher's Aal-i-Imraan timing was withdrawn by the audit
+    t.engine.startFullSurah(17, 'islam-sobhi'); // Islam Sobhi's Al-Isra: structure unresolved, no timing
     await t.settle();
-    expect(t.engine.getState()).toMatchObject({ mode: 'fullSurah', reciterId: 'minshawi', preferredReciterId: 'maher', error: null });
-    expect(t.loads().join(' ')).toContain('muhammad-minshawi/r1/003.mp3');
-    expect(t.loads().join(' ')).not.toContain('maher-muaiqly');
-    // Neither (Banna and Al-Minshawi have no verified timing of At-Tawba in the release catalogue): the error says so.
-    const u = setup();
-    u.engine.startFullSurah(9, 'banna');
+    expect(t.engine.getState()).toMatchObject({ mode: 'fullSurah', reciterId: 'minshawi', preferredReciterId: 'islam-sobhi', error: null });
+    expect(t.loads().join(' ')).toContain('muhammad-minshawi/r1/017.mp3');
+    expect(t.loads().join(' ')).not.toContain('islam-sobhi');
+    // Neither (Saleh Al-Talib has no Al-Qamar; Al-Minshawi without it is a fixture): the error says so.
+    const u = setup({ without: ['minshawi:54'] });
+    u.engine.startFullSurah(54, 'saleh-talib');
     await u.settle();
-    expect(u.engine.getState()).toMatchObject({ phase: 'error', error: { kind: 'unavailable', surah: 9, reciterId: 'banna' } });
+    expect(u.engine.getState()).toMatchObject({ phase: 'error', error: { kind: 'unavailable', surah: 54, reciterId: 'saleh-talib' } });
     expect(u.loads()).toEqual([]);
   });
 

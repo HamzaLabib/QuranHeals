@@ -41,8 +41,8 @@ describe('the reciters the app offers (owner, 2026-10-24)', () => {
     expect(new Set(dev.map((r) => r.nameAr)).size).toBe(17);
   });
 
-  it('a release build (tests run as one): the same order without the development preview (Ali Abdullah Jaber)', () => {
-    expect(RECITERS.map((r) => r.id)).toEqual(ORDER.map(([id]) => id).filter((id) => id !== 'jaber'));
+  it('a release build (tests run as one): the same order, Ali Abdullah Jaber included (released per-ayah recording, 2026-10-25)', () => {
+    expect(RECITERS.map((r) => r.id)).toEqual(ORDER.map(([id]) => id));
     expect(RECITER_ORDER).toEqual(ORDER.map(([id]) => id));
   });
 
@@ -50,9 +50,10 @@ describe('the reciters the app offers (owner, 2026-10-24)', () => {
     const ajmi = GENERATED_RECITERS.filter((r) => /العجمي/.test(r.nameAr));
     expect(ajmi.map((r) => [r.id, r.mp3quranReciterId, r.nameAr])).toEqual([['ajmi', 5, 'أحمد العجمي']]);
     expect(getReciter('ajmi')!.nameEn).toBe('Ahmed Al-Agamy');
-    // The display name changes only: the recording, its id and its timing are the catalogue's.
-    expect(getReciter('ajmi')!.server).toBe(GENERATED_RECITERS.find((r) => r.id === 'ajmi')!.server);
-    expect(getReciter('ajmi')!.timed).toBe(GENERATED_RECITERS.find((r) => r.id === 'ajmi')!.timed);
+    // The display name changes only: the recording, its id and its timing are the catalogue's (plus released surahs).
+    const own = GENERATED_RECITERS.find((r) => r.id === 'ajmi')!;
+    expect(getReciter('ajmi')!.server).toBe(own.server);
+    for (const [s, entry] of Object.entries(own.timed)) expect(getReciter('ajmi')!.timed[Number(s)], s).toEqual(entry);
   });
 
   it("Ali Al-Hudhaifi at #7 (owner, 2026-10-24): the Arabic display name only; recording and measured timing are the catalogue's", () => {
@@ -60,7 +61,8 @@ describe('the reciters the app offers (owner, 2026-10-24)', () => {
     const own = GENERATED_RECITERS.find((r) => r.id === 'hudhaifi')!;
     expect(RECITERS.map((r) => r.id).indexOf('hudhaifi')).toBe(6);
     expect([h.nameEn, h.nameAr, own.nameAr]).toEqual(['Ali Al-Hudhaifi', 'علي بن عبد الرحمن الحذيفي', 'علي الحذيفي']);
-    expect([h.server, h.timed, h.timingSource]).toEqual([own.server, own.timed, own.timingSource]);
+    expect([h.server, h.timingSource]).toEqual([own.server, own.timingSource]);
+    for (const [s, entry] of Object.entries(own.timed)) expect(h.timed[Number(s)], s).toEqual(entry); // released surahs only add
   });
 
   it('on hold (Muhammad Rifaat, Mohamed Gebril) not offered, not playable in the app', () => {

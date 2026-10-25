@@ -7,7 +7,7 @@ import { localFirstSource } from '@/audio/sources';
 import type { SurahTiming, TimingLoader } from '@/audio/timing';
 import { SURAH_AYAH_COUNTS } from '@/utils/ayahLink';
 
-import { approval, fixtureRegistry } from './helpers/audioRegistry';
+import { approval, CATALOGUE_RECITERS, fixtureRegistry } from './helpers/audioRegistry';
 
 const SOBHI = 'https://cdn.mp3quran.net/audio/islam-sobhi/r1/';
 const MAHER = 'https://cdn.mp3quran.net/audio/maher-muaiqly/r3/';
@@ -18,10 +18,12 @@ const url = (base: string, surah: number) => `${base}${String(surah).padStart(3,
 /**
  * Islam Sobhi in this fixture: 34 ayah by ayah (a verified source with timing), 35, 36 and 38 approved whole-surah
  * sources (no timing), 37 nothing (MP3Quran does not list it: its URL would redirect to Minshawi). Every other reciter
- * and surah is the real catalogue.
+ * and surah is the real MP3Quran catalogue with its own timing only (CATALOGUE_RECITERS: a release also plays released
+ * reviewed timing of Sobhi 35 and 36, which would leave this fixture no whole-surah surah).
  */
 const basit34 = SOURCE_REGISTRY.sourcesFor('abdulbasit', 34)[0];
 const registry = fixtureRegistry({
+  reciters: CATALOGUE_RECITERS,
   surahOnly: [approval('islam-sobhi', 35), approval('islam-sobhi', 36), approval('islam-sobhi', 38)],
   extra: [{ ...basit34, reciterId: 'islam-sobhi', url: url(SOBHI, 34) }],
 });
@@ -479,7 +481,7 @@ describe('fallback among verified sources of the same reciter', () => {
     // A mirror: the same approved recording (size, length, verification) at another URL, less preferred.
     const approved = registry.capability('islam-sobhi', 36);
     if (approved.mode !== 'surah') throw new Error('fixture');
-    const reg = fixtureRegistry({ surahOnly: [approval('islam-sobhi', 36)], extra: [{ ...approved.sources[0], url: 'https://mirror.example/sobhi/036.mp3', priority: 1 }] });
+    const reg = fixtureRegistry({ reciters: CATALOGUE_RECITERS, surahOnly: [approval('islam-sobhi', 36)], extra: [{ ...approved.sources[0], url: 'https://mirror.example/sobhi/036.mp3', priority: 1 }] });
     const checked: string[] = [];
     const calls: string[] = [];
     const engine = createPlaybackEngine({

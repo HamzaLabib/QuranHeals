@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { DEVELOPMENT_TIMING } from '@/audio/generated/developmentTiming';
 import { GENERATED_FORMATS, GENERATED_PROVIDERS, GENERATED_SURAH_ONLY } from '@/audio/generated/sourceRegistry';
 import { GENERATED_RECITERS } from '@/audio/generated/reciterCatalog';
+import { MEASURED_RELEASE } from '@/audio/generated/timingRelease';
 import { hasAyahPlayback, RECITERS, timedSurahs, timingSourceOf, withDevelopmentTiming } from '@/audio/reciters';
 import { createSourceRegistry } from '@/audio/sourceRegistry';
 import { createTimingLoader, developmentTimingEntries, verifyTiming } from '@/audio/timing';
@@ -18,8 +19,14 @@ const tools = resolve(__dirname, '../../tools/quran-audio');
 describe('development-only timing (generated/developmentTiming.ts)', () => {
   it('is not in the catalogue the tests and release builds use (__DEV__ false): 1,148 ayah surahs, unchanged', () => {
     // The app offers the catalogue in the owner's order, without on-hold or unlisted reciters (audioRoster.test.ts);
-    // the catalogue itself is unchanged: 1,148 ayah surahs, none of them development timing.
-    for (const r of RECITERS) expect(timedSurahs(r), r.id).toEqual(timedSurahs(GENERATED_RECITERS.find((g) => g.id === r.id)!));
+    // the catalogue itself is unchanged: 1,148 ayah surahs. A release plays measured development timing only as
+    // generated/timingRelease.ts MEASURED_RELEASE lists it (owner decision for "measured-timing", 2026-10-25: all of it).
+    for (const r of RECITERS) {
+      for (const [s, x] of Object.entries(DEVELOPMENT_TIMING[r.id] ?? {})) {
+        const released = MEASURED_RELEASE[r.id]?.[Number(s)];
+        expect(r.timed[Number(s)], `${r.id} ${s}`).toEqual(released ? [x.fingerprint, x.bytes] : undefined);
+      }
+    }
     expect(GENERATED_RECITERS.reduce((n, r) => n + timedSurahs(r).length, 0)).toBe(1148);
   });
 

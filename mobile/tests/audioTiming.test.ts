@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 import { GENERATED_RECITERS } from '@/audio/generated/reciterCatalog';
+import { MEASURED_RELEASE } from '@/audio/generated/timingRelease';
 import { getReciter, type Reciter } from '@/audio/reciters';
 import { ayahAt, ayahStartMs, createTimingLoader, parseTimingPayload, timingUrl, verifyTiming, type TimingStore } from '@/audio/timing';
 import { timingFingerprint, type TimingEntry } from '@/audio/timingFingerprint';
@@ -49,7 +50,9 @@ describe('MP3Quran timing payloads', () => {
     const husary = getReciter('husary')!;
     const entries = parseTimingPayload(JSON.parse(fixture('read118-surah1.json')))!;
     expect(entries.filter((e) => e.ayah > 0)).toHaveLength(6);
-    expect(husary.timed[1]).toBeUndefined();
+    // The catalogue has none; a release plays the measured timing of his file (MEASURED_RELEASE), never this payload.
+    expect(GENERATED_RECITERS.find((r) => r.id === 'husary')!.timed[1]).toBeUndefined();
+    expect(husary.timed[1]).toEqual([MEASURED_RELEASE.husary[1].fingerprint, MEASURED_RELEASE.husary[1].bytes]);
     expect(verifyTiming(husary, 1, entries)).toBeNull();
   });
 });
@@ -136,7 +139,7 @@ describe('loading timing', () => {
     let fetched = false;
     const loader = createTimingLoader({ fetchText: async () => { fetched = true; return ''; }, store: memoryStore().store });
     expect(await loader.load(reciter, 1)).toEqual({ ok: false, reason: 'unavailable' });
-    expect(await loader.load(getReciter('banna')!, 1)).toEqual({ ok: false, reason: 'unavailable' });
+    expect(await loader.load(getReciter('islam-sobhi')!, 17)).toEqual({ ok: false, reason: 'unavailable' });
     expect(fetched).toBe(false);
   });
 

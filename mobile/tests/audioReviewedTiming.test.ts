@@ -4,6 +4,7 @@ import { DEVELOPMENT_TIMING } from '@/audio/generated/developmentTiming';
 import { PER_AYAH_PREVIEW } from '@/audio/generated/perAyahPreview';
 import { GENERATED_RECITERS } from '@/audio/generated/reciterCatalog';
 import { REVIEWED_TIMING } from '@/audio/generated/reviewedTiming';
+import { REVIEWED_RELEASE } from '@/audio/generated/timingRelease';
 import { GENERATED_FORMATS, GENERATED_PROVIDERS, GENERATED_SURAH_ONLY } from '@/audio/generated/sourceRegistry';
 import { TIMED_PREVIEW } from '@/audio/generated/timedPreview';
 import { coverageLabel } from '@/audio/format';
@@ -71,23 +72,29 @@ describe('reviewed aligned timing in development builds (generated/reviewedTimin
     expect(fetched).toEqual([]);
   });
 
-  it('development coverage (owner order); release builds are unchanged and play none of it', () => {
+  it('development coverage (owner order); release builds play exactly the released surahs, as released, never labelled a preview', () => {
     const coverage = Object.fromEntries(DEV.map((r) => [r.id, timedSurahs(r).length]));
     expect(coverage).toEqual({
       minshawi: 114, husary: 114, abdulbasit: 114, banna: 114, sufi: 114, 'ahmed-salama': 114, hudhaifi: 114, shuraim: 114, maher: 114,
       shatri: 114, ajmi: 114, jaber: 114, basfar: 114, 'islam-sobhi': 104, naina: 114, 'yasser-salama': 113, 'saleh-talib': 69,
     });
     expect(DEV.map((r) => r.id)).toEqual([...RECITER_ORDER]);
-    // Tests run as a release build: no reviewed timing, the production catalogue exactly.
+    // Tests run as a release build: the catalogue plus REVIEWED_RELEASE (generated/timingRelease.ts), never as a preview.
     for (const r of RECITERS) {
       expect(r.reviewedPreviewSurahs, r.id).toBeUndefined();
-      expect(timedSurahs(r), r.id).toEqual(timedSurahs(GENERATED_RECITERS.find((g) => g.id === r.id)!));
+      const catalogue = GENERATED_RECITERS.find((g) => g.id === r.id);
+      if (!catalogue) continue;
+      for (const s of timedSurahs(catalogue)) expect(r.timed[s], `${r.id} ${s}`).toEqual(catalogue.timed[s]);
+      for (const [s, x] of Object.entries(REVIEWED_RELEASE[r.id] ?? {})) expect(r.timed[Number(s)], `${r.id} ${s}`).toEqual([x.fingerprint, x.bytes]);
     }
   });
 
-  it('labelled a development preview in the reciter list (not verification)', () => {
-    const copy = getMessages('en').audio;
-    for (const id of ['banna', 'yasser-salama', 'islam-sobhi', 'maher']) expect(coverageLabel(DEV.find((r) => r.id === id)!, copy, false), id).toMatch(new RegExp(`^${copy.developmentPreview}`));
-    expect(coverageLabel(DEV.find((r) => r.id === 'abdulbasit')!, copy, false)).toBeNull(); // production only; all 114 surahs: no count shown
+  it('the reciter list shows coverage only, never a development or release status, in a development build too', () => {
+    for (const [locale, rtl] of [['en', false], ['ar', true]] as const) {
+      const copy = getMessages(locale).audio;
+      for (const r of DEV) expect(coverageLabel(r, copy, rtl) ?? '', `${locale} ${r.id}`).not.toMatch(/preview|development|beta|trial|test|معاينة|تجريبي|للتطوير/i);
+    }
+    expect(coverageLabel(DEV.find((r) => r.id === 'abdulbasit')!, getMessages('en').audio, false)).toBeNull(); // all 114 surahs: no line
+    expect(coverageLabel(DEV.find((r) => r.id === 'islam-sobhi')!, getMessages('en').audio, false)).toBe('104 of 114 surahs');
   });
 });

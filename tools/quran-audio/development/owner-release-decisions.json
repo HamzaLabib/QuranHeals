@@ -9,6 +9,39 @@
    "meaning": "Missing rights documentation no longer blocks release of the layers below. This is the owner's decision to proceed WITHOUT verified rights documentation. It is not a permission, licence or publisher grant, and nothing records one.",
    "layers": ["reviewed-timing", "vbr-timing", "alternative-source-recordings", "per-ayah:jaber"],
    "stillRequired": ["source attribution", "correct reciter identity", "file integrity", "complete ayah coverage", "accurate, reviewed timing", "compatible native playback (physical-device evidence)"]
+  },
+  {
+   "id": "owner-2026-10-25-accept-risk-without-device-evidence",
+   "decidedBy": "Hamza (owner)",
+   "decidedOn": "2026-10-25",
+   "waives": ["device-evidence"],
+   "statement": "I authorize changing internal release policy and removing administrative restrictions, rights-document requirements, and mandatory device-evidence gates that prevent these layers from being included. Record this as my explicit risk acceptance—not as publisher permission, completed testing, or verified evidence. I accept that some recordings will ship without completed physical-device testing. My confirmed iPhone CBR test is the only test result you should record as passed.",
+   "meaning": "The mandatory physical-device-evidence gate no longer blocks the layers below: they ship WITHOUT completed device testing, at the owner's explicit risk. This is not completed testing, not verified evidence and not a permission. The only device result on record is the owner-reported iPhone MP3Quran CBR test (samples banna:67 and yasser-salama:93); its build line, device and date were not provided.",
+   "layers": ["reviewed-timing", "vbr-timing", "alternative-source-recordings", "per-ayah:jaber"],
+   "deviceResultsOnRecord": [
+    { "class": "mp3quran-cbr", "platform": "ios", "result": "passed (owner-reported 2026-10-25)", "samples": ["banna:67", "yasser-salama:93"], "details": "build line, device and test date not provided" }
+   ],
+   "stillRequired": ["source attribution", "correct reciter identity", "file integrity", "complete ayah coverage", "accurate, reviewed timing", "a binary whose native player supports the file (exact-seek capability for VBR)"]
+  },
+  {
+   "id": "owner-2026-10-25-include-jaber-88-override",
+   "decidedBy": "Hamza (owner)",
+   "decidedOn": "2026-10-25",
+   "statement": "Include Ali Jaber surah 88 in the next production build using the existing owner-approved 88:14 boundary. I explicitly accept the uncertainty around that boundary. Record this as my release override—not independent verification or a passed listening test. Preserve file-integrity and complete-ayah checks.",
+   "meaning": "Surah 88 of Ali Abdullah Jaber is released although its start 88:14 is accepted only by the owner override of 2026-10-24 (unverified). This is the owner's release override and acceptance of that uncertainty. It is not independent verification, not a listening test and not a review result; 88:14 stays unverified. It covers exactly the override entries listed, nothing else.",
+   "layers": ["per-ayah:jaber"],
+   "releaseOverrides": [{ "recording": "jaber", "surah": 88, "ayah": 14 }],
+   "stillRequired": ["file integrity", "complete ayah coverage", "every other release gate of the recording"]
+  },
+  {
+   "id": "owner-2026-10-25-release-measured-timing",
+   "decidedBy": "Hamza (owner)",
+   "decidedOn": "2026-10-25",
+   "waives": ["device-evidence"],
+   "statement": "Include the remaining 44 measured-timing surahs as well. My scope is all available technically valid recordings, including measured timing. I authorize releasing the measured-timing layer and waive its mandatory device-evidence prerequisite. Record this as my risk acceptance, not completed testing or verification. Preserve technical integrity and timing checks.",
+   "meaning": "The development measured timing (MEASURED_RELEASE) is released, and its device-evidence gate is waived: it ships WITHOUT completed device testing and without the owner listening review it was held for, at the owner's explicit risk. This is not completed testing, verification or a review. The timing, integrity (audited MP3Quran file and size), provider and attribution gates still apply.",
+   "layers": ["measured-timing"],
+   "stillRequired": ["timing gate (canonical ayah count, fingerprint, lengths)", "file integrity (the audited MP3Quran file at its audited size)", "provider", "attribution"]
   }
  ]
 }

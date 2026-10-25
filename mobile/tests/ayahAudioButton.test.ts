@@ -14,7 +14,19 @@ const audio = vi.hoisted(() => ({
   hold: false,
   pending: [] as (() => void)[],
   plays: 0,
+  /** Fixture: surahs treated as having no verified timing ("reciterId:surah"): Al-Minshawi has all 114 in this build. */
+  without: new Set<string>(),
 }));
+vi.mock('@/audio/availability', async (importOriginal) => {
+  const real = await importOriginal<typeof import('@/audio/availability')>();
+  const { FALLBACK_RECITER_ID } = await import('@/audio/reciters');
+  const has = (id: string, s: number) => !audio.without.has(`${id}:${s}`);
+  return {
+    ...real,
+    hasAyahAudioOrFallback: (reciter: Parameters<typeof real.hasAyahAudio>[0], surah: number) =>
+      (has(reciter.id, surah) && real.hasAyahAudio(reciter, surah)) || (reciter.id !== FALLBACK_RECITER_ID && has(FALLBACK_RECITER_ID, surah) && real.audioMode(FALLBACK_RECITER_ID, surah) === 'ayah'),
+  };
+});
 
 vi.mock('react-native', () => ({
   ActivityIndicator: 'ActivityIndicator',
@@ -26,7 +38,7 @@ vi.mock('@react-native-async-storage/async-storage', () => ({ default: { getItem
 // The real engine over a fake player and synthetic timing (every ayah 10 s after a 4 s opening).
 vi.mock('@/audio/index', async () => {
   const { createPlaybackEngine } = await import('@/audio/engine');
-  const { surahAudioUrl } = await import('@/audio/reciters');
+  const { hasAyahPlayback, surahAudioUrl } = await import('@/audio/reciters');
   const { SURAH_AYAH_COUNTS } = await import('@/utils/ayahLink');
   const audioEngine = createPlaybackEngine({
     output: {
@@ -53,6 +65,7 @@ vi.mock('@/audio/index', async () => {
       stored: async () => null,
     },
     resolveSource: async (reciter, surah) => ({ uri: surahAudioUrl(reciter, surah), local: false }),
+    capability: (reciter, surah) => (!audio.without.has(`${reciter.id}:${surah}`) && hasAyahPlayback(reciter, surah) ? 'ayah' : 'none'),
     now: () => 10 ** 12,
   });
   return { audioEngine, audioDownloads: {}, audioFiles: {}, setAudioLocale: () => undefined };
@@ -103,6 +116,7 @@ beforeEach(() => {
   audio.hold = false;
   audio.pending = [];
   audio.plays = 0;
+  audio.without.clear();
 });
 afterEach(async () => {
   if (root) await act(async () => root!.unmount());
@@ -143,22 +157,23 @@ describe('the ayah screens\' play button', () => {
   });
 
   it('a Favorite Reciter without a verified recording of the surah: Al-Minshawi recites it; the Favorite Reciter is kept', async () => {
-    favorite.reciterId = 'yasser-salama';
-    await render();
+    favorite.reciterId = 'islam-sobhi'; // Islam Sobhi 17: listed, structure unresolved (no timing)
+    await render(17, 5);
     await press();
-    expect(audioEngine.getState()).toMatchObject({ phase: 'playing', mode: 'single', position: { surah: 94, ayah: 5 }, reciterId: 'minshawi', preferredReciterId: 'yasser-salama' });
-    expect(audio.loads).toEqual(['https://cdn.mp3quran.net/audio/muhammad-minshawi/r1/094.mp3@44000']);
+    expect(audioEngine.getState()).toMatchObject({ phase: 'playing', mode: 'single', position: { surah: 17, ayah: 5 }, reciterId: 'minshawi', preferredReciterId: 'islam-sobhi' });
+    expect(audio.loads).toEqual(['https://cdn.mp3quran.net/audio/muhammad-minshawi/r1/017.mp3@44000']);
     expect(problem).toBeNull();
-    expect(favorite.reciterId).toBe('yasser-salama');
+    expect(favorite.reciterId).toBe('islam-sobhi');
   });
 
   it('neither the Favorite Reciter nor Al-Minshawi has a verified recording of the surah: nothing plays, and it says so', async () => {
-    favorite.reciterId = 'yasser-salama';
-    await render(9, 5);
+    favorite.reciterId = 'saleh-talib'; // Al-Qamar: Saleh Al-Talib has no recording; Al-Minshawi without it is a fixture
+    audio.without.add('minshawi:54');
+    await render(54, 5);
     await press();
     expect(audioEngine.getState().phase).toBe('idle');
     expect(audio.loads).toEqual([]);
-    expect(problem).toBe('Yasser Mahmoud Salama has no verified recording of this surah. You can choose another Favorite Reciter in Settings.');
+    expect(problem).toBe('Saleh Al-Talib has no verified recording of this surah. You can choose another Favorite Reciter in Settings.');
   });
 
   it('leaving the ayah stops its recitation', async () => {

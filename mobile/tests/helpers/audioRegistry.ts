@@ -1,5 +1,6 @@
+import { GENERATED_RECITERS } from '@/audio/generated/reciterCatalog';
 import { GENERATED_FORMATS, GENERATED_PROVIDERS, type GeneratedSurahOnlySource } from '@/audio/generated/sourceRegistry';
-import { getReciter, RECITERS } from '@/audio/reciters';
+import { getReciter, RECITERS, type Reciter } from '@/audio/reciters';
 import { createSourceRegistry, type AudioSource, type Provider } from '@/audio/sourceRegistry';
 
 /** An approved whole-surah source, as surah-mode-approvals.json would give it (every field filled). */
@@ -25,10 +26,16 @@ export function approval(reciterId: string, surah: number, patch: Partial<Genera
   };
 }
 
+/**
+ * The app's reciters with only the MP3Quran catalogue's own timing (no released reviewed, VBR or timed-preview surahs):
+ * for fixtures that need a catalogue surah with no timing, independent of what a release adds.
+ */
+export const CATALOGUE_RECITERS: readonly Reciter[] = RECITERS.map((r) => (GENERATED_RECITERS.find((g) => g.id === r.id) as Reciter | undefined) ?? r);
+
 /** Fixture registries enable whole-surah playback (off in the app) unless told otherwise: it tests that dormant path. */
-export function fixtureRegistry(options: { surahOnly?: GeneratedSurahOnlySource[]; extra?: AudioSource[]; providers?: Provider[]; offlineSwitch?: boolean; surahOnlyPlayback?: boolean } = {}) {
+export function fixtureRegistry(options: { surahOnly?: GeneratedSurahOnlySource[]; extra?: AudioSource[]; providers?: Provider[]; offlineSwitch?: boolean; surahOnlyPlayback?: boolean; reciters?: readonly Reciter[] } = {}) {
   return createSourceRegistry({
-    reciters: RECITERS,
+    reciters: options.reciters ?? RECITERS,
     providers: options.providers ?? GENERATED_PROVIDERS,
     formats: GENERATED_FORMATS,
     surahOnly: options.surahOnly ?? [],

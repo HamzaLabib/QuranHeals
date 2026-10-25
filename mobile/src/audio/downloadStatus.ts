@@ -1,5 +1,5 @@
 import type { DownloadState } from './downloads';
-import { timedSurahs, type Reciter } from './reciters';
+import { downloadableSurahs, type Reciter } from './reciters';
 
 export type ReciterDownloadStatus = 'none' | 'partial' | 'downloading' | 'paused' | 'complete' | 'error' | 'not-permitted' | 'unavailable';
 
@@ -15,12 +15,13 @@ export type ReciterDownloadStatus = 'none' | 'partial' | 'downloading' | 'paused
  */
 export function reciterDownloadStatus(args: { permitted: boolean; reciter: Reciter; stored: readonly number[]; download: DownloadState }): ReciterDownloadStatus {
   const { permitted, reciter, stored, download } = args;
-  const timed = timedSurahs(reciter);
+  // What a download can store: streaming-only preview surahs never count (reciters.ts downloadableSurahs).
+  const timed = downloadableSurahs(reciter);
   const mine = download.reciterId === reciter.id ? download : null;
   if (mine?.phase === 'running') return 'downloading';
   if (mine?.phase === 'paused') return 'paused';
   if (timed.length === 0) return 'unavailable';
-  const storedTimed = stored.filter((surah) => reciter.timed[surah] !== undefined).length;
+  const storedTimed = stored.filter((surah) => timed.includes(surah)).length;
   if (storedTimed >= timed.length) return 'complete';
   if (!permitted || mine?.error === 'not-permitted') return 'not-permitted';
   if (mine?.phase === 'error') return 'error';

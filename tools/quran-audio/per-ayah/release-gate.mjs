@@ -13,6 +13,13 @@
 //   rights       an owner rights decision for this recording (<rightsDecisions>/*.json, kind owner-per-ayah-rights-decision:
 //                recording id, provider, folder, cleared: true, basis, decidedBy, decidedOn)
 //   provider     ../providers.mjs lists the provider with streaming permitted, on recorded evidence
+//   (overrides: an owner override no longer blocks the whole recording: its SURAH is excluded from the release
+//    (excludedSurahs in the result) and named; the ledger must be readable and agree with the dashboard. An owner
+//    RELEASE override (owner-release-decisions.json releaseOverrides: recording, surah, ayah — owner 2026-10-25, Jaber
+//    88:14) keeps exactly that start's surah in the release (includedOverrides), reported as the owner's override:
+//    the start stays unverified, and integrity and complete-ayah checks still apply to the surah.
+//    devices also pass on the owner's risk acceptance of 2026-10-25 (waives: ["device-evidence"]), reported as shipping
+//    WITHOUT device evidence, never as a test result.)
 //   (rights and provider also pass on the owner's decision of 2026-10-25 to proceed WITHOUT verified rights
 //    documentation for per-ayah:<id> (development/owner-release-decisions.json): reported as that decision, never as
 //    a permission. Every other gate is unchanged.)
@@ -36,9 +43,19 @@ const REPO = path.join(here, '..', '..', '..');
 
 /** Every gate for one recording: { id, gates: [{ gate, pass, why }], pass }. Never throws for a missing input: it fails. */
 /** The owner's decision to proceed without verified rights documentation for this per-ayah recording, or undefined. */
-export function ownerDecisionFor(decisions, recordingId) {
-  if (decisions?.kind !== 'owner-release-decisions' || !Array.isArray(decisions.decisions)) return undefined;
-  return decisions.decisions.find((d) => Array.isArray(d?.layers) && d.layers.includes(`per-ayah:${recordingId}`) && String(d.id ?? '').trim() && /^\d{4}-\d\d-\d\d$/.test(d.decidedOn ?? ''));
+const validDecisions = (decisions, recordingId) => (decisions?.kind === 'owner-release-decisions' && Array.isArray(decisions.decisions) ? decisions.decisions : [])
+  .filter((d) => Array.isArray(d?.layers) && d.layers.includes(`per-ayah:${recordingId}`) && String(d.id ?? '').trim() && /^\d{4}-\d\d-\d\d$/.test(d.decidedOn ?? ''));
+
+/** The owner's decision to proceed without rights documentation (or, with `waives`, the waiver of that evidence). */
+export function ownerDecisionFor(decisions, recordingId, waives = null) {
+  return validDecisions(decisions, recordingId).find((d) => !Array.isArray(d.releaseOverrides)
+    && (waives ? Array.isArray(d.waives) && d.waives.includes(waives) : !Array.isArray(d.waives)));
+}
+
+/** The owner's release override of one overridden start (exact recording, surah and ayah), or undefined. */
+export function ownerReleaseOverrideFor(decisions, recordingId, surah, ayah) {
+  return validDecisions(decisions, recordingId).find((d) => Array.isArray(d.releaseOverrides)
+    && d.releaseOverrides.some((o) => o?.recording === recordingId && o.surah === surah && o.ayah === ayah));
 }
 const decisionsFile = path.join(here, '..', 'development', 'owner-release-decisions.json');
 
@@ -74,7 +91,19 @@ export async function releaseGate({ recordingId, config, risk = null, dashboardU
   const ov = openOverrides(overrideFile(cfg.dataDir));
   const mine = ov.problem ? [] : ov.entries().filter((e) => e.type === 'owner-override' && e.reciterId === recordingId);
   const shown = dash?.reciters?.find((x) => x.reciterId === recordingId)?.ownerOverride;
-  g('overrides', !ov.problem && mine.length === 0 && (!dash || shown === 0), ov.problem ? `owner-override ledger unreadable: ${ov.problem}` : mine.length ? `${mine.length} start(s) accepted by owner override, unverified (${mine.map((e) => `${e.surah}:${e.ayah}`).join(', ')}): not cleared for release` : dash && shown !== 0 ? `the dashboard does not report its owner overrides (${shown})` : 'no owner override');
+  // Each overridden start excludes its whole surah (a per-ayah surah plays only complete); the other surahs go on. A
+  // start the owner released by name (releaseOverrides) keeps its surah in, unless another start of it is overridden.
+  const released = mine.filter((e) => ownerReleaseOverrideFor(ownerDecisions, recordingId, e.surah, e.ayah));
+  const held = mine.filter((e) => !released.includes(e));
+  const excludedSurahs = [...new Set(held.map((e) => e.surah))].sort((a, b) => a - b);
+  const includedOverrides = released.filter((e) => !excludedSurahs.includes(e.surah)).map((e) => ({ surah: e.surah, ayah: e.ayah, decision: ownerReleaseOverrideFor(ownerDecisions, recordingId, e.surah, e.ayah).id }));
+  const agrees = !dash || shown === mine.length;
+  const ref = (e) => `${e.surah}:${e.ayah}`;
+  const said = [
+    excludedSurahs.length ? `surah(s) ${excludedSurahs.join(', ')} EXCLUDED: ${held.map(ref).join(', ')} accepted by owner override, unverified (unresolved)` : '',
+    includedOverrides.length ? `surah(s) ${includedOverrides.map((x) => x.surah).join(', ')} INCLUDED on the owner's release override: ${includedOverrides.map((x) => `${x.surah}:${x.ayah} (${x.decision})`).join(', ')}, accepted by owner override, unverified — not verification or a listening test` : '',
+  ].filter(Boolean).join('; ');
+  g('overrides', !ov.problem && agrees, ov.problem ? `owner-override ledger unreadable: ${ov.problem}` : !agrees ? `the dashboard reports ${shown} owner override(s), the ledger ${mine.length}` : said || 'no owner override');
 
   // rights
   const decisions = fs.existsSync(cfg.rightsDir) ? fs.readdirSync(cfg.rightsDir).filter((f) => f.endsWith('.json')).map((f) => { try { return JSON.parse(fs.readFileSync(path.join(cfg.rightsDir, f), 'utf8')); } catch { return null; } }).filter(Boolean) : [];
@@ -92,8 +121,11 @@ export async function releaseGate({ recordingId, config, risk = null, dashboardU
   let dev = null;
   try { dev = JSON.parse(fs.readFileSync(devFile, 'utf8')); } catch { /* none */ }
   const okDev = (x) => x?.passed === true && x?.background === true && String(x?.device ?? '').trim() && /^\d{4}-\d\d-\d\d$/.test(x?.testedOn ?? '');
-  g('devices', dev?.kind === 'per-ayah-device-tests' && okDev(dev.android) && okDev(dev.ios), dev ? `android ${okDev(dev.android) ? 'passed' : 'not passed'}, ios ${okDev(dev.ios) ? 'passed' : 'not passed'}` : `no record of physical-device tests (${path.relative(REPO, devFile).replaceAll('\\', '/')})`);
-  return { id: recordingId, gates, pass: gates.every((x) => x.pass) };
+  const tested = dev?.kind === 'per-ayah-device-tests' && okDev(dev.android) && okDev(dev.ios);
+  const evidence = dev ? `android ${okDev(dev.android) ? 'passed' : 'not passed'}, ios ${okDev(dev.ios) ? 'passed' : 'not passed'}` : `no record of physical-device tests (${path.relative(REPO, devFile).replaceAll('\\', '/')})`;
+  const waiver = tested ? null : ownerDecisionFor(ownerDecisions, recordingId, 'device-evidence');
+  g('devices', tested || waiver, waiver ? `shipped without device evidence: owner risk acceptance ${waiver.id} (${waiver.decidedOn}), not testing | ${evidence}` : evidence);
+  return { id: recordingId, gates, pass: gates.every((x) => x.pass), excludedSurahs, includedOverrides };
 }
 
 async function defaultFetch(url) {

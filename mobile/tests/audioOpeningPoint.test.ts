@@ -10,7 +10,10 @@ const OPENING = 3000;
 vi.mock('@/audio/reciters', async (importOriginal) => {
   const real = await importOriginal<typeof import('@/audio/reciters')>();
   const { TIMED_FIXTURE: fixture, surahOf: of } = await import('./helpers/timedPreviewFixture');
-  const all = real.withTimedPreview(real.RECITERS, [{ ...fixture, surahs: { ...fixture.surahs, 114: { ...of(114), openingMs: 3000 } } }]);
+  // The catalogue's own entry, in place of the previews a release build plays.
+  const { GENERATED_RECITERS } = await import('@/audio/generated/reciterCatalog');
+  const catalogue = real.RECITERS.map((r) => (r.id === fixture.reciterId ? (GENERATED_RECITERS.find((g) => g.id === r.id) as typeof r) : r));
+  const all = real.withTimedPreview(catalogue, [{ ...fixture, surahs: { ...fixture.surahs, 114: { ...of(114), openingMs: 3000 } } }]);
   const byId = new Map(all.map((r) => [r.id, r]));
   return { ...real, RECITERS: all, getReciter: (id: string | null | undefined) => (id && byId.get(id)) || null };
 });

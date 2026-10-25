@@ -8,14 +8,16 @@ import { LEN, ONSET, surahOf, TIMED_FIXTURE } from './helpers/timedPreviewFixtur
 /**
  * Timed whole-surah previews (audio/timedPreview.ts): Ahmed Mohamed Salama's aligned candidate timing, development only.
  * Tests and release builds run with __DEV__ false, so a fixture is added to the real catalogue's 'ahmed-salama' entry
- * (the same code path as the development build's withTimedPreview).
+ * (the same code path as the development build's withTimedPreview), in place of the previews a release build plays.
  */
 const FIXTURE = TIMED_FIXTURE;
 
 vi.mock('@/audio/reciters', async (importOriginal) => {
   const real = await importOriginal<typeof import('@/audio/reciters')>();
   const { TIMED_FIXTURE: fixture } = await import('./helpers/timedPreviewFixture');
-  const all = real.withTimedPreview(real.RECITERS, [fixture]);
+  const { GENERATED_RECITERS } = await import('@/audio/generated/reciterCatalog');
+  const catalogue = real.RECITERS.map((r) => (r.id === fixture.reciterId ? (GENERATED_RECITERS.find((g) => g.id === r.id) as typeof r) : r));
+  const all = real.withTimedPreview(catalogue, [fixture]);
   const byId = new Map(all.map((r) => [r.id, r]));
   return { ...real, RECITERS: all, getReciter: (id: string | null | undefined) => (id && byId.get(id)) || null };
 });
@@ -51,9 +53,11 @@ describe('timed previews: the catalogue', () => {
     expect(a).toMatchObject({ nameEn: 'Ahmed Mohamed Salama', nameAr: 'أحمد محمد سلامة', server: null, surahs: [1, 112, 113] });
     expect(R.hasAyahPlayback(a, 112)).toBe(true);
     expect(R.hasAyahPlayback(a, 2)).toBe(false);
-    // Yasser Mahmoud Salama is another reciter: untouched.
+    // Yasser Mahmoud Salama is another reciter: untouched (only his own released recordings, none of the fixture's).
     const y = R.getReciter('yasser-salama')!;
-    expect(y.timedPreview).toBeUndefined();
+    const fixtureUrls = Object.values(FIXTURE.surahs).map((x) => x.url);
+    expect(y.timedPreview?.reciterId ?? 'yasser-salama').toBe('yasser-salama');
+    for (const x of Object.values(y.timedPreview?.surahs ?? {})) expect(fixtureUrls).not.toContain(x.url);
     expect(y.nameEn).toBe('Yasser Mahmoud Salama');
   });
 
@@ -93,10 +97,10 @@ describe('timed previews: the catalogue', () => {
     expect(audioCoverage('ahmed-salama')).toEqual({ ayah: [1, 112, 113], surah: [] });
   });
 
-  it('is labelled as a development preview in both languages', () => {
-    const a = R.getReciter('ahmed-salama')!;
-    expect(coverageLabel(a, getMessages('en').audio, false)).toBe('Development preview · 3 of 114 surahs');
-    expect(coverageLabel(a, getMessages('ar').audio, true)).toBe('معاينة للتطوير · ٣ من ١١٤ سورة');
+  it('shows only its playable coverage in both languages: no development or release status', () => {
+    const a = R.getReciter('ahmed-salama')!; // the fixture: an unreleased timed preview
+    expect(coverageLabel(a, getMessages('en').audio, false)).toBe('3 of 114 surahs');
+    expect(coverageLabel(a, getMessages('ar').audio, true)).toBe('٣ من ١١٤ سورة');
   });
 
   it('the timing loader serves the preview without any request; the source is that recording, checked before it plays', async () => {

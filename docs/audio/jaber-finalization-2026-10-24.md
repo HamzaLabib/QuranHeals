@@ -86,3 +86,17 @@ policy check), so 88:14 has its own record type (`review/dashboard/owner-overrid
 
 Release gate now: on-hold, integrity and review PASS; reviewers, **overrides (88:14)**, rights, provider, attribution and
 devices BLOCKED. `perAyahRelease.ts` unchanged (empty): Ali Jaber stays a development preview.
+
+## Release, 2026-10-25 (owner decisions, not verification)
+
+`perAyahRelease.ts` now holds Ali Jaber with all 114 surahs. The release gate passes on three owner decisions
+(`tools/quran-audio/development/owner-release-decisions.json`): proceeding without verified rights documentation (not a
+permission), shipping without device evidence (risk acceptance, not testing), and
+`owner-2026-10-25-include-jaber-88-override`. That last decision releases surah 88 with the existing owner-approved
+88:14 boundary. 88:14 stays **unverified**: no listening test or independent check has been done, and the dashboard
+ledger entry (`releaseBlocked: true`) is unchanged. The release override covers only that exact start (recording,
+surah, ayah). Any other overridden start would still exclude its surah.
+
+What still applies to every surah: the integrity gate (all 6,348 files present, readable, of the listed size and
+matching their checksums), and `generate-preview.mjs`, which lists a surah only if there is a playable file for every
+canonical ayah, 1..n (`audit-data/ayah-counts.json`).

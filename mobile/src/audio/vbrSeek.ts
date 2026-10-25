@@ -29,6 +29,14 @@ export type NativeMp3Seek = 'index' | 'avfoundation-precise';
  */
 export const VBR_SEEK_DEVICE_VERIFIED: Readonly<Record<NativeMp3Seek, boolean>> = { index: false, 'avfoundation-precise': true };
 
+/**
+ * Methods the owner accepted WITHOUT completed device evidence (2026-10-25, explicit risk acceptance:
+ * tools/quran-audio/development/owner-release-decisions.json). Not a device result: VBR_SEEK_DEVICE_VERIFIED above stays
+ * the truth about testing ('index' false: Android measured on the emulator only). The technical requirement is
+ * unchanged: a binary that reports the exact-seek method (readNativeMp3Seek); an unpatched binary never plays VBR timing.
+ */
+export const VBR_SEEK_OWNER_RISK_ACCEPTED: Readonly<Record<NativeMp3Seek, boolean>> = { index: true, 'avfoundation-precise': true };
+
 /** The installed binary's exact-seek method, or null (an unpatched binary, tests, web). Never throws. */
 export function readNativeMp3Seek(): NativeMp3Seek | null {
   try {
@@ -42,14 +50,15 @@ export function readNativeMp3Seek(): NativeMp3Seek | null {
 }
 
 /**
- * Whether the VBR recordings may play ayah by ayah: a patched binary, and a verified method or the device-test flag.
- * The flag counts in development builds only: a release build never trusts it, whatever its environment.
+ * Whether the VBR recordings may play ayah by ayah: a patched binary (always required), and a device-verified method, a
+ * method the owner accepted without device evidence, or (development builds only) the device-test flag.
  */
 export function vbrSeekEnabled(
   native: NativeMp3Seek | null,
   testFlag: string | undefined,
   verified: Readonly<Record<NativeMp3Seek, boolean>> = VBR_SEEK_DEVICE_VERIFIED,
   development: boolean = __DEV__,
+  accepted: Readonly<Record<NativeMp3Seek, boolean>> = VBR_SEEK_OWNER_RISK_ACCEPTED,
 ): boolean {
-  return native !== null && (verified[native] === true || (development && testFlag === '1'));
+  return native !== null && (verified[native] === true || accepted[native] === true || (development && testFlag === '1'));
 }

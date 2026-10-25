@@ -14,7 +14,7 @@ import { createSourceRegistry } from '@/audio/sourceRegistry';
 import { previewEntries, previewTiming, type TimedPreviewRecording } from '@/audio/timedPreview';
 import { ayahStartMs, type SurahTiming } from '@/audio/timing';
 import { timingFingerprint } from '@/audio/timingFingerprint';
-import { EXACT_MP3_SEEK_HEADER, readNativeMp3Seek, VBR_SEEK_DEVICE_VERIFIED, vbrSeekEnabled } from '@/audio/vbrSeek';
+import { EXACT_MP3_SEEK_HEADER, readNativeMp3Seek, VBR_SEEK_DEVICE_VERIFIED, VBR_SEEK_OWNER_RISK_ACCEPTED, vbrSeekEnabled } from '@/audio/vbrSeek';
 import { SURAH_AYAH_COUNTS } from '@/utils/ayahLink';
 
 /**
@@ -28,27 +28,32 @@ const sobhi = GENERATED_RECITERS.find((r) => r.id === 'islam-sobhi')!;
 const formatOf = (id: string, s: number) => GENERATED_FORMATS[id].exceptions[s]?.[2] ?? GENERATED_FORMATS[id].bitrateMode;
 
 describe('exact VBR seeking: capability detection', () => {
-  it('needs a patched binary AND a device-verified method or (development builds) the device-test flag', () => {
-    const dev = (native: Parameters<typeof vbrSeekEnabled>[0], flag: string | undefined) => vbrSeekEnabled(native, flag, VBR_SEEK_DEVICE_VERIFIED, true);
+  // `none`: no owner risk acceptance, so these pin the verification and device-test-flag rules on their own.
+  const none = { index: false, 'avfoundation-precise': false } as const;
+
+  it('needs a patched binary AND a device-verified method, an owner risk acceptance, or (development builds) the device-test flag', () => {
+    const dev = (native: Parameters<typeof vbrSeekEnabled>[0], flag: string | undefined) => vbrSeekEnabled(native, flag, VBR_SEEK_DEVICE_VERIFIED, true, none);
     expect(dev(null, '1')).toBe(false);
     expect(dev('index', undefined)).toBe(false);
     expect(dev('index', '0')).toBe(false);
     expect(dev('index', '1')).toBe(true);
-    expect(vbrSeekEnabled('avfoundation-precise', undefined, { index: false, 'avfoundation-precise': true })).toBe(true);
+    expect(vbrSeekEnabled('avfoundation-precise', undefined, { index: false, 'avfoundation-precise': true }, false, none)).toBe(true);
   });
 
-  it('a release build ignores the device-test flag: only a device-verified method counts', () => {
-    expect(vbrSeekEnabled('index', '1', { index: false, 'avfoundation-precise': true }, false)).toBe(false);
-    expect(vbrSeekEnabled('index', '1')).toBe(false); // the default is __DEV__, false in a release bundle (and here)
-    expect(vbrSeekEnabled('index', undefined, { index: true, 'avfoundation-precise': true }, false)).toBe(true);
-    expect(vbrSeekEnabled(null, '1', { index: true, 'avfoundation-precise': true }, false)).toBe(false);
+  it('a release build ignores the device-test flag: only a device-verified or owner-accepted method counts', () => {
+    expect(vbrSeekEnabled('index', '1', { index: false, 'avfoundation-precise': true }, false, none)).toBe(false);
+    expect(vbrSeekEnabled('index', '1', VBR_SEEK_DEVICE_VERIFIED, false, none)).toBe(false);
+    expect(vbrSeekEnabled('index', undefined, { index: true, 'avfoundation-precise': true }, false, none)).toBe(true);
+    expect(vbrSeekEnabled('index', undefined, VBR_SEEK_DEVICE_VERIFIED, false, { index: true, 'avfoundation-precise': false })).toBe(true);
+    expect(vbrSeekEnabled(null, '1', { index: true, 'avfoundation-precise': true }, false, { index: true, 'avfoundation-precise': true })).toBe(false);
   });
 
-  it('device verification (owner, 2026-10-24): iOS only; Android still needs the device-test flag', () => {
-    expect(VBR_SEEK_DEVICE_VERIFIED).toEqual({ index: false, 'avfoundation-precise': true });
+  it('device verification (owner, 2026-10-24): iOS only; Android plays VBR timing on the owner risk acceptance (2026-10-25), not on evidence', () => {
+    expect(VBR_SEEK_DEVICE_VERIFIED).toEqual({ index: false, 'avfoundation-precise': true }); // unchanged: no Android result exists
+    expect(VBR_SEEK_OWNER_RISK_ACCEPTED).toEqual({ index: true, 'avfoundation-precise': true });
     expect(vbrSeekEnabled('avfoundation-precise', undefined)).toBe(true); // a patched iPhone binary, no flag
-    expect(vbrSeekEnabled('index', undefined)).toBe(false); // a patched Android binary, no flag
-    expect(vbrSeekEnabled(null, undefined)).toBe(false); // any unpatched binary (every release build), either platform
+    expect(vbrSeekEnabled('index', undefined)).toBe(true); // a patched Android binary, no flag: risk acceptance only
+    expect(vbrSeekEnabled(null, undefined)).toBe(false); // any unpatched binary, either platform: the native method is still required
   });
 
   it('an unpatched binary (tests, web) reports nothing, and the app then uses no VBR timing at all', () => {

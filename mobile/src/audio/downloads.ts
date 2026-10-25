@@ -1,6 +1,5 @@
-import { getReciter, surahAudioUrl, timedSurahs, type Reciter } from './reciters';
+import { downloadableSurahs, getReciter, surahAudioUrl, type Reciter } from './reciters';
 import { SOURCE_REGISTRY } from './sourceRegistry';
-import { isPreviewSurah } from './timedPreview';
 import type { TimingLoader } from './timing';
 
 /**
@@ -87,7 +86,7 @@ export function createAudioDownloads(deps: { files: AudioFiles; timing: TimingLo
   const run = async (reciter: Reciter) => {
     const mine = ++runToken;
     // Only the catalogue's own files are stored: a timed preview surah plays its own file and is never downloaded.
-    const surahs = timedSurahs(reciter).filter((surah) => !isPreviewSurah(reciter, surah));
+    const surahs = downloadableSurahs(reciter);
     const completed = new Set(await files.stored(reciter.id));
     const remaining = surahs.filter((surah) => !completed.has(surah));
     const bytesTotal = sizeOf(reciter, surahs);
@@ -229,7 +228,7 @@ export function createAudioDownloads(deps: { files: AudioFiles; timing: TimingLo
     /** Bytes the download of `reciterId` stores in all (its timed surahs). */
     totalBytes(reciterId: string) {
       const reciter = getReciter(reciterId);
-      return reciter ? sizeOf(reciter, timedSurahs(reciter).filter((surah) => !isPreviewSurah(reciter, surah))) : 0;
+      return reciter ? sizeOf(reciter, downloadableSurahs(reciter)) : 0;
     },
   };
   return api;

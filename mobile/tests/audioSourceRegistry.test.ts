@@ -6,7 +6,9 @@ import { describe, expect, it } from 'vitest';
 import { GENERATED_RECITERS } from '@/audio/generated/reciterCatalog';
 import { GENERATED_FORMATS, GENERATED_PROVIDERS, GENERATED_SURAH_ONLY } from '@/audio/generated/sourceRegistry';
 import { coverageLabel } from '@/audio/format';
-import { getReciter, hasAyahPlayback, RECITERS, reciterCoverage, surahAudioUrl, timedSurahs } from '@/audio/reciters';
+import { MEASURED_RELEASE, REVIEWED_RELEASE } from '@/audio/generated/timingRelease';
+import { getReciter, hasAyahPlayback, RECITERS, reciterCoverage, surahAudioUrl, timedSurahs, timingSourceOf } from '@/audio/reciters';
+import { isPreviewSurah } from '@/audio/timedPreview';
 import { MESSAGES } from '@/localization/messages';
 import { SOURCE_REGISTRY, SURAH_ONLY_PLAYBACK, type AudioSource, type Provider } from '@/audio/sourceRegistry';
 import { localFirstSource } from '@/audio/sources';
@@ -17,35 +19,40 @@ import { approval, fixtureRegistry } from './helpers/audioRegistry';
 const sourceOf = (reciterId: string, surah: number) => SOURCE_REGISTRY.sourcesFor(reciterId, surah)[0];
 
 describe('the source registry over the audited catalogue (the app today)', () => {
-  it('plays exactly the surahs that played before, ayah by ayah: 1,148, and nothing as a whole surah', () => {
+  it('plays ayah by ayah exactly the catalogue files with verified timing: the 1,148 of the catalogue plus the released timing; nothing as a whole surah', () => {
     let ayah = 0;
     for (const reciter of RECITERS) {
       for (let surah = 1; surah <= 114; surah++) {
         const mode = SOURCE_REGISTRY.mode(reciter.id, surah);
-        expect(mode === 'ayah', `${reciter.id} ${surah}`).toBe(hasAyahPlayback(reciter, surah));
+        // Timed previews and per-ayah recordings play their own files outside the MP3Quran registry (availability.ts).
+        const ownFiles = reciter.perAyah !== undefined || isPreviewSurah(reciter, surah);
+        expect(mode === 'ayah', `${reciter.id} ${surah}`).toBe(!ownFiles && hasAyahPlayback(reciter, surah));
         expect(mode).not.toBe('surah');
         if (mode === 'ayah') ayah++;
       }
     }
+    // The catalogue's own 1,148, plus the 399 released reviewed surahs (VBR needs a patched binary: none in tests).
+    const released = Object.values(REVIEWED_RELEASE).reduce((n, x) => n + Object.keys(x).length, 0) + Object.values(MEASURED_RELEASE).reduce((n, x) => n + Object.keys(x).length, 0);
+    expect(released).toBe(399 + 44); // reviewed, and the measured timing (owner decision 2026-10-25)
     // The catalogue's 1,148 ayah surahs: every reciter with any is offered (audio/reciters.ts: Muhammad Rifaat, on
     // hold, has none).
     const notOffered = GENERATED_RECITERS.filter((r) => !RECITERS.some((x) => x.id === r.id));
     expect(notOffered.map((r) => [r.id, timedSurahs(r).length])).toEqual([['rifaat', 0]]);
     expect(GENERATED_RECITERS.reduce((n, r) => n + timedSurahs(r).length, 0)).toBe(1148);
-    expect(ayah).toBe(1148);
+    expect(ayah).toBe(1148 + released);
     expect(GENERATED_SURAH_ONLY).toEqual([]);
   });
 
   it('resolves each ayah source to the same MP3Quran file, size and verified timing as the catalogue', () => {
     for (const reciter of RECITERS) {
-      for (const surah of timedSurahs(reciter)) {
+      for (const surah of timedSurahs(reciter).filter((s) => reciter.perAyah === undefined && !isPreviewSurah(reciter, s))) {
         const capability = SOURCE_REGISTRY.capability(reciter.id, surah);
         expect(capability.mode).toBe('ayah');
         if (capability.mode !== 'ayah') continue;
         expect(capability.sources).toHaveLength(1);
         const [source] = capability.sources;
         expect(source).toMatchObject({ reciterId: reciter.id, surah, provider: 'mp3quran', url: surahAudioUrl(reciter, surah), bytes: reciter.timed[surah][1], priority: 0 });
-        expect(source.timing).toEqual({ status: 'verified', kind: reciter.timingSource, fingerprint: reciter.timed[surah][0] });
+        expect(source.timing).toEqual({ status: 'verified', kind: timingSourceOf(reciter, surah), fingerprint: reciter.timed[surah][0] });
         expect(source.format).toMatchObject({ bitrateMode: 'cbr', exactSeek: true });
         expect(source.completeness.status).toBe('verified');
         expect(source.identity.status).toBe('verified');
@@ -85,7 +92,8 @@ describe('the source registry over the audited catalogue (the app today)', () =>
   it('keeps listed but unverified recordings disabled (no automatic whole-surah playback)', () => {
     // Reciters on hold or not offered (audio/reciters.ts) have no source in the app at all.
     for (const id of ['rifaat']) expect(SOURCE_REGISTRY.capability(id, 1), id).toEqual({ mode: 'none', reason: 'no-recording' });
-    for (const [reciterId, surah] of [['islam-sobhi', 36], ['yasser-salama', 1], ['saleh-talib', 1], ['minshawi', 9], ['husary', 1]] as const) {
+    // Listed by MP3Quran, no timing released: Sobhi 17/24 (unresolved structure), 74/109 (clipped opening).
+    for (const [reciterId, surah] of [['islam-sobhi', 17], ['islam-sobhi', 24], ['islam-sobhi', 74], ['islam-sobhi', 109]] as const) {
       const [source] = SOURCE_REGISTRY.sourcesFor(reciterId, surah);
       expect(source.completeness.status, `${reciterId} ${surah}`).toBe('unverified');
       expect(source.bytes).toBeNull();
@@ -111,40 +119,41 @@ describe('the source registry over the audited catalogue (the app today)', () =>
 describe('the capability rules', () => {
   it('the app offers no untimed whole-surah playback: even an approved source without timing does not play', () => {
     expect(SURAH_ONLY_PLAYBACK).toBe(false);
-    const app = fixtureRegistry({ surahOnly: [approval('islam-sobhi', 36)], surahOnlyPlayback: SURAH_ONLY_PLAYBACK });
-    expect(app.capability('islam-sobhi', 36)).toEqual({ mode: 'none', reason: 'not-verified' });
+    const app = fixtureRegistry({ surahOnly: [approval('islam-sobhi', 74)], surahOnlyPlayback: SURAH_ONLY_PLAYBACK });
+    expect(app.capability('islam-sobhi', 74)).toEqual({ mode: 'none', reason: 'not-verified' });
     for (const reciter of RECITERS) for (let s = 1; s <= 114; s++) expect(SOURCE_REGISTRY.mode(reciter.id, s)).not.toBe('surah');
   });
 
   it('(dormant capability) an approved, complete, permitted recording without timing plays whole when enabled', () => {
-    const registry = fixtureRegistry({ surahOnly: [approval('islam-sobhi', 36)] });
-    const capability = registry.capability('islam-sobhi', 36);
+    const registry = fixtureRegistry({ surahOnly: [approval('islam-sobhi', 74)] });
+    const capability = registry.capability('islam-sobhi', 74);
     expect(capability.mode).toBe('surah');
-    if (capability.mode === 'surah') expect(capability.sources.map((s) => s.url)).toEqual(['https://cdn.mp3quran.net/audio/islam-sobhi/r1/036.mp3']);
-    expect(registry.coverage('islam-sobhi')).toEqual({ ayah: [], surah: [36] });
+    if (capability.mode === 'surah') expect(capability.sources.map((s) => s.url)).toEqual(['https://cdn.mp3quran.net/audio/islam-sobhi/r1/074.mp3']);
+    expect(registry.coverage('islam-sobhi').surah).toEqual([74]);
+    expect(registry.coverage('islam-sobhi').ayah).toEqual(SOURCE_REGISTRY.coverage('islam-sobhi').ayah); // its timed surahs unchanged
     // Everything else is unchanged.
     expect(registry.mode('maher', 18)).toBe('ayah');
-    expect(registry.mode('islam-sobhi', 35)).toBe('none');
+    expect(registry.mode('islam-sobhi', 37)).toBe('none');
   });
 
   it('a VBR recording with verified timing still never plays ayah by ayah: whole surah only', () => {
     const vbr: AudioSource = { ...sourceOf('maher', 18), durationMs: 2_000_000, format: { ...sourceOf('maher', 18).format, bitrateMode: 'vbr', exactSeek: false } };
-    const registry = fixtureRegistry({ extra: [{ ...vbr, reciterId: 'yasser-salama', url: 'https://cdn.example/yasser/018.mp3' }] });
-    expect(registry.mode('yasser-salama', 18)).toBe('surah');
+    const registry = fixtureRegistry({ extra: [{ ...vbr, reciterId: 'saleh-talib', surah: 2, url: 'https://cdn.example/talib/002.mp3' }] });
+    expect(registry.mode('saleh-talib', 2)).toBe('surah');
   });
 
   it('a whole-surah source without its verified length never plays (the app could not check the loaded stream)', () => {
-    const base = { ...sourceOf('maher', 18), reciterId: 'yasser-salama', url: 'https://cdn.example/y/018.mp3', timing: { status: 'none' as const, reason: 'none' } };
-    expect(fixtureRegistry({ extra: [{ ...base, durationMs: null }] }).capability('yasser-salama', 18)).toEqual({ mode: 'none', reason: 'not-verified' });
-    expect(fixtureRegistry({ extra: [{ ...base, durationMs: 1_000_000 }] }).mode('yasser-salama', 18)).toBe('surah');
+    const base = { ...sourceOf('maher', 18), reciterId: 'saleh-talib', surah: 2, url: 'https://cdn.example/t/002.mp3', timing: { status: 'none' as const, reason: 'none' } };
+    expect(fixtureRegistry({ extra: [{ ...base, durationMs: null }] }).capability('saleh-talib', 2)).toEqual({ mode: 'none', reason: 'not-verified' });
+    expect(fixtureRegistry({ extra: [{ ...base, durationMs: 1_000_000 }] }).mode('saleh-talib', 2)).toBe('surah');
   });
 
   it('invalid rights metadata (an unknown provider, or a permission not explicitly granted) never plays', () => {
-    const base = { ...sourceOf('maher', 18), reciterId: 'yasser-salama', url: 'https://cdn.example/y/018.mp3', durationMs: 1_000_000 };
-    // (Yasser Salama's own listed MP3Quran file of 18 is permitted but unverified, hence 'not-verified'.)
-    expect(fixtureRegistry({ extra: [{ ...base, provider: 'unknown-host' }] }).capability('yasser-salama', 18)).toEqual({ mode: 'none', reason: 'not-verified' });
+    const base = { ...sourceOf('maher', 18), reciterId: 'saleh-talib', surah: 2, url: 'https://cdn.example/t/002.mp3', durationMs: 1_000_000 };
+    // (Saleh Al-Talib has no MP3Quran file of 2: the unknown host's source is the only one, and it is not permitted.)
+    expect(fixtureRegistry({ extra: [{ ...base, provider: 'unknown-host' }] }).capability('saleh-talib', 2)).toEqual({ mode: 'none', reason: 'not-permitted' });
     const vague = GENERATED_PROVIDERS.map((p) => (p.id === 'mp3quran' ? { ...p, streaming: { permitted: 'yes' as unknown as boolean, evidence: '' } } : p));
-    expect(fixtureRegistry({ providers: vague, extra: [base] }).capability('yasser-salama', 18)).toEqual({ mode: 'none', reason: 'not-permitted' });
+    expect(fixtureRegistry({ providers: vague, extra: [base] }).capability('saleh-talib', 2)).toEqual({ mode: 'none', reason: 'not-permitted' });
     // The catalogue's own ayah sources are under the same rule.
     expect(fixtureRegistry({ providers: vague }).mode('maher', 18)).toBe('none');
   });
@@ -157,7 +166,7 @@ describe('the capability rules', () => {
   });
 
   it('partial, unverified, wrong-reciter or unconfirmed-riwayah recordings never play', () => {
-    const base = { ...sourceOf('maher', 18), reciterId: 'yasser-salama', url: 'https://cdn.example/y/018.mp3' };
+    const base = { ...sourceOf('maher', 18), reciterId: 'saleh-talib', surah: 2, url: 'https://cdn.example/t/002.mp3' };
     for (const broken of [
       { ...base, completeness: { status: 'failed' as const, evidence: 'ends at 18:74' } },
       { ...base, completeness: { status: 'unverified' as const, evidence: '' } },
@@ -165,7 +174,7 @@ describe('the capability rules', () => {
       { ...base, riwayah: { value: null, status: 'unconfirmed' as const, evidence: '' } },
       { ...base, bytes: null },
     ]) {
-      expect(fixtureRegistry({ extra: [broken] }).capability('yasser-salama', 18)).toEqual({ mode: 'none', reason: 'not-verified' });
+      expect(fixtureRegistry({ extra: [broken] }).capability('saleh-talib', 2)).toEqual({ mode: 'none', reason: 'not-verified' });
     }
   });
 
@@ -193,7 +202,7 @@ describe('the capability rules', () => {
     expect(fixtureRegistry({ providers: permitting, offlineSwitch: false }).reciterOfflinePermitted('maher')).toBe(false); // provider yes, switch off
     expect(fixtureRegistry({ providers: permitting, offlineSwitch: true }).reciterOfflinePermitted('maher')).toBe(true);
     // A reciter with nothing that plays ayah by ayah has nothing to download.
-    expect(fixtureRegistry({ providers: permitting, offlineSwitch: true }).reciterOfflinePermitted('yasser-salama')).toBe(false);
+    expect(fixtureRegistry({ providers: permitting, offlineSwitch: true }).reciterOfflinePermitted('ahmed-salama')).toBe(false); // no catalogue recording
   });
 
   it('offline storage needs the app switch and the provider permission', () => {
@@ -215,9 +224,9 @@ describe('resolving a stream (localFirstSource)', () => {
   });
 
   it('marks a whole-surah stream for the stream check, with its verified size and length', async () => {
-    const registry = fixtureRegistry({ surahOnly: [approval('islam-sobhi', 36)] });
-    expect(await localFirstSource(noFiles, registry)(getReciter('islam-sobhi')!, 36)).toEqual({
-      uri: 'https://cdn.mp3quran.net/audio/islam-sobhi/r1/036.mp3', local: false, bytes: 1_000_036, durationMs: 636_000, verify: true,
+    const registry = fixtureRegistry({ surahOnly: [approval('islam-sobhi', 74)] });
+    expect(await localFirstSource(noFiles, registry)(getReciter('islam-sobhi')!, 74)).toEqual({
+      uri: 'https://cdn.mp3quran.net/audio/islam-sobhi/r1/074.mp3', local: false, bytes: 1_000_074, durationMs: 674_000, verify: true,
     });
   });
 
@@ -229,7 +238,7 @@ describe('resolving a stream (localFirstSource)', () => {
 
   it('builds no URL at all for a surah that may not play', async () => {
     await expect(localFirstSource(noFiles)(getReciter('islam-sobhi')!, 37)).rejects.toThrow(/no playable source/);
-    await expect(localFirstSource(noFiles)(getReciter('islam-sobhi')!, 36)).rejects.toThrow(/no playable source/);
+    await expect(localFirstSource(noFiles)(getReciter('islam-sobhi')!, 74)).rejects.toThrow(/no playable source/);
   });
 });
 

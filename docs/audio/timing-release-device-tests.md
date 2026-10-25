@@ -117,3 +117,17 @@ entries, the generator accepts one record per **playback class**:
 development clients (Android `2df4712e`, iPhone `f9ada32f`) with Metro. They load every layer and use the same patched
 player. Record each result with that client's build line. Then generate the release and build the release
 candidate, and re-check one sample per class on the candidate (`docs/release-device-checklist.md`, section B).
+
+## Owner risk acceptance and measured timing (2026-10-25)
+
+`generate-timing-release.mjs` passes the device gate on an owner decision with `waives: ["device-evidence"]` for the
+layer. Its report says "shipped without device evidence: owner risk acceptance …, not testing". Every other gate still
+runs. On that basis, all 399 reviewed surahs, all 27 VBR surahs (both exact-seek methods) and all 177 timed previews are
+released. VBR timing still needs a patched binary: `vbrSeekEnabled` requires the native method, and
+`VBR_SEEK_OWNER_RISK_ACCEPTED` stands in only for device verification.
+
+The 44 development measured surahs (`MEASURED_RELEASE`) are released only on an owner decision listing the layer
+"measured-timing". `owner-2026-10-25-release-measured-timing` lists it, and also waives that layer's device evidence. All
+44 are released (Minshawi 5, Husary 8, Shuraim 22, Shatri 9), each exactly its development entry. They passed the timing
+and integrity gates (the audited MP3Quran file at its audited size); they had no owner listening review and no device
+test. This is risk acceptance, not verification.

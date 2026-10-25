@@ -830,7 +830,11 @@ export type Messages = {
     /** offlineDescription when the recording has all 114 surahs: only then "the complete Quran". */
     offlineDescriptionComplete: string;
     offlineNothing: string;
+    /** A reciter that plays ayah by ayah only by streaming (timed previews, per-ayah files): nothing to store. */
+    offlineStreamingOnly: string;
     offlineNotIncluded: string;
+    /** Playable surahs a download leaves out because their files are streamed from another host (timed previews). */
+    offlineStreamingOnlyList: string;
     download: string;
     pauseDownload: string;
     resumeDownload: string;
@@ -892,8 +896,6 @@ export type Messages = {
     seekForward: string;
     wholeSurahOnly: string;
     coveragePartialWhole: string;
-    /** Development builds only: a per-ayah recording on trial (audio/perAyah.ts), before its coverage line. */
-    developmentPreview: string;
     /** The player's Full Surah button: this surah from its first ayah to its last, then stop. */
     fullSurah: string;
     fullSurahHint: string;
@@ -957,7 +959,9 @@ const EN_AUDIO: Messages['audio'] = {
   offlineDescription: 'Download {reciter} to listen without internet: {n} of {all} surahs, about {size}.',
   offlineDescriptionComplete: 'Download the complete Quran recited by {reciter} to listen without internet: all {all} surahs, about {size}.',
   offlineNothing: "{reciter} has no surahs that can play ayah by ayah, so there's nothing to download.",
+  offlineStreamingOnly: "{reciter}'s audio in this app plays by streaming only, so there's nothing to download.",
   offlineNotIncluded: 'Not included (no verified recording): Surahs {list}',
+  offlineStreamingOnlyList: 'Streaming only (not downloaded): Surahs {list}',
   download: 'Download',
   pauseDownload: 'Pause',
   resumeDownload: 'Resume',
@@ -1014,7 +1018,6 @@ const EN_AUDIO: Messages['audio'] = {
   seekForward: 'Forward 15 seconds',
   wholeSurahOnly: 'Whole surah only',
   coveragePartialWhole: '{n} of 114 surahs · {m} whole only',
-  developmentPreview: 'Development preview',
   fullSurah: 'Full Surah',
   fullSurahHint: 'Recites this surah from its first ayah to its last, then stops',
   repeatAyah: 'Repeat ayah',
@@ -1070,7 +1073,9 @@ const AR_AUDIO: Messages['audio'] = {
   offlineDescription: 'نزّل تلاوة {reciter} للاستماع دون إنترنت: {n} من {all} سورة، نحو {size}.',
   offlineDescriptionComplete: 'نزّل القرآن الكريم كاملًا بتلاوة {reciter} للاستماع دون إنترنت: {all} سورة، نحو {size}.',
   offlineNothing: 'لا توجد لدى {reciter} سور يمكن تشغيلها آيةً بآية، فلا يوجد ما يُنزَّل.',
+  offlineStreamingOnly: 'يُشغَّل صوت {reciter} في التطبيق بالبث فقط، فلا يوجد ما يُنزَّل.',
   offlineNotIncluded: 'غير مشمولة (لا توجد تلاوة موثّقة): السور {list}',
+  offlineStreamingOnlyList: 'بالبث فقط (لا تُنزَّل): السور {list}',
   download: 'تنزيل',
   pauseDownload: 'إيقاف مؤقت',
   resumeDownload: 'استئناف',
@@ -1127,7 +1132,6 @@ const AR_AUDIO: Messages['audio'] = {
   seekForward: 'تقدّم ١٥ ثانية',
   wholeSurahOnly: 'السورة كاملة فقط',
   coveragePartialWhole: '{n} من ١١٤ سورة · {m} كاملة فقط',
-  developmentPreview: 'معاينة للتطوير',
   fullSurah: 'السورة كاملة',
   fullSurahHint: 'يتلو هذه السورة من أول آية إلى آخر آية ثم يتوقف',
   repeatAyah: 'تكرار الآية',

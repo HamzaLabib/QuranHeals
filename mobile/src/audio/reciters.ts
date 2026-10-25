@@ -1,9 +1,9 @@
 import { DEVELOPMENT_TIMING } from './generated/developmentTiming';
 import { GENERATED_RECITERS, type GeneratedReciter } from './generated/reciterCatalog';
 import { PER_AYAH_RELEASE } from './generated/perAyahRelease';
-import { REVIEWED_RELEASE, TIMED_PREVIEW_RELEASE, VBR_RELEASE, type ReleasedTimingSurah } from './generated/timingRelease';
+import { MEASURED_RELEASE, REVIEWED_RELEASE, TIMED_PREVIEW_RELEASE, VBR_RELEASE, type ReleasedTimingSurah } from './generated/timingRelease';
 import { perAyahSurahs, type PerAyahRecording } from './perAyah';
-import { previewSurahs, type TimedPreviewRecording } from './timedPreview';
+import { isPreviewSurah, previewSurahs, type TimedPreviewRecording } from './timedPreview';
 import { readNativeMp3Seek, vbrSeekEnabled, type NativeMp3Seek } from './vbrSeek';
 
 /**
@@ -99,7 +99,8 @@ export function withPerAyahPreview(reciters: readonly Reciter[], preview: readon
 
 // Loaded only in development builds: Metro drops the require (and the data) from a release bundle.
 // A release build plays only the per-ayah recordings of generated/perAyahRelease.ts, written by
-// tools/quran-audio/per-ayah/generate-preview.mjs --release once every release gate passes (empty today).
+// tools/quran-audio/per-ayah/generate-preview.mjs --release once every release gate passes (Ali Jaber, 2026-10-25: on
+// the owner's decisions, without rights documents or device evidence; surahs with an unresolved override left out).
 const PER_AYAH_PREVIEW: readonly PerAyahRecording[] = __DEV__
   ? // eslint-disable-next-line @typescript-eslint/no-require-imports
     (require('./generated/perAyahPreview') as typeof import('./generated/perAyahPreview')).PER_AYAH_PREVIEW
@@ -172,12 +173,13 @@ type DevTiming = Readonly<Record<string, Readonly<Record<number, { fingerprint: 
  * DEVELOPMENT PREVIEW (owner, 2026-10-24): the review dashboard's accepted aligned timing for MP3Quran catalogue surahs
  * with no other timing (generated/reviewedTiming.ts; tools/quran-audio/development/generate-reviewed-timing.mjs).
  * Loaded only in development builds: Metro drops the require (and the data) from a release bundle. A release build
- * plays only the surahs of it that passed every release gate (REVIEWED_RELEASE, generated/timingRelease.ts).
+ * plays only the surahs of it that passed every release gate (REVIEWED_RELEASE, generated/timingRelease.ts), plus the
+ * development measured timing an owner decision released (MEASURED_RELEASE; the two never share a surah).
  */
 const REVIEWED_TIMING: DevTiming = __DEV__
   ? // eslint-disable-next-line @typescript-eslint/no-require-imports
     (require('./generated/reviewedTiming') as typeof import('./generated/reviewedTiming')).REVIEWED_TIMING
-  : REVIEWED_RELEASE;
+  : mergeDevelopmentTiming(MEASURED_RELEASE, REVIEWED_RELEASE);
 
 /** Development timing: the measured timing first, then reviewed aligned timing for surahs that have none. */
 export function mergeDevelopmentTiming(measured: DevTiming, reviewed: DevTiming): DevTiming {
@@ -330,7 +332,17 @@ export function reciterCoverage(reciter: Reciter): ReciterCoverage {
   return { kind: timed === 114 ? 'complete' : timed === 0 ? 'none' : 'partial', timed, recorded: reciter.surahs.length };
 }
 
-/** Bytes of the files an offline download of this reciter stores (its timed surahs only: the ones that can play). */
-export function offlineDownloadBytes(reciter: Reciter, surahs: readonly number[] = timedSurahs(reciter)): number {
+/**
+ * The surahs an offline download stores: the timed surahs of the reciter's own catalogue recording. Timed-preview surahs
+ * (files from other hosts, timedPreview.ts) and per-ayah recordings (perAyah.ts: one file per ayah, no surah file to
+ * store) play by streaming only and are never stored (audio/downloads.ts).
+ */
+export function downloadableSurahs(reciter: Reciter): number[] {
+  if (reciter.perAyah !== undefined) return [];
+  return timedSurahs(reciter).filter((surah) => !isPreviewSurah(reciter, surah));
+}
+
+/** Bytes of the files an offline download of this reciter stores (downloadableSurahs: the ones it can store). */
+export function offlineDownloadBytes(reciter: Reciter, surahs: readonly number[] = downloadableSurahs(reciter)): number {
   return surahs.reduce((sum, surah) => sum + (reciter.timed[surah]?.[1] ?? 0), 0);
 }

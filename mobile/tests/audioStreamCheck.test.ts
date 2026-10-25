@@ -97,7 +97,8 @@ describe('the stated size of a response', () => {
 describe('what the app compares with', () => {
   it('finds the verified size, length and range support of a registered stream by URL; nothing for an unlisted URL', () => {
     expect(SOURCE_REGISTRY.sourceByUrl('https://cdn.mp3quran.net/audio/maher-muaiqly/r3/018.mp3')).toMatchObject({ reciterId: 'maher', surah: 18, bytes: expect.any(Number), format: { rangeRequests: true } });
-    expect(SOURCE_REGISTRY.sourceByUrl(SOBHI_36)).toMatchObject({ bytes: null, durationMs: null });
+    // Sobhi 74: listed by MP3Quran, not verified (clipped opening): no size or length to compare with.
+    expect(SOURCE_REGISTRY.sourceByUrl('https://cdn.mp3quran.net/audio/islam-sobhi/r1/074.mp3')).toMatchObject({ bytes: null, durationMs: null });
     expect(SOURCE_REGISTRY.sourceByUrl('https://cdn.mp3quran.net/audio/islam-sobhi/r1/037.mp3')).toBeNull();
   });
 });
