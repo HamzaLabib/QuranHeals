@@ -74,6 +74,23 @@ export type PageNavigation = {
 const TOUCH_TARGET = 44;
 
 /**
+ * The page number's touch area in the page's coordinates: centred on the printed number, at least two touch targets
+ * (or 30 % of the page) wide, and reaching up (`slopTop`) through the frame's bottom band to, not into, the text area;
+ * below it, the paper's edge. Memorization Mode's Eye sits right beside it (memorization/placement.ts).
+ */
+export function pageNumberTouchBox(layout: ReturnType<typeof computePageLayout>): { left: number; top: number; width: number; height: number; slopTop: number } {
+  const top = layout.pageNumber.y;
+  const width = Math.min(layout.page.width, Math.max(TOUCH_TARGET * 2, layout.page.width * 0.3));
+  return {
+    left: (layout.page.width - width) / 2,
+    top,
+    width,
+    height: layout.pageNumber.height,
+    slopTop: Math.max(0, Math.min(TOUCH_TARGET - layout.pageNumber.height, top - (layout.text.y + layout.text.height) - 2)),
+  };
+}
+
+/**
  * One printed page laid out with the reference print's measured geometry
  * (mushaf/pageGeometry.ts): juz' and surah headers flush with the frame,
  * the tiled border between two brown rules (MushafBorder), the text area,
@@ -187,9 +204,7 @@ function FurnitureTouchAreas({ layout, navigation, hasHizb }: { layout: ReturnTy
     />
   );
   // Above the page number: the frame's bottom band up to (not into) the text area; below it, the paper's edge.
-  const numberTop = layout.pageNumber.y;
-  const numberAbove = Math.max(0, Math.min(TOUCH_TARGET - layout.pageNumber.height, numberTop - (layout.text.y + layout.text.height) - 2));
-  const numberWidth = Math.min(layout.page.width, Math.max(TOUCH_TARGET * 2, layout.page.width * 0.3));
+  const number = pageNumberTouchBox(layout);
   return (
     <>
       {head('mushaf-nav-surah', navigation.labels.surah, navigation.onSurah, { left: 0, width: sideWidth }, surahTarget)}
@@ -201,8 +216,8 @@ function FurnitureTouchAreas({ layout, navigation, hasHizb }: { layout: ReturnTy
         accessibilityRole="button"
         accessibilityLabel={navigation.labels.page}
         onPress={navigation.onPageNumber}
-        hitSlop={{ top: numberAbove, bottom: 0, left: 0, right: 0 }}
-        style={[styles.absolute, { height: layout.pageNumber.height, left: (layout.page.width - numberWidth) / 2, top: numberTop, width: numberWidth }]}
+        hitSlop={{ top: number.slopTop, bottom: 0, left: 0, right: 0 }}
+        style={[styles.absolute, { height: number.height, left: number.left, top: number.top, width: number.width }]}
       />
     </>
   );

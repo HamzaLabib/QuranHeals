@@ -18,7 +18,7 @@ const GAP = 14;
  * A small floating card near the tapped point: above it when there is room, otherwise below; never past the screen's
  * sides or safe areas. Measured before it shows (no jump). A tap anywhere outside, or Back, dismisses it.
  */
-function AnchoredPopup({ anchor, onClose, closeLabel, testID, theme, children }: {
+export function AnchoredPopup({ anchor, onClose, closeLabel, testID, theme, children }: {
   anchor: PopupAnchor | null;
   onClose: () => void;
   closeLabel: string;

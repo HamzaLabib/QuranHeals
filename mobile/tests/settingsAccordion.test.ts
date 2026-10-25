@@ -33,6 +33,8 @@ const state = vi.hoisted(() => ({
   pending: new Map<string, { identifier: string; trigger: unknown; data: Record<string, unknown> }>(),
   /** Whether this build carries Word Meanings (wordMeanings/bundledDataset.ts: development builds; vitest's __DEV__ is false). */
   wordMeaningsBundled: true,
+  /** Whether this build has Memorization Mode (memorization/config.ts: development builds); off unless a test turns it on. */
+  memorizationAvailable: false,
 }));
 
 vi.mock('react-native', () => {
@@ -62,6 +64,7 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
 vi.mock('lucide-react-native', () => ({
   ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', Check: 'Check', CircleHelp: 'CircleHelp', CircleAlert: 'CircleAlert', CircleCheck: 'CircleCheck', Download: 'Download',
   ChevronDown: 'ChevronDown', ChevronLeft: 'ChevronLeft', ChevronRight: 'ChevronRight', Flag: 'Flag',
+  BookOpen: 'BookOpen', Eye: 'Eye',
 }));
 // The Mushaf Guide row's icon (components/MushafIcon.tsx) draws with react-native-svg.
 vi.mock('react-native-svg', () => ({ default: 'Svg', Path: 'Path', Rect: 'Rect' }));
@@ -79,6 +82,7 @@ vi.mock('@/components/ReportIssueSheet', async () => {
 vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView', useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }) }));
 vi.mock('@/auth/useAuth', () => ({ useAuth: () => ({ refreshSync: async () => { state.refreshSyncCalls += 1; } }) }));
 vi.mock('@/wordMeanings/bundledDataset', () => ({ isWordMeaningsBundled: () => state.wordMeaningsBundled, bundledWordMeanings: () => null }));
+vi.mock('@/memorization/config', () => ({ isMemorizationModeAvailable: () => state.memorizationAvailable }));
 // Rendered for real in accountSectionRender.test.ts; here only its position matters.
 vi.mock('@/components/AccountSection', async () => {
   const { createElement: h } = await import('react');
@@ -95,6 +99,7 @@ import { NotificationsProvider } from '@/notifications/useNotifications';
 import type { NotificationsApi } from '@/notifications/api';
 import { AppearancePreferenceProvider } from '@/theme/useAppearancePreference';
 import { WordMeaningsVisibilityProvider } from '@/mushaf/useWordMeaningsVisibility';
+import { MemorizationModeSettingProvider } from '@/memorization/useMemorizationModeSetting';
 
 /** Reminders: a supported platform that has not been asked for permission yet (a fresh install). */
 const fakeNotificationsApi: NotificationsApi = {
@@ -147,6 +152,7 @@ beforeEach(() => {
   state.settingsOpened = 0;
   state.pending.clear();
   state.wordMeaningsBundled = true;
+  state.memorizationAvailable = false;
   fetchSpy.mockReset();
   vi.stubGlobal('fetch', fetchSpy);
 });
@@ -161,8 +167,8 @@ async function renderSettings() {
     createElement(AppLocaleProvider, null,
       createElement(EmotionsLanguageProvider, null,
         createElement(QuranTranslationPreferenceProvider, null,
-          createElement(AppearancePreferenceProvider, null, createElement(KeepAwakePreferenceProvider, null, createElement(WordMeaningsVisibilityProvider, null, createElement(FavoriteReciterProvider, null,
-            createElement(NotificationsProvider, { api: fakeNotificationsApi, now: () => new Date(2026, 9, 14, 12, 0), verses: fakeVerses }, children))))))));
+          createElement(AppearancePreferenceProvider, null, createElement(KeepAwakePreferenceProvider, null, createElement(WordMeaningsVisibilityProvider, null, createElement(MemorizationModeSettingProvider, null, createElement(FavoriteReciterProvider, null,
+            createElement(NotificationsProvider, { api: fakeNotificationsApi, now: () => new Date(2026, 9, 14, 12, 0), verses: fakeVerses }, children)))))))));
   await act(async () => { root = create(tree(createElement(SettingsScreen))); });
 }
 
@@ -214,7 +220,7 @@ describe('Settings: section order and initial state', () => {
     expect(texts()).not.toContain('Quran Language');
   });
 
-  it('each section holds its own settings: App (App Language, Appearance), Emotions (Emotions Language, Show Translation, Emotional Check-in), Quran (Favorite Reciter, Offline listening, Quran Translation, Keep Screen Awake, Reciting Reminder, Random Quran Ayah, offline Mushaf), Support (Report an Issue, Legal & Privacy)', async () => {
+  it('each section holds its own settings: App (App Language, Appearance), Emotions (Emotions Language, Show Translation, Emotional Check-in), Quran (Favorite Reciter, Offline listening, Quran Translation, Keep Screen Awake, Reciting Reminder, Random Quran Ayah, Word Meanings, offline Mushaf), Support (Report an Issue, Legal & Privacy)', async () => {
     await renderSettings();
     const section = (id: string) => root!.root.find((node) => node.props.testID === id && typeof node.type === 'string');
     const headersIn = (id: string) => section(id).findAll((node) => headers().includes(node)).map((node) => node.props.accessibilityLabel.split(', ')[0]);
@@ -223,7 +229,8 @@ describe('Settings: section order and initial state', () => {
     expect(headersIn('settings-section-emotions')).toEqual(['Emotions Language']);
     expect(idsIn('settings-section-emotions')).toEqual(['settings-show-translation', 'settings-reminder-emotionCheckIn']);
     expect(headersIn('settings-section-quran')).toEqual(['Favorite Reciter', 'Quran Translation']);
-    expect(idsIn('settings-section-quran')).toEqual(['settings-keep-awake', 'settings-word-meanings', 'settings-reminder-wird', 'settings-reminder-randomAyah', 'settings-offline-mushaf']);
+    // The owner's approved order (2026-10-24): the two reminders before Word Meanings.
+    expect(idsIn('settings-section-quran')).toEqual(['settings-keep-awake', 'settings-reminder-wird', 'settings-reminder-randomAyah', 'settings-word-meanings', 'settings-offline-mushaf']);
     expect(headersIn('settings-section-support')).toEqual(['Legal & Privacy']);
     expect(idsIn('settings-section-support')).toEqual(['settings-report-issue']);
     expect(en.settings.legalSection).toBe('Legal & Privacy');
@@ -672,16 +679,16 @@ describe('Settings: Word Meanings', () => {
       .map((node) => (headers().includes(node) ? node.props.accessibilityLabel.split(', ')[0] : node.props.testID));
   };
 
-  it.each([['en', en], ['ar', ar]] as const)('%s: the Quran section in the approved order, Word Meanings directly after Keep Screen Awake', async (locale, copy) => {
+  it.each([['en', en], ['ar', ar]] as const)('%s: the Quran section in the approved order, Word Meanings directly after Random Quran Ayah', async (locale, copy) => {
     if (locale === 'ar') state.storage.set(LOCALE_KEY, 'ar');
     await renderSettings();
     expect(quranRows()).toEqual([
       copy.audio.favoriteTitle,
       copy.settings.quranTranslationSection,
       'settings-keep-awake',
-      'settings-word-meanings',
       'settings-reminder-wird',
       'settings-reminder-randomAyah',
+      'settings-word-meanings',
       'settings-offline-mushaf',
       'settings-mushaf-guide',
     ]);
@@ -742,6 +749,139 @@ describe('Settings: Word Meanings', () => {
     await renderSettings();
     expect(toggles()).toHaveLength(0);
     expect(quranRows()).toEqual(['Favorite Reciter', 'Quran Translation', 'settings-keep-awake', 'settings-reminder-wird', 'settings-reminder-randomAyah', 'settings-offline-mushaf', 'settings-mushaf-guide']);
+  });
+});
+
+describe('Settings: Memorization Mode (development builds) and the two Mushaf guides', () => {
+  const MEMORIZATION_KEY = 'quran-heals:memorization-mode-visible:v1';
+  const WORD_MEANINGS_KEY = 'quran-heals:word-meanings-visible:v1';
+  const GUIDE_KEY = 'quran-heals:mushaf-guide:v1';
+  const toggle = () => root!.root.findByProps({ testID: 'settings-memorization-mode' });
+  const toggles = () => root!.root.findAllByProps({ testID: 'settings-memorization-mode' });
+  const card = () => toggle().parent!;
+  const byId = (testID: string) => root!.root.find((node) => typeof node.type === 'string' && node.props.testID === testID);
+  const chooser = () => root!.root.find((node) => node.type === ('Modal' as never) && node.findAll((n) => n.props.testID === 'settings-guide-chooser').length > 0);
+  /** The Quran section's rows in screen order: accordion headers by title, every other row by its testID. */
+  const quranRows = () => {
+    const quran = root!.root.find((node) => node.props.testID === 'settings-section-quran' && typeof node.type === 'string');
+    return quran
+      .findAll((node) => typeof node.type === 'string' && (headers().includes(node) || /^settings-(keep-awake|word-meanings|memorization-mode|reminder-(wird|randomAyah)|offline-mushaf|mushaf-guide)$/.test(String(node.props.testID))))
+      .map((node) => (headers().includes(node) ? node.props.accessibilityLabel.split(', ')[0] : node.props.testID));
+  };
+  beforeEach(() => {
+    state.memorizationAvailable = true;
+  });
+
+  it.each([['en', en], ['ar', ar]] as const)('%s: the nine Quran settings in the exact approved order', async (locale, copy) => {
+    if (locale === 'ar') state.storage.set(LOCALE_KEY, 'ar');
+    await renderSettings();
+    expect(quranRows()).toEqual([
+      copy.audio.favoriteTitle,
+      copy.settings.quranTranslationSection,
+      'settings-keep-awake',
+      'settings-reminder-wird',
+      'settings-reminder-randomAyah',
+      'settings-word-meanings',
+      'settings-memorization-mode',
+      'settings-offline-mushaf',
+      'settings-mushaf-guide',
+    ]);
+    // The six accordions are unchanged (the new row is a switch card, not an accordion).
+    expect(headers().map((node) => node.props.accessibilityLabel.split(', ')[0])).toEqual(locale === 'ar' ? AR_HEADERS : EN_HEADERS);
+  });
+
+  it('OFF by default for everyone, with nothing saved; its title alone, "Memorization Mode"', async () => {
+    await renderSettings();
+    expect(texts(card())).toEqual(['Memorization Mode']);
+    expect(toggle().props).toMatchObject({ value: false, accessibilityRole: 'switch', accessibilityLabel: 'Memorization Mode', accessibilityState: { checked: false } });
+    expect(state.storage.has(MEMORIZATION_KEY)).toBe(false);
+  });
+
+  it('switching ON and back OFF applies and saves at once, only its own key, no network; Word Meanings untouched', async () => {
+    await renderSettings();
+    const before = new Map(state.storage);
+    const wordMeanings = root!.root.findByProps({ testID: 'settings-word-meanings' });
+    expect(wordMeanings.props.value).toBe(true);
+    await act(async () => toggle().props.onValueChange(true));
+    expect(toggle().props).toMatchObject({ value: true, accessibilityState: { checked: true } });
+    expect(state.storage.get(MEMORIZATION_KEY)).toBe('true');
+    expect(root!.root.findByProps({ testID: 'settings-word-meanings' }).props.value).toBe(true);
+    await act(async () => toggle().props.onValueChange(false));
+    expect(state.storage.get(MEMORIZATION_KEY)).toBe('false');
+    expect([...state.storage.keys()].filter((key) => !before.has(key) && key !== NOTIFICATIONS_KEY)).toEqual([MEMORIZATION_KEY]);
+    expect(state.storage.has(WORD_MEANINGS_KEY)).toBe(false);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it('Word Meanings OFF leaves Memorization Mode as it is, and the other way round', async () => {
+    state.storage.set(MEMORIZATION_KEY, 'true');
+    await renderSettings();
+    await act(async () => root!.root.findByProps({ testID: 'settings-word-meanings' }).props.onValueChange(false));
+    expect(toggle().props.value).toBe(true);
+    expect(state.storage.get(MEMORIZATION_KEY)).toBe('true');
+    await act(async () => toggle().props.onValueChange(false));
+    expect(root!.root.findByProps({ testID: 'settings-word-meanings' }).props.value).toBe(false);
+    expect(state.storage.get(WORD_MEANINGS_KEY)).toBe('false');
+  });
+
+  it('a saved ON is shown ON after a restart', async () => {
+    state.storage.set(MEMORIZATION_KEY, 'true');
+    await renderSettings();
+    expect(toggle().props.value).toBe(true);
+  });
+
+  it('Arabic: «وضع الحفظ», right to left; the same card and switch as Keep Screen Awake', async () => {
+    state.storage.set(LOCALE_KEY, 'ar');
+    await renderSettings();
+    expect(texts(card())).toEqual(['وضع الحفظ']);
+    expect(toggle().props.accessibilityLabel).toBe('وضع الحفظ');
+    expect(resolveStyle(card())).toContainEqual({ flexDirection: 'row-reverse' });
+    for (const text of card().findAll(isType('Text'))) expect(resolveStyle(text)).toContainEqual({ writingDirection: 'rtl', textAlign: 'right' });
+    const keepAwake = root!.root.findByProps({ testID: 'settings-keep-awake' });
+    expect(resolveStyle(card())).toEqual(resolveStyle(keepAwake.parent!));
+    for (const key of ['trackColor', 'thumbColor', 'ios_backgroundColor']) expect(toggle().props[key]).toEqual(keepAwake.props[key]);
+  });
+
+  it.each([['en', 'Normal Mushaf Guide', 'Memorization Mode Guide'], ['ar', 'دليل المصحف', 'دليل وضع الحفظ']] as const)('%s: Mushaf Guide offers the two guides; each opens its own, nothing is saved', async (locale, normal, memorization) => {
+    if (locale === 'ar') state.storage.set(LOCALE_KEY, 'ar');
+    await renderSettings();
+    const stored = new Map(state.storage);
+    expect(chooser().props.visible).toBe(false);
+    await press(byId('settings-mushaf-guide'));
+    expect(state.navigations).toEqual([]);
+    expect(chooser().props.visible).toBe(true);
+    expect(byId('settings-guide-normal').props.accessibilityLabel).toBe(normal);
+    expect(byId('settings-guide-memorization').props.accessibilityLabel).toBe(memorization);
+    await press(byId('settings-guide-normal'));
+    expect(chooser().props.visible).toBe(false);
+    expect(state.navigations).toHaveLength(1);
+    expect(state.navigations[0]).toMatchObject({ pathname: '/mushaf', params: { guide: expect.any(String) } });
+    await press(byId('settings-mushaf-guide'));
+    await press(byId('settings-guide-memorization'));
+    expect(state.navigations).toHaveLength(2);
+    expect(state.navigations[1]).toMatchObject({ pathname: '/mushaf', params: { memorizationGuide: expect.any(String) } });
+    expect((state.navigations[1] as { params: object }).params).not.toHaveProperty('guide');
+    // Cancel and a tap outside open nothing.
+    await press(byId('settings-mushaf-guide'));
+    await press(byId('settings-guide-chooser-cancel'));
+    await press(byId('settings-mushaf-guide'));
+    await press(byId('settings-guide-chooser-backdrop'));
+    expect(chooser().props.visible).toBe(false);
+    expect(state.navigations).toHaveLength(2);
+    // Choosing a guide changes no setting and leaves the Mushaf guide's completion as it was.
+    expect(state.storage).toEqual(stored);
+    expect(state.storage.has(GUIDE_KEY)).toBe(false);
+    expect(toggle().props.value).toBe(false);
+  });
+
+  it('a build without Memorization Mode (release): no switch, no choice — Mushaf Guide opens the Mushaf guide directly, as before', async () => {
+    state.memorizationAvailable = false;
+    await renderSettings();
+    expect(toggles()).toHaveLength(0);
+    expect(root!.root.findAll((node) => node.props.testID === 'settings-guide-chooser')).toHaveLength(0);
+    await press(byId('settings-mushaf-guide'));
+    expect(state.navigations).toHaveLength(1);
+    expect(state.navigations[0]).toMatchObject({ pathname: '/mushaf', params: { guide: expect.any(String) } });
   });
 });
 
