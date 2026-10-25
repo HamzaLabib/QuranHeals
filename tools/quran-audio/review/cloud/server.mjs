@@ -30,7 +30,7 @@ import { effectiveSession } from '../manual/opening.mjs';
 import { createCloudAudio } from './audio.mjs';
 import { adminTokenOk, createAccount, createAuth, legacyNames, linkLegacyIdentity, setActive, setRoles } from './auth.mjs';
 import { exportBackup } from './backup.mjs';
-import { createPool, migrate } from './db.mjs';
+import { closePool, createPool, migrate } from './db.mjs';
 import { importBundle } from './import.mjs';
 import { createPgStore } from './pg-store.mjs';
 import { ENVIRONMENTS } from './publication-rules.mjs';
@@ -399,7 +399,12 @@ export async function createCloudServer({
   server.headersTimeout = 30000;
   server.requestTimeout = 120000;
   server.on('close', () => { void publisher.stop(); });
-  return { server, store, pool, publisher };
+  /** Stops accepting requests, then waits for the publication worker's started work: the pool can be closed afterwards. */
+  const close = async () => {
+    await new Promise((resolve) => server.close(() => resolve()));
+    await publisher.stop();
+  };
+  return { server, store, pool, publisher, close };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
@@ -424,6 +429,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     // APP_AUDIO_CAPABILITIES: which exact-seek methods the RELEASED app ships, per platform (JSON); default: CBR on both, no VBR.
     publication: { appCapabilities: env.APP_AUDIO_CAPABILITIES ? JSON.parse(env.APP_AUDIO_CAPABILITIES) : undefined, mode: env.PUBLICATION_MODE ?? 'off', environments: env.PUBLICATION_ENVIRONMENTS ? env.PUBLICATION_ENVIRONMENTS.split(',').map((x) => x.trim()).filter(Boolean) : undefined, allowSynthetic: false },
   });
-  for (const sig of ['SIGINT', 'SIGTERM']) process.once(sig, () => { d.server.close(); pool.end().finally(() => process.exit(0)); });
+  for (const sig of ['SIGINT', 'SIGTERM']) process.once(sig, () => { d.close().then(() => closePool(pool)).finally(() => process.exit(0)); });
   d.server.listen(port, localTest ? '127.0.0.1' : '0.0.0.0', () => log(`audio review dashboard on ${publicUrl} (${d.store.tasks().size} recordings)`));
 }

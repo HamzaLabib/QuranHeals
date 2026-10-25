@@ -104,11 +104,35 @@ create trigger review_events_no_truncate before truncate on review_events for ea
  * `ssl`: true verifies the server certificate; 'no-verify' encrypts without verifying (only if verification fails
  * against a managed database whose CA is not in Node's store); false for a local test database.
  */
-export function createPool(url, { ssl = undefined, max = 10 } = {}) {
+/**
+ * An idle client's connection error (the database restarting, a network drop: PostgreSQL 57P01 "terminating connection
+ * due to administrator command") reaches the pool as an 'error' event. node-postgres requires a listener: without one
+ * the process crashes. pg-pool has already removed that client, and later queries open new ones.
+ */
+const logPoolError = (error) => console.error(`database: an idle connection failed (${error.code ?? 'no code'}): ${error.message}`);
+
+export function createPool(url, { ssl = undefined, max = 10, onError = logPoolError } = {}) {
   if (!url) throw new Error('DATABASE_URL is not set');
   const local = /@(localhost|127\.0\.0\.1)(:\d+)?\//.test(url);
   const sslOpt = ssl === undefined ? (local ? false : { rejectUnauthorized: true }) : ssl === 'no-verify' ? { rejectUnauthorized: false } : ssl ? { rejectUnauthorized: true } : false;
-  return new pg.Pool({ connectionString: url, ssl: sslOpt, max, idleTimeoutMillis: 30000 });
+  const pool = new pg.Pool({ connectionString: url, ssl: sslOpt, max, idleTimeoutMillis: 30000 });
+  pool.on('error', onError);
+  return pool;
+}
+
+/**
+ * Ends a pool and resolves only once every client has really disconnected. pg-pool's own end() resolves as soon as it
+ * has ASKED its clients to close (pg-pool 3.14 _remove/_pulseQueue), so a database stopped right after it can still
+ * find live connections and terminate them (57P01). Each client's 'remove' event fires after its socket has closed.
+ */
+export async function closePool(pool) {
+  const open = pool.totalCount;
+  const disconnected = open === 0 ? Promise.resolve() : new Promise((resolve) => {
+    let removed = 0;
+    pool.on('remove', () => { if (++removed >= open) resolve(); });
+  });
+  await pool.end();
+  await disconnected;
 }
 
 export async function migrate(pool) {

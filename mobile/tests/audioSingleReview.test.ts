@@ -252,10 +252,14 @@ describe('the dashboard: pending queue, reciter counts and every statistic (synt
     const port = await new Promise<number>((r) => { const s = net.createServer(); s.listen(0, '127.0.0.1', () => { const p = (s.address() as net.AddressInfo).port; s.close(() => r(p)); }); });
     const pg = new EmbeddedPostgres({ databaseDir: join(work, 'pg'), user: 'qh', password: 't', port, persistent: false, initdbFlags: ['--encoding=UTF8', '--locale=C'], onLog: () => {}, onError: () => {} });
     await pg.initialise(); await pg.start();
+    // Connection errors the pools report fail this test (checked after the server has stopped).
+    const poolErrors: string[] = [];
+    const onPoolError = (e: Error & { code?: string }) => { poolErrors.push(`${e.code ?? 'no code'}: ${e.message}`); };
+    let pool: J = null;
     try {
-      const a = db.createPool(`postgres://qh:t@127.0.0.1:${port}/postgres`, { ssl: false, max: 1 });
-      await a.query("create database single encoding 'UTF8' template template0"); await a.end();
-      const pool = db.createPool(`postgres://qh:t@127.0.0.1:${port}/single`, { ssl: false });
+      const a = db.createPool(`postgres://qh:t@127.0.0.1:${port}/postgres`, { ssl: false, max: 1, onError: onPoolError });
+      await a.query("create database single encoding 'UTF8' template template0"); await db.closePool(a);
+      pool = db.createPool(`postgres://qh:t@127.0.0.1:${port}/single`, { ssl: false, onError: onPoolError });
       await db.migrate(pool);
       // the local dashboard holds the data folders: release them for the bundle reader by closing it first
       await new Promise<void>((r) => d.server.close(() => r()));
@@ -266,11 +270,14 @@ describe('the dashboard: pending queue, reciter counts and every statistic (synt
       const cloud = views.dashboard('TEST One').metrics;
       for (const k of ['recordings', 'startsTotal', 'startsReviewed', 'startsAwaiting', 'recordingsAwaiting', 'partiallyReviewed', 'recordingsReviewComplete', 'recordingsCompletedSingle', 'highTotal', 'highAwaiting', 'startsSubmitted1', 'startsSubmitted2', 'startsVerified', 'verified', 'manualTiming', 'withProposals', 'productionChecks'])
         expect([k, cloud[k]]).toEqual([k, before[k]]);
-      await pool.end();
     } finally {
+      // Every connection really closed (also when an expectation failed), then the server stops.
+      if (pool) await db.closePool(pool);
       await pg.stop();
       d = createDashboard({ config: CFG, autoBackup: false });
       await new Promise<void>((r) => d.server.listen(0, '127.0.0.1', () => r()));
     }
+    await new Promise((r) => setTimeout(r, 250));
+    expect(poolErrors).toEqual([]);
   }, 120000);
 });

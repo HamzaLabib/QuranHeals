@@ -31,11 +31,16 @@ const freePort = () => new Promise<number>((r) => { const s = net.createServer()
 let pg: J;
 const PGPORT = await freePort();
 const url = (dbname: string) => `postgres://qh:qh-test@127.0.0.1:${PGPORT}/${dbname}`;
+// Connection errors a pool reports (db.mjs createPool onError): recorded, and the suite fails on any (checked after
+// teardown). Once teardown has finished, a late one is thrown again so it is never silently dropped.
+const poolErrors: string[] = [];
+let tornDown = false;
+const onPoolError = (e: Error & { code?: string }) => { if (tornDown) throw e; poolErrors.push(`${e.code ?? 'no code'}: ${e.message}`); };
 async function newDb(name: string) {
-  const admin = db.createPool(url('postgres'), { ssl: false, max: 1 });
+  const admin = db.createPool(url('postgres'), { ssl: false, max: 1, onError: onPoolError });
   await admin.query(`create database ${name} encoding 'UTF8' template template0`);
-  await admin.end();
-  return db.createPool(url(name), { ssl: false });
+  await db.closePool(admin);
+  return db.createPool(url(name), { ssl: false, onError: onPoolError });
 }
 const pools: J[] = [];
 beforeAll(async () => {
@@ -44,8 +49,12 @@ beforeAll(async () => {
   await pg.start();
 }, 120000);
 afterAll(async () => {
-  for (const p of pools) await p.end().catch(() => {});
-  await pg?.stop().catch(() => {});
+  for (const p of pools) await db.closePool(p);
+  await pg?.stop();
+  // Every connection is gone before PostgreSQL stops; then give any connection error a moment to arrive, and fail on it.
+  await new Promise((r) => setTimeout(r, 250));
+  tornDown = true;
+  expect(poolErrors).toEqual([]);
   // Windows: the stopped server can hold its files for a moment (EPERM under load); retry, then leave the temp folder
   try { rmSync(work, { recursive: true, force: true, maxRetries: 10, retryDelay: 500 }); } catch { /* temp folder only */ }
 }, 60000);
@@ -130,7 +139,7 @@ async function start(pool: J, extra: J = {}) {
   const base = `http://127.0.0.1:${port}`;
   const d = await createCloudServer({ pool, publicUrl: base, cookieSecure: false, verifier, adminTokenSha256: await sha(ADMIN_TOKEN), scratchDir: join(work, `scratch-${port}`), python: PY, fetchImpl: fakeFetch, ...extra });
   await new Promise<void>((r) => d.server.listen(port, '127.0.0.1', () => r()));
-  return { ...d, base, stop: () => new Promise<void>((r) => d.server.close(() => r())) };
+  return { ...d, base, stop: () => d.close() };
 }
 
 describe('cloud: migration of a local dashboard (synthetic)', () => {
@@ -422,6 +431,68 @@ describe('cloud: access, identity, blind review, concurrency', () => {
     await amina.post('/api/admin/read-only', { readOnly: false });
     expect((await bilal.post('/api/event/banna-112', { role: 1, type: 'comment', payload: { text: 'x' } })).status).toBe(200);
   }, 30000);
+});
+
+describe('cloud: database pool shutdown (teardown order behind the 57P01 errors)', () => {
+  const activity = async (dbname: string) => {
+    const admin = db.createPool(url('postgres'), { ssl: false, max: 1, onError: onPoolError });
+    const n = (await admin.query('select count(*)::int n from pg_stat_activity where datname = $1 and pid <> pg_backend_pid()', [dbname])).rows[0].n;
+    await db.closePool(admin);
+    return n as number;
+  };
+  const idleClients = async (pool: J, n: number) => {
+    const clients = await Promise.all(Array.from({ length: n }, () => pool.connect()));
+    for (const c of clients) c.release();
+  };
+  const removals = (pool: J) => { const seen = { n: 0 }; pool.on('remove', () => { seen.n += 1; }); return seen; };
+
+  it('pg-pool end() resolves before its connections have closed; closePool() waits until every one is gone', async () => {
+    const plain = await newDb('shutplain');
+    await idleClients(plain, 3);
+    const plainRemoved = removals(plain);
+    await plain.end();
+    // The window the old teardown left open: "ended", yet not one socket has closed yet.
+    expect(plainRemoved.n).toBeLessThan(3);
+    for (let i = 0; i < 200 && plainRemoved.n < 3; i++) await new Promise((r) => setTimeout(r, 10));
+    expect(plainRemoved.n).toBe(3);
+
+    const safe = await newDb('shutsafe');
+    await idleClients(safe, 3);
+    const safeRemoved = removals(safe);
+    await db.closePool(safe);
+    expect(safeRemoved.n).toBe(3); // every client disconnected before closePool returned
+    expect(safe.totalCount).toBe(0);
+    let left = await activity('shutsafe');
+    for (let i = 0; i < 100 && left > 0; i++) { await new Promise((r) => setTimeout(r, 20)); left = await activity('shutsafe'); }
+    expect(left).toBe(0);
+  }, 60000);
+
+  it('an idle connection terminated by the server (57P01) reaches the pool\'s handler instead of going unhandled', async () => {
+    const seen: string[] = [];
+    await db.closePool(db.createPool(url('postgres'), { ssl: false, max: 1, onError: onPoolError })); // warm-up only
+    const name = 'shutterm';
+    const admin = db.createPool(url('postgres'), { ssl: false, max: 1, onError: onPoolError });
+    await admin.query(`create database ${name} encoding 'UTF8' template template0`);
+    const pool = db.createPool(url(name), { ssl: false, onError: (e: Error & { code?: string }) => { seen.push(e.code ?? 'none'); } });
+    await idleClients(pool, 2);
+    await admin.query('select pg_terminate_backend(pid) from pg_stat_activity where datname = $1', [name]);
+    for (let i = 0; i < 200 && seen.length < 2; i++) await new Promise((r) => setTimeout(r, 10));
+    expect(seen).toEqual(['57P01', '57P01']);
+    expect((await pool.query('select 1 as ok')).rows[0].ok).toBe(1); // the pool carries on with a new connection
+    await db.closePool(pool);
+    await db.closePool(admin);
+  }, 60000);
+
+  it('without a handler of its own, a pool logs the error (production default) rather than crashing the process', async () => {
+    const { vi } = await import('vitest');
+    const log = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const pool = db.createPool(url('postgres'), { ssl: false });
+    expect(pool.listenerCount('error')).toBe(1);
+    pool.emit('error', Object.assign(new Error('terminating connection due to administrator command'), { code: '57P01' }));
+    expect(log).toHaveBeenCalledWith('database: an idle connection failed (57P01): terminating connection due to administrator command');
+    log.mockRestore();
+    await db.closePool(pool);
+  });
 });
 
 describe('cloud: backup and restore', () => {

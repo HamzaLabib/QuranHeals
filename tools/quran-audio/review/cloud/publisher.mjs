@@ -31,14 +31,30 @@ export function createPublisher({ pool, store, audio, mode = 'off', environments
   let timer = null;
   let sweeper = null;
   let running = null;
+  // Work started in the background (notifications, the startup sweep, scheduled ticks), so stop() can wait for it, and
+  // the follow-up ticks notify() schedules, so stop() can cancel them: nothing touches the database after stop().
+  const inFlight = new Set();
+  const followUps = new Set();
+  let stopped = false;
+  const track = (promise) => {
+    inFlight.add(promise);
+    promise.finally(() => inFlight.delete(promise)).catch(() => {});
+    return promise;
+  };
+  const background = (work, what) => track(work().catch((e) => log(`${what}: ${e.message}`)));
 
   const headOf = (key) => (store.hasLog(key) ? store.load(key).events.at(-1).hash : 'none');
   /** Queues a recording now (an accepted event, an administrator action, the sweep). */
-  async function notify(key, reason = 'event') {
-    await pool.query(`insert into publication_jobs (review_key, head, state, next_run_at, updated_at) values ($1, $2, 'queued', now(), now())
-      on conflict (review_key) do update set head = excluded.head, state = case when publication_jobs.state = 'running' then 'running' else 'queued' end, next_run_at = now(), updated_at = now()`, [key, headOf(key)]);
-    if (autoStart) setTimeout(() => void tick().catch((e) => log(`publisher: ${e.message}`)), 50);
-    return { key, reason };
+  function notify(key, reason = 'event') {
+    return track((async () => {
+      await pool.query(`insert into publication_jobs (review_key, head, state, next_run_at, updated_at) values ($1, $2, 'queued', now(), now())
+        on conflict (review_key) do update set head = excluded.head, state = case when publication_jobs.state = 'running' then 'running' else 'queued' end, next_run_at = now(), updated_at = now()`, [key, headOf(key)]);
+      if (autoStart && !stopped) {
+        const t = setTimeout(() => { followUps.delete(t); void background(tick, 'publisher'); }, 50);
+        followUps.add(t);
+      }
+      return { key, reason };
+    })());
   }
   async function enqueueAll(reason = 'sweep') {
     let n = 0;
@@ -145,13 +161,25 @@ export function createPublisher({ pool, store, audio, mode = 'off', environments
 
   function start() {
     if (timer) return;
-    timer = setInterval(() => void tick().catch((e) => log(`publisher: ${e.message}`)), intervalMs);
-    sweeper = setInterval(() => void enqueueAll('sweep').catch((e) => log(`publisher sweep: ${e.message}`)), sweepMs);
+    stopped = false;
+    timer = setInterval(() => void background(tick, 'publisher'), intervalMs);
+    sweeper = setInterval(() => void background(() => enqueueAll('sweep'), 'publisher sweep'), sweepMs);
     timer.unref?.(); sweeper.unref?.();
     // A restart: everything is evaluated again (expired leases are taken by tick()).
-    void enqueueAll('startup').catch((e) => log(`publisher startup: ${e.message}`));
+    void background(() => enqueueAll('startup'), 'publisher startup');
   }
-  function stop() { clearInterval(timer); clearInterval(sweeper); timer = null; sweeper = null; return running ?? Promise.resolve(0); }
+  /**
+   * Stops scheduling, cancels pending follow-up ticks, and resolves once every notification, sweep and tick already
+   * started has finished, so the caller can close the database pool safely afterwards.
+   */
+  async function stop() {
+    stopped = true;
+    clearInterval(timer); clearInterval(sweeper); timer = null; sweeper = null;
+    for (const t of followUps) clearTimeout(t);
+    followUps.clear();
+    while (inFlight.size || running) await Promise.allSettled([...inFlight, running]);
+    return 0;
+  }
 
   async function jobs() {
     return (await pool.query('select review_key, head, state, attempts, next_run_at, last_error, evaluation, updated_at from publication_jobs')).rows;

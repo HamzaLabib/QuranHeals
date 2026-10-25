@@ -228,11 +228,16 @@ let pg: J;
 const PGPORT = await freePort();
 const url = (name: string) => `postgres://qh:qh-test@127.0.0.1:${PGPORT}/${name}`;
 const pools: J[] = [];
+// Connection errors a pool reports (db.mjs createPool onError): recorded, and the suite fails on any (checked after
+// teardown). Once teardown has finished, a late one is thrown again so it is never silently dropped.
+const poolErrors: string[] = [];
+let tornDown = false;
+const onPoolError = (e: Error & { code?: string }) => { if (tornDown) throw e; poolErrors.push(`${e.code ?? 'no code'}: ${e.message}`); };
 async function newDb(name: string) {
-  const a = db.createPool(url('postgres'), { ssl: false, max: 1 });
+  const a = db.createPool(url('postgres'), { ssl: false, max: 1, onError: onPoolError });
   await a.query(`create database ${name} encoding 'UTF8' template template0`);
-  await a.end();
-  const p = db.createPool(url(name), { ssl: false });
+  await db.closePool(a);
+  const p = db.createPool(url(name), { ssl: false, onError: onPoolError });
   pools.push(p);
   return p;
 }
@@ -242,9 +247,13 @@ beforeAll(async () => {
   await pg.start();
 }, 120000);
 afterAll(async () => {
-  for (const p of pools) await p.end().catch(() => {});
-  await pg?.stop().catch(() => {});
+  for (const p of pools) await db.closePool(p);
+  await pg?.stop();
   try { rmSync(work, { recursive: true, force: true, maxRetries: 10, retryDelay: 500 }); } catch { /* temp folder only */ }
+  // Every connection is gone before PostgreSQL stops; then give any connection error a moment to arrive, and fail on it.
+  await new Promise((r) => setTimeout(r, 250));
+  tornDown = true;
+  expect(poolErrors).toEqual([]);
 }, 60000);
 
 const syn = makeSynthetic({ surah: 112, key: 'syn-112' });
@@ -299,7 +308,7 @@ async function start(pool: J, publication: J = {}) {
   const d = await createCloudServer({ pool, publicUrl: base, cookieSecure: false, verifier, scratchDir: join(work, `scratch-${port}`), python: process.env.QH_PYTHON ?? 'python', fetchImpl: fakeFetch, limits: { perIp: 9000, perAccount: 9000, writes: 9000 },
     publication: { mode: 'enabled', allowSynthetic: true, autoStart: false, ...publication } });
   await new Promise<void>((r) => d.server.listen(port, '127.0.0.1', () => r()));
-  return { ...d, base, stop: () => new Promise<void>((r) => d.server.close(() => r())) };
+  return { ...d, base, stop: () => d.close() };
 }
 const fullWork = (shift: (k: number) => number = () => 0) => ({ markers: Object.fromEntries(syn.truth.starts.slice(0, 4).map((ms: number, i: number) => [i + 1, { ms: ms + shift(i + 1), status: 'confirmed' }])), end: { ms: syn.truth.endMs, status: 'confirmed' }, flags: [], checks: ALL_YES, comments: '' });
 
