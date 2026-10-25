@@ -11,13 +11,13 @@ decided by the audit in [source-audit.md](source-audit.md).
 |---|---|
 | `generated/reciterCatalog.ts` | Generated from `tools/quran-audio/audit-results.json`: the 17 reciters, each recording's folder, surahs recorded, where its timing comes from (`timingSource`), and per timed surah its timing fingerprint and file size. Do not edit by hand. |
 | `generated/measuredTiming.ts` | Generated from `tools/quran-audio/measured-timing.json`: ayah timing measured by the audit for MP3Quran recordings that have no usable MP3Quran timing (Ali Al-Hudhaifi). Do not edit by hand. |
-| `reciters.ts` | Catalogue helpers, the default (Maher Al-Muaiqly), and `OFFLINE_DOWNLOADS_PERMITTED`. |
+| `reciters.ts` | Catalogue helpers, the default and fallback reciter (Muhammad Siddiq Al-Minshawi), and `OFFLINE_DOWNLOADS_PERMITTED`. |
 | `quranSequence.ts` | Canonical order (next/previous ayah across surahs, ends after An-Nas 6), a page's first ayah, an ayah's page. |
 | `timing.ts` | Fetches MP3Quran timing, accepts it only if it matches the audited fingerprint and is well formed, stores it on the device. Measured timing is read from `generated/measuredTiming.ts` and verified the same way (never fetched or stored). |
 | `engine.ts` | **The one playback engine**: a single store and a single native player for the whole app. |
 | `expoOutput.ts` | expo-audio adapter: one `AudioPlayer`, background audio, lock-screen play/pause, exact seeks. |
 | `sources.ts` | Provider seam: a downloaded file first, else MP3Quran's stream. |
-| `downloads.ts`, `storage.ts`, `downloadStatus.ts` | Offline downloads (user-started, verified, resumable per surah) under `<documents>/quran-audio/`, and the Settings icon's state. **Turned off** (`OFFLINE_DOWNLOADS_PERMITTED = false`) pending MP3Quran's recording-specific confirmation. |
+| `downloads.ts`, `storage.ts`, `downloadStatus.ts` | Offline downloads (user-started, verified, resumable per surah) under `<documents>/quran-audio/`, and the Settings icon's state. **Turned on** (`OFFLINE_DOWNLOADS_PERMITTED = true`, owner decision 2026-10-24, on MP3Quran's published reuse statement; no recording-specific written permission). |
 | `favoriteReciterPreference.ts`, `useFavoriteReciter.tsx` | The Favorite Reciter setting (device-local, like Keep Screen Awake; not synced). |
 | `usePlayback.ts`, `format.ts`, `index.ts` | Hooks, labels, wiring. |
 
@@ -90,9 +90,17 @@ involved.
 
 ## Offline downloads
 
-**Currently turned off** (licensing): Settings shows the download icon as unavailable and
-its sheet explains why; nothing can start. The rest of this section describes the
-feature as it works once `OFFLINE_DOWNLOADS_PERMITTED` is set to true.
+**Turned on** since 2026-10-24: the owner's decision (Hamza) to enable downloads on the basis
+of MP3Quran's published reuse statement (https://www.mp3quran.net/eng/privacy, "Copyrights").
+No recording-specific written permission has been obtained. Only MP3Quran catalogue files can
+be stored (`tools/quran-audio/providers.mjs` grants offline storage to no other provider);
+development previews from other providers never download. Setting `OFFLINE_DOWNLOADS_PERMITTED`
+back to false turns downloads off: the icon then shows as unavailable and nothing can start,
+while files already stored can still be deleted.
+
+The sheet shows the real coverage: "the complete Quran" only for a reciter whose 114 surahs
+all have verified timing (and, once downloaded, only when all 114 are stored); otherwise
+"{n} of 114 surahs" and the list of surahs not included.
 
 A small icon beside Settings → Quran → Favorite Reciter (the offline Mushaf row's own icons:
 Download, a spinner while downloading, the accent check once every playable surah is

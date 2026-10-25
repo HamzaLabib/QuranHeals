@@ -69,7 +69,9 @@ describe('the source registry over the audited catalogue (the app today)', () =>
     expect(source.format).toMatchObject({ kbps: 96, bitrateMode: 'cbr' });
     // Maher's recording is unlabelled by MP3Quran: Hafs is confirmed by the verified Kufan timing only.
     expect(source.riwayah.evidence).toMatch(/Kufan/);
-    expect(SOURCE_REGISTRY.provider('mp3quran')).toMatchObject({ streaming: { permitted: true }, offline: { permitted: false } });
+    expect(SOURCE_REGISTRY.provider('mp3quran')).toMatchObject({ streaming: { permitted: true }, offline: { permitted: true } });
+    // The owner's decision on MP3Quran's published reuse statement, never a claim of recording-specific permission.
+    expect(SOURCE_REGISTRY.provider('mp3quran')?.offline.evidence).toMatch(/^Owner decision \(Hamza, 2026-10-24\).*No recording-specific written permission has been obtained\.$/);
   });
 
   it('never builds a URL for a surah MP3Quran does not list (its CDN redirects those to Minshawi)', () => {
@@ -100,8 +102,8 @@ describe('the source registry over the audited catalogue (the app today)', () =>
     for (const id of ['way2quran', 'assabile']) expect(SOURCE_REGISTRY.provider(id)).toMatchObject({ streaming: { permitted: false }, offline: { permitted: false } });
   });
 
-  it('allows no offline storage while the app switch is off, and needs no extra attribution', () => {
-    expect(SOURCE_REGISTRY.offlinePermitted(sourceOf('maher', 1))).toBe(false);
+  it('allows offline storage of MP3Quran catalogue files (owner decision, 2026-10-24), and needs no extra attribution', () => {
+    expect(SOURCE_REGISTRY.offlinePermitted(sourceOf('maher', 1))).toBe(true);
     expect(SOURCE_REGISTRY.attributions()).toEqual([]);
   });
 });
@@ -184,9 +186,10 @@ describe('the capability rules', () => {
   });
 
   it("a reciter's offline download needs the app switch and every stored source's provider to permit it", () => {
-    expect(SOURCE_REGISTRY.reciterOfflinePermitted('maher')).toBe(false); // today: switch off, MP3Quran offline not granted
+    expect(SOURCE_REGISTRY.reciterOfflinePermitted('maher')).toBe(true); // today: switch on, MP3Quran offline on (owner decision)
     const permitting: Provider[] = GENERATED_PROVIDERS.map((p) => (p.id === 'mp3quran' ? { ...p, offline: { permitted: true, evidence: 'test' } } : p));
-    expect(fixtureRegistry({ offlineSwitch: true }).reciterOfflinePermitted('maher')).toBe(false); // switch on, provider says no
+    const denying: Provider[] = GENERATED_PROVIDERS.map((p) => (p.id === 'mp3quran' ? { ...p, offline: { permitted: false, evidence: 'test' } } : p));
+    expect(fixtureRegistry({ providers: denying, offlineSwitch: true }).reciterOfflinePermitted('maher')).toBe(false); // switch on, provider says no
     expect(fixtureRegistry({ providers: permitting, offlineSwitch: false }).reciterOfflinePermitted('maher')).toBe(false); // provider yes, switch off
     expect(fixtureRegistry({ providers: permitting, offlineSwitch: true }).reciterOfflinePermitted('maher')).toBe(true);
     // A reciter with nothing that plays ayah by ayah has nothing to download.
@@ -197,7 +200,10 @@ describe('the capability rules', () => {
     const permitting: Provider[] = GENERATED_PROVIDERS.map((p) => (p.id === 'mp3quran' ? { ...p, offline: { permitted: true, evidence: 'test' } } : p));
     expect(fixtureRegistry({ providers: permitting, offlineSwitch: false }).offlinePermitted(sourceOf('maher', 1))).toBe(false);
     expect(fixtureRegistry({ providers: permitting, offlineSwitch: true }).offlinePermitted(sourceOf('maher', 1))).toBe(true);
-    expect(fixtureRegistry({ offlineSwitch: true }).offlinePermitted(sourceOf('maher', 1))).toBe(false);
+    const denying: Provider[] = GENERATED_PROVIDERS.map((p) => (p.id === 'mp3quran' ? { ...p, offline: { permitted: false, evidence: 'test' } } : p));
+    expect(fixtureRegistry({ providers: denying, offlineSwitch: true }).offlinePermitted(sourceOf('maher', 1))).toBe(false);
+    // Providers that grant nothing never store, whatever the switch.
+    for (const id of ['way2quran', 'assabile']) expect(SOURCE_REGISTRY.provider(id)?.offline.permitted, id).toBe(false);
   });
 });
 

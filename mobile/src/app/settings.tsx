@@ -301,7 +301,7 @@ export default function SettingsScreen() {
             onToggle={() => toggleSection('reciter')}
             direction={direction}
             isRtl={isRtl}
-            // Offline listening: the compact download icon beside the dropdown (downloads stay off while unlicensed, audio/reciters.ts).
+            // Offline listening: the compact download icon beside the dropdown (on by the owner's decision; the switch is audio/reciters.ts OFFLINE_DOWNLOADS_PERMITTED).
             accessory={<ReciterDownloadControl reciterId={favoriteReciterId} messages={messages} isRtl={isRtl} direction={direction} />}>
             <Text style={[styles.optionHint, styles.accordionNote, direction]}>{messages.audio.favoriteDescription}</Text>
             <ReciterList

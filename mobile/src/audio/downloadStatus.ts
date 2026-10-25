@@ -9,7 +9,8 @@ export type ReciterDownloadStatus = 'none' | 'partial' | 'downloading' | 'paused
  *    only at its exact audited size, and a download only becomes that file after its size and MP3 header check);
  *  - 'downloading' / 'paused' / 'error' for this reciter's download;
  *  - 'unavailable': nothing to download (no surah with verified timing);
- *  - 'not-permitted': downloads are off (licensing), unless verified files are already stored;
+ *  - 'not-permitted': downloads are off for this reciter (the app's switch or its provider), unless verified files are
+ *    already stored;
  *  - 'partial' / 'none' otherwise.
  */
 export function reciterDownloadStatus(args: { permitted: boolean; reciter: Reciter; stored: readonly number[]; download: DownloadState }): ReciterDownloadStatus {

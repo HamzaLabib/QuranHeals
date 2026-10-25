@@ -10,9 +10,13 @@ const all = (reciter = maher) => timedSurahs(reciter);
 const job = (patch: Partial<DownloadState>): DownloadState => ({ ...IDLE_DOWNLOAD, reciterId: 'maher', ...patch });
 
 describe('the Favorite Reciter download icon state', () => {
-  it('downloads ship turned off (licensing): not permitted, never a check without files', () => {
-    expect(OFFLINE_DOWNLOADS_PERMITTED).toBe(false);
-    expect(reciterDownloadStatus({ permitted: OFFLINE_DOWNLOADS_PERMITTED, reciter: maher, stored: [], download: IDLE_DOWNLOAD })).toBe('not-permitted');
+  it('downloads ship turned on (owner decision, 2026-10-24): nothing stored is "none", never a check without files', () => {
+    expect(OFFLINE_DOWNLOADS_PERMITTED).toBe(true);
+    expect(reciterDownloadStatus({ permitted: OFFLINE_DOWNLOADS_PERMITTED, reciter: maher, stored: [], download: IDLE_DOWNLOAD })).toBe('none');
+  });
+
+  it('with the switch turned off again: not permitted, never a check without files', () => {
+    expect(reciterDownloadStatus({ permitted: false, reciter: maher, stored: [], download: IDLE_DOWNLOAD })).toBe('not-permitted');
     expect(reciterDownloadStatus({ permitted: false, reciter: maher, stored: [1, 2], download: IDLE_DOWNLOAD })).toBe('not-permitted');
   });
 

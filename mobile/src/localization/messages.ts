@@ -816,6 +816,8 @@ export type Messages = {
     sourceNote: string;
     offlineTitle: string;
     offlineDescription: string;
+    /** offlineDescription when the recording has all 114 surahs: only then "the complete Quran". */
+    offlineDescriptionComplete: string;
     offlineNothing: string;
     offlineNotIncluded: string;
     download: string;
@@ -828,6 +830,8 @@ export type Messages = {
     downloadPaused: string;
     downloadCancelled: string;
     downloadComplete: string;
+    /** downloadComplete when all 114 surahs are stored: only then "the complete Quran". */
+    downloadCompleteQuran: string;
     downloadPartial: string;
     storageTotal: string;
     storedReciter: string;
@@ -939,7 +943,8 @@ const EN_AUDIO: Messages['audio'] = {
   favoriteDescription: 'Recites in the Mushaf and on the ayah screens.',
   sourceNote: 'Audio Source: MP3Quran (mp3quran.net)',
   offlineTitle: 'Offline listening',
-  offlineDescription: 'Download {reciter} to listen without internet: {n} surahs, about {size}.',
+  offlineDescription: 'Download {reciter} to listen without internet: {n} of {all} surahs, about {size}.',
+  offlineDescriptionComplete: 'Download the complete Quran recited by {reciter} to listen without internet: all {all} surahs, about {size}.',
   offlineNothing: "{reciter} has no surahs that can play ayah by ayah, so there's nothing to download.",
   offlineNotIncluded: 'Not included (no verified recording): Surahs {list}',
   download: 'Download',
@@ -951,7 +956,8 @@ const EN_AUDIO: Messages['audio'] = {
   downloadProgress: '{done} of {total} surahs · {percent}%',
   downloadPaused: 'Paused · {done} of {total} surahs',
   downloadCancelled: 'Stopped · {done} of {total} surahs downloaded',
-  downloadComplete: 'Downloaded: {n} surahs · {size}',
+  downloadComplete: 'Downloaded: {n} of {all} surahs · {size}',
+  downloadCompleteQuran: 'Downloaded: the complete Quran ({all} surahs) · {size}',
   downloadPartial: 'Partly downloaded: {done} of {total} surahs',
   storageTotal: 'Quran audio on this device: {size}',
   storedReciter: '{reciter}: {n} surahs · {size}',
@@ -974,7 +980,7 @@ const EN_AUDIO: Messages['audio'] = {
   ayahOnly: 'Ayah {ayah}',
   surahProgress: 'Ayah {ayah} of {total}',
   stopHint: 'Touch and hold to stop playback.',
-  offlineNotPermitted: "Offline downloads aren't available yet: they are waiting for MP3Quran to confirm permission for these recordings. Audio streams as usual.",
+  offlineNotPermitted: "Offline downloads aren't available for this recording. Audio streams as usual.",
   offlineStateNone: 'Not downloaded',
   offlineStateDownloading: 'Downloading',
   offlineStatePaused: 'Download paused',
@@ -1050,7 +1056,8 @@ const AR_AUDIO: Messages['audio'] = {
   favoriteDescription: 'يتلو في المصحف وفي صفحات الآيات.',
   sourceNote: 'التلاوات: موقع MP3Quran (mp3quran.net)',
   offlineTitle: 'الاستماع دون اتصال',
-  offlineDescription: 'نزّل تلاوة {reciter} للاستماع دون إنترنت: {n} سورة، نحو {size}.',
+  offlineDescription: 'نزّل تلاوة {reciter} للاستماع دون إنترنت: {n} من {all} سورة، نحو {size}.',
+  offlineDescriptionComplete: 'نزّل القرآن الكريم كاملًا بتلاوة {reciter} للاستماع دون إنترنت: {all} سورة، نحو {size}.',
   offlineNothing: 'لا توجد لدى {reciter} سور يمكن تشغيلها آيةً بآية، فلا يوجد ما يُنزَّل.',
   offlineNotIncluded: 'غير مشمولة (لا توجد تلاوة موثّقة): السور {list}',
   download: 'تنزيل',
@@ -1062,7 +1069,8 @@ const AR_AUDIO: Messages['audio'] = {
   downloadProgress: '{done} من {total} سورة · {percent}٪',
   downloadPaused: 'متوقف مؤقتًا · {done} من {total} سورة',
   downloadCancelled: 'توقّف · نُزّلت {done} من {total} سورة',
-  downloadComplete: 'تم التنزيل: {n} سورة · {size}',
+  downloadComplete: 'تم التنزيل: {n} من {all} سورة · {size}',
+  downloadCompleteQuran: 'تم التنزيل: القرآن الكريم كاملًا ({all} سورة) · {size}',
   downloadPartial: 'نُزّل جزئيًا: {done} من {total} سورة',
   storageTotal: 'التلاوات المحفوظة على الجهاز: {size}',
   storedReciter: '{reciter}: {n} سورة · {size}',
@@ -1085,7 +1093,7 @@ const AR_AUDIO: Messages['audio'] = {
   ayahOnly: 'الآية {ayah}',
   surahProgress: 'الآية {ayah} من {total}',
   stopHint: 'اضغط مطولًا لإيقاف التلاوة.',
-  offlineNotPermitted: 'التنزيل للاستماع دون اتصال غير متاح حاليًا، إذ ننتظر تأكيد موقع MP3Quran للإذن بهذه التسجيلات. تعمل التلاوة عبر الإنترنت كالمعتاد.',
+  offlineNotPermitted: 'التنزيل للاستماع دون اتصال غير متاح لهذه التلاوة. تعمل التلاوة عبر الإنترنت كالمعتاد.',
   offlineStateNone: 'غير منزّل',
   offlineStateDownloading: 'جارٍ التنزيل',
   offlineStatePaused: 'التنزيل متوقف مؤقتًا',

@@ -88,7 +88,8 @@ export function ReciterDownloadControl({ reciterId, messages, isRtl, direction }
   } else if (status === 'error') {
     detail = job?.error === 'storage' ? copy.downloadErrorStorage : job?.error === 'verify' ? copy.downloadErrorVerify : copy.downloadErrorNetwork;
   } else if (status === 'complete') {
-    detail = fill(copy.downloadComplete, { n: n(storedSurahs.length), size: size(mine?.bytes ?? 0) });
+    // "The complete Quran" only when all 114 surahs are stored; otherwise the actual count.
+    detail = fill(storedSurahs.length === 114 ? copy.downloadCompleteQuran : copy.downloadComplete, { n: n(storedSurahs.length), all: n(114), size: size(mine?.bytes ?? 0) });
   } else if (status === 'partial') {
     detail = fill(copy.downloadPartial, { done: n(storedSurahs.length), total: n(timed.length) });
   }
@@ -130,7 +131,7 @@ export function ReciterDownloadControl({ reciterId, messages, isRtl, direction }
           {status === 'unavailable' ? (
             <Text style={[styles.body, direction]}>{fill(copy.offlineNothing, { reciter: name })}</Text>
           ) : (
-            <Text style={[styles.body, direction]}>{fill(copy.offlineDescription, { reciter: name, n: n(timed.length), size: size(total) })}</Text>
+            <Text testID="settings-reciter-download-description" style={[styles.body, direction]}>{fill(timed.length === 114 ? copy.offlineDescriptionComplete : copy.offlineDescription, { reciter: name, n: n(timed.length), all: n(114), size: size(total) })}</Text>
           )}
           {status !== 'unavailable' && notIncluded.length > 0 && (
             <Text testID="settings-reciter-download-missing" style={[styles.note, direction]}>{fill(copy.offlineNotIncluded, { list: surahRanges(notIncluded, isRtl) })}</Text>

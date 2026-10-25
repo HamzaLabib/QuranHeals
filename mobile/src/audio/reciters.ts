@@ -241,14 +241,16 @@ export const FALLBACK_RECITER_ID = DEFAULT_RECITER_ID;
 export const MP3QURAN_API = 'https://www.mp3quran.net/api/v3';
 
 /**
- * Whether recordings may be stored on the device for offline listening: **off** (2026-10-17) until MP3Quran confirms
- * permission for the specific recordings. MP3Quran's published policy (https://www.mp3quran.net/eng/privacy,
- * "Copyrights": "we allow any visitor or developer to copy any material or use any link on the websites") is site-wide;
- * downloads stay off until recording-specific confirmation is obtained. While false: Settings shows the
- * download icon as unavailable, no download can start (audio/downloads.ts refuses), and nothing is ever shown as
- * downloaded unless verified files are actually on the device. Streaming is unaffected.
+ * Whether recordings may be stored on the device for offline listening: **on** since 2026-10-24, the owner's decision
+ * (Hamza) on the basis of MP3Quran's published reuse statement (https://www.mp3quran.net/eng/privacy, "Copyrights": "we
+ * allow any visitor or developer to copy any material or use any link on the websites"). That statement is site-wide:
+ * no recording-specific written permission has been obtained. Only MP3Quran catalogue files can be stored, because only
+ * that provider permits offline storage (tools/quran-audio/providers.mjs; sourceRegistry.ts checks both), and only a
+ * reciter's timed surahs (offlineDownloadBytes). Every stored file is still verified (size, fingerprint, free space) and
+ * nothing is shown as downloaded unless verified files are actually on the device. false turns downloads off again:
+ * Settings then shows the download icon as unavailable and no download can start (audio/downloads.ts refuses).
  */
-export const OFFLINE_DOWNLOADS_PERMITTED = false;
+export const OFFLINE_DOWNLOADS_PERMITTED = true;
 
 const BY_ID = new Map(RECITERS.map((reciter) => [reciter.id, reciter]));
 

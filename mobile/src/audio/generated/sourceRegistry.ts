@@ -17,7 +17,7 @@ export const GENERATED_PROVIDERS: readonly GeneratedProvider[] = [
   {
     id: 'mp3quran', name: 'MP3Quran', website: 'https://www.mp3quran.net', redirectsUnlisted: true,
     streaming: { permitted: true, evidence: 'Privacy page, "Copyrights": "we allow any visitor or developer to copy any material or use any link on the websites" (https://www.mp3quran.net/eng/privacy, read 2026-10-17). Site-wide; per-recording rights not established.' },
-    offline: { permitted: false, evidence: 'Off until MP3Quran confirms in writing for the specific recordings (https://www.mp3quran.net/eng/contact-us).' },
+    offline: { permitted: true, evidence: 'Owner decision (Hamza, 2026-10-24): downloads enabled on the basis of MP3Quran\'s published reuse statement, the same Privacy page "Copyrights" text as streaming (https://www.mp3quran.net/eng/privacy). No recording-specific written permission has been obtained.' },
     attribution: { required: false, text: 'Recitations: MP3Quran (mp3quran.net)', shownIn: 'Settings → Favorite Reciter; Quran Sources & Credits' },
   },
   {

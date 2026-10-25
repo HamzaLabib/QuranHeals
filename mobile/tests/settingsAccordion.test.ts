@@ -1356,7 +1356,7 @@ describe('Settings: Favorite Reciter and offline listening (audio/)', () => {
     await press(downloadIcon());
     expect(reciterRows()).toHaveLength(0);
     expect(header('Favorite Reciter').props.accessibilityState).toEqual({ expanded: false });
-    expect(sheetText()).toContain(en.audio.offlineNotPermitted); // downloads stay off
+    expect(sheetText()).toContain('Download Muhammad Siddiq Al-Minshawi to listen without internet'); // only the sheet: nothing starts
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
@@ -1380,17 +1380,27 @@ describe('Settings: Favorite Reciter and offline listening (audio/)', () => {
     expect(header('Favorite Reciter').findAll((node) => node.props.testID === 'settings-reciter-download')).toHaveLength(0);
   });
 
-  it('downloads not permitted (licensing): the icon shows as unavailable, its sheet explains and offers no download; nothing fetched', async () => {
+  it('downloads permitted (owner decision, 2026-10-24): the icon is active, its sheet shows the real coverage and offers Download; nothing fetched until asked', async () => {
     await renderSettings();
-    expect(downloadIcon().props.accessibilityLabel).toBe('Offline listening: Muhammad Siddiq Al-Minshawi, Offline download not available');
-    expect(downloadIcon().props.accessibilityState).toMatchObject({ disabled: true });
-    expect(downloadIcon().findAll((node) => node.props.testID === 'reciter-download-icon-not-permitted')).toHaveLength(1);
-    expect(downloadIcon().findAll((node) => node.props.testID === 'reciter-download-icon-complete')).toHaveLength(0);
+    expect(downloadIcon().props.accessibilityLabel).toBe('Offline listening: Muhammad Siddiq Al-Minshawi, Not downloaded');
+    expect(downloadIcon().props.accessibilityState).toMatchObject({ disabled: false });
+    expect(downloadIcon().findAll((node) => node.props.testID === 'reciter-download-icon-none')).toHaveLength(1);
+    expect(downloadIcon().findAll((node) => node.props.testID === 'reciter-download-icon-not-permitted')).toHaveLength(0);
     await press(downloadIcon());
-    expect(sheetText()).toContain(en.audio.offlineNotPermitted);
-    expect(sheetText()).toMatch(/Download Muhammad Siddiq Al-Minshawi to listen without internet: 107 surahs, about [\d.]+ GB\./);
-    expect(sheetButtons()).toEqual(['settings-reciter-download-close']); // no Download, Retry or Delete
+    expect(sheetText()).not.toContain(en.audio.offlineNotPermitted);
+    // 107 of 114: never called the complete Quran.
+    expect(sheetText()).toMatch(/Download Muhammad Siddiq Al-Minshawi to listen without internet: 107 of 114 surahs, about [\d.]+ GB\./);
+    expect(sheetText()).not.toMatch(/complete Quran/);
+    expect(sheetButtons()).toEqual(['settings-reciter-download-close', 'settings-reciter-download-download']);
     expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it('a reciter with all 114 surahs: only then the sheet says the complete Quran', async () => {
+    state.storage.set(FAVORITE_KEY, 'abdulbasit');
+    await renderSettings();
+    await press(downloadIcon());
+    expect(sheetText()).toMatch(/Download the complete Quran recited by Abdul Basit Abdus Samad to listen without internet: all 114 surahs, about [\d.]+ (MB|GB)\./);
+    expect(root!.root.findAll((node) => node.props.testID === 'settings-reciter-download-missing')).toHaveLength(0);
   });
 
   it('an incomplete reciter`s sheet shows the surahs a download would leave out', async () => {
@@ -1421,7 +1431,10 @@ describe('Settings: Favorite Reciter and offline listening (audio/)', () => {
   it('in Arabic, mirrored beside the dropdown', async () => {
     state.storage.set(LOCALE_KEY, 'ar');
     await renderSettings();
-    expect(downloadIcon().props.accessibilityLabel).toBe('الاستماع دون اتصال: محمد صديق المنشاوي, التنزيل غير متاح');
+    expect(downloadIcon().props.accessibilityLabel).toBe('الاستماع دون اتصال: محمد صديق المنشاوي, غير منزّل');
+    await press(downloadIcon());
+    expect(sheetText()).toContain('نزّل تلاوة محمد صديق المنشاوي للاستماع دون إنترنت: ١٠٧ من ١١٤ سورة');
+    await press(all('Pressable').find((node) => node.props.testID === 'settings-reciter-download-close')!);
     // The header row holding the dropdown and the icon is mirrored (the icon on the left, beside the chevron).
     const ancestors: ReactTestInstance[] = [];
     for (let node = downloadIcon().parent; node; node = node.parent) if (typeof node.type === 'string') ancestors.push(node);
