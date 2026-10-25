@@ -314,7 +314,19 @@ describe('the publication service (temporary PostgreSQL, synthetic recordings, t
       expect((await c.post(`/api/event/${key}`, { role, type: 'submit' })).status).toBe(200);
     }
   };
-  const drain = async () => { for (let i = 0; i < 5 && (await s.publisher.tick()) > 0; i++); };
+  // The server queues a recording just after answering its accepted event (server.mjs: `void publisher.notify(key)`), so
+  // a tick can run before the job is written (seen on CI: 'queued' instead of 'blocked'). Wait until every review log's
+  // current head is the head its job was queued with, then process; never longer than 10 s.
+  const queued = async () => {
+    for (let i = 0; i < 400; i++) {
+      const heads = new Map((await pool.query('select review_key, head from publication_jobs')).rows.map((r: J) => [r.review_key, r.head]));
+      const behind = [...s.store.tasks().keys()].filter((k: string) => s.store.hasLog(k) && heads.get(k) !== s.store.load(k).events.at(-1).hash);
+      if (!behind.length) return;
+      await new Promise((r) => setTimeout(r, 25));
+    }
+    throw new Error('publication jobs never caught up with the review logs');
+  };
+  const drain = async () => { await queued(); for (let i = 0; i < 5 && (await s.publisher.tick()) > 0; i++); };
   const job = async (key: string) => (await pool.query('select * from publication_jobs where review_key = $1', [key])).rows[0];
   const manifestOf = async (env: string) => (await anon.get(`/v1/audio-timing/${env}/manifest`)).json;
 
