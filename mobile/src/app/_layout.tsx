@@ -8,6 +8,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { AuthProvider } from '@/auth/useAuth';
 import { setAudioLocale } from '@/audio/index';
 import { FavoriteReciterProvider } from '@/audio/useFavoriteReciter';
+import { ScreenWithAudioControls } from '@/components/AudioMiniControls';
 import { navigationColorsFor, paletteFor, statusBarStyleFor } from '@/constants/theme';
 import { useDeviceOrientationPolicy } from '@/layout/useDeviceOrientationPolicy';
 import { isRtlLocale } from '@/localization/locales';
@@ -180,6 +181,9 @@ function ThemedRoot() {
     <ThemeProvider value={navigationThemes[theme]}>
       <StatusBar style={statusBarStyleFor(theme)} />
       <Stack
+        // Every screen above the tabs (Settings, Favorites, the ayah screens, …) shows the compact audio controls at its
+        // bottom during the Mushaf's listening session; the tabs show them in their tab bar (never on the Mushaf).
+        screenLayout={({ children, route }) => (route.name === '(tabs)' ? children : <ScreenWithAudioControls>{children}</ScreenWithAudioControls>)}
         screenOptions={{
           headerShown: false,
           contentStyle: {

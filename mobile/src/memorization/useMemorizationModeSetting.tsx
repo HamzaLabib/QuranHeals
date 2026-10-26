@@ -10,8 +10,11 @@ export type MemorizationModeSettingContextValue = {
   setVisible: (visible: boolean) => void;
 };
 
-/** Without a provider (a component rendered alone in a test): the default, OFF, and a setter that does nothing. */
-const DEFAULT_CONTEXT_VALUE: MemorizationModeSettingContextValue = { visible: DEFAULT_MEMORIZATION_MODE_VISIBLE, isReady: true, setVisible: () => undefined };
+/**
+ * Without a provider (a component rendered alone, as in a test): the Eye not offered, and a setter that does nothing.
+ * The app always mounts the provider (app/_layout.tsx), which starts from the stored choice or the default (ON).
+ */
+const DEFAULT_CONTEXT_VALUE: MemorizationModeSettingContextValue = { visible: false, isReady: true, setVisible: () => undefined };
 
 const MemorizationModeSettingContext = createContext<MemorizationModeSettingContextValue>(DEFAULT_CONTEXT_VALUE);
 
@@ -44,7 +47,7 @@ export function MemorizationModeSettingProvider({ children }: { children: ReactN
   return <MemorizationModeSettingContext.Provider value={value}>{children}</MemorizationModeSettingContext.Provider>;
 }
 
-/** Never throws: the default (OFF) if no provider is mounted. */
+/** Never throws: not offered (visible false) if no provider is mounted. */
 export function useMemorizationModeSetting(): MemorizationModeSettingContextValue {
   return useContext(MemorizationModeSettingContext);
 }

@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronsLeft, ChevronsRight, ChevronUp, LocateFixed, Pause, Play, SkipBack, SkipForward } from 'lucide-react-native';
+import { ChevronDown, ChevronsLeft, ChevronsRight, ChevronUp, LocateFixed, Pause, Play, SkipBack, SkipForward, X } from 'lucide-react-native';
 import { useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -8,6 +8,7 @@ import { audioEngine } from '@/audio/index';
 import { nextAyah, pageOfPosition, previousAyah } from '@/audio/quranSequence';
 import { getReciter, reciterName } from '@/audio/reciters';
 import { audioMode, useAudioAvailability } from '@/audio/availability';
+import { hasAudioSession, isAudioActive } from '@/audio/session';
 import { usePlayback } from '@/audio/usePlayback';
 import type { PlaybackError, PlaybackState } from '@/audio/engine';
 import { ReciterList } from '@/components/ReciterList';
@@ -31,8 +32,8 @@ type Props = {
   panelTop: number;
 };
 
-/** Playing, or loading to play: the toolbar shows its active icon and Play / Pause offers Pause. */
-export const isAudioActive = (state: PlaybackState) => state.phase === 'playing' || state.phase === 'loading';
+// audio/session.ts: where the chip shows (a session: playing, loading or paused) and when Play / Pause offers Pause.
+export { hasAudioSession, isAudioActive };
 
 /** The message for an error or a notice, or null. */
 function problemText(state: PlaybackState, copy: Messages['audio'], rtl: boolean): string | null {
@@ -61,10 +62,12 @@ function problemText(state: PlaybackState, copy: Messages['audio'], rtl: boolean
 
 /**
  * The Mushaf's audio player, neither part of which changes the page's size or position:
- *  - while playing, a compact chip in the reader's top bar (in place of the headphones, app/(tabs)/mushaf.tsx): its own
- *    Play / Pause button, then the Sheikh's name and the ayah number (a separate touch target that opens the window),
- *    with ⌄ while the window is closed and ⌃ while it is open, and Follow recitation after the reader swiped away. Paused,
- *    stopped, finished or stopped by an error, the chip is gone and the headphones are back;
+ *  - while a session lasts (playing, loading or paused: hasAudioSession), a compact chip in the reader's top bar, in
+ *    both reading modes (in place of the headphones, app/(tabs)/mushaf.tsx): its own Play / Pause button (pausing
+ *    keeps the chip and the window as they are; it never stops), then the Sheikh's name and the ayah number (a separate
+ *    touch target that opens the window), with ⌄ while the window is closed and ⌃ while it is open, Follow recitation
+ *    after the reader swiped away, and Stop (X: stops and closes the player; nothing resumes until a new recitation).
+ *    Stopped, finished or stopped by an error, the chip is gone and the headphones are back;
  *  - the window, top to bottom: the Sheikh's name with its ⌄ / ⌃ (the reciter list: all 17, each with its coverage, the
  *    current one highlighted, an "Up next" one marked), the Surah and ayah being recited, the recitation's progress
  *    through its surah, then, from the right in every language (the Mushaf's direction), Previous page — Previous ayah —
@@ -160,20 +163,22 @@ export function MushafAudioPlayer({ dark, rtl, copy, following, onFollow, panelT
 
   return (
     <>
-      {active && (
+      {hasAudioSession(state) && (
       <View testID="audio-chip" style={[styles.chip, theme.pill, rtl && styles.rowRtl]}>
         <Pressable
           testID="audio-toggle"
           accessibilityRole="button"
-          accessibilityLabel={copy.pause}
+          accessibilityLabel={active ? copy.pause : copy.play}
           accessibilityHint={copy.stopHint}
           accessibilityActions={[{ name: 'stop', label: copy.stop }]}
           onAccessibilityAction={(event) => { if (event.nativeEvent.actionName === 'stop') audioEngine.stop(); }}
-          onPress={() => audioEngine.pause()}
+          onPress={() => audioEngine.toggle()}
           onLongPress={() => audioEngine.stop()}
           hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
           style={({ pressed }) => [styles.chipButton, pressed && styles.pressed]}>
-          {state.phase === 'loading' ? <ActivityIndicator size="small" color={theme.icon} /> : <Pause size={16} color={theme.icon} fill={theme.icon} />}
+          {state.phase === 'loading'
+            ? <ActivityIndicator size="small" color={theme.icon} />
+            : active ? <Pause size={16} color={theme.icon} fill={theme.icon} /> : <Play size={16} color={theme.icon} fill={theme.icon} />}
         </Pressable>
         <Pressable
           testID="audio-expand"
@@ -189,10 +194,19 @@ export function MushafAudioPlayer({ dark, rtl, copy, following, onFollow, panelT
           {expanded ? <ChevronUp testID="audio-chip-chevron-up" size={14} color={theme.muted} /> : <ChevronDown testID="audio-chip-chevron-down" size={14} color={theme.muted} />}
         </Pressable>
         {followable && !following && (
-          <Pressable testID="audio-follow" accessibilityRole="button" accessibilityLabel={copy.followRecitation} onPress={onFollow} hitSlop={6} style={({ pressed }) => [styles.chipButton, pressed && styles.pressed]}>
+          <Pressable testID="audio-follow" accessibilityRole="button" accessibilityLabel={copy.followRecitation} onPress={onFollow} hitSlop={{ top: 8, bottom: 8 }} style={({ pressed }) => [styles.chipButton, pressed && styles.pressed]}>
             <LocateFixed size={17} color={theme.accent} />
           </Pressable>
         )}
+        <Pressable
+          testID="audio-stop"
+          accessibilityRole="button"
+          accessibilityLabel={copy.stop}
+          onPress={() => audioEngine.stop()}
+          hitSlop={{ top: 8, bottom: 8 }}
+          style={({ pressed }) => [styles.chipButton, pressed && styles.pressed]}>
+          <X size={17} color={theme.icon} />
+        </Pressable>
       </View>
       )}
 

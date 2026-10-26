@@ -31,6 +31,7 @@ vi.mock('@/theme/useTheme', () => ({ useThemeName: () => 'light' }));
 vi.mock('@/constants/theme', () => ({ navigationColorsFor: () => ({}), paletteFor: () => ({ background: '#fff' }), statusBarStyleFor: () => 'dark' }));
 vi.mock('@/utils/devLog', () => ({ devLog: () => undefined }));
 vi.mock('@/layout/useDeviceOrientationPolicy', () => ({ useDeviceOrientationPolicy: () => undefined }));
+vi.mock('@/components/AudioMiniControls', () => ({ ScreenWithAudioControls: (props: { children?: ReactNode }) => createElement('ScreenWithAudioControls', props) }));
 
 describe('Mushaf route options', () => {
   it('the stack registers the tabs group holding the Mushaf reader with swipe-back off (edge and full-screen)', async () => {
@@ -43,6 +44,21 @@ describe('Mushaf route options', () => {
     expect(screens.map((node) => node.props.name)).toEqual(['(tabs)']);
     expect(screens[0].props.options).toBe(MUSHAF_SCREEN_OPTIONS);
     expect(MUSHAF_SCREEN_OPTIONS).toEqual({ gestureEnabled: false, fullScreenGestureEnabled: false });
+    await act(async () => root.unmount());
+  });
+
+  it('every screen above the tabs gets the compact audio controls (screenLayout); the tabs group — the Mushaf with it — never does', async () => {
+    const { default: RootLayout } = await import('@/app/_layout');
+    let root!: ReturnType<typeof create>;
+    await act(async () => { root = create(createElement(RootLayout)); });
+    const layout = root.root.findAll((node) => String(node.type) === 'Stack')[0].props.screenLayout as (args: { children: ReactNode; route: { name: string } }) => ReactNode;
+    const page = createElement('Page');
+    expect(layout({ children: page, route: { name: '(tabs)' } })).toBe(page);
+    for (const name of ['settings', 'favorites', 'ayah/[surah]/[ayah]', 'credits']) {
+      const wrapped = layout({ children: page, route: { name } }) as { type: unknown; props: { children: ReactNode } };
+      expect((wrapped.type as { name?: string }).name ?? String(wrapped.type), name).not.toBe('Page');
+      expect(wrapped.props.children, name).toBe(page);
+    }
     await act(async () => root.unmount());
   });
 });

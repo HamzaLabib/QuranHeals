@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard';
 import * as Font from 'expo-font';
 import { useFonts } from 'expo-font';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useIsFocused, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, CircleHelp, Headphones, Maximize2, Minimize2 } from 'lucide-react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { BackHandler, Platform, Pressable, StyleSheet, Text, View, type LayoutRectangle } from 'react-native';
@@ -11,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ConfirmSheet } from '@/components/ConfirmSheet';
 import { KhatmaReachedSheet } from '@/components/KhatmaReachedSheet';
 import { OfflineMushafPanel } from '@/components/OfflineMushafPanel';
-import { isAudioActive, MushafAudioPlayer } from '@/components/MushafAudioPlayer';
+import { hasAudioSession, isAudioActive, MushafAudioPlayer } from '@/components/MushafAudioPlayer';
 import { MushafAyahActions, MushafWirdApply, type PopupAnchor } from '@/components/MushafAyahPopups';
 import { MushafIndexSheet, type MushafIndexMode } from '@/components/MushafIndexSheet';
 import { MushafGuide } from '@/components/MushafGuide';
@@ -76,6 +76,7 @@ import { mushafCopyText } from '@/mushaf/ayahCopyText';
 import { audioEngine } from '@/audio/index';
 import { pageOfPosition, positionOfVerseKey, verseKeyOf } from '@/audio/quranSequence';
 import { useFavoriteReciter } from '@/audio/useFavoriteReciter';
+import { recitedMushafAyah } from '@/audio/session';
 import { usePlayback } from '@/audio/usePlayback';
 import { getApiErrorMessage } from '@/services/api';
 import { getAyahForAction } from '@/services/ayahForAction';
@@ -90,7 +91,19 @@ import { MemorizationGuideIllustration } from '@/memorization/GuideIllustration'
 import { memorizationLabels } from '@/memorization/labels';
 import { MemorizationAllControls, MemorizationEyeButton } from '@/memorization/MemorizationControls';
 import { MemorizationMenu } from '@/memorization/MemorizationMenu';
-import { MEMORIZATION_GUIDE_STEPS, memorizationGuideNote, memorizationGuideStepFor, memorizationGuideTarget } from '@/memorization/memorizationGuide';
+import {
+  isMemorizationGuideDue,
+  loadMemorizationGuideProgress,
+  MEMORIZATION_GUIDE_HANDOFF_MS,
+  MEMORIZATION_GUIDE_STEPS,
+  memorizationGuideNote,
+  memorizationGuideStepFor,
+  memorizationGuideTarget,
+  memorizationGuideText,
+  queueMemorizationGuide,
+  saveMemorizationGuideProgress,
+  type MemorizationGuideProgress,
+} from '@/memorization/memorizationGuide';
 import { enterMemorization, hideAllAyahs, isAyahHidden, MEMORIZATION_OFF, memorizationOnPage, showAllAyahs, toggleMemorizedAyah, type MemorizationPeek, type MemorizationState } from '@/memorization/memorizationState';
 import { placeMemorizationControls, type Box as MemorizationBox } from '@/memorization/placement';
 import { useMemorizationModeSetting } from '@/memorization/useMemorizationModeSetting';
@@ -120,8 +133,9 @@ import { useMemorizationModeSetting } from '@/memorization/useMemorizationModeSe
  * Screen readers turn pages with the page's own next / previous actions.
  *
  * Listening (audio/, 2026-10-17): the headphones icon in the top bar plays from the first ayah of the page shown; while
- * playing, the player's chip (Pause, the Sheikh, the ayah) takes its place, and paused, stopped or finished the
- * headphones are back (a tap resumes); an ayah's Listen plays from that ayah. Either goes on ayah after ayah, surah after surah, and the page turns by itself
+ * a listening session lasts (playing, loading or paused), the player's chip (Play / Pause, the Sheikh, the ayah, Follow
+ * recitation, Stop) takes its place, and stopped, finished or stopped by an error the headphones are back; an ayah's
+ * Listen plays from that ayah. Either goes on ayah after ayah, surah after surah, and the page turns by itself
  * when the recitation reaches the next page (every page begins with a whole ayah, so ayah timing is exact enough). The
  * ayah being recited is highlighted like a selection. While playing, the player is a chip in the same top bar
  * (MushafAudioPlayer): the page keeps its size and place. Swiping away stops the page following the recitation until
@@ -133,7 +147,7 @@ import { useMemorizationModeSetting } from '@/memorization/useMemorizationModeSe
  * Add and its name field).
  *
  * Full-screen reading (the top-right Expand / Collapse icon): only the page,
- * the audio control (headphones, or the player's chip while playing) and the
+ * the audio control (headphones, or the player's chip during a session) and the
  * Collapse icon stay; the Back arrow, Help, the bar and the ورد pill hide,
  * and the whole page is refitted into the space they used (fitMushafPage)
  * and centred in it: never zoomed to fill, never cropped. The
@@ -377,6 +391,8 @@ const ignoreVerse = () => undefined;
 export default function MushafScreen() {
   // Keep Screen Awake (Settings): held only while this reader is focused, the app active and the setting ON.
   useMushafKeepAwake();
+  // Whether the reader is the screen shown (its tab stays mounted behind others): a guide only opens by itself then.
+  const focused = useIsFocused();
   // A reminder arriving while reading is listed, without a banner or sound (notifications/foreground.ts).
   useQuietRemindersWhileReading();
   const styles = useThemedStyles(makeStyles);
@@ -448,10 +464,13 @@ export default function MushafScreen() {
     setGuideStep(0);
     setGuideVisible(true);
   }
-  // The Memorization Mode Guide (memorization/memorizationGuide.ts): only from Settings → Quran → Mushaf Guide
-  // (/mushaf?memorizationGuide=<time>), at its first step, once per request. It records nothing, changes no setting
-  // and never enters Memorization Mode; the Mushaf guide's saved progress is not touched.
+  // The Memorization Mode Guide (memorization/memorizationGuide.ts): from Settings → Quran → Mushaf Guide
+  // (/mushaf?memorizationGuide=<time>), at its first step, once per request; and by itself once on a fresh install,
+  // right after the Mushaf guide (its saved first-time progress, below). It changes no setting and never enters
+  // Memorization Mode; the Mushaf guide's saved progress is not touched.
   const [memorizationGuideStep, setMemorizationGuideStep] = useState<number | null>(null);
+  const [memorizationGuideProgress, setMemorizationGuideProgress] = useState<MemorizationGuideProgress | null>(null);
+  const memorizationGuideAutoShown = useRef(false);
   const memorizationGuideRequest = typeof params.memorizationGuide === 'string' ? params.memorizationGuide : '';
   const [handledMemorizationGuideRequest, setHandledMemorizationGuideRequest] = useState('');
   if (memorizationGuideRequest && memorizationGuideRequest !== handledMemorizationGuideRequest) {
@@ -482,13 +501,15 @@ export default function MushafScreen() {
    */
   // Nor does a stop that is waiting for the whole-surah choice: that recording cannot recite the ayah asked for.
   const knownAyah = playback.phase !== 'idle' && playback.granularity === 'ayah' && playback.error?.kind !== 'surah-only' ? playback.position : null;
-  const playingPosition = knownAyah && playback.mode !== 'single' ? knownAyah : null;
+  const playingPosition = recitedMushafAyah(playback);
   const playingPage = playingPosition ? pageOfPosition(playingPosition) : null;
   const playingVerseKey = knownAyah ? verseKeyOf(knownAyah) : null;
-  // Whether the page shown follows the recitation. Set by the reader's own page moves (goTo, turn, a link): false away
-  // from the recited page, true on it; true again for every new listening session, Follow recitation, and when the
-  // recitation reaches the page being read.
-  const [following, setFollowing] = useState(true);
+  // Whether the page shown follows the recitation. Set by the reader's own page moves (goTo, turn, a link, the page it
+  // opens on): false away from the recited page, true on it; true again for every new listening session, Follow
+  // recitation, and when the recitation reaches the page being read. A reader opened while a session (paused or
+  // playing) is already reciting another page starts NOT following: it stays on the page it opened on, and only Follow
+  // recitation (or a new recitation) takes it to the recited ayah — never a pause, a resume or opening the player.
+  const [following, setFollowing] = useState(() => playingPage === null || playingPage === initialPage);
   const [followSession, setFollowSession] = useState(playback.session);
   if (followSession !== playback.session) {
     setFollowSession(playback.session);
@@ -584,7 +605,12 @@ export default function MushafScreen() {
       // unless this device browsed elsewhere after that save (mushaf/lastBrowsedPage.ts); none: page 1.
       const saved = activeReadingStop(list, id) ?? list[0] ?? null;
       const start = opening ? openingPage(lastBrowsed, saved) : null;
-      if (start !== null && requestedPage === null && !hasNavigated.current) setPage(start);
+      if (start !== null && requestedPage === null && !hasNavigated.current) {
+        setPage(start);
+        // As any other page the reader is shown: a session reciting elsewhere is not followed there by itself.
+        const recited = recitedMushafAyah(audioEngine.getState());
+        if (recited) setFollowing(pageOfPosition(recited) === start);
+      }
     };
     void reload(true);
     const unsubscribeData = subscribeToReadingData(() => void reload(false));
@@ -860,12 +886,13 @@ export default function MushafScreen() {
     audioEngine.startPage(page, listeningReciter());
   };
   /**
-   * The top bar's headphones, always following the engine: shown whenever nothing is actively playing (nothing yet,
-   * paused, stopped, finished, stopped by an error) and replaced by the player's chip while playing (its own Pause, the
-   * Sheikh and the ayah: MushafAudioPlayer). A tap resumes a pause from its position, retries after an error, or else
-   * plays from this page. Touch and hold (or the screen reader's Stop action) stops a paused recitation for good.
+   * The top bar's headphones, always following the engine: shown whenever there is no listening session (nothing yet,
+   * stopped, finished, stopped by an error) and replaced by the player's chip while one lasts — playing, loading or
+   * paused (its own Play / Pause, the Sheikh and the ayah, Follow recitation and Stop: MushafAudioPlayer). A tap retries
+   * after an error, or else plays from this page. Touch and hold (or the screen reader's Stop action) stops what is left.
    */
   const audioActive = isAudioActive(playback);
+  const audioSession = hasAudioSession(playback);
   const onAudioButton = () => {
     if (audioActive) audioEngine.pause();
     else if (playback.phase === 'paused' || playback.phase === 'error') audioEngine.resume();
@@ -1112,9 +1139,16 @@ export default function MushafScreen() {
 
   // The first-time guide: read whether it was seen; show it by itself once the page and its controls are drawn
   // (the Surah head registered), at the step reached before, and keep it until the user closes or finishes it.
+  // With it, the Memorization Mode Guide's first-time progress: queued to follow it when it has not been seen yet.
   useEffect(() => {
     let cancelled = false;
-    void loadGuideProgress().then((progress) => { if (!cancelled) setGuideProgress(progress); });
+    void Promise.all([loadGuideProgress(), loadMemorizationGuideProgress()]).then(([progress, memorizationProgress]) => {
+      if (cancelled) return;
+      const queued = isMemorizationModeAvailable() ? queueMemorizationGuide(progress, memorizationProgress) : memorizationProgress;
+      if (queued !== memorizationProgress) void saveMemorizationGuideProgress(queued);
+      setGuideProgress(progress);
+      setMemorizationGuideProgress(queued);
+    });
     return () => { cancelled = true; };
   }, []);
   const guideReady = Boolean(drawn) && guideTargets.names.split(',').includes('surah');
@@ -1242,6 +1276,45 @@ export default function MushafScreen() {
   const memorizationGuide = memorizationGuideStep === null ? null : memorizationGuideStepFor(MEMORIZATION_GUIDE_STEPS[memorizationGuideStep], allInBarLayout);
   const isGuideTargetDrawn = (target: GuideTarget) => guideTargets.names.split(',').includes(target);
   const memorizationGuideNoteKey = memorizationGuide ? memorizationGuideNote(memorizationGuide, isGuideTargetDrawn, memorizationOffered && memorizationUnsupported) : null;
+  // Its first-time showing: once the Mushaf guide is closed or finished and gone, with the page and the Eye drawn and
+  // the reader focused (the tab stays mounted behind others). After a short hand-off, so the two never overlap; any
+  // change meanwhile (the Mushaf guide reopened, the reader left) cancels it.
+  const memorizationGuideDue = isMemorizationModeAvailable() && isMemorizationGuideDue({
+    progress: memorizationGuideProgress,
+    mushafGuide: guideProgress,
+    mushafGuideVisible: guideVisible,
+    memorizationGuideOpen: memorizationGuideStep !== null,
+    focused,
+    pageReady: guideReady,
+    settingReady: memorizationSetting.isReady,
+    eyeReady: !memorizationEyeShown || isGuideTargetDrawn('memorize'),
+  });
+  const memorizationGuideResumeStep = memorizationGuideProgress?.status === 'pending' ? memorizationGuideProgress.step : 0;
+  useEffect(() => {
+    if (!memorizationGuideDue || memorizationGuideAutoShown.current) return undefined;
+    const timer = setTimeout(() => {
+      memorizationGuideAutoShown.current = true;
+      closeOverlay();
+      setMemorizationGuideStep(memorizationGuideResumeStep);
+    }, MEMORIZATION_GUIDE_HANDOFF_MS);
+    return () => clearTimeout(timer);
+  }, [memorizationGuideDue, memorizationGuideResumeStep, closeOverlay]);
+  /** A step of the Memorization Mode Guide: while its first-time showing is pending, saved to reopen there. */
+  const showMemorizationGuideStep = (step: number) => {
+    setMemorizationGuideStep(step);
+    if (memorizationGuideProgress?.status !== 'pending') return;
+    const pending: MemorizationGuideProgress = { status: 'pending', step };
+    setMemorizationGuideProgress(pending);
+    void saveMemorizationGuideProgress(pending);
+  };
+  /** Close or Done: the first-time showing, if still pending, is done (however this one was opened). */
+  const endMemorizationGuide = () => {
+    setMemorizationGuideStep(null);
+    if (memorizationGuideProgress?.status !== 'pending') return;
+    const done: MemorizationGuideProgress = { status: 'done' };
+    setMemorizationGuideProgress(done);
+    void saveMemorizationGuideProgress(done);
+  };
   return (
     <GestureHandlerRootView style={[styles.reader, { backgroundColor: MUSHAF_BACKGROUNDS[appearance.background].paper, paddingTop: insets.top, paddingLeft: insets.left, paddingRight: insets.right }]}>
       {/*
@@ -1260,7 +1333,7 @@ export default function MushafScreen() {
             <ArrowLeft size={24} color={iconColor} />
           </Pressable>
         )}
-        {/* The audio player while something plays (any mode): a chip in this bar, never over the page. */}
+        {/* The audio player while a listening session lasts (any mode, paused too): a chip in this bar, never over the page. */}
         <View testID="mushaf-audio-slot" style={styles.barMiddle} pointerEvents="box-none">
           <MushafAudioPlayer
             dark={dark}
@@ -1271,11 +1344,11 @@ export default function MushafScreen() {
             panelTop={insets.top + BACK_BAR_HEIGHT}
           />
           {/* Memorization Mode's Show All / Hide All where the page number's line has no room for it, unless a recitation's chip is here. */}
-          {allInBar && !audioActive && memorizationAll(null, memorizationControlsHidden)}
+          {allInBar && !audioSession && memorizationAll(null, memorizationControlsHidden)}
         </View>
         <View style={styles.barEnd}>
-        {/* The headphones (onAudioButton): whenever nothing is actively playing, in both modes. Playing: the chip instead. */}
-        {!audioActive && (
+        {/* The headphones (onAudioButton): whenever there is no listening session, in both modes. Otherwise the chip. */}
+        {!audioSession && (
           <Pressable
             testID="mushaf-play-page"
             accessibilityRole="button"
@@ -1611,7 +1684,7 @@ export default function MushafScreen() {
           visible
           step={memorizationGuideStep}
           total={MEMORIZATION_GUIDE_STEPS.length}
-          text={memorizationCopy.guide[memorizationGuide.text]}
+          text={memorizationCopy.guide[memorizationGuideText(memorizationGuide, memorizationSetting.visible)]}
           note={memorizationGuideNoteKey ? memorizationCopy.guide[memorizationGuideNoteKey] : null}
           illustration={memorizationGuide.illustration
             ? <MemorizationGuideIllustration kind={memorizationGuide.illustration} title={memorizationCopy.settingTitle} dark={dark} rtl={rtl} color={iconColor} gold={memorizationGold} />
@@ -1626,10 +1699,10 @@ export default function MushafScreen() {
             return target ? guideTargetViews.current.get(target) : null;
           }}
           measureKey={`${guideTargets.changes}|${page}|${fullScreen}|${zoomed}|${pageWidth}`}
-          onNext={() => setMemorizationGuideStep(Math.min(MEMORIZATION_GUIDE_STEPS.length - 1, memorizationGuideStep + 1))}
-          onBack={() => setMemorizationGuideStep(Math.max(0, memorizationGuideStep - 1))}
-          onClose={() => setMemorizationGuideStep(null)}
-          onFinish={() => setMemorizationGuideStep(null)}
+          onNext={() => showMemorizationGuideStep(Math.min(MEMORIZATION_GUIDE_STEPS.length - 1, memorizationGuideStep + 1))}
+          onBack={() => showMemorizationGuideStep(Math.max(0, memorizationGuideStep - 1))}
+          onClose={endMemorizationGuide}
+          onFinish={endMemorizationGuide}
         />
       )}
 

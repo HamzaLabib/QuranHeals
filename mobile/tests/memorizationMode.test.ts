@@ -23,7 +23,7 @@ const preference = await import('@/memorization/memorizationModePreference');
 const { placeMemorizationControls, MIN_ALL_WIDTH, ALL_MIN_FONT_SCALE } = await import('@/memorization/placement');
 const { pageNumberTouchBox } = await import('@/components/MushafPageView');
 const { computePageLayout, BORDER_TILES_DOWN, MIN_TILES_DOWN } = await import('@/mushaf/pageGeometry');
-const { MEMORIZATION_GUIDE_STEPS, memorizationGuideNote, memorizationGuideStepFor, memorizationGuideTarget } = await import('@/memorization/memorizationGuide');
+const { MEMORIZATION_GUIDE_STEPS, memorizationGuideNote, memorizationGuideStepFor, memorizationGuideTarget, memorizationGuideText } = await import('@/memorization/memorizationGuide');
 const { memorizationLabels } = await import('@/memorization/labels');
 const { isMemorizationModeAvailable } = await import('@/memorization/config');
 
@@ -74,20 +74,24 @@ describe('Memorization Mode session state (Option A)', () => {
 });
 
 describe('Settings → Quran → Memorization Mode: the stored choice', () => {
-  it('OFF by default, its own versioned local key; only "true" / "false" are read; never throws', async () => {
-    expect(preference.DEFAULT_MEMORIZATION_MODE_VISIBLE).toBe(false);
+  it('ON by default (nothing saved), its own versioned local key; only "true" / "false" are read; never throws', async () => {
+    expect(preference.DEFAULT_MEMORIZATION_MODE_VISIBLE).toBe(true);
     expect(preference.MEMORIZATION_MODE_VISIBLE_STORAGE_KEY).toBe('quran-heals:memorization-mode-visible:v1');
     expect(preference.MEMORIZATION_MODE_VISIBLE_STORAGE_KEY).not.toBe('quran-heals:word-meanings-visible:v1');
-    for (const raw of [null, '', 'yes', '1', '{"v":true}']) expect(preference.parseMemorizationModeVisible(raw)).toBe(false);
+    for (const raw of [null, '', 'yes', '1', '{"v":true}']) expect(preference.parseMemorizationModeVisible(raw)).toBe(true);
+    // A saved choice always wins over the default: an existing reader's OFF stays OFF.
+    expect(preference.parseMemorizationModeVisible('false')).toBe(false);
     storage.map.clear();
-    expect(await preference.loadMemorizationModeVisible()).toBe(false);
+    expect(await preference.loadMemorizationModeVisible()).toBe(true);
+    // Reading never saves anything (the default is never written back).
+    expect(storage.map.has(preference.MEMORIZATION_MODE_VISIBLE_STORAGE_KEY)).toBe(false);
     await preference.saveMemorizationModeVisible(true);
     expect(storage.map.get(preference.MEMORIZATION_MODE_VISIBLE_STORAGE_KEY)).toBe('true');
     expect(await preference.loadMemorizationModeVisible()).toBe(true);
     await preference.saveMemorizationModeVisible(false);
     expect(await preference.loadMemorizationModeVisible()).toBe(false);
     storage.failing = true;
-    expect(await preference.loadMemorizationModeVisible()).toBe(false);
+    expect(await preference.loadMemorizationModeVisible()).toBe(true);
     await expect(preference.saveMemorizationModeVisible(true)).resolves.toBeUndefined();
     storage.failing = false;
   });
@@ -199,11 +203,24 @@ describe('the Memorization Mode Guide (memorizationGuide.ts)', () => {
     expect(memorizationLabels('ar-EG' as never)).toBe(memorizationLabels('ar'));
   });
 
-  it('steps 1 and 2 unchanged; steps 3–7 in the owner\'s approved wording (Arabic) and its English', () => {
-    expect(EN.enable).toBe('Turn on Memorization Mode in Settings → Quran → Memorization Mode.');
-    expect(AR.enable).toBe('فعّل وضع الحفظ من الإعدادات ← القرآن ← وضع الحفظ.');
-    expect(EN.findEye).toBe("An Eye button then appears in the Mushaf's top bar.");
-    expect(AR.findEye).toBe('يظهر بعد ذلك زر العين في الشريط العلوي للمصحف.');
+  it('steps 1 and 2 for an Eye shown by default (step 1 has its own text for a saved OFF); steps 3–7 in the owner\'s approved wording (Arabic) and its English', () => {
+    expect(EN.enable).toBe('Memorization Mode is ready to use: its Eye button is shown by default. You can turn it off in Settings → Quran → Memorization Mode.');
+    expect(AR.enable).toBe('وضع الحفظ جاهز للاستخدام، وزر العين ظاهر تلقائيًا. ويمكنك إيقافه من الإعدادات ← القرآن ← وضع الحفظ.');
+    expect(EN.enableOff).toBe('Memorization Mode is turned off on this device. Turn it on in Settings → Quran → Memorization Mode to show its Eye button.');
+    expect(AR.enableOff).toBe('وضع الحفظ متوقف على هذا الجهاز. فعّله من الإعدادات ← القرآن ← وضع الحفظ ليظهر زر العين.');
+    // Never the old instruction to turn on what is already on.
+    for (const text of [EN.enable, AR.enable]) expect(text).not.toMatch(/^(Turn on|فعّل)/);
+    expect(EN.findEye).toBe("The Eye button is in the Mushaf's top bar.");
+    expect(AR.findEye).toBe('زر العين في الشريط العلوي للمصحف.');
+    // A saved OFF: step 2 keeps the original wording (the Eye appears once turned on in step 1).
+    expect(EN.findEyeOff).toBe("An Eye button then appears in the Mushaf's top bar.");
+    expect(AR.findEyeOff).toBe('يظهر بعد ذلك زر العين في الشريط العلوي للمصحف.');
+    const first = MEMORIZATION_GUIDE_STEPS[0];
+    expect(memorizationGuideText(first, true)).toBe('enable');
+    expect(memorizationGuideText(first, false)).toBe('enableOff');
+    expect(memorizationGuideText(MEMORIZATION_GUIDE_STEPS[1], true)).toBe('findEye');
+    expect(memorizationGuideText(MEMORIZATION_GUIDE_STEPS[1], false)).toBe('findEyeOff');
+    for (const step of MEMORIZATION_GUIDE_STEPS.slice(2)) for (const on of [true, false]) expect(memorizationGuideText(step, on)).toBe(step.text);
     expect(AR.hide).toBe('اضغط على العين لإخفاء نص جميع آيات الصفحة.');
     expect(EN.hide).toBe('Tap the Eye to hide all ayah text on the page.');
     expect(AR.reveal).toBe('اضغط على موضع الآية لإظهارها، واضغط عليها مرة أخرى لإخفائها. يمكنك إظهار عدة آيات معًا.');
@@ -249,5 +266,57 @@ describe('the Memorization Mode Guide (memorizationGuide.ts)', () => {
     expect(memorizationGuideTarget(inBar, drawnNow(['page', 'memorize', 'memorizeAll']))).toBe('memorizeAll');
     // Every other step is the same on every layout.
     for (const step of MEMORIZATION_GUIDE_STEPS.slice(0, 6)) expect(memorizationGuideStepFor(step, true)).toBe(step);
+  });
+});
+
+const guide = await import('@/memorization/memorizationGuide');
+
+describe('The Memorization Mode Guide\'s first-time showing (after a fresh install\'s Mushaf guide)', () => {
+  const UNSEEN = { status: 'unseen', step: 0 } as const;
+  const SEEN = { status: 'done', finished: true } as const;
+  const READY = { mushafGuide: SEEN, mushafGuideVisible: false, memorizationGuideOpen: false, focused: true, pageReady: true, settingReady: true, eyeReady: true };
+
+  it('its own versioned key; nothing saved or anything unreadable is "not queued"; a pending step out of range restarts at 1', async () => {
+    expect(guide.MEMORIZATION_GUIDE_STORAGE_KEY).toBe('quran-heals:memorization-guide:v1');
+    for (const raw of [null, 'x', 3, {}, { status: 'unseen' }]) expect(guide.parseMemorizationGuideProgress(raw)).toEqual({ status: 'none' });
+    expect(guide.parseMemorizationGuideProgress({ status: 'done' })).toEqual({ status: 'done' });
+    expect(guide.parseMemorizationGuideProgress({ status: 'pending', step: 4 })).toEqual({ status: 'pending', step: 4 });
+    for (const step of [-1, 7, 1.5, '2']) expect(guide.parseMemorizationGuideProgress({ status: 'pending', step })).toEqual({ status: 'pending', step: 0 });
+    storage.map.clear();
+    expect(await guide.loadMemorizationGuideProgress()).toEqual({ status: 'none' });
+    await guide.saveMemorizationGuideProgress({ status: 'pending', step: 2 });
+    expect(await guide.loadMemorizationGuideProgress()).toEqual({ status: 'pending', step: 2 });
+    await guide.saveMemorizationGuideProgress({ status: 'done' });
+    expect(await guide.loadMemorizationGuideProgress()).toEqual({ status: 'done' });
+    storage.map.set(guide.MEMORIZATION_GUIDE_STORAGE_KEY, '{not json');
+    expect(await guide.loadMemorizationGuideProgress()).toEqual({ status: 'none' });
+    storage.failing = true;
+    expect(await guide.loadMemorizationGuideProgress()).toEqual({ status: 'none' });
+    await expect(guide.saveMemorizationGuideProgress({ status: 'done' })).resolves.toBeUndefined();
+    storage.failing = false;
+  });
+
+  it('queued only where the Mushaf guide has not been seen (a fresh install); an existing reader\'s seen guide never queues it; pending and done are kept', () => {
+    expect(guide.queueMemorizationGuide(UNSEEN, { status: 'none' })).toEqual({ status: 'pending', step: 0 });
+    expect(guide.queueMemorizationGuide({ status: 'unseen', step: 3 }, { status: 'none' })).toEqual({ status: 'pending', step: 0 });
+    for (const seen of [SEEN, { status: 'done', finished: false } as const]) expect(guide.queueMemorizationGuide(seen, { status: 'none' })).toEqual({ status: 'none' });
+    const pending = { status: 'pending', step: 5 } as const;
+    expect(guide.queueMemorizationGuide(UNSEEN, pending)).toBe(pending);
+    expect(guide.queueMemorizationGuide(SEEN, pending)).toBe(pending);
+    const done = { status: 'done' } as const;
+    expect(guide.queueMemorizationGuide(UNSEEN, done)).toBe(done);
+  });
+
+  it('due only when queued, after the Mushaf guide (seen and gone), never over another guide, with the reader focused and its page, setting and Eye ready', () => {
+    expect(guide.isMemorizationGuideDue({ ...READY, progress: { status: 'pending', step: 0 } })).toBe(true);
+    for (const progress of [null, { status: 'none' }, { status: 'done' }] as const) expect(guide.isMemorizationGuideDue({ ...READY, progress })).toBe(false);
+    const pending = { status: 'pending', step: 0 } as const;
+    expect(guide.isMemorizationGuideDue({ ...READY, progress: pending, mushafGuide: null })).toBe(false);
+    expect(guide.isMemorizationGuideDue({ ...READY, progress: pending, mushafGuide: UNSEEN })).toBe(false);
+    for (const key of ['mushafGuideVisible', 'memorizationGuideOpen'] as const) expect(guide.isMemorizationGuideDue({ ...READY, progress: pending, [key]: true }), key).toBe(false);
+    for (const key of ['focused', 'pageReady', 'settingReady', 'eyeReady'] as const) expect(guide.isMemorizationGuideDue({ ...READY, progress: pending, [key]: false }), key).toBe(false);
+    // Closed early (not finished) counts as seen, as for the Mushaf guide's own conventions.
+    expect(guide.isMemorizationGuideDue({ ...READY, progress: pending, mushafGuide: { status: 'done', finished: false } })).toBe(true);
+    expect(guide.MEMORIZATION_GUIDE_HANDOFF_MS).toBeGreaterThanOrEqual(400);
   });
 });

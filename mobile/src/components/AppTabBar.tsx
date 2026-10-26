@@ -6,10 +6,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { spacing, typography, type Palette } from '@/constants/theme';
 import { LAYOUT_TOKENS } from '@/layout/windowClass';
+import { usePlayback } from '@/audio/usePlayback';
 import { isRtlLocale } from '@/localization/locales';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 
+import { AudioMiniControls, showsAudioMiniControls } from './AudioMiniControls';
 import { HandsHeartIcon } from './HandsHeartIcon';
 import { MushafIcon } from './MushafIcon';
 import { MushafDownloadIndicator } from './MushafDownloadIndicator';
@@ -35,6 +37,9 @@ export function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps)
   const insets = useSafeAreaInsets();
   const { locale, messages } = useAppLocale();
   const onHeight = useContext(BottomTabBarHeightCallbackContext);
+  // The compact audio controls (AudioMiniControls), above the tabs during the Mushaf's listening session. The bar is not
+  // drawn on the Mushaf (its own chip is there), so they never show inside it.
+  const playback = usePlayback();
   const focused = state.routes[state.index];
   const hidden = (descriptors[focused.key]?.options.tabBarStyle as { display?: string } | undefined)?.display === 'none';
   if (hidden) return null;
@@ -45,6 +50,7 @@ export function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps)
       testID="app-tab-bar"
       accessibilityRole="tablist"
       style={[styles.bar, { paddingBottom: Math.max(insets.bottom, spacing.sm) }]}>
+      {showsAudioMiniControls(playback) && <AudioMiniControls state={playback} placement="tabBar" />}
       {/*
         The five tabs as one centred group, LAYOUT_TOKENS.tabBarMaxWidth wide at most: on tablets they aren't stretched
         across the window; on phones (narrower than that) this changes nothing. Pure layout, never the window's size in

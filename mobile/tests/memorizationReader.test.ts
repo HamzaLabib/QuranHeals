@@ -44,6 +44,8 @@ const state = vi.hoisted(() => ({
   deferRN: false,
   toRN: [] as (() => void)[],
   canGoBack: true,
+  /** Whether the reader is the focused screen (expo-router's useIsFocused). */
+  focused: true,
   /** Keyboard listeners (Keyboard mock), by event, so a test can show or hide the keyboard. */
   keyboardListeners: new Map<string, Set<() => void>>(),
   /** Android hardware Back listeners currently subscribed (BackHandler mock). */
@@ -124,7 +126,7 @@ vi.mock('lucide-react-native', () => ({
   // Quran audio (the top bar's headphones, the player chip and panel, the popup's Listen).
   BookOpenText: 'BookOpenText', AudioLines: 'AudioLines', Eye: 'Eye', EyeOff: 'EyeOff', ChevronUp: 'ChevronUp', CircleAlert: 'CircleAlert', Headphones: 'Headphones', LocateFixed: 'LocateFixed', Pause: 'Pause', Play: 'Play', SkipBack: 'SkipBack', SkipForward: 'SkipForward',
 }));
-vi.mock('expo-router', () => ({ router: { back: vi.fn(), replace: vi.fn(), push: vi.fn(), navigate: vi.fn(), canGoBack: () => state.canGoBack }, useLocalSearchParams: () => state.params, useIsFocused: () => true }));
+vi.mock('expo-router', () => ({ router: { back: vi.fn(), replace: vi.fn(), push: vi.fn(), navigate: vi.fn(), canGoBack: () => state.canGoBack }, useLocalSearchParams: () => state.params, useIsFocused: () => state.focused }));
 // Keep Screen Awake: the reader holds its own tag while focused (lifecycle cases: mushafKeepAwake.test.ts).
 const keepAwake = vi.hoisted(() => ({ activate: vi.fn(async (_tag?: string) => undefined), deactivate: vi.fn(async (_tag?: string) => undefined) }));
 vi.mock('expo-keep-awake', () => ({ activateKeepAwakeAsync: keepAwake.activate, deactivateKeepAwake: keepAwake.deactivate }));
@@ -452,6 +454,7 @@ beforeEach(() => {
   state.theme = 'light';
   state.insets = { top: 47, bottom: 34, left: 0, right: 0 };
   state.canGoBack = true;
+  state.focused = true;
   state.khatmDua = null;
   state.backHandlers = [];
   state.holdAnimations = false;
@@ -560,15 +563,36 @@ const numberBox = () => {
 };
 
 describe('Memorization Mode: the Settings switch decides whether the Eye is offered', () => {
-  it('OFF (the default, nothing saved): no Eye, no Show All / Hide All, every ayah drawn — the reader exactly as in a build without the feature', async () => {
+  it('nothing saved (a fresh install): ON by default — the outline Eye offered, Memorization Mode not entered, every ayah drawn; nothing saved by reading it', async () => {
     await renderWith(null);
+    expect(hosts('memorization-eye')).toHaveLength(1);
+    expect(eye().props.accessibilityLabel).toBe('Enter Memorization Mode');
+    expect(hosts('memorization-all')).toHaveLength(0);
+    expect(paintState().every(([, , shown]) => shown)).toBe(true);
+    expect(state.storage.has(MEMORIZATION_MODE_VISIBLE_STORAGE_KEY)).toBe(false);
+    // Pages and a remount (the app restarted) never enter it by themselves.
+    await turnPage(1);
+    await drawLines();
+    expect(eye().props.accessibilityLabel).toBe('Enter Memorization Mode');
+    await unmount();
+    await renderWith(null);
+    expect(eye().props.accessibilityLabel).toBe('Enter Memorization Mode');
+    expect(paintState().every(([, , shown]) => shown)).toBe(true);
+  });
+
+  it('a saved OFF (the reader\'s own choice): no Eye, no Show All / Hide All, every ayah drawn — the reader exactly as in a build without the feature, after a restart too', async () => {
+    await renderWith(false);
     expect(hosts('memorization-eye')).toHaveLength(0);
     expect(hosts('memorization-all')).toHaveLength(0);
     expect(paintState().every(([, , shown]) => shown)).toBe(true);
     const offTree = treeWithout(null);
     await unmount();
+    await renderWith(false);
+    expect(hosts('memorization-eye')).toHaveLength(0);
+    expect(state.storage.get(MEMORIZATION_MODE_VISIBLE_STORAGE_KEY)).toBe('false');
+    await unmount();
     mm.available = false;
-    await renderWith(null);
+    await renderWith(false);
     expect(treeWithout(null)).toBe(offTree);
   });
 
@@ -817,7 +841,8 @@ describe('The Memorization Mode Guide (Settings → Quran → Mushaf Guide → M
     expect(hosts('mushaf-guide')).toHaveLength(0);
     const counter = () => textOf(hosts('memorization-guide-card')[0]).split(' | ')[0];
     expect(counter()).toBe('1 of 7');
-    expect(guideText()).toBe('Turn on Memorization Mode in Settings → Quran → Memorization Mode.');
+    // This reader saved the setting OFF: step 1 says where to turn it on (never that it is on).
+    expect(guideText()).toBe('Memorization Mode is turned off on this device. Turn it on in Settings → Quran → Memorization Mode to show its Eye button.');
     expect(hosts('memorization-guide-setting')).toHaveLength(1);
     expect(hosts('memorization-guide-back')).toHaveLength(0);
     const texts: string[] = [guideText()];
@@ -832,7 +857,7 @@ describe('The Memorization Mode Guide (Settings → Quran → Mushaf Guide → M
       expect(hosts('memorization-guide-eye-change')).toHaveLength(step === 2 ? 1 : 0);
     }
     expect(texts.slice(1)).toEqual([
-      "An Eye button then appears in the Mushaf's top bar.",
+      "An Eye button then appears in the Mushaf's top bar.", // this reader saved OFF
       'Tap the Eye to hide all ayah text on the page.',
       "Tap an ayah's position to reveal it, then tap it again to hide it. You can reveal multiple ayahs at once.",
       'Press and hold an ayah to reveal it temporarily, until you lift your finger.',
@@ -937,6 +962,115 @@ describe('The Memorization Mode Guide (Settings → Quran → Mushaf Guide → M
     state.params = { page: '61', memorizationGuide: '4' };
     await render();
     expect(hosts('memorization-guide')).toHaveLength(0);
+  });
+
+  describe('a fresh install: the Mushaf guide, then the Memorization Mode Guide, once', () => {
+    const MEMORIZATION_GUIDE_KEY = 'quran-heals:memorization-guide:v1';
+    const counter = () => textOf(hosts('memorization-guide-card')[0]).split(' | ')[0];
+    const pastHandoff = () => act(async () => { await new Promise((done) => setTimeout(done, 650)); });
+    const fresh = () => {
+      state.storage.delete(GUIDE_KEY);
+      state.storage.delete(MEMORIZATION_MODE_VISIBLE_STORAGE_KEY);
+    };
+
+    it('the Mushaf guide first, alone; closed, the Memorization Mode Guide after the hand-off (never both), pointing at the default-ON Eye; neither again after a restart', async () => {
+      fresh();
+      state.params = { page: '61' };
+      await render();
+      expect(hosts('mushaf-guide')).toHaveLength(1);
+      expect(hosts('memorization-guide')).toHaveLength(0);
+      expect(JSON.parse(state.storage.get(MEMORIZATION_GUIDE_KEY) ?? 'null')).toEqual({ status: 'pending', step: 0 });
+      // However long the Mushaf guide stays open, the other one waits.
+      await pastHandoff();
+      expect(hosts('memorization-guide')).toHaveLength(0);
+      for (let step = 0; step < 5; step += 1) await press(hosts('mushaf-guide-next')[0]);
+      await press(hosts('mushaf-guide-start')[0]);
+      expect(hosts('mushaf-guide')).toHaveLength(0);
+      expect(hosts('memorization-guide')).toHaveLength(0); // not in the same frame as the Mushaf guide's close
+      await pastHandoff();
+      expect(hosts('memorization-guide')).toHaveLength(1);
+      expect(hosts('mushaf-guide')).toHaveLength(0);
+      expect(counter()).toBe('1 of 7');
+      expect(textOf(hosts('memorization-guide-text')[0])).toBe('Memorization Mode is ready to use: its Eye button is shown by default. You can turn it off in Settings → Quran → Memorization Mode.');
+      await press(hosts('memorization-guide-next')[0]);
+      // The Eye is offered by default, so step 2 points at it (no "turn it on in Settings" note).
+      expect(hosts('memorization-guide-note')).toHaveLength(0);
+      expect(JSON.parse(state.storage.get(MEMORIZATION_GUIDE_KEY) ?? 'null')).toEqual({ status: 'pending', step: 1 });
+      await press(hosts('memorization-guide-close')[0]);
+      expect(hosts('memorization-guide')).toHaveLength(0);
+      expect(JSON.parse(state.storage.get(MEMORIZATION_GUIDE_KEY) ?? 'null')).toEqual({ status: 'done' });
+      expect(JSON.parse(state.storage.get(GUIDE_KEY) ?? 'null')).toMatchObject({ status: 'done', finished: true });
+      // Instructional only: no setting saved, Memorization Mode not entered.
+      expect(state.storage.has(MEMORIZATION_MODE_VISIBLE_STORAGE_KEY)).toBe(false);
+      expect(paintState().every(([, , shown]) => shown)).toBe(true);
+      await pastHandoff();
+      expect(hosts('memorization-guide')).toHaveLength(0);
+      await unmount();
+      await render();
+      await pastHandoff();
+      expect(hosts('mushaf-guide')).toHaveLength(0);
+      expect(hosts('memorization-guide')).toHaveLength(0);
+    });
+
+    it('the Mushaf guide closed early (not finished) counts as seen: the Memorization Mode Guide follows; its Done records it', async () => {
+      fresh();
+      state.params = { page: '61' };
+      await render();
+      await press(hosts('mushaf-guide-close')[0]);
+      await pastHandoff();
+      expect(hosts('memorization-guide')).toHaveLength(1);
+      for (let step = 0; step < 6; step += 1) await press(hosts('memorization-guide-next')[0]);
+      await press(hosts('memorization-guide-start')[0]);
+      expect(JSON.parse(state.storage.get(MEMORIZATION_GUIDE_KEY) ?? 'null')).toEqual({ status: 'done' });
+    });
+
+    it('interrupted (the app closed during it): reopened by itself at the step reached, the Mushaf guide not again', async () => {
+      state.storage.set(GUIDE_KEY, JSON.stringify({ status: 'done', finished: true }));
+      state.storage.set(MEMORIZATION_GUIDE_KEY, JSON.stringify({ status: 'pending', step: 3 }));
+      state.params = { page: '61' };
+      await render();
+      expect(hosts('memorization-guide')).toHaveLength(0);
+      await pastHandoff();
+      expect(hosts('mushaf-guide')).toHaveLength(0);
+      expect(counter()).toBe('4 of 7');
+    });
+
+    it('an existing reader (the Mushaf guide seen before): never shown by itself, nothing saved; their saved OFF stays OFF', async () => {
+      state.storage.set(MEMORIZATION_MODE_VISIBLE_STORAGE_KEY, 'false');
+      state.params = { page: '61' };
+      await render();
+      await pastHandoff();
+      expect(hosts('mushaf-guide')).toHaveLength(0);
+      expect(hosts('memorization-guide')).toHaveLength(0);
+      expect(state.storage.has(MEMORIZATION_GUIDE_KEY)).toBe(false);
+      expect(hosts('memorization-eye')).toHaveLength(0);
+      expect(state.storage.get(MEMORIZATION_MODE_VISIBLE_STORAGE_KEY)).toBe('false');
+    });
+
+    it('not while the reader is behind another tab: it waits until the reader is focused again', async () => {
+      state.storage.set(MEMORIZATION_GUIDE_KEY, JSON.stringify({ status: 'pending', step: 0 }));
+      state.focused = false;
+      state.params = { page: '61' };
+      await render();
+      await pastHandoff();
+      expect(hosts('memorization-guide')).toHaveLength(0);
+      state.focused = true;
+      state.params = { page: '61', at: '2' }; // any re-render with the reader focused again
+      await act(async () => root.update(withSetting()));
+      await pastHandoff();
+      expect(hosts('memorization-guide')).toHaveLength(1);
+    });
+
+    it('opened from Settings while still pending: closing that one records it, so it never comes back by itself', async () => {
+      state.storage.set(MEMORIZATION_GUIDE_KEY, JSON.stringify({ status: 'pending', step: 0 }));
+      state.params = { page: '61', memorizationGuide: '9' };
+      await render();
+      expect(hosts('memorization-guide')).toHaveLength(1);
+      await press(hosts('memorization-guide-close')[0]);
+      await pastHandoff();
+      expect(hosts('memorization-guide')).toHaveLength(0);
+      expect(JSON.parse(state.storage.get(MEMORIZATION_GUIDE_KEY) ?? 'null')).toEqual({ status: 'done' });
+    });
   });
 });
 

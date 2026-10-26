@@ -376,7 +376,7 @@ export default function SettingsScreen() {
             </View>
           )}
 
-          {/* Memorization Mode: a local switch (memorization/memorizationModePreference.ts, OFF by default), applied at once; it shows or hides the Mushaf's Eye beside the page number (OFF also leaves Memorization Mode). Only where the feature exists (memorization/config.ts). */}
+          {/* Memorization Mode: a local switch (memorization/memorizationModePreference.ts, ON by default), applied at once; it shows or hides the Mushaf's Eye beside the page number (OFF also leaves Memorization Mode). Only where the feature exists (memorization/config.ts). */}
           {isMemorizationModeAvailable() && (
             <View style={[styles.switchCard, isRtl && styles.optionRowRtl]}>
               <View style={styles.optionTextWrap}>

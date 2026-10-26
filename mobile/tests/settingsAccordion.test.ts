@@ -795,11 +795,18 @@ describe('Settings: Memorization Mode (every build: the real switch, __DEV__ fal
     expect(headers().map((node) => node.props.accessibilityLabel.split(', ')[0])).toEqual(locale === 'ar' ? AR_HEADERS : EN_HEADERS);
   });
 
-  it('OFF by default for everyone, with nothing saved; its title alone, "Memorization Mode"', async () => {
+  it('ON by default for anyone who has never chosen, with nothing saved; its title alone, "Memorization Mode"', async () => {
     await renderSettings();
     expect(texts(card())).toEqual(['Memorization Mode']);
-    expect(toggle().props).toMatchObject({ value: false, accessibilityRole: 'switch', accessibilityLabel: 'Memorization Mode', accessibilityState: { checked: false } });
+    expect(toggle().props).toMatchObject({ value: true, accessibilityRole: 'switch', accessibilityLabel: 'Memorization Mode', accessibilityState: { checked: true } });
     expect(state.storage.has(MEMORIZATION_KEY)).toBe(false);
+  });
+
+  it('a saved OFF (an existing reader\'s own choice) is kept OFF after a restart; never switched back on', async () => {
+    state.storage.set(MEMORIZATION_KEY, 'false');
+    await renderSettings();
+    expect(toggle().props.value).toBe(false);
+    expect(state.storage.get(MEMORIZATION_KEY)).toBe('false');
   });
 
   it('switching ON and back OFF applies and saves at once, only its own key, no network; Word Meanings untouched', async () => {
@@ -876,7 +883,7 @@ describe('Settings: Memorization Mode (every build: the real switch, __DEV__ fal
     // Choosing a guide changes no setting and leaves the Mushaf guide's completion as it was.
     expect(state.storage).toEqual(stored);
     expect(state.storage.has(GUIDE_KEY)).toBe(false);
-    expect(toggle().props.value).toBe(false);
+    expect(toggle().props.value).toBe(true);
   });
 
   it('the rollback switch off: no switch, no choice — Mushaf Guide opens the Mushaf guide directly, as before', async () => {

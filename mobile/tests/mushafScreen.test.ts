@@ -5212,7 +5212,82 @@ describe('Quran audio in the reader (audio/)', () => {
     await press(onlyHost('audio-follow'));
     await flush();
     expect(currentPage()).toBe(61);
+    expect(highlighted()).toBe('3:85');
     expect(hosts('audio-follow')).toHaveLength(0);
+  });
+
+  it('paused on page A, the reader on page B: opening the player, resuming and pausing again never jump back to A; only Follow recitation does', async () => {
+    await render();
+    await press(onlyHost('mushaf-play-page'));
+    await flush();
+    await press(onlyHost('audio-toggle'));
+    const loads = audio.loads.length;
+    const { session } = (await engine()).getState();
+    await turnPage(1);
+    expect(currentPage()).toBe(62);
+    await press(onlyHost('audio-expand')); // the player's window
+    expect(hosts('audio-panel')).toHaveLength(1);
+    expect(currentPage()).toBe(62);
+    await press(onlyHost('audio-panel-backdrop'));
+    await press(onlyHost('audio-toggle')); // resume
+    await flush();
+    expect(currentPage()).toBe(62);
+    // The same session, resumed in place: not replaced by a recitation of the page shown.
+    expect((await engine()).getState()).toMatchObject({ phase: 'playing', session, position: { surah: 3, ayah: 84 } });
+    expect(audio.loads).toHaveLength(loads);
+    await press(onlyHost('audio-toggle'));
+    expect(currentPage()).toBe(62);
+    await press(onlyHost('audio-follow'));
+    await flush();
+    expect(currentPage()).toBe(61);
+  });
+
+  it('a reader opened (or reopened) while a session is paused on another page stays on the page it opened on (the old-page jump)', async () => {
+    await render();
+    await press(onlyHost('mushaf-play-page'));
+    await flush();
+    await press(onlyHost('audio-toggle'));
+    await act(async () => root.unmount());
+    // A link to page 62 (Home's Continue Reciting, an ayah's reference) opening a new reader.
+    state.params = { page: '62', at: '1' };
+    await render();
+    expect(currentPage()).toBe(62);
+    expect(onlyHost('audio-toggle').props.accessibilityLabel).toBe(MESSAGES.en.audio.play);
+    expect(hosts('audio-follow')).toHaveLength(1); // the explicit way back
+    await press(onlyHost('audio-toggle'));
+    await flush();
+    expect(currentPage()).toBe(62);
+    expect((await engine()).getState().phase).toBe('playing');
+    await act(async () => root.unmount());
+    // No ?page=: the reader's own opening page (the last browsed one) wins over the recited one too.
+    state.storage.set('quran-heals:mushaf-last-page:v1', JSON.stringify({ page: 62, at: Date.now() + 60_000 }));
+    state.params = {};
+    await render();
+    expect(currentPage()).toBe(62);
+    // A link to the recited page itself follows it (as Follow recitation from another screen does).
+    await act(async () => root.unmount());
+    state.params = { page: '61', at: '2' };
+    await render();
+    expect(currentPage()).toBe(61);
+    expect(hosts('audio-follow')).toHaveLength(0);
+  });
+
+  it('X, then the headphones: the stopped session never comes back; a new recitation starts from the page shown', async () => {
+    await render();
+    await press(onlyHost('mushaf-play-page'));
+    await flush();
+    await finishAyah(); // 3:85
+    await press(onlyHost('audio-toggle'));
+    const { session } = (await engine()).getState();
+    await turnPage(1);
+    await press(onlyHost('audio-stop'));
+    expect((await engine()).getState().phase).toBe('idle');
+    expect(currentPage()).toBe(62);
+    await press(onlyHost('mushaf-play-page'));
+    await flush();
+    expect((await engine()).getState()).toMatchObject({ phase: 'playing', position: { surah: 3, ayah: 92 } }); // page 62's first ayah
+    expect((await engine()).getState().session).toBeGreaterThan(session);
+    expect(currentPage()).toBe(62);
   });
 
   it('swiping back to the recited page follows it again', async () => {
@@ -5221,7 +5296,6 @@ describe('Quran audio in the reader (audio/)', () => {
     await flush();
     await turnPage(1);
     await turnPage(-1);
-    expect(hosts('audio-follow')).toHaveLength(0);
     for (let ayah = 84; ayah <= 91; ayah++) await finishAyah();
     expect(currentPage()).toBe(62);
   });
@@ -5429,7 +5503,7 @@ describe('Quran audio in the reader (audio/)', () => {
     expect(state.storage.has('quran-heals:favorite-reciter:v1')).toBe(false);
   });
 
-  it('full screen: the headphones while idle start the page; the chip while playing; Pause brings the headphones back', async () => {
+  it('full screen: the headphones while idle start the page; the chip while listening; paused, the chip stays with Play', async () => {
     await render();
     await press(onlyHost('mushaf-fullscreen-toggle'));
     expect(hosts('mushaf-play-page')).toHaveLength(1);
@@ -5440,9 +5514,10 @@ describe('Quran audio in the reader (audio/)', () => {
     expect(hosts('audio-chip')).toHaveLength(1);
     expect(hosts('mushaf-play-page')).toHaveLength(0);
     await press(onlyHost('audio-toggle'));
-    expect(hosts('audio-chip')).toHaveLength(0);
-    expect(hosts('mushaf-play-page')).toHaveLength(1);
-    await press(onlyHost('mushaf-play-page'));
+    expect(hosts('audio-chip')).toHaveLength(1);
+    expect(onlyHost('audio-toggle').findAllByType('Play' as never)).toHaveLength(1);
+    expect(hosts('mushaf-play-page')).toHaveLength(0);
+    await press(onlyHost('audio-toggle'));
     await flush();
     expect((await engine()).getState()).toMatchObject({ phase: 'playing', position: { surah: 3, ayah: 84 } });
     // The window opens from the chip in full screen too, and hides without stopping.
@@ -5467,8 +5542,8 @@ describe('Quran audio in the reader (audio/)', () => {
     await press(onlyHost('audio-toggle'));
     await press(onlyHost('mushaf-fullscreen-toggle'));
     expect((await engine()).getState().phase).toBe('paused');
-    expect(hosts('mushaf-play-page')).toHaveLength(1);
-    expect(hosts('audio-chip')).toHaveLength(0);
+    expect(hosts('mushaf-play-page')).toHaveLength(0);
+    expect(onlyHost('audio-toggle').props.accessibilityLabel).toBe(MESSAGES.en.audio.play);
   });
 
   it('the toolbar has no page arrows in either mode (they are in the audio window); swipes still only change the page', async () => {
@@ -5510,20 +5585,26 @@ describe('Quran audio in the reader (audio/)', () => {
     expect(hosts('audio-panel')).toHaveLength(0);
   });
 
-  it('Pause in the chip: paused in place, the whole chip gone and the headphones back; the headphones resume from there', async () => {
+  it('Pause in the chip: paused in place, the chip stays (Play, the Sheikh and ayah, Follow recitation, Stop); its Play resumes from there', async () => {
     await playing();
     await finishAyah(); // 3:85
     await press(onlyHost('audio-toggle'));
     expect((await engine()).getState()).toMatchObject({ phase: 'paused', position: { surah: 3, ayah: 85 }, reciterId: 'abdulbasit' });
-    expect(hosts('audio-chip')).toHaveLength(0);
-    expect(hosts('mushaf-audio-idle')).toHaveLength(1);
-    expect(onlyHost('mushaf-play-page').props.accessibilityLabel).toBe(MESSAGES.en.audio.play);
+    expect(hosts('audio-chip')).toHaveLength(1);
+    expect(hosts('mushaf-audio-idle')).toHaveLength(0);
+    expect(onlyHost('audio-toggle').props.accessibilityLabel).toBe(MESSAGES.en.audio.play);
+    expect(onlyHost('audio-toggle').findAllByType('Play' as never)).toHaveLength(1);
+    expect(onlyHost('audio-toggle').findAllByType('Pause' as never)).toHaveLength(0);
+    expect(chipText()).toBe('Abdul Basit Abdus Samad · 85');
+    expect(hosts('audio-follow')).toHaveLength(0); // on the recited page: as before, only after swiping away
+    expect(hosts('audio-stop')).toHaveLength(1);
+    expect(highlighted()).toBe('3:85');
     const loads = audio.loads.length;
-    await press(onlyHost('mushaf-play-page'));
+    await press(onlyHost('audio-toggle'));
     await flush();
     expect((await engine()).getState()).toMatchObject({ phase: 'playing', position: { surah: 3, ayah: 85 } });
     expect(audio.loads).toHaveLength(loads); // resumed in place: no reload, no second player
-    expect(hosts('audio-chip')).toHaveLength(1);
+    expect(onlyHost('audio-toggle').props.accessibilityLabel).toBe(MESSAGES.en.audio.pause);
     expect(hosts('mushaf-play-page')).toHaveLength(0);
   });
 
@@ -5534,12 +5615,99 @@ describe('Quran audio in the reader (audio/)', () => {
     expect((await engine()).getState().phase).toBe('idle');
     expect(hosts('audio-chip')).toHaveLength(0);
     expect(hosts('mushaf-audio-idle')).toHaveLength(1);
-    // A paused recitation can be stopped from the headphones too.
+    // A paused recitation is stopped from the chip too (touch and hold on its Play; its X: below).
     await press(onlyHost('mushaf-play-page'));
     await flush();
     await press(onlyHost('audio-toggle'));
-    await act(async () => onlyHost('mushaf-play-page').props.onLongPress());
+    await act(async () => onlyHost('audio-toggle').props.onLongPress());
     expect((await engine()).getState().phase).toBe('idle');
+    expect(hosts('audio-chip')).toHaveLength(0);
+  });
+
+  it('the chip\'s X stops (playing or paused): the engine idle, nothing more loaded, the window closed, the chip gone and the headphones back', async () => {
+    await playing();
+    const chip = onlyHost('audio-chip');
+    // The original chip (Play / Pause, then the Sheikh and the ayah), with Stop added at its end; Follow recitation
+    // only after swiping away, as before.
+    expect(chip.findAll((node) => typeof node.type === 'string' && node.props.accessibilityRole === 'button').map((node) => node.props.testID))
+      .toEqual(['audio-toggle', 'audio-expand', 'audio-stop']);
+    expect(onlyHost('audio-stop').props.accessibilityLabel).toBe(MESSAGES.en.audio.stop);
+    expect(onlyHost('audio-stop').findAllByType('X' as never)).toHaveLength(1);
+    await press(onlyHost('audio-expand'));
+    const loads = audio.loads.length;
+    await press(onlyHost('audio-stop'));
+    await flush();
+    expect((await engine()).getState()).toMatchObject({ phase: 'idle', position: null });
+    expect(hosts('audio-chip')).toHaveLength(0);
+    expect(hosts('audio-panel')).toHaveLength(0);
+    expect(hosts('mushaf-audio-idle')).toHaveLength(1);
+    expect(highlighted()).toBeNull();
+    // A late status from the stopped player changes nothing.
+    await act(async () => { for (const listener of audio.listeners) listener({ positionMs: 850_000, playing: true, buffering: false, loaded: true, finished: false, error: null }); });
+    await flush();
+    expect((await engine()).getState().phase).toBe('idle');
+    expect(audio.loads).toHaveLength(loads);
+    // Paused: the same.
+    await press(onlyHost('mushaf-play-page'));
+    await flush();
+    await press(onlyHost('audio-toggle'));
+    await press(onlyHost('audio-stop'));
+    expect((await engine()).getState().phase).toBe('idle');
+    expect(hosts('audio-chip')).toHaveLength(0);
+    expect(hosts('mushaf-play-page')).toHaveLength(1);
+  });
+
+  it('the GPS icon resolves the ayah being recited when pressed: paused, on another page and in another surah', async () => {
+    await render();
+    (await engine()).start({ surah: 3, ayah: 200 }, { mode: 'continuous', reciterId: 'abdulbasit' });
+    await flush();
+    const recitedPage = currentPage();
+    await turnPage(-1);
+    expect(currentPage()).toBe(recitedPage - 1);
+    // The recitation moves on into An-Nisaa while the reader is elsewhere, then is paused.
+    (await engine()).skip(1);
+    await flush();
+    await press(onlyHost('audio-toggle'));
+    expect((await engine()).getState()).toMatchObject({ phase: 'paused', position: { surah: 4, ayah: 1 } });
+    expect(currentPage()).toBe(recitedPage - 1); // never pulled there by itself
+    await press(onlyHost('audio-follow'));
+    await flush();
+    const { pageOfPosition } = await import('@/audio/quranSequence');
+    expect(currentPage()).toBe(pageOfPosition({ surah: 4, ayah: 1 }));
+    expect((await engine()).getState().phase).toBe('paused'); // locating never plays or reloads
+  });
+
+  it('Normal ⇄ Full Screen while paused: one chip, still paused, the same session; Play resumes in place in full screen', async () => {
+    await playing();
+    await press(onlyHost('audio-toggle'));
+    const before = (await engine()).getState();
+    const loads = audio.loads.length;
+    for (let i = 0; i < 3; i += 1) {
+      await press(onlyHost('mushaf-fullscreen-toggle'));
+      expect(hosts('audio-chip')).toHaveLength(1);
+      expect(hosts('audio-stop')).toHaveLength(1);
+      expect(hosts('mushaf-play-page')).toHaveLength(0);
+      expect((await engine()).getState()).toMatchObject({ phase: 'paused', session: before.session, position: before.position });
+    }
+    await press(onlyHost('audio-toggle'));
+    await flush();
+    expect((await engine()).getState()).toMatchObject({ phase: 'playing', session: before.session, position: before.position });
+    expect(audio.loads).toHaveLength(loads);
+  });
+
+  it('the chip follows the one engine across a remount of the reader (another tab and back): paused stays paused, with Play', async () => {
+    await playing();
+    await press(onlyHost('audio-toggle'));
+    const loads = audio.loads.length;
+    await act(async () => root.unmount());
+    await render();
+    expect(onlyHost('audio-toggle').props.accessibilityLabel).toBe(MESSAGES.en.audio.play);
+    expect(hosts('mushaf-play-page')).toHaveLength(0);
+    // A change made outside the reader (the lock screen, a headset) shows at once.
+    (await engine()).resume();
+    await flush();
+    expect(onlyHost('audio-toggle').props.accessibilityLabel).toBe(MESSAGES.en.audio.pause);
+    expect(audio.loads).toHaveLength(loads);
   });
 
   it('the headphones return (and the chip goes) after the end of the Quran and after an error that stops playback', async () => {
@@ -5597,9 +5765,11 @@ describe('Quran audio in the reader (audio/)', () => {
     // The row fits the narrowest iPhone window (320 − 16 margin − 24 padding = 280 pt): 40 + 44 + 48 + 44 + 40 + 4 × 12.
     const gap = flat(onlyHost('audio-previous').parent!.props.style).gap as number;
     expect(width('audio-previous-page') * 2 + width('audio-previous') * 2 + width('audio-toggle-large') + gap * 4).toBeLessThanOrEqual(280);
-    expect(hosts('audio-stop')).toHaveLength(0);
+    // The window itself has no X (a tap outside hides it); Stop is the chip's own X.
+    expect(panel.findAll((node) => node.props.testID === 'audio-stop')).toHaveLength(0);
     expect(panel.findAllByType('X' as never)).toHaveLength(0);
-    // Pausing inside the window keeps it open (the chip goes; the headphones are back behind it).
+    expect(onlyHost('audio-chip').findAll((node) => typeof node.type === 'string' && node.props.testID === 'audio-stop')).toHaveLength(1);
+    // Pausing inside the window keeps it open (the chip stays behind it, offering Play).
     await press(onlyHost('audio-toggle-large'));
     expect((await engine()).getState().phase).toBe('paused');
     expect(hosts('audio-panel')).toHaveLength(1);
@@ -5627,7 +5797,7 @@ describe('Quran audio in the reader (audio/)', () => {
     expect((await engine()).getState()).toMatchObject({ phase: 'playing', position: { surah: 3, ayah: 85 } });
     expect(audio.loads.at(-1)).toBe('seek@844000');
     expect(currentPage()).toBe(61);
-    expect(hosts('audio-follow')).toHaveLength(0);
+    expect(hosts('audio-follow-panel')).toHaveLength(0); // following again
     await press(onlyHost('audio-previous'));
     await flush();
     expect((await engine()).getState().position).toEqual({ surah: 3, ayah: 84 });
@@ -5674,7 +5844,7 @@ describe('Quran audio in the reader (audio/)', () => {
     await flush();
     expect((await engine()).getState().position).toEqual({ surah: 3, ayah: 78 }); // page 60 begins at 3:78
     expect(currentPage()).toBe(60);
-    expect(hosts('audio-follow')).toHaveLength(0);
+    expect(hosts('audio-follow-panel')).toHaveLength(0); // following again
   });
 
   it('Previous page is unavailable while page 1 is recited, Next page while page 604 is', async () => {

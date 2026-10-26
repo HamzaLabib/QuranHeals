@@ -23,8 +23,13 @@ export type MemorizationLabels = {
   cancel: string;
   /** The Memorization Mode Guide: one text per step (memorizationGuide.ts), its notes and last button. */
   guide: {
+    /** Step 1 with the setting ON (the default): the Eye is already offered; where to turn it off. */
     enable: string;
+    /** Step 1 for a reader who saved the setting OFF: where to turn it on. */
+    enableOff: string;
     findEye: string;
+    /** Step 2 for a reader who saved the setting OFF: the Eye appears once it is turned on (step 1). */
+    findEyeOff: string;
     hide: string;
     reveal: string;
     peek: string;
@@ -56,8 +61,10 @@ const EN: MemorizationLabels = {
   memorizationGuide: 'Memorization Mode Guide',
   cancel: 'Cancel',
   guide: {
-    enable: 'Turn on Memorization Mode in Settings → Quran → Memorization Mode.',
-    findEye: 'An Eye button then appears in the Mushaf\'s top bar.',
+    enable: 'Memorization Mode is ready to use: its Eye button is shown by default. You can turn it off in Settings → Quran → Memorization Mode.',
+    enableOff: 'Memorization Mode is turned off on this device. Turn it on in Settings → Quran → Memorization Mode to show its Eye button.',
+    findEye: 'The Eye button is in the Mushaf\'s top bar.',
+    findEyeOff: 'An Eye button then appears in the Mushaf\'s top bar.',
     hide: 'Tap the Eye to hide all ayah text on the page.',
     reveal: 'Tap an ayah\'s position to reveal it, then tap it again to hide it. You can reveal multiple ayahs at once.',
     peek: 'Press and hold an ayah to reveal it temporarily, until you lift your finger.',
@@ -85,8 +92,10 @@ const AR: MemorizationLabels = {
   memorizationGuide: 'دليل وضع الحفظ',
   cancel: 'إلغاء',
   guide: {
-    enable: 'فعّل وضع الحفظ من الإعدادات ← القرآن ← وضع الحفظ.',
-    findEye: 'يظهر بعد ذلك زر العين في الشريط العلوي للمصحف.',
+    enable: 'وضع الحفظ جاهز للاستخدام، وزر العين ظاهر تلقائيًا. ويمكنك إيقافه من الإعدادات ← القرآن ← وضع الحفظ.',
+    enableOff: 'وضع الحفظ متوقف على هذا الجهاز. فعّله من الإعدادات ← القرآن ← وضع الحفظ ليظهر زر العين.',
+    findEye: 'زر العين في الشريط العلوي للمصحف.',
+    findEyeOff: 'يظهر بعد ذلك زر العين في الشريط العلوي للمصحف.',
     hide: 'اضغط على العين لإخفاء نص جميع آيات الصفحة.',
     reveal: 'اضغط على موضع الآية لإظهارها، واضغط عليها مرة أخرى لإخفائها. يمكنك إظهار عدة آيات معًا.',
     peek: 'اضغط مطولًا على آية لتراها فقط حتى ترفع إصبعك.',
