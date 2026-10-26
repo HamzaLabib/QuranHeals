@@ -125,6 +125,47 @@ describe('the expo-audio output', () => {
     expect(activations).toBe(2);
   });
 
+  it('Android background (JavaScript timers paused): the player`s reports finish a load without any timer firing', async () => {
+    const fake = fakeExpoAudio();
+    const output = createExpoOutput(fake.load);
+    let done = false;
+    const loading = output.load('next-surah.mp3', 5000).then(() => void (done = true));
+    // Only microtasks run from here on: no timer is ever advanced.
+    await vi.advanceTimersByTimeAsync(0);
+    fake.emit({ playing: false, isLoaded: false, playbackState: 'buffering' });
+    await vi.advanceTimersByTimeAsync(0);
+    expect(done).toBe(false);
+    fake.player.isLoaded = true;
+    fake.emit({ playing: false, isLoaded: true, playbackState: 'ready' });
+    await loading;
+    expect(fake.calls).toEqual(['pause', 'replace next-surah.mp3', 'seek 5']);
+  });
+
+  it('a report that arrives before the new source was ever seen loading (the previous file`s) never finishes the load', async () => {
+    const fake = fakeExpoAudio();
+    const output = createExpoOutput(fake.load);
+    let done = false;
+    void output.load('b.mp3', 0).then(() => void (done = true));
+    await vi.advanceTimersByTimeAsync(0);
+    // The native replace has not taken effect yet: the player still says loaded (the previous source).
+    fake.player.isLoaded = true;
+    fake.emit({ playing: false, isLoaded: true });
+    await vi.advanceTimersByTimeAsync(0);
+    expect(done).toBe(false);
+    expect(fake.calls).not.toContain('seek 0');
+  });
+
+  it('a stop while a background load waits ends it at the next report (superseded, nothing plays)', async () => {
+    const fake = fakeExpoAudio();
+    const output = createExpoOutput(fake.load);
+    const loading = output.load('a.mp3', 5000).then(() => 'resolved', (error) => error);
+    await vi.advanceTimersByTimeAsync(0);
+    output.stop();
+    fake.emit({ playing: false, isLoaded: false });
+    expect(await loading).toBeInstanceOf(LoadSupersededError);
+    expect(fake.calls).not.toContain('seek 5');
+  });
+
   it('stop is safe any number of times: before the player exists, twice, and when the native replace throws', async () => {
     const fake = fakeExpoAudio({ replaceThrows: true });
     const output = createExpoOutput(fake.load);

@@ -75,6 +75,8 @@ export function createExpoOutput(load: () => Promise<ExpoAudio> = () => import('
       };
       // Android, patched binary only: the app was closed from Recents (the native player has paused and dropped its controls).
       // Its controls are gone natively, so the next play after the app is opened again shows them afresh.
+      // Android, patched binary only: another app's recording or call has the audio focus (the native player has paused).
+      if ((status as { quranHealsInterrupted?: boolean }).quranHealsInterrupted === true) out.interrupted = true;
       if ((status as { quranHealsTaskRemoved?: boolean }).quranHealsTaskRemoved === true) {
         out.closed = true;
         lockScreenActive = false;
@@ -114,20 +116,47 @@ export function createExpoOutput(load: () => Promise<ExpoAudio> = () => import('
       const started = Date.now();
       // Wait until the new source can play (polling: a status event of the previous source can still arrive first).
       // Replaced meanwhile (another ayah, a stop): stop waiting at once, and never report the newer source's state.
+      // Android pauses JavaScript timers while the app is in the background (React Native), which stalled a background
+      // recitation at every new file (the next surah, a per-ayah reciter's next ayah) until the app was opened again
+      // (2026-10-25). So the player's own status reports check too — but only once this wait has seen the new source not
+      // yet playable, so a late report of the previous source never counts as the new one being ready.
       await new Promise<void>((resolve, reject) => {
-        const check = () => {
-          if (mine !== generation) return reject(new LoadSupersededError());
+        let settled = false;
+        let sawNotReady = false;
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        const settle = (done: () => void) => {
+          settled = true;
+          clearTimeout(timer);
+          listeners.delete(onReport);
+          done();
+        };
+        /** True once settled (playable, failed, timed out or superseded). */
+        const evaluate = (fromReport: boolean): boolean => {
+          if (settled) return true;
+          if (mine !== generation) {
+            settle(() => reject(new LoadSupersededError()));
+            return true;
+          }
           const status = p.currentStatus;
           if (status?.error) {
             pendingUri = null;
-            reject(new Error(status.error));
-          } else if (p.isLoaded) {
+            settle(() => reject(new Error(status.error ?? 'error')));
+          } else if (p.isLoaded && (!fromReport || sawNotReady)) {
             pendingUri = null;
-            resolve();
-          } else if (Date.now() - started > LOAD_TIMEOUT_MS) reject(new Error('load timeout'));
-          else setTimeout(check, LOAD_POLL_MS);
+            settle(resolve);
+          } else if (Date.now() - started > LOAD_TIMEOUT_MS) settle(() => reject(new Error('load timeout')));
+          else {
+            if (!p.isLoaded) sawNotReady = true;
+            return false;
+          }
+          return true;
         };
-        setTimeout(check, LOAD_POLL_MS);
+        const tick = () => {
+          if (!evaluate(false)) timer = setTimeout(tick, LOAD_POLL_MS);
+        };
+        const onReport = () => void evaluate(true);
+        listeners.add(onReport);
+        timer = setTimeout(tick, LOAD_POLL_MS);
       });
       if (mine !== generation) throw new LoadSupersededError();
       if (startMs > 0) await seekWithin(p, startMs);
@@ -185,6 +214,10 @@ export function createExpoOutput(load: () => Promise<ExpoAudio> = () => import('
         return;
       }
       if (lockScreenActive) showLockScreen();
+    },
+    claim() {
+      // Android, patched binary only (QuranHealsAudioFocus.claim); elsewhere the function does not exist.
+      (player as { quranHealsClaimPlayback?: () => void } | null)?.quranHealsClaimPlayback?.();
     },
     preload(uri) {
       void ensure().then(async () => {

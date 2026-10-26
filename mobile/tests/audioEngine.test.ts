@@ -47,6 +47,7 @@ function setup(options: { timing?: (reciter: Reciter, surah: number) => TimingRe
     },
     setNowPlaying: (info) => calls.push(info ? `now ${info.title}` : 'now -'),
     preload: (uri) => calls.push(`preload ${uri}`),
+    claim: () => calls.push('claim'),
   };
   const timing: TimingLoader = {
     async load(reciter, surah) {
@@ -516,6 +517,117 @@ describe('the app owns its audio (Android: closed from Recents, a car, a stale n
     await t.at(startOf(1) + 100, { playing: true });
     expect(t.engine.getState().phase).toBe('playing');
     expect(t.calls.at(-1)).toBe('pause');
+  });
+});
+
+describe('another app records or calls (Android audio focus): paused, never resumed by itself', () => {
+  const interrupted: Partial<OutputStatus> = { playing: false, interrupted: true };
+
+  it('while reciting: paused at once; the ayah`s end and later reports never resume it', async () => {
+    const t = setup();
+    t.engine.start({ surah: 2, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    await t.at(startOf(1) + 100);
+    await t.at(startOf(1) + 200, interrupted);
+    expect(t.engine.getState().phase).toBe('paused');
+    const before = t.calls.length;
+    // The recording ends: the focus comes back natively, which reports nothing that plays.
+    await t.at(startOf(1) + 200, { playing: false });
+    await t.at(endOf(1), { playing: false });
+    expect(t.calls.slice(before)).not.toContain('play');
+    expect(t.engine.getState()).toMatchObject({ phase: 'paused', position: { surah: 2, ayah: 1 } });
+  });
+
+  it('while the first ayah loads: it never plays once loaded', async () => {
+    const t = setup();
+    t.engine.start({ surah: 2, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.at(0, { ...interrupted, loaded: false });
+    await t.settle();
+    expect(t.engine.getState().phase).toBe('paused');
+    expect(t.calls.filter((c) => c === 'play')).toEqual([]);
+  });
+
+  it('during the transition into the next surah (a new file loading): it never plays once loaded', async () => {
+    const t = setup();
+    t.engine.start({ surah: 1, ayah: 7 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    await t.at(startOf(7) + 100);
+    const plays = t.calls.filter((c) => c === 'play').length;
+    // The ayah ends (the next surah starts loading), and the recording starts in the same moment.
+    const ending = t.at(endOf(7));
+    await t.at(0, { ...interrupted, loaded: false });
+    await ending;
+    await t.settle();
+    expect(t.engine.getState()).toMatchObject({ phase: 'paused', position: { surah: 2, ayah: 1 } });
+    expect(t.calls.filter((c) => c === 'play')).toHaveLength(plays);
+    expect(t.calls.at(-1)).not.toBe('play');
+  });
+
+  it('Repeat Ayah: interrupted while the repeat seeks back, it stays paused', async () => {
+    const t = setup();
+    t.engine.setRepeat(2);
+    t.engine.start({ surah: 2, ayah: 5 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    await t.at(startOf(5) + 100);
+    const plays = t.calls.filter((c) => c === 'play').length;
+    const ending = t.at(endOf(5));
+    await t.at(endOf(5), interrupted);
+    await ending;
+    await t.settle();
+    expect(t.engine.getState().phase).toBe('paused');
+    expect(t.calls.filter((c) => c === 'play')).toHaveLength(plays);
+  });
+
+  it('the ayah screens` single ayah and Full Surah pause the same way', async () => {
+    for (const start of [
+      (t: ReturnType<typeof setup>) => t.engine.start({ surah: 94, ayah: 5 }, { mode: 'single', reciterId: 'maher' }),
+      (t: ReturnType<typeof setup>) => t.engine.startFullSurah(94, 'maher'),
+    ]) {
+      const t = setup();
+      start(t);
+      await t.settle();
+      await t.at(startOf(t.engine.getState().position!.ayah) + 100);
+      await t.at(startOf(t.engine.getState().position!.ayah) + 200, interrupted);
+      expect(t.engine.getState().phase).toBe('paused');
+    }
+  });
+
+  it('only the reader`s own requests claim playback back, always before playing; the engine never claims by itself', async () => {
+    const t = setup();
+    t.engine.start({ surah: 2, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    expect(t.calls[0]).toBe('claim');
+    await t.settle();
+    await t.at(startOf(1) + 100);
+    // Ayah after ayah, the engine never claims.
+    const claims = () => t.calls.filter((c) => c === 'claim').length;
+    await t.at(endOf(1));
+    await t.at(endOf(2));
+    expect(claims()).toBe(1);
+    await t.at(endOf(2) + 100, interrupted);
+    expect(t.engine.getState().phase).toBe('paused');
+    // The reader presses play.
+    t.engine.resume();
+    expect(t.calls.slice(-2)).toEqual(['claim', 'play']);
+    expect(t.engine.getState().phase).toBe('playing');
+    for (const press of [() => t.engine.skip(1), () => t.engine.skipPage(1), () => t.engine.retry()]) {
+      const before = claims();
+      press();
+      expect(claims()).toBe(before + 1);
+      await t.settle();
+    }
+  });
+
+  it('not playing (paused, ended, idle): an interruption changes nothing and plays nothing', async () => {
+    const t = setup();
+    await t.at(0, interrupted);
+    expect(t.engine.getState().phase).toBe('idle');
+    t.engine.start({ surah: 2, ayah: 1 }, { mode: 'continuous', reciterId: 'maher' });
+    await t.settle();
+    t.engine.pause();
+    const before = t.calls.length;
+    await t.at(startOf(1) + 100, interrupted);
+    expect(t.engine.getState().phase).toBe('paused');
+    expect(t.calls.slice(before)).not.toContain('play');
   });
 });
 

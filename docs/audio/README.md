@@ -97,7 +97,18 @@ involved.
   source, no controls and no play from anyone, so a load in flight, the next ayah, a car's
   auto-play or a headset button cannot bring audio back. Emulator-verified 2026-10-25;
   phone test: `android-ownership-device-test-2026-10-25.md`.
-  Headphones or a Bluetooth device disconnecting pause (as on iOS). The engine pauses any
+  Headphones or a Bluetooth device disconnecting pause (as on iOS).
+- **Android: another app's recording or call pauses the recitation, and nothing resumes it
+  by itself** (`QuranHealsAudioFocus`, same patch, 2026-10-25). The app holds long-form
+  audio focus while it plays or is paused. A focus loss (a voice note, a recorder, a call,
+  another player) pauses it and holds back every play the reader didn't ask for: the next
+  ayah, a load finishing, a retry. Only the reader's own play resumes it: the app's
+  buttons, the notification, the lock screen, a headset or a car. Navigation prompts duck
+  it instead. A start the reader asked for before another app began recording never takes
+  that recording's focus. A recorder that starts while it plays and requests no audio focus
+  is not acted on, and the recitation then continues. Background loads (the next surah, a per-ayah reciter's next
+  file) continue without the app being opened. Emulator-verified; phone test in
+  `android-ownership-device-test-2026-10-25.md`. The engine pauses any
   playback it did not ask for (a stale control while ended, failed or idle, or a load it
   holds paused). Android's media notification is required for background playback; it
   stays in step with the app (its play/pause is followed both ways). iOS is unchanged.

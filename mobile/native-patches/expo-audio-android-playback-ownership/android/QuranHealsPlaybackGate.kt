@@ -29,6 +29,7 @@ object QuranHealsPlaybackGate {
   fun register(player: AudioPlayer, context: Context) {
     players.removeAll { it.get() == null || it.get() === player }
     players.add(WeakReference(player))
+    QuranHealsAudioFocus.init(context)
     if (watchingActivities) return
     val application = context.applicationContext as? Application ?: return
     application.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
@@ -46,6 +47,9 @@ object QuranHealsPlaybackGate {
     watchingActivities = true
   }
 
+  /** Every player not yet released (QuranHealsAudioFocus pauses them all when another app takes the focus). */
+  fun livePlayers(): List<AudioPlayer> = players.mapNotNull { it.get() }
+
   /** A released player is never touched again. */
   fun unregister(player: AudioPlayer) {
     players.removeAll { it.get() == null || it.get() === player }
@@ -54,7 +58,7 @@ object QuranHealsPlaybackGate {
   /** The app was closed from Recents: closed, and every live player paused and emptied. Returns them. */
   fun close(): List<AudioPlayer> {
     closed = true
-    val live = players.mapNotNull { it.get() }
+    val live = livePlayers()
     for (player in live) {
       // One player failing never keeps the others (or the service's shutdown) from closing.
       try {
@@ -63,6 +67,8 @@ object QuranHealsPlaybackGate {
         android.util.Log.w("QuranHealsPlaybackGate", "closing a player failed", e)
       }
     }
+    // The app is gone: its audio focus too.
+    QuranHealsAudioFocus.abandon()
     return live
   }
 }

@@ -377,6 +377,22 @@ describe('per-ayah playback: controls', () => {
     expect(t.calls.at(-1)).not.toBe('play');
   });
 
+  it('another app records during the transition to the next ayah`s file: paused, and that file never plays', async () => {
+    const t = await playing({ surah: 2, ayah: 5 });
+    await t.status({ positionMs: 200 });
+    const plays = t.calls.filter((c) => c === 'play').length;
+    // The file ends (the next ayah's file starts loading) and the recording takes the audio focus in the same moment.
+    const ending = t.status({ positionMs: LENGTH, durationMs: LENGTH, finished: true, playing: false });
+    await t.status({ playing: false, interrupted: true });
+    await ending;
+    expect(t.loads().at(-1)).toBe('load Fixture_128kbps/002006.mp3 @0');
+    expect(t.engine.getState()).toMatchObject({ phase: 'paused', position: { surah: 2, ayah: 6 } });
+    expect(t.calls.filter((c) => c === 'play')).toHaveLength(plays);
+    // The reader presses play: the new file plays.
+    t.engine.resume();
+    expect(t.calls.at(-1)).toBe('play');
+  });
+
   it('stop unloads and ends the session', async () => {
     const t = await playing({ surah: 2, ayah: 5 });
     t.engine.stop();

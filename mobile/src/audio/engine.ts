@@ -20,6 +20,11 @@ export type OutputStatus = {
    * player has already paused: the engine stops, so nothing plays again until the reader starts it.
    */
   closed?: boolean;
+  /**
+   * Android (same patch): another app's recording or call took the audio focus, or a play was refused because of it.
+   * The player has paused: the engine pauses too (a load or the next ayah never plays), and nothing resumes by itself.
+   */
+  interrupted?: boolean;
 };
 
 /**
@@ -38,6 +43,11 @@ export type AudioOutput = {
   setNowPlaying(info: { title: string; artist: string } | null): void;
   /** Starts buffering a file that is likely next (best effort). */
   preload(uri: string): void;
+  /**
+   * The reader asked to play (a button, never the engine by itself): playback held back since another app's recording
+   * or call took the audio focus may start again. Android with the patched binary only; elsewhere absent or a no-op.
+   */
+  claim?(): void;
 };
 
 /**
@@ -668,6 +678,13 @@ export function createPlaybackEngine(deps: EngineDeps) {
       if (state.phase !== 'idle') api.stop();
       return;
     }
+    // Another app's recording or call took the audio focus (Android): paused as if the reader had paused, a load or a
+    // repeat in flight included, so nothing plays until the reader presses play (no resume when the focus comes back).
+    if (status.interrupted) {
+      if (state.phase === 'playing' || state.phase === 'loading') api.pause();
+      else wantPlaying = false;
+      return;
+    }
     // Playing although the app is not (ended, failed, stopped, or a load it holds paused): a stale notification or
     // lock-screen control, a headset or a car. Paused again: nothing plays that the app does not show.
     if (status.playing && now() - commandAt >= COMMAND_GRACE_MS && ((transitioning && !wantPlaying) || state.phase === 'ended' || state.phase === 'error' || state.phase === 'idle')) {
@@ -813,6 +830,9 @@ export function createPlaybackEngine(deps: EngineDeps) {
      * Favorite Reciter, chosen by the caller). Replaces whatever was playing.
      */
     start(from: AyahPosition, options: { mode: PlaybackMode; reciterId: string }): number | null {
+      // The reader's own request (as in resume, skip, skipPage, playWholeSurah, retry): playback held back by another
+      // app's recording or call may start again (output.claim). The engine's own next ayah, load or retry never claims.
+      output.claim?.();
       const reciter = reciterOrNull(options.reciterId);
       if (!reciter) return null;
       retries = 0;
@@ -875,6 +895,7 @@ export function createPlaybackEngine(deps: EngineDeps) {
     },
 
     resume() {
+      output.claim?.();
       if (state.phase === 'paused' && transitioning) {
         // Paused while loading: it plays once loaded (never started early, at the wrong place).
         wantPlaying = true;
@@ -918,6 +939,7 @@ export function createPlaybackEngine(deps: EngineDeps) {
      * doubled: a skip made while another is still loading wins.
      */
     skip(direction: 1 | -1) {
+      output.claim?.();
       const position = state.position;
       if (!position) return;
       // Whole-surah playback moves by surah (to the adjacent surah's start); ayah playback by ayah.
@@ -940,6 +962,7 @@ export function createPlaybackEngine(deps: EngineDeps) {
      * the page's start; nothing before page 1 or after page 604.
      */
     skipPage(direction: 1 | -1) {
+      output.claim?.();
       const position = state.position;
       // Whole-surah playback: the page being recited is unknown, so there is no page to move from.
       if (!position || state.granularity === 'surah') return;
@@ -970,6 +993,7 @@ export function createPlaybackEngine(deps: EngineDeps) {
         set({ sessionReciterId: reciter.id, notice: null, pendingReciterId: null });
         if (state.phase === 'error') {
           retries = 0;
+          output.claim?.();
           void go(reciter, position, true);
         } else set({ reciterId: reciter.id, preferredReciterId: reciter.id });
         return;
@@ -1011,6 +1035,7 @@ export function createPlaybackEngine(deps: EngineDeps) {
      * Listen's or the reciter choice's surah). Does nothing otherwise.
      */
     playWholeSurah() {
+      output.claim?.();
       const offer = state.error?.kind === 'surah-only' ? state.error : state.notice?.kind === 'reciter-surah-only' ? state.notice : null;
       const reciter = offer ? reciterOrNull(offer.reciterId) : null;
       if (!offer || !reciter || state.mode !== 'continuous') return;
@@ -1035,6 +1060,7 @@ export function createPlaybackEngine(deps: EngineDeps) {
 
     /** Try again after an error, from the start of the ayah it stopped on. */
     retry() {
+      output.claim?.();
       if (state.phase !== 'error' || !state.position || state.error?.kind === 'surah-only') return;
       const reciter = askedReciter();
       if (!reciter) return;
