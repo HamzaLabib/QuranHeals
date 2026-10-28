@@ -173,20 +173,37 @@ Email deletion requests are handled with `docs/account-deletion-requests.md`.
 
 | Limit | Scope | Applies to |
 |---|---|---|
-| 120 / minute | per IP | every request (unchanged) |
+| 300 / minute | per IP | every request (raised from 120 on 2026-10-28 for shared Wi-Fi: about 30 people opening the app in one minute, or 9 downloading the offline Mushaf) |
 | 10 / hour | per IP | `POST /api/issues` |
-| 30 / 15 min | per IP | `POST /api/auth/google`, `POST /api/auth/apple` (shared) |
+| 60 / 15 min | per IP | `POST /api/auth/google`, `POST /api/auth/apple` (shared; raised from 30 for a room of people signing in on one Wi-Fi) |
 | 120 / 15 min | per IP | `POST /api/auth/refresh`, `POST /api/auth/logout` (shared) |
 | 10 / hour | per account | `DELETE /api/account`, `POST /api/sync/reflections/reset` (shared; after authentication) |
+| 200 / 24 hours | **all senders together** (stored reports; `ISSUE_REPORTS_DAILY_CAP`, `0` = off) | `POST /api/issues`. Always on, and independent of client IPs, so it holds even before `TRUST_PROXY_HOPS` is verified and against many addresses at once. Sized so a year at the cap stays well inside M0's 512 MB. While it holds, legitimate reports are refused too; email is the fallback. |
+
+Only the first and last rows apply until `ENDPOINT_RATE_LIMITS=on`.
 
 The app signs a user out only on a `401` from refresh, never on a `429`. Tune the numbers in that file if real traffic shows false positives.
 
 ### Client IPs on Render (verify before enabling endpoint limits)
 
+**Which address the limits use** (`CLIENT_IP_SOURCE`):
+- `request` (default): `req.ip`, derived from `X-Forwarded-For` with `TRUST_PROXY_HOPS`, as described below.
+- `cf-connecting-ip`: Cloudflare's `CF-Connecting-IP`. Render documents that all traffic to a web service passes through Cloudflare, which writes this header on every request and overwrites any value the caller sent, and that Cloudflare *appends* to `X-Forwarded-For`, so its leftmost entry is caller-controlled (render.com/articles/host-pocketbase-on-render, 8 July 2026; render.com/articles/how-render-handles-ddos-attacks, 1 April 2026). It needs no hop count. **Switch to it only after the diagnostic on this service shows `cfAssessment=matches-client`** for two different networks and that a forged `CF-Connecting-IP: 192.0.2.2` does not survive. Rollback: unset `CLIENT_IP_SOURCE`.
+
+The diagnostic line now also shows `cf=` (kind + keyed hash), `cfAssessment=`, `clientIpSource=` and `rateLimitKey=`. Send both markers:
+
+```text
+curl -s https://quran-heals-api.onrender.com/api/health -H "X-Quran-Heals-IP-Check: 1" -H "X-Forwarded-For: 192.0.2.1" -H "CF-Connecting-IP: 192.0.2.2"
+```
+
+**Shared-bucket test without any deployment** (`phone-rate-limit-test.ps1` in the private audit folder): the PC empties its own bucket and keeps it empty for 90 s while a phone on mobile data opens `/api/health`. `Too many requests` on the phone means different people share one bucket.
+
 Per-IP limits use `req.ip`, which Express derives from `X-Forwarded-For` using `TRUST_PROXY_HOPS` (default `1`, the value the app has always used). It must equal the real number of proxies in front of the app:
 
 - **too low**: `req.ip` is a Render proxy address, so many users share one bucket (this already applies to the long-standing global limit);
 - **too high**: `req.ip` comes from the part of the header the client controls, so anyone can pick their own IP and evade limits.
+
+**Read-only check on 2026-10-28** (from one network, IPv4 only): 10 consecutive `GET /api/health` requests drew down one `RateLimit-Remaining` counter by exactly one each, including three with a forged `X-Forwarded-For`. So a forged header does not open a new bucket (the hop count is not too high). It cannot tell "your own address" from "one Render proxy address shared by everyone" (too low), which would also look stable at low traffic. That needs the procedure below, step 6 especially. If the count is too low, the **global** 120/minute limit is already shared by all users behind that proxy, which would surface as `429`s once real traffic arrives.
 
 Community reports suggest Render adds more than one hop and appends to (does not replace) a client-supplied `X-Forwarded-For`; this is not confirmed. **Endpoint limits are therefore off unless `ENDPOINT_RATE_LIMITS=on`** (the default is `off`, so deploying never enables them early). The global limit is unchanged.
 

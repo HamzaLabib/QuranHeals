@@ -17,9 +17,9 @@ const report = { category: 'other', comment: 'Something looks wrong.' };
 describe('production thresholds', () => {
   it('are pinned and sized for shared IPs rather than single devices', () => {
     expect(DEFAULT_RATE_LIMITS).toEqual({
-      global: { windowMs: 60_000, limit: 120 },
+      global: { windowMs: 60_000, limit: 300 },
       issueReports: { windowMs: 60 * 60_000, limit: 10 },
-      signIn: { windowMs: 15 * 60_000, limit: 30 },
+      signIn: { windowMs: 15 * 60_000, limit: 60 },
       sessionRefresh: { windowMs: 15 * 60_000, limit: 120 },
       accountReauth: { windowMs: 60 * 60_000, limit: 10 },
     });

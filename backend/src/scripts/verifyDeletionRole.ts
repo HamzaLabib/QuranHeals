@@ -27,9 +27,9 @@
  */
 import mongoose from 'mongoose';
 
-import { DELETION_COLLECTIONS } from '../admin/adminAccountDeletion';
+import { DELETION_COLLECTIONS, DELETION_PRIVILEGES } from '../admin/adminAccountDeletion';
 import { connectScriptDatabase, disconnectFromDatabase, getDatabaseTarget } from '../config/database';
-import { assessCredentialScope, credentialScopeProblems, deletionScopeProblems, isRecognizedPrivilege, type MongoPrivilege } from '../config/credentialScope';
+import { assessCredentialScope, credentialScopeProblems, exactScopeProblems, isRecognizedPrivilege, type MongoPrivilege } from '../config/credentialScope';
 import { DEVELOPMENT_DATABASE, type DatabaseTarget, type ScriptAccess } from '../config/databaseTarget';
 import { describeError } from '../monitoring/monitoring';
 import { MongooseAccountDeletionService } from '../services/MongooseAccountDeletionService';
@@ -48,6 +48,8 @@ const ACCOUNT_OWNERSHIP: readonly { collection: string; field: '_id' | 'userId' 
   { collection: 'userreflections', field: 'userId' },
   { collection: 'usersynckeys', field: 'userId' },
   { collection: 'applecredentials', field: 'userId' },
+  { collection: 'userreadingrecords', field: 'userId' },
+  { collection: 'userreadingsyncstates', field: 'userId' },
 ];
 
 export class VerificationRefused extends Error {}
@@ -76,7 +78,7 @@ export function verificationAccess(): ScriptAccess {
     productionSupported: false,
     enforceCredentialScope: true,
     strictCredentialScope: true,
-    deletionOnlyCollections: DELETION_COLLECTIONS,
+    exactPrivileges: DELETION_PRIVILEGES,
   };
 }
 
@@ -161,14 +163,14 @@ async function runSteps(
   const privileges = await probe.privileges();
   const problems = [
     ...credentialScopeProblems(target, assessCredentialScope(target, privileges)),
-    ...deletionScopeProblems(target, privileges, DELETION_COLLECTIONS),
+    ...exactScopeProblems(target, privileges, DELETION_PRIVILEGES),
   ];
   const summary = summarizePrivileges(target, privileges).join('; ') || 'no privileges reported on this database';
   if (problems.length > 0) {
     report('privileges', 'FAIL', `${problems.join('; ')}. Reported: ${summary}`);
     return finish(true);
   }
-  report('privileges', 'PASS', `find + remove on exactly the ${DELETION_COLLECTIONS.length} account collections; nothing else writes. Reported: ${summary}`);
+  report('privileges', 'PASS', `find + remove on exactly the ${DELETION_COLLECTIONS.length} account collections, find + insert on the deletion register; nothing else. Reported: ${summary}`);
 
   // 2. Counts (numbers only).
   const before = new Map<string, number>();
@@ -207,6 +209,7 @@ async function runSteps(
     ['insert users', () => probe.tryInsertRejectedDocument('users')],
     ['create index users', () => probe.tryCreateInvalidIndex('users')],
     [`remove ${FORBIDDEN_COLLECTION}`, () => probe.tryDelete(FORBIDDEN_COLLECTION, probe.newId())],
+    ['remove accountdeletions', () => probe.tryDelete('accountdeletions', probe.newId())],
   ];
   for (const [step, attempt] of forbidden) {
     const result = await attempt();

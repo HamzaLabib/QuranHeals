@@ -32,7 +32,7 @@ class UnusedQuranRepository implements QuranRepository {
 }
 
 export function buildAccountTestApp<R extends IssueReportRepository = InMemoryIssueReportRepository>(
-  overrides: { issueReportRepository?: R; onIssueReportSaved?: () => void; nonceRequired?: boolean; rateLimits?: Partial<Record<RateLimitName, RateLimitPolicy>>; network?: { trustProxyHops?: number; endpointRateLimits?: boolean; clientIpDiagnostics?: boolean } } = {},
+  overrides: { issueReportRepository?: R; onIssueReportSaved?: () => void; nonceRequired?: boolean; rateLimits?: Partial<Record<RateLimitName, RateLimitPolicy>>; network?: { trustProxyHops?: number; endpointRateLimits?: boolean; clientIpDiagnostics?: boolean; clientIpSource?: 'request' | 'cf-connecting-ip' } } = {},
 ) {
   const userRepository = new InMemoryUserRepository();
   const sessionRepository = new InMemorySessionRepository();

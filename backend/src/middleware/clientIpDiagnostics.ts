@@ -15,6 +15,12 @@ import { createHmac, randomBytes } from 'node:crypto';
  * connecting, i.e. the client, so the correct hop count is the number of
  * entries from just after the marker to the end of the chain — no one has
  * to know or compare the client's real IP.
+ *
+ * Cloudflare's CF-Connecting-IP is reported the same way (CLIENT_IP_SOURCE).
+ * To test that a caller cannot set it, also send `CF-Connecting-IP: 192.0.2.2`:
+ * `cf=doc:192.0.2.2` in the log means the forged value got through (never use
+ * that source); a `public#…` hash equal to the entry right after the marker
+ * means Cloudflare replaced it with the real client address.
  */
 
 export const DIAGNOSTIC_MARKER = '192.0.2.1';
@@ -59,10 +65,27 @@ export type ChainReport = {
   trustProxyHops: number;
   reqIp: string;
   assessment: ChainAssessment;
+  /** CF-Connecting-IP as kind + hash, or 'absent'. */
+  cf: string;
+  cfAssessment: CfAssessment;
+  clientIpSource: string;
+  /** The address the per-IP rate limits actually use, as kind + hash. */
+  rateLimitKey: string;
 };
 
+export type CfAssessment = 'matches-client' | 'absent' | 'caller-controlled (forged value passed through; do not use)' | 'differs-from-client' | 'unknown (no marker)';
+
 /** Pure: everything the log line shows, with real addresses replaced by kind + keyed hash. */
-export function describeForwardingChain(input: { forwardedFor: string; socket: string; reqIp: string; trustProxyHops: number; key: Buffer }): ChainReport {
+export function describeForwardingChain(input: {
+  forwardedFor: string;
+  cfConnectingIp?: string;
+  socket: string;
+  reqIp: string;
+  rateLimitKey?: string;
+  clientIpSource?: string;
+  trustProxyHops: number;
+  key: Buffer;
+}): ChainReport {
   const label = (raw: string) => {
     const { kind, address } = classifyAddress(raw);
     if (kind === 'documentation') return `doc:${address}`;
@@ -91,7 +114,19 @@ export function describeForwardingChain(input: { forwardedFor: string; socket: s
         ? 'too-low (req.ip is a proxy address; users would share buckets)'
         : 'too-high (req.ip comes from the client-supplied part; spoofable)';
   }
-  return { entries: entries.length, chain, socket: label(input.socket), markerIndex, suggestedTrustProxyHops, trustProxyHops: input.trustProxyHops, reqIp, assessment };
+  const cfRaw = input.cfConnectingIp?.trim() ?? '';
+  const cf = cfRaw ? label(cfRaw) : 'absent';
+  const cfAssessment: CfAssessment = !cfRaw
+    ? 'absent'
+    : classifyAddress(cfRaw).kind === 'documentation'
+      ? 'caller-controlled (forged value passed through; do not use)'
+      : markerIndex === -1 || markerIndex + 1 >= entries.length
+        ? 'unknown (no marker)'
+        : cf === chain[markerIndex + 1] ? 'matches-client' : 'differs-from-client';
+  return {
+    entries: entries.length, chain, socket: label(input.socket), markerIndex, suggestedTrustProxyHops, trustProxyHops: input.trustProxyHops, reqIp, assessment,
+    cf, cfAssessment, clientIpSource: input.clientIpSource ?? 'request', rateLimitKey: label(input.rateLimitKey ?? input.reqIp),
+  };
 }
 
 export function formatChainReport(report: ChainReport): string {
@@ -104,6 +139,10 @@ export function formatChainReport(report: ChainReport): string {
     `chain=[${report.chain.join(', ')}]`,
     `socket=${report.socket}`,
     `req.ip=${report.reqIp}`,
+    `cf=${report.cf}`,
+    `cfAssessment=${report.cfAssessment}`,
+    `clientIpSource=${report.clientIpSource}`,
+    `rateLimitKey=${report.rateLimitKey}`,
   ].join(' ');
 }
 

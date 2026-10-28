@@ -17,7 +17,7 @@ import type { DatabaseHealthCheck } from './controllers/healthController';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFoundHandler';
 import { createDiagnosticKey, describeForwardingChain, formatChainReport } from './middleware/clientIpDiagnostics';
-import { createRateLimiters, type RateLimitName, type RateLimitPolicy } from './middleware/rateLimits';
+import { clientAddress, createRateLimiters, type ClientIpSource, type RateLimitName, type RateLimitPolicy } from './middleware/rateLimits';
 import type { AccountRouterDeps } from './routes';
 import { createApiRouter } from './routes';
 import { MongooseAccountDeletionService } from './services/MongooseAccountDeletionService';
@@ -63,8 +63,8 @@ type AppOptions = {
   qpcV1Layout?: QpcV1LayoutService;
   /** Offline QPC V1 dataset relayed to the app; defaults to the store in MUSHAF_SYNC_DIR. `null`: not served. */
   mushafOfflineStore?: MushafSyncStore | null;
-  /** Tests only: override TRUST_PROXY_HOPS / ENDPOINT_RATE_LIMITS / CLIENT_IP_DIAGNOSTICS. */
-  network?: { trustProxyHops?: number; endpointRateLimits?: boolean; clientIpDiagnostics?: boolean };
+  /** Tests only: override TRUST_PROXY_HOPS / ENDPOINT_RATE_LIMITS / CLIENT_IP_DIAGNOSTICS / CLIENT_IP_SOURCE. */
+  network?: { trustProxyHops?: number; endpointRateLimits?: boolean; clientIpDiagnostics?: boolean; clientIpSource?: ClientIpSource };
 };
 
 function getCorsOrigin() {
@@ -78,6 +78,7 @@ function getCorsOrigin() {
 export function createApp(options: AppOptions = {}) {
   const app = express();
   const trustProxyHops = options.network?.trustProxyHops ?? env.TRUST_PROXY_HOPS;
+  const clientIpSource = options.network?.clientIpSource ?? env.CLIENT_IP_SOURCE;
   app.set('trust proxy', trustProxyHops);
   const repository = options.repository ?? new MongooseQuranRepository();
   const accountDeps: AccountRouterDeps = {
@@ -118,8 +119,11 @@ export function createApp(options: AppOptions = {}) {
       if (req.get('x-quran-heals-ip-check') === '1') {
         console.log(formatChainReport(describeForwardingChain({
           forwardedFor: req.get('x-forwarded-for') ?? '',
+          cfConnectingIp: req.get('cf-connecting-ip'),
           socket: req.socket.remoteAddress ?? '',
           reqIp: req.ip ?? '',
+          rateLimitKey: clientAddress(req, clientIpSource),
+          clientIpSource,
           trustProxyHops,
           key: diagnosticKey,
         })));
@@ -128,7 +132,7 @@ export function createApp(options: AppOptions = {}) {
     });
   }
 
-  const rateLimiters = createRateLimiters(options.rateLimits);
+  const rateLimiters = createRateLimiters(options.rateLimits, { clientIpSource });
   app.use(rateLimiters.global);
   const endpointLimits = options.network?.endpointRateLimits ?? env.ENDPOINT_RATE_LIMITS === 'on';
   const passThrough: RequestHandler = (_req, _res, next) => next();

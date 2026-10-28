@@ -2,6 +2,7 @@ import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 
 import { createApp } from '../../src/app';
+import { deployedRevision } from '../../src/controllers/healthController';
 import type { QuranRepository } from '../../src/services/QuranRepository';
 
 const unusedRepository = {} as QuranRepository;
@@ -27,7 +28,13 @@ describe('GET /api/health', () => {
 
   it('exposes only status words — no database name, host or URI', async () => {
     const response = await request(appWith(async () => true)).get('/api/health');
-    expect(Object.keys(response.body.data).sort()).toEqual(['database', 'environment', 'status', 'uptimeSeconds']);
+    expect(Object.keys(response.body.data).sort()).toEqual(['database', 'environment', 'revision', 'status', 'uptimeSeconds']);
+  });
+
+  it('reports the deployed commit Render provides (RENDER_GIT_COMMIT), and nothing else in its place', () => {
+    expect(deployedRevision({ RENDER_GIT_COMMIT: '1CF8442ABCDEF0123456789abcdef0123456789a' })).toBe('1cf8442abcde');
+    expect(deployedRevision({})).toBe('unknown');
+    expect(deployedRevision({ RENDER_GIT_COMMIT: 'mongodb+srv://u:secret@host' })).toBe('unknown');
   });
 
   it('defaults to a real ping, which reports unavailable when no connection is open', async () => {

@@ -155,6 +155,16 @@ function ThemedRoot() {
   }, [startupReady]);
 
   useEffect(() => {
+    // iOS: downloaded recitations and the offline Mushaf (including downloads made before this existed) are kept out
+    // of iCloud backups (services/backupExclusion.ts). A no-op on Android, the web and binaries without the module.
+    if (!startupReady) return;
+    const timer = setTimeout(() => {
+      void import('@/services/backupExclusion').then(({ excludeDownloadDirectoriesFromBackup }) => excludeDownloadDirectoriesFromBackup()).catch(() => undefined);
+    }, MUSHAF_AUTO_START_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [startupReady]);
+
+  useEffect(() => {
     // Developer tool: the sync-password work-factor benchmark (crypto/kdfBenchmark.ts), development builds with
     // EXPO_PUBLIC_KDF_BENCHMARK=1 only. Written as `if (__DEV__ && …) { import() }` so Metro folds it away and a release
     // bundle does not even contain the module.

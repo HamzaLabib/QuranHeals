@@ -13,6 +13,8 @@ import {
   REVIEWED_CONNECTIONS_PATH,
   type StoredMapping,
 } from '../../src/connections/reviewedConnections';
+import { getVerifiedArabicByVerseKey } from '../../src/quran/quranSource';
+import { isValidVerseKey } from '../../src/quran/referenceKeys';
 import { selectMappingConnection } from '../../src/services/MongooseQuranRepository';
 
 const SAD_VERSE_KEYS = [
@@ -173,6 +175,67 @@ describe('the committed reviewed-connections.json', () => {
       const connection = sadByVerse.get('20:40')!;
       expect(selectMappingConnection([{ emotionKey: 'sad', status: 'approved', connection }], 'hopeless')).toBeUndefined();
       expect(selectMappingConnection([{ emotionKey: 'hopeless', status: 'approved' }], 'hopeless')).toBeUndefined();
+    });
+  });
+
+  describe('Arabic «…» quotations are verbatim Quran (release audit B8, 2026-10-28)', () => {
+    // Consonant skeleton: drops harakat, Quranic marks, tatweel, long-vowel and
+    // hamza carriers, and doubled letters (shadda vs. Uthmani single-lam
+    // spellings such as ٱلَّيْل), so plain modern spelling compares with Tanzil
+    // Uthmani while a missing or added word still fails.
+    const skeleton = (text: string) =>
+      text
+        .normalize('NFC')
+        .replace(/[ؐ-ًؚ-ٰٟۖ-ۭـ]/g, '')
+        .replace(/[^ء-ي]/g, '')
+        .replace(/[اأإآٱىءؤئويه]/g, '')
+        .replace(/(.)\1+/g, '$1');
+
+    // Quoted phrases that are deliberately not the ayah's words, each checked by hand.
+    const NON_QURAN_QUOTES: Record<string, string> = {
+      'afraid|9:51|ماذا لو': 'the reader’s own “what if”',
+      'anxious|9:51|ماذا لو؟': 'the reader’s own “what if”',
+      'closer_to_allah|2:186|فقل لهم إني قريب': 'contrast: what the ayah does not say',
+      'guilty|4:110|قد يجد': 'contrast: what the ayah does not say',
+      'lost|17:9|إلى أين أمضي؟': 'the reader’s own question',
+      'content|28:13|قرة العين': 'descriptive phrase from «تقر عينها»; flagged for the content reviewer',
+    };
+
+    const neighbours = (verseKey: string) => {
+      const [surah, ayah] = verseKey.split(':').map(Number);
+      return [ayah - 2, ayah - 1, ayah, ayah + 1, ayah + 2]
+        .map((n) => `${surah}:${n}`)
+        .filter((key) => isValidVerseKey(key));
+    };
+
+    it('every quoted span is a contiguous part of its ayah or an adjacent one (context such as 26:61 for 26:62)', () => {
+      const failures: string[] = [];
+      let checked = 0;
+      for (const entry of entries) {
+        for (const [, span] of entry.connection.ar?.matchAll(/«([^»]+)»/g) ?? []) {
+          const id = `${entry.emotionKey}|${entry.verseKey}|${span}`;
+          if (id in NON_QURAN_QUOTES) continue;
+          checked += 1;
+          const quoted = skeleton(span);
+          if (!neighbours(entry.verseKey).some((key) => skeleton(getVerifiedArabicByVerseKey(key)).includes(quoted))) failures.push(id);
+        }
+      }
+      expect(checked).toBeGreaterThan(850);
+      expect(failures).toEqual([]);
+    });
+
+    it('quotes 16:127 (stressed) and 11:112 (faith_shaken) without dropping words', () => {
+      const text = (emotionKey: string, verseKey: string) =>
+        entries.find((entry) => entry.emotionKey === emotionKey && entry.verseKey === verseKey)!.connection;
+      expect(text('stressed', '16:127').ar).toContain('«واصبر وما صبرك إلا بالله ولا تحزن عليهم ولا تك في ضيق مما يمكرون»');
+      expect(text('stressed', '16:127').en).toContain('Do not grieve over them');
+      expect(text('faith_shaken', '11:112').ar).toContain('«فاستقم كما أمرت ومن تاب معك ولا تطغوا»');
+    });
+
+    it('the check itself rejects a quotation with a word dropped from the middle', () => {
+      const ayah = skeleton(getVerifiedArabicByVerseKey('16:127'));
+      expect(ayah.includes(skeleton('واصبر وما صبرك إلا بالله ولا تك في ضيق مما يمكرون'))).toBe(false);
+      expect(ayah.includes(skeleton('ولا تحزن عليهم ولا تك في ضيق مما يمكرون'))).toBe(true);
     });
   });
 });

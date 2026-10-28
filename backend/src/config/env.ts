@@ -35,6 +35,10 @@ const envSchema = z
     // never enables them before TRUST_PROXY_HOPS has been verified; the
     // global per-IP limit always applies regardless.
     ENDPOINT_RATE_LIMITS: z.preprocess((value) => (value === '' ? undefined : value), z.enum(['on', 'off']).default('off')),
+    // Where per-IP limits read the client's address (middleware/rateLimits.ts clientAddress): 'request' = req.ip
+    // via TRUST_PROXY_HOPS (the long-standing behaviour), or 'cf-connecting-ip' = Cloudflare's header, which Render
+    // documents as set on every request and not caller-controlled. Switch only after the diagnostic confirms it.
+    CLIENT_IP_SOURCE: z.preprocess((value) => (value === '' ? undefined : value), z.enum(['request', 'cf-connecting-ip']).default('request')),
     // 'on' refuses sign-in tokens not bound to a single-use server challenge (auth/signInChallenge.ts). Off by default
     // until every supported app build binds both providers and the native flows are verified on devices; while off,
     // tokens that ARE bound to a challenge are still single-use.
@@ -102,6 +106,10 @@ const envSchema = z
     // sending; `resend` sends through Resend. RESEND_API_KEY is a server-only
     // secret, never logged or sent to any client.
     ISSUE_REPORT_EMAIL: z.preprocess((value) => (value === '' ? undefined : value), z.enum(['off', 'log', 'resend']).default('off')),
+    // Backstop on stored issue reports from everyone together, whatever their IP (release audit B13): once this many
+    // arrived in the last 24 hours, new ones get 429 until older ones age out of the window. Sized far above normal use
+    // (a few a day) and so that a year at the cap of 2,000-character reports stays well inside M0's 512 MB. 0 = off.
+    ISSUE_REPORTS_DAILY_CAP: z.preprocess((value) => (value === '' ? undefined : value), z.coerce.number().int().min(0).max(100_000).default(200)),
     RESEND_API_KEY: z.string().optional(),
     ISSUE_REPORT_EMAIL_FROM: z.string().optional(),
     ISSUE_REPORT_EMAIL_TO: z.string().optional(),

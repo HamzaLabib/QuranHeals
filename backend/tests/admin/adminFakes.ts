@@ -13,11 +13,12 @@ export const BOB_ID = 'cccccccccccccccccccccccc';
 export const ALICE_EMAIL = 'Alice.Synthetic@example.invalid';
 export const RELAY_EMAIL = 'x7k2abc9qz@privaterelay.appleid.com';
 
-type Records = Omit<RecordCounts, 'User' | 'tombstones'> & { favoriteTombstones: number; reflectionTombstones: number };
+type Records = Omit<RecordCounts, 'User' | 'tombstones'> & { favoriteTombstones: number; reflectionTombstones: number; readingTombstones: number };
 
 const fullRecords = (): Records => ({
   Session: 2, UserFavorite: 3, UserPreference: 1, UserReflection: 4, UserSyncKey: 1, AppleCredential: 0,
-  favoriteTombstones: 1, reflectionTombstones: 1,
+  UserReadingRecord: 2, UserReadingSyncState: 1,
+  favoriteTombstones: 1, reflectionTombstones: 1, readingTombstones: 1,
 });
 
 /** Synthetic accounts only. Mirrors MongooseAdminAccountStore's contract in memory. */
@@ -50,7 +51,9 @@ export class InMemoryAdminStore implements AdminAccountStore {
       UserReflection: r?.UserReflection ?? 0,
       UserSyncKey: r?.UserSyncKey ?? 0,
       AppleCredential: r?.AppleCredential ?? 0,
-      tombstones: { UserFavorite: r?.favoriteTombstones ?? 0, UserReflection: r?.reflectionTombstones ?? 0 },
+      UserReadingRecord: r?.UserReadingRecord ?? 0,
+      UserReadingSyncState: r?.UserReadingSyncState ?? 0,
+      tombstones: { UserFavorite: r?.favoriteTombstones ?? 0, UserReflection: r?.reflectionTombstones ?? 0, UserReadingRecord: r?.readingTombstones ?? 0 },
     };
   }
 

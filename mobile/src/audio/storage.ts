@@ -147,6 +147,8 @@ export const audioFiles: AudioFiles = {
     const m = await fs();
     const p = paths(m);
     ensureDir(p.reciterDir(reciterId));
+    // iOS: <documents>/quran-audio stays out of iCloud backups (once per launch; also done at startup).
+    void import('@/services/backupExclusion').then(({ excludeDownloadDirectoriesFromBackup }) => excludeDownloadDirectoriesFromBackup()).catch(() => undefined);
     const part = p.partFile(reciterId, surah);
     if (part.exists) part.delete();
     const task = m.File.createDownloadTask(url, part, { onProgress: ({ bytesWritten }) => onProgress(bytesWritten) });

@@ -1,11 +1,13 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
+import mongoose from 'mongoose';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import {
   AdminDeletionError,
   DELETION_COLLECTIONS,
+  DELETION_PRIVILEGES,
   EXIT,
   applyDeletion,
   countIssueReportsForCase,
@@ -26,6 +28,8 @@ import { SessionModel } from '../../src/models/Session';
 import { UserModel } from '../../src/models/User';
 import { UserFavoriteModel } from '../../src/models/UserFavorite';
 import { UserPreferenceModel } from '../../src/models/UserPreference';
+import { UserReadingRecordModel } from '../../src/models/UserReadingRecord';
+import { UserReadingSyncStateModel } from '../../src/models/UserReadingSyncState';
 import { UserReflectionModel } from '../../src/models/UserReflection';
 import { UserSyncKeyModel } from '../../src/models/UserSyncKey';
 import { InMemoryAppleCredentialRepository, StubAppleRevocationClient } from '../account/fakes';
@@ -102,8 +106,25 @@ describe('admin files', () => {
   });
 
   it('the deletion-only collection list matches the real model collections exactly', () => {
-    const models = [UserModel, SessionModel, UserFavoriteModel, UserPreferenceModel, UserReflectionModel, UserSyncKeyModel, AppleCredentialModel, IssueReportModel];
+    const models = [
+      UserModel, SessionModel, UserFavoriteModel, UserPreferenceModel, UserReflectionModel, UserSyncKeyModel, AppleCredentialModel,
+      UserReadingRecordModel, UserReadingSyncStateModel, IssueReportModel,
+    ];
     expect([...DELETION_COLLECTIONS].sort()).toEqual(models.map((m) => m.collection.collectionName).sort());
+  });
+
+  it('every model that stores a userId is in the deletion-only list (a new account collection cannot be left out)', async () => {
+    const modelsDir = resolve(__dirname, '../../src/models');
+    for (const file of readdirSync(modelsDir).filter((name) => name.endsWith('.ts'))) await import(join(modelsDir, file));
+    const owned = mongoose.modelNames()
+      .map((name) => mongoose.model(name))
+      .filter((model) => model.schema.path('userId'))
+      .map((model) => model.collection.collectionName);
+    expect(owned).toEqual(expect.arrayContaining(['userreadingrecords', 'userreadingsyncstates', 'usersynckeys']));
+    // The deletion register keeps the account id on purpose (it records that the account was deleted).
+    for (const collection of owned.filter((name) => name !== 'accountdeletions')) expect(DELETION_COLLECTIONS, collection).toContain(collection);
+    expect(DELETION_PRIVILEGES.accountdeletions).toEqual(['find', 'insert']);
+    for (const collection of DELETION_COLLECTIONS) expect(DELETION_PRIVILEGES[collection]).toEqual(['find', 'remove']);
   });
 });
 
@@ -264,7 +285,7 @@ describe('apply: deletion', () => {
     const report = await applyDeletion(deps(), { caseId: 'DEL-20261008-01', acknowledgeNoAppleToken: false }, operatorConfirms);
     expect(report).toEqual({
       result: 'deleted', caseId: 'DEL-20261008-01', userId: ALICE_ID, provider: 'google', appleRevocation: 'not-applicable',
-      deleted: { User: 1, Session: 2, UserFavorite: 3, UserPreference: 1, UserReflection: 4, UserSyncKey: 1, AppleCredential: 0 },
+      deleted: { User: 1, Session: 2, UserFavorite: 3, UserPreference: 1, UserReflection: 4, UserSyncKey: 1, AppleCredential: 0, UserReadingRecord: 2, UserReadingSyncState: 1 },
     });
     expect(store.accounts.has(ALICE_ID)).toBe(false);
     expect(cases.get('DEL-20261008-01')!.status).toBe('completed');

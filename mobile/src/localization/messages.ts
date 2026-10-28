@@ -185,6 +185,8 @@ export type Messages = {
     stopNameTaken: string;
     offlineTitle: string;
     offlineIntro: string;
+    /** Beside the download and its progress: one download, then offline — without promising it survives removal or a reinstall. */
+    offlineOneTimeNote: string;
     offlineDownload: string;
     offlineResume: string;
     offlineCancel: string;
@@ -1294,6 +1296,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       stopNameTaken: 'Another Reciting already uses this name.',
       offlineTitle: "Offline Mushaf",
       offlineIntro: "All 604 pages and their fonts (about 100 MB), to read without an internet connection.",
+      offlineOneTimeNote: "This is a one-time download: once it finishes, the Mushaf opens without an internet connection. If the download is removed, the app's data is cleared or the app is reinstalled, it will need to be downloaded again.",
       offlineDownload: "Download for offline reading",
       offlineResume: "Continue download",
       offlineCancel: "Cancel",
@@ -1947,6 +1950,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       stopNameTaken: 'هذا الاسم مستخدم لموضع توقف آخر.',
       offlineTitle: "المصحف دون اتصال",
       offlineIntro: "صفحات المصحف الـ٦٠٤ كلها وخطوطها (حوالي ١٠٠ ميغابايت)، للقراءة دون اتصال بالإنترنت.",
+      offlineOneTimeNote: "هذا تنزيل لمرة واحدة: بعد اكتماله يُفتح المصحف دون اتصال بالإنترنت. وإذا حُذف التنزيل أو مُسحت بيانات التطبيق أو أُعيد تثبيته، فسيلزم تنزيله من جديد.",
       offlineDownload: "التنزيل للقراءة دون اتصال",
       offlineResume: "متابعة التنزيل",
       offlineCancel: "إلغاء",
@@ -2614,6 +2618,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       stopNameTaken: 'الاسم ده مستخدم لمكان وقوف تاني.',
       offlineTitle: "المصحف من غير نت",
       offlineIntro: "صفحات المصحف الـ٦٠٤ كلها وخطوطها (حوالي ١٠٠ ميجا)، عشان تقرا من غير نت.",
+      offlineOneTimeNote: "ده تنزيل مرة واحدة: بعد ما يخلص، المصحف هيفتح من غير نت. لو اتمسح التنزيل أو بيانات التطبيق، أو اتنزّل التطبيق من جديد، هتحتاج تنزّله تاني.",
       offlineDownload: "نزّله للقراية من غير نت",
       offlineResume: "كمّل التنزيل",
       offlineCancel: "إلغاء",

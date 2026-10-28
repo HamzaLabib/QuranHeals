@@ -21,13 +21,13 @@
  * arguments (so they never reach PowerShell history or npm's echoed command
  * line). Prompts and the one-time code go to the terminal (stderr); the JSON
  * report on stdout never contains an email, code, token or connection
- * string. Production is disabled in code (PRODUCTION_EMAIL_DELETION_ENABLED).
+ * string. Production is gated in code by PRODUCTION_EMAIL_DELETION_ENABLED (on since 2026-10-28).
  */
 import { HttpAppleRevocationClient } from '../auth/appleRevocationClient';
 import { generateAppleClientSecret } from '../auth/appleClientSecret';
 import {
   AdminDeletionError,
-  DELETION_COLLECTIONS,
+  DELETION_PRIVILEGES,
   EXIT,
   applyDeletion,
   countIssueReportsForCase,
@@ -38,6 +38,7 @@ import {
   planDeletion,
   restoreCheck,
   startChallenge,
+  totalRecords,
   type ConfirmationPlan,
   type LookupMatch,
 } from '../admin/adminAccountDeletion';
@@ -56,13 +57,12 @@ import { MongooseAppleCredentialRepository } from '../services/MongooseAppleCred
 export const SCRIPT_NAME = 'account:admin-delete';
 
 /**
- * Production email deletion stays OFF until a separately reviewed change
- * flips this. Every production check below (env profile, read-only and
- * deletion-only credential scope, the production-write confirmation) is
- * implemented and tested with this injected as true, but nothing can reach
- * quranheals_prod while it is false.
+ * Production email deletion: enabled on 2026-10-28 with the owner's approval. Production still needs, every run:
+ * the production-read / production-delete env profile (never backend/.env), a credential whose role is exactly the
+ * read-only or DELETION_PRIVILEGES role, the production-write confirmation variable for --apply, a verified case,
+ * and the operator's typed confirmation. Set to false to switch production off again.
  */
-export const PRODUCTION_EMAIL_DELETION_ENABLED = false;
+export const PRODUCTION_EMAIL_DELETION_ENABLED = true;
 
 export const COMMANDS = ['lookup', 'challenge', 'verify', 'delete', 'issue-reports', 'prune', 'audit-prune', 'hold', 'release', 'holds', 'restore-check'] as const;
 export type Command = (typeof COMMANDS)[number];
@@ -156,7 +156,7 @@ export function needsTerminal(parsed: ParsedArgs): boolean {
 /**
  * The shared script guard's view of this run: production only when enabled
  * in code; every credential-scope problem is fatal; a writing run must use
- * the deletion-only user (find/remove on DELETION_COLLECTIONS only).
+ * the deletion user (exactly DELETION_PRIVILEGES: find/remove on the account collections, find/insert on the register).
  */
 export function scriptAccess(parsed: ParsedArgs, productionEnabled = PRODUCTION_EMAIL_DELETION_ENABLED, profile?: AdminProfile): ScriptAccess {
   const writes = writesDatabase(parsed);
@@ -167,7 +167,7 @@ export function scriptAccess(parsed: ParsedArgs, productionEnabled = PRODUCTION_
     enforceCredentialScope: true,
     // Explicit profiles (development rehearsal and production) get the strict, fail-closed checks.
     ...(isStrictDevelopmentProfile(profile) || profile === 'production-read' || profile === 'production-delete' ? { strictCredentialScope: true } : {}),
-    ...(writes ? { deletionOnlyCollections: DELETION_COLLECTIONS } : {}),
+    ...(writes ? { exactPrivileges: DELETION_PRIVILEGES } : {}),
   };
 }
 
@@ -305,6 +305,7 @@ export function describePlan(plan: ConfirmationPlan): string {
     `  users ${r.User}, sessions ${r.Session} (signs out every device)`,
     `  userfavorites ${r.UserFavorite} (incl. ${r.tombstones.UserFavorite} removal markers), userpreferences ${r.UserPreference}`,
     `  userreflections ${r.UserReflection} (incl. ${r.tombstones.UserReflection} deletion markers), usersynckeys ${r.UserSyncKey}, applecredentials ${r.AppleCredential}`,
+    `  userreadingrecords ${r.UserReadingRecord} (أورادي وختماتي, incl. ${r.tombstones.UserReadingRecord} deletion markers), userreadingsyncstates ${r.UserReadingSyncState}`,
     `Apple:      ${describeAppleHandling(plan)}`,
     'Issue reports are not touched (use issue-reports if the owner asked).',
     '',
@@ -314,7 +315,7 @@ export function describePlan(plan: ConfirmationPlan): string {
 function formatMatches(matches: LookupMatch[]): string {
   return matches
     .map((m, i) => {
-      const total = m.records.User + m.records.Session + m.records.UserFavorite + m.records.UserPreference + m.records.UserReflection + m.records.UserSyncKey + m.records.AppleCredential;
+      const total = totalRecords(m.records);
       return `  ${i + 1}. ${m.provider} account ${m.userId} (reference ${m.accountRef}), created ${m.createdAt ?? 'unknown'}, ${total} records, email verification: ${m.emailVerification}`;
     })
     .join('\n');

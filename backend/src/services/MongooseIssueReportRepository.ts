@@ -46,4 +46,9 @@ export class MongooseIssueReportRepository implements IssueReportRepository {
     });
     return { id: String(doc._id) };
   }
+
+  async countSince(since: Date): Promise<number> {
+    // Uses the { createdAt: -1 } index.
+    return IssueReportModel.countDocuments({ createdAt: { $gte: since } });
+  }
 }

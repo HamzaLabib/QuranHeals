@@ -1,3 +1,5 @@
+import type { ExactPrivileges } from '../config/credentialScope';
+import { ACCOUNT_DELETION_REGISTER_COLLECTION } from '../models/AccountDeletion';
 import type { AppleCredentialRepository } from '../services/AppleCredentialRepository';
 import type { AppleRevocationClient } from '../auth/appleRevocationClient';
 import type { AccountDeletionService } from '../services/AccountDeletionService';
@@ -38,7 +40,10 @@ export type RecordCounts = {
   UserReflection: number;
   UserSyncKey: number;
   AppleCredential: number;
-  tombstones: { UserFavorite: number; UserReflection: number };
+  /** أورادي وختماتي: each ورد and Khatma, including deletion markers. */
+  UserReadingRecord: number;
+  UserReadingSyncState: number;
+  tombstones: { UserFavorite: number; UserReflection: number; UserReadingRecord: number };
 };
 
 /**
@@ -54,8 +59,20 @@ export const DELETION_COLLECTIONS = [
   'userreflections',
   'usersynckeys',
   'applecredentials',
+  'userreadingrecords',
+  'userreadingsyncstates',
   'issuereports',
 ] as const;
+
+/**
+ * The deletion user's complete role, checked exactly (nothing more, nothing less) before any write: find + remove on
+ * the account collections, and find + insert on the deletion register, which every deletion appends to in its
+ * transaction (models/AccountDeletion.ts). It can never remove or change a register entry; the TTL index does that.
+ */
+export const DELETION_PRIVILEGES: ExactPrivileges = {
+  ...Object.fromEntries(DELETION_COLLECTIONS.map((collection) => [collection, ['find', 'remove']])),
+  [ACCOUNT_DELETION_REGISTER_COLLECTION]: ['find', 'insert'],
+};
 
 export interface AdminAccountStore {
   findAccountsByEmail(email: string, provider?: AuthProvider): Promise<AdminAccount[]>;
@@ -80,7 +97,10 @@ export function parseProvider(value: string | undefined): AuthProvider {
 }
 
 export function totalRecords(counts: RecordCounts): number {
-  return counts.User + counts.Session + counts.UserFavorite + counts.UserPreference + counts.UserReflection + counts.UserSyncKey + counts.AppleCredential;
+  return (
+    counts.User + counts.Session + counts.UserFavorite + counts.UserPreference + counts.UserReflection + counts.UserSyncKey + counts.AppleCredential
+    + counts.UserReadingRecord + counts.UserReadingSyncState
+  );
 }
 
 /** Counts only — never contents. */

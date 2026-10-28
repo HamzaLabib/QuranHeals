@@ -114,6 +114,8 @@ export function OfflineMushafPanel() {
         </>
       )}
       {notice && <Text accessibilityLiveRegion="polite" style={[styles.status, direction, notice.tone === 'error' && styles.statusError]}>{notice.text}</Text>}
+      {/* Until the copy is complete: before the download and beside its progress. */}
+      {!complete && <Text testID="offline-mushaf-one-time-note" style={[styles.muted, direction]}>{copy.offlineOneTimeNote}</Text>}
     </View>
   );
 }

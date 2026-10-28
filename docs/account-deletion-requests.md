@@ -4,7 +4,7 @@ People who can still open the app should delete their account there: Settings �
 
 This runbook covers requests sent to **quranheals.support@gmail.com** by people who can't use the app. It uses `npm run account:admin-delete` (`backend/src/scripts/adminDeleteAccount.ts`) on the owner's Windows computer. Retention of everything this produces is described in `docs/data-retention.md`.
 
-> **Status: development only.** Production is disabled in code (`PRODUCTION_EMAIL_DELETION_ENABLED = false` in `adminDeleteAccount.ts`), so this procedure is **not yet operational for real requests**. "Enabling production" below lists what has to happen first; each step needs its own approval.
+> **Status (2026-10-28): enabled in code, not yet operational.** The owner approved production email deletion, and `PRODUCTION_EMAIL_DELETION_ENABLED = true`. It works only once the steps in "Enabling production" below are done: the Atlas role and user, the `prod-delete.env` profile, the backend deploy that creates the deletion register, and a trial on a dedicated test account. Until then a production run is refused by the credential check. The development rehearsal of the full flow, with a synthetic account, passed on 2026-10-28.
 
 ## Rules
 
@@ -177,14 +177,14 @@ Throughout: `<cases>`, `<holds>` and `<audit>` are files in the admin folder. In
 
 ## After restoring a database backup
 
-Atlas M0 has no managed backups, so there is nothing to restore today. `restore-check --audit-log <audit>` lists account ids that the audit log records as deleted but that exist again. A completed case can't delete again (replay protection), so a resurrected account needs a new decision. If backups are ever enabled, implement the deletion register first (see the deletion-register plan).
+Production has daily Atlas Flex snapshots (since 2026-10-28). Every deletion, in the app or by this tool, is recorded in the deletion register (`accountdeletions`: account id and dates only, kept 30 days), in the same transaction as the deletion. After any restore, follow `docs/database-restore.md`: export the live register before restoring, then `npm run restore:deletions -- reapply` deletes every registered account again. `restore-check --audit-log <audit>` still lists ids from this tool's audit log that exist again. A completed case can't delete again (replay protection).
 
 ## Development rehearsal with restricted users
 
 Rehearse the production two-user setup on `quranheals_dev` with two profiles. The tool then applies the production read-only and deletion-only checks, and any problem is fatal:
 
 - **`development-read`** for `lookup`, `challenge` and the dry runs. It needs a user with `read` on `quranheals_dev` only.
-- **`development-delete`** for `--apply`. It needs the custom role: `find` + `remove` on the eight account collections of `quranheals_dev`.
+- **`development-delete`** for `--apply`. It needs the custom role: `find` + `remove` on the ten account collections of `quranheals_dev` (the list in step 1 of "Enabling production").
 
 **Profile rules:**
 - Each profile must be loaded from an env file that sets `QURAN_HEALS_SKIP_DOTENV=1`.
@@ -213,7 +213,7 @@ It refuses anything but `quranheals_dev` with the `development-delete` profile, 
 - runs the tool's strict credential check and inspects the user's privileges;
 - reads collection counts only;
 - checks that reads and deletes work, using ids that can't exist;
-- checks that `update`, `insert`, index creation, and deletes outside the eight collections are refused. These requests can't change data even if they were wrongly allowed: an id that can't exist, a document the server must reject, an invalid index type.
+- checks that `update`, `insert`, index creation, and deletes outside the ten collections are refused. These requests can't change data even if they were wrongly allowed: an id that can't exist, a document the server must reject, an invalid index type.
 - runs the real deletion transaction for a freshly generated account id that owns no records.
 
 It stops at the first operation that is unexpectedly permitted. Exit codes:
@@ -223,7 +223,8 @@ It stops at the first operation that is unexpectedly permitted. Exit codes:
 
 ## Enabling production (each step needs approval)
 
-1. **Deletion-only database user.** Create the Atlas custom role `quranheals-account-deletion` on `quranheals_prod`, with `find` and `remove` on exactly: `users`, `sessions`, `userfavorites`, `userpreferences`, `userreflections`, `usersynckeys`, `applecredentials`, `issuereports`. Nothing else.
+1. **Deletion-only database user.** Create the Atlas custom role `quranheals-account-deletion` on `quranheals_prod`, with `find` and `remove` on exactly: `users`, `sessions`, `userfavorites`, `userpreferences`, `userreflections`, `usersynckeys`, `applecredentials`, `userreadingrecords`, `userreadingsyncstates`, `issuereports`; and `find` and `insert` (never `remove`) on `accountdeletions`, the deletion register that every deletion appends to. Nothing else. The tool checks this role exactly (`DELETION_PRIVILEGES` in `backend/src/admin/adminAccountDeletion.ts`).
+   - `userreadingrecords` and `userreadingsyncstates` (أورادي وختماتي) joined the deletion transaction with reading sync. A role made from the older eight-collection list fails every deletion (it rolls back; nothing is deleted), and the tool's scope check now expects all ten. If `quranheals-dev-deletion` was created before 2026-10-28, add the two collections to its role and re-run `verifyDeletionRole` before relying on it.
    - Assign it to a new user, `quranheals-prod-deletion`.
    - Atlas documents custom roles as supported on Free (M0) clusters; changes can take up to 30 seconds to deploy.
    - Test it first as `quranheals-dev-deletion` on `quranheals_dev`. The tool's deletion-only check must pass, and a dev deletion must succeed.

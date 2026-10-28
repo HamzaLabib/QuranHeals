@@ -96,18 +96,18 @@ describe('TTY enforcement', () => {
   });
 });
 
-describe('production stays disabled', () => {
-  it('is off in code', () => {
-    expect(PRODUCTION_EMAIL_DELETION_ENABLED).toBe(false);
+describe('the production switch', () => {
+  it('is on in code since 2026-10-28 (owner approval)', () => {
+    expect(PRODUCTION_EMAIL_DELETION_ENABLED).toBe(true);
   });
 
-  it('refuses production even with the production-write confirmation and a correct profile', () => {
+  it('switched off, it refuses production even with the production-write confirmation and a correct profile', () => {
     for (const args of [['lookup'], ['delete', ...CASE], ['delete', ...CASE, '--apply']]) {
-      const access = scriptAccess(parseAdminArgs(args));
+      const access = scriptAccess(parseAdminArgs(args), false);
       expect(access.productionSupported).toBe(false);
       expect(() => assertScriptMayUseTarget(PRODUCTION, access, { [PRODUCTION_WRITE_CONFIRMATION_ENV]: 'quranheals_prod' })).toThrow(DatabaseConfigError);
     }
-    refused(() => assertEnvironmentAllowed(PRODUCTION), /not enabled/);
+    refused(() => assertEnvironmentAllowed(PRODUCTION, false), /not enabled/);
     refused(() => assertEnvironmentAllowed({ environment: 'test', databaseName: 'quranheals_test' }));
     expect(() => assertEnvironmentAllowed(DEVELOPMENT)).not.toThrow();
   });
@@ -153,9 +153,9 @@ describe('once production is enabled (simulated): credentials and environment is
     const readAccess = scriptAccess(read, true);
     const writeAccess = scriptAccess(write, true);
     expect(readAccess).toMatchObject({ productionSupported: true, writes: false, enforceCredentialScope: true });
-    expect(readAccess.deletionOnlyCollections).toBeUndefined();
+    expect(readAccess.exactPrivileges).toBeUndefined();
     expect(writeAccess).toMatchObject({ productionSupported: true, writes: true, enforceCredentialScope: true });
-    expect(writeAccess.deletionOnlyCollections).toContain('users');
+    expect(writeAccess.exactPrivileges).toMatchObject({ users: ['find', 'remove'], userreadingrecords: ['find', 'remove'], accountdeletions: ['find', 'insert'] });
     expect(() => assertScriptMayUseTarget(PRODUCTION, readAccess, {})).not.toThrow();
     expect(() => assertScriptMayUseTarget(PRODUCTION, writeAccess, {})).toThrow(/QURAN_HEALS_CONFIRM_PRODUCTION_WRITE/);
     expect(() => assertScriptMayUseTarget(PRODUCTION, writeAccess, { [PRODUCTION_WRITE_CONFIRMATION_ENV]: 'quranheals_prod' })).not.toThrow();
@@ -210,9 +210,12 @@ describe('operator-facing output', () => {
     const text = describePlan({
       status: 'found', caseId: 'DEL-20261008-01', userId: ALICE_ID, accountRef: ALICE_ID.slice(-6), provider: 'apple', apple: 'revoke-stored-token',
       database: 'quranheals_dev', environment: 'development',
-      records: { User: 1, Session: 2, UserFavorite: 3, UserPreference: 1, UserReflection: 4, UserSyncKey: 1, AppleCredential: 1, tombstones: { UserFavorite: 1, UserReflection: 1 } },
+      records: {
+        User: 1, Session: 2, UserFavorite: 3, UserPreference: 1, UserReflection: 4, UserSyncKey: 1, AppleCredential: 1, UserReadingRecord: 5, UserReadingSyncState: 1,
+        tombstones: { UserFavorite: 1, UserReflection: 1, UserReadingRecord: 2 },
+      },
     });
-    for (const expected of ['quranheals_dev (development)', ALICE_ID, `reference ${ALICE_ID.slice(-6)}`, 'apple', 'sessions 2', 'userreflections 4', 'applecredentials 1', 'FIRST']) {
+    for (const expected of ['quranheals_dev (development)', ALICE_ID, `reference ${ALICE_ID.slice(-6)}`, 'apple', 'sessions 2', 'userreflections 4', 'applecredentials 1', 'userreadingrecords 5', 'userreadingsyncstates 1', 'FIRST']) {
       expect(text).toContain(expected);
     }
     expect(text).not.toContain('@');
@@ -279,8 +282,8 @@ describe('development rehearsal profiles (development-read / development-delete)
     expect(isStrictDevelopmentProfile('development-delete')).toBe(true);
     expect(isStrictDevelopmentProfile('production-delete')).toBe(false);
     expect(scriptAccess(read, false, 'development-read')).toMatchObject({ writes: false, strictCredentialScope: true, enforceCredentialScope: true });
-    expect(scriptAccess(read, false, 'development-read').deletionOnlyCollections).toBeUndefined();
-    expect(scriptAccess(write, false, 'development-delete')).toMatchObject({ writes: true, strictCredentialScope: true, deletionOnlyCollections: expect.arrayContaining(['users', 'issuereports']) });
+    expect(scriptAccess(read, false, 'development-read').exactPrivileges).toBeUndefined();
+    expect(scriptAccess(write, false, 'development-delete')).toMatchObject({ writes: true, strictCredentialScope: true, exactPrivileges: expect.objectContaining({ users: ['find', 'remove'], issuereports: ['find', 'remove'] }) });
   });
 
   it('unknown profiles are refused in every environment', () => {
@@ -300,24 +303,24 @@ describe('development rehearsal profiles (development-read / development-delete)
     }
   });
 
-  it('production gates are unchanged: still disabled in code, and still strict when enabled', () => {
-    expect(PRODUCTION_EMAIL_DELETION_ENABLED).toBe(false);
-    refused(() => assertEnvironmentAllowed(PRODUCTION), /not enabled/);
+  it('production gates: off when switched off, and strict when on', () => {
+    refused(() => assertEnvironmentAllowed(PRODUCTION, false), /not enabled/);
+    expect(() => assertEnvironmentAllowed(PRODUCTION)).not.toThrow();
     expect(() => assertProfile(write, PRODUCTION, profile('production-delete'))).not.toThrow();
     refused(() => assertProfile(write, PRODUCTION, { QURAN_HEALS_ADMIN_PROFILE: 'production-delete' }), /QURAN_HEALS_SKIP_DOTENV=1/);
     const access = scriptAccess(write, true, 'production-delete');
-    expect(access).toMatchObject({ productionSupported: true, enforceCredentialScope: true, deletionOnlyCollections: expect.any(Array) });
+    expect(access).toMatchObject({ productionSupported: true, enforceCredentialScope: true, exactPrivileges: expect.any(Object) });
     expect(() => assertScriptMayUseTarget(PRODUCTION, access, {})).toThrow(/QURAN_HEALS_CONFIRM_PRODUCTION_WRITE/);
   });
 });
 
 describe('production profiles use the same strict, fail-closed credential checks', () => {
-  it('production-read and production-delete set strict mode; production stays disabled', () => {
+  it('production-read and production-delete set strict mode; switched off, production is not supported', () => {
     const read = parseAdminArgs(['delete', ...CASE]);
     const write = parseAdminArgs(['delete', ...CASE, '--apply']);
     expect(scriptAccess(read, true, 'production-read').strictCredentialScope).toBe(true);
     expect(scriptAccess(write, true, 'production-delete').strictCredentialScope).toBe(true);
     expect(scriptAccess(write, false, 'production-delete').productionSupported).toBe(false);
-    expect(PRODUCTION_EMAIL_DELETION_ENABLED).toBe(false);
+    expect(scriptAccess(write, undefined, 'production-delete').productionSupported).toBe(true);
   });
 });

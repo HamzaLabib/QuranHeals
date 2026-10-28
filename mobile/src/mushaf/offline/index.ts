@@ -90,8 +90,14 @@ const fontFiles: FontFiles = {
 export const offlineMushaf = createOfflineMushaf({
   // Imported on first use, as services/quranAsset.ts does: a static import breaks the web bundle's SQLite worker.
   openDb: async () => {
-    const { openDatabaseAsync } = await import('expo-sqlite');
-    return (await openDatabaseAsync(OFFLINE_DB_NAME)) as unknown as OfflineDb;
+    const { openDatabaseAsync, defaultDatabaseDirectory } = await import('expo-sqlite');
+    const db = (await openDatabaseAsync(OFFLINE_DB_NAME)) as unknown as OfflineDb;
+    // iOS: the layout database and the page fonts' directory stay out of iCloud backups (re-downloadable).
+    void import('@/services/backupExclusion')
+      .then(({ excludeDownloadDirectoriesFromBackup, excludeOfflineMushafDatabaseFromBackup }) =>
+        Promise.all([excludeDownloadDirectoriesFromBackup(), excludeOfflineMushafDatabaseFromBackup(defaultDatabaseDirectory, OFFLINE_DB_NAME)]))
+      .catch(() => undefined);
+    return db;
   },
   relay: offlineRelay,
   verses: getAllVerses,

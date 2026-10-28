@@ -235,3 +235,51 @@ describe('POST /api/issues', () => {
     expect(Object.keys(issueReportRepository)).toEqual(['created']);
   });
 });
+
+describe('POST /api/issues — daily cap across all senders (release audit B13)', () => {
+  const countingRepository = (storedInLastDay: number) => {
+    const created: unknown[] = [];
+    const since: Date[] = [];
+    const repository: IssueReportRepository = {
+      create: async (input) => {
+        created.push(input);
+        return { id: 'x' };
+      },
+      countSince: async (from) => {
+        since.push(from);
+        return storedInLastDay + created.length;
+      },
+    };
+    return { repository, created, since };
+  };
+
+  it('stores reports while under the cap, counting the last 24 hours', async () => {
+    const { repository, created, since } = countingRepository(198);
+    const { app } = buildAccountTestApp({ issueReportRepository: repository });
+    const before = Date.now();
+
+    expect((await request(app).post('/api/issues').send(baseReport)).status).toBe(201);
+    expect((await request(app).post('/api/issues').send(baseReport)).status).toBe(201);
+    expect(created).toHaveLength(2);
+    expect(before - since[0].getTime()).toBeGreaterThanOrEqual(24 * 60 * 60 * 1000 - 1000);
+  });
+
+  it('refuses with 429 and stores nothing once 200 arrived in 24 hours (the default)', async () => {
+    const { repository, created } = countingRepository(200);
+    const { app } = buildAccountTestApp({ issueReportRepository: repository });
+
+    const res = await request(app).post('/api/issues').send(baseReport);
+
+    expect(res.status).toBe(429);
+    expect(res.body).toEqual({ success: false, message: 'Too many requests. Please try again later.' });
+    expect(created).toHaveLength(0);
+  });
+
+  it('an invalid report is still a 400, not counted against anything', async () => {
+    const { repository, since } = countingRepository(10_000);
+    const { app } = buildAccountTestApp({ issueReportRepository: repository });
+
+    expect((await request(app).post('/api/issues').send({ ...baseReport, category: 'nope' })).status).toBe(400);
+    expect(since).toHaveLength(0);
+  });
+});

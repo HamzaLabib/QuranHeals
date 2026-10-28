@@ -1,5 +1,7 @@
-import type { RequestHandler } from 'express';
-import rateLimit from 'express-rate-limit';
+import { isIP } from 'node:net';
+
+import type { Request, RequestHandler } from 'express';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 
 import type { AuthenticatedRequest } from './requireAuth';
 
@@ -9,19 +11,25 @@ import type { AuthenticatedRequest } from './requireAuth';
  * multi-instance deployment would need a shared store (see
  * docs/backend-operations.md).
  *
- * Client IPs come from `req.ip`, which relies on app.set('trust proxy', 1)
- * (Render's single proxy hop). IPv6 clients are grouped per /56 —
+ * The client address (CLIENT_IP_SOURCE, see clientAddress below) is either
+ * `req.ip`, which depends on TRUST_PROXY_HOPS, or Cloudflare's
+ * CF-Connecting-IP. IPv6 clients are grouped per /56 —
  * express-rate-limit's default — so one host can't evade a limit by rotating
  * addresses inside its own allocation.
  *
- * Thresholds are sized for shared IPs (households, campus Wi-Fi, carrier
- * NAT), not for a single device:
+ * Thresholds are sized for shared IPs (households, a mosque's or campus
+ * Wi-Fi, carrier NAT), not for a single device:
+ *  - global: opening the app makes about 10 requests and the offline Mushaf
+ *    download 32 to this server (its fonts come from Quran Foundation), so
+ *    300/min lets about 30 people behind one address open the app in the same
+ *    minute, or 9 download the Mushaf, while one address still can't exceed
+ *    5 requests a second.
  *  - issueReports: a person sends one report occasionally; 10/hour per IP
  *    still lets several people behind one address report, while capping
  *    unauthenticated writes (and stored emails) from a script.
- *  - signIn: each attempt makes the backend verify an Apple/Google token;
- *    30 per 15 min per IP covers repeated legitimate retries by several
- *    people behind one address.
+ *  - signIn: each attempt makes the backend verify an Apple/Google token
+ *    (a forged token fails fast); 60 per 15 min per IP covers a room of
+ *    people signing in on one Wi-Fi, with retries.
  *  - sessionRefresh (refresh + logout): access tokens live 20 minutes, so a
  *    device refreshes ~1 per 15 min; 120 per 15 min per IP leaves room for
  *    many devices behind one address. A 429 here never signs a user out —
@@ -37,9 +45,9 @@ export type RateLimitName = 'global' | 'issueReports' | 'signIn' | 'sessionRefre
 const MINUTE = 60_000;
 
 export const DEFAULT_RATE_LIMITS: Readonly<Record<RateLimitName, RateLimitPolicy>> = {
-  global: { windowMs: MINUTE, limit: 120 },
+  global: { windowMs: MINUTE, limit: 300 },
   issueReports: { windowMs: 60 * MINUTE, limit: 10 },
-  signIn: { windowMs: 15 * MINUTE, limit: 30 },
+  signIn: { windowMs: 15 * MINUTE, limit: 60 },
   sessionRefresh: { windowMs: 15 * MINUTE, limit: 120 },
   accountReauth: { windowMs: 60 * MINUTE, limit: 10 },
 };
@@ -48,9 +56,33 @@ export const RATE_LIMITED_MESSAGE = 'Too many requests. Please try again later.'
 
 export type RateLimiters = Record<RateLimitName, RequestHandler>;
 
+/**
+ * Where a per-IP limit takes the client's address from (env CLIENT_IP_SOURCE):
+ *  - 'request': `req.ip`, as Express derives it from X-Forwarded-For with TRUST_PROXY_HOPS;
+ *  - 'cf-connecting-ip': Cloudflare's CF-Connecting-IP. Render documents that Cloudflare sets it on every request
+ *    to a web service and overwrites any value the caller sent (render.com/articles/host-pocketbase-on-render,
+ *    July 2026), so it needs no hop count. Confirm it on this service with the diagnostic before relying on it.
+ *    A request without a valid one (local runs, tests) falls back to `req.ip`.
+ */
+export type ClientIpSource = 'request' | 'cf-connecting-ip';
+
+export function clientAddress(req: Pick<Request, 'ip' | 'get'>, source: ClientIpSource): string {
+  if (source === 'cf-connecting-ip') {
+    const header = req.get('cf-connecting-ip')?.trim() ?? '';
+    if (isIP(header) !== 0) return header;
+  }
+  return req.ip ?? '';
+}
+
 /** One set of limiters per app instance (each with its own counters). `overrides` exists for tests. */
-export function createRateLimiters(overrides: Partial<Record<RateLimitName, RateLimitPolicy>> = {}): RateLimiters {
+export function createRateLimiters(
+  overrides: Partial<Record<RateLimitName, RateLimitPolicy>> = {},
+  options: { clientIpSource?: ClientIpSource } = {},
+): RateLimiters {
   const policies = { ...DEFAULT_RATE_LIMITS, ...overrides };
+  const source = options.clientIpSource ?? 'request';
+  // IPv6 grouped per /56, exactly like the library's default key.
+  const perIp = source === 'request' ? undefined : (req: AuthenticatedRequest) => ipKeyGenerator(clientAddress(req, source));
   const build = (name: RateLimitName, keyGenerator?: (req: AuthenticatedRequest) => string): RequestHandler =>
     rateLimit({
       windowMs: policies[name].windowMs,
@@ -65,10 +97,10 @@ export function createRateLimiters(overrides: Partial<Record<RateLimitName, Rate
     });
 
   return {
-    global: build('global'),
-    issueReports: build('issueReports'),
-    signIn: build('signIn'),
-    sessionRefresh: build('sessionRefresh'),
+    global: build('global', perIp),
+    issueReports: build('issueReports', perIp),
+    signIn: build('signIn', perIp),
+    sessionRefresh: build('sessionRefresh', perIp),
     // Mounted after requireAuth, so req.auth is the verified account. The
     // key is the internal user id only — no IP or email is kept.
     accountReauth: build('accountReauth', (req) => `user:${req.auth.userId}`),

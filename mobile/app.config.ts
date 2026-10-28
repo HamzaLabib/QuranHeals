@@ -1,5 +1,5 @@
 import type { ConfigContext, ExpoConfig } from 'expo/config';
-import { withEntitlementsPlist, type ConfigPlugin } from 'expo/config-plugins';
+import { withEntitlementsPlist, withInfoPlist, type ConfigPlugin } from 'expo/config-plugins';
 
 // app.json stays the source of truth for the app config. This file only adds
 // build-time guards on the backend URL and Google client IDs a build embeds,
@@ -161,8 +161,33 @@ export const withoutPushEntitlement: ConfigPlugin = (config) =>
     return mod;
   });
 
+/**
+ * Hosted (preview/production) builds carry no development-only iOS keys (release audit R2, App Review 5.1.1):
+ *  - app.json's local-network purpose string ("…a local development server while testing") and ATS
+ *    NSAllowsLocalNetworking, which exist for a development build reaching Metro on the LAN. expo-dev-launcher strips
+ *    only its own Bonjour entry and default text from Release builds, never these;
+ *  - expo-secure-store's generic NSFaceIDUsageDescription: the app never asks SecureStore for biometric
+ *    authentication (no requireAuthentication anywhere), so there is no Face ID use to describe.
+ * Development builds keep all of them. Photo-library strings are untouched.
+ */
+export function withoutDevelopmentOnlyIosKeys(config: ExpoConfig): ExpoConfig {
+  const infoPlist = { ...config.ios?.infoPlist };
+  delete infoPlist.NSLocalNetworkUsageDescription;
+  delete infoPlist.NSAppTransportSecurity;
+  // A mod, so it runs after the plugins' own Info.plist changes (see withoutPushEntitlement on mod order).
+  return withInfoPlist({ ...config, ios: { ...config.ios, infoPlist } }, (mod) => {
+    delete mod.modResults.NSFaceIDUsageDescription;
+    // Pinned rather than left out: without app.json's block a default allowing arbitrary loads would apply. This is
+    // today's policy (HTTPS only) minus local networking. expo-dev-launcher's own local-network text and Bonjour
+    // entry, which reappear here, are deleted from Release builds by its build phase.
+    mod.modResults.NSAppTransportSecurity = { NSAllowsArbitraryLoads: false };
+    return mod;
+  });
+}
+
 export default ({ config }: ConfigContext): ExpoConfig => {
   assertApiUrlForBuild(process.env);
   assertGoogleClientIdsForBuild(process.env);
-  return withoutPushEntitlement(withGoogleRedirectScheme(config as ExpoConfig));
+  const app = withoutPushEntitlement(withGoogleRedirectScheme(config as ExpoConfig));
+  return resolveApiUrlPolicy(process.env) === 'hosted' ? withoutDevelopmentOnlyIosKeys(app) : app;
 };

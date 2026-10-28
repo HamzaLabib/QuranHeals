@@ -16,7 +16,7 @@ vi.mock('../../src/config/database', () => ({
   disconnectFromDatabase: db.disconnect,
 }));
 
-import { DELETION_COLLECTIONS } from '../../src/admin/adminAccountDeletion';
+import { DELETION_COLLECTIONS, DELETION_PRIVILEGES } from '../../src/admin/adminAccountDeletion';
 import { assertScriptMayUseTarget, PRODUCTION_WRITE_CONFIRMATION_ENV } from '../../src/config/databaseTarget';
 import {
   FORBIDDEN_COLLECTION,
@@ -37,9 +37,11 @@ import {
 const DEV: DatabaseTarget = { environment: 'development', databaseName: 'quranheals_dev' };
 const PROFILE = { QURAN_HEALS_ADMIN_PROFILE: REQUIRED_PROFILE, QURAN_HEALS_SKIP_DOTENV: '1' };
 
-/** The exact role: find + remove on each of the eight collections of `db`. */
-const exactRole = (database = 'quranheals_dev'): MongoPrivilege[] =>
-  DELETION_COLLECTIONS.map((collection) => ({ resource: { db: database, collection }, actions: ['find', 'remove'] }));
+/** The exact role: find + remove on each account collection of `db`, find + insert on the deletion register. */
+const exactRole = (database = 'quranheals_dev'): MongoPrivilege[] => [
+  ...DELETION_COLLECTIONS.map((collection) => ({ resource: { db: database, collection }, actions: ['find', 'remove'] })),
+  { resource: { db: database, collection: 'accountdeletions' }, actions: ['find', 'insert'] },
+];
 const readWrite = (database: string): MongoPrivilege => ({ resource: { db: database, collection: '' }, actions: ['find', 'insert', 'update', 'remove', 'createIndex'] });
 
 let counter = 0;
@@ -150,7 +152,7 @@ describe('refused before connecting', () => {
   it('connects with the tool\'s strict deletion-only access, never production-capable', () => {
     const access = verificationAccess();
     expect(access).toMatchObject({ writes: true, productionSupported: false, enforceCredentialScope: true, strictCredentialScope: true });
-    expect(access.deletionOnlyCollections).toEqual(DELETION_COLLECTIONS);
+    expect(access.exactPrivileges).toEqual(DELETION_PRIVILEGES);
     expect(() => assertScriptMayUseTarget({ environment: 'production', databaseName: 'quranheals_prod' }, access, { [PRODUCTION_WRITE_CONFIRMATION_ENV]: 'quranheals_prod' })).toThrow(/does not support the production database/);
   });
 });
@@ -162,7 +164,7 @@ describe('the exact role passes every check', () => {
     expect(report.ok).toBe(true);
     expect(statuses(report)).toEqual([
       'PASS privileges', 'PASS counts', 'PASS permitted operations',
-      'PASS update users', 'PASS insert users', 'PASS create index users', `PASS remove ${FORBIDDEN_COLLECTION}`,
+      'PASS update users', 'PASS insert users', 'PASS create index users', `PASS remove ${FORBIDDEN_COLLECTION}`, 'PASS remove accountdeletions',
       'PASS deletion transaction',
     ]);
     expect(probe.calls).toContain('transaction');
@@ -199,14 +201,14 @@ describe('a wrong role is refused before any live probe', () => {
   it('missing permissions: no remove on issuereports', async () => {
     const missing = exactRole().map((p) => (p.resource.collection === 'issuereports' ? { ...p, actions: ['find'] } : p));
     const report = await verifyDeletionRole(new FakeProbe(missing), DEV);
-    expect(report.results[0]).toMatchObject({ status: 'FAIL', detail: expect.stringContaining('lacks find/remove on: issuereports') });
+    expect(report.results[0]).toMatchObject({ status: 'FAIL', detail: expect.stringContaining('lacks "remove" on "issuereports"') });
   });
 
   it('incorrect database: the role was created for quranheals_prod', async () => {
     const report = await verifyDeletionRole(new FakeProbe(exactRole('quranheals_prod')), DEV);
     expect(report.results[0].status).toBe('FAIL');
     expect(report.results[0].detail).toMatch(/can also access "quranheals_prod"/);
-    expect(report.results[0].detail).toMatch(/lacks find\/remove on: users/);
+    expect(report.results[0].detail).toMatch(/lacks "find", "remove" on "users"/);
   });
 
   it('a role reported in an unexpected shape (no privileges listed) fails safe', async () => {

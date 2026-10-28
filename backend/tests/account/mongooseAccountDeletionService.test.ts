@@ -63,6 +63,7 @@ const mock = vi.hoisted(() => {
     userReadingSyncStateModel: fakeModel('UserReadingSyncState', 'deleteMany'),
     appleCredentialModel: fakeModel('AppleCredential', 'deleteMany'),
     sessionModel: fakeModel('Session', 'deleteMany'),
+    registerCreate: vi.fn((_docs: unknown[], _options: unknown) => trackedOperation('AccountDeletion')),
     endSession: vi.fn(async () => {}),
     withTransaction: vi.fn(async (fn: () => Promise<void>) => {
       await fn();
@@ -79,6 +80,11 @@ vi.mock('../../src/models/UserReadingRecord', () => ({ UserReadingRecordModel: m
 vi.mock('../../src/models/UserReadingSyncState', () => ({ UserReadingSyncStateModel: mock.userReadingSyncStateModel }));
 vi.mock('../../src/models/AppleCredential', () => ({ AppleCredentialModel: mock.appleCredentialModel }));
 vi.mock('../../src/models/Session', () => ({ SessionModel: mock.sessionModel }));
+// The real registerEntry (pure) is covered in tests/account/accountDeletionRegister.test.ts; same 30-day rule here.
+vi.mock('../../src/models/AccountDeletion', () => ({
+  AccountDeletionModel: { create: mock.registerCreate },
+  registerEntry: (userId: string, now: Date) => ({ userId, deletedAt: now, purgeAt: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) }),
+}));
 vi.mock('mongoose', () => ({
   default: {
     startSession: async () => ({ withTransaction: mock.withTransaction, endSession: mock.endSession }),
@@ -122,7 +128,16 @@ describe('MongooseAccountDeletionService: session/transaction concurrency', () =
       'AppleCredential',
       'Session',
       'User',
+      'AccountDeletion',
     ]);
+  });
+
+  it('records the deletion in the register, in the same transaction, with only the account id and dates (30 days)', async () => {
+    const now = new Date('2026-10-28T12:00:00.000Z');
+    await new MongooseAccountDeletionService(() => now).deleteAccount('user-7');
+    const [docs, options] = mock.registerCreate.mock.calls[0] as [unknown[], { session?: unknown }];
+    expect(docs).toEqual([{ userId: 'user-7', deletedAt: now, purgeAt: new Date('2026-11-27T12:00:00.000Z') }]);
+    expect(options.session).toBeDefined();
   });
 
   it('every delete is scoped to userId and runs on the started session', async () => {

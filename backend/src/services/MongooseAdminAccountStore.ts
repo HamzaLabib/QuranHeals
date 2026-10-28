@@ -5,6 +5,8 @@ import { SessionModel } from '../models/Session';
 import { UserModel } from '../models/User';
 import { UserFavoriteModel } from '../models/UserFavorite';
 import { UserPreferenceModel } from '../models/UserPreference';
+import { UserReadingRecordModel } from '../models/UserReadingRecord';
+import { UserReadingSyncStateModel } from '../models/UserReadingSyncState';
 import { UserReflectionModel } from '../models/UserReflection';
 import { UserSyncKeyModel } from '../models/UserSyncKey';
 import type { AuthProvider } from '../types/accountDomain';
@@ -43,7 +45,10 @@ export class MongooseAdminAccountStore implements AdminAccountStore {
   }
 
   async countRecords(userId: string): Promise<RecordCounts> {
-    const [user, session, favorite, favoriteTombstones, preference, reflection, reflectionTombstones, syncKey, appleCredential] = await Promise.all([
+    const [
+      user, session, favorite, favoriteTombstones, preference, reflection, reflectionTombstones, syncKey, appleCredential,
+      reading, readingTombstones, readingSyncState,
+    ] = await Promise.all([
       isObjectIdHex(userId) ? UserModel.countDocuments({ _id: userId }) : Promise.resolve(0),
       SessionModel.countDocuments({ userId }),
       UserFavoriteModel.countDocuments({ userId }),
@@ -53,6 +58,9 @@ export class MongooseAdminAccountStore implements AdminAccountStore {
       UserReflectionModel.countDocuments({ userId, deleted: true }),
       UserSyncKeyModel.countDocuments({ userId }),
       AppleCredentialModel.countDocuments({ userId }),
+      UserReadingRecordModel.countDocuments({ userId }),
+      UserReadingRecordModel.countDocuments({ userId, deleted: true }),
+      UserReadingSyncStateModel.countDocuments({ userId }),
     ]);
     return {
       User: user,
@@ -62,7 +70,9 @@ export class MongooseAdminAccountStore implements AdminAccountStore {
       UserReflection: reflection,
       UserSyncKey: syncKey,
       AppleCredential: appleCredential,
-      tombstones: { UserFavorite: favoriteTombstones, UserReflection: reflectionTombstones },
+      UserReadingRecord: reading,
+      UserReadingSyncState: readingSyncState,
+      tombstones: { UserFavorite: favoriteTombstones, UserReflection: reflectionTombstones, UserReadingRecord: readingTombstones },
     };
   }
 
