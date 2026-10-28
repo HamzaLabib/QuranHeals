@@ -223,6 +223,31 @@ describe('pushPreferences', () => {
     expect((await loadAccountPreferenceState('user-a')).fields.locale).toMatchObject({ value: 'en', synced: true });
   });
 
+  it('a device clock running ahead: the account stores its own, earlier instant; it is kept here (synced), so a later change elsewhere still wins', async () => {
+    activeOwner('user-a');
+    recordLocalPreferenceChange('appearance', 'light');
+    await flush();
+    const sentAt = (await loadAccountPreferenceState('user-a')).fields.appearance!.updatedAt;
+    // The server's time (backend/src/services/clientInstants.ts): earlier than this device's clock.
+    const storedAt = new Date(sentAt - 60 * 60_000).toISOString();
+    const { puts } = backend(null, (body) => ({ ...body, updatedAt: storedAt, fieldUpdatedAt: { appearance: storedAt } }));
+    const apply = vi.fn();
+
+    await pushPreferences('token', 'user-a', apply);
+
+    expect(puts).toHaveLength(1);
+    expect(apply).not.toHaveBeenCalled();
+    expect((await loadAccountPreferenceState('user-a')).fields.appearance).toEqual({ value: 'light', updatedAt: Date.parse(storedAt), synced: true });
+    expect(await hasUnsyncedPreferences('user-a')).toBe(false);
+
+    // Another device (correct clock) changes it a little later — still before this device's own clock.
+    const laterAt = new Date(Date.parse(storedAt) + 1000).toISOString();
+    const second = backend({ appearance: 'dark', updatedAt: laterAt, fieldUpdatedAt: { appearance: laterAt } });
+    await syncPreferences('token', 'user-a', apply);
+    expect(apply.mock.calls).toEqual([['appearance', 'dark']]);
+    expect(second.puts).toHaveLength(0);
+  });
+
   it('a failed upload (offline) leaves the change pending and throws for the caller to ignore', async () => {
     activeOwner('user-a');
     recordLocalPreferenceChange('quranFontSize', 24);

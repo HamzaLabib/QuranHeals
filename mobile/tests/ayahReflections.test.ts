@@ -248,3 +248,41 @@ describe('ayahReflections: local deletion tombstones', () => {
     expect(Object.keys(tombstone).sort()).toEqual(['deletedAt', 'syncState', 'verseKey']);
   });
 });
+
+describe('ayahReflections: an upload the server stored at an earlier instant (a device clock running ahead)', () => {
+  const FUTURE = Date.parse('2099-01-01T00:00:00.000Z');
+  const SERVER_NOW = Date.parse('2026-10-27T12:00:00.000Z');
+  const stored = () => JSON.parse(state.get(STORAGE_KEY)!)['2:255'];
+
+  it('the uploaded reflection takes the stored instant and is synced; its text is unchanged', async () => {
+    const { markReflectionUploaded } = await import('@/storage/ayahReflections');
+    await saveReflection('2:255', 'Written on a fast clock', FUTURE);
+    await markReflectionUploaded('2:255', FUTURE, undefined, SERVER_NOW);
+    expect(stored()).toMatchObject({ text: 'Written on a fast clock', createdAt: SERVER_NOW, updatedAt: SERVER_NOW, syncState: 'synced' });
+  });
+
+  it('an edit made during the upload stays pending, based on the stored instant (so it is not taken for a concurrent change)', async () => {
+    const { markReflectionUploaded } = await import('@/storage/ayahReflections');
+    await saveReflection('2:255', 'First', FUTURE);
+    await saveReflection('2:255', 'Edited meanwhile', FUTURE + 1);
+    await markReflectionUploaded('2:255', FUTURE, undefined, SERVER_NOW);
+    expect(stored()).toMatchObject({ text: 'Edited meanwhile', updatedAt: FUTURE + 1, baseUpdatedAt: SERVER_NOW });
+    expect(stored().syncState).not.toBe('synced');
+  });
+
+  it('a deletion marker takes the stored instant', async () => {
+    const { markReflectionUploaded } = await import('@/storage/ayahReflections');
+    await saveReflection('2:255', 'To delete', 1000);
+    await saveReflection('2:255', '', FUTURE);
+    await markReflectionUploaded('2:255', FUTURE, undefined, SERVER_NOW);
+    expect(stored()).toMatchObject({ deletedAt: SERVER_NOW, syncState: 'synced' });
+  });
+
+  it('without a different stored instant nothing but the sync state changes', async () => {
+    const { markReflectionUploaded } = await import('@/storage/ayahReflections');
+    await saveReflection('2:255', 'Normal clock', 5000);
+    const before = stored();
+    await markReflectionUploaded('2:255', 5000);
+    expect(stored()).toEqual({ ...before, syncState: 'synced' });
+  });
+});

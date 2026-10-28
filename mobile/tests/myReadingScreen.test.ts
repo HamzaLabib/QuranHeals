@@ -15,6 +15,8 @@ const state = vi.hoisted(() => ({
   storage: new Map<string, string>(),
   // useAuth's refreshReading (the account reading sync); a guest's is a no-op.
   refreshReading: async () => {},
+  focusEffects: [] as (() => void)[],
+  focusSyncs: [] as string[],
 }));
 vi.mock('react-native', async () => {
   const { createElement: h } = await import('react');
@@ -38,7 +40,11 @@ vi.mock('lucide-react-native', () => Object.fromEntries(['ArrowLeft', 'ArrowRigh
 vi.mock('react-native-svg', () => ({ default: 'Svg', Path: 'Path', Rect: 'Rect' }));
 vi.mock('expo-router', async () => {
   const { createElement: h } = await import('react');
-  return { router: { push: vi.fn(), navigate: vi.fn(), back: vi.fn(), replace: vi.fn(), canGoBack: () => true }, Link: ({ href, children }: { href: string; children: unknown }) => h('Link', { href }, children as never) };
+  return {
+    router: { push: vi.fn(), navigate: vi.fn(), back: vi.fn(), replace: vi.fn(), canGoBack: () => true },
+    Link: ({ href, children }: { href: string; children: unknown }) => h('Link', { href }, children as never),
+    useFocusEffect: (effect: () => void) => state.focusEffects.push(effect),
+  };
 });
 vi.mock('@/theme/useTheme', async () => {
   const { darkPalette, lightPalette } = await import('@/constants/theme');
@@ -46,7 +52,7 @@ vi.mock('@/theme/useTheme', async () => {
   return { usePalette: palette, useThemedStyles: (factory: (colors: unknown) => unknown) => factory(palette()) };
 });
 vi.mock('@/localization/useAppLocale', () => ({ useAppLocale: () => ({ locale: state.locale, messages: MESSAGES[state.locale] }) }));
-vi.mock('@/auth/useAuth', () => ({ useAuth: () => ({ refreshReading: () => state.refreshReading() }) }));
+vi.mock('@/auth/useAuth', () => ({ useAuth: () => ({ refreshReading: () => state.refreshReading(), syncOnFocus: (scope: string) => state.focusSyncs.push(scope) }) }));
 
 const { default: MyReadingScreen } = await import('@/app/(tabs)/my-reading');
 const { confirmKhatma, loadReadingData, saveWirdPage } = await import('@/mushaf/khatmas');
@@ -582,5 +588,16 @@ describe('pull-to-refresh (the same pattern as Favorites and Reflections)', () =
     await render();
     expect(control().props.onRefresh).toBeTypeOf('function');
     expect(flat(byId('my-reading-stats').props.style)).toMatchObject({ flexDirection: 'row-reverse' });
+  });
+});
+
+describe('screen focus', () => {
+  it('gaining focus asks for the reading-only sync (no Sync Password; throttled by useAuth), never the full one', async () => {
+    state.focusEffects.length = 0;
+    state.focusSyncs.length = 0;
+    await render();
+    expect(state.focusEffects.length).toBeGreaterThan(0);
+    await act(async () => { state.focusEffects.at(-1)!(); });
+    expect(state.focusSyncs).toEqual(['reading']);
   });
 });

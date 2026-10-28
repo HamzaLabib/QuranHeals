@@ -250,18 +250,35 @@ export function markReflectionSyncState(
  * changed it since — records the uploaded version as the base of that newer
  * edit, since it was made on top of what is now the cloud's version. Used
  * only by mobile/src/sync/reflectionsSync.ts.
+ *
+ * `storedTimestamp`: the instant the server actually stored it at, when it
+ * differs from the one sent (the server's time in place of a device clock
+ * running ahead — backend/src/services/clientInstants.ts). The entry then
+ * takes that instant, and so does a newer edit's base, so this device and
+ * the cloud agree on the version and a later change anywhere can still win.
  */
-export function markReflectionUploaded(verseKey: string, uploadedTimestamp: number, ownerUserId?: string | null): Promise<void> {
+export function markReflectionUploaded(
+  verseKey: string,
+  uploadedTimestamp: number,
+  ownerUserId?: string | null,
+  storedTimestamp: number = uploadedTimestamp,
+): Promise<void> {
   return mutate(async () => {
     const key = await storageKey(ownerUserId);
     const map = await readRawReflections(key);
     const existing = map[verseKey];
     if (!existing) return;
+    const atStoredInstant = (entry: ReflectionEntry): ReflectionEntry => {
+      if (storedTimestamp === uploadedTimestamp) return entry;
+      return isActiveReflection(entry)
+        ? { ...entry, updatedAt: storedTimestamp, createdAt: Math.min(entry.createdAt, storedTimestamp) }
+        : { ...entry, deletedAt: storedTimestamp };
+    };
     const next = entryTimestamp(existing) === uploadedTimestamp
-      ? { ...existing, syncState: 'synced' as const }
+      ? { ...atStoredInstant(existing), syncState: 'synced' as const }
       : existing.syncState === 'synced'
         ? existing
-        : { ...existing, baseUpdatedAt: uploadedTimestamp };
+        : { ...existing, baseUpdatedAt: storedTimestamp };
     if (next === existing) return;
     await AsyncStorage.setItem(key, JSON.stringify({ ...map, [verseKey]: next }));
   });

@@ -11,6 +11,7 @@ vi.mock('@/sync/preferencesSync', () => ({
 vi.mock('@/sync/favoritesSync', () => ({
   syncFavorites: vi.fn(async () => {
     callOrder.push('favorites');
+    return true;
   }),
 }));
 

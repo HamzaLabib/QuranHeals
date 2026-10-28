@@ -27,7 +27,6 @@ vi.mock('@/services/fetchWithTimeout', () => ({ fetchWithTimeout: state.fetch, D
 vi.mock('@/sync/syncApi', () => ({
   getCloudFavoriteSyncRecords: async () => state.cloud,
   putCloudFavoriteSyncRecords: async (_token: string, records: unknown[]) => { state.uploads.push(records); },
-  removeCloudFavorite: async () => undefined,
 }));
 
 const json = (status: number, body: unknown) => ({ ok: status >= 200 && status < 300, status, json: async () => body, text: async () => JSON.stringify(body) });

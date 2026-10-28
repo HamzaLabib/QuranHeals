@@ -26,9 +26,17 @@ vi.mock('@/services/api', () => ({
   getAyah: vi.fn(async (verseKey: string) => ({ id: verseKey, verseKey })),
 }));
 
+// The local Quran database (services/ayahForAction.ts). Unavailable unless a
+// test says otherwise, so the backend's ayah is what restores a favorite.
+const noLocalDatabase = async (): Promise<never> => {
+  throw new Error('No local Quran database in this test.');
+};
+vi.mock('@/services/ayahForAction', () => ({ localAyah: vi.fn(noLocalDatabase) }));
+
 const { syncFavorites, pushFavoriteChange } = await import('@/sync/favoritesSync');
 const { getAyah } = await import('@/services/api');
 const { putFavoriteFromSync, putFavoriteTombstoneFromSync } = await import('@/storage/favorites');
+const { localAyah } = await import('@/services/ayahForAction');
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -37,6 +45,7 @@ afterEach(() => {
   downloaded.length = 0;
   tombstonesDownloaded.length = 0;
   vi.mocked(getAyah).mockClear();
+  vi.mocked(localAyah).mockReset().mockImplementation(noLocalDatabase);
   vi.mocked(putFavoriteFromSync).mockClear();
   vi.mocked(putFavoriteTombstoneFromSync).mockClear();
 });
@@ -102,7 +111,8 @@ describe('syncFavorites', () => {
       return { id: verseKey, verseKey } as unknown as Awaited<ReturnType<typeof getAyah>>;
     });
 
-    await expect(syncFavorites('token', 'user-1')).resolves.toBeUndefined();
+    // Not restorable yet: reported as incomplete (the session retries), never dropped.
+    await expect(syncFavorites('token', 'user-1')).resolves.toBe(false);
     expect(downloaded).toEqual([{ id: '2:2', verseKey: '2:2', savedAt: new Date(1000).toISOString() }]);
   });
 });
@@ -415,5 +425,133 @@ describe('syncFavorites: deletion tombstones', () => {
 
     expect(putCalls).toBe(0);
     expect(tombstonesDownloaded).toHaveLength(0);
+  });
+});
+
+describe('syncFavorites: restoring from the local Quran database', () => {
+  const cloudOnly = (verseKey: string, at: number) => mockFetch((init) => {
+    if (init?.method === 'PUT') return { success: true, data: { saved: [] } };
+    return { success: true, data: [{ type: 'active', verseKey, createdAt: new Date(at).toISOString(), updatedAt: new Date(at).toISOString() }] };
+  });
+
+  it('a cloud favorite is built from the local database — no backend request — and stored with the account`s instant', async () => {
+    vi.mocked(localAyah).mockImplementation(async (verseKey: string) => ({ id: verseKey, verseKey, englishTranslation: '' }) as never);
+    cloudOnly('2:255', 4000);
+
+    await expect(syncFavorites('token', 'user-1')).resolves.toBe(true);
+
+    expect(localAyah).toHaveBeenCalledWith('2:255');
+    expect(getAyah).not.toHaveBeenCalled();
+    // Its translation is fetched later, as for a favorite saved offline (storage/favorites.ts).
+    expect(downloaded).toEqual([{ id: '2:255', verseKey: '2:255', englishTranslation: '', savedAt: new Date(4000).toISOString() }]);
+    // Never written over a change made here meanwhile: only while there is still no entry for it.
+    expect(vi.mocked(putFavoriteFromSync).mock.calls[0][2]).toBeNull();
+  });
+
+  it('without the local database, the backend`s ayah is used', async () => {
+    cloudOnly('2:255', 4000);
+    await expect(syncFavorites('token', 'user-1')).resolves.toBe(true);
+    expect(getAyah).toHaveBeenCalledWith('2:255');
+    expect(downloaded).toEqual([{ id: '2:255', verseKey: '2:255', savedAt: new Date(4000).toISOString() }]);
+  });
+
+  it('neither available: nothing is stored, deleted or uploaded for it, the sync reports incomplete, and a later sync restores it', async () => {
+    vi.mocked(getAyah).mockImplementation(async () => { throw new Error('offline'); });
+    const puts: unknown[] = [];
+    mockFetch((init) => {
+      if (init?.method === 'PUT') { puts.push(JSON.parse(String(init.body))); return { success: true, data: { saved: [] } }; }
+      return { success: true, data: [{ type: 'active', verseKey: '2:255', createdAt: new Date(4000).toISOString(), updatedAt: new Date(4000).toISOString() }] };
+    });
+
+    await expect(syncFavorites('token', 'user-1')).resolves.toBe(false);
+
+    expect(downloaded).toEqual([]);
+    expect(tombstonesDownloaded).toEqual([]);
+    expect(puts).toEqual([]);
+
+    // Back online: the account still has it.
+    vi.mocked(getAyah).mockImplementation(async (verseKey: string) => ({ id: verseKey, verseKey }) as never);
+    await expect(syncFavorites('token', 'user-1')).resolves.toBe(true);
+    expect(downloaded).toEqual([{ id: '2:255', verseKey: '2:255', savedAt: new Date(4000).toISOString() }]);
+  });
+
+  it('a favorite already saved here keeps its own ayah when the account`s newer instant is applied (no lookup at all)', async () => {
+    localFavorites.items = [{ id: '1:1', verseKey: '1:1', savedAt: new Date(1000).toISOString() }];
+    cloudOnly('1:1', 6000);
+
+    await expect(syncFavorites('token', 'user-1')).resolves.toBe(true);
+
+    expect(localAyah).not.toHaveBeenCalled();
+    expect(getAyah).not.toHaveBeenCalled();
+    expect(downloaded).toEqual([{ id: '1:1', verseKey: '1:1', savedAt: new Date(6000).toISOString() }]);
+    expect(vi.mocked(putFavoriteFromSync).mock.calls[0][2]).toBe(1000);
+  });
+});
+
+describe('a device clock running ahead: the instant the account stored is adopted here', () => {
+  const FUTURE = Date.parse('2099-01-01T00:00:00.000Z');
+  const SERVER_NOW = Date.parse('2026-10-27T12:00:00.000Z');
+
+  it('full sync: a favorite stored at the server`s time takes that instant here, so the next sync uploads nothing', async () => {
+    localFavorites.items = [{ id: '1:1', verseKey: '1:1', savedAt: new Date(FUTURE).toISOString() }];
+    let cloud: Record<string, unknown>[] = [];
+    const puts: unknown[] = [];
+    mockFetch((init) => {
+      if (init?.method === 'PUT') {
+        puts.push(JSON.parse(String(init.body)));
+        cloud = [{ type: 'active', verseKey: '1:1', createdAt: new Date(SERVER_NOW).toISOString(), updatedAt: new Date(SERVER_NOW).toISOString() }];
+        return { success: true, data: { saved: cloud } };
+      }
+      return { success: true, data: cloud };
+    });
+
+    await expect(syncFavorites('token', 'user-1')).resolves.toBe(true);
+
+    expect(puts).toHaveLength(1);
+    // Rewritten with its own ayah, and only if it is still the favorite that was sent.
+    expect(downloaded).toEqual([{ id: '1:1', verseKey: '1:1', savedAt: new Date(SERVER_NOW).toISOString() }]);
+    expect(vi.mocked(putFavoriteFromSync).mock.calls[0][2]).toBe(FUTURE);
+
+    localFavorites.items = [{ id: '1:1', verseKey: '1:1', savedAt: new Date(SERVER_NOW).toISOString() }];
+    await syncFavorites('token', 'user-1');
+    expect(puts).toHaveLength(1);
+  });
+
+  it('full sync: a deletion stored at the server`s time takes that instant here', async () => {
+    localTombstones.items = [{ verseKey: '3:3', deleted: true, deletedAt: FUTURE }];
+    mockFetch((init) => {
+      if (init?.method === 'PUT') return { success: true, data: { saved: [{ type: 'tombstone', verseKey: '3:3', deletedAt: new Date(SERVER_NOW).toISOString() }] } };
+      return { success: true, data: [] };
+    });
+
+    await syncFavorites('token', 'user-1');
+
+    expect(vi.mocked(putFavoriteTombstoneFromSync).mock.calls[0]).toEqual([{ verseKey: '3:3', deletedAt: SERVER_NOW }, 'user-1', FUTURE]);
+  });
+
+  it('immediate upload: an add stored at the server`s time takes that instant here, keeping its own ayah', async () => {
+    localFavorites.items = [{ id: '8:8', verseKey: '8:8', savedAt: new Date(FUTURE).toISOString() }];
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({
+      success: true,
+      data: { saved: [{ type: 'active', verseKey: '8:8', createdAt: new Date(SERVER_NOW).toISOString(), updatedAt: new Date(SERVER_NOW).toISOString() }] },
+    }), { status: 200 })));
+
+    await pushFavoriteChange('token', 'user-1', '8:8');
+
+    expect(getAyah).not.toHaveBeenCalled();
+    expect(downloaded).toEqual([{ id: '8:8', verseKey: '8:8', savedAt: new Date(SERVER_NOW).toISOString() }]);
+    expect(vi.mocked(putFavoriteFromSync).mock.calls[0][2]).toBe(FUTURE);
+  });
+
+  it('immediate upload: a removal stored at the server`s time takes that instant here', async () => {
+    localTombstones.items = [{ verseKey: '9:9', deleted: true, deletedAt: FUTURE }];
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({
+      success: true,
+      data: { saved: [{ type: 'tombstone', verseKey: '9:9', deletedAt: new Date(SERVER_NOW).toISOString() }] },
+    }), { status: 200 })));
+
+    await pushFavoriteChange('token', 'user-1', '9:9');
+
+    expect(tombstonesDownloaded).toEqual([{ verseKey: '9:9', deletedAt: SERVER_NOW }]);
   });
 });

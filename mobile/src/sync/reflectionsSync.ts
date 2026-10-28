@@ -69,6 +69,16 @@ function serverKeptDifferentVersion(sent: ReflectionSyncRecord, saved: Reflectio
 }
 
 /**
+ * The server stored this device's own upload (the same deletion, or the
+ * same ciphertext — serverKeptDifferentVersion is false) at an earlier
+ * instant than sent: its own time in place of a device clock running ahead
+ * (backend/src/services/clientInstants.ts). Mirrors favoritesSync.ts.
+ */
+function storedEarlier(sent: ReflectionSyncRecord, saved: ReflectionSyncRecord): boolean {
+  return isTombstoneRecord(sent) === isTombstoneRecord(saved) && recordTimestamp(saved) < recordTimestamp(sent);
+}
+
+/**
  * Encrypt-then-upload every local reflection/tombstone that's newer than
  * (or absent from) the cloud, then decrypt-and-download every cloud
  * active/tombstone record that's newer than the local copy (Part D
@@ -219,7 +229,10 @@ export async function syncReflections(sessionToken: string, masterKey: Uint8Arra
       const sent = sentByVerseKey.get(saved.verseKey);
       if (!sent) return markReflectionSyncState(saved.verseKey, 'synced', ownerUserId);
       if (racedVerseKeys.has(saved.verseKey)) return markReflectionSyncState(saved.verseKey, 'synced', ownerUserId, recordTimestamp(sent));
-      return markReflectionUploaded(saved.verseKey, recordTimestamp(sent), ownerUserId);
+      // Stored as sent, possibly at an earlier instant (storedEarlier): this
+      // device takes the instant the account holds.
+      const storedAt = storedEarlier(sent, saved) ? recordTimestamp(saved) : recordTimestamp(sent);
+      return markReflectionUploaded(saved.verseKey, recordTimestamp(sent), ownerUserId, storedAt);
     }));
   }
 

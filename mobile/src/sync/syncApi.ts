@@ -80,23 +80,6 @@ async function authedRequest<T>(sessionToken: string, path: string, init: Reques
   return payload.data;
 }
 
-export type FavoriteRecord = { verseKey: string; createdAt: string; updatedAt: string };
-
-export function getCloudFavorites(sessionToken: string) {
-  return authedRequest<FavoriteRecord[]>(sessionToken, '/api/sync/favorites');
-}
-
-export function addCloudFavorites(sessionToken: string, verseKeys: string[]) {
-  return authedRequest<FavoriteRecord[]>(sessionToken, '/api/sync/favorites', {
-    method: 'PUT',
-    body: JSON.stringify({ verseKeys }),
-  });
-}
-
-export function removeCloudFavorite(sessionToken: string, verseKey: string) {
-  return authedRequest<null>(sessionToken, `/api/sync/favorites/${encodeURIComponent(verseKey)}`, { method: 'DELETE' });
-}
-
 export type FavoriteActiveRecord = {
   // Optional for symmetry with the tombstone variant — every upload this
   // client makes sets it explicitly (see favoritesSync.ts).

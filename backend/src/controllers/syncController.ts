@@ -3,7 +3,8 @@ import type { Request, Response } from 'express';
 import { verifyFreshProviderReauthentication, type ReauthenticationDeps } from '../auth/providerReauthentication';
 import { AppError } from '../errors/AppError';
 import type { AuthenticatedRequest } from '../middleware/requireAuth';
-import type { SyncRepository } from '../services/SyncRepository';
+import { acceptClientInstant, acceptCreatedAt } from '../services/clientInstants';
+import type { IncomingFavoriteRecord, IncomingReflectionRecord, SyncRepository } from '../services/SyncRepository';
 import { pullReadingQuerySchema, pushReadingSchema } from '../validators/readingSyncValidators';
 import {
   favoriteVerseKeyParamsSchema,
@@ -20,6 +21,21 @@ function userId(req: Request): string {
   // only place `auth.userId` is ever set — always from a verified session
   // token, never a request body/query field. See Part B §7.
   return (req as AuthenticatedRequest).auth.userId;
+}
+
+// Device-declared instants, as stored (services/clientInstants.ts): one
+// server time per request, so every record in it is judged the same way.
+
+function acceptFavoriteRecord(record: IncomingFavoriteRecord, now: number): IncomingFavoriteRecord {
+  if (record.type === 'tombstone') return { ...record, deletedAt: acceptClientInstant(record.deletedAt, now) };
+  const updatedAt = acceptClientInstant(record.updatedAt, now);
+  return { ...record, updatedAt, createdAt: acceptCreatedAt(record.createdAt, updatedAt, now) };
+}
+
+function acceptReflectionRecord(record: IncomingReflectionRecord, now: number): IncomingReflectionRecord {
+  if (record.type === 'tombstone') return { ...record, deletedAt: acceptClientInstant(record.deletedAt, now) };
+  const updatedAt = acceptClientInstant(record.updatedAt, now);
+  return { ...record, updatedAt, createdAt: acceptCreatedAt(record.createdAt, updatedAt, now) };
 }
 
 export function createSyncController(repository: SyncRepository, reauthentication: ReauthenticationDeps) {
@@ -42,7 +58,9 @@ export function createSyncController(repository: SyncRepository, reauthenticatio
         return;
       }
 
-      res.json({ success: true, data: { saved: await repository.putFavorites(userId(req), parsed.data.favorites) } });
+      const now = Date.now();
+      const favorites = parsed.data.favorites.map((record) => acceptFavoriteRecord(record, now));
+      res.json({ success: true, data: { saved: await repository.putFavorites(userId(req), favorites) } });
     },
 
     deleteFavorite: async (req: Request, res: Response) => {
@@ -62,7 +80,14 @@ export function createSyncController(repository: SyncRepository, reauthenticatio
       if (!parsed.success) throw new AppError('Invalid preferences payload.', 400);
 
       const { updatedAt, fieldUpdatedAt, ...preferences } = parsed.data;
-      res.json({ success: true, data: await repository.putPreferences(userId(req), preferences, updatedAt, fieldUpdatedAt) });
+      const now = Date.now();
+      const acceptedFieldUpdatedAt = fieldUpdatedAt
+        ? Object.fromEntries(Object.entries(fieldUpdatedAt).flatMap(([field, at]) => (at === undefined ? [] : [[field, acceptClientInstant(at, now)]])))
+        : undefined;
+      res.json({
+        success: true,
+        data: await repository.putPreferences(userId(req), preferences, acceptClientInstant(updatedAt, now), acceptedFieldUpdatedAt),
+      });
     },
 
     getReflections: async (req: Request, res: Response) => {
@@ -92,7 +117,9 @@ export function createSyncController(repository: SyncRepository, reauthenticatio
         throw new AppError('The reflection sync key has changed. Unlock sync again and retry.', 409);
       }
 
-      res.json({ success: true, data: await repository.putReflections(userId(req), parsed.data.reflections) });
+      const now = Date.now();
+      const reflections = parsed.data.reflections.map((record) => acceptReflectionRecord(record, now));
+      res.json({ success: true, data: await repository.putReflections(userId(req), reflections) });
     },
 
     /** أورادي وختماتي: this account's records changed after `since` (docs/auth-and-sync/reading-sync.md). */

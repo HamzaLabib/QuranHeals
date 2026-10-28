@@ -533,3 +533,57 @@ describe('syncReflections: deletion tombstones', () => {
     expect(downloaded[0]).toMatchObject({ verseKey: '2:255', text: 'genuinely recreated later' });
   });
 });
+
+describe('syncReflections: a device clock running ahead', () => {
+  const FUTURE = Date.parse('2099-01-01T00:00:00.000Z');
+  const SERVER_NOW = Date.parse('2026-10-27T12:00:00.000Z');
+
+  it('the same ciphertext stored at the server`s earlier instant: that instant is adopted here, nothing is downloaded or kept as a conflict', async () => {
+    const { markReflectionUploaded } = await import('@/storage/ayahReflections');
+    const masterKey = generateMasterKey(getRandomBytes);
+    localReflections.items = [{ verseKey: '2:255', text: 'fast clock', createdAt: FUTURE, updatedAt: FUTURE }];
+    let cloud: Record<string, unknown>[] = [];
+    mockFetch((init) => {
+      if (init?.method === 'PUT') {
+        const [sent] = JSON.parse(String(init.body)).reflections;
+        cloud = [{ ...sent, createdAt: new Date(SERVER_NOW).toISOString(), updatedAt: new Date(SERVER_NOW).toISOString() }];
+        return { success: true, data: { saved: cloud, conflicts: [] } };
+      }
+      return { success: true, data: init?.method ? [] : cloud };
+    });
+
+    await syncReflections('token', masterKey, 'user-1');
+
+    expect(vi.mocked(markReflectionUploaded).mock.calls.at(-1)).toEqual(['2:255', FUTURE, 'user-1', SERVER_NOW]);
+    expect(downloaded).toEqual([]);
+    expect(keptVersions.items).toEqual([]);
+  });
+
+  it('a deletion stored at the server`s earlier instant: that instant is adopted here', async () => {
+    const { markReflectionUploaded } = await import('@/storage/ayahReflections');
+    const masterKey = generateMasterKey(getRandomBytes);
+    localTombstones.items = [{ verseKey: '3:8', deletedAt: FUTURE }];
+    mockFetch((init) => {
+      if (init?.method === 'PUT') return { success: true, data: { saved: [{ type: 'tombstone', verseKey: '3:8', deletedAt: new Date(SERVER_NOW).toISOString() }], conflicts: [] } };
+      return { success: true, data: [] };
+    });
+
+    await syncReflections('token', masterKey, 'user-1');
+
+    expect(vi.mocked(markReflectionUploaded).mock.calls.at(-1)).toEqual(['3:8', FUTURE, 'user-1', SERVER_NOW]);
+  });
+
+  it('stored exactly as sent: the sent instant is kept', async () => {
+    const { markReflectionUploaded } = await import('@/storage/ayahReflections');
+    const masterKey = generateMasterKey(getRandomBytes);
+    localReflections.items = [{ verseKey: '2:255', text: 'normal clock', createdAt: 1000, updatedAt: 1000 }];
+    mockFetch((init) => {
+      if (init?.method === 'PUT') return { success: true, data: { saved: JSON.parse(String(init.body)).reflections, conflicts: [] } };
+      return { success: true, data: [] };
+    });
+
+    await syncReflections('token', masterKey, 'user-1');
+
+    expect(vi.mocked(markReflectionUploaded).mock.calls.at(-1)).toEqual(['2:255', 1000, 'user-1', 1000]);
+  });
+});

@@ -85,6 +85,19 @@ function favoriteEntryTimestamp(record: unknown): number | null {
   return null;
 }
 
+/**
+ * Whether the stored entry for `verseKey` is still the one sync read (its
+ * instant, or null for none). `undefined` skips the check. Lets sync apply
+ * the account's version without ever replacing a change made meanwhile —
+ * mirrors ayahReflections.ts's stillAsSnapshotted.
+ */
+function stillAsSnapshotted(records: unknown[], verseKey: string, expectedLocalTimestamp: number | null | undefined): boolean {
+  if (expectedLocalTimestamp === undefined) return true;
+  const entry = records.find((record) =>
+    isFavoriteTombstone(record) ? record.verseKey === verseKey : isFavoriteSnapshot(record) && resolveVerseKey(record) === verseKey);
+  return (entry === undefined ? null : favoriteEntryTimestamp(entry)) === expectedLocalTimestamp;
+}
+
 async function resolveFavorites(records: unknown[]): Promise<ResolvedFavorite[]> {
   const results = await Promise.all(records.map(async (record, index) => {
     if (!isFavoriteSnapshot(record)) return null;
@@ -194,14 +207,17 @@ export async function getAllFavoriteTombstones(ownerUserId?: string | null): Pro
  * Overwrites any local tombstone for this verseKey, since the cloud's
  * active record is newer (a recreation on another device). `favorite.savedAt`
  * is taken from the cloud record's own timestamp, not "now", so later
- * last-write-wins comparisons stay accurate.
+ * last-write-wins comparisons stay accurate. With `expectedLocalTimestamp`,
+ * nothing is written unless this verseKey's entry is still the one sync
+ * read (see stillAsSnapshotted).
  */
-export function putFavoriteFromSync(favorite: FavoriteAyah, ownerUserId?: string | null): Promise<FavoriteReadResult> {
+export function putFavoriteFromSync(favorite: FavoriteAyah, ownerUserId?: string | null, expectedLocalTimestamp?: number | null): Promise<FavoriteReadResult> {
   return mutateFavorites(async () => {
     const key = await storageKey(ownerUserId);
     const localAyah = await resolveAyahArabic(favorite);
     const next: FavoriteAyah & { verseKey: string } = { ...localAyah, savedAt: favorite.savedAt };
     const records = await readRawFavorites(key);
+    if (!stillAsSnapshotted(records, next.verseKey, expectedLocalTimestamp)) return toReadResult(records, await resolveFavorites(records));
     const resolved = await resolveFavorites(records);
     const existingActiveIndex = resolved.find(({ favorite: f }) => f.verseKey === next.verseKey)?.index;
     const existingTombstoneIndex = records.findIndex((record) => isFavoriteTombstone(record) && record.verseKey === next.verseKey);
@@ -224,12 +240,17 @@ export function putFavoriteFromSync(favorite: FavoriteAyah, ownerUserId?: string
  * Upserts a deletion tombstone downloaded from the cloud (the cloud's
  * tombstone is newer) — used only by mobile/src/sync/favoritesSync.ts.
  * Overwrites any local active favorite for this verseKey, since the cloud
- * has since deleted it.
+ * has since deleted it. `expectedLocalTimestamp`: as putFavoriteFromSync.
  */
-export function putFavoriteTombstoneFromSync(tombstone: { verseKey: string; deletedAt: number }, ownerUserId?: string | null): Promise<void> {
+export function putFavoriteTombstoneFromSync(
+  tombstone: { verseKey: string; deletedAt: number },
+  ownerUserId?: string | null,
+  expectedLocalTimestamp?: number | null,
+): Promise<void> {
   return mutateFavorites(async () => {
     const key = await storageKey(ownerUserId);
     const records = await readRawFavorites(key);
+    if (!stillAsSnapshotted(records, tombstone.verseKey, expectedLocalTimestamp)) return;
     const resolved = await resolveFavorites(records);
     const next: FavoriteTombstone = { verseKey: tombstone.verseKey, deleted: true, deletedAt: tombstone.deletedAt };
     const existingActiveIndex = resolved.find(({ favorite }) => favorite.verseKey === tombstone.verseKey)?.index;

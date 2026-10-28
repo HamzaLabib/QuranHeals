@@ -24,6 +24,7 @@ export type FullSyncOptions = {
 export class StaleSyncError extends Error {}
 
 export type FullSyncResult = {
+  /** True only when every account favorite is on this device (one not restorable yet leaves it false). */
   favoritesSynced: boolean;
   preferencesSynced: boolean;
   reflectionsSynced: boolean;
@@ -83,8 +84,8 @@ export async function runFullSync(sessionToken: string, options: FullSyncOptions
     const masterKey = await ensureReflectionMasterKey(sessionToken, options.promptForPassphrase, options.ownerUserId, isCurrent);
 
     stopIfStale();
-    await syncFavorites(sessionToken, options.ownerUserId);
-    result.favoritesSynced = true;
+    // False while a favorite could not be restored here yet (sync/favoritesSync.ts): retried, never dropped.
+    result.favoritesSynced = await syncFavorites(sessionToken, options.ownerUserId);
 
     stopIfStale();
     await syncReflections(sessionToken, masterKey, options.ownerUserId);

@@ -79,16 +79,33 @@ const FOREGROUND_RESYNC_THROTTLE_MS = 60_000;
  */
 const READING_CHANGE_DEBOUNCE_MS = 2_000;
 /**
- * When a sync fails or leaves reading changes unacknowledged (offline, a
- * server error), it is retried while the app stays open, at these growing
- * intervals — the app has no network-status module, so this, the
- * foreground resync and the next change are how a returning connection is
- * noticed. Never polls otherwise; stops in the background and on sign-out.
+ * When a sync fails or leaves something not yet on the account or this
+ * device (offline, a server error, a favorite not restorable yet), the
+ * whole sync — settings, أورادي وختماتي, favorites, reflections — is
+ * retried while the app stays open, once after each of these delays and
+ * then no more: the app has no network-status module, so this, the
+ * foreground resync, pull-to-refresh, screen focus and the next change are
+ * how a returning connection is noticed. The retry is the same single-flight
+ * sync as sign-in, so it never overlaps another and never bypasses the Sync
+ * Password: favorites and reflections sync only once this account's key is
+ * unlocked on this device (sync/syncKeyManager.ts). A complete sync, a
+ * return to the foreground or a pull starts the delays again. Stops in the
+ * background and on sign-out.
  */
 const SYNC_RETRY_DELAYS_MS = [15_000, 60_000, 5 * 60_000, 15 * 60_000];
 
+/**
+ * A screen showing synced data gaining focus (Favorites, My Reading)
+ * refreshes it only if nothing of the kind synced this recently — switching
+ * tabs back and forth never starts a sync each time.
+ */
+const FOCUS_RESYNC_THROTTLE_MS = 30_000;
+
 /** Why a sync started — for dev-only timing logs (devLog), and so a local change is never dropped while another sync runs. */
-type SyncTrigger = 'session' | 'foreground' | 'pull' | 'local-change';
+type SyncTrigger = 'session' | 'foreground' | 'pull' | 'local-change' | 'retry' | 'focus';
+
+/** What a focused screen shows: أورادي وختماتي only (no Sync Password), or everything the account syncs. */
+export type FocusSyncScope = 'reading' | 'all';
 
 export type AuthContextValue = {
   status: AuthStatus;
@@ -109,6 +126,13 @@ export type AuthContextValue = {
    * no-op for a guest.
    */
   refreshReading: () => Promise<void>;
+  /**
+   * A screen showing synced data gained focus: 'reading' runs refreshReading's
+   * sync, 'all' refreshSync's — each only if no such sync started in the
+   * last FOCUS_RESYNC_THROTTLE_MS, and never alongside one already running.
+   * Fire-and-forget; a no-op for a guest.
+   */
+  syncOnFocus: (scope: FocusSyncScope) => void;
   /**
    * Permanently deletes the signed-in account. Local data (tokens, cached
    * master key, local reflections, local favorites) is cleared only after
@@ -186,21 +210,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const readingDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryAttemptRef = useRef(0);
-  const readingSyncRef = useRef<() => Promise<void>>(async () => {});
+  // The full sync a retry runs (set below, once runSyncAfterSignIn exists).
+  const retrySyncRef = useRef<() => void>(() => {});
+  // When the last أورادي وختماتي-only sync started (screen-focus throttle).
+  const lastReadingSyncAtRef = useRef(0);
   const clearSyncTimers = useCallback(() => {
     if (readingDebounceRef.current) clearTimeout(readingDebounceRef.current);
     if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
     readingDebounceRef.current = null;
     retryTimerRef.current = null;
   }, []);
-  /** After a failed or incomplete sync: one retry, later each time (never two scheduled at once). */
+  /** After a failed or incomplete sync: one retry, later each time, until SYNC_RETRY_DELAYS_MS runs out (never two scheduled at once). */
   const scheduleSyncRetry = useCallback(() => {
     if (retryTimerRef.current || AppState.currentState !== 'active') return;
-    const delay = SYNC_RETRY_DELAYS_MS[Math.min(retryAttemptRef.current, SYNC_RETRY_DELAYS_MS.length - 1)];
+    if (retryAttemptRef.current >= SYNC_RETRY_DELAYS_MS.length) return;
+    const delay = SYNC_RETRY_DELAYS_MS[retryAttemptRef.current];
     retryAttemptRef.current += 1;
     retryTimerRef.current = setTimeout(() => {
       retryTimerRef.current = null;
-      void readingSyncRef.current();
+      retrySyncRef.current();
     }, delay);
   }, []);
 
@@ -302,6 +330,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // only ever touches `ownerUserId`'s own data and server account.
       const epoch = currentAuthEpoch();
       const isCurrent = () => epoch === currentAuthEpoch();
+      // The user is back (or asked): failed syncs get the full retry schedule again.
+      if (trigger === 'foreground' || trigger === 'pull') retryAttemptRef.current = 0;
       const previous = syncInFlightRef.current;
       if (previous) {
         if (previous.epoch === epoch) {
@@ -363,9 +393,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Screens showing this account's data pick up what was downloaded.
           if (isCurrent() && (result.favoritesSynced || result.reflectionsSynced)) notifyLocalDataChanged();
           if (isCurrent()) {
-            if (result.readingSynced) retryAttemptRef.current = 0;
-            // Some reading change is still not on the account (e.g. a refused
-            // upload, or more conflicts than one sync resolves): try again.
+            const complete = result.preferencesSynced && result.readingSynced && result.favoritesSynced && result.reflectionsSynced;
+            if (complete) retryAttemptRef.current = 0;
+            // Something is still not on the account or this device (e.g. a
+            // refused reading upload, a favorite not restorable yet): try again.
             else scheduleSyncRetry();
           }
           devLog('sync', 'done', { trigger: runTrigger, elapsedMs: Date.now() - startedAt, ...result });
@@ -407,20 +438,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!ownerUserId) return;
     const epoch = currentAuthEpoch();
     const isCurrent = () => epoch === currentAuthEpoch();
+    lastReadingSyncAtRef.current = Date.now();
     try {
       const token = (await getSessionToken()) ?? sessionTokenRef.current;
       if (!token || !isCurrent()) return;
       const synced = await syncReading(token, ownerUserId, { isCurrent });
       if (!isCurrent()) return;
-      if (synced) retryAttemptRef.current = 0;
-      else scheduleSyncRetry();
+      // Success leaves the retry schedule alone: only a complete full sync
+      // shows that everything else has synced too.
+      if (!synced) scheduleSyncRetry();
     } catch {
       if (isCurrent()) scheduleSyncRetry();
     }
   }, [scheduleSyncRetry]);
   useEffect(() => {
-    readingSyncRef.current = runReadingSync;
-  }, [runReadingSync]);
+    retrySyncRef.current = () => {
+      const token = sessionTokenRef.current;
+      if (token) void runSyncAfterSignIn(token, 'retry');
+    };
+  }, [runSyncAfterSignIn]);
 
   // Uploads a setting the user changes while signed in, as soon as it is
   // recorded for this account (sync/preferencesSyncState.ts). Best-effort:
@@ -674,6 +710,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await runReadingSync();
   }, [runReadingSync]);
 
+  const syncOnFocus = useCallback((scope: FocusSyncScope) => {
+    const token = sessionTokenRef.current;
+    if (!token) return;
+    const now = Date.now();
+    // A full sync includes أورادي وختماتي, so it counts for both.
+    const lastAt = scope === 'reading' ? Math.max(lastReadingSyncAtRef.current, lastForegroundSyncAtRef.current) : lastForegroundSyncAtRef.current;
+    if (now - lastAt < FOCUS_RESYNC_THROTTLE_MS) return;
+    if (scope === 'reading') void runReadingSync();
+    // Single-flight: one already running is left to finish.
+    else void runSyncAfterSignIn(token, 'focus');
+  }, [runReadingSync, runSyncAfterSignIn]);
+
   const promptForFreshProviderCredential = useFreshProviderCredential(user?.provider ?? null);
 
   const deleteAccount = useCallback(async () => {
@@ -740,9 +788,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       clearLastError,
       refreshSync,
       refreshReading,
+      syncOnFocus,
       deleteAccount,
     }),
-    [status, user, lastError, signInWithGoogle, signInWithApple, signOut, clearLastError, refreshSync, refreshReading, deleteAccount],
+    [status, user, lastError, signInWithGoogle, signInWithApple, signOut, clearLastError, refreshSync, refreshReading, syncOnFocus, deleteAccount],
   );
 
   return (

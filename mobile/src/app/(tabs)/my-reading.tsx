@@ -5,6 +5,7 @@ import { KeyboardAvoidingView, Modal, Platform, Pressable, RefreshControl, Scrol
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/useAuth';
+import { useSyncOnFocus } from '@/hooks/useSyncOnFocus';
 import { ConfirmSheet } from '@/components/ConfirmSheet';
 import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { MushafIcon } from '@/components/MushafIcon';
@@ -98,6 +99,9 @@ export default function MyReadingScreen() {
   // rapid repeated pull (see pullToRefresh.ts for why a ref, not just the
   // state below), the spinner shown until both steps have finished.
   const { refreshReading } = useAuth();
+  // Opening (or returning to) this tab picks up another device's أوراد and
+  // Khatmas: the reading-only sync (no Sync Password), throttled.
+  useSyncOnFocus('reading');
   const refreshGuardRef = useRef<RefreshInFlightRef>({ current: false });
   const [isRefreshing, setIsRefreshing] = useState(false);
   const onPullToRefresh = useCallback(async () => {

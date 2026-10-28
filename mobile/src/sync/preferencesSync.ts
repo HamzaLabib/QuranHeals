@@ -97,7 +97,12 @@ async function upload(sessionToken: string, ownerUserId: string, apply: ApplyPre
         entry.synced = true;
         continue;
       }
-      if (stored.at >= sent.updatedAt) {
+      // This value, stored at an earlier instant than sent: the server's
+      // time in place of a device clock running ahead
+      // (backend/src/services/clientInstants.ts). That instant is kept here,
+      // so a later change on any device can still win.
+      const acceptedEarlier = stored.value === sent.value && stored.at < sent.updatedAt;
+      if (acceptedEarlier || stored.at >= sent.updatedAt) {
         // The account holds a newer value (another device), or the same
         // value at the newest instant of this upload (an older server).
         current.fields[field] = { value: stored.value, updatedAt: stored.at, synced: true };

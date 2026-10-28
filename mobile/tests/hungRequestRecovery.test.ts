@@ -31,7 +31,7 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
 const { getEmotions, getAyah } = await import('@/services/api');
 const { getRandomVerseKey } = await import('@/services/quran');
 const { withRetry } = await import('@/services/retry');
-const { getCloudFavorites, getCloudReflections, getCloudPreferences } = await import('@/sync/syncApi');
+const { getCloudFavoriteSyncRecords, getCloudReflections, getCloudPreferences } = await import('@/sync/syncApi');
 const { DEFAULT_FETCH_TIMEOUT_MS } = await import('@/services/fetchWithTimeout');
 
 /** A `fetch` that never resolves or rejects on its own — only an abort (the timeout) settles it. Mirrors a dead TCP connection / captive portal. */
@@ -220,10 +220,10 @@ describe('Sync-backed screens (Favorites/Reflections/Settings): a hung refreshSy
     const guard: RefreshInFlightRef = { current: false };
     let isRefreshing = false;
 
-    // getCloudFavorites is the exact same authedRequest-backed call every
+    // getCloudFavoriteSyncRecords is the exact same authedRequest-backed call every
     // sync-backed screen's refreshSync() eventually reaches — the real,
     // unmocked production function from sync/syncApi.ts.
-    const hungSyncCall = () => getCloudFavorites('token');
+    const hungSyncCall = () => getCloudFavoriteSyncRecords('token');
 
     const onPullToRefresh = () =>
       runGuardedRefresh(guard, async () => {

@@ -5,7 +5,7 @@ vi.mock('react-native', () => ({ Platform: { OS: 'web' } }));
 const refreshAccessToken = vi.fn<() => Promise<string | null>>();
 vi.mock('@/auth/tokenManager', () => ({ refreshAccessToken }));
 
-const { getCloudFavorites, replaceCloudSyncKey, SyncApiError } = await import('@/sync/syncApi');
+const { getCloudFavoriteSyncRecords, replaceCloudSyncKey, SyncApiError } = await import('@/sync/syncApi');
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -28,7 +28,7 @@ function mockFetchSequence(responses: Response[]) {
   return calls;
 }
 
-describe('authedRequest 401 handling (via getCloudFavorites)', () => {
+describe('authedRequest 401 handling (via getCloudFavoriteSyncRecords)', () => {
   it('on a 401, refreshes once and retries the original request with the new token', async () => {
     refreshAccessToken.mockResolvedValue('fresh-token');
     const calls = mockFetchSequence([
@@ -36,7 +36,7 @@ describe('authedRequest 401 handling (via getCloudFavorites)', () => {
       new Response(JSON.stringify({ success: true, data: [{ verseKey: '1:1', createdAt: '', updatedAt: '' }] }), { status: 200 }),
     ]);
 
-    const result = await getCloudFavorites('stale-token');
+    const result = await getCloudFavoriteSyncRecords('stale-token');
 
     expect(result).toEqual([{ verseKey: '1:1', createdAt: '', updatedAt: '' }]);
     expect(refreshAccessToken).toHaveBeenCalledTimes(1);
@@ -49,7 +49,7 @@ describe('authedRequest 401 handling (via getCloudFavorites)', () => {
     refreshAccessToken.mockResolvedValue(null);
     mockFetchSequence([new Response(JSON.stringify({ success: false, message: 'Session is invalid or has expired. Please sign in again.' }), { status: 401 })]);
 
-    await expect(getCloudFavorites('stale-token')).rejects.toBeInstanceOf(SyncApiError);
+    await expect(getCloudFavoriteSyncRecords('stale-token')).rejects.toBeInstanceOf(SyncApiError);
     expect(refreshAccessToken).toHaveBeenCalledTimes(1);
   });
 
@@ -57,7 +57,7 @@ describe('authedRequest 401 handling (via getCloudFavorites)', () => {
     refreshAccessToken.mockResolvedValue('still-bad-token');
     const calls = mockFetchSequence([new Response('', { status: 401 }), new Response('', { status: 401 })]);
 
-    await expect(getCloudFavorites('stale-token')).rejects.toBeInstanceOf(SyncApiError);
+    await expect(getCloudFavoriteSyncRecords('stale-token')).rejects.toBeInstanceOf(SyncApiError);
     expect(calls).toHaveLength(2);
     expect(refreshAccessToken).toHaveBeenCalledTimes(1);
   });
@@ -65,7 +65,7 @@ describe('authedRequest 401 handling (via getCloudFavorites)', () => {
   it('does not attempt a refresh at all on a non-401 failure', async () => {
     mockFetchSequence([new Response(JSON.stringify({ success: false, message: 'Server error.' }), { status: 500 })]);
 
-    await expect(getCloudFavorites('token')).rejects.toBeInstanceOf(SyncApiError);
+    await expect(getCloudFavoriteSyncRecords('token')).rejects.toBeInstanceOf(SyncApiError);
     expect(refreshAccessToken).not.toHaveBeenCalled();
   });
 });

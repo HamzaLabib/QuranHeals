@@ -249,8 +249,8 @@ describe('Interface message dictionary (messages.ts)', () => {
   it('uses the requested password wording and unrecoverability warning', () => {
     expect(MESSAGES.en.syncPassphrase).toMatchObject({
       createTitle: 'Set Password', unlockTitle: 'Enter Password',
-      createDescription: 'Create a Password to protect and encrypt your private reflections when they sync across your devices. Quran Heals cannot recover your Password if you forget it, so choose something you can remember.',
-      unlockDescription: 'Enter your Password to unlock your encrypted reflections on this device.',
+      createDescription: 'Create a Password to protect and encrypt your private reflections when they sync across your devices. Your favorites sync once it is set, and appear on another device after you enter it there. Quran Heals cannot recover your Password if you forget it, so choose something you can remember.',
+      unlockDescription: 'Enter your Password to unlock your encrypted reflections and restore your favorites on this device.',
       createPlaceholder: 'Password', unlockPlaceholder: 'Password', confirmPassword: 'Confirm Password',
       show: 'Show', hide: 'Hide', continueLabel: 'Continue',
       lengthHint: 'Use 8–32 characters.', allowedHint: 'Letters, numbers, and symbols are allowed.',
@@ -260,8 +260,8 @@ describe('Interface message dictionary (messages.ts)', () => {
     });
     expect(MESSAGES.ar.syncPassphrase).toMatchObject({
       createTitle: 'إنشاء كلمة المرور', unlockTitle: 'أدخل كلمة المرور',
-      createDescription: 'أنشئ كلمة مرور لحماية وتشفير خواطرك الخاصة عند تحديثها عبر أجهزتك. لا يمكن لتطبيق Quran Heals استعادة كلمة المرور إذا نسيتها، لذا اختر كلمة مرور يمكنك تذكرها.',
-      unlockDescription: 'أدخل كلمة المرور لفتح خواطرك المشفّرة على هذا الجهاز.',
+      createDescription: 'أنشئ كلمة مرور لحماية وتشفير خواطرك الخاصة عند تحديثها عبر أجهزتك. تُزامَن مفضلتك بعد إنشائها، وتظهر على أي جهاز آخر بعد إدخالها عليه. لا يمكن لتطبيق Quran Heals استعادة كلمة المرور إذا نسيتها، لذا اختر كلمة مرور يمكنك تذكرها.',
+      unlockDescription: 'أدخل كلمة المرور لفتح خواطرك المشفّرة واستعادة مفضلتك على هذا الجهاز.',
       createPlaceholder: 'كلمة المرور', confirmPassword: 'تأكيد كلمة المرور',
       show: 'إظهار', hide: 'إخفاء', continueLabel: 'متابعة',
       lengthHint: 'استخدم من 8 إلى 32 حرفًا.', allowedHint: 'يمكنك استخدام الحروف والأرقام والرموز.',

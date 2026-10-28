@@ -5,6 +5,7 @@ import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'r
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/useAuth';
+import { useSyncOnFocus } from '@/hooks/useSyncOnFocus';
 import { AyahCard } from '@/components/AyahCard';
 import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { ShareAyahSheet } from '@/components/ShareAyahSheet';
@@ -64,6 +65,9 @@ export default function FavoritesScreen() {
   const BackIcon = isRtl ? ArrowRight : ArrowLeft;
   const { favorites, removeFavorite, isReady, error, unresolvedCount, refreshFavorites } = useFavorites();
   const { refreshSync } = useAuth();
+  // Opening (or returning to) Saved Ayahs picks up another device's changes:
+  // the same full sync as pull-to-refresh, behind the Sync Password, throttled.
+  useSyncOnFocus('all');
   // Guards a rapid repeated pull gesture from starting a second, overlapping
   // sync + local re-read while one is already in flight (a ref, not just
   // the `isRefreshing` state below — see pullToRefresh.ts's doc comment for
