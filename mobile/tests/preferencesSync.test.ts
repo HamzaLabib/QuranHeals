@@ -289,13 +289,17 @@ describe('Quran Translation (synced as quranLanguage)', () => {
 });
 
 describe('device-only settings are never synced', () => {
-  it('notifications, Keep Screen Awake, offline download, the Mushaf guide and the last browsed page are not account fields', async () => {
+  it('the account fields (2026-10-27): offline download and the last browsed page are still never account fields', async () => {
     const { SYNCED_PREFERENCE_FIELDS } = await import('@/sync/preferenceFields');
-    expect([...SYNCED_PREFERENCE_FIELDS].sort()).toEqual(['appearance', 'emotionsLanguage', 'locale', 'quranFontSize', 'quranLanguage', 'translationDisplayMode', 'translationId']);
+    expect([...SYNCED_PREFERENCE_FIELDS].sort()).toEqual([
+      'appearance', 'emotionsLanguage', 'favoriteReciter', 'keepAwake', 'locale', 'memorizationGuide', 'memorizationModeVisible', 'mushafGuide',
+      'notificationEmotionCheckIn', 'notificationRandomAyah', 'notificationWird', 'quranFontSize', 'quranLanguage', 'translationDisplayMode',
+      'translationEnabledMode', 'translationId', 'wordMeaningsVisible',
+    ]);
     const { readFileSync } = await import('node:fs');
     const { resolve } = await import('node:path');
-    for (const file of ['../src/sync/preferencesSync.ts', '../src/sync/preferenceFields.ts', '../src/sync/preferencesSyncState.ts']) {
-      expect(readFileSync(resolve(__dirname, file), 'utf-8')).not.toMatch(/notification-preferences|mushaf-keep-awake|mushaf-offline-auto|mushaf-guide|mushaf-last-page/);
+    for (const file of ['../src/sync/preferencesSync.ts', '../src/sync/preferenceFields.ts', '../src/sync/preferencesSyncState.ts', '../src/sync/devicePreferencesClaim.ts']) {
+      expect(readFileSync(resolve(__dirname, file), 'utf-8')).not.toMatch(/mushaf-offline-auto|mushaf-last-page|lastBrowsedPage|autoDownload/);
     }
   });
 });

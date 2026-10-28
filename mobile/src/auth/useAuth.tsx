@@ -4,13 +4,21 @@ import { AppState } from 'react-native';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { saveEmotionsLanguage, type EmotionsLanguage } from '@/localization/emotionsLanguage';
 import { applySyncedQuranReadingMode, type QuranReadingMode } from '@/localization/quranLanguage';
-import type { TranslationDisplayMode } from '@/localization/quranTranslationPreference';
+import type { EnabledTranslationMode, TranslationDisplayMode } from '@/localization/quranTranslationPreference';
 import { useEmotionsLanguage } from '@/localization/useEmotionsLanguage';
 import { useQuranFontSizeSync } from '@/localization/useQuranFontSizePreference';
 import { useQuranTranslationPreference } from '@/localization/useQuranTranslationPreference';
 import type { AppLocale } from '@/localization/locales';
 import { useAppearancePreference } from '@/theme/useAppearancePreference';
 import type { AppearanceMode } from '@/theme/appearancePreference';
+import { useFavoriteReciter } from '@/audio/useFavoriteReciter';
+import { applySyncedMemorizationGuideDone } from '@/memorization/memorizationGuide';
+import { useMemorizationModeSetting } from '@/memorization/useMemorizationModeSetting';
+import { applySyncedGuideCompletion } from '@/mushaf/mushafGuide';
+import { useKeepAwakePreference } from '@/mushaf/useKeepAwakePreference';
+import { useWordMeaningsVisibility } from '@/mushaf/useWordMeaningsVisibility';
+import { applyAccountReminder, discardWaitingAccountReminders } from '@/notifications/accountReminders';
+import { claimDevicePreferences, forgoDevicePreferencesClaim } from '@/sync/devicePreferencesClaim';
 import { GuestDataSheet, type GuestDataChoice } from '@/components/GuestDataSheet';
 import { SyncPassphraseSheet } from '@/components/SyncPassphraseSheet';
 import { pushPreferences, type ApplyPreference } from '@/sync/preferencesSync';
@@ -31,7 +39,7 @@ import { clearAllReflections } from '@/storage/ayahReflections';
 import { clearAllConflictVersions } from '@/storage/reflectionConflicts';
 import { clearAllFavorites } from '@/storage/favorites';
 import { clearAccountReadingData } from '@/mushaf/khatmas';
-import { clearRecentEmotions } from '@/storage/recentEmotions';
+import { clearRecentEmotions, subscribeToRecentEmotionChanges } from '@/storage/recentEmotions';
 import { hideAccountDataNow, notifyLocalDataChanged } from '@/storage/localDataOwner';
 import {
   activateGuestLocalData,
@@ -233,11 +241,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const { setLocale, isReady: isLocaleReady } = useAppLocale();
-  const { setDisplayMode, isReady: isTranslationPreferenceReady } = useQuranTranslationPreference();
+  const { setDisplayMode, applySyncedTranslationMode, isReady: isTranslationPreferenceReady } = useQuranTranslationPreference();
   const { setMode: setAppearanceMode, isReady: isAppearanceReady } = useAppearancePreference();
   const { applySyncedSize, isReady: isFontSizeReady } = useQuranFontSizeSync();
   const { isReady: isEmotionsLanguageReady } = useEmotionsLanguage();
-  const preferencesHydrated = isLocaleReady && isTranslationPreferenceReady && isAppearanceReady && isFontSizeReady && isEmotionsLanguageReady;
+  const { setReciterId, isReady: isReciterReady } = useFavoriteReciter();
+  const { setEnabled: setKeepAwake, isReady: isKeepAwakeReady } = useKeepAwakePreference();
+  const { setVisible: setWordMeaningsVisible, isReady: isWordMeaningsReady } = useWordMeaningsVisibility();
+  const { setVisible: setMemorizationModeVisible, isReady: isMemorizationModeReady } = useMemorizationModeSetting();
+  const preferencesHydrated = isLocaleReady && isTranslationPreferenceReady && isAppearanceReady && isFontSizeReady && isEmotionsLanguageReady
+    && isReciterReady && isKeepAwakeReady && isWordMeaningsReady && isMemorizationModeReady;
 
   // Applies one of the signed-in account's settings on this device
   // (sync/preferenceFields.ts), through each setting's own setter with
@@ -266,6 +279,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         break;
       case 'quranFontSize':
         applySyncedSize(value as number);
+        break;
+      case 'translationEnabledMode':
+        applySyncedTranslationMode(value as EnabledTranslationMode);
+        break;
+      case 'favoriteReciter':
+        // One this app version does not list is ignored by the setter.
+        setReciterId(value as string, { fromSync: true });
+        break;
+      case 'keepAwake':
+        // The reader still holds the screen awake only while it is focused and the app active (useMushafKeepAwake.ts).
+        setKeepAwake(value as boolean, { fromSync: true });
+        break;
+      case 'wordMeaningsVisible':
+        setWordMeaningsVisible(value as boolean, { fromSync: true });
+        break;
+      case 'memorizationModeVisible':
+        setMemorizationModeVisible(value as boolean, { fromSync: true });
+        break;
+      case 'notificationWird':
+        // Applied by the reminders' provider once its settings have loaded (notifications/accountReminders.ts) and
+        // rescheduled as far as this device's own OS permission allows; never asks for it.
+        applyAccountReminder('wird', value);
+        break;
+      case 'notificationRandomAyah':
+        applyAccountReminder('randomAyah', value);
+        break;
+      case 'notificationEmotionCheckIn':
+        applyAccountReminder('emotionCheckIn', value);
+        break;
+      case 'mushafGuide':
+        void applySyncedGuideCompletion(value as 'closed' | 'finished');
+        break;
+      case 'memorizationGuide':
+        void applySyncedMemorizationGuideDone();
         break;
     }
   };
@@ -464,20 +511,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Values applied from the account are never recorded, so they never echo
   // back here; a change recorded for another account is never sent with
   // this session's token.
-  useEffect(() => subscribeToLocalPreferenceChanges((owner) => {
-    if (owner !== currentUserIdRef.current) return;
-    const epoch = currentAuthEpoch();
-    const isCurrent = () => epoch === currentAuthEpoch() && currentUserIdRef.current === owner;
-    void (async () => {
-      try {
-        const token = (await getSessionToken()) ?? sessionTokenRef.current;
-        if (!token || !isCurrent()) return;
-        await pushPreferences(token, owner, applyPreference, { isCurrent });
-      } catch {
-        // Left for the next full sync — see above.
-      }
-    })();
-  }), [applyPreference]);
+  // Home's recent emotions: a choice made while signed in goes up the same way.
+  useEffect(() => {
+    const push = (owner: string) => {
+      if (owner !== currentUserIdRef.current) return;
+      const epoch = currentAuthEpoch();
+      const isCurrent = () => epoch === currentAuthEpoch() && currentUserIdRef.current === owner;
+      void (async () => {
+        try {
+          const token = (await getSessionToken()) ?? sessionTokenRef.current;
+          if (!token || !isCurrent()) return;
+          await pushPreferences(token, owner, applyPreference, { isCurrent });
+        } catch {
+          // Left for the next full sync — see above.
+        }
+      })();
+    };
+    const unsubscribeSettings = subscribeToLocalPreferenceChanges(push);
+    const unsubscribeEmotions = subscribeToRecentEmotionChanges(push);
+    return () => {
+      unsubscribeSettings();
+      unsubscribeEmotions();
+    };
+  }, [applyPreference]);
 
   useEffect(() => {
     if (hasRestoredSessionRef.current) return;
@@ -503,7 +559,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const epoch = currentAuthEpoch();
       if (session.status === 'signed-in' && session.user) {
         const userId = session.user.id;
-        legacyPreferencesRef.current = claimLegacyPreferenceChanges(userId);
+        // Then the settings made account settings on 2026-10-27, once (sync/devicePreferencesClaim.ts).
+        legacyPreferencesRef.current = claimLegacyPreferenceChanges(userId).then(() => claimDevicePreferences(userId));
         void activateLocalDataForAccount(userId, () => epoch === currentAuthEpoch()).catch(() => {
           // Retried by the sync below; local data stays where it is.
         });
@@ -513,6 +570,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         void activateGuestLocalData().catch(() => {
           // Re-evaluated on the next launch.
         });
+        // A guest's settings on this device are never claimed by an account.
+        void forgoDevicePreferencesClaim();
       }
       setUser(session.user);
       setStatus(session.status);
@@ -600,7 +659,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // An interactive sign-in asks about guest data again.
       await forgetGuestDataDecision(signedInUser.id).catch(() => {});
       // Settings: only this account's own are synced — never ones chosen as a guest or under another account.
-      legacyPreferencesRef.current = discardLegacyPreferenceChanges();
+      legacyPreferencesRef.current = Promise.all([discardLegacyPreferenceChanges(), forgoDevicePreferencesClaim()]).then(() => undefined);
       if (!isCurrent()) return;
       currentUserIdRef.current = signedInUser.id;
       // Only absent if the backend itself omitted it — this app's backend
@@ -672,6 +731,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setStatus('guest');
     legacyPreferencesRef.current = discardLegacyPreferenceChanges();
+    discardWaitingAccountReminders();
     const cleared = (async () => {
       await activateGuestLocalData().catch(() => {});
       await clearPersistedSession(epoch);

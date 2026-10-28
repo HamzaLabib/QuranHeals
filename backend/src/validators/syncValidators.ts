@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { isValidVerseKey } from '../quran/referenceKeys';
+import { PREFERENCE_FIELDS, RECENT_EMOTIONS_LIMIT, type PreferenceField } from '../services/preferencesMerge';
 
 const verseKeySchema = z.string().trim().refine((key) => isValidVerseKey(key), 'Invalid verse key.');
 const isoDateSchema = z.string().trim().refine((value) => !Number.isNaN(Date.parse(value)), 'Invalid timestamp.');
@@ -59,6 +60,21 @@ export const favoriteVerseKeyParamsSchema = z.object({
  *  - appearance: mobile/src/theme/appearancePreference.ts;
  *  - quranFontSize: mobile/src/localization/quranFontSizePreference.ts (22–32, in steps of 2).
  */
+// One reminder in the app's stored form (mobile/src/notifications/preferences.ts serialize): "HH:MM" times, ISO
+// weekday 1–7, an every-3-days anchor "YYYY-MM-DD". Which frequencies a reminder offers is the app's own rule.
+const storedTimeSchema = z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/);
+const reminderSchema = z.object({
+  enabled: z.boolean(),
+  frequency: z.enum(['daily', 'every3days', 'weekly', 'twiceDaily']),
+  time: storedTimeSchema,
+  weekday: z.number().int().min(1).max(7).nullable(),
+  anchor: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
+  twice: z.object({ morning: storedTimeSchema, evening: storedTimeSchema }).strict().optional(),
+}).strict();
+// Emotion keys as the catalog has them (e.g. "anxious", "self-doubt"); `at`: that emotion's latest use.
+const recentEmotionsSchema = z.array(z.object({ key: z.string().regex(/^[A-Za-z0-9_-]{1,100}$/), at: isoDateSchema }).strict()).max(RECENT_EMOTIONS_LIMIT);
+const instantFields = Object.fromEntries(PREFERENCE_FIELDS.map((field) => [field, isoDateSchema.optional()])) as Record<PreferenceField, z.ZodOptional<typeof isoDateSchema>>;
+
 export const putPreferencesSchema = z.object({
   locale: z.enum(['en', 'ar', 'ar-EG']).optional(),
   translationDisplayMode: translationDisplayModeSchema.optional(),
@@ -67,18 +83,26 @@ export const putPreferencesSchema = z.object({
   emotionsLanguage: z.enum(['follow', 'en', 'ar', 'ar-EG']).optional(),
   appearance: z.enum(['system', 'light', 'dark']).optional(),
   quranFontSize: z.number().int().min(22).max(32).refine((size) => size % 2 === 0, 'Invalid size.').optional(),
+  // Added 2026-10-27; each mirrors the app's own setting:
+  //  - translationEnabledMode: Show Translation's dropdown (localization/quranTranslationPreference.ts);
+  //  - favoriteReciter: a reciter id (audio/reciters.ts; the app ignores one it does not list);
+  //  - keepAwake / wordMeaningsVisible / memorizationModeVisible: the three switches;
+  //  - notification*: the three reminders (notifications/preferences.ts);
+  //  - mushafGuide / memorizationGuide: each guide's completion (mushaf/mushafGuide.ts, memorization/memorizationGuide.ts);
+  //  - recentEmotions: Home's recent emotions (storage/recentEmotions.ts), merged as a history (preferencesMerge.ts).
+  translationEnabledMode: z.enum(['always', 'on-demand']).optional(),
+  favoriteReciter: z.string().regex(/^[a-z0-9-]{1,60}$/).optional(),
+  keepAwake: z.boolean().optional(),
+  wordMeaningsVisible: z.boolean().optional(),
+  memorizationModeVisible: z.boolean().optional(),
+  notificationWird: reminderSchema.optional(),
+  notificationRandomAyah: reminderSchema.optional(),
+  notificationEmotionCheckIn: reminderSchema.optional(),
+  mushafGuide: z.enum(['closed', 'finished']).optional(),
+  memorizationGuide: z.literal('done').optional(),
+  recentEmotions: recentEmotionsSchema.optional(),
   updatedAt: isoDateSchema,
-  fieldUpdatedAt: z
-    .object({
-      locale: isoDateSchema.optional(),
-      translationDisplayMode: isoDateSchema.optional(),
-      translationId: isoDateSchema.optional(),
-      quranLanguage: isoDateSchema.optional(),
-      emotionsLanguage: isoDateSchema.optional(),
-      appearance: isoDateSchema.optional(),
-      quranFontSize: isoDateSchema.optional(),
-    })
-    .optional(),
+  fieldUpdatedAt: z.object(instantFields).optional(),
 });
 
 // Generous but bounded: a 2,000-character reflection (worst case ~4,000

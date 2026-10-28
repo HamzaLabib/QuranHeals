@@ -17,10 +17,15 @@ import {
 } from './types';
 
 /**
- * The three reminders' settings: a purely local device preference, like Keep
- * Screen Awake — never synced, never sent anywhere, the same for a guest and
- * every account on this device (the reminders themselves carry no account
- * data: see content.ts). One versioned key, the project's convention.
+ * The three reminders' settings. Stored on the device under one versioned
+ * key (the project's convention), and since 2026-10-27 each reminder is an
+ * account setting too (sync/preferenceFields.ts): a change made while signed
+ * in follows the account to its other devices, which apply it and
+ * reschedule. Only the settings sync: each device keeps its own OS
+ * permission (and asks for it only from the user's own tap in Settings), so
+ * a device without permission simply schedules nothing. There are no push
+ * tokens: every reminder is scheduled on the device itself, and the
+ * reminders carry no account data (see content.ts).
  *
  * Defaults (only for a field never saved — an explicit OFF, or any other
  * saved value, is kept for good):
@@ -100,15 +105,22 @@ export function parseNotificationPreferences(raw: unknown): NotificationPreferen
   return result;
 }
 
+/** One reminder in its stored form — also the form the account keeps (sync/preferenceFields.ts SyncedReminder). */
+export function storedReminder(kind: NotificationKind, p: ReminderPreference): Record<string, unknown> {
+  return {
+    enabled: p.enabled, frequency: p.frequency, time: formatStoredTime(p.time), weekday: p.weekday, anchor: p.anchor,
+    ...(TWICE_DAILY_KINDS.includes(kind) && p.twice ? { twice: { morning: formatStoredTime(p.twice.morning), evening: formatStoredTime(p.twice.evening) } } : {}),
+  };
+}
+
+/** A reminder in stored form (from the account), as the app uses it; each field validated as when read from the device. */
+export function parseStoredReminder(kind: NotificationKind, raw: unknown): ReminderPreference {
+  return parseOne(raw, DEFAULT_NOTIFICATION_PREFERENCES[kind], kind);
+}
+
 function serialize(preferences: NotificationPreferences): string {
   const out: Record<string, unknown> = { schema: 1 };
-  for (const kind of NOTIFICATION_KINDS) {
-    const p = preferences[kind];
-    out[kind] = {
-      enabled: p.enabled, frequency: p.frequency, time: formatStoredTime(p.time), weekday: p.weekday, anchor: p.anchor,
-      ...(TWICE_DAILY_KINDS.includes(kind) && p.twice ? { twice: { morning: formatStoredTime(p.twice.morning), evening: formatStoredTime(p.twice.evening) } } : {}),
-    };
-  }
+  for (const kind of NOTIFICATION_KINDS) out[kind] = storedReminder(kind, preferences[kind]);
   return JSON.stringify(out);
 }
 

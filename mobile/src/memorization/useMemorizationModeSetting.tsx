@@ -1,4 +1,7 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+
+import type { PreferenceChangeOptions } from '@/localization/useAppLocale';
+import { recordLocalPreferenceChange } from '@/sync/preferencesSyncState';
 
 import { DEFAULT_MEMORIZATION_MODE_VISIBLE, loadMemorizationModeVisible, saveMemorizationModeVisible } from './memorizationModePreference';
 
@@ -7,7 +10,8 @@ export type MemorizationModeSettingContextValue = {
   visible: boolean;
   /** True once the stored choice has been read (or the read failed and fell back to the default). */
   isReady: boolean;
-  setVisible: (visible: boolean) => void;
+  /** `fromSync`: the signed-in account's value (useAuth.tsx), applied without being recorded as this device's change. */
+  setVisible: (visible: boolean, options?: PreferenceChangeOptions) => void;
 };
 
 /**
@@ -24,12 +28,14 @@ const MemorizationModeSettingContext = createContext<MemorizationModeSettingCont
  */
 export function MemorizationModeSettingProvider({ children }: { children: ReactNode }) {
   const [visible, setVisibleState] = useState(DEFAULT_MEMORIZATION_MODE_VISIBLE);
+  const currentRef = useRef(DEFAULT_MEMORIZATION_MODE_VISIBLE);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     void loadMemorizationModeVisible().then((loaded) => {
       if (cancelled) return;
+      currentRef.current = loaded;
       setVisibleState(loaded);
       setIsReady(true);
     });
@@ -38,7 +44,10 @@ export function MemorizationModeSettingProvider({ children }: { children: ReactN
     };
   }, []);
 
-  const setVisible = useCallback((next: boolean) => {
+  const setVisible = useCallback((next: boolean, options?: PreferenceChangeOptions) => {
+    // The user's own change is recorded for the signed-in account (sync/preferencesSyncState.ts).
+    if (!options?.fromSync && next !== currentRef.current) recordLocalPreferenceChange('memorizationModeVisible', next);
+    currentRef.current = next;
     setVisibleState(next);
     void saveMemorizationModeVisible(next);
   }, []);

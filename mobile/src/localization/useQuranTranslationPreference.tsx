@@ -19,6 +19,12 @@ export type QuranTranslationPreferenceContextValue = {
   setShowTranslation: (on: boolean) => void;
   /** Settings → Show Translation's dropdown: applied at once while ON, kept for later while OFF. */
   setTranslationMode: (mode: EnabledTranslationMode) => void;
+  /**
+   * The signed-in account's kept dropdown choice (useAuth.tsx). Applied while
+   * the switch is OFF; while ON the account's display mode already is that
+   * choice (setDisplayMode). Never recorded as this device's change.
+   */
+  applySyncedTranslationMode: (mode: EnabledTranslationMode) => void;
   isReady: boolean;
 };
 
@@ -57,11 +63,11 @@ export function QuranTranslationPreferenceProvider({ children }: { children: Rea
     const next = change(current);
     currentRef.current = next;
     // See useAppLocale.tsx's setLocale: only a user's own change is recorded,
-    // and only the synced fields it actually changed (the dropdown's kept
-    // choice, enabledMode, stays on this device).
+    // and only the synced fields it actually changed.
     if (!options?.fromSync) {
       if (next.displayMode !== current.displayMode) recordLocalPreferenceChange('translationDisplayMode', next.displayMode);
       if (next.translationId !== current.translationId) recordLocalPreferenceChange('translationId', next.translationId);
+      if (next.enabledMode !== current.enabledMode) recordLocalPreferenceChange('translationEnabledMode', next.enabledMode);
     }
     setPreference(next);
     void saveQuranTranslationPreference(next);
@@ -79,9 +85,13 @@ export function QuranTranslationPreferenceProvider({ children }: { children: Rea
     update((current) => ({ ...current, enabledMode: mode, displayMode: current.displayMode === 'off' ? 'off' : mode }));
   }, [update]);
 
+  const applySyncedTranslationMode = useCallback((mode: EnabledTranslationMode) => {
+    update((current) => (current.displayMode === 'off' && current.enabledMode !== mode ? { ...current, enabledMode: mode } : current), { fromSync: true });
+  }, [update]);
+
   const value = useMemo<QuranTranslationPreferenceContextValue>(
-    () => ({ preference, setDisplayMode, setShowTranslation, setTranslationMode, isReady }),
-    [preference, setDisplayMode, setShowTranslation, setTranslationMode, isReady],
+    () => ({ preference, setDisplayMode, setShowTranslation, setTranslationMode, applySyncedTranslationMode, isReady }),
+    [preference, setDisplayMode, setShowTranslation, setTranslationMode, applySyncedTranslationMode, isReady],
   );
 
   return <QuranTranslationPreferenceContext.Provider value={value}>{children}</QuranTranslationPreferenceContext.Provider>;

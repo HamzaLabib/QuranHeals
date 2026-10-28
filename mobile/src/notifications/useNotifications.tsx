@@ -6,15 +6,21 @@ import { subscribeToReadingData } from '@/mushaf/readingStops';
 import { subscribeToLocalDataOwner } from '@/storage/localDataOwner';
 
 import type { NotificationsApi } from './api';
+import { registerAccountReminderApplier } from './accountReminders';
 import { asyncStorageAyahQueueStore } from './ayahQueue';
 import { isMushafReadingFocused } from './foreground';
 import { platformNotificationsApi } from './platformApi';
+import { samePreferenceValue, type SyncedPreferenceField } from '@/sync/preferenceFields';
+import { recordLocalPreferenceChange } from '@/sync/preferencesSyncState';
+
 import {
   DEFAULT_NOTIFICATION_PREFERENCES,
   applyReminderChange,
   completeSchedules,
   loadNotificationPreferences,
+  parseStoredReminder,
   saveNotificationPreferences,
+  storedReminder,
 } from './preferences';
 import { createNotificationScheduler, type NotificationScheduler } from './scheduler';
 import type {
@@ -42,6 +48,12 @@ export type NotificationsContextValue = {
   supported: boolean;
   /** Saves at once and reschedules only what changed. */
   update: (kind: NotificationKind, change: ReminderChange) => void;
+  /**
+   * The signed-in account's reminder (useAuth.tsx), in stored form: saved and
+   * rescheduled like a change from Settings, but not recorded as this
+   * device's change, and never asking for OS permission.
+   */
+  applySynced: (kind: NotificationKind, stored: unknown) => void;
   /** Shows the OS prompt (only from a user's tap in Settings), then schedules what is ON. */
   requestPermission: () => Promise<NotificationPermission>;
   openSystemSettings: () => void;
@@ -56,11 +68,26 @@ const DEFAULT_CONTEXT: NotificationsContextValue = {
   isReady: true,
   supported: false,
   update: () => undefined,
+  applySynced: () => undefined,
   requestPermission: async () => ({ status: 'unsupported', canAskAgain: false }),
   openSystemSettings: () => undefined,
 };
 
 const NotificationsContext = createContext<NotificationsContextValue>(DEFAULT_CONTEXT);
+
+/** Each reminder's account setting (sync/preferenceFields.ts). */
+export const REMINDER_SYNC_FIELDS: Record<NotificationKind, SyncedPreferenceField> = {
+  wird: 'notificationWird',
+  randomAyah: 'notificationRandomAyah',
+  emotionCheckIn: 'notificationEmotionCheckIn',
+};
+
+/** The user's own change to one reminder, recorded for the signed-in account when it changed something (sync/preferencesSyncState.ts). */
+function recordReminderChange(kind: NotificationKind, next: NotificationPreferences, previous: NotificationPreferences): void {
+  const value = storedReminder(kind, next[kind]);
+  if (samePreferenceValue(value, storedReminder(kind, previous[kind]))) return;
+  recordLocalPreferenceChange(REMINDER_SYNC_FIELDS[kind], value as never);
+}
 
 /** The verified local Quran, loaded only when a Random Quran Ayah is actually scheduled (never on web or in tests). */
 const localQuranVerses = {
@@ -140,6 +167,8 @@ export function NotificationsProvider({
       let next = completed.preferences;
       for (const { kind, change } of changesBeforeLoad.current) next = applyReminderChange(next, kind, change, clock());
       const replayed = changesBeforeLoad.current.length > 0;
+      // The user's own changes, now over the stored settings: recorded for the signed-in account.
+      for (const kind of new Set(changesBeforeLoad.current.map((entry) => entry.kind))) recordReminderChange(kind, next, completed.preferences);
       changesBeforeLoad.current = [];
       if (completed.changed || replayed) await saveNotificationPreferences(next);
       if (cancelled) return;
@@ -182,7 +211,8 @@ export function NotificationsProvider({
   }, [isReady, reconcile]);
 
   const update = useCallback((kind: NotificationKind, change: ReminderChange) => {
-    const next = applyReminderChange(preferencesRef.current, kind, change, clock());
+    const previous = preferencesRef.current;
+    const next = applyReminderChange(previous, kind, change, clock());
     preferencesRef.current = next;
     setPreferences(next);
     if (!loadedRef.current) {
@@ -190,9 +220,26 @@ export function NotificationsProvider({
       changesBeforeLoad.current.push({ kind, change });
       return;
     }
+    recordReminderChange(kind, next, previous);
     void saveNotificationPreferences(next);
     reconcile();
   }, [clock, reconcile]);
+
+  const applySynced = useCallback((kind: NotificationKind, stored: unknown) => {
+    // Applied over the loaded settings only (useAuth.tsx waits for them); otherwise the next sync applies it.
+    if (!loadedRef.current) return;
+    const reminder = parseStoredReminder(kind, stored);
+    if (samePreferenceValue(storedReminder(kind, reminder), storedReminder(kind, preferencesRef.current[kind]))) return;
+    const next = { ...preferencesRef.current, [kind]: reminder };
+    preferencesRef.current = next;
+    setPreferences(next);
+    void saveNotificationPreferences(next);
+    // Scheduled only as far as this device's own OS permission allows (scheduler.ts); never asks for it.
+    reconcile();
+  }, [reconcile]);
+
+  // The signed-in account's reminders (auth/useAuth.tsx), applied over the loaded settings only.
+  useEffect(() => (isLoaded ? registerAccountReminderApplier(applySynced) : undefined), [isLoaded, applySynced]);
 
   const requestPermission = useCallback(async () => {
     let result: NotificationPermission;
@@ -211,8 +258,8 @@ export function NotificationsProvider({
   }, [api]);
 
   const value = useMemo<NotificationsContextValue>(
-    () => ({ preferences, permission, states, isReady, supported: api.supported, update, requestPermission, openSystemSettings }),
-    [preferences, permission, states, isReady, api.supported, update, requestPermission, openSystemSettings],
+    () => ({ preferences, permission, states, isReady, supported: api.supported, update, applySynced, requestPermission, openSystemSettings }),
+    [preferences, permission, states, isReady, api.supported, update, applySynced, requestPermission, openSystemSettings],
   );
   return <NotificationsContext.Provider value={value}>{children}</NotificationsContext.Provider>;
 }

@@ -65,23 +65,33 @@ describe('Show Translation and account sync', () => {
     expect(api.preference.displayMode).toBe('on-demand');
     await act(async () => api.setTranslationMode('always'));
     expect(api.preference.displayMode).toBe('always');
-    expect(getLastLocalPreferenceChangeForTests()).toMatchObject({ field: 'translationDisplayMode', value: 'always' });
-    // While OFF, the dropdown changes only the kept choice; the synced value stays off and nothing new is recorded.
+    // While ON the dropdown changes both: the display mode, then the kept choice (its own account field since 2026-10-27).
+    expect(getLastLocalPreferenceChangeForTests()).toMatchObject({ field: 'translationEnabledMode', value: 'always' });
     await act(async () => api.setShowTranslation(false));
     expect(getLastLocalPreferenceChangeForTests()).toMatchObject({ field: 'translationDisplayMode', value: 'off' });
+    // While OFF, the dropdown changes only the kept choice: that alone is recorded, the display mode stays off.
     resetPreferencesSyncStateForTests();
     await act(async () => api.setTranslationMode('on-demand'));
     expect(api.preference).toMatchObject({ displayMode: 'off', enabledMode: 'on-demand' });
+    expect(getLastLocalPreferenceChangeForTests()).toMatchObject({ field: 'translationEnabledMode', value: 'on-demand' });
+  });
+
+  it('the kept dropdown choice from the account applies while OFF only, and is never recorded as this device`s change', async () => {
+    await mount();
+    resetPreferencesSyncStateForTests();
+    await act(async () => api.applySyncedTranslationMode('always'));
+    expect(api.preference).toMatchObject({ displayMode: 'off', enabledMode: 'always' });
+    expect(getLastLocalPreferenceChangeForTests()).toBeNull();
+    // ON: the account's display mode is what shows; its kept choice changes nothing here.
+    await act(async () => api.setShowTranslation(true));
+    resetPreferencesSyncStateForTests();
+    await act(async () => api.applySyncedTranslationMode('on-demand'));
+    expect(api.preference).toMatchObject({ displayMode: 'always', enabledMode: 'always' });
     expect(getLastLocalPreferenceChangeForTests()).toBeNull();
   });
 
-  it('what is uploaded is the synced display mode only (never the device-only dropdown choice)', () => {
-    const auth = readFileSync(resolve(__dirname, '../src/auth/useAuth.tsx'), 'utf-8');
-    expect(auth).not.toMatch(/enabledMode/);
+  it('the kept dropdown choice is its own account field, after the display mode it belongs to', () => {
     const fields = readFileSync(resolve(__dirname, '../src/sync/preferenceFields.ts'), 'utf-8');
-    expect(fields).toMatch(/'translationDisplayMode'/);
-    expect(fields).not.toMatch(/'enabledMode'/);
-    const sync = readFileSync(resolve(__dirname, '../src/sync/preferencesSync.ts'), 'utf-8');
-    expect(sync).not.toMatch(/enabledMode/);
+    expect(fields.indexOf("'translationEnabledMode'")).toBeGreaterThan(fields.indexOf("'translationDisplayMode'"));
   });
 });

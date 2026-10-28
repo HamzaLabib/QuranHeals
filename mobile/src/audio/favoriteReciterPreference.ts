@@ -4,9 +4,11 @@ import { DEFAULT_FAVORITE_RECITER_ID, isReciterId } from './reciters';
 
 /**
  * Settings → Quran → Favorite Reciter (الإعدادات ← القرآن ← القارئ المفضل): the voice for the Mushaf's Play and Listen
- * (unless a reciter is chosen in the player for that session) and the ayah screens' play button. A device setting like
- * Keep Screen Awake: stored on this device, not synced with the account. Muhammad Siddiq Al-Minshawi (reciters.ts DEFAULT_RECITER_ID) for anyone who has never
- * chosen. A choice in the player never changes it.
+ * (unless a reciter is chosen in the player for that session) and the ayah screens' play button. Stored on this device
+ * and, since 2026-10-27, an account setting (`favoriteReciter`, sync/preferenceFields.ts): a choice made while signed in
+ * follows the account; a reciter this app version does not list is never applied. Muhammad Siddiq Al-Minshawi
+ * (reciters.ts DEFAULT_RECITER_ID) for anyone who has never chosen — a default never reaches the account. A choice in
+ * the player never changes it.
  */
 export const FAVORITE_RECITER_STORAGE_KEY = 'quran-heals:favorite-reciter:v1';
 

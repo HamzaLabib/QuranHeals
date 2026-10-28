@@ -257,3 +257,55 @@ describe('NotificationsProvider: a change made before the saved settings have lo
     expect([...pending.keys()].some((id) => id.startsWith('quranheals.ayah.'))).toBe(false);
   });
 });
+
+describe('NotificationsProvider: the signed-in account`s reminders (2026-10-27)', () => {
+  const WIRD_EVENING = { enabled: true, frequency: 'daily', time: '20:30', weekday: null, anchor: null };
+
+  it('an account reminder arriving before the settings load waits for them, then is applied, saved and scheduled — without asking the OS', async () => {
+    const { applyAccountReminder } = await import('@/notifications/accountReminders');
+    const { getLastLocalPreferenceChangeForTests, resetPreferencesSyncStateForTests } = await import('@/sync/preferencesSyncState');
+    resetPreferencesSyncStateForTests();
+    permission = { status: 'granted', canAskAgain: true };
+    state.storage.set('quran-heals:notification-preferences:v1', JSON.stringify({ schema: 1, wird: { enabled: true, frequency: 'daily', time: '21:00', weekday: null, anchor: null } }));
+    let release!: () => void;
+    state.settingsGate = new Promise((resolve) => { release = resolve; });
+    applyAccountReminder('wird', WIRD_EVENING);
+    await act(async () => {
+      root = create(createElement(AppLocaleProvider, null,
+        createElement(NotificationsProvider, { api, verses, now: () => new Date(2026, 9, 14, 12, 0) }, createElement(Probe))));
+    });
+    await act(async () => { release(); });
+    await flush();
+
+    expect(notifications.preferences.wird.time).toEqual({ hour: 20, minute: 30 });
+    expect(JSON.parse(state.storage.get('quran-heals:notification-preferences:v1')!).wird).toMatchObject({ time: '20:30' });
+    expect(pending.has('quranheals.wird.daily')).toBe(true);
+    expect(requests).toBe(0);
+    // Applied from the account: never recorded as this device's change (so never uploaded back).
+    expect(getLastLocalPreferenceChangeForTests()).toBeNull();
+  });
+
+  it('without OS permission on this device the synced reminder is kept but nothing is scheduled, and permission is not requested', async () => {
+    const { applyAccountReminder } = await import('@/notifications/accountReminders');
+    permission = { status: 'denied', canAskAgain: false };
+    await mount();
+    await act(async () => { applyAccountReminder('wird', WIRD_EVENING); });
+    await flush();
+    expect(notifications.preferences.wird.time).toEqual({ hour: 20, minute: 30 });
+    expect(pending.size).toBe(0);
+    expect(notifications.states.wird).toEqual({ state: 'needsPermission' });
+    expect(requests).toBe(0);
+  });
+
+  it('the user`s own change in Settings is recorded for the signed-in account, in stored form', async () => {
+    const { getLastLocalPreferenceChangeForTests, resetPreferencesSyncStateForTests } = await import('@/sync/preferencesSyncState');
+    resetPreferencesSyncStateForTests();
+    await mount();
+    await act(async () => { notifications.update('randomAyah', { enabled: false }); });
+    await flush();
+    expect(getLastLocalPreferenceChangeForTests()).toMatchObject({
+      field: 'notificationRandomAyah',
+      value: { enabled: false, frequency: 'daily', time: '08:00', weekday: null, anchor: null },
+    });
+  });
+});

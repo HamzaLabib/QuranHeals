@@ -124,6 +124,8 @@ export type PreferencesRecord = {
   emotionsLanguage?: string;
   appearance?: string;
   quranFontSize?: number;
+  /** Added 2026-10-27 (sync/preferenceFields.ts); read field by field, never trusted as typed. */
+  [field: string]: unknown;
   updatedAt: string;
   fieldUpdatedAt?: Partial<Record<string, string>>;
 };

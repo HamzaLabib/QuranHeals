@@ -1,6 +1,16 @@
-import { parseCloudPreferences, SYNCED_PREFERENCE_FIELDS, type SyncedPreferenceField, type SyncedPreferenceValue } from './preferenceFields';
+import { loadRecentEmotionUses, mergeRecentEmotionsFromAccount, mergeRecentEmotionUses, sameRecentEmotionUses, type RecentEmotionUse } from '@/storage/recentEmotions';
+
+import {
+  parseCloudPreferences,
+  parseCloudRecentEmotions,
+  RECENT_EMOTIONS_FIELD,
+  samePreferenceValue,
+  SYNCED_PREFERENCE_FIELDS,
+  type SyncedPreferenceField,
+  type SyncedPreferenceValue,
+} from './preferenceFields';
 import { loadAccountPreferenceState, updateAccountPreferenceState, type PreferenceEntry } from './preferencesSyncState';
-import { getCloudPreferences, putCloudPreferences } from './syncApi';
+import { getCloudPreferences, putCloudPreferences, type PreferencesRecord } from './syncApi';
 
 /** Applies an account value on this device (the settings' setters with `fromSync`, so it is not recorded as the user's change). */
 export type ApplyPreference = (field: SyncedPreferenceField, value: SyncedPreferenceValue) => void;
@@ -38,11 +48,17 @@ function oneAtATime<T>(userId: string, task: () => Promise<T>): Promise<T> {
  *       NOT uploaded: only the user's own change while signed in to this
  *       account is (sync/preferencesSyncState.ts).
  *  2. Upload this account's pending changes (pushPreferences).
+ *
+ * Home's recent emotions merge instead (storage/recentEmotions.ts): the
+ * account's history joins this account's own list here, and whatever this
+ * device has beyond what the account returned goes up with step 2.
  */
 export function syncPreferences(sessionToken: string, ownerUserId: string, apply: ApplyPreference, options: PreferenceSyncOptions = {}): Promise<void> {
   return oneAtATime(ownerUserId, async () => {
     const isCurrent = options.isCurrent ?? (() => true);
-    const cloud = parseCloudPreferences(await getCloudPreferences(sessionToken));
+    const record = await getCloudPreferences(sessionToken);
+    const cloud = parseCloudPreferences(record);
+    await adoptAccountRecentEmotions(ownerUserId, record, [], isCurrent);
     const toApply = await updateAccountPreferenceState(ownerUserId, (state) => {
       const adopted: [SyncedPreferenceField, SyncedPreferenceValue][] = [];
       for (const field of SYNCED_PREFERENCE_FIELDS) {
@@ -65,13 +81,42 @@ export function pushPreferences(sessionToken: string, ownerUserId: string, apply
   return oneAtATime(ownerUserId, () => upload(sessionToken, ownerUserId, apply, options.isCurrent ?? (() => true)));
 }
 
+/**
+ * The account's recent emotions (`record`), if it returned any, become what
+ * the account is known to hold and join `ownerUserId`'s own list; `sent`:
+ * the uses this device just uploaded (their instants as the account stored
+ * them are adopted). A server that does not know them returns none: then
+ * nothing changes here.
+ */
+async function adoptAccountRecentEmotions(ownerUserId: string, record: PreferencesRecord | null, sent: RecentEmotionUse[], isCurrent: () => boolean): Promise<void> {
+  const account = parseCloudRecentEmotions(record);
+  if (account === null) return;
+  await updateAccountPreferenceState(ownerUserId, (state) => {
+    state.recentEmotions = account;
+  });
+  if (isCurrent()) await mergeRecentEmotionsFromAccount(ownerUserId, account, sent);
+}
+
+/** backend/src/validators/syncValidators.ts recentEmotionsSchema's key (the catalog's keys, e.g. "closer_to_allah"). */
+const UPLOADABLE_EMOTION_KEY = /^[A-Za-z0-9_-]{1,100}$/;
+
+/** This account's recent emotions to upload: its list here when that adds anything to what the account holds; else null. */
+async function recentEmotionsToUpload(ownerUserId: string, known: RecentEmotionUse[] | undefined): Promise<RecentEmotionUse[] | null> {
+  // Only keys in the catalog's form: one damaged entry must never get every settings upload refused.
+  const own = (await loadRecentEmotionUses(ownerUserId)).filter((use) => UPLOADABLE_EMOTION_KEY.test(use.key));
+  if (own.length === 0) return null;
+  const account = known ?? [];
+  return sameRecentEmotionUses(mergeRecentEmotionUses(own, account), account) ? null : own;
+}
+
 async function upload(sessionToken: string, ownerUserId: string, apply: ApplyPreference, isCurrent: () => boolean): Promise<void> {
   const state = await loadAccountPreferenceState(ownerUserId);
   const pending = SYNCED_PREFERENCE_FIELDS.flatMap((field) => {
     const entry = state.fields[field];
     return entry && !entry.synced ? [[field, entry] as [SyncedPreferenceField, PreferenceEntry]] : [];
   });
-  if (pending.length === 0) return;
+  const recent = await recentEmotionsToUpload(ownerUserId, state.recentEmotions);
+  if (pending.length === 0 && !recent) return;
 
   const body: Record<string, unknown> = { fieldUpdatedAt: {} };
   let newest = 0;
@@ -80,9 +125,17 @@ async function upload(sessionToken: string, ownerUserId: string, apply: ApplyPre
     (body.fieldUpdatedAt as Record<string, string>)[field] = new Date(entry.updatedAt).toISOString();
     newest = Math.max(newest, entry.updatedAt);
   }
+  if (recent) {
+    const latest = Math.max(...recent.map((use) => use.at));
+    body[RECENT_EMOTIONS_FIELD] = recent.map((use) => ({ key: use.key, at: new Date(use.at).toISOString() }));
+    (body.fieldUpdatedAt as Record<string, string>)[RECENT_EMOTIONS_FIELD] = new Date(latest).toISOString();
+    newest = Math.max(newest, latest);
+  }
   // What a server from before per-field sync compares (it ignores fieldUpdatedAt and the newer settings).
   body.updatedAt = new Date(newest).toISOString();
-  const saved = parseCloudPreferences(await putCloudPreferences(sessionToken, body as never));
+  const record = await putCloudPreferences(sessionToken, body as never);
+  const saved = parseCloudPreferences(record);
+  if (recent) await adoptAccountRecentEmotions(ownerUserId, record, recent, isCurrent);
 
   const toApply = await updateAccountPreferenceState(ownerUserId, (current) => {
     const adopted: [SyncedPreferenceField, SyncedPreferenceValue][] = [];
@@ -93,7 +146,8 @@ async function upload(sessionToken: string, ownerUserId: string, apply: ApplyPre
       const stored = saved[field];
       // Not stored (a server that does not know this setting yet): stays pending.
       if (!stored) continue;
-      if (stored.at === sent.updatedAt && stored.value === sent.value) {
+      const sameValue = samePreferenceValue(stored.value, sent.value);
+      if (stored.at === sent.updatedAt && sameValue) {
         entry.synced = true;
         continue;
       }
@@ -101,12 +155,15 @@ async function upload(sessionToken: string, ownerUserId: string, apply: ApplyPre
       // time in place of a device clock running ahead
       // (backend/src/services/clientInstants.ts). That instant is kept here,
       // so a later change on any device can still win.
-      const acceptedEarlier = stored.value === sent.value && stored.at < sent.updatedAt;
-      if (acceptedEarlier || stored.at >= sent.updatedAt) {
+      const acceptedEarlier = sameValue && stored.at < sent.updatedAt;
+      // The Mushaf guide only moves forward on the account (preferencesMerge.ts): a 'closed' sent here never
+      // replaces another device's 'finished', which is then kept here too, whatever its instant.
+      const outranked = field === 'mushafGuide' && stored.value === 'finished' && sent.value === 'closed';
+      if (acceptedEarlier || outranked || stored.at >= sent.updatedAt) {
         // The account holds a newer value (another device), or the same
         // value at the newest instant of this upload (an older server).
         current.fields[field] = { value: stored.value, updatedAt: stored.at, synced: true };
-        if (stored.value !== sent.value) adopted.push([field, stored.value]);
+        if (!sameValue) adopted.push([field, stored.value]);
       }
     }
     return adopted;

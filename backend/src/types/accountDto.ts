@@ -1,4 +1,5 @@
 import type { AudioIssueProblem, AuthProvider, IssueReportCategory, TranslationDisplayMode } from './accountDomain';
+import type { PreferenceField, PreferenceValues } from '../services/preferencesMerge';
 
 export type UserDto = {
   id: string;
@@ -29,18 +30,13 @@ export type FavoriteTombstoneDto = {
 
 export type FavoriteSyncRecordDto = FavoriteActiveRecordDto | FavoriteTombstoneDto;
 
-export type PreferencesDto = {
-  locale?: string;
+/** Every synced setting (services/preferencesMerge.ts PREFERENCE_FIELDS); a field the account never stored is absent. */
+export type PreferencesDto = PreferenceValues & {
   translationDisplayMode?: TranslationDisplayMode;
-  translationId?: string;
-  quranLanguage?: string;
-  emotionsLanguage?: string;
-  appearance?: string;
-  quranFontSize?: number;
   /** The newest of the fields' instants (what older apps compare). */
   updatedAt: string;
   /** When each stored field was last changed (services/preferencesMerge.ts). Older apps ignore it. */
-  fieldUpdatedAt?: Partial<Record<'locale' | 'translationDisplayMode' | 'translationId' | 'quranLanguage' | 'emotionsLanguage' | 'appearance' | 'quranFontSize', string>>;
+  fieldUpdatedAt?: Partial<Record<PreferenceField, string>>;
 };
 
 export type ReflectionActiveRecordDto = {

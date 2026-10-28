@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { loadQuranTranslationPreference } from '@/localization/quranTranslationPreference';
 import { getActiveLocalOwner, ownerStorageKey, peekActiveLocalOwner } from '@/storage/localDataOwner';
+import type { RecentEmotionUse } from '@/storage/recentEmotions';
 
 import { isSyncedPreferenceValue, SYNCED_PREFERENCE_FIELDS, type SyncedPreferenceField, type SyncedPreferenceValue } from './preferenceFields';
 
@@ -37,7 +38,16 @@ export type PreferenceEntry = {
   /** True once the account holds this value at this instant. */
   synced: boolean;
 };
-export type AccountPreferenceState = { schema: 1; fields: Partial<Record<SyncedPreferenceField, PreferenceEntry>> };
+export type AccountPreferenceState = {
+  schema: 1;
+  fields: Partial<Record<SyncedPreferenceField, PreferenceEntry>>;
+  /**
+   * Home's recent emotions as the account last returned them (the device's
+   * own list is storage/recentEmotions.ts): what this device has beyond it
+   * is what goes up next. Absent until the account has returned one.
+   */
+  recentEmotions?: RecentEmotionUse[];
+};
 
 const stateKey = (userId: string) => ownerStorageKey(STATE_KEY, userId);
 const emptyState = (): AccountPreferenceState => ({ schema: 1, fields: {} });
@@ -61,6 +71,11 @@ function parseState(raw: string | null): AccountPreferenceState {
       const entry = parsed.fields[field] as Partial<PreferenceEntry> | undefined;
       if (!entry || !isSyncedPreferenceValue(field, entry.value) || typeof entry.updatedAt !== 'number' || !Number.isFinite(entry.updatedAt)) continue;
       state.fields[field] = { value: entry.value, updatedAt: entry.updatedAt, synced: entry.synced === true };
+    }
+    const recent = (parsed as { recentEmotions?: unknown }).recentEmotions;
+    if (Array.isArray(recent)) {
+      state.recentEmotions = recent.filter((use): use is RecentEmotionUse =>
+        !!use && typeof use === 'object' && typeof (use as RecentEmotionUse).key === 'string' && Number.isFinite((use as RecentEmotionUse).at));
     }
     return state;
   } catch {

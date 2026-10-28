@@ -24,7 +24,7 @@ export type QuranTranslationPreference = {
    * 'always'; ON + On Demand = 'on-demand'.
    */
   displayMode: TranslationDisplayMode;
-  /** The dropdown's choice, kept on this device while the switch is OFF so turning it back ON restores it. Never synced. */
+  /** The dropdown's choice, kept while the switch is OFF so turning it back ON restores it. Synced since 2026-10-27 (`translationEnabledMode`). */
   enabledMode: EnabledTranslationMode;
 };
 

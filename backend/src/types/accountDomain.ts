@@ -7,6 +7,8 @@
  */
 
 /** Mirrors the mobile app's TranslationDisplayMode (mobile/src/localization/quranTranslationPreference.ts) — kept as a plain string union here so the backend never needs to import mobile code. */
+import type { PreferenceField, PreferenceValues } from '../services/preferencesMerge';
+
 export type TranslationDisplayMode = 'always' | 'on-demand' | 'off';
 
 export type AuthProvider = 'apple' | 'google';
@@ -76,18 +78,12 @@ export type UserFavoriteEntity = {
  * listed in Part F §26. Deliberately excludes recent-ayah history (Part F
  * §27), which stays device-local and is never uploaded.
  */
-export type UserPreferenceEntity = {
+export type UserPreferenceEntity = PreferenceValues & {
   userId: string;
-  locale?: string;
   translationDisplayMode?: TranslationDisplayMode;
-  translationId?: string;
-  quranLanguage?: string;
-  emotionsLanguage?: string;
-  appearance?: string;
-  quranFontSize?: number;
   updatedAt?: Date;
   /** Per-field change instants (services/preferencesMerge.ts); absent on records stored before they existed. */
-  fieldUpdatedAt?: Partial<Record<'locale' | 'translationDisplayMode' | 'translationId' | 'quranLanguage' | 'emotionsLanguage' | 'appearance' | 'quranFontSize', Date>>;
+  fieldUpdatedAt?: Partial<Record<PreferenceField, Date>>;
 };
 
 /**

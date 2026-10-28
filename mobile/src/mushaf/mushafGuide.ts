@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { recordLocalPreferenceChange } from '@/sync/preferencesSyncState';
+
 import type { GuideTarget } from './guideTargets';
 
 /**
@@ -9,8 +11,9 @@ import type { GuideTarget } from './guideTargets';
  *
  * Shown by itself the first time the Mushaf is opened (once the page and its controls are drawn), and kept until the
  * user closes or finishes it: no timer, no tap outside, no backgrounding closes it. Its progress is saved, so a reload
- * mid-way reopens it at the same step. Closing or finishing records that it was seen (a local, versioned key; never
- * synced). Finishing it (Start Reading on the last step) also hides the reader's Help icon for good; closing it early
+ * mid-way reopens it at the same step. Closing or finishing records that it was seen (a local, versioned key); that
+ * completion, never a step in progress, follows the signed-in account (`mushafGuide`: applySyncedGuideCompletion), so
+ * the guide does not show by itself again on the account's other devices. Finishing it (Start Reading on the last step) also hides the reader's Help icon for good; closing it early
  * keeps the icon. Settings → Quran → Mushaf Guide, and the Help icon while shown, open it again at the first step
  * without changing what was recorded.
  *
@@ -65,12 +68,26 @@ export async function loadGuideProgress(): Promise<GuideProgress> {
   }
 }
 
-export async function saveGuideProgress(progress: GuideProgress): Promise<void> {
+/** `fromSync`: applied from the account (never recorded as this device's change). */
+export async function saveGuideProgress(progress: GuideProgress, options?: { fromSync?: boolean }): Promise<void> {
+  // Closing or finishing is the user's own change, recorded for the signed-in account (sync/preferencesSyncState.ts).
+  if (progress.status === 'done' && !options?.fromSync) recordLocalPreferenceChange('mushafGuide', progress.finished ? 'finished' : 'closed');
   try {
     await AsyncStorage.setItem(MUSHAF_GUIDE_STORAGE_KEY, JSON.stringify(progress.status === 'unseen' ? { ...progress, order: GUIDE_ORDER } : progress));
   } catch {
     // Non-fatal: at worst the guide shows again next time.
   }
+}
+
+/**
+ * The account's completion (useAuth.tsx): only ever moves this device's progress forward — never back from finished
+ * to closed, never to a step. The Mushaf reads it the next time it opens. Never throws.
+ */
+export async function applySyncedGuideCompletion(value: 'closed' | 'finished'): Promise<void> {
+  const current = await loadGuideProgress();
+  const finished = value === 'finished' || isGuideFinished(current);
+  if (current.status === 'done' && current.finished === finished) return;
+  await saveGuideProgress({ status: 'done', finished }, { fromSync: true });
 }
 
 export type Rect = { x: number; y: number; width: number; height: number };

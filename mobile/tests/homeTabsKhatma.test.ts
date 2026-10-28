@@ -753,7 +753,8 @@ describe('View All (/emotions)', () => {
     await act(async () => { (byId('emotions-grid').children as ReactTestInstance[])[7].props.onPress(); });
     await flush();
     expect(router.push).toHaveBeenLastCalledWith({ pathname: '/ayah/[emotion]', params: { emotion: 'e7', namesJson: JSON.stringify(catalog[7].names) } });
-    expect(JSON.parse(state.storage.get(RECENT_EMOTIONS_STORAGE_KEY)!)).toEqual(['e7']);
+    // Stored with its use's instant, so it merges across the account's devices (storage/recentEmotions.ts).
+    expect(JSON.parse(state.storage.get(RECENT_EMOTIONS_STORAGE_KEY)!)).toEqual([{ key: 'e7', at: expect.any(Number) }]);
   });
 
   describe('pull-to-refresh (the same pattern as Home)', () => {

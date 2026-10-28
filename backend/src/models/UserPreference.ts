@@ -28,6 +28,19 @@ const userPreferenceSchema = new Schema<UserPreferenceEntity>(
     emotionsLanguage: { type: String, trim: true },
     appearance: { type: String, trim: true },
     quranFontSize: { type: Number },
+    // Added 2026-10-27 (services/preferencesMerge.ts; validated by syncValidators.ts). Reminders and the recent
+    // emotions are stored in the app's own form, already checked field by field.
+    translationEnabledMode: { type: String, trim: true },
+    favoriteReciter: { type: String, trim: true },
+    keepAwake: { type: Boolean },
+    wordMeaningsVisible: { type: Boolean },
+    memorizationModeVisible: { type: Boolean },
+    notificationWird: { type: Schema.Types.Mixed },
+    notificationRandomAyah: { type: Schema.Types.Mixed },
+    notificationEmotionCheckIn: { type: Schema.Types.Mixed },
+    mushafGuide: { type: String, trim: true },
+    memorizationGuide: { type: String, trim: true },
+    recentEmotions: { type: Schema.Types.Mixed, default: undefined },
     // When each field was last changed, as declared by the device that
     // changed it. Absent on records stored before it existed: each stored
     // field then counts as changed at `updatedAt`.
@@ -41,6 +54,17 @@ const userPreferenceSchema = new Schema<UserPreferenceEntity>(
           emotionsLanguage: Date,
           appearance: Date,
           quranFontSize: Date,
+          translationEnabledMode: Date,
+          favoriteReciter: Date,
+          keepAwake: Date,
+          wordMeaningsVisible: Date,
+          memorizationModeVisible: Date,
+          notificationWird: Date,
+          notificationRandomAyah: Date,
+          notificationEmotionCheckIn: Date,
+          mushafGuide: Date,
+          memorizationGuide: Date,
+          recentEmotions: Date,
         },
         { _id: false },
       ),

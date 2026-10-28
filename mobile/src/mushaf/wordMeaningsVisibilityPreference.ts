@@ -2,8 +2,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
  * Word Meanings (Settings, below Keep Screen Awake): whether the reader shows its المعاني button
- * (mushafFeatures/MushafFeatureLayer.tsx). A purely local device setting like Keep Screen Awake: never synced, no
- * account, no backend. ON for anyone who has never chosen; an explicit OFF is kept for good (nothing ever rewrites it).
+ * (mushafFeatures/MushafFeatureLayer.tsx). An account setting since 2026-10-27, like Keep Screen Awake
+ * (`wordMeaningsVisible`, sync/preferenceFields.ts). ON for anyone who has never chosen; an explicit choice is only ever
+ * replaced by the user's own later one (here, or on the account's other devices).
  */
 export const DEFAULT_WORD_MEANINGS_VISIBLE = true;
 export const WORD_MEANINGS_VISIBLE_STORAGE_KEY = 'quran-heals:word-meanings-visible:v1';

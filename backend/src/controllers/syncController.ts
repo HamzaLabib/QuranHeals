@@ -79,8 +79,12 @@ export function createSyncController(repository: SyncRepository, reauthenticatio
       const parsed = putPreferencesSchema.safeParse(req.body);
       if (!parsed.success) throw new AppError('Invalid preferences payload.', 400);
 
-      const { updatedAt, fieldUpdatedAt, ...preferences } = parsed.data;
+      const { updatedAt, fieldUpdatedAt, ...declared } = parsed.data;
       const now = Date.now();
+      // Each recent emotion's use is a device-declared instant too.
+      const preferences = declared.recentEmotions
+        ? { ...declared, recentEmotions: declared.recentEmotions.map((entry) => ({ key: entry.key, at: acceptClientInstant(entry.at, now) })) }
+        : declared;
       const acceptedFieldUpdatedAt = fieldUpdatedAt
         ? Object.fromEntries(Object.entries(fieldUpdatedAt).flatMap(([field, at]) => (at === undefined ? [] : [[field, acceptClientInstant(at, now)]])))
         : undefined;

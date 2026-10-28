@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import type { GuideTarget } from '@/mushaf/guideTargets';
+import { recordLocalPreferenceChange } from '@/sync/preferencesSyncState';
 import type { GuideProgress } from '@/mushaf/mushafGuide';
 
 import type { MemorizationLabels } from './labels';
@@ -72,7 +73,8 @@ export function memorizationGuideNote(step: MemorizationGuideStep, isDrawn: (tar
 
 /**
  * The first-time showing (owner request, 2026-10-25): on a fresh install the Mushaf opens with its own guide and then,
- * once that one is closed or finished, this one, by itself, once. A local, versioned key; never synced.
+ * once that one is closed or finished, this one, by itself, once. A local, versioned key; 'done' follows the signed-in
+ * account (`memorizationGuide`: applySyncedMemorizationGuideDone), a pending step stays on this device.
  *
  * - 'none': never queued. Nothing saved, or anything unreadable: an install that had already seen the Mushaf guide
  *   before this existed. It never opens by itself there (Settings → Quran → Mushaf Guide still opens it).
@@ -111,7 +113,10 @@ export async function loadMemorizationGuideProgress(): Promise<MemorizationGuide
   }
 }
 
-export async function saveMemorizationGuideProgress(progress: MemorizationGuideProgress): Promise<void> {
+/** `fromSync`: applied from the account (never recorded as this device's change). */
+export async function saveMemorizationGuideProgress(progress: MemorizationGuideProgress, options?: { fromSync?: boolean }): Promise<void> {
+  // Its first-time showing being over is the user's own change, recorded for the signed-in account.
+  if (progress.status === 'done' && !options?.fromSync) recordLocalPreferenceChange('memorizationGuide', 'done');
   try {
     await AsyncStorage.setItem(MEMORIZATION_GUIDE_STORAGE_KEY, JSON.stringify(progress));
   } catch {
@@ -150,4 +155,10 @@ export function isMemorizationGuideDue(input: {
     && input.pageReady
     && input.settingReady
     && input.eyeReady;
+}
+
+/** The account's 'done' (useAuth.tsx): this device's first-time showing is over too — never shown by itself again. Never throws. */
+export async function applySyncedMemorizationGuideDone(): Promise<void> {
+  if ((await loadMemorizationGuideProgress()).status === 'done') return;
+  await saveMemorizationGuideProgress({ status: 'done' }, { fromSync: true });
 }
