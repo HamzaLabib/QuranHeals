@@ -15,7 +15,7 @@
  * Apple. Nothing here prints an email, token or content: ids are counted, not listed.
  */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { resolve, sep } from 'node:path';
+import nodePath, { resolve } from 'node:path';
 
 import mongoose from 'mongoose';
 
@@ -30,11 +30,39 @@ export type RegisterExport = { kind: 'quran-heals-deletion-register'; exportedAt
 
 const REPO_ROOT = resolve(__dirname, '../../..');
 
-/** Export files hold internal account ids: never inside the repository or a OneDrive folder. */
+export const EXPORT_IN_REPOSITORY = 'Refusing to write the export inside the QuranHeals repository.';
+export const EXPORT_IN_ONEDRIVE = 'Refusing to write the export inside OneDrive (its version history would keep it).';
+
+type PathApi = typeof nodePath.win32 | typeof nodePath.posix;
+
+/**
+ * Every reason `target` may not hold an export (internal account ids): inside the repository, inside a OneDrive
+ * folder, or both. Both checks always run, so one never hides the other. Pure: the path rules (`pathApi`), the
+ * repository root and the working directory are parameters, so Windows and POSIX behaviour are tested on any OS.
+ *
+ * The path is resolved the way the file system resolves it when the file is written. On POSIX a Windows-style path
+ * such as `C:\Exports\x.json` is relative (a file of that name in the working directory), so it is judged where it
+ * would really land; the OneDrive check also reads the folders as typed.
+ */
+export function exportPathProblems(target: string, options: { pathApi?: PathApi; repoRoot?: string; cwd?: string } = {}): string[] {
+  const pathApi = options.pathApi ?? nodePath;
+  // Windows paths compare case-insensitively; POSIX paths exactly.
+  const fold = (value: string) => (pathApi.sep === '\\' ? value.toLowerCase() : value);
+  const full = pathApi.resolve(options.cwd ?? process.cwd(), target);
+  const root = pathApi.resolve(options.repoRoot ?? REPO_ROOT);
+  const rootPrefix = root.endsWith(pathApi.sep) ? root : root + pathApi.sep;
+  const problems: string[] = [];
+  if (fold(full) === fold(root) || fold(full).startsWith(fold(rootPrefix))) problems.push(EXPORT_IN_REPOSITORY);
+  // A folder named "OneDrive" or "OneDrive - <organization>" anywhere above the file, with either separator.
+  const folders = (path: string) => path.split(/[\\/]+/).slice(0, -1);
+  if ([...folders(full), ...folders(target)].some((folder) => /^onedrive(\b|$)/i.test(folder))) problems.push(EXPORT_IN_ONEDRIVE);
+  return problems;
+}
+
+/** Export files hold internal account ids: never inside the repository or a OneDrive folder. Names every reason. */
 export function assertExportPathAllowed(path: string): void {
-  const full = resolve(path);
-  if (full.toLowerCase().startsWith(REPO_ROOT.toLowerCase() + sep)) throw new Error('Refusing to write the export inside the QuranHeals repository.');
-  if (/[\\/]onedrive[^\\/]*[\\/]/i.test(full)) throw new Error('Refusing to write the export inside OneDrive (its version history would keep it).');
+  const problems = exportPathProblems(path);
+  if (problems.length > 0) throw new Error(problems.join(' '));
 }
 
 /** Only a mongod on this computer: loopback host, explicit port, no credentials needed. */
