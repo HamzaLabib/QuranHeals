@@ -5961,7 +5961,7 @@ describe('Quran audio in the reader (audio/)', () => {
     expect(hosts('audio-reciter-chevron-down')).toHaveLength(0);
     const rows = () => root.root.findAll((node) => typeof node.type === 'string' && /^audio-reciter-(?!dropdown|name|list|chevron)/.test(node.props.testID ?? ''));
     expect(rows()).toHaveLength(17);
-    expect(rows().map((node) => node.props.testID.replace('audio-reciter-', ''))).toEqual(['minshawi', 'husary', 'abdulbasit', 'banna', 'sufi', 'ahmed-salama', 'hudhaifi', 'shuraim', 'maher', 'shatri', 'ajmi', 'jaber', 'basfar', 'yasser-salama', 'naina', 'islam-sobhi', 'saleh-talib']);
+    expect(rows().map((node) => node.props.testID.replace('audio-reciter-', ''))).toEqual(['minshawi', 'husary', 'abdulbasit', 'banna', 'shuraim', 'hudhaifi', 'sufi', 'ahmed-salama', 'shatri', 'ajmi', 'maher', 'jaber', 'basfar', 'yasser-salama', 'naina', 'islam-sobhi', 'saleh-talib']);
     expect(rows().filter((node) => node.props.accessibilityState?.selected).map((node) => node.props.testID)).toEqual(['audio-reciter-abdulbasit']);
     // Tapping it again closes the list.
     await press(onlyHost('audio-reciter-dropdown'));

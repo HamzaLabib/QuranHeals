@@ -17,13 +17,13 @@ const ORDER = [
   ['husary', 'Mahmoud Khalil Al-Husary', 'محمود خليل الحصري'],
   ['abdulbasit', 'Abdul Basit Abdus Samad', 'عبد الباسط عبد الصمد'],
   ['banna', 'Mahmoud Ali Al-Banna', 'محمود علي البنا'],
+  ['shuraim', 'Saud Al-Shuraim', 'سعود الشريم'],
+  ['hudhaifi', 'Ali Al-Hudhaifi', 'علي بن عبد الرحمن الحذيفي'],
   ['sufi', 'Abdul Rashid Ali Sufi', 'عبد الرشيد علي صوفي'],
   ['ahmed-salama', 'Ahmed Mohamed Salama', 'أحمد محمد سلامة'],
-  ['hudhaifi', 'Ali Al-Hudhaifi', 'علي بن عبد الرحمن الحذيفي'],
-  ['shuraim', 'Saud Al-Shuraim', 'سعود الشريم'],
-  ['maher', 'Maher Al-Muaiqly', 'ماهر المعيقلي'],
   ['shatri', 'Abu Bakr Al-Shatri', 'أبو بكر الشاطري'],
   ['ajmi', 'Ahmed Al-Agamy', 'أحمد العجمي'],
+  ['maher', 'Maher Al-Muaiqly', 'ماهر المعيقلي'],
   ['jaber', 'Ali Abdullah Jaber', 'علي عبد الله جابر'],
   ['basfar', 'Abdullah Basfar', 'عبد الله بصفر'],
   ['yasser-salama', 'Yasser Mahmoud Salama', 'ياسر محمود سلامة'],
@@ -56,10 +56,10 @@ describe('the reciters the app offers (owner, 2026-10-24)', () => {
     for (const [s, entry] of Object.entries(own.timed)) expect(getReciter('ajmi')!.timed[Number(s)], s).toEqual(entry);
   });
 
-  it("Ali Al-Hudhaifi at #7 (owner, 2026-10-24): the Arabic display name only; recording and measured timing are the catalogue's", () => {
+  it("Ali Al-Hudhaifi at #6 (owner's order): the Arabic display name only; recording and measured timing are the catalogue's", () => {
     const h = getReciter('hudhaifi')!;
     const own = GENERATED_RECITERS.find((r) => r.id === 'hudhaifi')!;
-    expect(RECITERS.map((r) => r.id).indexOf('hudhaifi')).toBe(6);
+    expect(RECITERS.map((r) => r.id).indexOf('hudhaifi')).toBe(5);
     expect([h.nameEn, h.nameAr, own.nameAr]).toEqual(['Ali Al-Hudhaifi', 'علي بن عبد الرحمن الحذيفي', 'علي الحذيفي']);
     expect([h.server, h.timingSource]).toEqual([own.server, own.timingSource]);
     for (const [s, entry] of Object.entries(own.timed)) expect(h.timed[Number(s)], s).toEqual(entry); // released surahs only add

@@ -1289,8 +1289,8 @@ describe('Settings: Favorite Reciter and offline listening (audio/)', () => {
     expect(reciterRows()).toHaveLength(17);
     const labels = reciterRows().map((node) => node.props.accessibilityLabel as string);
     expect(labels.map((label) => label.split(', ')[0])).toEqual([
-      'Muhammad Siddiq Al-Minshawi', 'Mahmoud Khalil Al-Husary', 'Abdul Basit Abdus Samad', 'Mahmoud Ali Al-Banna', 'Abdul Rashid Ali Sufi',
-      'Ahmed Mohamed Salama', 'Ali Al-Hudhaifi', 'Saud Al-Shuraim', 'Maher Al-Muaiqly', 'Abu Bakr Al-Shatri', 'Ahmed Al-Agamy', 'Ali Abdullah Jaber', 'Abdullah Basfar',
+      'Muhammad Siddiq Al-Minshawi', 'Mahmoud Khalil Al-Husary', 'Abdul Basit Abdus Samad', 'Mahmoud Ali Al-Banna', 'Saud Al-Shuraim',
+      'Ali Al-Hudhaifi', 'Abdul Rashid Ali Sufi', 'Ahmed Mohamed Salama', 'Abu Bakr Al-Shatri', 'Ahmed Al-Agamy', 'Maher Al-Muaiqly', 'Ali Abdullah Jaber', 'Abdullah Basfar',
       'Yasser Mahmoud Salama', 'Ahmed Naina', 'Islam Sobhi', 'Saleh Al-Talib',
     ]);
     expect(labels).toContain('Abdul Basit Abdus Samad'); // all 114 surahs: no count shown
@@ -1326,7 +1326,7 @@ describe('Settings: Favorite Reciter and offline listening (audio/)', () => {
     await pressHeader('القارئ المفضل');
     // The owner's order, the same in Arabic: Al-Minshawi first.
     expect(reciterRows()[0].props.accessibilityLabel).toBe('محمد صديق المنشاوي'); // all 114: no count shown
-    expect((reciterRows()[6].props.accessibilityLabel as string).split(', ')[0]).toBe('علي بن عبد الرحمن الحذيفي');
+    expect((reciterRows()[5].props.accessibilityLabel as string).split(', ')[0]).toBe('علي بن عبد الرحمن الحذيفي');
   });
 
   const downloadIcon = () => all('Pressable').find((node) => node.props.testID === 'settings-reciter-download')!;

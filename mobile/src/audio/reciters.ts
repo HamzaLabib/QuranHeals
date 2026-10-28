@@ -150,8 +150,8 @@ export const withoutOnHold = (reciters: readonly Reciter[], onHold: readonly str
  * Not in the list, and so not offered (kept in the catalogue, audits and review dashboard): the on-hold reciters above.
  */
 export const RECITER_ORDER: readonly string[] = [
-  'minshawi', 'husary', 'abdulbasit', 'banna', 'sufi', 'ahmed-salama', 'hudhaifi', 'shuraim', 'maher',
-  'shatri', 'ajmi', 'jaber', 'basfar', 'yasser-salama', 'naina', 'islam-sobhi', 'saleh-talib',
+  'minshawi', 'husary', 'abdulbasit', 'banna', 'shuraim', 'hudhaifi', 'sufi', 'ahmed-salama', 'shatri',
+  'ajmi', 'maher', 'jaber', 'basfar', 'yasser-salama', 'naina', 'islam-sobhi', 'saleh-talib',
 ];
 /** English display names as the owner writes them (2026-10-24); the catalogue's own names are unchanged. */
 export const DISPLAY_NAMES_EN: Readonly<Record<string, string>> = { ajmi: 'Ahmed Al-Agamy', naina: 'Ahmed Naina' };

@@ -42,11 +42,13 @@ const base = JSON.parse(fs.readFileSync(FIXTURE, 'utf8')) as typeof now;
 
 describe('audio baseline protection (work on Sobhi, Yasser 48, Agamy 42 only)', () => {
   it('reciter order and on-hold reciters unchanged', () => {
-    // The only change since the baseline: the owner's reorder of the last four (2026-10-24, final): Yasser Mahmoud
-    // Salama, Ahmed Naina, Islam Sobhi, Saleh Al-Talib. Everything before them is the baseline's.
-    const last = ['yasser-salama', 'naina', 'islam-sobhi', 'saleh-talib'];
-    expect(now.order).toEqual([...base.order.filter((id: string) => !last.includes(id)), ...last]);
-    expect(now.order.slice(0, -4)).toEqual(base.order.slice(0, -4));
+    // Order changes since the baseline are the owner's reorders only (2026-10-24: the last four; 2026-10-28: the whole
+    // list). The same reciters as the baseline: none added, none dropped.
+    expect(now.order).toEqual([
+      'minshawi', 'husary', 'abdulbasit', 'banna', 'shuraim', 'hudhaifi', 'sufi', 'ahmed-salama', 'shatri',
+      'ajmi', 'maher', 'jaber', 'basfar', 'yasser-salama', 'naina', 'islam-sobhi', 'saleh-talib',
+    ]);
+    expect([...now.order].sort()).toEqual([...base.order].sort());
     expect(now.order).toEqual([...RECITER_ORDER]);
     expect([...ON_HOLD_RECITER_IDS]).toEqual(['rifaat', 'gebril']);
   });
