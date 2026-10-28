@@ -72,6 +72,25 @@ describe('AppLocaleProvider', () => {
     expect(state.storage.has(EMOTIONS_LANGUAGE_STORAGE_KEY)).toBe(false);
     // Not stamped as a user's change, so a signed-in account's own App Language still wins on sync.
     expect(getLastLocalPreferenceChangeForTests()).toBeNull();
+    // Nothing saved: the first-launch language choice shows (root _layout.tsx).
+    expect(seen.isReady).toBe(true);
+    expect(seen.hasSavedLocale).toBe(false);
+  });
+
+  it('the first-launch choice saves the language, stamps it for sync, and is not asked again', async () => {
+    state.deviceTags = ['en-US'];
+    await mount();
+    expect(seen.hasSavedLocale).toBe(false);
+    await act(async () => seen.setLocale('ar'));
+    expect(seen.locale).toBe('ar');
+    expect(seen.hasSavedLocale).toBe(true);
+    expect(state.storage.get(APP_LOCALE_STORAGE_KEY)).toBe('ar');
+    expect(getLastLocalPreferenceChangeForTests()).toMatchObject({ field: 'locale', value: 'ar' });
+    await act(async () => root!.unmount());
+    root = undefined;
+    await mount();
+    expect(seen.locale).toBe('ar');
+    expect(seen.hasSavedLocale).toBe(true);
   });
 
   it('fresh install on an English or French device: English', async () => {
@@ -89,6 +108,8 @@ describe('AppLocaleProvider', () => {
     state.deviceTags = ['ar-SA'];
     await mount();
     expect(seen.locale).toBe('en');
+    // An existing user's saved choice: no first-launch language choice.
+    expect(seen.hasSavedLocale).toBe(true);
     await act(async () => seen.setLocale('ar'));
     expect(state.storage.get(APP_LOCALE_STORAGE_KEY)).toBe('ar');
     await act(async () => root!.unmount());
@@ -103,6 +124,7 @@ describe('AppLocaleProvider', () => {
     state.deviceTags = ['en-US'];
     await mount();
     expect(seen.locale).toBe('ar');
+    expect(seen.hasSavedLocale).toBe(true);
     expect(state.storage.get(APP_LOCALE_STORAGE_KEY)).toBe('ar');
     expect(state.storage.get(EMOTIONS_LANGUAGE_STORAGE_KEY)).toBe('ar-EG');
   });

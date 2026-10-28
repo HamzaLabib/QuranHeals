@@ -21,6 +21,11 @@ export type AppLocaleContextValue = {
   messages: Messages;
   /** True once the persisted preference has been read (or safely defaulted). */
   isReady: boolean;
+  /**
+   * True when an App Language is saved on this device (read at startup, or set since — by the user or from the
+   * account). False on a fresh install until the first-launch language choice (components/LanguageChoiceScreen.tsx).
+   */
+  hasSavedLocale: boolean;
 };
 
 const AppLocaleContext = createContext<AppLocaleContextValue | undefined>(undefined);
@@ -33,7 +38,8 @@ const AppLocaleContext = createContext<AppLocaleContextValue | undefined>(undefi
  * fresh install), the device's language decides: Arabic devices start in
  * Modern Standard Arabic, every other device in English
  * (resolveInitialAppLanguage) — not saved, and not stamped for sync, since
- * the user has not chosen yet. An invalid or unreadable stored value
+ * the user has not chosen yet; the first-launch language choice asks them
+ * (hasSavedLocale). An invalid or unreadable stored value
  * (corrupted storage, a future removed locale) falls back to the default
  * safely — it never throws and never leaves the app in a broken locale
  * state.
@@ -41,6 +47,7 @@ const AppLocaleContext = createContext<AppLocaleContextValue | undefined>(undefi
 export function AppLocaleProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<AppLanguage>(DEFAULT_APP_LOCALE);
   const [isReady, setIsReady] = useState(false);
+  const [hasSavedLocale, setHasSavedLocale] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -49,7 +56,10 @@ export function AppLocaleProvider({ children }: { children: ReactNode }) {
       try {
         // A stored Egyptian Arabic App Language is migrated first (emotionsLanguage.ts).
         const stored = await migrateLegacyAppLanguage();
-        if (!cancelled) setLocaleState(stored ?? resolveInitialAppLanguage(getDeviceLanguageTags()));
+        if (!cancelled) {
+          setLocaleState(stored ?? resolveInitialAppLanguage(getDeviceLanguageTags()));
+          if (stored) setHasSavedLocale(true);
+        }
       } catch {
         // Unreadable storage: keep the default locale rather than throwing.
       } finally {
@@ -69,14 +79,15 @@ export function AppLocaleProvider({ children }: { children: ReactNode }) {
     if (!options?.fromSync) recordLocalPreferenceChange('locale', language);
     if (next === 'ar-EG') void moveEgyptianArabicToEmotions();
     setLocaleState(language);
+    setHasSavedLocale(true);
     void AsyncStorage.setItem(APP_LOCALE_STORAGE_KEY, language).catch(() => {
       // Persistence failure is non-fatal: the in-memory selection still applies this session.
     });
   }, []);
 
   const value = useMemo<AppLocaleContextValue>(
-    () => ({ locale, setLocale, messages: getMessages(locale), isReady }),
-    [locale, setLocale, isReady],
+    () => ({ locale, setLocale, messages: getMessages(locale), isReady, hasSavedLocale }),
+    [locale, setLocale, isReady, hasSavedLocale],
   );
 
   return <AppLocaleContext.Provider value={value}>{children}</AppLocaleContext.Provider>;

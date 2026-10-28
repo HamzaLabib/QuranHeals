@@ -222,6 +222,12 @@ describe('no light-only colors left in shared components and screens', () => {
 
   it.each(files)('%s never uses the retired single-theme color names or a static colors import', (file) => {
     const source = read(file);
+    // Light in both appearances on purpose: it follows the always-cream native splash, and the dark green logo is
+    // not legible on the dark background (tests/languageChoiceScreen.test.ts).
+    if (file.endsWith('LanguageChoiceScreen.tsx')) {
+      expect(source).toMatch(/^const colors = lightPalette;$/m);
+      return;
+    }
     expect(source).not.toMatch(/colors\.(ink|parchment|olive|oliveWash|muted|softText|rust|rustSoft|forest|teal)\b/);
     expect(source).not.toMatch(/import \{[^}]*\bcolors\b[^}]*\} from '@\/constants\/theme'/);
     if (/\bcolors\./.test(source) && /StyleSheet\.create/.test(source)) {

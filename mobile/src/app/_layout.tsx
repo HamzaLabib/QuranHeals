@@ -3,12 +3,14 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { useEffect } from 'react';
+import { View } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 
 import { AuthProvider } from '@/auth/useAuth';
 import { setAudioLocale } from '@/audio/index';
 import { FavoriteReciterProvider } from '@/audio/useFavoriteReciter';
 import { ScreenWithAudioControls } from '@/components/AudioMiniControls';
+import { LanguageChoiceScreen } from '@/components/LanguageChoiceScreen';
 import { navigationColorsFor, paletteFor, statusBarStyleFor } from '@/constants/theme';
 import { useDeviceOrientationPolicy } from '@/layout/useDeviceOrientationPolicy';
 import { isRtlLocale } from '@/localization/locales';
@@ -125,12 +127,15 @@ function ThemedRoot() {
   // Auth/session restore is deliberately not awaited: it can hit the network
   // and the home screen doesn't depend on it.
   const { isReady: isAppearanceReady } = useAppearancePreference();
-  const { isReady: isLocaleReady, locale } = useAppLocale();
+  const { isReady: isLocaleReady, locale, hasSavedLocale, setLocale } = useAppLocale();
   // The lock screen's "now playing" text follows the App Language (audio/index.ts).
   useEffect(() => {
     setAudioLocale(isRtlLocale(locale));
   }, [locale]);
   const startupReady = isAppearanceReady && isLocaleReady;
+  // First launch (no App Language saved): the language choice covers the app until a tap saves one. Existing users
+  // already have one saved and never see it; Settings keeps changing it as before.
+  const needsLanguageChoice = isLocaleReady && !hasSavedLocale;
   // Reminder taps (notifications/): after startup, once the root navigator exists — including the tap that launched the app.
   useNotificationResponseRouting(startupReady);
 
@@ -180,19 +185,26 @@ function ThemedRoot() {
   return (
     <ThemeProvider value={navigationThemes[theme]}>
       <StatusBar style={statusBarStyleFor(theme)} />
-      <Stack
-        // Every screen above the tabs (Settings, Favorites, the ayah screens, …) shows the compact audio controls at its
-        // bottom during the Mushaf's listening session; the tabs show them in their tab bar (never on the Mushaf).
-        screenLayout={({ children, route }) => (route.name === '(tabs)' ? children : <ScreenWithAudioControls>{children}</ScreenWithAudioControls>)}
-        screenOptions={{
-          headerShown: false,
-          contentStyle: {
-            backgroundColor: background,
-          },
-        }}>
-        {/* The four tabs (Home, Mushaf, Favorites, Reflections). The Mushaf reader lives here, so the stack's swipe-back stays off for it. */}
-        <Stack.Screen name="(tabs)" options={MUSHAF_SCREEN_OPTIONS} />
-      </Stack>
+      {/* Hidden from screen readers while the language choice covers it. */}
+      <View
+        style={{ flex: 1 }}
+        accessibilityElementsHidden={needsLanguageChoice}
+        importantForAccessibility={needsLanguageChoice ? 'no-hide-descendants' : 'auto'}>
+        <Stack
+          // Every screen above the tabs (Settings, Favorites, the ayah screens, …) shows the compact audio controls at its
+          // bottom during the Mushaf's listening session; the tabs show them in their tab bar (never on the Mushaf).
+          screenLayout={({ children, route }) => (route.name === '(tabs)' ? children : <ScreenWithAudioControls>{children}</ScreenWithAudioControls>)}
+          screenOptions={{
+            headerShown: false,
+            contentStyle: {
+              backgroundColor: background,
+            },
+          }}>
+          {/* The four tabs (Home, Mushaf, Favorites, Reflections). The Mushaf reader lives here, so the stack's swipe-back stays off for it. */}
+          <Stack.Screen name="(tabs)" options={MUSHAF_SCREEN_OPTIONS} />
+        </Stack>
+      </View>
+      {needsLanguageChoice && <LanguageChoiceScreen onChoose={setLocale} />}
     </ThemeProvider>
   );
 }

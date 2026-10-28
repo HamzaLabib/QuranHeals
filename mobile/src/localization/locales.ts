@@ -36,8 +36,9 @@ export const DEFAULT_APP_LOCALE: AppLanguage = 'en';
  * everything else (English, French, any language the app has no interface
  * for). Never Egyptian Arabic: that is an Emotions Language only. Only the
  * first preference counts, so a French speaker who also lists Arabic gets
- * English, as the device's own first choice suggests. Not saved: once the
- * user picks a language in Settings that choice is stored and wins for good.
+ * English, as the device's own first choice suggests. Not saved: it is the
+ * language the app sits in behind the first-launch language choice; once the
+ * user picks a language there or in Settings, that choice is stored and wins.
  */
 export function resolveInitialAppLanguage(deviceLanguageTags: readonly string[]): AppLanguage {
   const first = deviceLanguageTags.find((tag) => typeof tag === 'string' && tag.trim().length > 0);

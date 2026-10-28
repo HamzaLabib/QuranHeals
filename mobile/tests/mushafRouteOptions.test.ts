@@ -31,6 +31,8 @@ vi.mock('@/theme/useTheme', () => ({ useThemeName: () => 'light' }));
 vi.mock('@/constants/theme', () => ({ navigationColorsFor: () => ({}), paletteFor: () => ({ background: '#fff' }), statusBarStyleFor: () => 'dark' }));
 vi.mock('@/utils/devLog', () => ({ devLog: () => undefined }));
 vi.mock('@/layout/useDeviceOrientationPolicy', () => ({ useDeviceOrientationPolicy: () => undefined }));
+vi.mock('react-native', () => ({ View: 'View' }));
+vi.mock('@/components/LanguageChoiceScreen', () => ({ LanguageChoiceScreen: () => null }));
 vi.mock('@/components/AudioMiniControls', () => ({ ScreenWithAudioControls: (props: { children?: ReactNode }) => createElement('ScreenWithAudioControls', props) }));
 
 describe('Mushaf route options', () => {
