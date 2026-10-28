@@ -16,5 +16,17 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
+  ],
+  // expo/tsconfig.base's exclude (replaced, not extended, by any exclude here), plus the backend contract tests:
+  // they load backend source and its dependencies, so they have their own config (tsconfig.contract.json) and
+  // this project never compiles a backend file.
+  "exclude": [
+    "${configDir}/node_modules",
+    "${configDir}/babel.config.js",
+    "${configDir}/metro.config.js",
+    "${configDir}/jest.config.js",
+    "${configDir}/android",
+    "${configDir}/ios",
+    "${configDir}/tests/contract"
   ]
 }

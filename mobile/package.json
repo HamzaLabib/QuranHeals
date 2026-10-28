@@ -79,6 +79,8 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
+    "typecheck:contract": "tsc --noEmit -p tsconfig.contract.json",
+    "test:contract": "vitest run --config vitest.contract.config.mts",
     "eas-build-post-install": "node native-patches/expo-audio-exact-mp3-seek/apply.mjs --verify && node native-patches/expo-audio-android-playback-ownership/apply.mjs --verify"
   },
   "private": true,

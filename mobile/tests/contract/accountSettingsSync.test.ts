@@ -23,9 +23,9 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
   },
 }));
 
-const { putPreferencesSchema } = await import('../../backend/src/validators/syncValidators');
-const { mergePreferences, toPreferencesDto, PREFERENCE_FIELDS } = await import('../../backend/src/services/preferencesMerge');
-type StoredPreferences = import('../../backend/src/services/preferencesMerge').StoredPreferences;
+const { putPreferencesSchema } = await import('../../../backend/src/validators/syncValidators');
+const { mergePreferences, toPreferencesDto, PREFERENCE_FIELDS } = await import('../../../backend/src/services/preferencesMerge');
+type StoredPreferences = import('../../../backend/src/services/preferencesMerge').StoredPreferences;
 
 const { syncPreferences, pushPreferences } = await import('@/sync/preferencesSync');
 const { hasUnsyncedPreferences, loadAccountPreferenceState, recordLocalPreferenceChange, resetPreferencesSyncStateForTests } = await import('@/sync/preferencesSyncState');

@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 
 export default defineConfig({
   resolve: { alias: {
@@ -13,5 +13,12 @@ export default defineConfig({
   define: { __DEV__: 'false' },
   // __DEV__ is false here, so services/apiBase.ts requires an explicit API
   // URL exactly like a release bundle; tests use the local dev backend URL.
-  test: { environment: 'node', include: ['tests/**/*.test.ts'], restoreMocks: true, env: { EXPO_PUBLIC_API_URL: 'http://localhost:4000' } },
+  // tests/contract/ runs the backend's own code and needs its dependencies: vitest.contract.config.mts.
+  test: {
+    environment: 'node',
+    include: ['tests/**/*.test.ts'],
+    exclude: [...configDefaults.exclude, 'tests/contract/**'],
+    restoreMocks: true,
+    env: { EXPO_PUBLIC_API_URL: 'http://localhost:4000' },
+  },
 });

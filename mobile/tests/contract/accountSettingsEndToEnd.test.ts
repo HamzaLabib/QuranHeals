@@ -45,9 +45,9 @@ vi.mock('@/sync/readingSync', () => ({ syncReading: vi.fn(async () => true) }));
 vi.mock('@/storage/ayahReflections', () => ({ clearAllReflections: vi.fn(), guestHasReflections: vi.fn(async () => false), adoptGuestReflections: vi.fn(async () => true) }));
 vi.mock('@/storage/favorites', () => ({ clearAllFavorites: vi.fn(), guestHasFavorites: vi.fn(async () => false), adoptGuestFavorites: vi.fn(async () => true) }));
 
-const { putPreferencesSchema } = await import('../../backend/src/validators/syncValidators');
-const { mergePreferences, toPreferencesDto } = await import('../../backend/src/services/preferencesMerge');
-type StoredPreferences = import('../../backend/src/services/preferencesMerge').StoredPreferences;
+const { putPreferencesSchema } = await import('../../../backend/src/validators/syncValidators');
+const { mergePreferences, toPreferencesDto } = await import('../../../backend/src/services/preferencesMerge');
+type StoredPreferences = import('../../../backend/src/services/preferencesMerge').StoredPreferences;
 
 const { AuthProvider, useAuth } = await import('@/auth/useAuth');
 const { resetAuthEpochForTests } = await import('@/auth/authEpoch');

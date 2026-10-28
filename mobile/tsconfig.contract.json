@@ -1,0 +1,18 @@
+{
+  // The backend contract tests (tests/contract/): the app's sync code against the backend's own request validator
+  // and merge (backend/src/validators/syncValidators.ts, backend/src/services/preferencesMerge.ts), which they import.
+  // Kept out of the app's typecheck (tsconfig.json). Needs the backend's dependencies installed (`npm ci` in
+  // backend/) as well as the app's: `npm run typecheck:contract`.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // They run under Node (vitest): the app's own @types/node, which its project reaches through test helpers.
+    "types": ["node"]
+  },
+  "include": [
+    "tests/contract/**/*.ts",
+    "expo-env.d.ts"
+  ],
+  "exclude": [
+    "${configDir}/node_modules"
+  ]
+}

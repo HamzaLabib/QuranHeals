@@ -67,6 +67,7 @@ jobs:
           cache-dependency-path: |
             mobile/package-lock.json
             tools/quran-audio/review/cloud/package-lock.json
+            backend/package-lock.json
 
       # The audio review tests (tests/audioPublication, audioReviewCloud,
       # audioSingleReview) run the cloud review service against a temporary
@@ -102,3 +103,15 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm test
+
+      # tests/contract/ checks the app's sync code against the backend's own
+      # request validator and merge, which it imports from backend/src: it is
+      # kept out of the app's typecheck and tests above (tsconfig.json,
+      # vitest.config.mts) and needs the backend's dependencies, from the
+      # backend's lockfile — otherwise a bare import there (zod) would be
+      # silently taken from this app's node_modules, at another major version.
+      - name: Install the backend's dependencies (contract tests)
+        working-directory: backend
+        run: npm ci --no-audit --no-fund
+      - run: npm run typecheck:contract
+      - run: npm run test:contract
