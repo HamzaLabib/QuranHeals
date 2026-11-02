@@ -21,7 +21,7 @@ import { MushafStopNameField } from '@/components/MushafStopNameField';
 import { MushafSvgText } from '@/components/MushafSvgText';
 import { MushafWirdSelector, WIRD_PILL_HEIGHT } from '@/components/MushafWirdSelector';
 import { MushafZoomView, type MushafZoomHandle } from '@/components/MushafZoomView';
-import { QpcV1PageText } from '@/components/QpcV1PageText';
+import { guideExampleOf, QpcV1PageText } from '@/components/QpcV1PageText';
 import { ReflectionSheet } from '@/components/ReflectionSheet';
 import { ShareAyahSheet } from '@/components/ShareAyahSheet';
 import { MUSHAF_PANEL_COLORS, MUSHAF_PAPER } from '@/constants/mushafTheme';
@@ -466,7 +466,7 @@ export default function MushafScreen() {
   }
   // The Memorization Mode Guide (memorization/memorizationGuide.ts): from Settings → Quran → Mushaf Guide
   // (/mushaf?memorizationGuide=<time>), at its first step, once per request; and by itself once on a fresh install,
-  // right after the Mushaf guide (its saved first-time progress, below). It changes no setting and never enters
+  // the first time the reader enters Memorization Mode after the Mushaf guide (its saved first-time progress, below). It changes no setting and never enters
   // Memorization Mode; the Mushaf guide's saved progress is not touched.
   const [memorizationGuideStep, setMemorizationGuideStep] = useState<number | null>(null);
   const [memorizationGuideProgress, setMemorizationGuideProgress] = useState<MemorizationGuideProgress | null>(null);
@@ -1151,17 +1151,24 @@ export default function MushafScreen() {
     });
     return () => { cancelled = true; };
   }, []);
-  const guideReady = Boolean(drawn) && guideTargets.names.split(',').includes('surah');
+  // A QPC page's Quran text laid out: its example ayah and that ayah's number (QpcV1PageText's guideExampleOf) are
+  // registered once its lines are drawn, never before, so steps 1–2 never find them missing. A page without one, or
+  // drawn as page 61's Quran SVG, has nothing to wait for (those steps say so, as before).
+  const guideTargetNames = guideTargets.names.split(',');
+  const guideTextReady = !(content.status === 'qpc' && qpcShown(content) && guideExampleOf(content.layout) !== null) || (guideTargetNames.includes('ayah') && guideTargetNames.includes('marker'));
+  const guideReady = Boolean(drawn) && guideTargetNames.includes('surah') && guideTextReady;
   useEffect(() => {
     // Already open (from Settings): it is not opened over itself at another step.
     if (guideVisible) guideAutoShown.current = true;
-    // Never over the Memorization Mode Guide: the first-time guide waits until that one is closed.
-    if (guideAutoShown.current || guideProgress?.status !== 'unseen' || !guideReady || memorizationGuideStep !== null) return;
+    // Only while the reader is the screen shown: its tab stays mounted behind the others (a download ending there
+    // draws its page), and the guide is a Modal, over everything. Never over the Memorization Mode Guide either: the
+    // first-time guide waits until that one is closed.
+    if (!focused || guideAutoShown.current || guideProgress?.status !== 'unseen' || !guideReady || memorizationGuideStep !== null) return;
     guideAutoShown.current = true;
     closeOverlay();
     setGuideStep(guideProgress.step);
     setGuideVisible(true);
-  }, [guideProgress, guideReady, guideVisible, closeOverlay, memorizationGuideStep]);
+  }, [guideProgress, guideReady, guideVisible, closeOverlay, memorizationGuideStep, focused]);
   const showGuideStep = (step: number) => {
     setGuideStep(step);
     // Progress survives a reload: reopened at this step until the guide is closed or finished.
@@ -1276,11 +1283,12 @@ export default function MushafScreen() {
   const memorizationGuide = memorizationGuideStep === null ? null : memorizationGuideStepFor(MEMORIZATION_GUIDE_STEPS[memorizationGuideStep], allInBarLayout);
   const isGuideTargetDrawn = (target: GuideTarget) => guideTargets.names.split(',').includes(target);
   const memorizationGuideNoteKey = memorizationGuide ? memorizationGuideNote(memorizationGuide, isGuideTargetDrawn, memorizationOffered && memorizationUnsupported) : null;
-  // Its first-time showing: once the Mushaf guide is closed or finished and gone, with the page and the Eye drawn and
+  // Its first-time showing: once the reader enters Memorization Mode with the Mushaf guide closed or finished and gone, with the page and the Eye drawn and
   // the reader focused (the tab stays mounted behind others). After a short hand-off, so the two never overlap; any
   // change meanwhile (the Mushaf guide reopened, the reader left) cancels it.
   const memorizationGuideDue = isMemorizationModeAvailable() && isMemorizationGuideDue({
     progress: memorizationGuideProgress,
+    memorizing: memorization.active,
     mushafGuide: guideProgress,
     mushafGuideVisible: guideVisible,
     memorizationGuideOpen: memorizationGuideStep !== null,

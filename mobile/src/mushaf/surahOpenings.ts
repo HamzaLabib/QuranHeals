@@ -9,7 +9,11 @@ import type { QpcV1PageLayout } from '@/mushaf/qpcV1Layout';
  * - one empty line at the top of a page before ayah 1: the Basmala, its
  *   heading being the last line of the page before;
  * - empty lines at the bottom of a page: the next Surah's heading, then its
- *   Basmala (or only its heading, the Basmala opening the next page).
+ *   Basmala (or only its heading, the Basmala opening the next page) —
+ *   except on pages 1 and 2, whose empty lines belong to their own opening
+ *   composition: Al-Baqarah opens page 2, Aal-Imran page 50. Since Content
+ *   Sync version 929cb1be (2026-11) their text sits on lines 2–8 and 3–8
+ *   (before: 9–15 and 10–15), so their empty lines are now at the bottom.
  * Checked against all 604 pages (tools/mushaf-audit): 114 headings and
  * 112 Basmalas, every empty line accounted for.
  */
@@ -21,7 +25,7 @@ const SURAH_WITHOUT_BASMALA = 9;
 const surahOf = (verseKey: string) => Number(verseKey.split(':')[0]);
 const ayahOf = (verseKey: string) => Number(verseKey.split(':')[1]);
 
-export function surahOpeningSlots(layout: Pick<QpcV1PageLayout, 'lines'>): OpeningSlot[] {
+export function surahOpeningSlots(layout: Pick<QpcV1PageLayout, 'lines'> & { page?: number }): OpeningSlot[] {
   const text = [...layout.lines].filter((line) => line.words.length > 0).sort((a, b) => a.line - b.line);
   if (text.length === 0) return [];
   const used = new Set(text.map((line) => line.line));
@@ -48,7 +52,7 @@ export function surahOpeningSlots(layout: Pick<QpcV1PageLayout, 'lines'>): Openi
   // Empty lines after the page's last text line open the next Surah.
   const last = text[text.length - 1];
   const trailing = LINES_PER_PAGE - last.line;
-  if (trailing > 0) {
+  if (trailing > 0 && !(layout.page !== undefined && isOpeningPage(layout.page))) {
     const lastWord = last.words[last.words.length - 1];
     const next = surahOf(lastWord.verseKey) + 1;
     if (next <= 114) {

@@ -91,17 +91,19 @@ Code: `mobile/src/mushaf/offline/autoDownload.ts` (the rules, pure and tested), 
 It decides only **when** the verified download above runs; it never changes what is downloaded or how it is checked. No sign-in is needed, and the copy is device content, shared by every account on the device.
 
 - **Start:** once, from the root layout, about 3 s after the first screen shows. Never from screens; repeated starts do nothing more.
+  - Also when the first-run language is chosen (2026-11-02): `recheck()` starts the controller if needed, else re-decides once under the same rules. A hold still applies, a complete Mushaf is not downloaded again, and a running download is not started twice.
 - **Already complete** (layout installed and all 604 fonts verified, `status().complete`): nothing downloads; only the update check above.
-- **Missing or partial:** on Wi-Fi it starts by itself. On mobile data it asks once, in a quiet line above the tab bar: **Download now** (remembered: `allowed`) or **Wait for Wi-Fi** (remembered: `wifi-only`; then it starts on Wi-Fi, without asking again). Stored device-wide in `quran-heals:mushaf-offline-auto:v1`.
-- **Network type** (`network.ts`, from `expo-network`, approved 2026-10-14; a native module, so it needs a new build): Wi-Fi or Ethernet starts by itself; mobile data asks; no connection, or the internet explicitly unreachable (a Wi-Fi login page), waits. Anything else (VPN, Bluetooth, "other", unknown, the web, or the module failing) is *unknown* and treated like mobile data: it asks (**Download now** / **Not now**; *Not now* then waits for Wi-Fi). Tests: `mobile/tests/mushafNetwork.test.ts`.
+- **Missing or partial:** on any working connection it starts by itself, with no question first: Wi-Fi, mobile data, or a connection whose type can't be told (owner decision 2026-11-02; with the fonts bundled it is only the ~2 MB layout).
+  - Until then, mobile data asked first (**Download now** / **Wait for Wi-Fi**). That prompt's UI and its saved answer (`cellular` in `quran-heals:mushaf-offline-auto:v1`) are kept but no longer used.
+- **Network type** (`network.ts`, from `expo-network`, approved 2026-10-14; a native module, so it needs a new build): only *none* matters now. No connection, or the internet explicitly unreachable (a Wi-Fi login page), waits; it starts as soon as any connection returns. Tests: `mobile/tests/mushafNetwork.test.ts`.
 - **Progress:** «Preparing your Mushaf for offline reading» with one bar over the layout (about a fifth) and the fonts. Never shown on the Mushaf page (no tab bar there); the panel there shows the same progress. On completion, «Your Mushaf is ready for offline reading» for 4 s, once.
 - **Never complete by mistake:** *ready* only when the engine's own `status()` says complete after the download. Anything less is a failure (`integrity`) and is retried.
 - **Failures:** offline, 503 (relay not ready, Render restarting) and damaged downloads retry after 30 s, 2, 10 and 30 min, then stop. They start again when the network returns, when the app is reopened at least 15 min after the last failure, or from **Try again**. Low storage never retries by itself. Every verified chunk and font is kept between attempts.
-- **Network change:** leaving Wi-Fi mid-download without mobile-data permission stops it (what is verified is kept) and asks; Wi-Fi resumes it.
+- **Network change:** a download in progress continues when the connection changes type (Wi-Fi ↔ mobile data). A lost connection fails it (what is verified is kept), and it retries; it starts again when the connection returns.
 - **App closed or in the background:** the run stops when the app goes to the background and resumes when it is active again; a closed app resumes on its next launch. **Nothing downloads while the app is suspended or closed** (see below).
 - **Pause / Remove:** remembered. No automatic download until **Continue** / **Download** in the panel.
 
-**Build gate** (`autoDownloadConfig.ts`): automatic starts happen in development builds and in **EAS preview builds** only, recognised by the binary's EAS Update channel (`preview` in `eas.json`, read from `expo-updates`). A build-profile environment variable is deliberately not used: `eas update` does not apply a profile's `env`, so an OTA update to the preview channel would silently turn it off. Production (`production` channel), any other channel and no channel stay off: the panel's manual download and the daily update check work as before. Tests: `mobile/tests/mushafAutoDownload.test.ts` ("build gate").
+**Build gate** (`autoDownloadConfig.ts`): automatic starts happen in development builds, **EAS preview builds** and, since 2026-11-02 (`PRODUCTION_AUTO_DOWNLOAD_RELEASED = true`, owner decision, with the page fonts bundled), **production builds**, recognised by the binary's EAS Update channel (`preview` / `production` in `eas.json`, read from `expo-updates`). A build-profile environment variable is deliberately not used: `eas update` does not apply a profile's `env`, so an OTA update would silently turn it off. Any other channel and no channel stay off: the panel's manual download and the daily update check work as before. Setting the flag to `false` turns production off again. Tests: `mobile/tests/mushafAutoDownload.test.ts` ("build gate", "production").
 
 Preview was enabled (2026-10-14) after checks 1 and 2 below passed on the hosted relay. Still open: the restart test in 3 and the device check in 4, both needed before production is added:
 1. `GET /api/mushaf/qpc-v1/offline/manifest` on the production URL returns 200 with `pagesCount: 604`, 31 chunks and `verses: 6236`.
@@ -128,7 +130,7 @@ Preview was enabled (2026-10-14) after checks 1 and 2 below passed on the hosted
 | Backend copy (raw records + one published version, gzip) | 2.2 MB |
 | Download (31 chunks, JSON) | 2.1 MB (less on the wire: gzip) |
 | Device database after install | 4.7 MB (measured) |
-| Page fonts (later, TTF, all 604) | 94.9 MB |
+| Page fonts (TTF, all 604): bundled with the app since 2026-11-02, not downloaded | 94.9 MB |
 
 ## Validation results (production `mushafs:2`, sequence 547614, 2026-10-11)
 
@@ -164,6 +166,19 @@ Content Sync has no records for them; they are **lines with no words**. In the d
 `surahOpenings.ts` resolves the empty lines using page and ayah order and checks the result across all 604 pages: 114 headings and 112 Basmalas, including all 21 split openings. The Basmala uses the verified QPC V1 glyphs from page 1. Each Surah name uses Amiri Bold; a newly authored vector ornament sits behind it inside the existing heading row. Neither adds a line nor moves Quran text. The full SIL OFL 1.1 font notice is shipped with the app; see `mushaf.md` for source and licence findings.
 
 ## Page fonts (phase 2C)
+
+**Since 2026-11-02 all 604 page fonts are bundled with the app** (hybrid Mushaf): the automatic download fetches only the layout (2.1 MB, about 0.4 MB gzip on the wire). The download machinery below stays, for corrections only.
+
+- **In the app:** `mobile/assets/mushaf/qpc-v1/p{N}.ttf`, git-ignored and restored from the CDN by `scripts/restore-mushaf-fonts.mjs`, each pinned by size and SHA-256 in `fonts.lock.json` (with the CDN's ETag for those bytes). `scripts/pin-mushaf-fonts.mjs` writes the pins and `src/mushaf/generated/qpcV1PageFonts.ts` (one `require` per font, plus its pins). Pinned 2026-11-02: 604 fonts, 94,866,152 bytes. Every font passed the app's `checkPageFont` against the production layout's glyph codes (83,665 words, version `929cb1be…`), and each was rejected as its neighbouring page's font.
+- **Registration:** per page, as before (`ensurePageFont` in the reader). `offlineMushaf.pageFont(page)` returns the bundled font's local file (`expo-asset`): on iOS the file inside the app; on Android expo-asset's copy in the cache folder, made only for pages that are opened (as for page 61 since the start). Page 61 is still registered when the reader opens and is never replaced.
+- **Complete:** the layout installed (`status().complete`); the fonts count as 604 / 604 from the start.
+- **Checked on the device:** before a bundled font is used (once per session per page), its file is read and must match its pinned SHA-256. If it doesn't, it is never used: a downloaded copy is used instead, or the reader falls back to the CDN.
+- **Overrides:** the monthly update check (below) also asks about each bundled font, with its pinned ETag (first check one month after first launch; the time is `fonts_checked_at` in `meta`). A changed font is checked like any download and stored as an **override**, used instead of the bundled one. A damaged override is deleted and the bundled font is used again. If the CDN's font becomes the bundled one again, it replaces the override and is then dropped like an existing install's copy (next point). A layout update asks about the changed pages' fonts the same way.
+- **Existing installs:** nothing is deleted on upgrade. A downloaded font identical to the bundled one (same SHA-256) is deleted only when its page is opened and the bundled font has just passed the on-device check; the bundled file then takes its place (it can't already be registered, since the reader asks only for fonts not yet loaded). So space (up to about 95 MB) is freed page by page as pages are read. A downloaded font that differs is kept as an override. The layout, reading positions and everything else are untouched; nothing is downloaded again.
+- **Remove offline copy:** deletes the layout and any overrides. Bundled fonts can't be removed; the page shows the download again until the layout is back.
+- **OTA updates:** `mobile/fingerprint.config.js` adds `fonts.lock.json` to the fingerprint runtime version, so a new font set needs a new store build and is never sent by `eas update` to a binary without it (expo-updates would download every font at launch).
+
+The rest of this section describes the download path (fonts not in the app, and overrides).
 
 Code: `mobile/src/mushaf/offline/fonts.ts` (download, records, updates), `fontFile.ts` (checks), `index.ts` (device storage and CDN).
 

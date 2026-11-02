@@ -50,7 +50,7 @@ describe('bundled QCF V1 page font', () => {
     expect(names[0]).toMatch(/King Fahad Complex/);
   });
 
-  it('only page 61 is bundled — not the 604-page set', () => {
+  it('only page 61 is registered when the reader opens (the 604-page set is generated/qpcV1PageFonts.ts)', () => {
     const fontsSource = readFileSync(resolve(__dirname, '../src/mushaf/qpcV1Fonts.ts'), 'utf-8');
     expect(fontsSource.match(/require\(/g)).toHaveLength(1);
     expect(fontsSource).toMatch(/p61\.ttf/);

@@ -121,6 +121,22 @@ describe('with the download controller (autoDownload.ts)', () => {
     return { controller, engine, phases, emit };
   }
 
+  it('on mobile data (5G, 4G, LTE: CELLULAR) the Mushaf downloads by itself; offline first, it starts once mobile data is reachable', async () => {
+    const cellular = await run({ type: 'CELLULAR', isConnected: true, isInternetReachable: true });
+    expect(cellular.engine.downloads).toBe(1);
+    expect(cellular.phases).not.toContain('needs-consent');
+    expect(cellular.controller.getState()).toMatchObject({ phase: 'ready', network: 'cellular' });
+    await cellular.controller.dispose();
+
+    const offline = await run({ type: 'NONE', isConnected: false, isInternetReachable: false });
+    expect(offline.controller.getState().phase).toBe('waiting-network');
+    expect(offline.engine.downloads).toBe(0);
+    await offline.emit({ type: 'CELLULAR', isConnected: true, isInternetReachable: true });
+    expect(offline.engine.downloads).toBe(1);
+    expect(offline.controller.getState().phase).toBe('ready');
+    await offline.controller.dispose();
+  });
+
   it('on Wi-Fi the Mushaf downloads without the question ever appearing', async () => {
     const { controller, engine, phases } = await run({ type: 'WIFI', isConnected: true, isInternetReachable: true });
     expect(engine.downloads).toBe(1);
@@ -129,10 +145,11 @@ describe('with the download controller (autoDownload.ts)', () => {
     await controller.dispose();
   });
 
-  it('on a VPN (type not knowable) it asks; on a Wi-Fi login page it waits, then starts once the internet is reachable', async () => {
+  it('on a VPN (type not knowable) it downloads with no question; on a Wi-Fi login page it waits, then starts once the internet is reachable', async () => {
     const vpn = await run({ type: 'VPN', isConnected: true, isInternetReachable: true });
-    expect(vpn.controller.getState()).toMatchObject({ phase: 'needs-consent', network: 'unknown' });
-    expect(vpn.engine.downloads).toBe(0);
+    expect(vpn.controller.getState()).toMatchObject({ phase: 'ready', network: 'unknown' });
+    expect(vpn.engine.downloads).toBe(1);
+    expect(vpn.phases).not.toContain('needs-consent');
     await vpn.controller.dispose();
 
     const portal = await run({ type: 'WIFI', isConnected: true, isInternetReachable: false });

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { AppState, Modal, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Svg, { Line, Path } from 'react-native-svg';
 
@@ -6,6 +6,13 @@ import { MUSHAF_PANEL_COLORS } from '@/constants/mushafTheme';
 import { computeGuidePlacement, GUIDE_CARD_MAX_WIDTH, GUIDE_SIDE_MARGIN, type Rect } from '@/mushaf/mushafGuide';
 
 type Direction = { writingDirection: 'ltr' | 'rtl'; textAlign: 'left' | 'right' };
+
+/** A control measured empty (mounted, not laid out yet) is measured again on each of up to this many frames. */
+const LAYOUT_RETRY_FRAMES = 120;
+const nextFrame = (run: () => void) => {
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(run);
+  else setTimeout(run, 16);
+};
 
 type MushafGuideProps = {
   visible: boolean;
@@ -45,7 +52,8 @@ type MushafGuideProps = {
  * (measureInWindow, in the window's coordinates: the layer is statusBarTranslucent so its own coordinates match), and
  * are measured again whenever the control, the page, the reading mode, the screen size or the app's return to the
  * foreground may have moved it. A control that is not on screen (a page without a Hizb mark, a page still loading) gets
- * no arrow: the card is centred and says so, rather than pointing at the wrong place.
+ * no arrow: the card is centred and says so, rather than pointing at the wrong place. One that is there but not laid
+ * out yet is measured again on the next frames; until the first measurement is in, nothing is drawn.
  *
  * Only its buttons close or move it: Back, Close, Next, and on the last step Start Reading (with, above it, where the
  * guide can be opened again). A tap elsewhere does nothing,
@@ -56,26 +64,49 @@ export function MushafGuide(props: MushafGuideProps) {
   const theme = dark ? MUSHAF_PANEL_COLORS.dark : MUSHAF_PANEL_COLORS.light;
   const screen = useWindowDimensions();
   const [rect, setRect] = useState<Rect | null>(null);
+  // Whether a measurement has concluded since the guide opened (the control found, or not on the screen): until then
+  // nothing is drawn, so it never opens saying a control is missing that is only not measured yet.
+  const [measured, setMeasured] = useState(false);
+  if (!visible && measured) setMeasured(false);
   const [foregrounds, setForegrounds] = useState(0);
+  // The current measuring round: an older one (a step or a page since) never changes what is shown.
+  const round = useRef(0);
 
-  const measure = useCallback(() => {
-    const view = getTarget();
-    if (!view) {
-      setRect(null);
-      return;
-    }
-    view.measureInWindow((x, y, width, height) => {
-      setRect(width > 0 && height > 0 && Number.isFinite(x) && Number.isFinite(y) ? { x, y, width, height } : null);
-    });
+  /** A control that is there but not laid out yet (measured empty) is measured again on the next frames, a few times. */
+  const measure = useCallback((at: number) => {
+    const attempt = (n: number) => {
+      if (at !== round.current) return;
+      const view = getTarget();
+      if (!view) {
+        setRect(null);
+        setMeasured(true);
+        return;
+      }
+      view.measureInWindow((x, y, width, height) => {
+        if (at !== round.current) return;
+        if (width > 0 && height > 0 && Number.isFinite(x) && Number.isFinite(y)) {
+          setRect({ x, y, width, height });
+          setMeasured(true);
+        } else if (n < LAYOUT_RETRY_FRAMES) {
+          nextFrame(() => attempt(n + 1));
+        } else {
+          setRect(null);
+          setMeasured(true);
+        }
+      });
+    };
+    attempt(0);
   }, [getTarget]);
 
   useEffect(() => {
     if (!visible) return undefined;
-    // After this frame's layout, and once more shortly after: a control that has just mounted may not be laid out yet.
-    const now = setTimeout(measure, 0);
-    const later = setTimeout(measure, 80);
+    const at = ++round.current;
+    // Now (after this commit's layout), and once more shortly after: a control that has just mounted may not be laid
+    // out yet (measured empty, it is measured again on the next frames).
+    measure(at);
+    const later = setTimeout(() => measure(at), 80);
     return () => {
-      clearTimeout(now);
+      round.current += 1;
       clearTimeout(later);
     };
   }, [visible, step, measureKey, screen.width, screen.height, foregrounds, measure]);
@@ -137,7 +168,7 @@ export function MushafGuide(props: MushafGuideProps) {
     <Modal visible={visible} transparent statusBarTranslucent animationType="fade" onRequestClose={() => { if (step > 0) props.onBack(); }}>
       {/* Catches every tap outside the card: nothing beneath can be touched, and nothing closes the guide. */}
       <View testID={id} style={[StyleSheet.absoluteFill, !placement && styles.centred]} onStartShouldSetResponder={() => true}>
-        {placement ? (
+        {!measured ? null : placement ? (
           <>
             {/* The dimmed screen around the highlighted control: four panes leave it uncovered. */}
             <View pointerEvents="none" style={[styles.pane, { backgroundColor: theme.backdrop, left: 0, right: 0, top: 0, height: Math.max(0, placement.hole.y) }]} />
@@ -154,7 +185,7 @@ export function MushafGuide(props: MushafGuideProps) {
         ) : (
           <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: theme.backdrop }]} />
         )}
-        {card}
+        {measured && card}
       </View>
     </Modal>
   );

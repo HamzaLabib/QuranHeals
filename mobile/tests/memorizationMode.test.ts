@@ -274,7 +274,7 @@ const guide = await import('@/memorization/memorizationGuide');
 describe('The Memorization Mode Guide\'s first-time showing (after a fresh install\'s Mushaf guide)', () => {
   const UNSEEN = { status: 'unseen', step: 0 } as const;
   const SEEN = { status: 'done', finished: true } as const;
-  const READY = { mushafGuide: SEEN, mushafGuideVisible: false, memorizationGuideOpen: false, focused: true, pageReady: true, settingReady: true, eyeReady: true };
+  const READY = { memorizing: true, mushafGuide: SEEN, mushafGuideVisible: false, memorizationGuideOpen: false, focused: true, pageReady: true, settingReady: true, eyeReady: true };
 
   it('its own versioned key; nothing saved or anything unreadable is "not queued"; a pending step out of range restarts at 1', async () => {
     expect(guide.MEMORIZATION_GUIDE_STORAGE_KEY).toBe('quran-heals:memorization-guide:v1');
@@ -307,8 +307,10 @@ describe('The Memorization Mode Guide\'s first-time showing (after a fresh insta
     expect(guide.queueMemorizationGuide(UNSEEN, done)).toBe(done);
   });
 
-  it('due only when queued, after the Mushaf guide (seen and gone), never over another guide, with the reader focused and its page, setting and Eye ready', () => {
+  it('due only when queued, in Memorization Mode, after the Mushaf guide (seen and gone), never over another guide, with the reader focused and its page, setting and Eye ready', () => {
     expect(guide.isMemorizationGuideDue({ ...READY, progress: { status: 'pending', step: 0 } })).toBe(true);
+    // Never straight after the Mushaf guide: only once the reader has entered Memorization Mode.
+    expect(guide.isMemorizationGuideDue({ ...READY, progress: { status: 'pending', step: 0 }, memorizing: false })).toBe(false);
     for (const progress of [null, { status: 'none' }, { status: 'done' }] as const) expect(guide.isMemorizationGuideDue({ ...READY, progress })).toBe(false);
     const pending = { status: 'pending', step: 0 } as const;
     expect(guide.isMemorizationGuideDue({ ...READY, progress: pending, mushafGuide: null })).toBe(false);

@@ -1,8 +1,10 @@
+import { Asset } from 'expo-asset';
 import { Directory, File, Paths } from 'expo-file-system';
 
+import { QPC_V1_PAGE_FONTS } from '@/mushaf/generated/qpcV1PageFonts';
 import { getAllVerses } from '@/services/quran';
 
-import { FontSourceError, qcfFontUrl, type FontFiles, type FontSource } from './fonts';
+import { FontSourceError, qcfFontUrl, type BundledFonts, type FontFiles, type FontSource } from './fonts';
 import { createOfflineMushaf } from './offlineMushaf';
 import { offlineRelay } from './relay';
 import { OFFLINE_DB_NAME, type OfflineDb } from './store';
@@ -86,6 +88,27 @@ const fontFiles: FontFiles = {
   uri: (page) => fontFile(page).uri,
 };
 
+/**
+ * The 604 page fonts inside the app (hash-pinned at build time by scripts/restore-mushaf-fonts.mjs, and each checked
+ * against its pin again on the device before first use in a session, fonts.ts). Registered from
+ * the asset's local file: on iOS the file in the app bundle; on Android expo-asset's copy of it in the cache folder
+ * (as for page 61 since the start), made only for pages that are opened.
+ */
+const bundledFonts: BundledFonts = {
+  pins: new Map(Object.entries(QPC_V1_PAGE_FONTS).map(([page, font]) => [Number(page), { sha256: font.sha256, etag: font.etag, lastModified: font.lastModified }])),
+  async uri(page) {
+    const font = QPC_V1_PAGE_FONTS[page];
+    if (!font) return null;
+    const asset = Asset.fromModule(font.asset);
+    await asset.downloadAsync();
+    return asset.localUri ?? null;
+  },
+  async read(uri) {
+    const file = new File(uri);
+    return file.exists ? file.bytes() : null;
+  },
+};
+
 /** The app's offline QPC V1 Mushaf: layout (Content Sync relay) and page fonts (see offlineMushaf.ts, fonts.ts). */
 export const offlineMushaf = createOfflineMushaf({
   // Imported on first use, as services/quranAsset.ts does: a static import breaks the web bundle's SQLite worker.
@@ -109,5 +132,5 @@ export const offlineMushaf = createOfflineMushaf({
       return null;
     }
   },
-  fonts: { source: fontSource, files: fontFiles },
+  fonts: { source: fontSource, files: fontFiles, bundled: bundledFonts },
 });

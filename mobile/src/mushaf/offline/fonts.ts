@@ -2,7 +2,7 @@ import { sha256 } from '@noble/hashes/sha2.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 
 import { checkPageFont, qcfFamily } from './fontFile';
-import type { OfflineDb } from './store';
+import { readMeta, setMeta, type OfflineDb } from './store';
 
 /**
  * The 604 QCF V1 page fonts for the offline Mushaf, from Quran Foundation's
@@ -12,6 +12,15 @@ import type { OfflineDb } from './store';
  * they are never offered to anyone else. Page 61's font is bundled with the
  * app (qpcV1Fonts.ts) and is never downloaded.
  *
+ * Bundled fonts (`bundled`: all 604 in the app, generated/qpcV1PageFonts.ts):
+ * nothing is downloaded for them. A bundled font is used only once its file
+ * on this device has been read and matches its pinned SHA-256. A verified
+ * downloaded font (a correction found by the update check below) overrides
+ * the bundled one; a damaged override is deleted and the bundled font is used
+ * again. A downloaded copy identical to the bundled font (from before the
+ * fonts were bundled) is deleted only when its page is opened and the bundled
+ * font has passed that check. Without `bundled`, only page 61 is in the app.
+ *
  *  - Each font is checked (fontFile.ts) against its page: the right font,
  *    whole, with a glyph for every code the page's verified layout uses;
  *    only then is it written (to a temporary name, then moved into place)
@@ -20,12 +29,23 @@ import type { OfflineDb } from './store';
  *  - Corruption: a font whose size no longer matches its record, or (when
  *    loaded) whose SHA-256 doesn't, is deleted and downloaded again.
  *  - Updates: at most monthly, a conditional request per font (If-None-Match);
- *    a changed font is checked and replaced the same way.
+ *    a changed font is checked and replaced the same way. A bundled font is
+ *    asked about with the CDN's ETag for its pinned bytes.
  */
 
 export const FONT_COUNT = 604;
-/** Fonts that ship inside the app (never downloaded). */
-export const BUNDLED_FONT_PAGES: ReadonlySet<number> = new Set([61]);
+/** Page 61: registered by the reader itself when it opens (qpcV1Fonts.ts), so always the bundled font: never downloaded, replaced or checked. */
+export const FIXED_FONT_PAGES: ReadonlySet<number> = new Set([61]);
+
+/** A font that ships inside the app: the SHA-256 of its bytes, and the CDN's validators for those bytes. */
+export type BundledFont = { sha256: string; etag: string | null; lastModified: string | null };
+export type BundledFonts = {
+  pins: ReadonlyMap<number, BundledFont>;
+  /** A file URI the font can be registered from, or null when the asset can't be resolved. */
+  uri(page: number): Promise<string | null>;
+  /** The bytes at that URI (to check them against the pin before use). */
+  read(uri: string): Promise<Uint8Array | null>;
+};
 export const FONT_UPDATE_CHECK_MS = 30 * 24 * 60 * 60 * 1000;
 /** Measured on the CDN (2026-10-11): 94.9 MB for all 604 TTF files, at most 177 KB each. */
 export const FONT_BYTES_ESTIMATE = 160_000;
@@ -74,7 +94,23 @@ export class FontDownloadError extends Error {
 
 export type FontProgress = { fontsTotal: number; fontsReady: number };
 
-export function createFontStore(deps: { db: () => Promise<OfflineDb>; source: FontSource; files: FontFiles; now: () => Date }) {
+export function createFontStore(deps: { db: () => Promise<OfflineDb>; source: FontSource; files: FontFiles; now: () => Date; bundled?: BundledFonts }) {
+  const bundledPins: BundledFonts['pins'] = deps.bundled?.pins ?? new Map();
+  /** Bundled fonts whose file on this device matched its pin (this session): page → URI. */
+  const checkedBundled = new Map<number, string>();
+
+  /** The bundled font's URI, once its bytes on this device match the pinned SHA-256; otherwise null. */
+  async function verifiedBundledUri(page: number): Promise<string | null> {
+    const pin = bundledPins.get(page);
+    if (!deps.bundled || !pin) return null;
+    const known = checkedBundled.get(page);
+    if (known) return known;
+    const uri = await deps.bundled.uri(page).catch(() => null);
+    const bytes = uri ? await deps.bundled.read(uri).catch(() => null) : null;
+    if (!uri || !bytes || bytes.length === 0 || hash(bytes) !== pin.sha256) return null;
+    checkedBundled.set(page, uri);
+    return uri;
+  }
   const records = async () => {
     const db = await deps.db();
     return new Map((await db.getAllAsync<FontRecord>('SELECT * FROM fonts')).map((row) => [row.page, row]));
@@ -92,17 +128,21 @@ export function createFontStore(deps: { db: () => Promise<OfflineDb>; source: Fo
     await deps.files.remove(page).catch(() => undefined);
   }
 
-  /** Fonts that are recorded, present and the recorded size (cheap; the full SHA-256 check happens on load). */
+  /** Bundled fonts, and fonts that are recorded, present and the recorded size (cheap; the full SHA-256 check happens on load). */
   async function readyPages(): Promise<Set<number>> {
-    const ready = new Set<number>(BUNDLED_FONT_PAGES);
+    const ready = new Set<number>([...FIXED_FONT_PAGES, ...bundledPins.keys()]);
     for (const [page, record] of await records()) {
       if (deps.files.size(page) === record.bytes) ready.add(page);
     }
     return ready;
   }
 
-  /** Downloads, checks and stores one font (two attempts). */
-  async function fetchAndStore(page: number, conditional?: { etag: string | null; lastModified: string | null }): Promise<'stored' | 'not-modified'> {
+  /**
+   * Downloads, checks and stores one font (two attempts). 'bundled': the CDN's font is exactly the one the app ships
+   * and nothing was downloaded for the page before, so nothing is stored. (A page with a downloaded font stores it,
+   * and pageFont removes that copy once the bundled file is confirmed on the device.)
+   */
+  async function fetchAndStore(page: number, conditional?: { etag: string | null; lastModified: string | null }): Promise<'stored' | 'not-modified' | 'bundled'> {
     const glyphs = await glyphsOf(page);
     if (glyphs.length === 0) throw new FontDownloadError(`Page ${page} has no installed layout to check its font against`, 'integrity');
     let problem = '';
@@ -119,6 +159,7 @@ export function createFontStore(deps: { db: () => Promise<OfflineDb>; source: Fo
       if (result.contentLength !== null && result.contentLength !== result.bytes.length) { problem = `page ${page}: incomplete font download`; continue; }
       const problems = checkPageFont(result.bytes, page, glyphs);
       if (problems.length > 0) { problem = `page ${page}: ${problems.join('; ')}`; continue; }
+      if (bundledPins.get(page)?.sha256 === hash(result.bytes) && !(await records()).has(page)) return 'bundled';
       try {
         await deps.files.write(page, result.bytes);
       } catch (error) {
@@ -170,11 +211,18 @@ export function createFontStore(deps: { db: () => Promise<OfflineDb>; source: Fo
      */
     async downloadMissing(options: { signal?: AbortSignal; onProgress?: (progress: FontProgress) => void; freeBytes: () => number | null; pagesToRecheck?: readonly number[] }) {
       await deps.files.cleanup().catch(() => undefined);
+      // Bundled fonts (no override) on pages whose layout changed: the CDN is asked whether the font changed with it.
+      const recheckBundled: number[] = [];
       for (const page of options.pagesToRecheck ?? []) {
-        if (BUNDLED_FONT_PAGES.has(page)) continue;
+        if (FIXED_FONT_PAGES.has(page)) continue;
         const bytes = await deps.files.read(page).catch(() => null);
         if (bytes && checkPageFont(bytes, page, await glyphsOf(page)).length > 0) await forget(page);
+        if (bundledPins.has(page) && !(await records()).has(page)) recheckBundled.push(page);
       }
+      const recheck = () => pool(recheckBundled, async (page) => {
+        const pin = bundledPins.get(page)!;
+        await fetchAndStore(page, { etag: pin.etag, lastModified: pin.lastModified });
+      }, options.signal);
       const all = await records();
       // A recorded font that is missing or the wrong size is forgotten (and downloaded again).
       for (const [page, record] of all) if (deps.files.size(page) !== record.bytes) await forget(page);
@@ -183,7 +231,10 @@ export function createFontStore(deps: { db: () => Promise<OfflineDb>; source: Fo
       const report = () => options.onProgress?.({ fontsTotal: FONT_COUNT, fontsReady: FONT_COUNT - missing.length + done });
       let done = 0;
       report();
-      if (missing.length === 0) return { downloaded: 0 };
+      if (missing.length === 0) {
+        await recheck();
+        return { downloaded: 0 };
+      }
       const free = options.freeBytes();
       const required = missing.length * FONT_BYTES_ESTIMATE * 2 + 20 * 1024 * 1024;
       if (free !== null && free < required) throw new FontDownloadError(`Not enough free storage for the page fonts: about ${Math.ceil(required / 1048576)} MB needed`, 'insufficient_storage');
@@ -192,40 +243,66 @@ export function createFontStore(deps: { db: () => Promise<OfflineDb>; source: Fo
         done++;
         report();
       }, options.signal);
+      await recheck();
       return { downloaded: missing.length };
     },
 
-    /** At most monthly: ask the CDN whether each stored font changed (ETag), and replace changed ones. */
+    /**
+     * At most monthly: ask the CDN whether each stored font changed (ETag), and replace changed ones. Bundled fonts
+     * without an override are asked about with their pinned ETag; their last check is kept in `meta` (first seen:
+     * now, since their pins date from the app's build).
+     */
     async checkForUpdates(options: { force?: boolean; signal?: AbortSignal } = {}): Promise<{ checked: number; replaced: number } | 'not-due'> {
       const all = [...(await records()).values()];
-      if (all.length === 0) return { checked: 0, replaced: 0 };
-      const oldest = Math.min(...all.map((r) => Date.parse(r.checked_at)));
+      const bundledOnly = [...bundledPins.keys()].filter((page) => !FIXED_FONT_PAGES.has(page) && !all.some((r) => r.page === page));
+      if (all.length === 0 && bundledOnly.length === 0) return { checked: 0, replaced: 0 };
+      const db = await deps.db();
+      let bundledCheckedAt = (await readMeta(db)).fonts_checked_at;
+      if (bundledOnly.length > 0 && !bundledCheckedAt) {
+        bundledCheckedAt = deps.now().toISOString();
+        await setMeta(db, { fonts_checked_at: bundledCheckedAt });
+      }
+      const checkTimes = all.map((r) => Date.parse(r.checked_at));
+      if (bundledOnly.length > 0) checkTimes.push(Date.parse(bundledCheckedAt!));
+      const oldest = Math.min(...checkTimes);
       if (!options.force && deps.now().getTime() - oldest < FONT_UPDATE_CHECK_MS) return 'not-due';
       let replaced = 0;
-      await pool(all.map((r) => r.page), async (page) => {
-        const record = all.find((r) => r.page === page)!;
-        const outcome = await fetchAndStore(page, { etag: record.etag, lastModified: record.last_modified });
+      await pool([...all.map((r) => r.page), ...bundledOnly], async (page) => {
+        const record = all.find((r) => r.page === page);
+        const pin = bundledPins.get(page);
+        const outcome = await fetchAndStore(page, record ? { etag: record.etag, lastModified: record.last_modified } : { etag: pin!.etag, lastModified: pin!.lastModified });
         if (outcome === 'stored') replaced++;
-        else await (await deps.db()).runAsync('UPDATE fonts SET checked_at = ? WHERE page = ?', deps.now().toISOString(), page);
+        else if (record) await (await deps.db()).runAsync('UPDATE fonts SET checked_at = ? WHERE page = ?', deps.now().toISOString(), page);
       }, options.signal);
-      return { checked: all.length, replaced };
+      if (bundledOnly.length > 0) await setMeta(db, { fonts_checked_at: deps.now().toISOString() });
+      return { checked: all.length + bundledOnly.length, replaced };
     },
 
     /**
-     * The page's font, ready to register with expo-font: the bundled one
-     * for page 61, otherwise the stored file after a full SHA-256 check.
-     * A damaged file is deleted (the next download repairs it): null.
+     * The page's font, ready to register with expo-font: 'bundled' for page
+     * 61 (registered by the reader), otherwise a verified downloaded override
+     * (full SHA-256 check), else the bundled font's file once it matches its
+     * pin. A downloaded copy identical to the bundled font is deleted only
+     * then, just before the bundled file takes its place (it can't have been
+     * registered yet: the reader asks only for fonts not yet loaded). A
+     * damaged override is deleted (the bundled font is used; without one, the
+     * next download repairs it). null: not available offline.
      */
     async pageFont(page: number): Promise<{ family: string; uri: string } | 'bundled' | null> {
-      if (BUNDLED_FONT_PAGES.has(page)) return 'bundled';
+      if (FIXED_FONT_PAGES.has(page)) return 'bundled';
       const record = (await records()).get(page);
-      if (!record) return null;
-      const bytes = await deps.files.read(page).catch(() => null);
-      if (!bytes || bytes.length !== record.bytes || hash(bytes) !== record.sha256) {
+      if (record) {
+        const bytes = await deps.files.read(page).catch(() => null);
+        if (bytes && bytes.length === record.bytes && hash(bytes) === record.sha256) {
+          const bundledUri = record.sha256 === bundledPins.get(page)?.sha256 ? await verifiedBundledUri(page) : null;
+          if (!bundledUri) return { family: qcfFamily(page), uri: deps.files.uri(page) };
+          await forget(page); // a copy of the bundled font, from before the fonts were bundled
+          return { family: qcfFamily(page), uri: bundledUri };
+        }
         await forget(page);
-        return null;
       }
-      return { family: qcfFamily(page), uri: deps.files.uri(page) };
+      const uri = await verifiedBundledUri(page);
+      return uri ? { family: qcfFamily(page), uri } : null;
     },
 
     /** Full SHA-256 check of every stored font; damaged ones are deleted. */

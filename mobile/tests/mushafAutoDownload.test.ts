@@ -1,4 +1,5 @@
 /// <reference types="node" />
+import { createHash } from 'node:crypto';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -20,7 +21,7 @@ import type { OfflineDb } from '@/mushaf/offline/store';
 import { createQuranRepository, type QuranVerse } from '@/services/quranRepository';
 
 import { openTestDatabase } from './helpers/sqlite';
-import { fakeFontCdn, memoryFontFiles } from './helpers/syntheticFonts';
+import { fakeFontCdn, memoryFontFiles, syntheticFont } from './helpers/syntheticFonts';
 import { fakeRelay, nodeOfflineDb, publishVersion, syntheticPages } from './helpers/syntheticOfflineMushaf';
 
 vi.mock('react-native', () => ({ AppState: { addEventListener: vi.fn(() => ({ remove: vi.fn() })) } }));
@@ -139,6 +140,59 @@ afterEach(async () => {
   await h?.controller.dispose();
 });
 
+describe('the first-run language choice (recheck): one more trigger, the same rules', () => {
+  it('on Wi-Fi, chosen before the timed start: downloads by itself, once, however the triggers arrive', async () => {
+    h = harness({ network: 'wifi' });
+    await Promise.all([h.controller.recheck(), h.controller.start(), h.controller.recheck()]);
+    await h.settle();
+    expect(h.s.downloads).toBe(1);
+    expect(h.phase()).toBe('ready');
+    // The language changed again (or the timed start comes after it): a complete Mushaf is never downloaded again.
+    await h.controller.recheck();
+    await h.controller.recheck();
+    await h.settle();
+    expect(h.s.downloads).toBe(1);
+  });
+
+  it('on mobile data: downloads by itself, once, with no question; more triggers download nothing more', async () => {
+    h = harness({ network: 'cellular' });
+    await Promise.all([h.controller.start(), h.controller.recheck(), h.controller.recheck()]);
+    await h.settle();
+    expect(h.s.downloads).toBe(1);
+    expect(h.phase()).toBe('ready');
+    await h.controller.recheck();
+    await h.settle();
+    expect(h.s.downloads).toBe(1);
+  });
+
+  it('offline when the language is chosen: waits, and downloads by itself once a connection returns (mobile data too)', async () => {
+    h = harness({ network: 'none' });
+    await h.controller.recheck();
+    expect(h.phase()).toBe('waiting-network');
+    expect(h.s.downloads).toBe(0);
+    await h.network('cellular');
+    await h.settle();
+    expect(h.s.downloads).toBe(1);
+    expect(h.phase()).toBe('ready');
+  });
+
+  it('a removal or pause still holds, and a build without automatic downloads stays off', async () => {
+    for (const hold of ['removed', 'paused'] as const) {
+      h = harness({ network: 'wifi', prefs: { cellular: 'ask', hold } });
+      await h.controller.recheck();
+      await h.settle();
+      expect(h.s.downloads, hold).toBe(0);
+      expect(h.phase(), hold).toBe(hold);
+      await h.controller.dispose();
+    }
+    h = harness({ network: 'wifi', enabled: false });
+    await h.controller.recheck();
+    await h.settle();
+    expect(h.s.downloads).toBe(0);
+    expect(h.phase()).toBe('disabled');
+  });
+});
+
 describe('first launch', () => {
   it('fresh installation on Wi-Fi: downloads by itself, and is ready once — and only once — the engine reports it complete', async () => {
     h = harness({ network: 'wifi' });
@@ -154,17 +208,17 @@ describe('first launch', () => {
     expect(h.controller.getState().justCompleted).toBe(false);
   });
 
-  it('fresh installation on mobile data: nothing downloads until the reader agrees; the answer is remembered', async () => {
+  it('fresh installation on mobile data: downloads by itself (no question), and is ready once the engine reports it complete', async () => {
     h = harness({ network: 'cellular' });
+    const seen: string[] = [];
+    h.controller.subscribe((state) => seen.push(state.phase));
     await h.controller.start();
-    expect(h.phase()).toBe('needs-consent');
-    expect(h.controller.getState().network).toBe('cellular');
-    expect(h.s.downloads).toBe(0);
-    await h.controller.allowCellular();
     await h.settle();
+    expect(seen).not.toContain('needs-consent');
+    expect(h.controller.getState().network).toBe('cellular');
     expect(h.s.downloads).toBe(1);
     expect(h.phase()).toBe('ready');
-    expect(h.stored.prefs.cellular).toBe('allowed');
+    expect(h.stored.prefs.cellular).toBe('ask'); // nothing asked, nothing saved about mobile data
   });
 
   it('a later launch on mobile data, after "Download now" was chosen, continues without asking again', async () => {
@@ -175,29 +229,20 @@ describe('first launch', () => {
     expect(h.phase()).toBe('ready');
   });
 
-  it('permission declined: waits for Wi-Fi without asking again, even after a restart; Wi-Fi then starts it', async () => {
-    h = harness({ network: 'cellular' });
+  it('an existing install whose reader once chose "Wait for Wi-Fi": that old answer no longer holds it back on mobile data', async () => {
+    h = harness({ network: 'cellular', prefs: { cellular: 'wifi-only', hold: null } });
     await h.controller.start();
-    await h.controller.waitForWifi();
-    expect(h.phase()).toBe('waiting-wifi');
-    expect(h.stored.prefs.cellular).toBe('wifi-only');
-    const saved = h.stored.prefs;
-    await h.controller.dispose();
-
-    h = harness({ network: 'cellular', prefs: saved });
-    await h.controller.start();
-    expect(h.phase()).toBe('waiting-wifi'); // no question again
-    expect(h.s.downloads).toBe(0);
-    await h.network('wifi');
+    await h.settle();
     expect(h.s.downloads).toBe(1);
     expect(h.phase()).toBe('ready');
   });
 
-  it('an unknown network type (no network module in this build) is treated like mobile data: it asks first', async () => {
+  it('an unknown network type (no network module in this build, a VPN on iOS): downloads by itself too', async () => {
     h = harness({ network: 'unknown' });
     await h.controller.start();
-    expect(h.controller.getState()).toMatchObject({ phase: 'needs-consent', network: 'unknown' });
-    expect(h.s.downloads).toBe(0);
+    await h.settle();
+    expect(h.controller.getState()).toMatchObject({ phase: 'ready', network: 'unknown' });
+    expect(h.s.downloads).toBe(1);
   });
 
   it('existing completed download: nothing is downloaded again; only the daily-gated update check runs, once', async () => {
@@ -335,16 +380,16 @@ describe('failures: bounded retries with growing delays', () => {
 });
 
 describe('changing network type, app lifecycle, pause and removal', () => {
-  it('Wi-Fi to mobile data mid-download pauses it and asks; back on Wi-Fi it continues', async () => {
+  it('Wi-Fi to mobile data mid-download: the download goes on (not stopped, not started twice)', async () => {
     h = harness({ network: 'wifi' });
     h.s.steps = ['hang', 'ok'];
     await h.controller.start();
     expect(h.phase()).toBe('downloading');
     await h.network('cellular');
-    expect(h.phase()).toBe('needs-consent');
+    expect(h.phase()).toBe('downloading');
     await h.network('wifi');
-    expect(h.s.downloads).toBe(2);
-    expect(h.phase()).toBe('ready');
+    expect(h.phase()).toBe('downloading');
+    expect(h.s.downloads).toBe(1);
   });
 
   it('with mobile data allowed, leaving Wi-Fi does not interrupt the download', async () => {
@@ -463,34 +508,36 @@ describe('stored choices (autoDownloadService.ts)', () => {
 
 });
 
-describe('build gate (autoDownloadConfig.ts): development and EAS preview builds only', () => {
+describe('build gate (autoDownloadConfig.ts): development, EAS preview and production builds', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.doUnmock('expo-updates');
     vi.resetModules();
   });
 
-  it('the rule: development always; otherwise only the preview channel — never production, another channel, or none', async () => {
+  it('the rule: development always; otherwise the preview and production channels — never another channel, or none', async () => {
     const { AUTO_DOWNLOAD_CHANNELS, resolveAutoDownloadEnabled } = await import('@/mushaf/offline/autoDownloadConfig');
     expect(AUTO_DOWNLOAD_CHANNELS).toEqual(['preview']);
     expect(resolveAutoDownloadEnabled({ dev: true, channel: null })).toBe(true); // development builds: unchanged
     expect(resolveAutoDownloadEnabled({ dev: true, channel: 'production' })).toBe(true);
     expect(resolveAutoDownloadEnabled({ dev: false, channel: 'preview' })).toBe(true);
-    for (const channel of ['production', 'development', 'Preview', 'preview-2', '', null, undefined]) {
+    expect(resolveAutoDownloadEnabled({ dev: false, channel: 'production' })).toBe(true);
+    for (const channel of ['development', 'Preview', 'preview-2', 'Production', '', null, undefined]) {
       expect(resolveAutoDownloadEnabled({ dev: false, channel }), String(channel)).toBe(false);
     }
   });
 
-  it('matches eas.json: the preview profile builds on the preview channel, production on its own', async () => {
+  it('matches eas.json: the preview and production profiles build on channels that download by themselves', async () => {
     const { readFileSync } = await import('node:fs');
     const eas = JSON.parse(readFileSync(new URL('../eas.json', import.meta.url), 'utf8')) as { build: Record<string, { channel?: string }> };
     const { resolveAutoDownloadEnabled } = await import('@/mushaf/offline/autoDownloadConfig');
     expect(eas.build.preview.channel).toBe('preview');
+    expect(eas.build.production.channel).toBe('production');
     expect(resolveAutoDownloadEnabled({ dev: false, channel: eas.build.preview.channel })).toBe(true);
-    expect(resolveAutoDownloadEnabled({ dev: false, channel: eas.build.production.channel })).toBe(false);
+    expect(resolveAutoDownloadEnabled({ dev: false, channel: eas.build.production.channel })).toBe(true);
   });
 
-  for (const [channel, expected] of [['preview', true], ['production', false], [null, false]] as const) {
+  for (const [channel, expected] of [['preview', true], ['production', true], [null, false]] as const) {
     it(`a release binary on channel ${String(channel)}: ${expected ? 'on' : 'off'} (read from expo-updates)`, async () => {
       vi.stubGlobal('__DEV__', false);
       vi.doMock('expo-updates', () => ({ channel }));
@@ -573,14 +620,15 @@ function realDevice() {
   return { relay, cdn, files, engine };
 }
 
-describe('production: prepared, and held back until the device checks pass (autoDownloadConfig.ts)', { timeout: 20_000 }, () => {
-  it('the gate is closed: a production binary (and any OTA update to it) never downloads by itself yet; preview and other channels are unchanged', async () => {
+describe('production: released with the page fonts bundled (autoDownloadConfig.ts)', { timeout: 20_000 }, () => {
+  it('the gate is open: a production binary downloads the layout by itself; preview and other channels are unchanged', async () => {
     const config = await import('@/mushaf/offline/autoDownloadConfig');
-    expect(config.PRODUCTION_AUTO_DOWNLOAD_RELEASED).toBe(false);
+    expect(config.PRODUCTION_AUTO_DOWNLOAD_RELEASED).toBe(true);
     expect(config.PRODUCTION_CHANNEL).toBe('production');
-    expect(config.autoDownloadChannels()).toEqual(['preview']);
-    expect(config.resolveAutoDownloadEnabled({ dev: false, channel: 'production' })).toBe(false);
+    expect(config.autoDownloadChannels()).toEqual(['preview', 'production']);
+    expect(config.resolveAutoDownloadEnabled({ dev: false, channel: 'production' })).toBe(true);
     expect(config.resolveAutoDownloadEnabled({ dev: false, channel: 'preview' })).toBe(true);
+    expect(config.resolveAutoDownloadEnabled({ dev: false, channel: 'production' }, false)).toBe(false); // the switch, off
   });
 
   it('released (the one-line switch): production joins preview; nothing else is ever enabled', async () => {
@@ -607,29 +655,24 @@ describe('production: prepared, and held back until the device checks pass (auto
     expect(h.controller.getState()).toMatchObject({ phase: 'ready', justCompleted: true });
   });
 
-  it('released, on mobile data or an unknown network: asks first, downloads only after Yes, and remembers it', async () => {
+  it('released, on mobile data or an unknown network: downloads by itself, no question, ready once complete', async () => {
     for (const network of ['cellular', 'unknown'] as const) {
       h = await released({ network });
       await h.controller.start();
       await h.settle();
-      expect(h.phase(), network).toBe('needs-consent');
-      expect(h.s.downloads, network).toBe(0);
-      await h.controller.allowCellular();
-      await h.settle();
       expect(h.s.downloads, network).toBe(1);
-      expect(h.stored.prefs.cellular, network).toBe('allowed');
       expect(h.phase(), network).toBe('ready');
       await h.controller.dispose();
     }
   });
 
-  it('released: Not now (Wi-Fi only) is respected on mobile data, without asking again; Wi-Fi then starts it', async () => {
-    h = await released({ network: 'cellular', prefs: { cellular: 'wifi-only', hold: null } });
+  it('released, offline at first launch: waits, then downloads by itself when any connection returns', async () => {
+    h = await released({ network: 'none' });
     await h.controller.start();
     await h.settle();
-    expect(h.phase()).toBe('waiting-wifi');
+    expect(h.phase()).toBe('waiting-network');
     expect(h.s.downloads).toBe(0);
-    await h.network('wifi');
+    await h.network('cellular');
     await h.settle();
     expect(h.s.downloads).toBe(1);
     expect(h.phase()).toBe('ready');
@@ -669,9 +712,54 @@ describe('production: prepared, and held back until the device checks pass (auto
     expect(await device.engine().status()).toMatchObject({ installed: true, complete: true, fonts: { ready: 604, total: 604 } });
   });
 
-  it('not released (today): a production binary stays off — nothing downloads by itself even on Wi-Fi; the reader`s own Download still works', async () => {
+  it('released, as shipped (all 604 fonts bundled): a first launch on Wi-Fi downloads only the layout, is ready, and reads every page offline', async () => {
+    const device = realDevice();
+    const pins = new Map(Array.from({ length: 604 }, (_, i) => i + 1).map((page) =>
+      [page, { sha256: createHash('sha256').update(syntheticFont(page)).digest('hex'), etag: `"v1-${page}"`, lastModified: null }]));
+    const engine = () => createOfflineMushaf({
+      openDb: async () => { const db = nodeOfflineDb(join(dir, 'm.db')); opened.push(db); return db; },
+      relay: device.relay.relay,
+      verses: async () => verses,
+      freeBytes: () => 1e10,
+      now: () => new Date('2026-10-14T10:00:00Z'),
+      fonts: { source: device.cdn.source, files: device.files, bundled: { pins, uri: async (page) => `file:///app/p${page}.ttf`, read: async (uri) => syntheticFont(Number(/p(\d+)\.ttf$/.exec(uri)![1])) } },
+    });
+    h = await released({ network: 'wifi', engine: engine() });
+    await h.controller.start();
+    await h.settle();
+    expect(h.controller.getState()).toMatchObject({ phase: 'ready', justCompleted: true });
+    expect(device.cdn.state.calls).toEqual([]); // no font downloaded
+    expect(device.files.stored.size).toBe(0);
+    device.relay.state.online = false;
+    device.cdn.state.online = false;
+    const offline = engine();
+    expect(await offline.status()).toMatchObject({ installed: true, complete: true });
+    for (const page of [1, 2, 61, 304, 604]) expect(await offline.readPage(page), String(page)).not.toBeNull();
+    expect(await offline.pageFont(304)).toEqual({ family: 'QCF_P304', uri: 'file:///app/p304.ttf' });
+  });
+
+  it('released, as shipped, on mobile data: the first launch downloads only the layout by itself, no font, and is complete', async () => {
+    const device = realDevice();
+    const pins = new Map(Array.from({ length: 604 }, (_, i) => i + 1).map((page) =>
+      [page, { sha256: createHash('sha256').update(syntheticFont(page)).digest('hex'), etag: `"v1-${page}"`, lastModified: null }]));
+    h = await released({ network: 'cellular', engine: createOfflineMushaf({
+      openDb: async () => { const db = nodeOfflineDb(join(dir, 'm.db')); opened.push(db); return db; },
+      relay: device.relay.relay,
+      verses: async () => verses,
+      freeBytes: () => 1e10,
+      now: () => new Date('2026-10-14T10:00:00Z'),
+      fonts: { source: device.cdn.source, files: device.files, bundled: { pins, uri: async (page) => `file:///app/p${page}.ttf`, read: async (uri) => syntheticFont(Number(/p(\d+)\.ttf$/.exec(uri)![1])) } },
+    }) });
+    await h.controller.start();
+    await h.settle();
+    expect(h.controller.getState()).toMatchObject({ phase: 'ready', network: 'cellular' });
+    expect(device.cdn.state.calls).toEqual([]);
+    expect(device.files.stored.size).toBe(0);
+  });
+
+  it('switched off (PRODUCTION_AUTO_DOWNLOAD_RELEASED = false): a production binary stays off — nothing downloads by itself even on Wi-Fi; the reader`s own Download still works', async () => {
     const { resolveAutoDownloadEnabled } = await import('@/mushaf/offline/autoDownloadConfig');
-    h = harness({ network: 'wifi', enabled: resolveAutoDownloadEnabled({ dev: false, channel: 'production' }) });
+    h = harness({ network: 'wifi', enabled: resolveAutoDownloadEnabled({ dev: false, channel: 'production' }, false) });
     await h.controller.start();
     await h.settle();
     expect(h.phase()).toBe('disabled');

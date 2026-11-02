@@ -6,13 +6,12 @@
  *    `preview` (eas.json), not by an environment variable: `eas update`
  *    doesn't apply a build profile's `env`, so a later OTA update to the
  *    preview channel keeps the same behaviour.
- *  - Production (`production` channel): prepared, and held back by
- *    PRODUCTION_AUTO_DOWNLOAD_RELEASED until the physical-device checks in
- *    docs/mushaf-device-testing.md pass. While it is false, no production
- *    binary or OTA update downloads by itself.
+ *  - Production (`production` channel): yes, since the page fonts were
+ *    bundled with the app (2026-11-02, owner decision): only the ~2 MB layout
+ *    downloads. PRODUCTION_AUTO_DOWNLOAD_RELEASED = false switches it off again.
  *  - Any other channel, or no channel (expo-updates unavailable, the web): no.
- * When it is on, the same controller decides how: by itself on Wi-Fi; asking
- * first on mobile data or an unknown network (and remembering the answer);
+ * When it is on, the same controller decides how: by itself on any working
+ * connection (Wi-Fi, mobile data or unknown; it waits while offline);
  * never while the reader's Pause or Remove holds; and "ready" only once the
  * engine reports every layout and all 604 page fonts verified.
  * Off, nothing else changes: the reader's own Download button and the daily
@@ -24,10 +23,10 @@ export const AUTO_DOWNLOAD_CHANNELS: readonly string[] = ['preview'];
 export const PRODUCTION_CHANNEL = 'production';
 
 /**
- * The release gate for production. Set to true — the only change needed — once the device checks pass; until then a
- * production build (and any OTA update to it) keeps automatic downloads off.
+ * The release gate for production: on. Set to false — the only change needed — to keep a production build (and any
+ * OTA update to it) from downloading by itself.
  */
-export const PRODUCTION_AUTO_DOWNLOAD_RELEASED = false;
+export const PRODUCTION_AUTO_DOWNLOAD_RELEASED = true;
 
 /** The channels that download by itself: preview, and production once released. */
 export function autoDownloadChannels(productionReleased: boolean = PRODUCTION_AUTO_DOWNLOAD_RELEASED): readonly string[] {

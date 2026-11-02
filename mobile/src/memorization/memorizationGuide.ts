@@ -72,8 +72,9 @@ export function memorizationGuideNote(step: MemorizationGuideStep, isDrawn: (tar
 }
 
 /**
- * The first-time showing (owner request, 2026-10-25): on a fresh install the Mushaf opens with its own guide and then,
- * once that one is closed or finished, this one, by itself, once. A local, versioned key; 'done' follows the signed-in
+ * The first-time showing (owner request, 2026-10-25; changed 2026-11-02): on a fresh install it is queued when the
+ * Mushaf opens with its own guide, and shows by itself, once, the first time the reader enters Memorization Mode (the
+ * Eye) after that guide — never straight after the Mushaf guide closes. A local, versioned key; 'done' follows the signed-in
  * account (`memorizationGuide`: applySyncedMemorizationGuideDone), a pending step stays on this device.
  *
  * - 'none': never queued. Nothing saved, or anything unreadable: an install that had already seen the Mushaf guide
@@ -133,12 +134,13 @@ export function queueMemorizationGuide(mushafGuide: GuideProgress, progress: Mem
 }
 
 /**
- * Whether the queued first-time showing may open now: queued; the Mushaf guide seen and not on screen; no Memorization
- * Mode Guide already open; the reader focused, its page drawn, the setting read and, where the Eye is offered, the Eye
- * itself drawn (so the steps point at it rather than at nothing).
+ * Whether the queued first-time showing may open now: queued; the reader in Memorization Mode (entered by the user);
+ * the Mushaf guide seen and not on screen; no Memorization Mode Guide already open; the reader focused, its page drawn,
+ * the setting read and, where the Eye is offered, the Eye itself drawn (so the steps point at it rather than at nothing).
  */
 export function isMemorizationGuideDue(input: {
   progress: MemorizationGuideProgress | null;
+  memorizing: boolean;
   mushafGuide: GuideProgress | null;
   mushafGuideVisible: boolean;
   memorizationGuideOpen: boolean;
@@ -148,6 +150,7 @@ export function isMemorizationGuideDue(input: {
   eyeReady: boolean;
 }): boolean {
   return input.progress?.status === 'pending'
+    && input.memorizing
     && input.mushafGuide?.status === 'done'
     && !input.mushafGuideVisible
     && !input.memorizationGuideOpen

@@ -87,9 +87,13 @@ describe('LanguageChoiceScreen', () => {
 });
 
 describe('root layout', () => {
-  it('shows the language choice only while no App Language is saved, and saves through setLocale', () => {
+  it('shows the language choice only while no App Language is saved, saves through setLocale, and then rechecks the offline Mushaf download', () => {
     const source = readFileSync(resolve(__dirname, '../src/app/_layout.tsx'), 'utf8');
     expect(source).toContain('const needsLanguageChoice = isLocaleReady && !hasSavedLocale;');
-    expect(source).toContain('{needsLanguageChoice && <LanguageChoiceScreen onChoose={setLocale} />}');
+    const choice = source.slice(source.indexOf('{needsLanguageChoice && ('), source.indexOf('{needsLanguageChoice && (') + 700);
+    expect(choice).toMatch(/<LanguageChoiceScreen\s+onChoose=\{\(choice\) => \{\s+setLocale\(choice\);/);
+    // The same controller as the timed start, through recheck() (its rules), loaded lazily; never resume() (the reader's own Download).
+    expect(choice).toContain("import('@/mushaf/offline/autoDownloadService').then(({ mushafAutoDownload }) => mushafAutoDownload().recheck())");
+    expect(choice).not.toContain('resume()');
   });
 });

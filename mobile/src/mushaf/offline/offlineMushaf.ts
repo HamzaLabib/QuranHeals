@@ -5,7 +5,7 @@ import type { QuranVerse } from '@/services/quranRepository';
 
 import type { QpcV1PageLayout, QpcV1Word } from '../qpcV1Layout';
 import { OfflineDatasetError, parseChunk, parseManifest, validateOfflinePages, type ChunkPage, type ManifestChunk, type OfflineChunk, type OfflineManifest } from './dataset';
-import { createFontStore, FontDownloadError, FONT_BYTES_ESTIMATE, type FontFiles, type FontSource } from './fonts';
+import { createFontStore, FontDownloadError, FONT_BYTES_ESTIMATE, type BundledFonts, type FontFiles, type FontSource } from './fonts';
 import { RelayError, type OfflineRelay } from './relayTypes';
 import {
   checkIntegrity,
@@ -43,7 +43,8 @@ import {
  *    copy stays readable however long the device is offline; nothing here
  *    expires it. Reading never needs a signed-in session.
  *
- * Page fonts are separate (not downloaded here).
+ * Page fonts are separate (fonts.ts). When they are bundled with the app,
+ * only the layout is downloaded and nothing waits for fonts.
  */
 
 export const UPDATE_CHECK_MS = 24 * 60 * 60 * 1000;
@@ -90,8 +91,8 @@ export type OfflineMushafDeps = {
   /** Free bytes on the device, or null when unknown. */
   freeBytes: () => number | null;
   now?: () => Date;
-  /** The QCF V1 page fonts (fonts.ts). Without it only the layout is managed. */
-  fonts?: { source: FontSource; files: FontFiles };
+  /** The QCF V1 page fonts (fonts.ts). Without it only the layout is managed. `bundled`: the fonts inside the app. */
+  fonts?: { source: FontSource; files: FontFiles; bundled?: BundledFonts };
 };
 
 export function createOfflineMushaf(deps: OfflineMushafDeps) {
@@ -117,7 +118,7 @@ export function createOfflineMushaf(deps: OfflineMushafDeps) {
     return dbPromise;
   }
 
-  const fontStore = deps.fonts ? createFontStore({ db, source: deps.fonts.source, files: deps.fonts.files, now }) : null;
+  const fontStore = deps.fonts ? createFontStore({ db, source: deps.fonts.source, files: deps.fonts.files, now, bundled: deps.fonts.bundled }) : null;
 
   const exclusive = <T>(work: () => Promise<T>): Promise<T> => {
     if (busy) return Promise.reject(new OfflineMushafError('A download is already in progress', 'busy'));
@@ -342,7 +343,7 @@ export function createOfflineMushaf(deps: OfflineMushafDeps) {
       };
     },
 
-    /** Removes the offline Mushaf (layout and page fonts) and any partial download. */
+    /** Removes the offline Mushaf (layout and downloaded page fonts; fonts bundled with the app stay) and any partial download. */
     async remove() {
       await exclusive(async () => {
         await resetStore(await db());
@@ -350,7 +351,7 @@ export function createOfflineMushaf(deps: OfflineMushafDeps) {
       });
     },
 
-    /** A page's font for the renderer: 'bundled' (page 61), a verified stored file, or null (not available offline). */
+    /** A page's font for the renderer: 'bundled' (page 61), a verified downloaded override, the bundled font's file, or null (not available offline). */
     async pageFont(page: number) {
       return fontStore ? fontStore.pageFont(page) : null;
     },

@@ -156,13 +156,13 @@ describe('Settings → Offline Mushaf row', () => {
 });
 
 describe('the download size, as the reader is told it', () => {
-  it('about 100 MB everywhere it is mentioned (measured: ~95 MB of page fonts and ~2 MB of layout), in every language', () => {
+  it('about 2 MB everywhere it is mentioned (the page fonts come with the app; the layout is 2.1 MB), in every language', () => {
     const m = (locale: 'en' | 'ar' | 'ar-EG') => MESSAGES[locale].mushaf;
     for (const key of ['offlineIntro', 'autoConsentCellular', 'autoConsentUnknown'] as const) {
-      expect(m('en')[key], key).toContain('about 100 MB');
-      expect(m('ar')[key], key).toContain('حوالي ١٠٠ ميغابايت');
-      expect(m('ar-EG')[key], key).toContain('حوالي ١٠٠ ميجا');
-      for (const locale of ['en', 'ar', 'ar-EG'] as const) expect(m(locale)[key], `${locale} ${key}`).not.toMatch(/115|١١٥/);
+      expect(m('en')[key], key).toContain('about 2 MB');
+      expect(m('ar')[key], key).toContain('حوالي ٢ ميغابايت');
+      expect(m('ar-EG')[key], key).toContain('حوالي ٢ ميجا');
+      for (const locale of ['en', 'ar', 'ar-EG'] as const) expect(m(locale)[key], `${locale} ${key}`).not.toMatch(/100|١٠٠|115|١١٥/);
     }
   });
 });

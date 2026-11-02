@@ -964,7 +964,7 @@ describe('The Memorization Mode Guide (Settings → Quran → Mushaf Guide → M
     expect(hosts('memorization-guide')).toHaveLength(0);
   });
 
-  describe('a fresh install: the Mushaf guide, then the Memorization Mode Guide, once', () => {
+  describe('a fresh install: the Mushaf guide; the Memorization Mode Guide once, on first entering Memorization Mode', () => {
     const MEMORIZATION_GUIDE_KEY = 'quran-heals:memorization-guide:v1';
     const counter = () => textOf(hosts('memorization-guide-card')[0]).split(' | ')[0];
     const pastHandoff = () => act(async () => { await new Promise((done) => setTimeout(done, 650)); });
@@ -973,7 +973,8 @@ describe('The Memorization Mode Guide (Settings → Quran → Mushaf Guide → M
       state.storage.delete(MEMORIZATION_MODE_VISIBLE_STORAGE_KEY);
     };
 
-    it('the Mushaf guide first, alone; closed, the Memorization Mode Guide after the hand-off (never both), pointing at the default-ON Eye; neither again after a restart', async () => {
+    // Seven hand-off waits (650 ms each) and two renders: over the 5 s default, so a scoped limit.
+    it('the Mushaf guide first, alone; closed, plain reading (no other guide); the Memorization Mode Guide once the reader enters Memorization Mode; neither again after a restart', { timeout: 15_000 }, async () => {
       fresh();
       state.params = { page: '61' };
       await render();
@@ -986,7 +987,14 @@ describe('The Memorization Mode Guide (Settings → Quran → Mushaf Guide → M
       for (let step = 0; step < 5; step += 1) await press(hosts('mushaf-guide-next')[0]);
       await press(hosts('mushaf-guide-start')[0]);
       expect(hosts('mushaf-guide')).toHaveLength(0);
-      expect(hosts('memorization-guide')).toHaveLength(0); // not in the same frame as the Mushaf guide's close
+      // Back to reading: nothing else opens by itself, however long the reader stays.
+      await pastHandoff();
+      await pastHandoff();
+      expect(hosts('memorization-guide')).toHaveLength(0);
+      expect(JSON.parse(state.storage.get(MEMORIZATION_GUIDE_KEY) ?? 'null')).toEqual({ status: 'pending', step: 0 });
+      // The reader enters Memorization Mode (the Eye): now, after the hand-off, its guide.
+      await press(eye());
+      expect(hosts('memorization-guide')).toHaveLength(0);
       await pastHandoff();
       expect(hosts('memorization-guide')).toHaveLength(1);
       expect(hosts('mushaf-guide')).toHaveLength(0);
@@ -1000,9 +1008,8 @@ describe('The Memorization Mode Guide (Settings → Quran → Mushaf Guide → M
       expect(hosts('memorization-guide')).toHaveLength(0);
       expect(JSON.parse(state.storage.get(MEMORIZATION_GUIDE_KEY) ?? 'null')).toEqual({ status: 'done' });
       expect(JSON.parse(state.storage.get(GUIDE_KEY) ?? 'null')).toMatchObject({ status: 'done', finished: true });
-      // Instructional only: no setting saved, Memorization Mode not entered.
+      // Instructional only: no setting saved.
       expect(state.storage.has(MEMORIZATION_MODE_VISIBLE_STORAGE_KEY)).toBe(false);
-      expect(paintState().every(([, , shown]) => shown)).toBe(true);
       await pastHandoff();
       expect(hosts('memorization-guide')).toHaveLength(0);
       await unmount();
@@ -1010,13 +1017,20 @@ describe('The Memorization Mode Guide (Settings → Quran → Mushaf Guide → M
       await pastHandoff();
       expect(hosts('mushaf-guide')).toHaveLength(0);
       expect(hosts('memorization-guide')).toHaveLength(0);
+      // Entering Memorization Mode again: its guide is done, never by itself again.
+      await press(eye());
+      await pastHandoff();
+      expect(hosts('memorization-guide')).toHaveLength(0);
     });
 
-    it('the Mushaf guide closed early (not finished) counts as seen: the Memorization Mode Guide follows; its Done records it', async () => {
+    it('the Mushaf guide closed early (not finished): nothing follows by itself; entering Memorization Mode shows it; its Done records it', async () => {
       fresh();
       state.params = { page: '61' };
       await render();
       await press(hosts('mushaf-guide-close')[0]);
+      await pastHandoff();
+      expect(hosts('memorization-guide')).toHaveLength(0);
+      await press(eye());
       await pastHandoff();
       expect(hosts('memorization-guide')).toHaveLength(1);
       for (let step = 0; step < 6; step += 1) await press(hosts('memorization-guide-next')[0]);
@@ -1024,12 +1038,14 @@ describe('The Memorization Mode Guide (Settings → Quran → Mushaf Guide → M
       expect(JSON.parse(state.storage.get(MEMORIZATION_GUIDE_KEY) ?? 'null')).toEqual({ status: 'done' });
     });
 
-    it('interrupted (the app closed during it): reopened by itself at the step reached, the Mushaf guide not again', async () => {
+    it('interrupted (the app closed during it): reopened at the step reached on entering Memorization Mode again, the Mushaf guide not again', async () => {
       state.storage.set(GUIDE_KEY, JSON.stringify({ status: 'done', finished: true }));
       state.storage.set(MEMORIZATION_GUIDE_KEY, JSON.stringify({ status: 'pending', step: 3 }));
       state.params = { page: '61' };
       await render();
+      await pastHandoff();
       expect(hosts('memorization-guide')).toHaveLength(0);
+      await press(eye());
       await pastHandoff();
       expect(hosts('mushaf-guide')).toHaveLength(0);
       expect(counter()).toBe('4 of 7');
@@ -1052,6 +1068,7 @@ describe('The Memorization Mode Guide (Settings → Quran → Mushaf Guide → M
       state.focused = false;
       state.params = { page: '61' };
       await render();
+      await press(eye());
       await pastHandoff();
       expect(hosts('memorization-guide')).toHaveLength(0);
       state.focused = true;

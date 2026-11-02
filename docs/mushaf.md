@@ -19,14 +19,14 @@ The complete offline Mushaf (all 604 pages, Quran Foundation Content Sync `musha
 - **Font:** `QCF_P061` version 5.10, © King Fahd Glorious Qur'an Printing Complex (produced by Harf Information Technology).
   - From Quran Foundation's documented CDN: `https://verses.quran.foundation/fonts/quran/hafs/v1/ttf/p61.ttf`.
   - 155,996 bytes; SHA-256 `34d6a665…51fc486`. The full hash is pinned in `mobile/src/mushaf/qpcV1Fonts.ts` and tested.
-  - Bundled into the app at `mobile/assets/mushaf/qpc-v1/p61.ttf`. Only page 61 is bundled.
-  - **Not in git.** The repository is public, and Quran Foundation's font terms allow the font only inside the app, never as a standalone download. The `.ttf` is git-ignored and restored by `mobile/scripts/restore-mushaf-fonts.mjs` from the CDN above, only if it matches the size and SHA-256 pinned in `mobile/assets/mushaf/qpc-v1/fonts.lock.json` (tracked).
+  - Bundled into the app at `mobile/assets/mushaf/qpc-v1/p61.ttf`. Since 2026-11-02 all 604 page fonts are bundled the same way (`p1.ttf` … `p604.ttf`, 94,866,152 bytes; [mushaf-offline.md](mushaf-offline.md), *Page fonts*).
+  - **Not in git.** The repository is public, and Quran Foundation's font terms allow the fonts only inside the app, never as a standalone download. The `.ttf` files are git-ignored and restored by `mobile/scripts/restore-mushaf-fonts.mjs` from the CDN above, only if each matches the size and SHA-256 pinned in `mobile/assets/mushaf/qpc-v1/fonts.lock.json` (tracked).
   - It runs automatically:
     - `postinstall` (only warns if offline);
     - `pretest`, `prestart`, `preandroid`, `preios`, `preweb`;
     - the CI step *Restore pinned QCF V1 font*, before `npm ci`;
     - EAS Build's `eas-build-pre-install`. EAS uploads only what git keeps (`.gitignore`), so the builder downloads the font itself.
-  - By hand: `npm run fonts:restore` in `mobile/`. If Quran Foundation ever changes the file, the script refuses it: review the new font, then update `fonts.lock.json` and `qpcV1Fonts.ts` together.
+  - By hand: `npm run fonts:restore` in `mobile/`. If Quran Foundation ever changes a file, the script refuses it: review the new font, then run `node scripts/pin-mushaf-fonts.mjs`, which rewrites `fonts.lock.json` and `src/mushaf/generated/qpcV1PageFonts.ts` together (page 61's hash is also in `qpcV1Fonts.ts`).
 - **Layout:** Quran Foundation Content API, `GET /content/api/v4/verses/by_page/61?words=true&word_fields=code_v1,line_number,page_number&mushaf=2&per_page=50`.
   - Fetched by our backend (`backend/src/mushaf/qpcV1Layout.ts`) and served to the app at `GET /api/mushaf/qpc-v1/pages/61`. Only page 61 is served.
 - **Expected line breaks:** our own transcription of `Reference Design.jpg`, in `mobile/src/mushaf/referencePage061.json`. It records each line's first word as an ayah plus a word number in the verified Tanzil text, and the line each ayah marker sits on.

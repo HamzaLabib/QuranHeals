@@ -13,10 +13,12 @@ import type { DownloadProgress, OfflineErrorKind, OfflineStatus } from './offlin
  * only WHEN that engine runs:
  *  - Complete (layout installed and all 604 fonts verified): nothing to
  *    download; the daily update check runs as before.
- *  - Otherwise, on Wi-Fi: starts by itself. On mobile data, or when the
- *    network type can't be told (network.ts): asks first, and remembers the
- *    answer ('allowed' or 'wifi-only').
- *  - Leaving Wi-Fi mid-download without permission pauses it; Wi-Fi resumes it.
+ *  - Otherwise, on any working connection (Wi-Fi, mobile data, or one whose
+ *    type can't be told; network.ts): starts by itself, with no question
+ *    first (owner decision 2026-11-02: the fonts are bundled, so it is only
+ *    the ~2 MB layout). With no connection it waits, and starts when one
+ *    returns. The saved mobile-data answer (`cellular`, from before) is kept
+ *    but no longer consulted.
  *  - The app going to the background stops the run (the OS would suspend it
  *    anyway); becoming active again resumes it. Nothing claims to download
  *    in the background.
@@ -212,10 +214,7 @@ export function createMushafAutoDownload(deps: AutoDownloadDeps) {
       set({ phase: 'waiting-network', progress: null });
       return;
     }
-    if (network !== 'wifi' && !manualRequested && prefs.cellular !== 'allowed') {
-      set({ phase: prefs.cellular === 'wifi-only' ? 'waiting-wifi' : 'needs-consent', progress: null });
-      return;
-    }
+    // Any working connection (Wi-Fi, mobile data, or one that can't be told): the layout is ~2 MB, so no question first.
     startRun();
   }
 
@@ -317,10 +316,8 @@ export function createMushafAutoDownload(deps: AutoDownloadDeps) {
     if (disposed) return;
     const previous = state.network;
     set({ network: kind });
-    if (run) {
-      if (!run.manual && kind !== 'wifi' && prefs.cellular !== 'allowed') void stopRun('network');
-      return;
-    }
+    // A running download continues on any connection (a lost one fails it, and it retries as below).
+    if (run) return;
     // Back online, or onto Wi-Fi: a fresh set of attempts.
     if ((previous === 'none' && kind !== 'none') || (kind === 'wifi' && previous !== 'wifi')) resetFailures();
     void evaluate();
@@ -354,6 +351,18 @@ export function createMushafAutoDownload(deps: AutoDownloadDeps) {
         await evaluate();
       })();
       return started;
+    },
+
+    /**
+     * Another moment to look again (the first-run language just chosen): starts the controller if it has not started,
+     * else re-decides once under the same rules as by itself — a pause or removal holds, offline waits, a
+     * complete Mushaf is not downloaded again, a running download is not started twice. Never the reader's own
+     * Download (resume()).
+     */
+    async recheck(): Promise<void> {
+      if (!started) return this.start();
+      await started;
+      await evaluate();
     },
 
     /** Mobile data (or an unknown network): yes, download now and from now on. */

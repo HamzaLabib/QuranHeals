@@ -1,4 +1,5 @@
 /// <reference types="node" />
+import { createHash } from 'node:crypto';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -6,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { checkPageFont } from '@/mushaf/offline/fontFile';
-import { FONT_UPDATE_CHECK_MS, qcfFontUrl } from '@/mushaf/offline/fonts';
+import { FONT_UPDATE_CHECK_MS, qcfFontUrl, type BundledFonts } from '@/mushaf/offline/fonts';
 import { createOfflineMushaf, type DownloadProgress } from '@/mushaf/offline/offlineMushaf';
 import type { OfflineDb } from '@/mushaf/offline/store';
 import type { ChunkPage } from '@/mushaf/offline/dataset';
@@ -219,5 +220,173 @@ describe('damage, restarts and updates', { timeout: FULL_INSTALL_TIMEOUT_MS }, (
     await make().remove();
     expect(files.stored.size).toBe(0);
     expect(await make().status()).toMatchObject({ installed: false, complete: false, fonts: { ready: 1 } }); // the bundled page-61 font
+  });
+});
+
+describe('fonts bundled with the app (all 604)', { timeout: FULL_INSTALL_TIMEOUT_MS }, () => {
+  // The app ships the CDN's current (v1) synthetic font for every page, pinned with the CDN's v1 ETag.
+  const pins: BundledFonts['pins'] = new Map(Array.from({ length: 604 }, (_, i) => i + 1).map((page) =>
+    [page, { sha256: createHash('sha256').update(syntheticFont(page)).digest('hex'), etag: `"v1-${page}"`, lastModified: null }]));
+
+  function bundledSetup() {
+    const base = setup();
+    let assetsResolve = true;
+    /** Pages whose file inside the app is damaged on this device. */
+    const damagedInApp = new Set<number>();
+    const bundled: BundledFonts = {
+      pins,
+      uri: async (page) => (assetsResolve ? `file:///app/p${page}.ttf` : null),
+      read: async (uri) => {
+        const page = Number(/p(\d+)\.ttf$/.exec(uri)![1]);
+        const bytes = syntheticFont(page);
+        if (damagedInApp.has(page)) bytes[bytes.length - 1] ^= 0xff;
+        return bytes;
+      },
+    };
+    const dbPath = join(dir, 'm.db');
+    let clock = Date.parse('2026-10-11T00:00:00Z');
+    const make = (options: { bundled?: boolean } = {}) => createOfflineMushaf({
+      openDb: async () => { const db = nodeOfflineDb(dbPath); opened.push(db); return db; },
+      relay: base.relay.relay,
+      verses: async () => verses,
+      freeBytes: () => 1e10,
+      now: () => new Date(clock),
+      fonts: { source: base.cdn.source, files: base.files, bundled: options.bundled === false ? undefined : bundled },
+    });
+    return { ...base, make, damagedInApp, advance: (ms: number) => { clock += ms; }, failAssets: () => { assetsResolve = false; } };
+  }
+
+  it('a first download brings only the layout: no font is downloaded, and the Mushaf is complete', async () => {
+    const { cdn, files, make } = bundledSetup();
+    expect(await make().status()).toMatchObject({ installed: false, complete: false, fonts: { ready: 604, total: 604 } });
+    const progress: DownloadProgress[] = [];
+    expect(await make().download({ onProgress: (p) => progress.push(p) })).toMatchObject({ status: 'installed', fontsDownloaded: 0 });
+    expect(cdn.state.calls).toEqual([]);
+    expect(files.stored.size).toBe(0);
+    expect(progress.at(-1)).toMatchObject({ phase: 'done', fontsReady: 604, fontsTotal: 604 });
+    expect(await make().status()).toMatchObject({ installed: true, complete: true, fonts: { ready: 604, total: 604, bytes: 0 } });
+    expect(await make().pageFont(300)).toEqual({ family: 'QCF_P300', uri: 'file:///app/p300.ttf' });
+    expect(await make().pageFont(61)).toBe('bundled');
+    // A second run downloads nothing at all.
+    expect(await make().download()).toMatchObject({ status: 'up-to-date', fontsDownloaded: 0 });
+    expect(cdn.state.calls).toEqual([]);
+  });
+
+  it('an install from before the fonts were bundled: nothing is deleted on upgrade; a copy goes only once its bundled font is confirmed on the device', async () => {
+    const { cdn, files, make, damagedInApp } = bundledSetup();
+    cdn.state.updated.add(450); // this device downloaded a font that differs from the one the app ships
+    await make({ bundled: false }).download();
+    expect(files.stored.size).toBe(603);
+    cdn.state.calls = [];
+    const upgraded = make();
+    expect(await upgraded.status()).toMatchObject({ installed: true, complete: true, fonts: { ready: 604 } });
+    expect(await upgraded.download()).toMatchObject({ status: 'up-to-date', fontsDownloaded: 0 });
+    expect(cdn.state.calls).toEqual([]);
+    expect(files.stored.size).toBe(603); // opening, status and the update check delete nothing
+    // Page 300 opened: its bundled font matches its pin, so the identical download is replaced by it.
+    expect(await upgraded.pageFont(300)).toEqual({ family: 'QCF_P300', uri: 'file:///app/p300.ttf' });
+    expect(files.stored.has(300)).toBe(false);
+    // Page 301's file inside the app is damaged on this device: the downloaded font stays and is used.
+    damagedInApp.add(301);
+    expect(await upgraded.pageFont(301)).toEqual({ family: 'QCF_P301', uri: 'file:///fonts/p301.ttf' });
+    expect(files.stored.has(301)).toBe(true);
+    // Page 450's download differs from the bundled font: a kept override.
+    expect(await upgraded.pageFont(450)).toEqual({ family: 'QCF_P450', uri: 'file:///fonts/p450.ttf' });
+    expect(files.stored.size).toBe(602);
+  });
+
+  it('a bundled font that doesn`t match its pin on the device is never used (the reader falls back to the CDN)', async () => {
+    const { make, damagedInApp } = bundledSetup();
+    await make().download();
+    damagedInApp.add(300);
+    expect(await make().pageFont(300)).toBeNull();
+    expect(await make().pageFont(302)).toEqual({ family: 'QCF_P302', uri: 'file:///app/p302.ttf' });
+  });
+
+  it('the monthly update check asks about bundled fonts by their pinned ETag; a corrected font overrides the bundled one', async () => {
+    const { cdn, files, make, advance } = bundledSetup();
+    await make().download();
+    advance(25 * 60 * 60 * 1000);
+    expect(await make().checkForUpdate()).toBe('up-to-date');
+    expect(cdn.state.calls).toEqual([]); // first seen now: not due for a month
+    advance(FONT_UPDATE_CHECK_MS);
+    cdn.state.updated.add(300);
+    expect(await make().checkForUpdate()).toBe('updated');
+    expect(cdn.state.calls).toHaveLength(603); // every page but 61, each a conditional request
+    expect(cdn.state.calls).not.toContain(61);
+    expect([...files.stored.keys()]).toEqual([300]);
+    expect(await make().pageFont(300)).toEqual({ family: 'QCF_P300', uri: 'file:///fonts/p300.ttf' });
+    cdn.state.calls = [];
+    advance(25 * 60 * 60 * 1000);
+    expect(await make().checkForUpdate()).toBe('up-to-date');
+    expect(cdn.state.calls).toEqual([]); // checked again only after another month
+  });
+
+  it('a damaged override is rejected and the bundled font is used again', async () => {
+    const { cdn, files, make, advance } = bundledSetup();
+    await make().download();
+    advance(25 * 60 * 60 * 1000);
+    await make().checkForUpdate();
+    cdn.state.updated.add(300);
+    advance(FONT_UPDATE_CHECK_MS * 2);
+    expect(await make().checkForUpdate()).toBe('updated');
+    files.stored.get(300)![100] ^= 0xff;
+    expect(await make().pageFont(300)).toEqual({ family: 'QCF_P300', uri: 'file:///app/p300.ttf' });
+    expect(files.stored.has(300)).toBe(false);
+    expect(await make().status()).toMatchObject({ complete: true });
+    expect(await make().verifyFonts()).toEqual({ checked: 0, damaged: [] });
+  });
+
+  it('when the CDN`s font is the bundled one again, the override is replaced by it, then dropped for the confirmed bundled font', async () => {
+    const { cdn, files, make, advance } = bundledSetup();
+    await make().download();
+    advance(25 * 60 * 60 * 1000);
+    await make().checkForUpdate();
+    cdn.state.updated.add(300);
+    advance(FONT_UPDATE_CHECK_MS * 2);
+    await make().checkForUpdate();
+    const override = files.stored.get(300)!;
+    cdn.state.updated.delete(300);
+    advance(FONT_UPDATE_CHECK_MS * 2);
+    expect(await make().checkForUpdate()).toBe('updated');
+    expect(files.stored.get(300)).toEqual(syntheticFont(300)); // the CDN's (= bundled) bytes, not the old override
+    expect(files.stored.get(300)).not.toEqual(override);
+    expect(await make().pageFont(300)).toEqual({ family: 'QCF_P300', uri: 'file:///app/p300.ttf' });
+    expect(files.stored.size).toBe(0);
+  });
+
+  it('a layout update asks the CDN about the changed pages` bundled fonts only', async () => {
+    const { relay, cdn, files, make } = bundledSetup();
+    await make().download();
+    const changed = pages.map((p) => (p.page === 300 ? { ...p, words: p.words.map((w, i) => (i === 0 ? [w[0], w[1], w[2], w[3], ''] as typeof w : w)) } : p));
+    relay.state.current = publishVersion(changed);
+    cdn.state.calls = [];
+    expect(await make().download()).toMatchObject({ status: 'installed' });
+    // The changed chunk's pages (281–300): each answered "not modified", nothing stored.
+    expect(cdn.state.calls.sort((a, b) => a - b)).toEqual(Array.from({ length: 20 }, (_, i) => 281 + i));
+    expect(files.stored.size).toBe(0);
+    expect(await make().status()).toMatchObject({ complete: true });
+  });
+
+  it('Remove offline copy deletes the layout and downloaded overrides; the bundled fonts stay', async () => {
+    const { cdn, files, make, advance } = bundledSetup();
+    await make().download();
+    advance(25 * 60 * 60 * 1000);
+    await make().checkForUpdate();
+    cdn.state.updated.add(300);
+    advance(FONT_UPDATE_CHECK_MS * 2);
+    await make().checkForUpdate();
+    expect(files.stored.size).toBe(1);
+    await make().remove();
+    expect(files.stored.size).toBe(0);
+    expect(await make().status()).toMatchObject({ installed: false, complete: false, fonts: { ready: 604 } });
+    expect(await make().readPage(300)).toBeNull();
+  });
+
+  it('a bundled font whose asset can`t be resolved is reported as unavailable (the reader falls back to the CDN)', async () => {
+    const { make, failAssets } = bundledSetup();
+    await make().download();
+    failAssets();
+    expect(await make().pageFont(300)).toBeNull();
   });
 });

@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /**
- * Restores the QCF V1 page fonts the app bundles (today only page 61) into
+ * Restores the QCF V1 page fonts the app bundles (all 604 pages) into
  * mobile/assets/mushaf/qpc-v1/. They are git-ignored: Quran Foundation's
  * Mushaf font terms allow them only as an integrated part of the app, never
  * as a standalone download (and the repository is public). This script
  * downloads each from Quran Foundation's documented public CDN (no
  * credentials) and writes it only if it matches the size and SHA-256 pinned
- * in assets/mushaf/qpc-v1/fonts.lock.json (the same pin as src/mushaf/qpcV1Fonts.ts).
+ * in assets/mushaf/qpc-v1/fonts.lock.json (the same pins as src/mushaf/generated/qpcV1PageFonts.ts;
+ * both written by scripts/pin-mushaf-fonts.mjs).
  * A font that is already present and matches is left alone (no network).
  * Node built-ins only, so it runs before `npm ci` (CI) and as EAS Build's
  * `eas-build-pre-install` hook.
@@ -16,7 +17,7 @@
  *   npm run fonts:restore
  *
  * Test-only overrides: MUSHAF_FONTS_DIR (target folder), MUSHAF_FONTS_BASE_URL
- * (instead of the CDN; the pins still apply).
+ * (instead of the CDN; the pins still apply), MUSHAF_FONTS_LOCK (another pin file).
  */
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
@@ -24,8 +25,10 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const mobileDir = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const lockPath = resolve(mobileDir, 'assets/mushaf/qpc-v1/fonts.lock.json');
-const targetDir = process.env.MUSHAF_FONTS_DIR ? resolve(process.env.MUSHAF_FONTS_DIR) : dirname(lockPath);
+const appLock = resolve(mobileDir, 'assets/mushaf/qpc-v1/fonts.lock.json');
+const lockPath = process.env.MUSHAF_FONTS_LOCK ? resolve(process.env.MUSHAF_FONTS_LOCK) : appLock;
+const targetDir = process.env.MUSHAF_FONTS_DIR ? resolve(process.env.MUSHAF_FONTS_DIR) : dirname(appLock);
+const CONCURRENCY = 8;
 const soft = process.argv.includes('--soft');
 
 const { fonts } = JSON.parse(readFileSync(lockPath, 'utf8'));
@@ -47,15 +50,16 @@ async function fetchWithRetry(url, attempts = 3) {
 }
 
 let failed = 0;
+let present = 0;
 mkdirSync(targetDir, { recursive: true });
-for (const font of fonts) {
+async function restore(font) {
   const target = resolve(targetDir, font.file);
   let stale = false;
   if (existsSync(target)) {
     const bytes = readFileSync(target);
     if (bytes.length === font.bytes && sha256(bytes) === font.sha256) {
-      console.log(`ok       ${font.file} (already present, hash verified)`);
-      continue;
+      present++;
+      return;
     }
     console.warn(`replacing ${font.file}: it does not match its pin`);
     stale = true;
@@ -78,8 +82,13 @@ for (const font of fonts) {
     console.error(`${soft ? 'WARNING' : 'FAILED '}  ${font.file}: ${error.message}`);
   }
 }
+let next = 0;
+await Promise.all(Array.from({ length: Math.min(CONCURRENCY, fonts.length) }, async () => {
+  while (next < fonts.length) await restore(fonts[next++]);
+}));
+if (present > 0) console.log(`ok       ${present} of ${fonts.length} fonts already present, hash verified`);
 
 if (failed > 0 && soft) {
-  console.warn('The QCF V1 page font is missing. Run `npm run fonts:restore` (network needed) before starting the app or running tests.');
+  console.warn('A QCF V1 page font is missing. Run `npm run fonts:restore` (network needed) before starting the app or running tests.');
 }
 process.exitCode = failed > 0 && !soft ? 1 : 0;

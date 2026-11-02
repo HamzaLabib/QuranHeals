@@ -214,7 +214,16 @@ function ThemedRoot() {
           <Stack.Screen name="(tabs)" options={MUSHAF_SCREEN_OPTIONS} />
         </Stack>
       </View>
-      {needsLanguageChoice && <LanguageChoiceScreen onChoose={setLocale} />}
+      {needsLanguageChoice && (
+        <LanguageChoiceScreen
+          onChoose={(choice) => {
+            setLocale(choice);
+            // The first-run choice is also a moment to prepare the offline Mushaf: the same controller and rules as the
+            // timed start above (by itself on any connection, waiting while offline), never a second download.
+            void import('@/mushaf/offline/autoDownloadService').then(({ mushafAutoDownload }) => mushafAutoDownload().recheck()).catch(() => undefined);
+          }}
+        />
+      )}
     </ThemeProvider>
   );
 }

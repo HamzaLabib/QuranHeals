@@ -61,7 +61,8 @@ export async function initSchema(db: OfflineDb) {
   if (!schema) await db.runAsync("INSERT INTO meta (key, value) VALUES ('schema', ?)", String(STORE_SCHEMA));
 }
 
-export type Meta = Partial<Record<'schema' | 'version' | 'synced_at' | 'installed_at' | 'last_check_at' | 'applied_sequence' | 'snapshot_sequence' | 'word_count' | 'attribution', string>>;
+// fonts_checked_at: the last update check of the fonts bundled with the app (fonts.ts).
+export type Meta = Partial<Record<'schema' | 'version' | 'synced_at' | 'installed_at' | 'last_check_at' | 'applied_sequence' | 'snapshot_sequence' | 'word_count' | 'attribution' | 'fonts_checked_at', string>>;
 
 export async function readMeta(db: OfflineDb): Promise<Meta> {
   const rows = await db.getAllAsync<{ key: string; value: string }>('SELECT key, value FROM meta');

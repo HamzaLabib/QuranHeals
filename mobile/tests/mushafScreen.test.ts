@@ -27,6 +27,8 @@ const state = vi.hoisted(() => ({
   fontsLoaded: true,
   fetch: vi.fn(),
   params: {} as Record<string, string>,
+  /** Whether the reader is the screen shown (useIsFocused): its tab stays mounted behind the others. */
+  focused: true,
   theme: 'light' as 'light' | 'dark',
   insets: { top: 47, bottom: 34, left: 0, right: 0 },
   /** The دعاء ختم القرآن text (mushaf/khatmDua.ts mock): null here unless a test sets the approved text. */
@@ -97,7 +99,7 @@ vi.mock('lucide-react-native', () => ({
   // Quran audio (the top bar's headphones, the player chip and panel, the popup's Listen).
   AudioLines: 'AudioLines', ChevronUp: 'ChevronUp', CircleAlert: 'CircleAlert', Headphones: 'Headphones', LocateFixed: 'LocateFixed', Pause: 'Pause', Play: 'Play', SkipBack: 'SkipBack', SkipForward: 'SkipForward',
 }));
-vi.mock('expo-router', () => ({ router: { back: vi.fn(), replace: vi.fn(), push: vi.fn(), navigate: vi.fn(), canGoBack: () => state.canGoBack }, useLocalSearchParams: () => state.params, useIsFocused: () => true }));
+vi.mock('expo-router', () => ({ router: { back: vi.fn(), replace: vi.fn(), push: vi.fn(), navigate: vi.fn(), canGoBack: () => state.canGoBack }, useLocalSearchParams: () => state.params, useIsFocused: () => state.focused }));
 // Keep Screen Awake: the reader holds its own tag while focused (lifecycle cases: mushafKeepAwake.test.ts).
 const keepAwake = vi.hoisted(() => ({ activate: vi.fn(async (_tag?: string) => undefined), deactivate: vi.fn(async (_tag?: string) => undefined) }));
 vi.mock('expo-keep-awake', () => ({ activateKeepAwakeAsync: keepAwake.activate, deactivateKeepAwake: keepAwake.deactivate }));
@@ -258,6 +260,7 @@ const { ReflectionBulbIcon } = await import('@/components/ReflectionBulbIcon');
 const { ACTIVE_READING_STOP_STORAGE_KEY, READING_STOPS_STORAGE_KEY } = await import('@/mushaf/readingStops');
 const { SURAH_START_PAGES } = await import('@/mushaf/generated/surahStartPages');
 const { syntheticQpcPage61 } = await import('./helpers/syntheticQpcPage61');
+const { mushafAutoDownload } = await import('@/mushaf/offline/autoDownloadService');
 const { drag, flick, runTouch } = await import('./helpers/gestureSimulator');
 const { MUSHAF_SCREEN_OPTIONS } = await import('@/mushaf/screenOptions');
 const { AYAH_MARKERS_061 } = await import('@/mushaf/generated/ayahMarkers061');
@@ -420,6 +423,7 @@ beforeEach(() => {
   // Most tests draw page 61 (bundled: drawn before any download), so they open it explicitly; without ?page= the
   // reader opens the saved ورد's page, or page 1 (tests below).
   state.params = { page: '61' };
+  state.focused = true;
   state.theme = 'light';
   state.insets = { top: 47, bottom: 34, left: 0, right: 0 };
   state.canGoBack = true;
@@ -4819,6 +4823,11 @@ describe('the first-time guide', () => {
     state.params = { page: '5' };
     state.offline.readPage.mockImplementation(async (n: number) => ({ ...syntheticQpcPage61(), page: n, fontFamily: `QCF_P${String(n).padStart(3, '0')}` }));
     await renderFresh();
+    // A QPC page: the guide opens once its lines are laid out (as on a device, by itself).
+    await act(async () => {
+      for (const line of syntheticQpcPage61().lines) inPage().findAll((n) => typeof n.type === 'string' && n.props.testID === `qpc-measure-${line.line}`).forEach((n) => n.props.onLayout({ nativeEvent: { layout: { x: 0, y: 0, width: line.line === 1 ? MEASURE_WIDTH : 800, height: 100 } } }));
+    });
+    await settle();
     expect(currentPage()).toBe(5);
     expect(hosts('mushaf-nav-hizb')).toHaveLength(1);
     for (let step = 0; step < 4; step += 1) await next();
@@ -4958,6 +4967,256 @@ describe('the first-time guide', () => {
     await act(async () => root.unmount());
     await renderFresh();
     expect(guideText()).toBe(copy().guideJuz);
+  });
+
+  it('the reader behind another tab (its tab stays mounted): its page drawn, the guide never opens there by itself; it opens once the reader is shown', async () => {
+    state.focused = false;
+    await renderFresh();
+    expect(currentPage()).toBe(61);
+    expect(guide()).toHaveLength(0);
+    expect(stored()).toBeNull();
+    state.focused = true;
+    await act(async () => root.update(createElement(MushafScreen)));
+    await settle();
+    expect(guide()).toHaveLength(1);
+    expect(guideText()).toBe(copy().guideMarker);
+  });
+
+  describe('on the page being read (never another), once it is drawn, and only while the reader is shown', () => {
+    const LAST_PAGE_KEY = 'quran-heals:mushaf-last-page:v1';
+    const pageOf = (n: number) => ({ ...syntheticQpcPage61(), page: n, fontFamily: `QCF_P${String(n).padStart(3, '0')}` });
+    /** Whether the offline Mushaf is installed: before, no page but 61 can be drawn; after, every page comes from the device. */
+    let downloaded = false;
+    /** The QPC lines laid out (their measured widths), as on a device once the page's text is drawn. */
+    const layOutText = async () => {
+      await act(async () => {
+        for (const node of root.root.findAll((n) => typeof n.type === 'string' && /^qpc-measure-\d+$/.test(String(n.props.testID ?? '')))) {
+          node.props.onLayout({ nativeEvent: { layout: { x: 0, y: 0, width: node.props.testID === 'qpc-measure-1' ? MEASURE_WIDTH : 800, height: 100 } } });
+        }
+      });
+      await settle();
+    };
+    async function open() {
+      await renderFresh();
+      await layOutText();
+    }
+    /** The reader re-rendered after a navigation (its params or focus changed), its text laid out. */
+    const update = async () => {
+      await act(async () => root.update(createElement(MushafScreen)));
+      await flush();
+      await settle();
+      await layOutText();
+    };
+    /** The app's one download controller running a download to its end (its own verified 'ready', or a failure). */
+    async function runDownload() {
+      await act(async () => {
+        await mushafAutoDownload().resume();
+        await mushafAutoDownload().whenIdle();
+      });
+      await flush();
+      await flush();
+      await settle();
+      await layOutText();
+    }
+    const lastBrowsed = () => JSON.parse(state.storage.get(LAST_PAGE_KEY) ?? 'null')?.page;
+    const pageDrawn = () => inPage().findAllByProps({ testID: 'qpc-v1-text' }).length > 0;
+
+    beforeEach(() => {
+      downloaded = false;
+      state.offline.readPage.mockImplementation(async (n: number) => (downloaded ? pageOf(n) : null));
+      state.offline.status.mockImplementation(async () => (downloaded ? { installed: true, complete: true } : { installed: false, stagedChunks: 0 }));
+      state.offline.download.mockImplementation(async () => {
+        downloaded = true;
+        return { status: 'installed', version: 'b'.repeat(24), downloadedChunks: 31, reusedChunks: 0 };
+      });
+      // The reader's own place: page 50, browsed earlier (no ورد); a normal opening of the Mushaf tab.
+      state.storage.set(LAST_PAGE_KEY, JSON.stringify({ page: 50, at: Date.now() }));
+      state.params = {};
+      vi.mocked(router.navigate).mockClear();
+    });
+
+    it('a normal opening of the Mushaf tab: on the reader`s own page, which stays (also after closing it); nothing saved but the guide', async () => {
+      downloaded = true;
+      await open();
+      expect(currentPage()).toBe(50);
+      expect(guide()).toHaveLength(1);
+      expect(guideText()).toBe(copy().guideMarker);
+      expect(hole()).toMatchObject(padded('qpc-guide-marker'));
+      const before = new Map([...state.storage].filter(([key]) => key !== GUIDE_KEY));
+      await press(onlyHost('mushaf-guide-close'));
+      expect(currentPage()).toBe(50);
+      expect(stored()).toEqual({ status: 'done', finished: false });
+      expect(new Map([...state.storage].filter(([key]) => key !== GUIDE_KEY))).toEqual(before);
+    });
+
+    it('opened by a page link (a ورد, Continue Reciting, an ayah`s Open in Mushaf): on that page, its ayah still selected; never moved', async () => {
+      downloaded = true;
+      state.params = { page: '77', ayah: '6:1', at: '1' };
+      await open();
+      expect(currentPage()).toBe(77);
+      expect(guide()).toHaveLength(1);
+      expect(hole()).toMatchObject(padded('qpc-guide-marker'));
+      for (let step = 0; step < 6; step += 1) {
+        expect(currentPage(), `step ${step + 1}`).toBe(77);
+        if (step < 5) await next();
+      }
+      await press(onlyHost('mushaf-guide-start'));
+      expect(currentPage()).toBe(77);
+      expect(lastBrowsed()).toBe(77); // the link's page, remembered as before
+    });
+
+    it('its page drawn but the lines not laid out yet: no guide; once they are, at the ayah number (never "not on this page")', async () => {
+      downloaded = true;
+      await renderFresh();
+      expect(pageDrawn()).toBe(true);
+      expect(hosts('qpc-guide-marker')).toHaveLength(0);
+      expect(guide()).toHaveLength(0);
+      await layOutText();
+      expect(guide()).toHaveLength(1);
+      expect(hosts('mushaf-guide-not-on-page')).toHaveLength(0);
+      expect(hole()).toMatchObject(padded('qpc-guide-marker'));
+    });
+
+    it('a control mounted but not laid out yet (measured empty): nothing drawn until it is measured, then its highlight; never "not on this page"', async () => {
+      downloaded = true;
+      let laidOut = false;
+      await act(async () => {
+        root = create(createElement(MushafScreen), {
+          createNodeMock: (element) => ({
+            measureInWindow: (callback: (x: number, y: number, width: number, height: number) => void) => {
+              const testID = String((element.props as { testID?: string }).testID);
+              if (testID === 'qpc-guide-marker' && !laidOut) {
+                callback(0, 0, 0, 0);
+                return;
+              }
+              const box = BOXES[testID];
+              if (box) callback(box.x, box.y, box.width, box.height);
+            },
+          }),
+        });
+      });
+      await flush();
+      await act(async () => root.root.findByProps({ testID: 'mushaf-page-area' }).props.onLayout({ nativeEvent: { layout: { x: 0, y: 0, width: 390, height: 797 } } }));
+      await flush();
+      await layOutText();
+      // Open (taps caught), but nothing drawn while the control is not laid out.
+      expect(guide()).toHaveLength(1);
+      expect(hosts('mushaf-guide-card')).toHaveLength(0);
+      expect(hosts('mushaf-guide-not-on-page')).toHaveLength(0);
+      await settle();
+      expect(hosts('mushaf-guide-card')).toHaveLength(0);
+      laidOut = true;
+      await act(async () => { await new Promise((done) => setTimeout(done, 50)); });
+      expect(hosts('mushaf-guide-not-on-page')).toHaveLength(0);
+      expect(hole()).toMatchObject(padded('qpc-guide-marker'));
+      expect(guideText()).toBe(copy().guideMarker);
+    });
+
+    it('a control that never lays out: the wait ends (taps are never held for long by an unseen guide); the card says it is not on the page', async () => {
+      downloaded = true;
+      await act(async () => {
+        root = create(createElement(MushafScreen), {
+          createNodeMock: (element) => ({
+            measureInWindow: (callback: (x: number, y: number, width: number, height: number) => void) => {
+              const testID = String((element.props as { testID?: string }).testID);
+              if (testID === 'qpc-guide-marker') return callback(0, 0, 0, 0);
+              const box = BOXES[testID];
+              if (box) callback(box.x, box.y, box.width, box.height);
+            },
+          }),
+        });
+      });
+      await flush();
+      await act(async () => root.root.findByProps({ testID: 'mushaf-page-area' }).props.onLayout({ nativeEvent: { layout: { x: 0, y: 0, width: 390, height: 797 } } }));
+      await flush();
+      await layOutText();
+      expect(hosts('mushaf-guide-card')).toHaveLength(0);
+      // 120 frames (here 16 ms timers, about 31 ms on Windows, without requestAnimationFrame), then it shows as for a control not on the page.
+      await act(async () => { await new Promise((done) => setTimeout(done, 5500)); });
+      expect(hosts('mushaf-guide-card')).toHaveLength(1);
+      expect(hosts('mushaf-guide-not-on-page')).toHaveLength(1);
+    }, 15_000);
+
+    it('a download completing while the reader is mounted behind another tab (the original bug): no guide, no navigation; on that page once the reader is shown', async () => {
+      state.focused = false;
+      await open();
+      expect(currentPage()).toBe(50);
+      expect(pageDrawn()).toBe(false);
+      await runDownload();
+      expect(downloaded).toBe(true);
+      expect(pageDrawn()).toBe(true);
+      expect(hosts('qpc-guide-marker')).toHaveLength(1);
+      expect(guide()).toHaveLength(0);
+      expect(currentPage()).toBe(50);
+      expect(vi.mocked(router.navigate)).not.toHaveBeenCalled();
+      state.focused = true;
+      await update();
+      expect(currentPage()).toBe(50);
+      expect(guide()).toHaveLength(1);
+    });
+
+    it('opened while the Mushaf downloads: progress as before, no guide on a page not drawn; the download ends with the reader shown: the guide on that page', async () => {
+      let finish!: () => void;
+      const finished = new Promise<void>((done) => { finish = done; });
+      state.offline.download.mockImplementation(async ({ onProgress }: { onProgress: (p: unknown) => void }) => {
+        onProgress({ phase: 'downloading', chunksTotal: 31, chunksReady: 10, bytesTotal: 1000, bytesReady: 500 });
+        await finished;
+        downloaded = true;
+        return { status: 'installed', version: 'b'.repeat(24), downloadedChunks: 31, reusedChunks: 0 };
+      });
+      await open();
+      await act(async () => { void mushafAutoDownload().resume(); });
+      await flush();
+      await settle();
+      expect(texts()).toContain(copy().pageNotDownloaded);
+      expect(texts().join(' ')).toMatch(new RegExp(`${copy().offlineDownloading} 50%`));
+      expect(guide()).toHaveLength(0);
+      await act(async () => {
+        finish();
+        await mushafAutoDownload().whenIdle();
+      });
+      await flush();
+      await settle();
+      await layOutText();
+      expect(currentPage()).toBe(50);
+      expect(guide()).toHaveLength(1);
+    });
+
+    it('left before its text is laid out: nothing while the reader is hidden; it opens when the reader is shown again', async () => {
+      downloaded = true;
+      await renderFresh();
+      expect(guide()).toHaveLength(0);
+      state.focused = false;
+      await act(async () => root.update(createElement(MushafScreen)));
+      await layOutText();
+      expect(hosts('qpc-guide-marker')).toHaveLength(1);
+      expect(guide()).toHaveLength(0);
+      state.focused = true;
+      await update();
+      expect(guide()).toHaveLength(1);
+    });
+
+    it('a failed download: no guide, the page unchanged', async () => {
+      state.offline.download.mockRejectedValue(Object.assign(new Error('no space'), { kind: 'insufficient_storage' }));
+      await open();
+      await runDownload();
+      expect(mushafAutoDownload().getState().phase).toBe('failed');
+      expect(currentPage()).toBe(50);
+      expect(guide()).toHaveLength(0);
+    });
+
+    it('repeated completions (another download, an update) never reopen or duplicate it; closed, it stays closed', async () => {
+      downloaded = true;
+      await open();
+      expect(guide()).toHaveLength(1);
+      await runDownload();
+      await runDownload();
+      expect(guide()).toHaveLength(1);
+      await press(onlyHost('mushaf-guide-close'));
+      await runDownload();
+      expect(guide()).toHaveLength(0);
+      expect(currentPage()).toBe(50);
+    });
   });
 
   it('a step reached in the original order (before this update) is not resumed in the new order: the guide starts at step 1', async () => {

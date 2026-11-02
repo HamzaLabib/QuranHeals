@@ -45,6 +45,24 @@ describe('where headings and Basmalas go', () => {
     expect(surahOpeningSlots({ lines: [line(9, ['1:1', 1]), ...rest(10, '1:2')] })).toEqual([{ line: 8, kind: 'heading', surah: 1 }]);
   });
 
+  it('pages 1 and 2 as Content Sync lays them out since 2026-11 (lines 2–8 and 3–8): their empty bottom lines never open the next Surah', () => {
+    const page1 = [1, 2, 3, 4, 5, 6, 7].map((ayah) => line(ayah + 1, [`1:${ayah}`, 1]));
+    expect(surahOpeningSlots({ page: 1, lines: page1 })).toEqual([{ line: 1, kind: 'heading', surah: 1 }]);
+    const page2 = [line(3, ['2:1', 1]), line(4, ['2:2', 1]), line(5, ['2:2', 5]), line(6, ['2:3', 3]), line(7, ['2:4', 2]), line(8, ['2:5', 1])];
+    expect(surahOpeningSlots({ page: 2, lines: page2 })).toEqual([{ line: 1, kind: 'heading', surah: 2 }, { line: 2, kind: 'basmala', surah: 2 }]);
+    // The same layouts read as any other page would get the next Surah's heading (the bug seen on the iPhone).
+    expect(surahOpeningSlots({ page: 2, lines: page2 }).some((slot) => slot.surah === 3)).toBe(false);
+    expect(surahOpeningSlots({ lines: page2 }).some((slot) => slot.surah === 3)).toBe(true);
+    // The earlier layout (lines 9–15 and 10–15) is unchanged.
+    expect(surahOpeningSlots({ page: 1, lines: [line(9, ['1:1', 1]), ...rest(10, '1:2')] })).toEqual([{ line: 8, kind: 'heading', surah: 1 }]);
+    expect(surahOpeningSlots({ page: 2, lines: [line(10, ['2:1', 1]), ...rest(11, '2:2')] })).toEqual([{ line: 8, kind: 'heading', surah: 2 }, { line: 9, kind: 'basmala', surah: 2 }]);
+  });
+
+  it('empty bottom lines still open the next Surah on every other page, page number given or not', () => {
+    expect(surahOpeningSlots({ page: 49, lines: [line(13, ['2:286', 10])] })).toEqual([{ line: 14, kind: 'heading', surah: 3 }, { line: 15, kind: 'basmala', surah: 3 }]);
+    expect(surahOpeningSlots({ page: 3, lines: [line(13, ['3:200', 10])] })).toEqual(surahOpeningSlots({ lines: [line(13, ['3:200', 10])] }));
+  });
+
   it('a regular page has no slots; ayah 1 continuing a line is not an opening', () => {
     expect(surahOpeningSlots({ lines: Array.from({ length: 15 }, (_, i) => line(i + 1, ['3:85', i + 1])) })).toEqual([]);
     expect(isOpeningPage(1) && isOpeningPage(2) && !isOpeningPage(3)).toBe(true);

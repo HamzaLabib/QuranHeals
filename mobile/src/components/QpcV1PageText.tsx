@@ -141,7 +141,7 @@ const OPENING_NAME_MAX_EM = 3.95;
  * The guide's example on this page: the first line (from the third, clear of the running heads) holding an ayah's
  * number with a word of that same ayah before it on the line; else any such line. Null when the page has none.
  */
-function guideExampleOf(layout: QpcV1PageLayout): { line: number; word: number; marker: number } | null {
+export function guideExampleOf(layout: QpcV1PageLayout): { line: number; word: number; marker: number } | null {
   const candidates = [...layout.lines.filter((line) => line.line >= 3), ...layout.lines.filter((line) => line.line < 3)];
   for (const line of candidates) {
     const marker = line.words.findIndex((word, index) => word.kind === 'end' && index > 0 && line.words.slice(0, index).some((w) => w.kind === 'word' && w.verseKey === word.verseKey));

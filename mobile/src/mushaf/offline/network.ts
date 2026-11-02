@@ -2,14 +2,15 @@ import type { NetworkKind, NetworkSource } from './autoDownload';
 
 /**
  * The connection type for the automatic Mushaf download (autoDownload.ts),
- * from expo-network. Only an unmetered connection we can name starts the
- * ~100 MB download without asking:
- *  - Wi-Fi or Ethernet: 'wifi' (starts by itself).
- *  - Mobile data: 'cellular' (asks first).
+ * from expo-network. Since 2026-11-02 any working connection starts the
+ * ~2 MB download (the layout; the page fonts come with the app) by itself;
+ * only 'none' waits:
+ *  - Wi-Fi or Ethernet: 'wifi'.
+ *  - Mobile data: 'cellular'.
  *  - Not connected, or the OS says the internet is unreachable (e.g. a Wi-Fi
  *    login page): 'none' (waits).
  *  - Anything else — VPN, Bluetooth, "other", unknown, the web, or the
- *    module failing: 'unknown', treated like mobile data (asks first).
+ *    module failing: 'unknown'.
  * expo-network is loaded on first use, so importing this never loads native
  * code (screens and tests read the controller's state without it).
  */
