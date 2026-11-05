@@ -89,7 +89,8 @@
       ],
       "expo-localization",
       "@react-native-community/datetimepicker",
-      "./plugins/withAdvanceWidthText"
+      "./plugins/withAdvanceWidthText",
+      "./plugins/withReleaseMinify"
     ],
     "experiments": {
       "typedRoutes": true,
