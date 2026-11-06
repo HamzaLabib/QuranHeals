@@ -32,6 +32,8 @@ vi.mock('@/storage/ayahReflections', () => ({
 vi.mock('@/storage/reflectionConflicts', () => ({ getConflictVersionsFor: async () => [], resolveConflictVersions: async () => undefined }));
 vi.mock('expo-clipboard', () => ({ setStringAsync: vi.fn() }));
 
+// The opened reflection's ayah translation (unused here: no `ayah`) is never fetched.
+vi.mock('@/services/ayahTranslationLookup', () => ({ ayahTranslationLookup: { peek: () => null, load: async () => null } }));
 import { ReflectionSheet } from '@/components/ReflectionSheet';
 
 let root: ReactTestRenderer;

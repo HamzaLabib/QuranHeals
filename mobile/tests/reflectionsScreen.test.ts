@@ -266,8 +266,8 @@ describe('reflections.tsx and useReflections.ts: offline, guest-friendly, single
   });
 
   it('opens the sheet for the exact tapped verseKey', () => {
-    expect(screenSource).toMatch(/setActiveVerseKey\(item\.reflection\.verseKey\)/);
-    expect(screenSource).toMatch(/verseKey=\{activeVerseKey\}/);
+    expect(screenSource).toMatch(/setActive\(\{ item, translationRevealed \}\)/);
+    expect(screenSource).toMatch(/verseKey=\{active\?\.item\.reflection\.verseKey \?\? null\}/);
   });
 
   it('refreshes the list after the sheet closes, so edited text/timestamps update immediately', () => {
@@ -299,7 +299,9 @@ describe('reflections.tsx and useReflections.ts: offline, guest-friendly, single
   });
 
   it('shows the localized unresolved-reference note instead of inventing a surah name/fake Arabic text', () => {
-    expect(cardSource).toMatch(/messages\.reflections\.referenceUnresolved/);
+    // The card's ayah (Arabic + translation) is drawn by ReflectionAyah, which carries the note.
+    expect(cardSource).toMatch(/<ReflectionAyah arabicText=\{arabicText\}/);
+    expect(readFileSync(resolve(__dirname, '../src/components/ReflectionAyah.tsx'), 'utf-8')).toMatch(/messages\.reflections\.referenceUnresolved/);
   });
 
   it('displays the localized sync status via the shared pure resolver, not ad hoc inline logic', () => {

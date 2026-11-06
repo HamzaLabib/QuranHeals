@@ -137,3 +137,26 @@ export function resolveTranslationVisibility(
     showToggleControl: displayMode === 'on-demand',
   };
 }
+
+/**
+ * One ayah card's translation, from Settings → Show Translation and that card's own toggle — the single rule shared by
+ * the ayah screens' AyahCard, Saved Ayahs' compact AyahCard, and My Reflections (which follows Saved Ayahs: compact).
+ *  - `displayMode`: the stored setting, or null outside the preference provider (behaves as On Demand);
+ *  - `compact`: Saved Ayahs/My Reflections — starts hidden even with ON + Always (as Saved Ayahs always has);
+ *  - `toggledRevealed`: the reader's tap on this ayah's toggle, or null before any tap;
+ *  - `unavailable`: no translation to show (saved offline and not fetched yet, or it couldn't be loaded) — then
+ *    neither the translation nor its button, never an empty block.
+ */
+export function resolveAyahTranslationDisplay(
+  displayMode: TranslationDisplayMode | null,
+  { compact, toggledRevealed, unavailable }: { compact: boolean; toggledRevealed: boolean | null; unavailable: boolean },
+): { isRevealed: boolean; showTranslation: boolean; showToggleControl: boolean } {
+  const isRevealed = toggledRevealed ?? (!compact && displayMode === 'always');
+  const visibility = resolveTranslationVisibility(AYAH_SCREEN_TRANSLATION_MODE, isRevealed);
+  const noTranslation = displayMode === 'off' || unavailable;
+  return {
+    isRevealed,
+    showTranslation: !noTranslation && visibility.showTranslation,
+    showToggleControl: !noTranslation && visibility.showToggleControl,
+  };
+}

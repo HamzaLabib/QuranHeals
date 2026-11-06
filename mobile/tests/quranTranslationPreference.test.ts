@@ -206,6 +206,9 @@ describe('show/hide translation labels are localized correctly in every app loca
 describe('Translation display-mode behavior in AyahCard.tsx (source-scan: no RN renderer available in this test environment)', () => {
   const AYAH_CARD_PATH = resolve(__dirname, '../src/components/AyahCard.tsx');
   const source = readFileSync(AYAH_CARD_PATH, 'utf-8');
+  // The decision AyahCard delegates to (shared with Saved Ayahs' compact card and My Reflections), and the markup it renders.
+  const preferenceSource = readFileSync(resolve(__dirname, '../src/localization/quranTranslationPreference.ts'), 'utf-8');
+  const translationSource = readFileSync(resolve(__dirname, '../src/components/AyahTranslation.tsx'), 'utf-8');
 
   it('renders the Arabic text unconditionally — never gated behind showTranslation/displayMode', () => {
     const arabicLine = source.match(/<Text[^>]*>\{ayah\.arabicText\}<\/Text>/);
@@ -214,11 +217,14 @@ describe('Translation display-mode behavior in AyahCard.tsx (source-scan: no RN 
 
   it('delegates show/hide-toggle visibility to the pure, independently-tested resolveTranslationVisibility function', () => {
     // The ayah screen: always Show / Hide translation (no Settings row to change it any more).
-    expect(source).toMatch(/resolveTranslationVisibility\(AYAH_SCREEN_TRANSLATION_MODE,\s*isRevealed\)/);
+    expect(source).toMatch(/resolveAyahTranslationDisplay\(displayMode,/);
+    expect(preferenceSource).toMatch(/resolveTranslationVisibility\(AYAH_SCREEN_TRANSLATION_MODE,\s*isRevealed\)/);
   });
 
   it('the English translation text is rendered only when showTranslation is true (never unconditionally)', () => {
-    expect(source).toMatch(/\{showTranslation\s*&&\s*\([\s\S]*?ayah\.englishTranslation/);
+    expect(source).toMatch(/text=\{ayah\.englishTranslation\}/);
+    expect(source).toMatch(/showTranslation=\{showTranslation\}/);
+    expect(translationSource).toMatch(/\{showTranslation\s*&&\s*\([\s\S]*?\{text\}/);
   });
 
   it('the toggle button label switches between the localized "Show translation" and "Hide translation" messages, never a hardcoded English string', () => {
@@ -236,12 +242,14 @@ describe('Translation display-mode behavior in AyahCard.tsx (source-scan: no RN 
     expect(source).toMatch(/trackedAyahId\s*!==\s*ayah\.id/);
     expect(source).toMatch(/setToggled\(null\)/);
     // Only this ayah's own toggle counts; otherwise the Show Translation setting decides (never the other way round).
-    expect(source).toMatch(/const isRevealed = toggled\?\.ayahId === ayah\.id \? toggled\.revealed : startsRevealed;/);
+    expect(source).toMatch(/toggledRevealed: toggled\?\.ayahId === ayah\.id \? toggled\.revealed : null,/);
+    expect(preferenceSource).toMatch(/const isRevealed = toggledRevealed \?\? \(!compact && displayMode === 'always'\);/);
     // The reveal state must never be written to the stored preference.
     expect(source).not.toMatch(/setDisplayMode|saveQuranTranslationPreference/);
   });
 
   it('the Show Translation setting decides only the starting state, on the standard (non-compact) ayah card', () => {
-    expect(source).toMatch(/const startsRevealed = !compact && displayMode === 'always';/);
+    expect(source).toMatch(/resolveAyahTranslationDisplay\(displayMode, \{\s*compact,/);
+    expect(preferenceSource).toMatch(/toggledRevealed \?\? \(!compact && displayMode === 'always'\)/);
   });
 });

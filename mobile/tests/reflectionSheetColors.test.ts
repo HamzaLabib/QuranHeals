@@ -41,6 +41,8 @@ vi.mock('@/storage/reflectionConflicts', () => ({ getConflictVersionsFor: async 
 vi.mock('expo-clipboard', () => ({ setStringAsync: vi.fn() }));
 vi.mock('@/storage/localChanges', () => ({ notifyLocalChange: vi.fn() }));
 
+// The opened reflection's ayah translation (unused here: no `ayah`) is never fetched.
+vi.mock('@/services/ayahTranslationLookup', () => ({ ayahTranslationLookup: { peek: () => null, load: async () => null } }));
 const { ReflectionSheet } = await import('@/components/ReflectionSheet');
 const { darkPalette, lightPalette } = await import('@/constants/theme');
 const { MUSHAF_PANEL_COLORS } = await import('@/constants/mushafTheme');

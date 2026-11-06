@@ -23,7 +23,10 @@ import { runGuardedRefresh, type RefreshInFlightRef } from '@/utils/pullToRefres
  * (see storage/ayahReflections.ts, ReflectionSheet.tsx). This screen never
  * duplicates the save logic or the Quran Arabic itself: Arabic is resolved
  * fresh per item from the local quran.sqlite repository (useReflections),
- * and editing reuses the existing ReflectionSheet unchanged.
+ * and editing reuses the existing ReflectionSheet. Each ayah's translation
+ * follows Saved Ayahs (components/ReflectionAyah.tsx), resolved from the
+ * reflection's verseKey and never stored with it; the opened reflection
+ * shows the ayah above the editor (ReflectionSheet's `ayah`).
  */
 export default function ReflectionsScreen() {
   const colors = usePalette();
@@ -36,7 +39,9 @@ export default function ReflectionsScreen() {
   const BackIcon = isRtl ? ArrowRight : ArrowLeft;
   const { items, isReady, hasError, refresh } = useReflections();
   const { refreshSync } = useAuth();
-  const [activeVerseKey, setActiveVerseKey] = useState<string | null>(null);
+  const [active, setActive] = useState<{ item: ReflectionListItem; translationRevealed: boolean | null } | null>(null);
+  // Bumped by pull-to-refresh so a translation that couldn't load (offline) is tried again.
+  const [translationRetryKey, setTranslationRetryKey] = useState(0);
   // Guards a rapid repeated pull gesture the same way Home/Favorites do —
   // see pullToRefresh.ts's doc comment for why this needs a ref, not just
   // the `isRefreshing` state below.
@@ -44,7 +49,7 @@ export default function ReflectionsScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const closeSheet = () => {
-    setActiveVerseKey(null);
+    setActive(null);
     // The sheet may have just changed this reflection's text/updatedAt (or
     // deleted it via an empty save) — reload so the list reflects that
     // immediately rather than showing stale text/timestamps.
@@ -54,6 +59,7 @@ export default function ReflectionsScreen() {
   const onPullToRefresh = useCallback(async () => {
     await runGuardedRefresh(refreshGuardRef.current, async () => {
       setIsRefreshing(true);
+      setTranslationRetryKey((key) => key + 1);
       try {
         // Reuses the exact same account sync (favorites + preferences +
         // reflections) as everywhere else — a no-op for a guest. Never a
@@ -137,12 +143,18 @@ export default function ReflectionsScreen() {
             item={item}
             locale={locale}
             messages={messages}
-            onPress={() => setActiveVerseKey(item.reflection.verseKey)}
+            onPress={(translationRevealed) => setActive({ item, translationRevealed })}
+            translationRetryKey={translationRetryKey}
           />
         )}
       />
 
-      <ReflectionSheet visible={activeVerseKey !== null} verseKey={activeVerseKey} onClose={closeSheet} />
+      <ReflectionSheet
+        visible={active !== null}
+        verseKey={active?.item.reflection.verseKey ?? null}
+        ayah={active ? { surahNumber: active.item.surahNumber, ayahNumber: active.item.ayahNumber, arabicText: active.item.arabicText, translationRevealed: active.translationRevealed } : undefined}
+        onClose={closeSheet}
+      />
     </SafeAreaView>
   );
 }

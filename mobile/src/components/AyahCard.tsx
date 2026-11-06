@@ -12,7 +12,7 @@ import {
   computeQuranLineHeight,
   countArabicWords,
 } from '@/localization/quranFontSizePreference';
-import { AYAH_SCREEN_TRANSLATION_MODE, resolveTranslationVisibility } from '@/localization/quranTranslationPreference';
+import { resolveAyahTranslationDisplay } from '@/localization/quranTranslationPreference';
 import { useAppLocale } from '@/localization/useAppLocale';
 import { useQuranFontSizePreference } from '@/localization/useQuranFontSizePreference';
 import { useQuranTranslationDisplayMode } from '@/localization/useQuranTranslationPreference';
@@ -22,6 +22,7 @@ import { translationPending } from '@/services/ayahTranslation';
 import { mushafRouteForAyah } from '@/mushaf/ayahInMushaf';
 import { isRtlLocale } from '@/localization/locales';
 import { AyahAudioButton, type AyahAudioProblem } from './AyahAudioButton';
+import { AyahTranslation } from './AyahTranslation';
 import { QuranFontSizeControls } from './QuranFontSizeControls';
 
 type AyahCardProps = {
@@ -80,15 +81,13 @@ export function AyahCard({ ayah, compact = false }: AyahCardProps) {
     };
   }, []);
 
-  const translationOff = displayMode === 'off';
-  const startsRevealed = !compact && displayMode === 'always';
-  const isRevealed = toggled?.ayahId === ayah.id ? toggled.revealed : startsRevealed;
-  const visibility = resolveTranslationVisibility(AYAH_SCREEN_TRANSLATION_MODE, isRevealed);
   // Show Translation OFF: neither the translation nor its button. Nor while an ayah saved offline still waits for its
   // translation (services/ayahForAction.ts): nothing is shown in its place, never an empty block.
-  const noTranslation = translationOff || translationPending(ayah);
-  const showTranslation = !noTranslation && visibility.showTranslation;
-  const showToggleControl = !noTranslation && visibility.showToggleControl;
+  const { isRevealed, showTranslation, showToggleControl } = resolveAyahTranslationDisplay(displayMode, {
+    compact,
+    toggledRevealed: toggled?.ayahId === ayah.id ? toggled.revealed : null,
+    unavailable: translationPending(ayah),
+  });
   const toggleLabel = isRevealed ? messages.translation.hideTranslation : messages.translation.showTranslation;
 
   // Each ayah calculates its own automatic length adjustment from its own
@@ -179,22 +178,15 @@ export function AyahCard({ ayah, compact = false }: AyahCardProps) {
         <Text style={styles.source}>Quran text: Tanzil · Uthmani 1.1</Text>
       </View>
 
-      {showTranslation && (
-        <View style={styles.translationBlock}>
-          <Text style={[styles.translation, compact && styles.compactTranslation]}>{ayah.englishTranslation}</Text>
-          <Text style={styles.source}>{ayah.translationSource}</Text>
-        </View>
-      )}
-
-      {showToggleControl && (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={toggleLabel}
-          onPress={() => setToggled({ ayahId: ayah.id, revealed: !isRevealed })}
-          style={({ pressed }) => [styles.revealButton, pressed && styles.pressed]}>
-          <Text style={styles.revealButtonText}>{toggleLabel}</Text>
-        </Pressable>
-      )}
+      <AyahTranslation
+        text={ayah.englishTranslation}
+        source={ayah.translationSource}
+        showTranslation={showTranslation}
+        showToggleControl={showToggleControl}
+        toggleLabel={toggleLabel}
+        onToggle={() => setToggled({ ayahId: ayah.id, revealed: !isRevealed })}
+        compact={compact}
+      />
     </View>
   );
 }
@@ -225,33 +217,6 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     // and computeQuranLineHeight in quranFontSizePreference.ts.
     textAlign: 'right',
     writingDirection: 'rtl',
-  },
-  translationBlock: {
-    gap: spacing.xs,
-  },
-  translation: {
-    color: colors.textPrimary,
-    fontSize: typography.bodyLarge,
-    lineHeight: 28,
-  },
-  compactTranslation: {
-    fontSize: typography.body,
-    lineHeight: 24,
-  },
-  revealButton: {
-    alignItems: 'center',
-    backgroundColor: colors.secondaryButtonSurface,
-    borderColor: colors.secondaryButtonBorder,
-    borderRadius: radii.sm,
-    borderWidth: 1,
-    justifyContent: 'center',
-    minHeight: 44,
-    paddingHorizontal: spacing.md,
-  },
-  revealButtonText: {
-    color: colors.accent,
-    fontSize: typography.body,
-    fontWeight: '700',
   },
   controlsRow: {
     alignItems: 'center',

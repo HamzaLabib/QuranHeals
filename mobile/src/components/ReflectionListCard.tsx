@@ -6,41 +6,36 @@ import type { ReflectionListItem } from '@/hooks/useReflections';
 import type { AppLocale } from '@/localization/locales';
 import { getDirectionStyle, isRtlLocale } from '@/localization/locales';
 import type { Messages } from '@/localization/messages';
-import {
-  computeCompactQuranFontSize,
-  computeQuranLineHeight,
-  countArabicWords,
-} from '@/localization/quranFontSizePreference';
-import { useQuranFontSizePreference } from '@/localization/useQuranFontSizePreference';
 import { formatReflectionDate } from '@/utils/formatDate';
 import { resolveReflectionSyncStatusLabel } from '@/utils/reflectionSyncStatus';
+import { ReflectionAyah, useReflectionTranslation } from './ReflectionAyah';
 
 type ReflectionListCardProps = {
   item: ReflectionListItem;
   locale: AppLocale;
   messages: Messages;
-  onPress: () => void;
+  /** Opens the reflection; carries whether this card's translation is currently shown. */
+  onPress: (translationRevealed: boolean | null) => void;
+  /** Changes on pull-to-refresh: a translation that couldn't load is tried again. */
+  translationRetryKey?: number;
 };
 
 /**
  * One row on the My Reflections screen. Deliberately NOT a re-skinned
- * AyahCard — this needs only a short Arabic preview, never the
- * translation/source/reveal-toggle UI a full AyahCard renders, so a long
- * list of these stays lightweight and doesn't visually compete with the
- * Quran text on the main ayah screen. Tapping opens the existing
- * ReflectionSheet for this exact verseKey (see app/reflections.tsx) — this
- * component never edits or saves a reflection itself.
+ * AyahCard (no copy, audio or font-size controls), so a long list stays
+ * lightweight. The ayah comes first — a two-line Arabic preview with its
+ * translation underneath, shown by Saved Ayahs' rule (ReflectionAyah.tsx)
+ * and clamped to two lines — then the person's reflection in its own
+ * section below. Tapping opens the existing ReflectionSheet for this exact
+ * verseKey (see app/reflections.tsx) — this component never edits or saves
+ * a reflection itself.
  */
-export function ReflectionListCard({ item, locale, messages, onPress }: ReflectionListCardProps) {
+export function ReflectionListCard({ item, locale, messages, onPress, translationRetryKey }: ReflectionListCardProps) {
   const styles = useThemedStyles(makeStyles);
   const direction = getDirectionStyle(locale);
   const isRtl = isRtlLocale(locale);
-  const { preferredSize } = useQuranFontSizePreference();
   const { reflection, arabicText } = item;
-
-  const wordCount = arabicText ? countArabicWords(arabicText) : 0;
-  const arabicFontSize = computeCompactQuranFontSize(preferredSize, wordCount);
-  const arabicLineHeight = computeQuranLineHeight(arabicFontSize);
+  const translation = useReflectionTranslation(reflection.verseKey, { retryKey: translationRetryKey });
   const statusLabel = item.recoveredOnly ? '' : resolveReflectionSyncStatusLabel(reflection.syncState, messages);
   const reviewLabel = item.recoveredOnly ? messages.reflections.recoveredBadge : item.otherVersionCount > 0 ? messages.reflections.otherVersionBadge : null;
   const editedDate = formatReflectionDate(reflection.updatedAt, locale);
@@ -49,32 +44,31 @@ export function ReflectionListCard({ item, locale, messages, onPress }: Reflecti
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${messages.reflections.openReflectionLabel} ${reflection.verseKey}`}
-      onPress={onPress}
+      // The card is one accessible element, so the Show / Hide translation button inside it is offered as an action.
+      accessibilityActions={translation.showToggleControl ? [{ name: 'toggleTranslation', label: translation.toggleLabel }] : undefined}
+      onAccessibilityAction={(event) => {
+        if (event.nativeEvent.actionName === 'toggleTranslation') translation.toggle();
+      }}
+      onPress={() => onPress(translation.showToggleControl ? translation.isRevealed : null)}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
       <View style={[styles.referenceRow, isRtl && styles.referenceRowRtl]}>
         <Text style={styles.reference}>{reflection.verseKey}</Text>
         <Text style={styles.statusText}>{statusLabel}</Text>
       </View>
 
-      {arabicText ? (
-        <Text
-          numberOfLines={2}
-          style={[styles.arabic, { fontSize: arabicFontSize, lineHeight: arabicLineHeight }]}>
-          {arabicText}
+      <ReflectionAyah arabicText={arabicText} translation={translation} preview />
+
+      <View style={styles.reflectionSection}>
+        {reviewLabel && <Text style={[styles.reviewBadge, direction]}>{reviewLabel}</Text>}
+
+        <Text numberOfLines={3} style={[styles.reflectionText, direction]}>
+          {reflection.text}
         </Text>
-      ) : (
-        <Text style={[styles.unresolvedNote, direction]}>{messages.reflections.referenceUnresolved}</Text>
-      )}
 
-      {reviewLabel && <Text style={[styles.reviewBadge, direction]}>{reviewLabel}</Text>}
-
-      <Text numberOfLines={3} style={[styles.reflectionText, direction]}>
-        {reflection.text}
-      </Text>
-
-      <Text style={[styles.editedDate, direction]}>
-        {messages.reflections.editedLabel} {editedDate}
-      </Text>
+        <Text style={[styles.editedDate, direction]}>
+          {messages.reflections.editedLabel} {editedDate}
+        </Text>
+      </View>
     </Pressable>
   );
 }
@@ -110,16 +104,11 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     fontSize: typography.small,
     fontWeight: '600',
   },
-  arabic: {
-    color: colors.textPrimary,
-    fontWeight: '600',
-    textAlign: 'right',
-    writingDirection: 'rtl',
-  },
-  unresolvedNote: {
-    color: colors.danger,
-    fontSize: typography.caption,
-    lineHeight: 18,
+  reflectionSection: {
+    borderTopColor: colors.divider,
+    borderTopWidth: 1,
+    gap: spacing.sm,
+    paddingTop: spacing.sm,
   },
   reflectionText: {
     color: colors.textPrimary,

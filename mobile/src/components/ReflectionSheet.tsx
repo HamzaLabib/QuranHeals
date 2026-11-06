@@ -28,6 +28,18 @@ import { getConflictVersionsFor, resolveConflictVersions, type ReflectionConflic
 import { notifyLocalChange } from '@/storage/localChanges';
 import { SheetSafeArea } from '@/layout/SheetSafeArea';
 import { useKeyboardAvoidingKey } from '@/layout/useDismissKeyboardOnResize';
+import { formatAyahReference } from '@/utils/ayahReference';
+import { ReflectionAyah, useReflectionTranslation } from './ReflectionAyah';
+
+/** The ayah shown above the editor when a reflection is opened from خواطري (My Reflections). */
+export type ReflectionSheetAyah = {
+  surahNumber: number;
+  ayahNumber: number;
+  /** The verified local Arabic, or null when it couldn't be resolved on the device. */
+  arabicText: string | null;
+  /** The list card's Show / Hide translation state, carried in (null: untouched). */
+  translationRevealed: boolean | null;
+};
 
 type ReflectionSheetProps = {
   visible: boolean;
@@ -39,6 +51,11 @@ type ReflectionSheetProps = {
    * standard window, unchanged.
    */
   mushaf?: { dark: boolean };
+  /**
+   * Opened from خواطري (My Reflections): the ayah first — Arabic, then its translation by Saved Ayahs' rule — with
+   * the reflection below. Absent from the ayah screen and the Mushaf, where the ayah is already on screen.
+   */
+  ayah?: ReflectionSheetAyah;
 };
 
 /**
@@ -83,22 +100,24 @@ function useReflectionTheme(mushaf: { dark: boolean } | undefined) {
 }
 
 /**
- * Private خواطر editor — deliberately never shows Quran Arabic/translation
- * text itself (Part C §12: must not visually compete with it) and never
+ * Private خواطر editor. Opened over an ayah (the ayah screen, the Mushaf) it
+ * shows no Quran text itself (Part C §12: must not visually compete with
+ * the ayah already on screen); opened from My Reflections, where nothing
+ * else shows the ayah, it shows that ayah above the reflection. It never
  * touches Report an Issue's data path (Part I §34). The guest/signed-in
  * note is chosen truthfully from the actual auth status, never claiming
  * sync that hasn't happened (Part C §14).
  */
-export function ReflectionSheet({ visible, verseKey, onClose, mushaf }: ReflectionSheetProps) {
+export function ReflectionSheet({ visible, verseKey, onClose, mushaf, ayah }: ReflectionSheetProps) {
   if (!visible || !verseKey) return null;
 
   // Keyed by verseKey so opening the sheet for a different ayah remounts
   // this inner component with fresh state, instead of imperatively
   // resetting isLoading/text inside an effect.
-  return <ReflectionSheetContent key={verseKey} verseKey={verseKey} onClose={onClose} mushaf={mushaf} />;
+  return <ReflectionSheetContent key={verseKey} verseKey={verseKey} onClose={onClose} mushaf={mushaf} ayah={ayah} />;
 }
 
-function ReflectionSheetContent({ verseKey, onClose, mushaf }: { verseKey: string; onClose: () => void; mushaf?: { dark: boolean } }) {
+function ReflectionSheetContent({ verseKey, onClose, mushaf, ayah }: { verseKey: string; onClose: () => void; mushaf?: { dark: boolean }; ayah?: ReflectionSheetAyah }) {
   const { colors, styles } = useReflectionTheme(mushaf);
   // Measured afresh after a rotation or resize (layout/useDismissKeyboardOnResize.ts).
   const keyboardKey = useKeyboardAvoidingKey();
@@ -122,6 +141,10 @@ function ReflectionSheetContent({ verseKey, onClose, mushaf }: { verseKey: strin
   const [adoptedVersionIds, setAdoptedVersionIds] = useState<string[]>([]);
   const [copiedVersionId, setCopiedVersionId] = useState<string | null>(null);
   const scrollRef = useRef<ScrollView>(null);
+  // With the ayah at the top, the window opens on it; following the end of the content is only for typing (the
+  // text box growing). Without it (ayah screen, Mushaf), unchanged: always follow the end.
+  const inputFocusedRef = useRef(false);
+  const ayahTranslation = useReflectionTranslation(verseKey, { initialRevealed: ayah?.translationRevealed ?? null, skip: !ayah });
   // The owner whose reflection this sheet edits. If it changes (sign-out,
   // account switch) the sheet closes unsaved: text loaded for one owner must
   // never be written into another owner's partition.
@@ -276,7 +299,16 @@ function ReflectionSheetContent({ verseKey, onClose, mushaf }: { verseKey: strin
                 ref={scrollRef}
                 keyboardShouldPersistTaps="handled"
                 contentContainerStyle={styles.content}
-                onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}>
+                onContentSizeChange={() => {
+                  if (!ayah || inputFocusedRef.current) scrollRef.current?.scrollToEnd({ animated: true });
+                }}>
+                {ayah && (
+                  <View style={styles.ayahSection}>
+                    <Text style={styles.ayahReference}>{formatAyahReference(ayah.surahNumber, ayah.ayahNumber)}</Text>
+                    <ReflectionAyah arabicText={ayah.arabicText} translation={ayahTranslation} colors={colors} />
+                  </View>
+                )}
+
                 <Text style={[styles.title, direction]}>{messages.reflection.title}</Text>
 
                 <Text style={[styles.prompt, direction]}>
@@ -315,7 +347,13 @@ function ReflectionSheetContent({ verseKey, onClose, mushaf }: { verseKey: strin
                   <TextInput
                     value={text}
                     onChangeText={setText}
-                    onFocus={() => scrollRef.current?.scrollToEnd({ animated: true })}
+                    onFocus={() => {
+                      inputFocusedRef.current = true;
+                      scrollRef.current?.scrollToEnd({ animated: true });
+                    }}
+                    onBlur={() => {
+                      inputFocusedRef.current = false;
+                    }}
                     multiline
                     maxLength={REFLECTION_MAX_LENGTH}
                     placeholder={messages.reflection.placeholder}
@@ -436,6 +474,19 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.bodyLarge,
     fontWeight: '800',
+  },
+  ayahSection: {
+    borderBottomColor: colors.divider,
+    borderBottomWidth: 1,
+    gap: spacing.sm,
+    paddingBottom: spacing.md,
+  },
+  ayahReference: {
+    color: colors.accent,
+    fontSize: typography.caption,
+    fontWeight: '800',
+    // Always English name · Surah:Ayah · Arabic name, in every app language (see formatAyahReference).
+    writingDirection: 'ltr',
   },
   prompt: {
     color: colors.textMuted,

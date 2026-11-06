@@ -45,6 +45,8 @@ vi.mock('@/storage/reflectionConflicts', () => ({
   resolveConflictVersions: state.resolveConflictVersions,
 }));
 
+// The opened reflection's ayah translation (unused here: no `ayah`) is never fetched.
+vi.mock('@/services/ayahTranslationLookup', () => ({ ayahTranslationLookup: { peek: () => null, load: async () => null } }));
 import { handledVersionIds, ReflectionSheet } from '@/components/ReflectionSheet';
 
 const copy = MESSAGES.en.reflection;
