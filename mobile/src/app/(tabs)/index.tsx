@@ -32,6 +32,9 @@ import { scrollBottomPadding } from '@/utils/safeAreaSpacing';
 // throttling."
 const FOREGROUND_REVALIDATE_AFTER_MS = 60_000;
 
+/** The Qibla button's Kaaba (owner, 2026-11-07: taller than the first 22 pt): the approved drawing, scaled evenly. */
+const QIBLA_HOME_ICON_SIZE = 28;
+
 /**
  * Home (the first tab), in the approved order:
  *  1. متابعة التلاوة / Continue Reciting (ContinueReadingCard): the Mushaf at
@@ -316,8 +319,9 @@ export default function HomeScreen() {
         </Pressable>
 
         {/*
-          Qibla Direction (owner-approved 2026-11-06): directly under A Message from the Quran, the same full-width
-          surface, the black-and-gold Kaaba on the leading side and a chevron on the trailing side. Opens /qibla.
+          Qibla Direction (owner-approved 2026-11-06, refined 2026-11-07): directly under A Message from the Quran, the
+          same full-width surface; the black-and-gold Kaaba and the label centred together as one group (the Kaaba at
+          the reading start, so on the right in Arabic), no chevron. The whole button opens /qibla.
         */}
         <Pressable
           testID="home-qibla"
@@ -325,12 +329,11 @@ export default function HomeScreen() {
           accessibilityLabel={messages.qibla.homeAction}
           accessibilityHint={messages.qibla.homeActionHint}
           onPress={() => router.push('/qibla')}
-          style={({ pressed }) => [styles.qiblaAction, isRtl && styles.qiblaActionRtl, pressed && styles.pressed]}>
-          <View style={[styles.qiblaActionLead, isRtl && styles.qiblaActionRtl]}>
-            <KaabaIcon size={22} />
+          style={({ pressed }) => [styles.qiblaAction, pressed && styles.pressed]}>
+          <View style={[styles.qiblaActionGroup, isRtl && styles.qiblaActionRtl]}>
+            <KaabaIcon size={QIBLA_HOME_ICON_SIZE} />
             <Text style={[styles.qiblaActionText, { writingDirection: direction.writingDirection }]}>{messages.qibla.homeAction}</Text>
           </View>
-          {isRtl ? <ChevronLeft size={18} color={colors.textSecondary} /> : <ChevronRight size={18} color={colors.textSecondary} />}
         </Pressable>
 
         {/*
@@ -503,8 +506,8 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     fontSize: typography.bodyLarge,
     fontWeight: '700',
   },
-  // Qibla Direction: generalQuranAction's surface, border, radius, height and shadow; the Kaaba and label lead, the
-  // chevron trails.
+  // Qibla Direction: generalQuranAction's surface, border, radius, height and shadow; its content centred like it.
+  // paddingVertical md (not lg) keeps the button at 56 pt with the 28 pt Kaaba (28 + 2 × 14).
   qiblaAction: {
     alignItems: 'center',
     backgroundColor: colors.surface,
@@ -512,8 +515,7 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
     borderRadius: radii.lg,
     borderWidth: 1,
     flexDirection: 'row',
-    gap: spacing.sm,
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     minHeight: 56,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
@@ -522,11 +524,13 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   qiblaActionRtl: {
     flexDirection: 'row-reverse',
   },
-  qiblaActionLead: {
+  // The Kaaba and the label, centred together in the button.
+  qiblaActionGroup: {
     alignItems: 'center',
     flexDirection: 'row',
     flexShrink: 1,
     gap: spacing.sm,
+    justifyContent: 'center',
   },
   qiblaActionText: {
     color: colors.textPrimary,

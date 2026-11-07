@@ -72,6 +72,25 @@ describe('Qibla texts in the central localization', () => {
     expect(check(qibla('ar'))).toMatch(/على هذا الجهاز فقط.*لا يُرسَل ولا يُحفَظ.*على هذا الجهاز فقط/s);
   });
 
+  it('the location messages never send the user to the hidden city choice; they name the action the screen offers', () => {
+    for (const locale of APP_LOCALES) {
+      const m = qibla(locale);
+      for (const key of ['deniedBody', 'blockedBody', 'servicesOff', 'locationUnavailable'] as const) {
+        expect(m[key], `${locale}.qibla.${key}`).not.toMatch(/city|مدينة|مدن/i);
+      }
+      // Blocked and Location Services off offer Open Settings; the texts say Settings.
+      expect(m.blockedBody).toMatch(locale === 'en' ? /Settings/ : /الإعدادات/);
+      expect(m.servicesOff).toMatch(locale === 'en' ? /Settings/ : /الإعدادات/);
+      // No location found offers Try again; the text says to try again.
+      expect(m.locationUnavailable).toMatch(locale === 'en' ? /try again/i : /أعد المحاولة/);
+    }
+    // The city fallback's own texts stay, unused, for when it returns (qibla/qiblaScreenOptions.ts).
+    for (const key of ['chooseCity', 'useMyLocation', 'usingCity', 'bearingOnlyNote', 'pickerTitle', 'searchPlaceholder', 'noResults', 'pickerNote'] as const) {
+      expect(qibla('en')[key].length, key).toBeGreaterThan(0);
+      expect(qibla('ar')[key].length, key).toBeGreaterThan(0);
+    }
+  });
+
   it('falls back to English for an unknown locale, as every section does', () => {
     expect(getMessages('xx' as never).qibla).toBe(qibla('en'));
   });

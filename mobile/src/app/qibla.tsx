@@ -13,6 +13,7 @@ import { clearManualCityId, loadManualCityId, saveManualCityId } from '@/qibla/m
 import { QiblaCityPicker } from '@/qibla/QiblaCityPicker';
 import { QiblaCompassDial } from '@/qibla/QiblaCompassDial';
 import { presentQibla, type QiblaAction } from '@/qibla/qiblaPresentation';
+import { SHOW_QIBLA_BEARING_CARD, SHOW_QIBLA_CITY_PICKER, visibleQiblaActions } from '@/qibla/qiblaScreenOptions';
 import { useQiblaCompass } from '@/qibla/useQiblaCompass';
 import { usePalette, useThemedStyles } from '@/theme/useTheme';
 import { goBackOrHome } from '@/utils/goBackOrHome';
@@ -25,7 +26,8 @@ const MAX_DIAL_SIZE = 300;
 /**
  * Qibla Direction (/qibla), opened from Home's button under "A Message from the Quran" (docs/qibla.md). The compass
  * comes from useQiblaCompass (qiblaCompassController.ts and its reliability model); what each state shows comes from
- * qiblaPresentation.ts. Location is used on the device only; a chosen city is saved as its ID only.
+ * qiblaPresentation.ts. Location is used on the device only; a chosen city is saved as its ID only. Which parts are
+ * shown (the bearing card, the city fallback) is set in qibla/qiblaScreenOptions.ts.
  */
 export default function QiblaScreen() {
   const colors = usePalette();
@@ -44,8 +46,10 @@ export default function QiblaScreen() {
   const [pickerVisible, setPickerVisible] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
 
-  // A city chosen on an earlier visit (its ID only, on this device).
+  // A city chosen on an earlier visit (its ID only, on this device): applied only while the city fallback is shown, so
+  // the screen never sits on a city with no visible way back to the device location.
   useEffect(() => {
+    if (!SHOW_QIBLA_CITY_PICKER) return;
     let cancelled = false;
     void loadManualCityId().then((id) => {
       if (cancelled || id === null) return;
@@ -102,6 +106,8 @@ export default function QiblaScreen() {
     void saveManualCityId(city.id);
     chooseManualPosition(cityToManualPosition(city, locale));
   };
+
+  const actions = visibleQiblaActions(view.actions);
 
   const dialSize = Math.min(MAX_DIAL_SIZE, width - spacing.lg * 2);
   const toneColor = { ok: colors.accent, info: colors.textSecondary, warning: colors.danger, alert: colors.danger } as const;
@@ -174,7 +180,7 @@ export default function QiblaScreen() {
           </View>
         )}
 
-        {view.bearingText && (
+        {SHOW_QIBLA_BEARING_CARD && view.bearingText && (
           <View testID="qibla-bearing" style={styles.card}>
             <Text style={[styles.muted, direction]}>{m.bearingLabel}</Text>
             <Text style={[styles.bearing, direction]}>{view.bearingText}</Text>
@@ -182,11 +188,11 @@ export default function QiblaScreen() {
           </View>
         )}
 
-        {view.positionLine && <Text style={[styles.muted, direction]}>{view.positionLine}</Text>}
+        {SHOW_QIBLA_CITY_PICKER && view.positionLine && <Text style={[styles.muted, direction]}>{view.positionLine}</Text>}
 
-        {view.actions.length > 0 && (
+        {actions.length > 0 && (
           <View style={[styles.actions, isRtl && styles.rowRtl]}>
-            {view.actions.map((action) => (
+            {actions.map((action) => (
               <Pressable
                 key={action}
                 testID={`qibla-action-${action}`}
@@ -219,10 +225,10 @@ export default function QiblaScreen() {
               </Text>
             ))}
         </View>
-
-        <Text style={[styles.caption, direction]}>{m.caption}</Text>
       </ScrollView>
-      <QiblaCityPicker visible={pickerVisible} locale={locale} messages={m} onSelect={onSelectCity} onClose={() => setPickerVisible(false)} />
+      {SHOW_QIBLA_CITY_PICKER && (
+        <QiblaCityPicker visible={pickerVisible} locale={locale} messages={m} onSelect={onSelectCity} onClose={() => setPickerVisible(false)} />
+      )}
     </SafeAreaView>
   );
 }
@@ -281,6 +287,5 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   secondaryText: { color: colors.textPrimary, fontSize: typography.body, fontWeight: '700' },
   helpHeader: { alignItems: 'center', flexDirection: 'row', gap: spacing.sm, minHeight: 32 },
   flex: { flex: 1 },
-  caption: { color: colors.textMuted, fontSize: typography.small, lineHeight: 17 },
   pressed: { opacity: 0.78 },
 });
