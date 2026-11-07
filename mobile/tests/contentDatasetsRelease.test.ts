@@ -13,7 +13,7 @@ import { describe, expect, it } from 'vitest';
  */
 const repo = (path: string) => fileURLToPath(new URL(`../../${path}`, import.meta.url));
 const read = (path: string) => readFileSync(repo(path), 'utf8');
-const SHIPPED = ['mobile/assets/word-meanings/ghareeb.json', 'mobile/assets/surah-preview/surah-preview.json'];
+const SHIPPED = ['mobile/assets/word-meanings/ghareeb.json', 'mobile/assets/surah-preview/surah-preview.json', 'mobile/assets/tafsir/muyassar.json'];
 const rules = (text: string) => text.split(/\r?\n/).map((line) => line.trim()).filter((line) => line !== '' && !line.startsWith('#'));
 
 describe('Meanings and Surah Preview: bundled in release builds', () => {

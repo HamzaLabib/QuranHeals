@@ -41,13 +41,14 @@ beforeEach(() => {
 });
 
 describe('backup exclusion', () => {
-  it('marks exactly the recitation and offline Mushaf directories, creating them so existing and future downloads are covered', async () => {
+  it('marks exactly the recitation, offline Mushaf and tafsir directories, creating them so existing and future downloads are covered', async () => {
     const { native, marked } = fakeNative();
     expect(await excludeDownloadDirectoriesFromBackup({ native: () => native, ensureDirectory })).toBe('excluded');
-    expect(created).toEqual(['quran-audio', 'mushaf']);
+    expect(created).toEqual(['quran-audio', 'mushaf', 'tafsir']);
     expect(marked).toEqual([
       'file:///var/mobile/Containers/Data/Application/X/Documents/quran-audio/',
       'file:///var/mobile/Containers/Data/Application/X/Documents/mushaf/',
+      'file:///var/mobile/Containers/Data/Application/X/Documents/tafsir/',
     ]);
   });
 
@@ -56,7 +57,7 @@ describe('backup exclusion', () => {
     const deps = { native: () => native, ensureDirectory };
     await excludeDownloadDirectoriesFromBackup(deps);
     await excludeDownloadDirectoriesFromBackup(deps);
-    expect(marked).toHaveLength(2);
+    expect(marked).toHaveLength(3);
   });
 
   it('a failure never throws, and is tried again on the next call', async () => {
@@ -64,7 +65,7 @@ describe('backup exclusion', () => {
     expect(await excludeDownloadDirectoriesFromBackup({ native: () => failing.native, ensureDirectory })).toBe('failed');
     const working = fakeNative();
     expect(await excludeDownloadDirectoriesFromBackup({ native: () => working.native, ensureDirectory })).toBe('excluded');
-    expect(working.marked).toHaveLength(2);
+    expect(working.marked).toHaveLength(3);
   });
 
   it('does nothing without the native module (Android, the web, binaries built before it)', async () => {
@@ -80,7 +81,7 @@ describe('backup exclusion', () => {
   });
 
   it('only download locations are listed (personal data lives in AsyncStorage and SecureStore, never here)', () => {
-    expect([...DOWNLOAD_DIRECTORIES]).toEqual(['quran-audio', 'mushaf']);
+    expect([...DOWNLOAD_DIRECTORIES]).toEqual(['quran-audio', 'mushaf', 'tafsir']);
     const src = (path: string) => readFileSync(resolve(__dirname, '..', 'src', path), 'utf8');
     // The two directories are the ones the download code writes to.
     expect(src('audio/storage.ts')).toContain("new m.Directory(m.Paths.document, 'quran-audio')");

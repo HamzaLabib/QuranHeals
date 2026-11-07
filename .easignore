@@ -235,3 +235,10 @@ unicode-experiments/mobile/src/mushaf/unicode/generated/madina05Layout.ts
 # reverse-engineering the font without written approval and whose Quran Foundation terms allow it only inside the app.
 # Kept on this machine only; regenerate with tools/unicode-mushaf/measure-widths.py (tools/unicode-mushaf/README.md).
 unicode-experiments/mobile/src/mushaf/unicode/generated/hafsWordWidths.ts
+
+# Tafsir reader (التفسير): as .gitignore, except mobile/assets/tafsir/muyassar.json, which the build bundles.
+mobile/assets/tafsir/*.partial
+tools/tafsir/source/
+tools/tafsir/source
+backend/data/tafsir/
+backend/data/tafsir

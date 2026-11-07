@@ -7,6 +7,7 @@ Android and iOS:
 |---|---|---|---|
 | Meanings (المعاني) | `mobile/assets/word-meanings/ghareeb.json` | `tools/word-meanings/import.mjs` | «الميسر في غريب القرآن الكريم», King Fahd Glorious Qur'an Printing Complex |
 | Surah Preview (عن السورة) | `mobile/assets/surah-preview/surah-preview.json` | `tools/surah-preview/import.mjs` | «المختصر في تفسير القرآن الكريم» (Tafsir Center, via QuranEnc) and Quranpedia's `topics` (citing the University of Sharjah's «التفسير الموضوعي لسور القرآن الكريم», and al-Fairuzabadi's «بصائر ذوي التمييز» for Surahs 42 and 44) |
+| Tafsir (التفسير الميسر, since 2026-11-07) | `mobile/assets/tafsir/muyassar.json` | `tools/tafsir/build.mjs` | «التفسير الميسر» (King Fahd Glorious Qur'an Printing Complex), QuranEnc.com's digital edition `arabic_moyassar` v1.0.0, under QuranEnc's published re-publication terms (`tools/tafsir/RIGHTS.md`). Owner's decision 2026-11-07: ship without waiting for QuranEnc's written answer, which is still open |
 
 ## The owner's decision (2026-10-24)
 
@@ -57,6 +58,7 @@ From the repository root, before starting Metro or running `eas build`:
 node tools/word-meanings/import.mjs     # downloads the pinned source (tools/word-meanings/source.lock.json) and builds ghareeb.json
 node tools/surah-preview/import.mjs     # downloads the pinned pages and Quranpedia dump (source.lock.json, quranpedia.lock.json) and builds surah-preview.json
 node tools/surah-preview/validate.mjs   # checks the result, including the owner's approval hashes (owner-approval.json)
+node tools/tafsir/build.mjs             # downloads QuranEnc's pinned arabic_moyassar artifact and builds tafsir/muyassar.json
 ```
 
 Both importers verify the pinned SHA-256 of what they download and fail on any difference. Their READMEs describe

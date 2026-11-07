@@ -22,6 +22,8 @@ const state = vi.hoisted(() => ({
   clipboardFails: false,
   locale: 'en' as 'en' | 'ar' | 'ar-EG',
   storage: new Map<string, string>(),
+  /** Whether this build has a verified tafsir edition (tafsir/editions.ts isTafsirReaderAvailable): the Tafsir action. */
+  tafsirAvailable: true,
   /** The Favorite Reciter the screen sees (useFavoriteReciter mock): the default unless a test chooses one. */
   favoriteReciterId: 'maher',
   fontsLoaded: true,
@@ -97,7 +99,7 @@ vi.mock('react-native-safe-area-context', () => ({ SafeAreaView: 'SafeAreaView',
 vi.mock('lucide-react-native', () => ({
   ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', BookMarked: 'BookMarked', Bookmark: 'Bookmark', Check: 'Check', ChevronDown: 'ChevronDown', ChevronLeft: 'ChevronLeft', ChevronRight: 'ChevronRight', ChevronsLeft: 'ChevronsLeft', ChevronsRight: 'ChevronsRight', CircleHelp: 'CircleHelp', Copy: 'Copy', Heart: 'Heart', Maximize2: 'Maximize2', Minimize2: 'Minimize2', Plus: 'Plus', Search: 'Search', Share2: 'Share2', X: 'X',
   // Quran audio (the top bar's headphones, the player chip and panel, the popup's Listen).
-  AudioLines: 'AudioLines', ChevronUp: 'ChevronUp', CircleAlert: 'CircleAlert', Headphones: 'Headphones', LocateFixed: 'LocateFixed', Pause: 'Pause', Play: 'Play', SkipBack: 'SkipBack', SkipForward: 'SkipForward',
+  AudioLines: 'AudioLines', BookOpenText: 'BookOpenText', ChevronUp: 'ChevronUp', CircleAlert: 'CircleAlert', Headphones: 'Headphones', LocateFixed: 'LocateFixed', Pause: 'Pause', Play: 'Play', SkipBack: 'SkipBack', SkipForward: 'SkipForward',
 }));
 vi.mock('expo-router', () => ({ router: { back: vi.fn(), replace: vi.fn(), push: vi.fn(), navigate: vi.fn(), canGoBack: () => state.canGoBack }, useLocalSearchParams: () => state.params, useIsFocused: () => state.focused }));
 // Keep Screen Awake: the reader holds its own tag while focused (lifecycle cases: mushafKeepAwake.test.ts).
@@ -113,6 +115,8 @@ vi.mock('@/mushaf/khatmDua', async (original) => ({ ...(await original<object>()
 // buttons narrow the pill; that layout is tested in wordMeaningsReader.test.ts.
 vi.mock('@/wordMeanings/bundledDataset', () => ({ isWordMeaningsBundled: () => false, bundledWordMeanings: () => null }));
 vi.mock('@/surahPreview/bundledDataset', () => ({ isSurahPreviewBundled: () => false, bundledSurahPreview: () => null }));
+// The Tafsir action, as in a build with a verified edition (this repository has none yet: tools/tafsir/RIGHTS.md).
+vi.mock('@/tafsir/editions', async (original) => ({ ...(await original<object>()), isTafsirReaderAvailable: () => state.tafsirAvailable }));
 vi.mock('react-native-gesture-handler', () => {
   // Each Gesture.X() records its handlers (onStart…) and settings (enabled, maxPointers…), chainable like the real builder.
   const builder = (kind: MockGesture['kind']) => {
@@ -413,6 +417,7 @@ beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   state.clipboard = null;
   state.clipboardFails = false;
+  state.tafsirAvailable = true;
   state.locale = 'en';
   state.storage.clear();
   state.favoriteReciterId = 'maher';
@@ -3933,26 +3938,55 @@ describe('the redesigned navigation and ayah actions', () => {
     });
   });
 
-  describe('an ayah`s words: exactly Reflection, Save, Copy, Share and Listen', () => {
+  describe('an ayah`s words: exactly Listen, Tafsir, Reflection, Save, Copy and Share', () => {
     const ayah = (verseKey: string) => ({
       id: verseKey, verseKey, referenceKey: verseKey, surahNumber: 3, surahNameArabic: 'آل عمران', surahNameEnglish: 'Aal-i-Imraan',
       ayahNumber: Number(verseKey.split(':')[1]), arabicText: '', englishTranslation: 'Say…', emotions: [], quranTextSource: 'tanzil', translationSource: 'pickthall',
     });
 
-    it('opens after the double-tap window, near the ayah, with exactly five actions in order: Listen, the lit lamp, the heart, Copy, Share', async () => {
+    it('without a verified tafsir edition in the build, the popup is exactly the five actions it was', async () => {
+      state.tafsirAvailable = false;
+      await render();
+      await tapPage(100, 130);
+      await afterTapWindow();
+      const popup = onlyHost('mushaf-ayah-actions');
+      expect(popup.findAll((n) => typeof n.type === 'string' && n.props.accessibilityRole === 'button').map((n) => n.props.testID)).toEqual(['mushaf-ayah-listen', 'mushaf-ayah-reflection', 'mushaf-ayah-save', 'mushaf-ayah-copy', 'mushaf-ayah-share']);
+      expect(textOf(popup)).not.toMatch(/Tafsir/);
+    });
+
+    it('Tafsir opens the tafsir reader at exactly this ayah, above the reader: the page and the selection stay as they were', async () => {
+      await render();
+      await tapPage(100, 130); // 3:85
+      await afterTapWindow();
+      const before = currentPage();
+      vi.mocked(router.push).mockClear();
+      await press(onlyHost('mushaf-ayah-tafsir'));
+      await flush();
+      expect(router.push).toHaveBeenCalledTimes(1);
+      expect(router.push).toHaveBeenCalledWith({ pathname: '/tafsir', params: { surah: '3', ayah: '85' } });
+      expect(hosts('mushaf-ayah-actions')).toHaveLength(0);
+      // Pushed, never replaced: Back pops to this same reader, on the same page.
+      expect(router.replace).not.toHaveBeenCalledWith(expect.objectContaining({ pathname: '/tafsir' }));
+      expect(currentPage()).toBe(before);
+    });
+
+    it('opens after the double-tap window, near the ayah, with exactly six actions in order: Listen, Tafsir, the lit lamp, the heart, Copy, Share', async () => {
       await render();
       await tapPage(100, 130); // 3:85
       expect(hosts('mushaf-ayah-actions')).toHaveLength(0); // not yet: it may still be a double-tap
       await afterTapWindow();
       const popup = onlyHost('mushaf-ayah-actions');
       const actions = popup.findAll((n) => typeof n.type === 'string' && n.props.accessibilityRole === 'button');
-      expect(actions.map((n) => n.props.testID)).toEqual(['mushaf-ayah-listen', 'mushaf-ayah-reflection', 'mushaf-ayah-save', 'mushaf-ayah-copy', 'mushaf-ayah-share']);
-      expect(textOf(popup)).toBe(`${MESSAGES.en.audio.listen}|${copy().actionReflection}|${copy().actionSave}|${copy().actionCopy}|${MESSAGES.en.ayah.share}`);
+      expect(actions.map((n) => n.props.testID)).toEqual(['mushaf-ayah-listen', 'mushaf-ayah-tafsir', 'mushaf-ayah-reflection', 'mushaf-ayah-save', 'mushaf-ayah-copy', 'mushaf-ayah-share']);
+      expect(textOf(popup)).toBe(`${MESSAGES.en.audio.listen}|${copy().actionTafsir}|${copy().actionReflection}|${copy().actionSave}|${copy().actionCopy}|${MESSAGES.en.ayah.share}`);
       // Share: the ayah screen's own icon (lucide share-2) and spoken label.
       expect(onlyHost('mushaf-ayah-share').findAllByType('Share2' as never)).toHaveLength(1);
       expect(onlyHost('mushaf-ayah-share').props.accessibilityLabel).toBe(MESSAGES.en.ayah.shareAyah);
       // No placeholder actions; Listen (2026-10-17) is a working action: recitation from this ayah (audio/engine.ts).
-      expect(textOf(popup)).not.toMatch(/Audio|Tafs|Soon/i);
+      expect(textOf(popup)).not.toMatch(/Audio|Soon/i);
+      // Tafsir (2026-11-06), right after Listen: the tafsir reader's book icon and spoken hint.
+      expect(onlyHost('mushaf-ayah-tafsir').findAllByType('BookOpenText' as never)).toHaveLength(1);
+      expect(onlyHost('mushaf-ayah-tafsir').props.accessibilityHint).toBe(copy().actionTafsirHint);
       expect(onlyHost('mushaf-ayah-listen').findAllByType('Headphones' as never)).toHaveLength(1);
       expect(onlyHost('mushaf-ayah-listen').props.accessibilityHint).toBe(MESSAGES.en.audio.listenHint);
       // The retired bar's enabled lamp, exactly: lit, its size, the saved green outline, the bright yellow glass.
@@ -4034,7 +4068,7 @@ describe('the redesigned navigation and ayah actions', () => {
       await press(onlyHost('mushaf-ayah-save'));
       await flush();
       const popup = onlyHost('mushaf-ayah-actions');
-      expect(popup.findAll((n) => typeof n.type === 'string' && n.props.accessibilityRole === 'button').map((n) => n.props.testID)).toEqual(['mushaf-ayah-listen', 'mushaf-ayah-reflection', 'mushaf-ayah-save', 'mushaf-ayah-copy', 'mushaf-ayah-share']);
+      expect(popup.findAll((n) => typeof n.type === 'string' && n.props.accessibilityRole === 'button').map((n) => n.props.testID)).toEqual(['mushaf-ayah-listen', 'mushaf-ayah-tafsir', 'mushaf-ayah-reflection', 'mushaf-ayah-save', 'mushaf-ayah-copy', 'mushaf-ayah-share']);
       expect(onlyHost('mushaf-ayah-save').findByType('Heart' as never).props).toMatchObject({ color: '#E44855', fill: '#E44855' });
       expect(textOf(onlyHost('mushaf-ayah-save'))).toBe(MESSAGES[locale].mushaf.actionSaved);
       expect(onlyHost('mushaf-ayah-save').props.accessibilityLabel).toBe(MESSAGES[locale].favoriteButton.removeLabel);
@@ -4076,7 +4110,7 @@ describe('the redesigned navigation and ayah actions', () => {
       // Saved: the heart fills at once, no error.
       expect(hosts('mushaf-ayah-actions')).toHaveLength(1);
       expect(onlyHost('mushaf-ayah-save').findByType('Heart' as never).props).toMatchObject({ color: '#E44855', fill: '#E44855' });
-      expect(textOf(onlyHost('mushaf-ayah-actions'))).toBe(`${MESSAGES.en.audio.listen}|${copy().actionReflection}|${copy().actionSaved}|${copy().actionCopy}|${MESSAGES.en.ayah.share}`);
+      expect(textOf(onlyHost('mushaf-ayah-actions'))).toBe(`${MESSAGES.en.audio.listen}|${copy().actionTafsir}|${copy().actionReflection}|${copy().actionSaved}|${copy().actionCopy}|${MESSAGES.en.ayah.share}`);
       const [saved] = storedFavorites();
       expect(saved).toMatchObject({ verseKey: '3:85', surahNumber: 3, ayahNumber: 85, surahNameEnglish: 'Aal-i-Imraan', surahNameArabic: 'آل عمران', englishTranslation: '', translationSource: '', emotions: [] });
       expect(saved.arabicText).toBe((await getVerseByKey('3:85')).arabicText);
@@ -4126,7 +4160,7 @@ describe('the redesigned navigation and ayah actions', () => {
       await render();
       await tapPage(100, 130);
       await afterTapWindow();
-      expect(textOf(onlyHost('mushaf-ayah-actions'))).toBe('استمع|خاطرة|حفظ|نسخ|مشاركة');
+      expect(textOf(onlyHost('mushaf-ayah-actions'))).toBe('استمع|تفسير الآية|خاطرة|حفظ|نسخ|مشاركة');
       expect(flat(onlyHost('mushaf-ayah-reflection').props.style({ pressed: false })).flexDirection).toBe('row-reverse');
     });
 
@@ -4295,7 +4329,7 @@ describe('the redesigned navigation and ayah actions', () => {
       await press(onlyHost('mushaf-ayah-share'));
       await flush();
       expect(hosts('mushaf-ayah-actions')).toHaveLength(1);
-      expect(textOf(onlyHost('mushaf-ayah-actions')).split('|').length).toBe(6); // the five actions and the reason
+      expect(textOf(onlyHost('mushaf-ayah-actions')).split('|').length).toBe(7); // the six actions and the reason
       expect(shareSheet().props.visible).toBe(false);
     });
   });

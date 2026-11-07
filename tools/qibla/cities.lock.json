@@ -1,0 +1,19 @@
+{
+  "description": "Natural Earth 1:10m populated places and countries (public domain, https://www.naturalearthdata.com/about/terms-of-use/), pinned for mobile/assets/qibla/cities.json. Rebuild: node tools/qibla/build-cities.mjs",
+  "repository": "https://github.com/nvkelso/natural-earth-vector",
+  "commit": "ca96624a56bd078437bca8184e78163e5039ad19",
+  "files": {
+    "places": {
+      "path": "geojson/ne_10m_populated_places.geojson",
+      "sha256": "9b8e3de09048ef00dfc70357dbb9fa324493f214b5e0ae4daf1aa79a8d10116b"
+    },
+    "countries": {
+      "path": "geojson/ne_10m_admin_0_countries.geojson",
+      "sha256": "239eec57ac17f100a11e2536cffc56752c318b50ae765b0918ff7aab4ce8f255"
+    }
+  },
+  "selection": {
+    "minPopulation": 100000,
+    "alwaysIncludeCapitals": true
+  }
+}

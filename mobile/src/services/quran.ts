@@ -7,4 +7,5 @@ export const getVerseByKey = quranRepository.getVerseByKey;
 export const getVerse = quranRepository.getVerse;
 export const getRandomVerseKey = quranRepository.getRandomVerseKey;
 export const getAllVerses = quranRepository.getAllVerses;
+export const getSurahVerses = quranRepository.getSurahVerses;
 export const resolveAyahArabic = <T extends Ayah>(ayah: T) => composeLocalAyah(ayah, quranRepository);

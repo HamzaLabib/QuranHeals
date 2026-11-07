@@ -74,6 +74,7 @@ describe('where the shortcut appears', () => {
     'src/app/(tabs)/my-reading.tsx', // أورادي وختماتي: Wirds and Khatma history
     'src/app/credits.tsx',
     'src/app/khatma-complete.tsx', // تقبل الله ختمتك: the gear alone (the screen has no Back button)
+    'src/app/qibla.tsx', // اتجاه القبلة: Back, title, Settings (owner decision N5, 2026-11-06)
   ];
 
   it('exactly the screens with a standard header: once each, as the header row`s last item (after Back or the actions)', () => {

@@ -129,3 +129,11 @@ tools/surah-preview/source/
 tools/surah-preview/review/data/
 tools/surah-preview/reviewed-content.json
 tools/surah-preview/reviewed-content.json.partial
+
+# Tafsir reader (التفسير): built by tools/tafsir/build.mjs from pinned sources (tools/tafsir/editions.json, tracked).
+# Third-party texts are never committed: the bundled التفسير الميسر file, the downloadable editions the backend serves,
+# and the cached originals.
+mobile/assets/tafsir/muyassar.json
+mobile/assets/tafsir/*.partial
+tools/tafsir/source/
+backend/data/tafsir/

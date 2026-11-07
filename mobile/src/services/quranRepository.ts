@@ -1,4 +1,5 @@
 import type { Ayah } from '@/types/domain';
+import { SURAH_AYAH_COUNTS } from '@/utils/ayahLink';
 import { devLog } from '@/utils/devLog';
 import { parseVerseKey, QuranDataError, resolveVerseKey, verseKeyFromNumbers } from './quranReference';
 
@@ -25,6 +26,8 @@ export interface QuranRepository {
   getRandomVerseKey(excludedVerseKeys?: string[]): Promise<string>;
   /** All 6,236 verses in canonical order (surah, ayah), exact and unmodified — e.g. to validate a Mushaf layout. */
   getAllVerses(): Promise<QuranVerse[]>;
+  /** One Surah's verses (1–114) in order, exact and unmodified, checked against its ayah count (the tafsir reader). */
+  getSurahVerses(surah: number): Promise<QuranVerse[]>;
 }
 
 // The raw connection stays private. No mutation methods are exposed to callers.
@@ -117,7 +120,25 @@ export function createQuranRepository(open: () => Promise<QuranConnection>): Qur
     return rows.map((row) => ({ surah: row.surah, ayah: row.ayah, verseKey: row.verse_key, arabicText: row.arabic_text }));
   }
 
-  return { getVerseByKey, getVerse: (surah, ayah) => getVerseByKey(verseKeyFromNumbers(surah, ayah)), getRandomVerseKey, getAllVerses };
+  async function getSurahVerses(surah: number): Promise<QuranVerse[]> {
+    const count = Number.isInteger(surah) && surah >= 1 && surah <= 114 ? SURAH_AYAH_COUNTS[surah - 1] : 0;
+    if (!count) throw new QuranDataError('This Surah is not present in the local Quran.', 'not_found');
+    const db = await connection();
+    let rows: VerseRow[];
+    try {
+      rows = await db.getAllAsync<VerseRow>('SELECT surah, ayah, verse_key, arabic_text FROM verses WHERE surah = ? ORDER BY ayah', surah);
+    } catch {
+      throw new QuranDataError('The local Quran could not be read. Please try again.');
+    }
+    // Every ayah, in order, each with its own key and text: anything else is not the verified Surah.
+    if (rows.length !== count || rows.some((row, i) => row.surah !== surah || row.ayah !== i + 1 || row.verse_key !== `${surah}:${i + 1}` ||
+        typeof row.arabic_text !== 'string' || row.arabic_text.length === 0)) {
+      throw new QuranDataError('The local Surah could not be verified.', 'integrity');
+    }
+    return rows.map((row) => ({ surah: row.surah, ayah: row.ayah, verseKey: row.verse_key, arabicText: row.arabic_text }));
+  }
+
+  return { getVerseByKey, getVerse: (surah, ayah) => getVerseByKey(verseKeyFromNumbers(surah, ayah)), getRandomVerseKey, getAllVerses, getSurahVerses };
 }
 
 export async function composeLocalAyah<T extends Ayah>(ayah: T, repository: QuranRepository): Promise<T & { verseKey: string }> {

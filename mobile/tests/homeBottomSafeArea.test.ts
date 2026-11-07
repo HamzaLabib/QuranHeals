@@ -41,18 +41,21 @@ describe('Home screen bottom safe area (source-scan)', () => {
     expect(contentStyle).not.toMatch(/paddingBottom/);
   });
 
-  it('"A Message from the Quran" is followed only by the Share Feedback action, then the Quran sources footer, inside the scroll view; the disclaimer is no longer on Home', () => {
+  it('"A Message from the Quran" is followed only by Qibla Direction, then the Share Feedback action, then the Quran sources footer, inside the scroll view; the disclaimer is no longer on Home', () => {
     const actionIndex = indexSource.indexOf("router.push('/ayah/general')");
+    const qiblaIndex = indexSource.indexOf('testID="home-qibla"');
     const feedbackIndex = indexSource.indexOf('testID="home-feedback"');
     const footerIndex = indexSource.indexOf('testID="home-sources"');
     const scrollEnd = indexSource.indexOf('</ScrollView>');
     expect(actionIndex).toBeGreaterThan(-1);
-    expect(feedbackIndex).toBeGreaterThan(actionIndex);
+    expect(qiblaIndex).toBeGreaterThan(actionIndex);
+    expect(feedbackIndex).toBeGreaterThan(qiblaIndex);
     expect(footerIndex).toBeGreaterThan(feedbackIndex);
     expect(scrollEnd).toBeGreaterThan(footerIndex);
-    // Between the action's end and the footer: the Share Feedback action alone (its row, one button, its label), then the footer's own opening tag.
+    // Between the action's end and the footer: Qibla Direction (one button holding the Kaaba and its label), the Share
+    // Feedback action (its row, one button, its label), then the footer's own opening tag.
     const between = indexSource.slice(indexSource.indexOf('</Pressable>', actionIndex), footerIndex);
-    expect(between.match(/<(View|Pressable|Text)\b/g)).toEqual(['<View', '<Pressable', '<Text', '<View']);
+    expect(between.match(/<(View|Pressable|Text|KaabaIcon)\b/g)).toEqual(['<Pressable', '<View', '<KaabaIcon', '<Text', '<View', '<Pressable', '<Text', '<View']);
     expect(indexSource).not.toMatch(/messages\.home\.disclaimer|disclaimer: \{/);
   });
 

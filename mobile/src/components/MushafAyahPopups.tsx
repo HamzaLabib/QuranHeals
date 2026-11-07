@@ -1,4 +1,4 @@
-import { Check, Copy, Headphones, Heart, Share2, X } from 'lucide-react-native';
+import { BookOpenText, Check, Copy, Headphones, Heart, Share2, X } from 'lucide-react-native';
 import { useState, type ReactNode } from 'react';
 import { Modal, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -57,9 +57,12 @@ type Theme = (typeof MUSHAF_PANEL_COLORS)['light'] | (typeof MUSHAF_PANEL_COLORS
 const themeOf = (dark: boolean): Theme => (dark ? MUSHAF_PANEL_COLORS.dark : MUSHAF_PANEL_COLORS.light);
 
 /**
- * Tapping an ayah's words: exactly five actions, in this order (the same in every app language), nothing else.
+ * Tapping an ayah's words: exactly six actions, in this order (the same in every app language), nothing else.
  *  - Listen (استمع): recitation from this ayah onward, ayah after ayah, turning pages (audio/engine.ts), in the
  *    player's current reciter or else the Favorite Reciter.
+ *  - Tafsir (التفسير): the tafsir reader (app/tafsir.tsx) opened at this ayah of its Surah; Back returns here. Shown
+ *    only in builds with a verified tafsir edition (onTafsir given; tafsir/editions.ts isTafsirReaderAvailable): until
+ *    then the popup has the other five, exactly as before.
  *  - Reflection, with the retired bar's enabled, lit lamp exactly (ReflectionBulbIcon lit, its size, the `saved` green
  *    outline and the `activeFill` yellow glass): opens the existing Reflection editor for this ayah.
  *  - Save, with the Favorites heart (filled when this ayah is already a favourite): the existing Favorites toggle.
@@ -68,7 +71,7 @@ const themeOf = (dark: boolean): Theme => (dark ? MUSHAF_PANEL_COLORS.dark : MUS
  *  - Share, with the ayah screen's Share icon: the existing Share Ayah sheet for this ayah (no emotion on the card).
  * None touches a ورد, reading progress or a Khatma.
  */
-export function MushafAyahActions({ anchor, dark, rtl, saved, copied, busy, error, labels, onReflect, onToggleSave, onCopy, onShare, onListen, onClose }: {
+export function MushafAyahActions({ anchor, dark, rtl, saved, copied, busy, error, labels, onReflect, onToggleSave, onCopy, onShare, onListen, onTafsir, onClose }: {
   anchor: PopupAnchor | null;
   dark: boolean;
   rtl: boolean;
@@ -77,12 +80,14 @@ export function MushafAyahActions({ anchor, dark, rtl, saved, copied, busy, erro
   copied: boolean;
   busy: boolean;
   error: string | null;
-  labels: { reflection: string; save: string; saved: string; saveHint: string; removeHint: string; copy: string; copied: string; share: string; shareHint: string; listen: string; listenHint: string; close: string };
+  labels: { reflection: string; save: string; saved: string; saveHint: string; removeHint: string; copy: string; copied: string; share: string; shareHint: string; listen: string; listenHint: string; tafsir: string; tafsirHint: string; close: string };
   onReflect: () => void;
   onToggleSave: () => void;
   onCopy: () => void;
   onShare: () => void;
   onListen: () => void;
+  /** Omitted: no Tafsir entry (this build has no verified edition). */
+  onTafsir?: () => void;
   onClose: () => void;
 }) {
   const theme = themeOf(dark);
@@ -102,6 +107,19 @@ export function MushafAyahActions({ anchor, dark, rtl, saved, copied, busy, erro
         </View>
         <Text style={text}>{labels.listen}</Text>
       </Pressable>
+      {onTafsir && <View style={[styles.divider, { backgroundColor: theme.divider }]} />}
+      {onTafsir && <Pressable
+        testID="mushaf-ayah-tafsir"
+        accessibilityRole="button"
+        accessibilityLabel={labels.tafsir}
+        accessibilityHint={labels.tafsirHint}
+        onPress={onTafsir}
+        style={({ pressed }) => [row, pressed && theme.selected]}>
+        <View style={styles.icon}>
+          <BookOpenText size={20} color={theme.icon} />
+        </View>
+        <Text style={text}>{labels.tafsir}</Text>
+      </Pressable>}
       <View style={[styles.divider, { backgroundColor: theme.divider }]} />
       <Pressable testID="mushaf-ayah-reflection" accessibilityRole="button" accessibilityLabel={labels.reflection} onPress={onReflect} style={({ pressed }) => [row, pressed && theme.selected]}>
         <View style={styles.icon}>

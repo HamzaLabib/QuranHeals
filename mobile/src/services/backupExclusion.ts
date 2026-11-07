@@ -7,14 +7,15 @@ import { loadNativeBackupExclusionModule, type NativeBackupExclusionModule } fro
  *
  *   <documents>/quran-audio                       recitations, ayah timing (audio/storage.ts)
  *   <documents>/mushaf                            the 604 page fonts (mushaf/offline/index.ts)
+ *   <documents>/tafsir                            downloaded tafsir editions (tafsir/storage.ts)
  *   <documents>/SQLite/mushaf-qpc-v1.db(-wal/-shm) the offline Mushaf's layout (mushaf/offline/store.ts)
  *
- * The two directories are created if missing and marked once per launch: the flag on a directory covers what is
+ * The directories are created if missing and marked once per launch: the flag on a directory covers what is
  * already inside (downloads made before this existed) and everything added later, and nothing deletes either
  * directory itself. The database files are marked whenever the database is opened, since SQLite may recreate its
  * -wal and -shm files.
  */
-export const DOWNLOAD_DIRECTORIES = ['quran-audio', 'mushaf'] as const;
+export const DOWNLOAD_DIRECTORIES = ['quran-audio', 'mushaf', 'tafsir'] as const;
 export const OFFLINE_MUSHAF_DB_FILES = (name: string) => [name, `${name}-wal`, `${name}-shm`];
 
 export type ExclusionResult = 'excluded' | 'unavailable' | 'failed';

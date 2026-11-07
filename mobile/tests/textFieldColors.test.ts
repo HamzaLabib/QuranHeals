@@ -85,6 +85,7 @@ describe('text field colours', () => {
       'src/components/ReflectionSheet.tsx': 'input',
       'src/components/ReportIssueSheet.tsx': 'input',
       'src/components/SyncPasswordField.tsx': 'row',
+      'src/qibla/QiblaCityPicker.tsx': 'search', // the Qibla screen's "Choose a city" search
     };
     // The reader's fields (2026-10-14: the Surah / juz' / Hizb lists, the page selector, the ورد name field).
     const mushafFields = ['src/components/MushafIndexSheet.tsx', 'src/components/MushafPageSelector.tsx', 'src/components/MushafStopNameField.tsx'];

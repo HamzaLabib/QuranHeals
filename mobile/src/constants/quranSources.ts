@@ -2,6 +2,7 @@ import { RECITERS } from '@/audio/reciters';
 import type { Messages } from '@/localization/messages';
 import { isSurahPreviewBundled } from '@/surahPreview/bundledDataset';
 import { SURAH_PREVIEW_ENABLED } from '@/surahPreview/config';
+import { TAFSIR_RELEASE } from '@/tafsir/generated/tafsirRelease';
 
 /**
  * The core Quran/Mushaf sources are credited on Home; the full source list,
@@ -24,6 +25,9 @@ import { SURAH_PREVIEW_ENABLED } from '@/surahPreview/config';
  *   `tafsir-mawdui` and `basair-firuzabadi` sources, credited together, naming each original work and its publisher,
  *   without implying their endorsement. Its licence asks no in-app attribution; the cited books have their own
  *   rights. Same builds as above.
+ * - «التفسير الميسر» (published by the King Fahd Complex): the tafsir reader's bundled edition (app/tafsir.tsx), QuranEnc.com's
+ *   digital edition `arabic_moyassar` v1.0.0, whose terms ask to name the publisher, the source and the version
+ *   (tools/tafsir/RIGHTS.md). Listed only in builds that carry it (its release pin is 'ready').
  * See docs/mushaf.md, "Authorization and terms", and docs/audio/source-audit.md.
  *
  * Checked on 2026-10-11: the Tanzil and Quran Foundation URLs answer 200.
@@ -31,7 +35,7 @@ import { SURAH_PREVIEW_ENABLED } from '@/surahPreview/config';
  * unreachable outside Saudi Arabia); it is the Complex's official domain.
  */
 export type QuranSource = {
-  key: 'tanzil' | 'quranFoundation' | 'kingFahd' | 'amiri' | 'mp3quran' | 'tafsirCenter' | 'quranpedia' | 'way2quran' | 'assabile' | 'archive' | 'quranicaudio' | 'everyayah';
+  key: 'tanzil' | 'quranFoundation' | 'kingFahd' | 'amiri' | 'mp3quran' | 'tafsirCenter' | 'quranpedia' | 'way2quran' | 'assabile' | 'archive' | 'quranicaudio' | 'everyayah' | 'tafsirMuyassar';
   name: (copy: Messages['credits']) => string;
   work: (copy: Messages['credits']) => string;
   links: { label: 'website' | 'license' | 'terms'; url: string }[];
@@ -141,5 +145,14 @@ export const QURAN_SOURCES: readonly QuranSource[] = [
     work: (copy) => copy.everyayahWork,
     links: [{ label: 'website', url: 'https://everyayah.com/' }],
     inThisBuild: () => RECITERS.some((reciter) => reciter.perAyah?.provider === 'everyayah'),
+  },
+  {
+    // The tafsir reader's bundled edition (tafsir/generated/tafsirRelease.ts): credited exactly when this build carries it.
+    // The optional editions get their own entries once a verified source and its rights are recorded (tools/tafsir/RIGHTS.md).
+    key: 'tafsirMuyassar',
+    name: (copy) => copy.tafsirMuyassarName,
+    work: (copy) => copy.tafsirMuyassarWork,
+    links: [{ label: 'website', url: 'https://quranenc.com/ar/browse/arabic_moyassar' }],
+    inThisBuild: () => TAFSIR_RELEASE.muyassar.status === 'ready',
   },
 ];

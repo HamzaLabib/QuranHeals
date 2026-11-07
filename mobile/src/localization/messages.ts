@@ -284,6 +284,9 @@ export type Messages = {
     actionCopy: string;
     actionCopied: string;
     actionCopyFailed: string;
+    /** The ayah popup's Tafsir (right after Listen): opens the tafsir reader at this ayah (app/tafsir.tsx). */
+    actionTafsir: string;
+    actionTafsirHint: string;
     applyToWird: string;
     searchTitle: string;
     searchByPage: string;
@@ -472,6 +475,9 @@ export type Messages = {
     quranicaudioWork: string;
     everyayahName: string;
     everyayahWork: string;
+    /** The tafsir reader's التفسير الميسر (constants/quranSources.ts); shown only in builds that carry it. */
+    tafsirMuyassarName: string;
+    tafsirMuyassarWork: string;
     website: string;
     license: string;
     terms: string;
@@ -910,6 +916,86 @@ export type Messages = {
     repeatThrice: string;
     repeatInfinite: string;
   };
+  /**
+   * Qibla Direction (اتجاه القبلة): Home's button and the /qibla screen (app/qibla.tsx, qibla/qiblaPresentation.ts). One
+   * Standard Arabic wording for ar and ar-EG alike; numbers in Western digits (owner decision, 2026-11-06).
+   */
+  qibla: {
+    homeAction: string;
+    homeActionHint: string;
+    title: string;
+    instruction: string;
+    holdFlat: string;
+    /** Compass letters N, E, S, W (Arabic: ش ق ج غ). */
+    cardinalNorth: string;
+    cardinalEast: string;
+    cardinalSouth: string;
+    cardinalWest: string;
+    bearingLabel: string;
+    /** {degrees} */
+    bearingValue: string;
+    bearingExplain: string;
+    approximate: string;
+    aligned: string;
+    /** {degrees} */
+    turnRight: string;
+    turnLeft: string;
+    aboutRight: string;
+    aboutLeft: string;
+    ahead: string;
+    aboutAhead: string;
+    caption: string;
+    statusStarting: string;
+    statusWaitingForMovement: string;
+    statusNoReading: string;
+    statusRefreshNeeded: string;
+    statusCalibrate: string;
+    statusSettling: string;
+    statusUntrusted: string;
+    statusPositionUncertain: string;
+    statusManualPosition: string;
+    statusOrientation: string;
+    statusSensorRetrying: string;
+    statusRecentError: string;
+    statusStreamFailed: string;
+    statusNoHeadingSupport: string;
+    permissionTitle: string;
+    permissionBody: string;
+    allowLocation: string;
+    requesting: string;
+    deniedTitle: string;
+    deniedBody: string;
+    blockedBody: string;
+    openSettings: string;
+    locating: string;
+    servicesOff: string;
+    locationUnavailable: string;
+    tryAgain: string;
+    chooseCity: string;
+    useMyLocation: string;
+    usingMyLocation: string;
+    /** {city} */
+    usingCity: string;
+    bearingOnlyNote: string;
+    webNote: string;
+    atKaaba: string;
+    antipode: string;
+    pole: string;
+    helpTitle: string;
+    /** The calibration help, in order. */
+    helpFigureEight: string;
+    helpHoldFlat: string;
+    helpAwayFromMagnets: string;
+    helpIndoors: string;
+    pickerTitle: string;
+    searchPlaceholder: string;
+    noResults: string;
+    close: string;
+    pickerNote: string;
+    dialLabel: string;
+    /** {bearing} */
+    dialNoNeedle: string;
+  };
 };
 
 /**
@@ -1143,6 +1229,150 @@ const AR_AUDIO: Messages['audio'] = {
   repeatTwice: 'مرتين',
   repeatThrice: '٣ مرات',
   repeatInfinite: 'باستمرار',
+};
+
+/** Qibla Direction in English. */
+const EN_QIBLA: Messages['qibla'] = {
+  homeAction: 'Qibla Direction',
+  homeActionHint: 'Opens the Qibla compass',
+  title: 'Qibla Direction',
+  instruction: 'Point your phone toward the Qibla',
+  holdFlat: 'Hold your phone flat, screen up.',
+  cardinalNorth: 'N',
+  cardinalEast: 'E',
+  cardinalSouth: 'S',
+  cardinalWest: 'W',
+  bearingLabel: 'Qibla bearing',
+  bearingValue: '{degrees}° from true north',
+  bearingExplain: 'Measured clockwise from true north.',
+  approximate: 'Approximate',
+  aligned: 'Lined up with the Qibla bearing',
+  turnRight: 'Turn {degrees}° right',
+  turnLeft: 'Turn {degrees}° left',
+  aboutRight: 'About {degrees}° to the right',
+  aboutLeft: 'About {degrees}° to the left',
+  ahead: 'Straight ahead',
+  aboutAhead: 'About straight ahead',
+  caption: 'Compass accuracy depends on your phone and its surroundings. Confirm with a reliable reference when you can.',
+  statusStarting: 'Starting the compass…',
+  statusWaitingForMovement: 'Move your phone slightly to start the compass.',
+  statusNoReading: 'No compass reading on this device. Use the bearing with a separate compass.',
+  statusRefreshNeeded: 'Move your phone slightly to refresh the compass.',
+  statusCalibrate: 'Compass accuracy is low. Move your phone in a figure-8 to calibrate it.',
+  statusSettling: 'Checking the compass…',
+  statusUntrusted: "This phone can't confirm its compass accuracy, so the direction is approximate.",
+  statusPositionUncertain: 'Your location is approximate, so the direction is too. Turn on precise location for a better result.',
+  statusManualPosition: 'Using a chosen city: the direction is approximate.',
+  statusOrientation: 'On tablets the direction is approximate.',
+  statusSensorRetrying: 'The compass was interrupted. Trying again…',
+  statusRecentError: 'The compass has just recovered; the direction is approximate for a moment.',
+  statusStreamFailed: 'The compass is not responding. Try again, away from metal and magnets.',
+  statusNoHeadingSupport: "This device can't show a live compass here. Use the bearing with a separate compass.",
+  permissionTitle: 'Allow location to find the Qibla',
+  permissionBody: 'Your location is used on this device only, to calculate the Qibla. It is never sent or stored.',
+  allowLocation: 'Allow location',
+  requesting: 'Waiting for your answer…',
+  deniedTitle: 'Location access is off',
+  deniedBody: 'Allow location for the live compass, or choose a city to see the Qibla bearing.',
+  blockedBody: 'Location access is turned off for Quran Heals. You can turn it on in Settings, or choose a city.',
+  openSettings: 'Open Settings',
+  locating: 'Finding your location…',
+  servicesOff: 'Location Services are off. Turn them on in Settings, or choose a city.',
+  locationUnavailable: "Couldn't find your location. Try again outdoors, or choose a city.",
+  tryAgain: 'Try again',
+  chooseCity: 'Choose a city',
+  useMyLocation: 'Use my location',
+  usingMyLocation: 'Using your current location',
+  usingCity: 'Using {city}',
+  bearingOnlyNote: 'Without location access there is no live compass. Use this bearing with a separate compass.',
+  webNote: 'There is no compass here. Choose a city to see the Qibla bearing.',
+  atKaaba: 'You are at Al-Masjid al-Haram. Face the Kaaba.',
+  antipode: 'From here every direction leads to the Kaaba almost equally, so a single bearing cannot be given.',
+  pole: 'A bearing cannot be given this close to a pole.',
+  helpTitle: 'Improve compass accuracy',
+  helpFigureEight: 'Move your phone in a figure-8 a few times.',
+  helpHoldFlat: 'Hold it flat, screen up, a little away from your body.',
+  helpAwayFromMagnets: 'Keep away from magnets, magnetic cases and clasps, metal tables, cars and electronics.',
+  helpIndoors: 'Indoors, steel in walls and floors can turn the compass. Compare in another spot or outdoors.',
+  pickerTitle: 'Choose a city',
+  searchPlaceholder: 'Search for a city or country',
+  noResults: 'No city found',
+  close: 'Close',
+  pickerNote: 'Your choice is saved on this device only.',
+  dialLabel: 'Qibla compass',
+  dialNoNeedle: 'Qibla compass. The Qibla bearing is {bearing} degrees from true north.',
+};
+
+/** Qibla Direction in Arabic: one Standard Arabic wording for ar and ar-EG alike. */
+const AR_QIBLA: Messages['qibla'] = {
+  homeAction: 'اتجاه القبلة',
+  homeActionHint: 'يفتح بوصلة القبلة',
+  title: 'اتجاه القبلة',
+  instruction: 'وجّه هاتفك نحو القبلة',
+  holdFlat: 'أمسك هاتفك بشكل مستوٍ والشاشة إلى الأعلى.',
+  cardinalNorth: 'ش',
+  cardinalEast: 'ق',
+  cardinalSouth: 'ج',
+  cardinalWest: 'غ',
+  bearingLabel: 'زاوية القبلة',
+  bearingValue: '{degrees}° من الشمال الجغرافي',
+  bearingExplain: 'تُقاس باتجاه عقارب الساعة من الشمال الجغرافي.',
+  approximate: 'تقريبي',
+  aligned: 'متّجه نحو القبلة',
+  turnRight: 'استدر {degrees}° إلى اليمين',
+  turnLeft: 'استدر {degrees}° إلى اليسار',
+  aboutRight: 'نحو {degrees}° إلى اليمين تقريبًا',
+  aboutLeft: 'نحو {degrees}° إلى اليسار تقريبًا',
+  ahead: 'أمامك مباشرة',
+  aboutAhead: 'أمامك تقريبًا',
+  caption: 'تعتمد دقة البوصلة على هاتفك وما حوله. تحقّق من الاتجاه بمرجع موثوق متى أمكن.',
+  statusStarting: 'جارٍ تشغيل البوصلة…',
+  statusWaitingForMovement: 'حرّك هاتفك قليلًا لتبدأ البوصلة.',
+  statusNoReading: 'لا توجد قراءة للبوصلة على هذا الجهاز. استخدم الزاوية مع بوصلة أخرى.',
+  statusRefreshNeeded: 'حرّك هاتفك قليلًا لتحديث البوصلة.',
+  statusCalibrate: 'دقة البوصلة منخفضة. حرّك هاتفك على شكل الرقم 8 لمعايرتها.',
+  statusSettling: 'جارٍ التحقق من البوصلة…',
+  statusUntrusted: 'لا يستطيع هذا الهاتف تأكيد دقة بوصلته، لذلك الاتجاه تقريبي.',
+  statusPositionUncertain: 'موقعك تقريبي، لذلك الاتجاه تقريبي أيضًا. فعّل الموقع الدقيق لنتيجة أفضل.',
+  statusManualPosition: 'باستخدام مدينة مختارة: الاتجاه تقريبي.',
+  statusOrientation: 'الاتجاه تقريبي على الأجهزة اللوحية.',
+  statusSensorRetrying: 'توقفت البوصلة. جارٍ إعادة المحاولة…',
+  statusRecentError: 'عادت البوصلة للعمل للتو، والاتجاه تقريبي للحظات.',
+  statusStreamFailed: 'البوصلة لا تستجيب. أعد المحاولة بعيدًا عن المعادن والمغناطيس.',
+  statusNoHeadingSupport: 'لا يمكن عرض بوصلة مباشرة على هذا الجهاز. استخدم الزاوية مع بوصلة أخرى.',
+  permissionTitle: 'اسمح بالوصول إلى الموقع لتحديد القبلة',
+  permissionBody: 'يُستخدم موقعك على هذا الجهاز فقط لحساب اتجاه القبلة، ولا يُرسَل ولا يُحفَظ.',
+  allowLocation: 'السماح بالوصول إلى الموقع',
+  requesting: 'في انتظار إجابتك…',
+  deniedTitle: 'الوصول إلى الموقع غير مفعّل',
+  deniedBody: 'اسمح بالوصول إلى الموقع لتشغيل البوصلة، أو اختر مدينة لمعرفة زاوية القبلة.',
+  blockedBody: 'الوصول إلى الموقع متوقف لتطبيق Quran Heals. يمكنك تفعيله من الإعدادات، أو اختيار مدينة.',
+  openSettings: 'فتح الإعدادات',
+  locating: 'جارٍ تحديد موقعك…',
+  servicesOff: 'خدمات الموقع متوقفة. فعّلها من الإعدادات، أو اختر مدينة.',
+  locationUnavailable: 'تعذّر تحديد موقعك. حاول مرة أخرى في مكان مفتوح، أو اختر مدينة.',
+  tryAgain: 'إعادة المحاولة',
+  chooseCity: 'اختيار مدينة',
+  useMyLocation: 'استخدام موقعي',
+  usingMyLocation: 'باستخدام موقعك الحالي',
+  usingCity: 'باستخدام {city}',
+  bearingOnlyNote: 'بدون الوصول إلى الموقع لا تعمل البوصلة المباشرة. استخدم هذه الزاوية مع بوصلة أخرى.',
+  webNote: 'لا تتوفر بوصلة هنا. اختر مدينة لمعرفة زاوية القبلة.',
+  atKaaba: 'أنت في المسجد الحرام. توجّه إلى الكعبة.',
+  antipode: 'من هنا تتساوى الاتجاهات تقريبًا نحو الكعبة، فلا يمكن تحديد زاوية واحدة.',
+  pole: 'لا يمكن تحديد الزاوية بالقرب من القطب.',
+  helpTitle: 'تحسين دقة البوصلة',
+  helpFigureEight: 'حرّك هاتفك على شكل الرقم 8 عدة مرات.',
+  helpHoldFlat: 'أمسكه بشكل مستوٍ والشاشة إلى الأعلى، بعيدًا قليلًا عن جسمك.',
+  helpAwayFromMagnets: 'ابتعد عن المغناطيس وأغطية الهاتف المغناطيسية والطاولات المعدنية والسيارات والأجهزة الإلكترونية.',
+  helpIndoors: 'داخل المباني قد يحرف الحديدُ في الجدران والأرضيات البوصلةَ. قارن في مكان آخر أو في الخارج.',
+  pickerTitle: 'اختيار مدينة',
+  searchPlaceholder: 'ابحث عن مدينة أو دولة',
+  noResults: 'لم يُعثر على مدينة',
+  close: 'إغلاق',
+  pickerNote: 'يُحفظ اختيارك على هذا الجهاز فقط.',
+  dialLabel: 'بوصلة القبلة',
+  dialNoNeedle: 'بوصلة القبلة. زاوية القبلة {bearing} درجة من الشمال الجغرافي.',
 };
 
 export const MESSAGES: Record<AppLocale, Messages> = {
@@ -1381,6 +1611,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       actionCopy: "Copy",
       actionCopied: "Copied",
       actionCopyFailed: "Couldn't copy the ayah. Please try again.",
+      actionTafsir: "Tafsir",
+      actionTafsirHint: "Opens the tafsir of this ayah",
       applyToWird: "Apply to {name}",
       searchTitle: 'Go to',
       searchByPage: 'Page Number',
@@ -1535,6 +1767,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       quranicaudioWork: 'Quran audio for some surahs, streamed from quranicaudio.com.',
       everyayahName: 'EveryAyah',
       everyayahWork: 'Ali Abdullah Jaber’s Quran audio, one file per ayah, streamed from everyayah.com.',
+      tafsirMuyassarName: 'QuranEnc.com — At-Tafsir Al-Muyassar',
+      tafsirMuyassarWork: 'At-Tafsir Al-Muyassar (التفسير الميسر) by a group of scholars, published by the King Fahd Glorious Qur’an Printing Complex. Digital edition from QuranEnc.com (Encyclopedia of the Noble Quran), version 1.0.0, shown unchanged in the Tafsir reader.',
       website: 'Website',
       license: 'Licence',
       terms: 'Terms of use',
@@ -1799,6 +2033,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       syncFailed: 'Sync failed',
     },
     audio: EN_AUDIO,
+    qibla: EN_QIBLA,
   },
   ar: {
     appName: 'Quran Heals',
@@ -2035,6 +2270,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       actionCopy: "نسخ",
       actionCopied: "تم النسخ",
       actionCopyFailed: "تعذّر نسخ الآية. يرجى إعادة المحاولة.",
+      actionTafsir: "تفسير الآية",
+      actionTafsirHint: "يفتح تفسير هذه الآية",
       applyToWird: AR_APPLY_TO_WIRD,
       searchTitle: 'انتقل إلى',
       searchByPage: 'رقم الصفحة',
@@ -2189,6 +2426,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       quranicaudioWork: 'تلاوات لبعض السور، تُبثّ من موقع quranicaudio.com.',
       everyayahName: 'EveryAyah',
       everyayahWork: 'تلاوة علي عبد الله جابر، ملف لكل آية، تُبثّ من موقع everyayah.com.',
+      tafsirMuyassarName: 'موسوعة القرآن الكريم (QuranEnc.com) — التفسير الميسر',
+      tafsirMuyassarWork: '«التفسير الميسر»، تأليف نخبة من العلماء، نشر مجمع الملك فهد لطباعة المصحف الشريف. النسخة الرقمية من موسوعة القرآن الكريم QuranEnc.com، الإصدار 1.0.0، وتُعرض في قارئ التفسير دون تعديل.',
       website: 'الموقع',
       license: 'الرخصة',
       terms: 'شروط الاستخدام',
@@ -2457,6 +2696,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       syncFailed: 'تعذّر التحديث',
     },
     audio: AR_AUDIO,
+    qibla: AR_QIBLA,
   },
   'ar-EG': {
     appName: 'Quran Heals',
@@ -2703,6 +2943,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       actionCopy: "نسخ",
       actionCopied: "تم النسخ",
       actionCopyFailed: "تعذّر نسخ الآية. يرجى إعادة المحاولة.",
+      actionTafsir: "تفسير الآية",
+      actionTafsirHint: "بيفتح تفسير الآية دي",
       applyToWird: AR_APPLY_TO_WIRD,
       searchTitle: 'روح لـ',
       searchByPage: 'رقم الصفحة',
@@ -2858,6 +3100,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       quranicaudioWork: 'تلاوات لبعض السور، تُبثّ من موقع quranicaudio.com.',
       everyayahName: 'EveryAyah',
       everyayahWork: 'تلاوة علي عبد الله جابر، ملف لكل آية، تُبثّ من موقع everyayah.com.',
+      tafsirMuyassarName: 'موسوعة القرآن الكريم (QuranEnc.com) — التفسير الميسر',
+      tafsirMuyassarWork: '«التفسير الميسر»، تأليف نخبة من العلماء، نشر مجمع الملك فهد لطباعة المصحف الشريف. النسخة الرقمية من موسوعة القرآن الكريم QuranEnc.com، الإصدار 1.0.0، وتُعرض في قارئ التفسير دون تعديل.',
       website: 'الموقع',
       license: 'الرخصة',
       terms: 'شروط الاستخدام',
@@ -3133,6 +3377,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       syncFailed: 'تعذّر التحديث',
     },
     audio: AR_AUDIO,
+    qibla: AR_QIBLA,
   },
 };
 

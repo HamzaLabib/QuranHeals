@@ -104,10 +104,13 @@ describe('Quran Sources & Credits page', () => {
       'https://archive.org/',
       'https://quranicaudio.com/',
       'https://everyayah.com/',
+      // The tafsir reader's bundled التفسير الميسر (QuranEnc.com's edition): shown in builds that carry it.
+      'https://quranenc.com/ar/browse/arabic_moyassar',
     ]);
     const shownUrls = QURAN_SOURCES.filter((source) => source.inThisBuild?.() ?? true).flatMap((source) => source.links.map((link) => link.url));
     // A release build (vitest __DEV__ false) plays the released previews and Ali Jaber's per-ayah files: every host shown.
     for (const url of ['https://way2quran.com/', 'https://www.assabile.com/', 'https://archive.org/', 'https://quranicaudio.com/', 'https://everyayah.com/']) expect(shownUrls).toContain(url);
+    expect(shownUrls).toContain('https://quranenc.com/ar/browse/arabic_moyassar');
     expect(links()).toHaveLength(shownUrls.length);
     for (const link of links()) {
       expect(link.props.accessibilityLabel).toMatch(/: /); // "Tanzil Project: Licence"
@@ -130,7 +133,7 @@ describe('Quran Sources & Credits page', () => {
     const copy = MESSAGES.en.credits;
     const cards = root.root.findAll((node) => typeof node.type === 'string' && /^credit-/.test(String(node.props.testID))).map((node) => node.props.testID);
     // Surah Preview's two cards follow the Quran text and audio sources; the recording hosts this build plays come last.
-    expect(cards).toEqual(['credit-tanzil', 'credit-quranFoundation', 'credit-kingFahd', 'credit-amiri', 'credit-mp3quran', 'credit-tafsirCenter', 'credit-quranpedia', 'credit-way2quran', 'credit-assabile', 'credit-archive', 'credit-quranicaudio', 'credit-everyayah']);
+    expect(cards).toEqual(['credit-tanzil', 'credit-quranFoundation', 'credit-kingFahd', 'credit-amiri', 'credit-mp3quran', 'credit-tafsirCenter', 'credit-quranpedia', 'credit-way2quran', 'credit-assabile', 'credit-archive', 'credit-quranicaudio', 'credit-everyayah', 'credit-tafsirMuyassar']);
     expect(copy.tafsirCenterName).toBe('Tafsir Center for Quranic Studies');
     expect(copy.tafsirCenterWork).toBe('Surah Preview’s main purpose: Al-Mukhtasar fi Tafsir al-Quran al-Karim (المختصر في تفسير القرآن الكريم), via QuranEnc.com. Makki/Madani and ayah count: Tanzil.');
     expect(texts()).toEqual(expect.arrayContaining([copy.tafsirCenterName, copy.tafsirCenterWork]));
@@ -176,13 +179,23 @@ describe('Quran Sources & Credits page', () => {
     expect(MESSAGES.ar.credits.quranpediaWork).toMatch(/جامعة الشارقة.*للفيروزآبادي.*محمد علي النجار.*لا يعني تأييدها/);
   });
 
+  it('credits the bundled tafsir as QuranEnc\'s terms ask: the publisher, the source and the version', () => {
+    for (const locale of APP_LOCALES) {
+      const copy = MESSAGES[locale].credits;
+      expect(`${copy.tafsirMuyassarName} ${copy.tafsirMuyassarWork}`).toMatch(/QuranEnc\.com/);
+      expect(copy.tafsirMuyassarWork).toMatch(/1\.0\.0/);
+      expect(copy.tafsirMuyassarWork).toMatch(locale === 'en' ? /King Fahd Glorious Qur’an Printing Complex/ : /مجمع الملك فهد لطباعة المصحف الشريف/);
+    }
+    expect(QURAN_SOURCES.find((s) => s.key === 'tafsirMuyassar')!.inThisBuild!()).toBe(true);
+  });
+
   it('a build without Surah Preview\'s dataset does not list its source; the other sources are unchanged', async () => {
     state.surahPreviewBundled = false;
     await act(async () => { root = create(createElement(CreditsScreen)); });
     for (const key of ['tafsirCenter', 'quranpedia']) expect(root.root.findAll((node) => typeof node.type === 'string' && node.props.testID === `credit-${key}`)).toHaveLength(0);
     expect(texts()).not.toContain(MESSAGES.en.credits.tafsirCenterName);
     expect(texts()).not.toContain(MESSAGES.en.credits.quranpediaName);
-    expect(links()).toHaveLength(9 + 5); // the nine Quran text and audio links, and the five recording hosts
+    expect(links()).toHaveLength(9 + 5 + 1); // the nine Quran text and audio links, the five recording hosts, the tafsir
   });
 
   it('Back returns to the previous screen, or Home when opened directly', async () => {

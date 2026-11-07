@@ -9,6 +9,7 @@ import { EmotionCard, EmotionGridFiller } from '@/components/EmotionCard';
 import { ReportIssueSheet } from '@/components/ReportIssueSheet';
 import { SettingsHeaderButton } from '@/components/SettingsHeaderButton';
 import { StateView } from '@/components/StateView';
+import { KaabaIcon } from '@/components/KaabaIcon';
 import { MushafIcon } from '@/components/MushafIcon';
 import { radii, shadows, spacing, typography, type Palette } from '@/constants/theme';
 import { useWindowClass } from '@/layout/useWindowClass';
@@ -39,7 +40,8 @@ const FOREGROUND_REVALIDATE_AFTER_MS = 60_000;
  *     first), filled from the catalog's own order (storage/recentEmotions.ts),
  *     slightly shorter cards; "View All" opens every emotion (/emotions).
  *  3. رسالة من القرآن / A Message from the Quran, unchanged.
- *  4. شاركنا رأيك / Share Feedback: one discreet action (opens the feedback sheet).
+ *  4. اتجاه القبلة / Qibla Direction: a full-width action with the Kaaba icon (opens /qibla).
+ *  5. شاركنا رأيك / Share Feedback: one discreet action (opens the feedback sheet).
  * The spiritual disclaimer is on the emotion list (/emotions), under every emotion.
  */
 export default function HomeScreen() {
@@ -314,6 +316,24 @@ export default function HomeScreen() {
         </Pressable>
 
         {/*
+          Qibla Direction (owner-approved 2026-11-06): directly under A Message from the Quran, the same full-width
+          surface, the black-and-gold Kaaba on the leading side and a chevron on the trailing side. Opens /qibla.
+        */}
+        <Pressable
+          testID="home-qibla"
+          accessibilityRole="button"
+          accessibilityLabel={messages.qibla.homeAction}
+          accessibilityHint={messages.qibla.homeActionHint}
+          onPress={() => router.push('/qibla')}
+          style={({ pressed }) => [styles.qiblaAction, isRtl && styles.qiblaActionRtl, pressed && styles.pressed]}>
+          <View style={[styles.qiblaActionLead, isRtl && styles.qiblaActionRtl]}>
+            <KaabaIcon size={22} />
+            <Text style={[styles.qiblaActionText, { writingDirection: direction.writingDirection }]}>{messages.qibla.homeAction}</Text>
+          </View>
+          {isRtl ? <ChevronLeft size={18} color={colors.textSecondary} /> : <ChevronRight size={18} color={colors.textSecondary} />}
+        </Pressable>
+
+        {/*
           Share Feedback: one discreet action directly after A Message from the
           Quran, styled exactly like the ayah screen's Report an Issue
           (AyahExperience's tertiary action). Opens the reporting sheet as
@@ -480,6 +500,37 @@ const makeStyles = (colors: Palette) => StyleSheet.create({
   },
   generalQuranActionText: {
     color: colors.textPrimary,
+    fontSize: typography.bodyLarge,
+    fontWeight: '700',
+  },
+  // Qibla Direction: generalQuranAction's surface, border, radius, height and shadow; the Kaaba and label lead, the
+  // chevron trails.
+  qiblaAction: {
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    flexDirection: 'row',
+    gap: spacing.sm,
+    justifyContent: 'space-between',
+    minHeight: 56,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    ...shadows.soft,
+  },
+  qiblaActionRtl: {
+    flexDirection: 'row-reverse',
+  },
+  qiblaActionLead: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    flexShrink: 1,
+    gap: spacing.sm,
+  },
+  qiblaActionText: {
+    color: colors.textPrimary,
+    flexShrink: 1,
     fontSize: typography.bodyLarge,
     fontWeight: '700',
   },

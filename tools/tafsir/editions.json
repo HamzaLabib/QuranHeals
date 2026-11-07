@@ -1,0 +1,101 @@
+{
+  "note": "The tafsir editions and the pins their app files are built from (README.md). An edition is built and marked ready only when `source` is pinned AND `rights.status` is \"verified\" with its evidence recorded in RIGHTS.md. Until then build.mjs writes it as blocked with `blockedReason`. Never fill a pin from a file whose checksums were not checked against the publisher's.",
+  "editions": [
+    {
+      "id": "muyassar",
+      "title": "التفسير الميسر",
+      "delivery": "bundled",
+      "source": {
+        "adapter": "quranenc-sqlite",
+        "url": "https://quranenc.com/downloads/sqlite/arabic_moyassar.zip",
+        "pageUrl": "https://quranenc.com/ar/browse/arabic_moyassar",
+        "file": "arabic_moyassar.zip",
+        "bytes": 812274,
+        "sha256": "96182831395a03e7497a8f398a960d45fcf90397dd72760ac35d735752a18046",
+        "entry": "arabic_moyassar.sqlite",
+        "entrySha256": "eb384e586487b089b826375d3f705d07e775e0019325da405e0337a9f6b3da04",
+        "upstream": {
+          "distributor": "QuranEnc.com",
+          "key": "arabic_moyassar",
+          "version": "1.0.0",
+          "lastUpdate": 1487106000,
+          "lastUpdateIso": "2017-02-14T21:00:00Z",
+          "updatesApi": "https://quranenc.com/api/v1/translations/updates?key=arabic_moyassar"
+        },
+        "http": {
+          "lastModified": "Thu, 26 Mar 2000 17:35:45 GMT (zip, as served)",
+          "etag": "\"67e2bd39-c64f2\"",
+          "sqliteLastModified": "Tue, 25 Mar 2025 14:27:05 GMT"
+        },
+        "retrieved": "2026-11-07T02:25:17Z",
+        "title": "التفسير الميسر",
+        "author": "نخبة من العلماء",
+        "publisher": "مجمع الملك فهد لطباعة المصحف الشريف",
+        "distributor": "QuranEnc.com",
+        "version": "1.0.0"
+      },
+      "rights": {
+        "status": "verified",
+        "record": "RIGHTS.md#muyassar",
+        "basis": "QuranEnc.com Terms and Policies, shown on this edition page (read 2026-11-07); one point awaits written confirmation (RIGHTS.md).",
+        "ownerDecision": {
+          "by": "Hamza (owner)",
+          "date": "2026-11-07",
+          "decision": "Ship QuranEnc arabic_moyassar v1.0.0 as the bundled offline default without waiting for written confirmation from QuranEnc; keep attribution, version and checksum validation.",
+          "note": "Not a publisher confirmation; the written question in RIGHTS.md remains open."
+        }
+      },
+      "kfgqpcV3": {
+        "note": "A DIFFERENT digital edition (King Fahd Complex developer package v3.0), not used by the app. Pinned from the platform listing; could not be downloaded on 2026-11-06 (site under maintenance). Kept for reference only (RIGHTS.md).",
+        "url": "https://download.qurancomplex.gov.sa/resources_dev/hafs_tafseerMouaser_v3.zip",
+        "pageUrl": "https://qurancomplex.gov.sa/quran-dev/",
+        "file": "hafs_tafseerMouaser_v3.zip",
+        "md5": "5601682965e32f4dd6992c7600fdccc3",
+        "sha1": "5f533113c2f54f32eded734bb49e6a5837965722",
+        "listing": {
+          "size": "7.51MB",
+          "created": "15-12-2020",
+          "lastModified": "01-08-2023",
+          "version": "3.0"
+        },
+        "adapter": "kfgqpc-mouaser",
+        "title": "التفسير الميسر",
+        "author": "نخبة من العلماء",
+        "publisher": "مجمع الملك فهد لطباعة المصحف الشريف"
+      }
+    },
+    {
+      "id": "saadi",
+      "title": "تفسير السعدي",
+      "delivery": "download",
+      "source": null,
+      "rights": {
+        "status": "unverified",
+        "record": "RIGHTS.md#saadi"
+      },
+      "blockedReason": "rights-unverified"
+    },
+    {
+      "id": "jalalayn",
+      "title": "تفسير الجلالين",
+      "delivery": "download",
+      "source": null,
+      "rights": {
+        "status": "unverified",
+        "record": "RIGHTS.md#jalalayn"
+      },
+      "blockedReason": "rights-unverified"
+    },
+    {
+      "id": "zilal",
+      "title": "في ظلال القرآن",
+      "delivery": "download",
+      "source": null,
+      "rights": {
+        "status": "unverified",
+        "record": "RIGHTS.md#zilal"
+      },
+      "blockedReason": "rights-unverified"
+    }
+  ]
+}

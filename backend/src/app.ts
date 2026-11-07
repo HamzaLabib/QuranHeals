@@ -7,6 +7,7 @@ import { createMushafOfflineRoutes } from './mushaf/offline/routes';
 import { resolveMushafSyncDir } from './mushaf/offline/setup';
 import { createMushafSyncStore, type MushafSyncStore } from './mushaf/offline/store';
 import { createMushafRoutes, createQpcV1LayoutService, type QpcV1LayoutService } from './mushaf/qpcV1Layout';
+import { createTafsirRoutes, resolveTafsirDataDir } from './tafsir/routes';
 import { createQfContentClient, readQfCredentials } from './quranFoundation/qfContentClient';
 import { HttpAppleRevocationClient, type AppleRevocationClient } from './auth/appleRevocationClient';
 import { AppleJwksVerifier, type AppleTokenVerifier } from './auth/appleTokenVerifier';
@@ -63,6 +64,8 @@ type AppOptions = {
   qpcV1Layout?: QpcV1LayoutService;
   /** Offline QPC V1 dataset relayed to the app; defaults to the store in MUSHAF_SYNC_DIR. `null`: not served. */
   mushafOfflineStore?: MushafSyncStore | null;
+  /** Tests: where the tafsir editions are read (null: none). Default: backend/data/tafsir. */
+  tafsirDataDir?: string | null;
   /** Tests only: override TRUST_PROXY_HOPS / ENDPOINT_RATE_LIMITS / CLIENT_IP_DIAGNOSTICS / CLIENT_IP_SOURCE. */
   network?: { trustProxyHops?: number; endpointRateLimits?: boolean; clientIpDiagnostics?: boolean; clientIpSource?: ClientIpSource };
 };
@@ -156,6 +159,7 @@ export function createApp(options: AppOptions = {}) {
   app.use('/api/mushaf', createMushafOfflineRoutes(
     options.mushafOfflineStore === undefined ? createMushafSyncStore(resolveMushafSyncDir(env)) : options.mushafOfflineStore,
   ));
+  app.use('/api/tafsir', createTafsirRoutes(options.tafsirDataDir === undefined ? resolveTafsirDataDir() : options.tafsirDataDir));
   app.use('/api', createApiRouter(repository, accountDeps, options.databaseHealthCheck ?? pingDatabase, endpointLimits ? rateLimiters.accountReauth : passThrough));
   app.use(notFoundHandler);
   app.use(errorHandler);

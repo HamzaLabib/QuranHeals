@@ -27,6 +27,7 @@ Whether or not you have an account, the app stores the following **on your devic
 - **Favorites** (saved ayahs) and a short history of recently shown ayahs, used to avoid showing you the same ayah again too soon.
 - **Recitations (أورادي) and Khatmas**: the reading plans you name, the Mushaf page each one was last saved at and its current reading cycle, and the Khatmas you confirm (completion date, and whether it was in Ramadan).
 - **Settings**: app language, Quran translation display, appearance (light/dark), and Quran text size.
+- **Qibla Direction**: if you allow location access, the app uses your device's location and compass **only on your device**, only while the Qibla Direction screen is open, to calculate the direction of the Qibla. Your location is never sent to us or anyone else, and it is never saved. Location access is requested only while you use the app; the app never uses your location in the background. If you choose a city instead, only that city's identifier is saved, on your device.
 - A cached copy of the list of emotions, so the app works offline.
 - If you are signed in: your account's basic profile (an internal account ID, whether you used Apple or Google, your email address if one was provided, and when the account was created); your sign-in tokens; and, after you enter your sync password, the key that decrypts your synced reflections. Tokens and the key are kept in your device's secure storage (iOS Keychain / Android Keystore).
 

@@ -13,6 +13,7 @@ import { KhatmaReachedSheet } from '@/components/KhatmaReachedSheet';
 import { OfflineMushafPanel } from '@/components/OfflineMushafPanel';
 import { hasAudioSession, isAudioActive, MushafAudioPlayer } from '@/components/MushafAudioPlayer';
 import { MushafAyahActions, MushafWirdApply, type PopupAnchor } from '@/components/MushafAyahPopups';
+import { isTafsirReaderAvailable } from '@/tafsir/editions';
 import { MushafIndexSheet, type MushafIndexMode } from '@/components/MushafIndexSheet';
 import { MushafGuide } from '@/components/MushafGuide';
 import { MushafPageSelector, PAGE_SELECTOR_BOTTOM_MARGIN, PAGE_SELECTOR_CARD_HEIGHT } from '@/components/MushafPageSelector';
@@ -910,6 +911,18 @@ export default function MushafScreen() {
     dismissAyahPopup();
     audioEngine.start(from, { mode: 'continuous', reciterId });
   };
+  /**
+   * An ayah's Tafsir: the tafsir reader at this ayah of its Surah (app/tafsir.tsx), above the reader. The page, the
+   * selection (this ayah stays highlighted), zoom, a recitation and every ورد stay exactly as they are, so Back returns
+   * to the same page and place.
+   */
+  const openTafsir = () => {
+    if (overlay?.kind !== 'ayah') return;
+    const at = positionOfVerseKey(overlay.verseKey);
+    if (!at) return;
+    closeOverlay();
+    router.push({ pathname: '/tafsir', params: { surah: String(at.surah), ayah: String(at.ayah) } });
+  };
   /** The highlighted ayah on page `n`: the reader's selection on the page being read, else the ayah being recited. */
   const highlightedOn = (n: number, isCurrent: boolean) => (isCurrent && selectedVerseKey) || (playingPage === n ? playingVerseKey : null);
   /** The Hizb holding the top of this page (its list's current row). */
@@ -1727,7 +1740,7 @@ export default function MushafScreen() {
         onClose={closeOverlay}
       />
 
-      {/* An ayah's words: Reflection, Save, Copy, Share. */}
+      {/* An ayah's words: Listen, Tafsir, Reflection, Save, Copy, Share. */}
       <MushafAyahActions
         anchor={overlay?.kind === 'ayah' ? overlay.anchor : null}
         dark={dark}
@@ -1748,9 +1761,12 @@ export default function MushafScreen() {
           shareHint: messages.ayah.shareAyah,
           listen: messages.audio.listen,
           listenHint: messages.audio.listenHint,
+          tafsir: copy.actionTafsir,
+          tafsirHint: copy.actionTafsirHint,
           close: copy.wirdClose,
         }}
         onListen={listenFromSelected}
+        onTafsir={isTafsirReaderAvailable() ? openTafsir : undefined}
         onReflect={openReflection}
         onToggleSave={() => void toggleSaved()}
         onCopy={() => void copySelected()}
